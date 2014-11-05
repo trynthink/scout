@@ -1,0 +1,124 @@
+{
+	"name": "measure 1, format 1",
+	"cost": 2000,
+	"cost_units": "2011 USD",
+	"cost_source": "website Y",
+	"energy_efficiency": 12,
+	"energy_efficiency_units": "percent improvement",
+	"energy_efficiency_source": "website Y",
+	"market_entry_year": 2021,
+	"market_entry_year_source": "website Y",
+	"product_lifetime": 20,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "website Y",
+	"end_use": "something",
+	"fuel_type": "electricity",
+	"equip_class": "something specific",
+	"bldg_type": "assembly",
+	"climate_zone": 5,
+	"_notes": "any notes on this measure"
+}
+
+{
+	"name": "measure 1, format 2",
+	"cost_data": {
+		"cost": 2000,
+		"_units": "USD",
+		"_source": "website Y"
+	},
+	"energy_efficiency_data": {
+		"energy_efficiency": 12,
+		"_units": "percent improvement",
+		"_source": "website Y"
+	},
+	"market_entry_data": {
+		"market_entry_year": 2021,
+		"_source": "website Y"
+	},
+	"product_lifetime_data": {
+		"product_lifetime": 20,
+		"_units": "years",
+		"_source": "website Y"
+	},
+	"microsegment": {
+		"end_use": "something",
+		"fuel_type": "electricity",
+		"equip_class": "something specific",
+		"bldg_type": "residential single-family home",
+		"climate_zone": 5,
+	},
+	"_notes": "any notes on this measure"
+}
+
+{
+	"name": "measure 1, format 1, alt1 microsegment data structure",
+	"cost": 2000,
+	"cost_units": "2011 USD",
+	"cost_source": "website Y",
+	"energy_efficiency": 12,
+	"energy_efficiency_units": "percent improvement",
+	"energy_efficiency_source": "website Y",
+	"market_entry_year": 2021,
+	"market_entry_year_source": "website Y",
+	"product_lifetime": 20,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "website Y",
+	"end_use": {
+		"cooking": false,
+		"cooling": true,
+		"heating": true,
+		"lighting": false,
+		"office_equipment_pcs": false,
+		"office_equipment_not_pcs": false,
+		"refrigeration": false,
+		"ventilation": false,
+		"water heating": false,
+		"other": false
+	},
+	"fuel_type": {
+		"electricity": true,
+		"natural_gas": false,
+		"distillate": false
+	},
+	"equip_class": false,
+	"bldg_type": {
+		"residential_sfh": false,
+		"residential_mfh": false,
+		"mobile_home": false,
+		"assembly": true,
+		"education": true,
+		"food_sales": true,
+		"food_service": true,
+		"health_care": true,
+		},
+	"climate_zone": {
+		"1": false,
+		"2": true,
+		"3": true,
+		"4": true,
+		"5": true
+	},
+	"_notes": "any notes on this measure"
+}
+
+{
+	"name": "measure 1, format 1, alt2 microsegment data structure",
+	"cost": 2000,
+	"cost_units": "2011 USD",
+	"cost_source": "website Y",
+	"energy_efficiency": 12,
+	"energy_efficiency_units": "percent improvement",
+	"energy_efficiency_source": "website Y",
+	"market_entry_year": 2021,
+	"market_entry_year_source": "website Y",
+	"product_lifetime": 20,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "website Y",
+	"end_use": ["cooling", "heating"],
+	"fuel_type": "electricity",
+	"equip_class": [],
+	"bldg_type": ["assembly", "education", "food_sales", "food_service", "health_care"],
+	"climate_zone": [2,3,4,5],
+	"_notes": "any notes on this measure"
+}
+
