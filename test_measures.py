@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # test measures for validity
 
 # slurp json file
