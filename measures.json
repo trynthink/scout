@@ -1,4 +1,4 @@
-{
+[{
 	"name": "measure 1, format 1",
 	"cost": 2000,
 	"cost_units": "2011 USD",
@@ -17,8 +17,7 @@
 	"bldg_type": "assembly",
 	"climate_zone": 5,
 	"_notes": "any notes on this measure"
-}
-
+},
 {
 	"name": "measure 1, format 2",
 	"cost_data": {
@@ -45,11 +44,10 @@
 		"fuel_type": "electricity",
 		"equip_class": "something specific",
 		"bldg_type": "residential single-family home",
-		"climate_zone": 5,
+		"climate_zone": 5
 	},
 	"_notes": "any notes on this measure"
-}
-
+},
 {
 	"name": "measure 1, format 1, alt2 microsegment data structure",
 	"cost": 2000,
@@ -70,4 +68,4 @@
 	"climate_zone": [2,3,4,5],
 	"_notes": "any notes on this measure"
 }
-
+]
