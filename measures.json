@@ -15,9 +15,10 @@
 	"TRL": 6,
 	"end_use": ["cooling", "heating"],
 	"fuel_type": "electricity",
-	"equip_class": [],
+	"technology": [],
 	"bldg_type": ["assembly", "education", "food_sales", "food_service", "health_care"],
 	"climate_zone": [2,3,4,5],
+	"structure_type": ["new", "retrofit"],
 	"_description": "Less than 200 characters",
 	"_notes": "any notes on this measure",
 	"_added_by": {
