@@ -1,9 +1,11 @@
 [
 {
 	"name": "Measure",
-	"cost": 2000,
+	"component_cost": 2000,
+	"installed_cost": 3000,
 	"cost_units": "2011 USD",
-	"cost_source": "website Y",
+	"component_cost_source": "website Y",
+	"installed_cost_source": "website Y",
 	"energy_efficiency": 16,
 	"energy_efficiency_units": "IEER",
 	"energy_efficiency_source": "website Y",
