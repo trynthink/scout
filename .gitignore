@@ -1,0 +1,36 @@
+# PowerPoint presentations #
+############################
+
+*.pptx
+*.ppt
+
+# OS generated files #
+######################
+
+.DS_Store
+.DS_Store?
+._?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Logs and databases #
+######################
+
+.log
+.sqlite
+
+# Packages and compressed files #
+#################################
+
+# Please commit the raw source files instead of compressed files
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
