@@ -1,8 +1,23 @@
-# PowerPoint presentations #
-############################
+# Presentation files #
+######################
 
 *.pptx
 *.ppt
+*.key
+
+# Spreadsheet files #
+#####################
+
+*.xlsx
+*.xls
+*.numbers
+
+# Word processor files #
+########################
+
+*.docx
+*.doc
+*.pages
 
 # OS generated files #
 ######################
