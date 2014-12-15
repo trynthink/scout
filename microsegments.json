@@ -1,0 +1,50 @@
+var microsegment = [{
+	"heating" : {
+
+		},
+	"secondary heating" : {
+
+		},
+	"cooling" : {
+
+		},
+	"furnace fan" : {
+
+		},
+	"ceiling fan" : {
+
+		},
+	"ventilation" : {
+
+		},
+	"lighting" : {
+
+		},
+	"water heating" : {
+
+		},
+	"refrigeration" : {
+
+		},
+	"cooking" : {
+
+		},
+	"drying" : {
+
+		},
+	"TV" : {
+
+		},
+	"electronics" : {
+
+		},
+	"pcs" : {
+
+		},
+	"non pc equipment" : {
+
+		},
+	"other" : {
+
+		},
+}];
