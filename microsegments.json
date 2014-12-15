@@ -53,10 +53,110 @@ var microsegment = [{
 		}
 		},
 	"multi family home" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"furnace fan" : {},
+			"ceiling fan" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"drying" : {},
+			"TV" : {},
+			"electronics" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"furnace fan" : {},
+			"ceiling fan" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"drying" : {},
+			"TV" : {},
+			"electronics" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+		}
 		},
 	"mobile home" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"furnace fan" : {},
+			"ceiling fan" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"drying" : {},
+			"TV" : {},
+			"electronics" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"furnace fan" : {},
+			"ceiling fan" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"drying" : {},
+			"TV" : {},
+			"electronics" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"secondary heating" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+		}
 		},
 	"assembly" : {
 		"electricity (on site)" : {
@@ -102,33 +202,433 @@ var microsegment = [{
 		}
 		},
 	"education" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"food sales" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"food service" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"health care" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"lodging" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"office large" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"office small" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"merch service" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"warehouse" : {
-
+		"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}
 		},
 	"commercial other" : {
-		
+			"electricity (on site)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"electricity (grid)" : {
+			"heating" : {},
+			"cooling" : {},
+			"ventilation" : {},
+			"lighting" : {},
+			"water heating" : {},
+			"refrigeration" : {},
+			"cooking" : {},
+			"pcs" : {},
+			"non pc equipment" : {},
+			"other" : {}
+			},
+		"natural gas" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"cooking" : {},
+			"other" : {}
+			},
+		"distillate" : {
+			"heating" : {},
+			"cooling" : {},
+			"water heating" : {},
+			"other" : {}
+			},
+		"other" : {
+			"heating" : {},
+			"other" : {}
+		}	
 	}
 	}]
