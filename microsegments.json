@@ -1,50 +1,44 @@
 var microsegment = [{
-	"heating" : {
+	"single family home" : {
 
 		},
-	"secondary heating" : {
+	"multi family home" : {
 
 		},
-	"cooling" : {
+	"mobile home" : {
 
 		},
-	"furnace fan" : {
+	"assembly" : {
 
 		},
-	"ceiling fan" : {
+	"education" : {
 
 		},
-	"ventilation" : {
+	"food sales" : {
 
 		},
-	"lighting" : {
+	"food service" : {
 
 		},
-	"water heating" : {
+	"health care" : {
 
 		},
-	"refrigeration" : {
+	"lodging" : {
 
 		},
-	"cooking" : {
+	"office large" : {
 
 		},
-	"drying" : {
+	"office small" : {
 
 		},
-	"TV" : {
+	"merch service" : {
 
 		},
-	"electronics" : {
+	"warehouse" : {
 
 		},
-	"pcs" : {
-
-		},
-	"non pc equipment" : {
-
-		},
-	"other" : {
-
-		},
-}];
+	"commercial other" : {
+		
+	}
+	}]
