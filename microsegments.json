@@ -1,86 +1,170 @@
 var microsegment = [{
 	"single family home" : {
 		"electricity (on site)" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"cooling" : {},
-			"furnace fan" : {},
-			"ceiling fan" : {},
-			"lighting" : {},
-			"water heating" : {},
-			"refrigeration" : {},
-			"cooking" : {},
-			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
-			"other" : {}
+			"water heating" : {
+				"solar WH" : 0
+			}
 			},
 		"electricity (grid)" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"cooling" : {},
-			"furnace fan" : {},
-			"ceiling fan" : {},
-			"lighting" : {},
-			"water heating" : {},
-			"refrigeration" : {},
-			"cooking" : {},
-			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
-			"other" : {}
+			"heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"furnace" : 0,
+					"boiler" : 0,
+					"ASHP" : 0,
+					"GSHP" : 0,
+				}
+				},
+			"secondary heating" : 0,
+			"cooling" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {	
+					"central AC" : 0,
+					"room AC" : 0,
+					"ASHP" : 0,
+					"GSHP" : 0,
+				}
+				},
+			"fans & pumps" : 0,
+			"ceiling fan" : 0,
+			"lighting" : {
+				"linear fluorescent" : 0,
+				"general service" : 0,
+				"reflector" : 0,
+				"external" : 0,
+				},
+			"water heating" : 0,
+			"refrigeration" : 0,
+			"cooking" : 0,
+			"drying" : 0,
+			"TVs" : {
+				"TV" : 0,
+				"set top box" : 0,
+				},
+			"computers" : {
+				"desktop PC" : 0,
+				"laptop PC" : 0
+				},
+			"other" : {
+				"clothes washing" : 0,
+				"dishwasher" : 0,
+				"freezers" : 0,
+				"other MELs" : 0,
+			}
 			},
 		"natural gas" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"cooling" : {},
-			"water heating" : {},
-			"cooking" : {},
-			"other" : {}
+			"heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"furnace" : 0,
+					"boiler" : 0,
+					"NGHP" : 0,
+				}
+				},
+			"secondary heating" : 0,
+			"cooling" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+				},
+				"supply" : {
+					"NGHP" : 0
+				}
+				},
+			"water heating" : 0,
+			"cooking" : 0,
+			"other" : 0
 			},
 		"distillate" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"water heating" : {},
-			"other" : {}
+			"heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+				}
+				},
+			"secondary heating" : 0,
+			"water heating" : 0,
+			"other" : 0
 			},
 		"other" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"water heating" : {},
-			"cooking" : {},
-			"other" : {}
+			"heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"furnace" : 0,
+					"boiler" : 0,
+				}
+				},
+			"secondary heating" : 0,
+			"water heating" : 0,
+			"cooking" : 0,
+			"other" : 0
 		}
 		},
 	"multi family home" : {
 		"electricity (on site)" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"cooling" : {},
-			"furnace fan" : {},
-			"ceiling fan" : {},
-			"lighting" : {},
 			"water heating" : {},
-			"refrigeration" : {},
-			"cooking" : {},
-			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
-			"other" : {}
 			},
 		"electricity (grid)" : {
 			"heating" : {},
 			"secondary heating" : {},
 			"cooling" : {},
-			"furnace fan" : {},
+			"fan & pumps" : {},
 			"ceiling fan" : {},
 			"lighting" : {},
 			"water heating" : {},
 			"refrigeration" : {},
 			"cooking" : {},
 			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
+			"TVs" : {},
+			"computers" : {},
 			"other" : {}
 			},
 		"natural gas" : {
@@ -107,33 +191,21 @@ var microsegment = [{
 		},
 	"mobile home" : {
 		"electricity (on site)" : {
-			"heating" : {},
-			"secondary heating" : {},
-			"cooling" : {},
-			"furnace fan" : {},
-			"ceiling fan" : {},
-			"lighting" : {},
 			"water heating" : {},
-			"refrigeration" : {},
-			"cooking" : {},
-			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
-			"other" : {}
 			},
 		"electricity (grid)" : {
 			"heating" : {},
 			"secondary heating" : {},
 			"cooling" : {},
-			"furnace fan" : {},
+			"fan & pumps" : {},
 			"ceiling fan" : {},
 			"lighting" : {},
 			"water heating" : {},
 			"refrigeration" : {},
 			"cooking" : {},
 			"drying" : {},
-			"TV" : {},
-			"electronics" : {},
+			"TVs" : {},
+			"computers" : {},
 			"other" : {}
 			},
 		"natural gas" : {
@@ -160,18 +232,9 @@ var microsegment = [{
 		},
 	"assembly" : {
 		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
 			"water heating" : {
 				"solar WH" : 0
 				},
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
 			},
 		"electricity (grid)" : {
 			"heating" : {
