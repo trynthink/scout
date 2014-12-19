@@ -9,6 +9,8 @@
 #####################
 
 *.xlsx
+*.xlsb
+*.xlsm
 *.xls
 *.numbers
 
