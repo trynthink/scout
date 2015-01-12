@@ -7,7 +7,7 @@ import mseg
 
 # Import needed packages
 import unittest
-
+import re
 
 # class FileImportTest(unittest.TestCase):
 #     """ Tests the file import function """
@@ -17,8 +17,22 @@ import unittest
 
 
 class ResidentialDataIntegrityTest(unittest.TestCase):
-    """ Tests the columns in the residential data """
+    """ Tests the column names in the residential data """
+    # Test that each column in the EIA .txt file includes the kind of information 
+    # we expect by importing its header line and checking the names assigned to each 
+    # column.
 
+    def test_headers(self):
+        with open('/Users/jtlangevin/Desktop/ORGANIZE/ptool2/RESDBOUTtest.txt','r') as f:
+            # Read in header line, form regex (case insensitive), and test for match
+            headers = f.readline()
+            expectregex = r'\w*[EU]\w*\s+\w*[CD]\w*\s+\w*[BG]\w*\s+\w*[FL]\w*\s+\w*[EQ]\w*\s+\w*[YR]\w*\s+\w*[ST]\w*\s+\w*[CNS]\w*\s+\w*[HS]\w*'
+            match = re.search(expectregex,headers,re.IGNORECASE)
+            # If there is no match, print the header line
+            if not match: 
+                print "Header Line: " + headers
+            # Run assertTrue to check for match and complete unit test
+            self.assertTrue(match,msg="Column headers in microsegments .txt file different than expected")
 
 class GrouperTest(unittest.TestCase):
     """ Test function for combining data for each end use across years """
