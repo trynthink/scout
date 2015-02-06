@@ -110,25 +110,26 @@ def value_listfinder_filterformat(txt_filter):
             print 'Error in list finder form!'
     return comparefrom
 
-def value_listfinder_listcondense(group_energy):
+def value_listfinder_listcondense(group_list):
     """ Given a list of energy data representing multiple technology types projected out over the AEO time horizon, condense into a list that is length of horizon """
     # Establish a baseline chunk of projected energy data to add to (i.e., 32 years projected energy data for a given technology)
-    group_energy_base = group_energy[0:aeo_years]
+    group_base = group_list[0:aeo_years]
     # Establish how many chunks of data will be accessed
-    construct_limit = int(float(len(group_energy))/float(aeo_years))
+    construct_limit = int(float(len(group_list))/float(aeo_years))
     # Break original list into chunks and add to new master list that is length of AEO time horizon
     for newrows in xrange(construct_limit-1):
         startrow = aeo_years*(newrows+1)
         endrow = startrow + aeo_years
-        newmat = group_energy[startrow:endrow]
-        group_energy_base = [group_energy_base[i] + newmat[i] for i in xrange(aeo_years)]
+        newmat = group_list[startrow:endrow]
+        group_base = [group_base[i] + newmat[i] for i in xrange(aeo_years)]
     # Return final list
-    return group_energy_base    
+    return group_base    
 
 
 def value_listfinder(mstxt_supply, txt_filter): # Note: in the future, will need to add a third input (mstxt_demand) to provide thermal load components data
     """ Given filtering list for a microsegment, find rows in .txt files to reference in determining associated energy data, append energy data to a new list """   
-    # Define initial energy/(stock?) lists
+    # Define initial stock/energy lists
+    group_stock = []
     group_energy = []
     
     # Run through text file and add all appropriate lines to the empty list
@@ -146,16 +147,18 @@ def value_listfinder(mstxt_supply, txt_filter): # Note: in the future, will need
             match = re.search(comparefrom, compareto)
             # If there's a match, append line to stock/energy lists for given microsegment
             if match:
+                group_stock.append(txtlines[6])
                 group_energy.append(txtlines[7])
-        # Given the discovered list of values, check to ensure its length = # of years currently projected by AEO.  If not, execute value_listfinder_listcondense function
-        # to arrive at final list
+        # Given the discovered lists of values, check to ensure length = # of years currently projected by AEO.  If not, execute value_listfinder_listcondense function
+        # to arrive at final lists
         if len(group_energy) is not aeo_years:
             if len(group_energy)%aeo_years == 0:             
-                group_energy = value_listfinder_listcondense(group_energy)     
+                group_energy = value_listfinder_listcondense(group_energy)
+                group_stock = value_listfinder_listcondense(group_stock)     
             else:
                 print 'Error in length of discovered list!'
         # Return updated group_energy
-        return group_energy
+        return {'stock': group_stock, 'energy': group_energy}
 
 # *** The below function is handled in the function above ***
 
@@ -232,6 +235,7 @@ def value_replacer_main():
                             filterdata = [cdiv, bldgtype,fueltype,endusetype,'NA','NA','NA']
                             msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]] = value_replacer_listassemble(mstxt_supply,filterdata)
     # Return the updated json
+    print msjson
     return msjson
 
 if __name__ == '__main__':
