@@ -141,7 +141,7 @@ def value_listfinder_filterformat(txt_filter):
             newelement = str(element)
             comparefrom = comparefrom + newelement + '.+'
         # If element is a string, add it to the list without modification
-        elif isinstance(element, basestring):
+        elif isinstance(element, str):
             comparefrom = comparefrom + element + '.+'
         # If element is something else, print error
         else:
@@ -160,11 +160,11 @@ def value_listfinder_listcondense(group_list):
     construct_limit = int(float(len(group_list))/float(aeo_years))
     # Break original list into chunks and add to new master list that
     # is length of AEO time horizon
-    for newrows in xrange(construct_limit-1):
+    for newrows in range(construct_limit-1):
         startrow = aeo_years*(newrows+1)
         endrow = startrow + aeo_years
         newmat = group_list[startrow:endrow]
-        group_base = [group_base[i] + newmat[i] for i in xrange(aeo_years)]
+        group_base = [group_base[i] + newmat[i] for i in range(aeo_years)]
     # Return final list
     return group_base
 
