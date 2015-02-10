@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+# import sys
 import re
 import numpy
 import json
@@ -8,6 +8,10 @@ import json
 # Set AEO time horizon in years (used in "value_listfinder" function
 # below to check correctness of microsegment value lists)
 aeo_years = 32
+
+# Identify files to import for conversion
+EIA_res_file = 'RESDBOUT.txt'
+jsonfile = 'microsegments_test.json'
 
 # Define a series of dicts that will translate imported JSON
 # microsegment name to AEO microsegment(s)
@@ -193,7 +197,8 @@ def value_listfinder(mstxt_supply, txt_filter):
             comparefrom = value_listfinder_filterformat(txt_filter)
             # Establish the match
             match = re.search(comparefrom, compareto)
-            # If there's a match, append line to stock/energy lists for given microsegment
+            # If there's a match, append line to stock/energy lists for
+            # the current microsegment
             if match:
                 group_stock.append(txtlines[6])
                 group_energy.append(txtlines[7])
@@ -235,11 +240,8 @@ def value_replacer_listassemble(mstxt_supply, filterdata):
 def value_replacer_main():
     """ Import .txt and JSON files; run through JSON objects; find
     analogous .txt information; replace JSON values; update JSON """
-    args = sys.argv[1:]
-    txtfile = args[0]
-    jsonfile = args[1]
     # Import .txt file
-    mstxt_supply = numpy.genfromtxt(txtfile, names=True, delimiter='\t', dtype=None)
+    mstxt_supply = numpy.genfromtxt(EIA_res_file, names=True, delimiter='\t', dtype=None)
     # Import JSON file and run through updating scheme
     with open(jsonfile, 'r') as js:
         msjson = json.load(js)
