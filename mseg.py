@@ -70,9 +70,8 @@ endusedict = {'heating': 'HT',
                                         'dishwasher': 'DW',
                                         'freezers': 'FZ',
                                         'other MELs': ('BAT', 'COF', 'DEH',
-                                                       'EO', 'FP', 'MCO', 'OA',
+                                                       'EO', 'MCO', 'OA',
                                                        'PHP', 'SEC', 'SPA')},
-              'other (non electric)': {'fuel pumps': 'FP'},
               'NA': ''}
 
 # Technology types (supply) dict
@@ -138,7 +137,7 @@ def value_listfinder_filterformat(txt_filter):
         # If element is a tuple, join the tuple into a single string,
         # put brackets around it for regex comparison
         if isinstance(element, tuple):
-            newelement = ' |'.join(element)
+            newelement = '|'.join(element)
             comparefrom = comparefrom + '(' + newelement + ' ).+'
         # If element is a number, turn into a string for regex comparison
         elif isinstance(element, int):
