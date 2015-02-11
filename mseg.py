@@ -222,6 +222,8 @@ def list_generator(mstxt_supply, filterdata):
                 group_stock = value_listfinder_listcondense(group_stock)
             else:
                 print('Error in length of discovered list!')
+                print(comparefrom)  # TEMPORARY
+                print(len(group_energy))  # TEMPORARY
 
         # Delete matched rows from numpy array of EIA data
         mstxt_supply = numpy.delete(mstxt_supply, rows_to_remove, 0)
@@ -260,37 +262,26 @@ def value_replacer_main():
         # Run through JSON objects, determine replacement information
         # to mine from .txt file, and make the replacement
 
-        # Census level
-        cdivkeys = msjson.keys()
-        filterdata = []
         # Building level
-        for cdiv in cdivkeys:
-            bldg = msjson[cdiv]
-            bldgtypekeys = bldg.keys()
+        for cdiv in msjson:
             # Fuel level
-            for bldgtype in bldgtypekeys:
-                fuel = bldg[bldgtype]
-                fueltypekeys = fuel.keys()
+            for bldgtype in msjson[cdiv]:
                 # End use level
-                for fueltype in fueltypekeys:
-                    enduse = fuel[fueltype]
-                    endusekeys = enduse.keys()
+                for fueltype in msjson[cdiv][bldgtype]:
                     # Technology level
-                    for endusetype in endusekeys:
-                        tech = enduse[endusetype]
-                        # Check whether there are more levels for given microsegment, if not end loop
-                        if tech:
-                            techkeys = tech.keys()
+                    for endusetype in msjson[cdiv][bldgtype][fueltype]:
+                        # Check whether there are more levels for given microsegment; if not, end loop
+                        if msjson[cdiv][bldgtype][fueltype][endusetype]:
                             # Heating/cooling technology sub-level
-                            for techtype in tech:
-                                heatcooltech = tech[techtype]
+                            for techtype in msjson[cdiv][bldgtype][fueltype][endusetype]:
                                 # Check whether there are more levels for given microsegment, if not end loop
-                                if heatcooltech:
-                                    for heatcooltechtype in heatcooltech:
+                                if msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
+                                    for heatcooltechtype in msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
                                         # Replace initial json value for microsegment with list
                                         [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]][filterdata[6]] = data_dict
+                                        msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
+                                        # heatcooltechtype = data_dict  # DOES THIS WORK?
                                 else:
                                     # Check whether the given technology is handled as its own end use in AEO (As an example: While our microsegments JSON currently
                                     # considers DVDs to be a technology type within a "TVs" end use category, AEO handles "DVDs" as an end use)
@@ -300,15 +291,15 @@ def value_replacer_main():
                                         subendusetype = techtype
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
                                         [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[4]] = data_dict
+                                        msjson[cdiv][bldgtype][fueltype][endusetype][subendusetype] = data_dict
                                     else:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, 'NA']
                                         [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]] = data_dict
+                                        msjson[cdiv][bldgtype][fueltype][endusetype][techtype] = data_dict
                         else:
                             filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', 'NA', 'NA']
                             [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
-                            msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]] = data_dict
+                            msjson[cdiv][bldgtype][fueltype][endusetype] = data_dict
     # Return the updated json
     # print(msjson)
     return msjson
