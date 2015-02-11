@@ -183,18 +183,22 @@ def value_listfinder(mstxt_supply, txt_filter):
     group_stock = []
     group_energy = []
 
+    # Define intial list of rows to remove from mstxt_supply
+    rows_to_remove = []
+
+    # Set up 'compare from' list (based on .txt file)
+    comparefrom = value_listfinder_filterformat(txt_filter)
+
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
     # technology (handled differently)
     if 'demand' in txt_filter:
         # *** Fill in as we compile demand information ***
-        return 999999999999999  # Use this placeholder for now
+        return [999999999999999, mstxt_supply]  # Use this placeholder for now
     else:
-        for txtlines in mstxt_supply:
+        for idx, txtlines in enumerate(mstxt_supply):
             # Set up 'compare to' list
             compareto = str(txtlines)
-            # Set up 'compare from' list (based on .txt file)
-            comparefrom = value_listfinder_filterformat(txt_filter)
             # Establish the match
             match = re.search(comparefrom, compareto)
             # If there's a match, append line to stock/energy lists for
@@ -202,8 +206,11 @@ def value_listfinder(mstxt_supply, txt_filter):
             if match:
                 group_stock.append(txtlines[6])
                 group_energy.append(txtlines[7])
+                # Record additional row index to delete
+                rows_to_remove.append(idx)
+
         # Given the discovered lists of values, check to ensure
-        # length = # of years currently projected by AEO.  If not,
+        # length = # of years currently projected by AEO. If not,
         # execute value_listfinder_listcondense function
         # to arrive at final lists
         if len(group_energy) is not aeo_years:
@@ -212,8 +219,12 @@ def value_listfinder(mstxt_supply, txt_filter):
                 group_stock = value_listfinder_listcondense(group_stock)
             else:
                 print('Error in length of discovered list!')
-        # Return updated group_energy
-        return {'stock': group_stock, 'energy': group_energy}
+
+        # Delete matched rows from numpy array of EIA data
+        mstxt_supply = numpy.delete(mstxt_supply, rows_to_remove, 0)  # TEMP
+        # Return combined stock and energy use values, along with
+        # updated version of EIA data with already matched data removed
+        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
 
 # *** The below function is handled in the function above ***
 
@@ -229,10 +240,10 @@ def value_listfinder(mstxt_supply, txt_filter):
 def value_replacer_listassemble(mstxt_supply, filterdata):
     """ Given filtering information from JSON, translate to filter info
     for .txt and find a list of energy values from .txt given filter """
-    print(filterdata)
+    # print(filterdata)
     # Find the corresponding txt filtering information
     txt_filter = json_translator(filterdata)
-    print(txt_filter)
+    # print(txt_filter)
     # For given microsegment in txt, find a list of energy use projections
     return value_listfinder(mstxt_supply, txt_filter)
 
@@ -277,7 +288,8 @@ def value_replacer_main():
                                     for heatcooltechtype in heatcooltech:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
                                         # Replace initial json value for microsegment with list
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]][filterdata[6]] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]][filterdata[6]] = data_dict
                                 else:
                                     # Check whether the given technology is handled as its own end use in AEO (As an example: While our microsegments JSON currently
                                     # considers DVDs to be a technology type within a "TVs" end use category, AEO handles "DVDs" as an end use)
@@ -286,16 +298,20 @@ def value_replacer_main():
                                         # reconcile JSON/txt difference in handling
                                         subendusetype = techtype
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[4]] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[4]] = data_dict
                                     else:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, 'NA']
-                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = value_replacer_listassemble(mstxt_supply, filterdata)
+                                        msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]][filterdata[5]] = data_dict
                         else:
                             filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', 'NA', 'NA']
-                            msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]] = value_replacer_listassemble(mstxt_supply, filterdata)
+                            [data_dict, mstxt_supply] = value_replacer_listassemble(mstxt_supply, filterdata)
+                            msjson[filterdata[0]][filterdata[1]][filterdata[2]][filterdata[3]] = data_dict
     # Return the updated json
-    print(msjson)
+    # print(msjson)
     return msjson
+
 
 if __name__ == '__main__':
     value_replacer_main()
