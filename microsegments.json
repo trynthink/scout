@@ -109,10 +109,7 @@
 				}
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 			},
 		"distillate" : {
 			"heating" : {
@@ -132,10 +129,7 @@
 				}
 				},
 			"secondary heating" : 0,
-			"water heating" : 0,
-			"other (non electric)" : {
-				"fuel pumps": 0
-			}
+			"water heating" : 0
 			},
 		"other" : {
 			"heating" : {
@@ -163,10 +157,7 @@
 				"secondary heating (coal)" : 0
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 		}
 	},
 	"multi family home" : {
@@ -279,10 +270,7 @@
 				}
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 			},
 		"distillate" : {
 			"heating" : {
@@ -302,10 +290,7 @@
 				}
 				},
 			"secondary heating" : 0,
-			"water heating" : 0,
-			"other (non electric)" : {
-				"fuel pumps": 0
-			}
+			"water heating" : 0
 			},
 		"other" : {
 			"heating" : {
@@ -333,10 +318,7 @@
 				"secondary heating (coal)" : 0
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 		}
 	},
 	"mobile home" : {
@@ -449,10 +431,7 @@
 				}
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 			},
 		"distillate" : {
 			"heating" : {
@@ -472,10 +451,7 @@
 				}
 				},
 			"secondary heating" : 0,
-			"water heating" : 0,
-			"other (non electric)" : {
-				"fuel pumps": 0
-			}
+			"water heating" : 0
 			},
 		"other" : {
 			"heating" : {
@@ -503,17 +479,14 @@
 				"secondary heating (coal)" : 0
 				},
 			"water heating" : 0,
-			"cooking" : 0,
-			"other (non electric)" : {
-				"fuel pumps" : 0
-			}
+			"cooking" : 0
 		}
 	},
 	"assembly" : {
 		"electricity (on site)" : {
 			"water heating" : {
 				"solar WH" : 0
-				},
+				}
 			},
 		"electricity (grid)" : {
 			"heating" : {
@@ -586,7 +559,7 @@
 				"LED edison" : 0,
 				"LED T8" : 0,
 				"LED high brightness" : 0,
-				"LED low brightness" : 0,
+				"LED low brightness" : 0
 				},
 			"water heating" : {
 				"tank WH" : 0,
@@ -636,7 +609,7 @@
 					"NGHP" : 0,
 					"furnace" : 0,
 					"boiler" : 0,
-					"res-type NGHP"
+					"res-type NGHP": 0
 				}
 				},
 			"cooling" : {
