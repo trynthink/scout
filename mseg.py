@@ -221,33 +221,12 @@ def list_generator(mstxt_supply, filterdata):
                 group_stock = value_listfinder_listcondense(group_stock)
             else:
                 print('Error in length of discovered list!')
-                print(comparefrom)  # TEMPORARY
-                print(len(group_energy))  # TEMPORARY
 
         # Delete matched rows from numpy array of EIA data
         mstxt_supply = numpy.delete(mstxt_supply, rows_to_remove, 0)
         # Return combined stock and energy use values, along with
         # updated version of EIA data with already matched data removed
         return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
-
-# *** The below function is handled in the function above ***
-
-# def grouper(prev_line, curr_line, consume, eqstock):
-#     """ Combine data or create new data vectors where appropriate """
-#     # Fragile to changes in the column definition in the input file
-#     if curr_line[0:5] == prev_line[0:5]:
-#         eqstock.append(curr_line[6])
-#         consume.append(curr_line[-1])
-#     return (consume, eqstock)
-
-
-# def value_replacer_listassemble(mstxt_supply, filterdata):
-#     """ Given filtering information from JSON, translate to filter info
-#     for .txt and find a list of energy values from .txt given filter """
-#     # print(filterdata)
-#     # print(txt_filter)
-#     # For given microsegment in txt, find a list of energy use projections
-#     return value_listfinder(mstxt_supply, txt_filter)
 
 
 def value_replacer_main():
