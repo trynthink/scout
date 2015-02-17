@@ -205,18 +205,53 @@ def list_condenser(group_list):
     return group_base
 
 
-# Note: in the future, will need to add a third input (mstxt_demand) to
-# provide thermal load components data
+def txt_parser(mstxt, comparefrom, command_string):
+    """ Given a numpy array and information about what rows we want from it,
+    match the rows and then remove them from the array.  If command_string
+    input = 'Reduce', only remove the rows; if command_string
+    input = 'Record & Reduce', also record matched rows """
+    # Determine whether we are just removing numpy array rows or also recording them
+    record_reduce = re.search(command_string, 'Record & Reduce', re.IGNORECASE)
+    # Define intial list of rows to remove from mstxt input
+    rows_to_remove = []
+
+    # If recording and removing rows, define initial stock/energy lists
+    if record_reduce:
+        group_stock = []
+        group_energy = []
+
+    # Loop through the numpy input array rows, match to 'comparefrom' input
+    for idx, txtlines in enumerate(mstxt):
+            # Set up 'compareto' list
+            compareto = str(txtlines)
+            # Establish the match
+            match = re.search(comparefrom, compareto)
+            # If there's a match, append line to stock/energy lists for
+            # the current microsegment
+            if match:
+                # Record additional row index to delete
+                rows_to_remove.append(idx)
+                # If recording and removing rows, record discovered energy/stock info.
+                if record_reduce:
+                    group_stock.append(txtlines[6])
+                    group_energy.append(txtlines[7])
+
+    # Delete matched rows from numpy array of txt data
+    mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
+
+    # Set up proper function return based on command_string input
+    if record_reduce:
+        parse_return = (group_energy, group_stock, mstxt_reduced)
+    else:
+        parse_return = mstxt_reduced
+
+    return parse_return
+
+
 def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     """ Given filtering list for a microsegment, find rows in *.txt
     files to reference in determining associated energy data, append
     energy data to a new list """
-    # Define initial stock/energy lists
-    group_stock = []
-    group_energy = []
-
-    # Define intial list of rows to remove from mstxt_supply
-    rows_to_remove = []
 
     # Find the corresponding txt filtering information
     txt_filter = json_translator(filterdata)
@@ -229,22 +264,15 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     # technology (handled differently)
     if 'demand' in txt_filter:
         # *** Fill in as we compile demand information ***
-        return [999999999999999, mstxt_supply]  # Use this placeholder for now
+        return [{'stock': 'NA', 'energy': 999999999999999}, mstxt_demand]  # Use this placeholder for now
     else:
-        for idx, txtlines in enumerate(mstxt_supply):
-            # Set up 'compare to' list
-            compareto = str(txtlines)
-            # Establish the match
-            match = re.search(comparefrom, compareto)
-            # If there's a match, append line to stock/energy lists for
-            # the current microsegment
-            if match:
-                group_stock.append(txtlines[6])
-                group_energy.append(txtlines[7])
-                # Record additional row index to delete
-                rows_to_remove.append(idx)
+        # Given input numpy array and 'compare from' list, return energy/stock
+        # projection lists and reduced numpy array (with matched rows removed)
+        group_energy = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[0]
+        group_stock = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[1]
+        mstxt_supply = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[2]
 
-        # Given the discovered lists of values, check to ensure
+        # Given the discovered lists of energy/stock values, check to ensure
         # length = # of years currently projected by AEO. If not,
         # execute list_condenser function
         # to arrive at final lists
@@ -255,8 +283,6 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
             else:
                 print('Error in length of discovered list!')
 
-        # Delete matched rows from numpy array of EIA data
-        mstxt_supply = numpy.delete(mstxt_supply, rows_to_remove, 0)
         # Return combined stock and energy use values, along with
         # updated version of EIA data with already matched data removed
         return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
