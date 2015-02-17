@@ -143,7 +143,7 @@ def json_translator(msdata):
         return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
 
 
-def value_listfinder_filterformat(txt_filter):
+def filter_formatter(txt_filter):
     """ Given a filtering list for a microsegment, format into a
     string that can be entered into a regex comparsion in
     value_listfinder function """
@@ -185,7 +185,7 @@ def value_listfinder_filterformat(txt_filter):
         return comparefrom
 
 
-def value_listfinder_listcondense(group_list):
+def list_condenser(group_list):
     """ Given a list of energy data representing multiple technology
     types projected out over the AEO time horizon, condense into a list
     that is length of horizon """
@@ -222,7 +222,7 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     txt_filter = json_translator(filterdata)
 
     # Set up 'compare from' list (based on .txt file)
-    comparefrom = value_listfinder_filterformat(txt_filter)[0]
+    comparefrom = filter_formatter(txt_filter)[0]
 
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
@@ -246,12 +246,12 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
 
         # Given the discovered lists of values, check to ensure
         # length = # of years currently projected by AEO. If not,
-        # execute value_listfinder_listcondense function
+        # execute list_condenser function
         # to arrive at final lists
         if len(group_energy) is not aeo_years:
             if len(group_energy) % aeo_years == 0:
-                group_energy = value_listfinder_listcondense(group_energy)
-                group_stock = value_listfinder_listcondense(group_stock)
+                group_energy = list_condenser(group_energy)
+                group_stock = list_condenser(group_stock)
             else:
                 print('Error in length of discovered list!')
 
@@ -262,7 +262,7 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
         return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
 
 
-def value_replacer_main():
+def mseg_updater_main():
     """ Import .txt and JSON files; run through JSON objects; find
     analogous .txt information; replace JSON values; update JSON """
     # Import EIA RESDBOUT.txt file
@@ -335,4 +335,4 @@ def value_replacer_main():
 
 
 if __name__ == '__main__':
-    value_replacer_main()
+    mseg_updater_main()
