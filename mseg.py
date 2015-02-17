@@ -195,7 +195,7 @@ def value_listfinder_listcondense(group_list):
 
 # Note: in the future, will need to add a third input (mstxt_demand) to
 # provide thermal load components data
-def list_generator(mstxt_supply, filterdata):
+def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     """ Given filtering list for a microsegment, find rows in *.txt
     files to reference in determining associated energy data, append
     energy data to a new list """
@@ -253,8 +253,13 @@ def list_generator(mstxt_supply, filterdata):
 def value_replacer_main():
     """ Import .txt and JSON files; run through JSON objects; find
     analogous .txt information; replace JSON values; update JSON """
-    # Import .txt file
+    # Import EIA RESDBOUT.txt file
     mstxt_supply = numpy.genfromtxt(EIA_res_file, names=True, delimiter='\t', dtype=None)
+    # Set RESDBOUT.txt list for separate use in "demand" microsegments
+    mstxt_demand = mstxt_supply
+    # Set thermal loads .txt file (*currently residential)
+    mstxt_loads = numpy.genfromtxt(res_tloads, names=True, delimiter='\t', dtype=None)
+
     # Import JSON file and run through updating scheme
     with open(jsonfile, 'r') as js:
         msjson = json.load(js)
@@ -281,7 +286,7 @@ def value_replacer_main():
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
                                         # Replace initial json value for
                                         # microsegment with list
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
                                 else:
                                     # Check whether the given technology is handled as its own end use in AEO (As an
@@ -293,15 +298,15 @@ def value_replacer_main():
                                         # handling
                                         subendusetype = techtype
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][subendusetype] = data_dict
                                     else:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, 'NA']
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
+                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][techtype] = data_dict
                         else:
                             filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', 'NA', 'NA']
-                            [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
+                            [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                             msjson[cdiv][bldgtype][fueltype][endusetype] = data_dict
     # Return the updated json
     # print(msjson)
