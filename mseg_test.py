@@ -37,35 +37,107 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
             file different than expected")
 
 
-class GrouperTest(unittest.TestCase):
-    """ Test function for combining data for each end use across years """
+# class GrouperTest(unittest.TestCase):
+#     """ Test function for combining data for each end use across years """
 
-    # POSSIBLY ADD SETUP FUNCTION FOR VECTORS NEEDED FOR THESE TESTS
+#     # POSSIBLY ADD SETUP FUNCTION FOR VECTORS NEEDED FOR THESE TESTS
 
-    # Test that the function successfully appends the consumption and stock
-    # data to the appropriate vectors when
-    def test_merging_consumption(self):
-        prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
-        curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
-        consumption = [5, 20]
-        c_length = len(consumption)+1
-        eqstock = [6, 4]
-        [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
-                                                  consumption, eqstock)
-        self.assertEqual(len(consumption_m), c_length)
+#     # Test that the function successfully appends the consumption and stock
+#     # data to the appropriate vectors when
+#     def test_merging_consumption(self):
+#         prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
+#         curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
+#         consumption = [5, 20]
+#         c_length = len(consumption)+1
+#         eqstock = [6, 4]
+#         [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
+#                                                   consumption, eqstock)
+#         self.assertEqual(len(consumption_m), c_length)
 
-    def test_merging_equipment_stock(self):
-        prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
-        curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
-        consumption = [5, 20]
-        eqstock = [6, 4]
-        e_length = len(eqstock)+1
-        [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
-                                                  consumption, eqstock)
-        self.assertEqual(len(eqstock_m), e_length)
+#     def test_merging_equipment_stock(self):
+#         prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
+#         curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
+#         consumption = [5, 20]
+#         eqstock = [6, 4]
+#         e_length = len(eqstock)+1
+#         [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
+#                                                   consumption, eqstock)
+#         self.assertEqual(len(eqstock_m), e_length)
 
 # Test order or structure of microsegment JSON file (otherwise data stored
 # in keys will not be in the expected data/order)
+
+# Test operation of list_generator function (create dummy inputs and test
+# against established outputs)
+
+# Test operation of _filterformat based on several different input classes
+
+
+class JSONTranslatorTest(unittest.TestCase):
+    """ Test conversion of lists of strings from JSON file into
+    restructured lists corresponding to the codes used by EIA in the
+    residential microsegment text file """
+
+    # Define example filters for each of the four data cases present in
+    # the JSON (and handled by the json_translator function)
+    ok_filters = [['pacific', 'multi family home', 'natural gas',
+                   'heating', 'NA', 'demand', 'ground'],
+                  ['new england', 'single family home', 'electricity (grid)',
+                   'cooling', 'NA', 'supply', 'room AC'],
+                  ['west south central', 'mobile home', 'electricity (grid)',
+                   'TVs', 'set top box', 'NA', 'NA'],
+                  ['east north central', 'mobile home', 'electricity (grid)',
+                   'lighting', 'NA', 'general service', 'NA']]
+    # N.B. There are four different arrangements for filterdata in the
+    # main function, but these do not correspond to the four cases
+    # handled by json_translator. The four filters here correspond to
+    # those in the json_translator function (but are formatted as if
+    # filterdata lists)
+
+    # Define nonsense filter examples (combinations of building types,
+    # end uses, etc. that aren't possible and thus wouldn't appear in
+    # the microsegments JSON)
+    nonsense_filters = [['mountain', 'multi family home', 'natural gas',
+                         'ceiling fan', 'NA', 'NA', 'NA'],
+                        ['mid atlantic', 'mobile home', 'distillate',
+                         'TVs', 'home theater & audio', 'NA', 'NA']]
+
+    # Define example filters that do not have information in the
+    # correct order to be prepared using json_translator and should
+    # raise an error or exception
+    fail_filters = [['west north central', 'cooking', 'natural gas',
+                     'drying', 'NA', 'NA', 'NA'],
+                    ['pacific', 'multi family home', 'electricity (grid)',
+                     'computers', 'video game consoles', 'NA', 'NA']]
+
+    # Define what json_translator should produce for the given filters;
+    # this part is critically important, as these tuples and/or lists
+    # will be used by later functions to extract data from the imported
+    # data files
+    ok_out = [(['HT', 9, 2, 'GS'], 'GRND'),
+              ['CL', 1, 1, 'EL', 'ROOM_AIR'],
+              ['STB', 7, 3, 'EL', ''],
+              ['LT', 3, 3, 'EL', 'GSL']]
+    nonsense_out = [['CFN', 8, 2, 'GS', ''],
+                    ['HTS', 2, 3, 'DS', '']]
+
+    # Test filters that have expected technology definitions and should match
+    def test_ok_filters(self):
+        for idx, afilter in enumerate(self.ok_filters):
+            self.assertEqual(mseg.json_translator(afilter), self.ok_out[idx])
+
+    # Test filters that have nonsensical technology definitions but
+    # should nonetheless match
+    def test_nonsense_filters(self):
+        for idx, afilter in enumerate(self.nonsense_filters):
+            self.assertEqual(mseg.json_translator(afilter), self.nonsense_out[idx])
+
+    # Test that filters that don't conform to the structure of the
+    # dicts or the expected order of data raise an error or exception
+    def test_fail_filters(self):
+        with self.assertRaises(KeyError):
+            for afilter in self.fail_filters:
+                mseg.json_translator(afilter)
 
 
 # Offer external code execution (include all lines below this point in all
