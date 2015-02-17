@@ -115,6 +115,17 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
                          'people gain': 'PEOPLE',
                          'equipment gain': 'EQUIP'}
 
+# Define a series of regex comparison inputs that determines what we don't need
+# in the imported RESDBOUT.txt file for the "supply" and "demand" portions of
+# the microsegment updating routine
+
+# Unused rows in the supply portion of the analysis
+# Exclude: (Housing Stock | Switch From | Switch To | Sq. Footage | Fuel Pumps)
+unused_supply_re = b'.*(HS|SF|ST|SQ|FP).*'
+# Unused rows in the demand portion of the analysis
+# Exclude everything except: (Heating | Cooling | Secondary Heating)
+unused_demand_re = b'^(?!(HT|CL|SH|OA)).*'
+
 
 def json_translator(msdata):
     """ Determine filtering list for finding information in .txt file parse """
@@ -149,7 +160,7 @@ def filter_formatter(txt_filter):
     value_listfinder function """
 
     # Set base "supply" filter string
-    supply_filter = '.*'
+    supply_filter = b'.*'
 
     # Determine whether we are updating a "demand" microsegment by whether or
     # not current function input is a tuple.  If so, use first tuple element
@@ -181,8 +192,8 @@ def filter_formatter(txt_filter):
         else:
             print('Error in list finder form!')
 
-        comparefrom = (supply_filter, demand_filter)
-        return comparefrom
+    comparefrom = (supply_filter, demand_filter)
+    return comparefrom
 
 
 def list_condenser(group_list):
@@ -211,19 +222,17 @@ def txt_parser(mstxt, comparefrom, command_string):
     input = 'Reduce', only remove the rows; if command_string
     input = 'Record & Reduce', also record matched rows """
     # Determine whether we are just removing numpy array rows or also recording them
-    record_reduce = re.search(command_string, 'Record & Reduce', re.IGNORECASE)
+    record_reduce = re.search('Record & Reduce', command_string, re.IGNORECASE)
     # Define intial list of rows to remove from mstxt input
     rows_to_remove = []
-
     # If recording and removing rows, define initial stock/energy lists
     if record_reduce:
         group_stock = []
         group_energy = []
-
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, txtlines in enumerate(mstxt):
             # Set up 'compareto' list
-            compareto = str(txtlines)
+            compareto = txtlines
             # Establish the match
             match = re.search(comparefrom, compareto)
             # If there's a match, append line to stock/energy lists for
@@ -235,16 +244,13 @@ def txt_parser(mstxt, comparefrom, command_string):
                 if record_reduce:
                     group_stock.append(txtlines[6])
                     group_energy.append(txtlines[7])
-
     # Delete matched rows from numpy array of txt data
     mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
-
     # Set up proper function return based on command_string input
     if record_reduce:
         parse_return = (group_energy, group_stock, mstxt_reduced)
     else:
         parse_return = mstxt_reduced
-
     return parse_return
 
 
@@ -293,8 +299,14 @@ def mseg_updater_main():
     analogous .txt information; replace JSON values; update JSON """
     # Import EIA RESDBOUT.txt file
     mstxt_supply = numpy.genfromtxt(EIA_res_file, names=True, delimiter='\t', dtype=None)
+    # Reduce mstxt_supply array to only needed rows
+    mstxt_supply = txt_parser(mstxt_supply, unused_supply_re, 'Reduce')
+
     # Set RESDBOUT.txt list for separate use in "demand" microsegments
     mstxt_demand = mstxt_supply
+    # Reduce mstxt_demand array to only needed rows
+    mstxt_demand = txt_parser(mstxt_demand, unused_demand_re, 'Reduce')
+
     # Set thermal loads .txt file (*currently residential)
     mstxt_loads = numpy.genfromtxt(res_tloads, names=True, delimiter='\t', dtype=None)
 
