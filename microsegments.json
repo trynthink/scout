@@ -23,7 +23,21 @@
 					"GSHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -92,7 +106,21 @@
 					"NGHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -128,10 +156,24 @@
 					"boiler (distillate)":0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"water heating" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -151,10 +193,66 @@
 					}
 				},
 			"secondary heating" : {
-				"secondary heating (kerosene)" : 0,
-				"secondary heating (wood)" : 0,
-				"secondary heating (LPG)" : 0,
-				"secondary heating (coal)" : 0
+				"secondary heating (kerosene)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (wood)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (LPG)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (coal)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					}
 				},
 			"water heating" : 0,
 			"cooking" : 0
@@ -184,7 +282,21 @@
 					"GSHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -253,7 +365,21 @@
 					"NGHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -289,10 +415,24 @@
 					"boiler (distillate)":0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"water heating" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -312,10 +452,66 @@
 					}
 				},
 			"secondary heating" : {
-				"secondary heating (kerosene)" : 0,
-				"secondary heating (wood)" : 0,
-				"secondary heating (LPG)" : 0,
-				"secondary heating (coal)" : 0
+				"secondary heating (kerosene)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (wood)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (LPG)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (coal)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					}
 				},
 			"water heating" : 0,
 			"cooking" : 0
@@ -345,7 +541,21 @@
 					"GSHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -414,7 +624,21 @@
 					"NGHP" : 0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"cooling" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -450,10 +674,24 @@
 					"boiler (distillate)":0
 				}
 				},
-			"secondary heating" : 0,
+			"secondary heating" : {
+				"demand" : {
+					"windows conduction" : 0,
+					"windows solar" : 0,
+					"wall" : 0,
+					"roof" : 0,
+					"ground" : 0,
+					"infiltration" : 0,
+					"people gain" : 0,
+					"equipment gain" : 0
+					},
+				"supply" : {
+					"non-specific": 0
+					}
+				},
 			"water heating" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -473,10 +711,66 @@
 					}
 				},
 			"secondary heating" : {
-				"secondary heating (kerosene)" : 0,
-				"secondary heating (wood)" : 0,
-				"secondary heating (LPG)" : 0,
-				"secondary heating (coal)" : 0
+				"secondary heating (kerosene)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (wood)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (LPG)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"secondary heating (coal)" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					}
 				},
 			"water heating" : 0,
 			"cooking" : 0
@@ -687,7 +981,7 @@
 				},
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : {
 				"demand" : {
 					"windows conduction" : 0,
@@ -745,7 +1039,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -788,7 +1082,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -831,7 +1125,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -874,7 +1168,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -917,7 +1211,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -960,7 +1254,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -1003,7 +1297,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -1046,7 +1340,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -1089,7 +1383,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
@@ -1132,7 +1426,7 @@
 			"water heating" : 0,
 			"other" : 0
 			},
-		"other" : {
+		"other fuel" : {
 			"heating" : 0,
 			"other" : 0
 		}
