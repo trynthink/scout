@@ -7,6 +7,8 @@ import mseg
 
 # Import needed packages
 import unittest
+import random
+import numpy
 import re
 
 # class FileImportTest(unittest.TestCase):
@@ -64,13 +66,71 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
 #                                                   consumption, eqstock)
 #         self.assertEqual(len(eqstock_m), e_length)
 
-# Test order or structure of microsegment JSON file (otherwise data stored
-# in keys will not be in the expected data/order)
+class texttype(unittest.TestCase):
+    """ Test the formatting (byte or unicode) of the imported EIA data
+    and enforce formatting requirement as dictated by code """
+    # Should potentially be placed inside the txt_parser function test
+    pass
 
-# Test operation of list_generator function (create dummy inputs and test
-# against established outputs)
 
-# Test operation of _filterformat based on several different input classes
+class listgenerator(unittest.TestCase):
+    """ Test operation of list_generator function (create dummy inputs and test against established outputs) """
+    pass
+
+
+class JSONFileStructureTest(unittest.TestCase):
+    """ Test order of structure in microsegment JSON file to ensure
+    that keys will be provided in the expected order and that terms in
+    the JSON match with the keys of the dicts used for matching data """
+    pass
+
+
+class RegexConstructionTest(unittest.TestCase):
+    """ Test creation of regular expressions to match against EIA text
+    file data by comparing the constructed match string and the
+    desired regex """
+
+    # Identify lists to convert into regex formats using the mseg function
+    convert_lists = [['VGC', 4, 1, 'EL', ''],
+                     ['LT', 3, 2, 'EL', 'GSL'],
+                     [('BAT', 'COF', 'DEH', 'EO', 'MCO', 'OA', 'PHP', 'SEC', 
+                      'SPA'), 7, 1, 'EL', ''],
+                     (['HT', 1, 2, 'DS'], 'ROOF'),
+                     ['HT', 5, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+                      'WOOD_HT']]
+    
+    # Define the desired final regular expressions output using the
+    # regex conversion function in mseg
+    final_regexes = [('.*VGC.+4.+1.+EL.+.+', 'NA'),
+                     ('.*LT.+3.+2.+EL.+GSL.+', 'NA'),
+                     ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA).+7.+1.+EL.+.+', 
+                      'NA'),
+                     ('.*HT.+1.+2.+DS.+', 'ROOF'),
+                     ('.*HT.+5.+3.+(LG|KS|CL|SL|GE|NG|WD).+WOOD_HT.+', 'NA')]
+
+    # Compare the regular expressions with the conversion function output
+    def test_regex_creation_function(self):
+        for idx, alist in enumerate(self.convert_lists):
+            self.assertEqual(mseg.filter_formatter(alist), 
+                             self.final_regexes[idx])
+
+
+class ListToCorrectLengthTest(unittest.TestCase):
+    """ Test restructuring of lists with numeric data into new lists
+    with the specified length of aeo_years """
+
+    # Define original list to be condensed
+    mult = random.randint(1, 6)  # Define list length multiplier
+    num_array = numpy.random.randint(1, 20, mseg.aeo_years*mult)
+    num_list = num_array.tolist()
+
+    # Calculate the condensed list
+    array_cond = numpy.reshape(num_array, (mseg.aeo_years, -1),
+                               order='F').sum(axis=1).tolist()
+    
+    # Confirm that the list_condenser output matches the condensed list
+    def test_list_restructuring_function(self):
+        self.assertEqual(mseg.list_condenser(self.num_list), self.array_cond)
 
 
 class JSONTranslatorTest(unittest.TestCase):
