@@ -12,6 +12,10 @@ aeo_years = 32
 # Identify files to import for conversion
 EIA_res_file = 'RESDBOUT.txt'
 jsonfile = 'microsegments_test.json'
+res_tloads = 'Res_TLoads_Final.txt'
+res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
+com_tloads = 'Com_TLoads_Final.txt'
+com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
 
 # Define a series of dicts that will translate imported JSON
 # microsegment name to AEO microsegment(s)
@@ -113,9 +117,9 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 
 def json_translator(msdata):
     """ Determine filtering list for finding information in .txt file parse """
-    # Translate a heating/cooling demand technology case into a filter list
+    # Translate a heating/cooling demand technology case into a filter list tuple (supply_filter, demand_filter)
     if 'demand' in msdata:
-        return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_demanddict[msdata[6]], 'demand']
+        return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]]], technology_demanddict[msdata[6]])
     # Translate a heating/cooling supply technology case into a filter list
     elif 'supply' in msdata:
         return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[6]]]
@@ -131,25 +135,42 @@ def value_listfinder_filterformat(txt_filter):
     """ Given a filtering list for a microsegment, format into a
     string that can be entered into a regex comparsion in
     value_listfinder function """
-    # Set base comparefrom string
-    comparefrom = '.*'
-    for element in txt_filter:  # Run through all elements of the filter list
-        # If element is a tuple, join the tuple into a single string,
-        # put brackets around it for regex comparison
+
+    # Set base "supply" filter string
+    supply_filter = '.*'
+
+    # Determine whether we are updating a "demand" microsegment by whether or
+    # not current function input is a tuple.  If so, use first tuple element
+    # as filter for EIA .txt file, and second tuple element as filter for
+    # residential thermal load components .txt file.
+    if isinstance(txt_filter, tuple):
+        txt_filter_loop = txt_filter[0]
+        demand_filter = txt_filter[1]
+    else:
+        txt_filter_loop = txt_filter
+        demand_filter = 'NA'
+
+    for element in txt_filter_loop:  # Run through elements of the filter list
+        # If element is a tuple and not on the "demand" technology level, join
+        # the tuple into a single string, put brackets around it for regex
+        # comparison
         if isinstance(element, tuple):
             newelement = '|'.join(element)
-            comparefrom = comparefrom + '(' + newelement + ' ).+'
-        # If element is a number, turn into a string for regex comparison
+            supply_filter = supply_filter + '(' + newelement + ' ).+'
+        # If element is a number and not on the "demand" technology level, turn
+        # into a string for regex comparison
         elif isinstance(element, int):
             newelement = str(element)
-            comparefrom = comparefrom + newelement + '.+'
-        # If element is a string, add it to the list without modification
+            supply_filter = supply_filter + newelement + '.+'
+        # If element is a string and not on the "demand" technology level, add
+        # it to the filter list without modification
         elif isinstance(element, str):
-            comparefrom = comparefrom + element + '.+'
-        # If element is something else, print error
+            supply_filter = supply_filter + element + '.+'
         else:
             print('Error in list finder form!')
-    return comparefrom
+
+        comparefrom = (supply_filter, demand_filter)
+        return comparefrom
 
 
 def value_listfinder_listcondense(group_list):
@@ -160,11 +181,11 @@ def value_listfinder_listcondense(group_list):
     # (i.e. 32 years projected energy data for a given technology)
     group_base = group_list[0:aeo_years]
     # Establish how many chunks of data will be accessed
-    construct_limit = int(float(len(group_list))/float(aeo_years))
+    construct_limit = int(float(len(group_list)) / float(aeo_years))
     # Break original list into chunks and add to new master list that
     # is length of AEO time horizon
-    for newrows in range(construct_limit-1):
-        startrow = aeo_years*(newrows+1)
+    for newrows in range(construct_limit - 1):
+        startrow = aeo_years * (newrows + 1)
         endrow = startrow + aeo_years
         newmat = group_list[startrow:endrow]
         group_base = [group_base[i] + newmat[i] for i in range(aeo_years)]
@@ -189,7 +210,7 @@ def list_generator(mstxt_supply, filterdata):
     txt_filter = json_translator(filterdata)
 
     # Set up 'compare from' list (based on .txt file)
-    comparefrom = value_listfinder_filterformat(txt_filter)
+    comparefrom = value_listfinder_filterformat(txt_filter)[0]
 
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
@@ -248,24 +269,28 @@ def value_replacer_main():
                 for fueltype in msjson[cdiv][bldgtype]:
                     # Technology level
                     for endusetype in msjson[cdiv][bldgtype][fueltype]:
-                        # Check whether there are more levels for given microsegment; if not, end loop
+                        # Check whether there are more levels for given
+                        # microsegment; if not, end loop
                         if msjson[cdiv][bldgtype][fueltype][endusetype]:
                             # Heating/cooling technology sub-level
                             for techtype in msjson[cdiv][bldgtype][fueltype][endusetype]:
-                                # Check whether there are more levels for given microsegment, if not end loop
+                                # Check whether there are more levels for given
+                                # microsegment, if not end loop
                                 if msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
                                     for heatcooltechtype in msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
-                                        # Replace initial json value for microsegment with list
+                                        # Replace initial json value for
+                                        # microsegment with list
                                         [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
-                                        # heatcooltechtype = data_dict  # DOES THIS WORK?
                                 else:
-                                    # Check whether the given technology is handled as its own end use in AEO (As an example: While our microsegments JSON currently
-                                    # considers DVDs to be a technology type within a "TVs" end use category, AEO handles "DVDs" as an end use)
+                                    # Check whether the given technology is handled as its own end use in AEO (As an
+                                    # example: While our microsegments JSON currently considers DVDs to be a technology 
+                                    # type within a "TVs" end use category, AEO handles "DVDs" as an end use)
                                     if isinstance(endusedict[endusetype], dict):
                                         # Set subendusetype to the tech type to
-                                        # reconcile JSON/txt difference in handling
+                                        # reconcile JSON/txt difference in
+                                        # handling
                                         subendusetype = techtype
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
                                         [data_dict, mstxt_supply] = list_generator(mstxt_supply, filterdata)
