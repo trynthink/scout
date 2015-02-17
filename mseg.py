@@ -43,7 +43,7 @@ fueldict = {'electricity (on site)': 'SL',
             'electricity (grid)': 'EL',
             'natural gas': 'GS',
             'distillate': 'DS',
-            'other': ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+            'other fuel': ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
             'NA': ''}
 # Note that currently in RESDBOUT.txt, electric resistance heaters are
 # categorized under GE (geothermal) fuel. SL (solar) fuel is attached
@@ -102,6 +102,7 @@ technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'secondary heating (LPG)': 'LG',
                          'secondary heating (wood)': 'WD',
                          'secondary heating (coal)': 'CL',
+                         'non-specific': '',
                          'NA': ''}
 
 # Technology types (demand) dict
@@ -117,12 +118,23 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 
 def json_translator(msdata):
     """ Determine filtering list for finding information in .txt file parse """
-    # Translate a heating/cooling demand technology case into a filter list tuple (supply_filter, demand_filter)
+    # Translate a heating/cooling demand technology case into a filter list
+    # tuple (supply_filter, demand_filter)
     if 'demand' in msdata:
-        return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]]], technology_demanddict[msdata[6]])
+        # Check for the special case of a demand technology of the
+        # "other fuel - secondary heating" type (has unique levels)
+        if 'other fuel' and 'secondary heating' in msdata:
+            return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]], technology_demanddict[msdata[7]])
+        else:
+            return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]]], technology_demanddict[msdata[6]])
     # Translate a heating/cooling supply technology case into a filter list
     elif 'supply' in msdata:
-        return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[6]]]
+        # Check for the special case of a supply technology of the
+        # "other fuel - secondary heating" type (has unique levels)
+        if 'other fuel' and 'secondary heating' in msdata:
+            return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]  # Note: "non-specific" supply technology for this case
+        else:
+            return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[6]]]
     # Translate an end sub use case into a filter list
     elif msdata[4] is not 'NA':
         return [endusedict[msdata[3]][msdata[4]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
@@ -283,14 +295,23 @@ def value_replacer_main():
                                 # microsegment, if not end loop
                                 if msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
                                     for heatcooltechtype in msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
-                                        filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
-                                        # Replace initial json value for
-                                        # microsegment with list
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                                        msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
+                                        # Check whether there are more levels
+                                        # (will be for secondary heating -
+                                        # "other" fuel), if not end loop
+                                        if msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype]:
+                                            for heatcooltechtypesub in msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype]:
+                                                filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype, heatcooltechtypesub]
+                                                # Replace initial json value
+                                                # for microsegment with list
+                                                [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                                msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype][heatcooltechtypesub] = data_dict
+                                        else:
+                                            filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
+                                            [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                            msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
                                 else:
                                     # Check whether the given technology is handled as its own end use in AEO (As an
-                                    # example: While our microsegments JSON currently considers DVDs to be a technology 
+                                    # example: While our microsegments JSON currently considers DVDs to be a technology
                                     # type within a "TVs" end use category, AEO handles "DVDs" as an end use)
                                     if isinstance(endusedict[endusetype], dict):
                                         # Set subendusetype to the tech type to
