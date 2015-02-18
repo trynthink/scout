@@ -115,24 +115,6 @@ class RegexConstructionTest(unittest.TestCase):
                              self.final_regexes[idx])
 
 
-class ListToCorrectLengthTest(unittest.TestCase):
-    """ Test restructuring of lists with numeric data into new lists
-    with the specified length of aeo_years """
-
-    # Define original list to be condensed
-    mult = random.randint(1, 6)  # Define list length multiplier
-    num_array = numpy.random.randint(1, 20, mseg.aeo_years*mult)
-    num_list = num_array.tolist()
-
-    # Calculate the condensed list
-    array_cond = numpy.reshape(num_array, (mseg.aeo_years, -1),
-                               order='F').sum(axis=1).tolist()
-    
-    # Confirm that the list_condenser output matches the condensed list
-    def test_list_restructuring_function(self):
-        self.assertEqual(mseg.list_condenser(self.num_list), self.array_cond)
-
-
 class JSONTranslatorTest(unittest.TestCase):
     """ Test conversion of lists of strings from JSON file into
     restructured lists corresponding to the codes used by EIA in the

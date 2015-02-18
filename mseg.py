@@ -196,26 +196,6 @@ def filter_formatter(txt_filter):
     return comparefrom
 
 
-def list_condenser(group_list):
-    """ Given a list of energy data representing multiple technology
-    types projected out over the AEO time horizon, condense into a list
-    that is length of horizon """
-    # Establish a baseline chunk of projected energy data to add to
-    # (i.e. 32 years projected energy data for a given technology)
-    group_base = group_list[0:aeo_years]
-    # Establish how many chunks of data will be accessed
-    construct_limit = int(float(len(group_list)) / float(aeo_years))
-    # Break original list into chunks and add to new master list that
-    # is length of AEO time horizon
-    for newrows in range(construct_limit - 1):
-        startrow = aeo_years * (newrows + 1)
-        endrow = startrow + aeo_years
-        newmat = group_list[startrow:endrow]
-        group_base = [group_base[i] + newmat[i] for i in range(aeo_years)]
-    # Return final list
-    return group_base
-
-
 def txt_parser(mstxt, comparefrom, command_string, file_type):
     """ Given a numpy array and information about what rows we want from it,
     match the rows and then remove them from the array.  If command_string
@@ -283,10 +263,10 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
         # application of load component); establish reduced numpy array
         [group_energy_base, group_stock, mstxt_demand] = txt_parser(mstxt_demand, comparefrom_base, 'Record & Reduce', 'EIA')
         # Given discovered list of energy values, ensure length = # years
-        # currently projected by AEO. If not, execute list_condenser
+        # currently projected by AEO. If not, reshape the list
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) % aeo_years == 0:
-                group_energy_base = list_condenser(group_energy_base)
+                group_energy_base = numpy.reshape(group_energy_base, (aeo_years, -1), order='F').sum(axis=1).tolist()
             else:
                 print('Error in length of discovered list!')
 
@@ -310,11 +290,11 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
         [group_energy, group_stock, mstxt_supply] = txt_parser(mstxt_supply, comparefrom_base, 'Record & Reduce', 'EIA')
 
         # Given the discovered lists of energy/stock values, ensure length = #
-        # years currently projected by AEO. If not, execute list_condenser
+        # years currently projected by AEO. If not, reshape the list
         if len(group_energy) is not aeo_years:
             if len(group_energy) % aeo_years == 0:
-                group_energy = list_condenser(group_energy)
-                group_stock = list_condenser(group_stock)
+                group_energy = numpy.reshape(group_energy, (aeo_years, -1), order='F').sum(axis=1).tolist()
+                group_stock = numpy.reshape(group_stock, (aeo_years, -1), order='F').sum(axis=1).tolist()
             else:
                 print('Error in length of discovered list!')
 
