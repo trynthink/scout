@@ -216,19 +216,24 @@ def list_condenser(group_list):
     return group_base
 
 
-def txt_parser(mstxt, comparefrom, command_string):
+def txt_parser(mstxt, comparefrom, command_string, file_type):
     """ Given a numpy array and information about what rows we want from it,
     match the rows and then remove them from the array.  If command_string
     input = 'Reduce', only remove the rows; if command_string
     input = 'Record & Reduce', also record matched rows """
-    # Determine whether we are just removing numpy array rows or also recording them
+    # Determine whether we are removing numpy array rows or also recording them
     record_reduce = re.search('Record & Reduce', command_string, re.IGNORECASE)
+    # Determine whether we are parsing the EIA file or the load component file
+    eia_parse = re.search('EIA', file_type, re.IGNORECASE)
     # Define intial list of rows to remove from mstxt input
     rows_to_remove = []
     # If recording and removing rows, define initial stock/energy lists
     if record_reduce:
-        group_stock = []
-        group_energy = []
+        if eia_parse:  # Case where we are parsing the EIA AEO file
+            group_stock = []
+            group_energy = []
+        else:  # Case where we are parsing the thermal load components file
+            tloads_row = []
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, txtlines in enumerate(mstxt):
             # Set up 'compareto' list
@@ -240,15 +245,21 @@ def txt_parser(mstxt, comparefrom, command_string):
             if match:
                 # Record additional row index to delete
                 rows_to_remove.append(idx)
-                # If recording and removing rows, record discovered energy/stock info.
+                # If recording/removing rows, record energy/stock info.
                 if record_reduce:
-                    group_stock.append(txtlines[6])
-                    group_energy.append(txtlines[7])
+                    if eia_parse:
+                        group_stock.append(txtlines[6])
+                        group_energy.append(txtlines[7])
+                    else:
+                        tloads_row.append(txtlines)
     # Delete matched rows from numpy array of txt data
     mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
     # Set up proper function return based on command_string input
     if record_reduce:
-        parse_return = (group_energy, group_stock, mstxt_reduced)
+        if eia_parse:
+            parse_return = (group_energy, group_stock, mstxt_reduced)
+        else:
+            parse_return = (tloads_row, mstxt_reduced)
     else:
         parse_return = mstxt_reduced
     return parse_return
@@ -261,27 +272,45 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
 
     # Find the corresponding txt filtering information
     txt_filter = json_translator(filterdata)
-
     # Set up 'compare from' list (based on .txt file)
-    comparefrom = filter_formatter(txt_filter)[0]
+    [comparefrom_base, column_indicator] = filter_formatter(txt_filter)
 
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
     # technology (handled differently)
     if 'demand' in txt_filter:
-        # *** Fill in as we compile demand information ***
-        return [{'stock': 'NA', 'energy': 999999999999999}, mstxt_demand]  # Use this placeholder for now
+        # Find baseline heating or cooling energy microsegment (before
+        # application of load component); establish reduced numpy array
+        [group_energy_base, group_stock, mstxt_demand] = txt_parser(mstxt_demand, comparefrom_base, 'Record & Reduce', 'EIA')
+        # Given discovered list of energy values, ensure length = # years
+        # currently projected by AEO. If not, execute list_condenser
+        if len(group_energy_base) is not aeo_years:
+            if len(group_energy_base) % aeo_years == 0:
+                group_energy_base = list_condenser(group_energy_base)
+            else:
+                print('Error in length of discovered list!')
+
+        # Find/apply appropriate thermal load component
+        # 1. Construct appropriate row filter for tloads array
+        fuel_remove = re.search('/./*/w+/./+/w+/./+/w+/./+', comparefrom_base)
+        comparefrom_tloads = fuel_remove.group()
+        # 2. Find/return appropriate tloads row and reduced tloads array
+        [tloads_row, mstxt_loads] = txt_parser(res_tloads, comparefrom_tloads, 'Record & Reduce', 'TLoads')
+        # 3. Using appropriate column indicator, find component value in row
+        tload_component = tloads_row[column_indicator]
+        # 4. Apply component value to baseline energy values for final list
+        group_energy = [x * tload_component for x in group_energy_base]
+
+        # Return combined energy use values and updated version of EIA demand
+        # data and thermal loads data with already matched data removed
+        return [{'stock': 'NA', 'energy': group_energy}, mstxt_supply, mstxt_demand, mstxt_loads]
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
-        group_energy = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[0]
-        group_stock = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[1]
-        mstxt_supply = txt_parser(mstxt_supply, comparefrom, 'Record & Reduce')[2]
+        [group_energy, group_stock, mstxt_supply] = txt_parser(mstxt_supply, comparefrom_base, 'Record & Reduce', 'EIA')
 
-        # Given the discovered lists of energy/stock values, check to ensure
-        # length = # of years currently projected by AEO. If not,
-        # execute list_condenser function
-        # to arrive at final lists
+        # Given the discovered lists of energy/stock values, ensure length = #
+        # years currently projected by AEO. If not, execute list_condenser
         if len(group_energy) is not aeo_years:
             if len(group_energy) % aeo_years == 0:
                 group_energy = list_condenser(group_energy)
@@ -289,9 +318,9 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
             else:
                 print('Error in length of discovered list!')
 
-        # Return combined stock and energy use values, along with
-        # updated version of EIA data with already matched data removed
-        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
+        # Return combined stock/energy use values and updated version of EIA
+        # supply data with already matched data removed
+        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply, mstxt_demand, mstxt_loads]
 
 
 def mseg_updater_main():
@@ -300,12 +329,12 @@ def mseg_updater_main():
     # Import EIA RESDBOUT.txt file
     mstxt_supply = numpy.genfromtxt(EIA_res_file, names=True, delimiter='\t', dtype=None)
     # Reduce mstxt_supply array to only needed rows
-    mstxt_supply = txt_parser(mstxt_supply, unused_supply_re, 'Reduce')
+    mstxt_supply = txt_parser(mstxt_supply, unused_supply_re, 'Reduce', 'EIA')
 
     # Set RESDBOUT.txt list for separate use in "demand" microsegments
     mstxt_demand = mstxt_supply
     # Reduce mstxt_demand array to only needed rows
-    mstxt_demand = txt_parser(mstxt_demand, unused_demand_re, 'Reduce')
+    mstxt_demand = txt_parser(mstxt_demand, unused_demand_re, 'Reduce', 'EIA')
 
     # Set thermal loads .txt file (*currently residential)
     mstxt_loads = numpy.genfromtxt(res_tloads, names=True, delimiter='\t', dtype=None)
@@ -341,11 +370,11 @@ def mseg_updater_main():
                                                 filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype, heatcooltechtypesub]
                                                 # Replace initial json value
                                                 # for microsegment with list
-                                                [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                                [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                                 msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype][heatcooltechtypesub] = data_dict
                                         else:
                                             filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
-                                            [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                            [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                             msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
                                 else:
                                     # Check whether the given technology is handled as its own end use in AEO (As an
@@ -357,15 +386,15 @@ def mseg_updater_main():
                                         # handling
                                         subendusetype = techtype
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                        [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][subendusetype] = data_dict
                                     else:
                                         filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, 'NA']
-                                        [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                                        [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                                         msjson[cdiv][bldgtype][fueltype][endusetype][techtype] = data_dict
                         else:
                             filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', 'NA', 'NA']
-                            [data_dict, mstxt_supply] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
+                            [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
                             msjson[cdiv][bldgtype][fueltype][endusetype] = data_dict
     # Return the updated json
     # print(msjson)
