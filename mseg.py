@@ -228,8 +228,8 @@ def txt_parser(mstxt, comparefrom, command_string, file_type):
                 # If recording/removing rows, record energy/stock info.
                 if record_reduce:
                     if eia_parse:
-                        group_stock.append(txtlines[6])
-                        group_energy.append(txtlines[7])
+                        group_stock.append(txtlines['EQSTOCK'])
+                        group_energy.append(txtlines['CONSUMPTION'])
                     else:
                         tloads_row.append(txtlines)
     # Delete matched rows from numpy array of txt data
