@@ -17,24 +17,59 @@ import re
 
 
 class ResidentialDataIntegrityTest(unittest.TestCase):
-    """ Tests the column names in the residential data """
-    # Test that each column in the EIA .txt file includes the kind of
-    # information we expect by importing its header line and checking
-    # the names assigned to each column.
+    """ Tests the imported residential equipment energy use data from
+    EIA to confirm that the data are in the expected order and that the
+    consumption and equipment stock data have the required names """
 
-    def test_headers(self):
-        with open(mseg.EIA_res_file, 'r') as f:
-            # Read in header line, form regex (case insensitive),
-            # and test for match
-            headers = f.readline()
-            expectregex = r'\w*[EU]\w*\s+\w*[CD]\w*\s+\w*[BG]\w*\s+\w*[FL]\w*\s+\w*[EQ]\w*\s+\w*[YR]\w*\s+\w*[ST]\w*\s+\w*[CNS]\w*\s+\w*[HS]\w*'
-            match = re.search(expectregex, headers, re.IGNORECASE)
-            # If there is no match, print the header line
-            if not match:
-                print("Header Line: " + headers)
-            # Run assertTrue to check for match and complete unit test
-            self.assertTrue(match, msg="Column headers in microsegments .txt \
-            file different than expected")
+    # Open the EIA data file for use by all tests
+    f = open(mseg.EIA_res_file, 'r')
+
+    # Read in header line
+    header = f.readline()
+
+    # The function that parses and assigns the data from the EIA data
+    # to the JSON file expects consumption data with specific header;
+    # test for the presence of that header
+    def test_for_presence_of_consumption_column(self):
+        chk_consumption = re.search('CONSUMPTION', self.header, re.IGNORECASE)
+        self.assertTrue(chk_consumption, msg='In a case-insensitive \
+                        search, the CONSUMPTION column header was not \
+                        found in the EIA data file.')
+
+    # The function that parses and assigns the data from the EIA data
+    # to the JSON file expects equipment stock data with specific
+    # header; test for the presence of that header
+    def test_for_presence_of_equipment_stock_column(self):
+        chk_eqstock = re.search('EQSTOCK', self.header, re.IGNORECASE)
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
+                        search, the EQSTOCK column header was not \
+                        found in the EIA data file.')
+
+    # Test for the order of the headers in the EIA data file
+    def test_order_of_columns_in_header_line(self):
+        # Define a regex for the expected order of the columns of data
+        # (formatting of regex takes advantage of string concatenation
+        # inside parentheses)
+        expectregex = (r'\w*[EU]\w*\s+'
+                       r'\w*[CD]\w*\s+'
+                       r'\w*[BG]\w*\s+'
+                       r'\w*[FL]\w*\s+'
+                       r'\w*[EQ]\w*\s+'
+                       r'\w*[YR]\w*\s+'
+                       r'\w*[ST]\w*\s+'
+                       r'\w*[CNS]\w*\s+'
+                       r'\w*[HS]\w*')
+
+        # Check for a match between the defined regex and the header line
+        match = re.search(expectregex, self.header, re.IGNORECASE)
+
+        # If there is no match, print the header line
+        if not match:
+            print("Header Line: " + self.header)
+
+        # Run assertTrue to check for match and complete unit test
+        self.assertTrue(match, msg="Column headers in the EIA data file \
+                        are different than expected")
 
 
 # class GrouperTest(unittest.TestCase):
