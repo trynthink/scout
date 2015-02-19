@@ -160,7 +160,7 @@ def filter_formatter(txt_filter):
     value_listfinder function """
 
     # Set base "supply" filter string
-    supply_filter = b'.*'
+    supply_filter = '.*'
 
     # Determine whether we are updating a "demand" microsegment by whether or
     # not current function input is a tuple.  If so, use first tuple element
@@ -179,7 +179,7 @@ def filter_formatter(txt_filter):
         # comparison
         if isinstance(element, tuple):
             newelement = '|'.join(element)
-            supply_filter = supply_filter + '(' + newelement + ' ).+'
+            supply_filter = supply_filter + '(' + newelement + ').+'
         # If element is a number and not on the "demand" technology level, turn
         # into a string for regex comparison
         elif isinstance(element, int):
