@@ -121,10 +121,10 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 
 # Unused rows in the supply portion of the analysis
 # Exclude: (Housing Stock | Switch From | Switch To | Sq. Footage | Fuel Pumps)
-unused_supply_re = b'.*(HS|SF|ST|SQ|FP).*'
+unused_supply_re = '^\(b\'(HS|SF|ST|SQ|FP).*'
 # Unused rows in the demand portion of the analysis
 # Exclude everything except: (Heating | Cooling | Secondary Heating)
-unused_demand_re = b'^(?!(HT|CL|SH|OA)).*'
+unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
 
 
 def json_translator(msdata):
@@ -134,7 +134,7 @@ def json_translator(msdata):
     if 'demand' in msdata:
         # Check for the special case of a demand technology of the
         # "other fuel - secondary heating" type (has unique levels)
-        if 'other fuel' and 'secondary heating' in msdata:
+        if 'other fuel' in msdata and 'secondary heating' in msdata:
             return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]], technology_demanddict[msdata[7]])
         else:
             return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]]], technology_demanddict[msdata[6]])
@@ -142,14 +142,14 @@ def json_translator(msdata):
     elif 'supply' in msdata:
         # Check for the special case of a supply technology of the
         # "other fuel - secondary heating" type (has unique levels)
-        if 'other fuel' and 'secondary heating' in msdata:
+        if 'other fuel' in msdata and 'secondary heating' in msdata:
             return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]  # Note: "non-specific" supply technology for this case
         else:
             return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[6]]]
     # Translate an end sub use case into a filter list
     elif msdata[4] is not 'NA':
         return [endusedict[msdata[3]][msdata[4]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
-    # Translate all other technologies into a filter lis
+    # Translate all other technologies into a filter list
     else:
         return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
 
@@ -217,7 +217,7 @@ def txt_parser(mstxt, comparefrom, command_string, file_type):
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, txtlines in enumerate(mstxt):
             # Set up 'compareto' list
-            compareto = txtlines
+            compareto = str(txtlines)
             # Establish the match
             match = re.search(comparefrom, compareto)
             # If there's a match, append line to stock/energy lists for
