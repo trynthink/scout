@@ -72,33 +72,6 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
                         are different than expected")
 
 
-# class GrouperTest(unittest.TestCase):
-#     """ Test function for combining data for each end use across years """
-
-#     # POSSIBLY ADD SETUP FUNCTION FOR VECTORS NEEDED FOR THESE TESTS
-
-#     # Test that the function successfully appends the consumption and stock
-#     # data to the appropriate vectors when
-#     def test_merging_consumption(self):
-#         prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
-#         curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
-#         consumption = [5, 20]
-#         c_length = len(consumption)+1
-#         eqstock = [6, 4]
-#         [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
-#                                                   consumption, eqstock)
-#         self.assertEqual(len(consumption_m), c_length)
-
-#     def test_merging_equipment_stock(self):
-#         prev_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2009, 126206, 1858635]
-#         curr_line = ['HT', 1, 1, 'EL', 'ELEC_RAD', 2010, 126007, 1452680]
-#         consumption = [5, 20]
-#         eqstock = [6, 4]
-#         e_length = len(eqstock)+1
-#         [consumption_m, eqstock_m] = mseg.grouper(prev_line, curr_line,
-#                                                   consumption, eqstock)
-#         self.assertEqual(len(eqstock_m), e_length)
-
 class texttype(unittest.TestCase):
     """ Test the formatting (byte or unicode) of the imported EIA data
     and enforce formatting requirement as dictated by code """
@@ -154,21 +127,23 @@ class JSONTranslatorTest(unittest.TestCase):
     restructured lists corresponding to the codes used by EIA in the
     residential microsegment text file """
 
-    # Define example filters for each of the four data cases present in
+    # Define example filters for each of the data cases present in
     # the JSON (and handled by the json_translator function)
     ok_filters = [['pacific', 'multi family home', 'natural gas',
                    'heating', 'NA', 'demand', 'ground'],
-                  ['new england', 'single family home', 'electricity (grid)',
+                  ['mid atlantic', 'single family home', 'electricity (grid)',
                    'cooling', 'NA', 'supply', 'room AC'],
                   ['west south central', 'mobile home', 'electricity (grid)',
                    'TVs', 'set top box', 'NA', 'NA'],
                   ['east north central', 'mobile home', 'electricity (grid)',
-                   'lighting', 'NA', 'general service', 'NA']]
-    # N.B. There are four different arrangements for filterdata in the
-    # main function, but these do not correspond to the four cases
-    # handled by json_translator. The four filters here correspond to
-    # those in the json_translator function (but are formatted as if
-    # filterdata lists)
+                   'lighting', 'NA', 'general service', 'NA'],
+                  ['west north central', 'mobile home', 'other fuel',
+                   'heating', 'NA', 'supply', 'resistance'],
+                  ['south atlantic', 'multi family home', 'distillate',
+                   'secondary heating', 'NA', 'demand', 'windows solar'],
+                  ['new england', 'single family home', 'other fuel',
+                   'secondary heating', 'NA', 'secondary heating (coal)',
+                   'supply', 'non-specific']]
 
     # Define nonsense filter examples (combinations of building types,
     # end uses, etc. that aren't possible and thus wouldn't appear in
@@ -191,9 +166,13 @@ class JSONTranslatorTest(unittest.TestCase):
     # will be used by later functions to extract data from the imported
     # data files
     ok_out = [(['HT', 9, 2, 'GS'], 'GRND'),
-              ['CL', 1, 1, 'EL', 'ROOM_AIR'],
+              ['CL', 2, 1, 'EL', 'ROOM_AIR'],
               ['STB', 7, 3, 'EL', ''],
-              ['LT', 3, 3, 'EL', 'GSL']]
+              ['LT', 3, 3, 'EL', 'GSL'],
+              ['HT', 4, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'), 'GE2'],
+              ([('SH', 'OA'), 5, 2, 'DS'], 'WIND_SOL'),
+              [('SH', 'OA'), 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+               'CL']]
     nonsense_out = [['CFN', 8, 2, 'GS', ''],
                     ['HTS', 2, 3, 'DS', '']]
 
