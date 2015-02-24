@@ -169,10 +169,11 @@ class JSONTranslatorTest(unittest.TestCase):
               [['CL', 2, 1, 'EL', 'ROOM_AIR'], ''],
               [['STB', 7, 3, 'EL'], ''],
               [['LT', 3, 3, 'EL', 'GSL'], ''],
-              [['HT', 4, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'), 'GE2'], ''],
+              [['HT', 4, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+                'GE2'], ''],
               [[('SH', 'OA'), 5, 2, 'DS'], 'WIND_SOL'],
               [[('SH', 'OA'), 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
-               'CL'], '']]
+                'CL'], '']]
     nonsense_out = [[['CFN', 8, 2, 'GS'], ''],
                     [['HTS', 2, 3, 'DS'], '']]
 
