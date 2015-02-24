@@ -264,7 +264,7 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     energy data to a new list """
 
     # Find the corresponding txt filtering information
-    txt_filter = json_translator(filterdata)
+    txt_filter = json_translator(res_dictlist, filterdata)
     # Set up 'compare from' list (based on .txt file)
     [comparefrom_base, column_indicator] = filter_formatter(txt_filter)
 
@@ -316,83 +316,58 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
         return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply, mstxt_demand, mstxt_loads]
 
 
-def mseg_updater_main():
+def walk(supply, demand, loads, json_dict, key_list=[]):
+    """ Proceed recursively through data stored in dict-type structure
+    and perform calculations at each leaf/terminal node in the data """
+    for key, item in json_dict.items():
+
+        # If there are additional levels in the dict, call the function
+        # again to advance another level deeper into the data structure
+        if isinstance(item, dict):
+            walk(supply, demand, loads, item, key_list + [key])
+
+        # If a leaf node has been reached, finish constructing the key
+        # list for the current location and update the data in the dict
+        else:
+            leaf_node_keys = key_list + [key]
+            # Extract data from original data sources
+            [data_dict, supply, demand, loads] = \
+                list_generator(supply, demand, loads, leaf_node_keys)
+            # Set dict key to extracted data
+            json_dict[key] = data_dict
+
+    # Return final file
+    return json_dict
+
+
+def main():
     """ Import .txt and JSON files; run through JSON objects; find
     analogous .txt information; replace JSON values; update JSON """
     # Import EIA RESDBOUT.txt file
-    mstxt_supply = numpy.genfromtxt(EIA_res_file, names=True, delimiter='\t', dtype=None)
-    # Reduce mstxt_supply array to only needed rows
-    mstxt_supply = txt_parser(mstxt_supply, unused_supply_re, 'Reduce', 'EIA')
+    supply = numpy.genfromtxt(EIA_res_file, names=True,
+                              delimiter='\t', dtype=None)
+    # Reduce supply array to only needed rows
+    supply = txt_parser(supply, unused_supply_re, 'Reduce', 'EIA')
 
     # Set RESDBOUT.txt list for separate use in "demand" microsegments
-    mstxt_demand = mstxt_supply
-    # Reduce mstxt_demand array to only needed rows
-    mstxt_demand = txt_parser(mstxt_demand, unused_demand_re, 'Reduce', 'EIA')
+    demand = supply
+    # Reduce demand array to only needed rows
+    demand = txt_parser(demand, unused_demand_re, 'Reduce', 'EIA')
 
     # Set thermal loads .txt file (*currently residential)
-    mstxt_loads = numpy.genfromtxt(res_tloads, names=True, delimiter='\t', dtype=None)
+    loads = numpy.genfromtxt(res_tloads, names=True,
+                             delimiter='\t', dtype=None)
 
     # Import JSON file and run through updating scheme
     with open(jsonfile, 'r') as js:
         msjson = json.load(js)
         # Run through JSON objects, determine replacement information
         # to mine from .txt file, and make the replacement
+        updated_json = walk(supply, demand, loads, msjson)
 
-        # Building level
-        for cdiv in msjson:
-            # Fuel level
-            for bldgtype in msjson[cdiv]:
-                # End use level
-                for fueltype in msjson[cdiv][bldgtype]:
-                    # Technology level
-                    for endusetype in msjson[cdiv][bldgtype][fueltype]:
-                        # Check whether there are more levels for given
-                        # microsegment; if not, end loop
-                        if msjson[cdiv][bldgtype][fueltype][endusetype]:
-                            # Heating/cooling technology sub-level
-                            for techtype in msjson[cdiv][bldgtype][fueltype][endusetype]:
-                                # Check whether there are more levels for given
-                                # microsegment, if not end loop
-                                if msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
-                                    for heatcooltechtype in msjson[cdiv][bldgtype][fueltype][endusetype][techtype]:
-                                        # Check whether there are more levels
-                                        # (will be for secondary heating -
-                                        # "other" fuel), if not end loop
-                                        if msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype]:
-                                            for heatcooltechtypesub in msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype]:
-                                                filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype, heatcooltechtypesub]
-                                                # Replace initial json value
-                                                # for microsegment with list
-                                                [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                                                msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype][heatcooltechtypesub] = data_dict
-                                        else:
-                                            filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, heatcooltechtype]
-                                            [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                                            msjson[cdiv][bldgtype][fueltype][endusetype][techtype][heatcooltechtype] = data_dict
-                                else:
-                                    # Check whether the given technology is handled as its own end use in AEO (As an
-                                    # example: While our microsegments JSON currently considers DVDs to be a technology
-                                    # type within a "TVs" end use category, AEO handles "DVDs" as an end use)
-                                    if isinstance(endusedict[endusetype], dict):
-                                        # Set subendusetype to the tech type to
-                                        # reconcile JSON/txt difference in
-                                        # handling
-                                        subendusetype = techtype
-                                        filterdata = [cdiv, bldgtype, fueltype, endusetype, subendusetype, 'NA', 'NA']
-                                        [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                                        msjson[cdiv][bldgtype][fueltype][endusetype][subendusetype] = data_dict
-                                    else:
-                                        filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', techtype, 'NA']
-                                        [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                                        msjson[cdiv][bldgtype][fueltype][endusetype][techtype] = data_dict
-                        else:
-                            filterdata = [cdiv, bldgtype, fueltype, endusetype, 'NA', 'NA', 'NA']
-                            [data_dict, mstxt_supply, mstxt_demand, mstxt_loads] = list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata)
-                            msjson[cdiv][bldgtype][fueltype][endusetype] = data_dict
     # Return the updated json
-    # print(msjson)
-    return msjson
+    return updated_json
 
 
 if __name__ == '__main__':
-    mseg_updater_main()
+    main()
