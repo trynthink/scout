@@ -29,22 +29,22 @@ cdivdict = {'new england': 1,
             'east south central': 6,
             'west south central': 7,
             'mountain': 8,
-            'pacific': 9,
-            'NA': ''}
+            'pacific': 9
+            }
 
 # Building type dict (residential)
 bldgtypedict = {'single family home': 1,
                 'multi family home': 2,
-                'mobile home': 3,
-                'all/NA': ''}
+                'mobile home': 3
+                }
 
 # Fuel type dict
 fueldict = {'electricity (on site)': 'SL',
             'electricity (grid)': 'EL',
             'natural gas': 'GS',
             'distillate': 'DS',
-            'other fuel': ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
-            'NA': ''}
+            'other fuel': ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD')
+            }
 # Note that currently in RESDBOUT.txt, electric resistance heaters are
 # categorized under GE (geothermal) fuel. SL (solar) fuel is attached
 # to water heating, but the end technology is only listed as "Solar",
@@ -75,8 +75,8 @@ endusedict = {'heating': 'HT',
                                         'freezers': 'FZ',
                                         'other MELs': ('BAT', 'COF', 'DEH',
                                                        'EO', 'MCO', 'OA',
-                                                       'PHP', 'SEC', 'SPA')},
-              'NA': ''}
+                                                       'PHP', 'SEC', 'SPA')}
+              }
 
 # Technology types (supply) dict
 technology_supplydict = {'solar WH': 'SOLAR_WH',
@@ -102,8 +102,8 @@ technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'secondary heating (LPG)': 'LG',
                          'secondary heating (wood)': 'WD',
                          'secondary heating (coal)': 'CL',
-                         'non-specific': '',
-                         'NA': ''}
+                         'non-specific': ''
+                         }
 
 # Technology types (demand) dict
 technology_demanddict = {'windows conduction': 'WIND_COND',
@@ -114,6 +114,10 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
                          'infiltration': 'INFIL',
                          'people gain': 'PEOPLE',
                          'equipment gain': 'EQUIP'}
+
+# Form residential dictlist for use in JSON translator
+res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
+                technology_supplydict, technology_demanddict]
 
 # Define a series of regex comparison inputs that determines what we don't need
 # in the imported RESDBOUT.txt file for the "supply" and "demand" portions of
@@ -127,31 +131,40 @@ unused_supply_re = '^\(b\'(HS|SF|ST|SQ|FP).*'
 unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
 
 
-def json_translator(msdata):
+def json_translator(dictlist, filterformat):
     """ Determine filtering list for finding information in .txt file parse """
-    # Translate a heating/cooling demand technology case into a filter list
-    # tuple (supply_filter, demand_filter)
-    if 'demand' in msdata:
-        # Check for the special case of a demand technology of the
-        # "other fuel - secondary heating" type (has unique levels)
-        if 'other fuel' in msdata and 'secondary heating' in msdata:
-            return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]], technology_demanddict[msdata[7]])
-        else:
-            return ([endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]]], technology_demanddict[msdata[6]])
-    # Translate a heating/cooling supply technology case into a filter list
-    elif 'supply' in msdata:
-        # Check for the special case of a supply technology of the
-        # "other fuel - secondary heating" type (has unique levels)
-        if 'other fuel' in msdata and 'secondary heating' in msdata:
-            return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]  # Note: "non-specific" supply technology for this case
-        else:
-            return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[6]]]
-    # Translate an end sub use case into a filter list
-    elif msdata[4] is not 'NA':
-        return [endusedict[msdata[3]][msdata[4]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
-    # Translate all other technologies into a filter list
-    else:
-        return [endusedict[msdata[3]], cdivdict[msdata[0]], bldgtypedict[msdata[1]], fueldict[msdata[2]], technology_supplydict[msdata[5]]]
+    # Set base filtering list of lists (1st element supply filter, 2nd demand)
+    json_translate = [[], '']
+    # Set an indicator for whether a "demand" filtering element has been found
+    # (special treatment)
+    demand_indicator = 0
+    # Loop through "dictlist" and determine whether any elements of
+    # "filterformat" input are in dict keys; if so, add key value to output
+    for j in dictlist:
+        for num, key in enumerate(filterformat):
+            # Check whether element is in dict keys
+            if key in j.keys():
+                # "Demand" technologies added to 2nd element of filtering list
+                if demand_indicator is not 1:
+                    # If there are more levels in a keyed item, go down branch
+                    if isinstance(j[key], dict):
+                            nextkey = filterformat[num + 1]
+                            json_translate[0].append(j[key][nextkey])
+                    else:
+                            json_translate[0].append(j[key])
+                    break
+                else:
+                    if isinstance(j[key], dict):
+                            nextkey = filterformat[num + 1]
+                            json_translate[1] = str(j[key][nextkey])
+                    else:
+                            json_translate[1] = str(j[key])
+                    break
+            # Flag a demand technology
+            elif key is 'demand':
+                    demand_indicator = 1
+    # Return updated filtering list of lists: [[supply filter],[demand filter]]
+    return json_translate
 
 
 def filter_formatter(txt_filter):
@@ -166,11 +179,11 @@ def filter_formatter(txt_filter):
     # not current function input is a tuple.  If so, use first tuple element
     # as filter for EIA .txt file, and second tuple element as filter for
     # residential thermal load components .txt file.
-    if isinstance(txt_filter, tuple):
+    if txt_filter[1]:
         txt_filter_loop = txt_filter[0]
         demand_filter = txt_filter[1]
     else:
-        txt_filter_loop = txt_filter
+        txt_filter_loop = txt_filter[0]
         demand_filter = 'NA'
 
     for element in txt_filter_loop:  # Run through elements of the filter list
