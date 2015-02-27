@@ -131,6 +131,8 @@ class JSONTranslatorTest(unittest.TestCase):
     # the JSON (and handled by the json_translator function)
     ok_filters = [['pacific', 'multi family home', 'natural gas',
                    'heating', 'demand', 'ground'],
+                  ['new england', 'mobile home', 'electricity (grid)',
+                   'cooling', 'demand', 'people gain'],
                   ['mid atlantic', 'single family home', 'electricity (grid)',
                    'cooling', 'supply', 'room AC'],
                   ['west south central', 'mobile home', 'electricity (grid)',
@@ -166,6 +168,7 @@ class JSONTranslatorTest(unittest.TestCase):
     # will be used by later functions to extract data from the imported
     # data files
     ok_out = [[['HT', 9, 2, 'GS'], 'GRND'],
+              [['CL', 1, 3, 'EL'], 'PEOPLE'],
               [['CL', 2, 1, 'EL', 'ROOM_AIR'], ''],
               [['STB', 7, 3, 'EL'], ''],
               [['LT', 3, 3, 'EL', 'GSL'], ''],
@@ -198,8 +201,65 @@ class JSONTranslatorTest(unittest.TestCase):
                 mseg.json_translator(mseg.res_dictlist, afilter)
 
 
+class ClimConverterTest(unittest.TestCase):
+    """ Test operation of climate conversion function (create dummy inputs and
+    test against established outputs) """
+    # Create a test input dict with 3 census divisions
+    test_input = {'new england': {'single family home': {
+                                  'electricity (grid)': {'lighting': {
+                                                         'linear fluorescent':
+                                                         [1, 1, 1]}}}},
+                  'middle atlantic': {'single family home': {
+                                      'electricity (grid)': {'lighting': {
+                                                             'linear fluorescent':
+                                                             [1, 1, 1]}}}},
+                  'east north central': {'single family home': {
+                                         'electricity (grid)': {'lighting': {
+                                                                'linear fluorescent':
+                                                                [1, 1, 1]}}}}
+                  }
+    # Create an expected output dict broken down by climate zone
+    test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
+                               'lighting': {'linear fluorescent':
+                                            [0.4349, 0.4349, 0.4349]}}}},
+                   'AIA_CZ2': {'single family home': {'electricity (grid)': {
+                               'lighting': {'linear fluorescent':
+                                            [1.7419, 1.7419, 1.7419]}}}},
+                   'AIA_CZ3': {'single family home': {'electricity (grid)': {
+                               'lighting': {'linear fluorescent':
+                                            [0.8233, 0.8233, 0.8233]}}}},
+                   'AIA_CZ4': {'single family home': {'electricity (grid)': {
+                               'lighting': {'linear fluorescent':
+                                            [0, 0, 0]}}}},
+                   'AIA_CZ5': {'single family home': {'electricity (grid)': {
+                               'lighting': {'linear fluorescent':
+                                            [0, 0, 0]}}}}
+                   }
+
+    # Create a routine for checking equality of a dict
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(dict1.items(), dict2.items()):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                # Demand "stock" currently 'NA', this handles that case
+                # if we wanted to test it
+                if isinstance(dict1[k], str):
+                    self.assertEqual(dict1[k], dict2[k2])
+                else:
+                    self.assertEqual([round(elem, 4) for elem in dict1[k]], dict2[k2])
+
+    # Implement dict check routine
+    def test_convert_match(self):
+
+        dict1 = mseg.clim_converter(self.test_input, mseg.res_convert_array)
+        dict2 = self.test_output
+        self.dict_check(dict1, dict2)
+
+
 # Offer external code execution (include all lines below this point in all
-    # test files)
+# test files)
 def main():
     # Triggers default behavior of running all test fixtures in the file
     unittest.main()
