@@ -12,7 +12,8 @@ aeo_years = 32
 
 # Identify files to import for conversion
 EIA_res_file = 'RESDBOUT.txt'
-jsonfile = 'microsegments_test.json'
+json_in = 'microsegments_test.json'
+json_out = 'microsegments_out.json'
 res_tloads = 'Res_TLoads_Final.txt'
 res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
 com_tloads = 'Com_TLoads_Final.txt'
@@ -216,28 +217,32 @@ def filter_formatter(txt_filter):
 
 
 def txt_parser(mstxt, comparefrom, command_string, file_type, demand_column):
-    """ Given a numpy array and information about what rows we want from it,
-    match the rows and then remove them from the array.  If command_string
-    input = 'Reduce', remove the rows; if command_string
-    input = 'Record', record matched rows """
+    """ Given a numpy array of "EIA_Supply", "EIA_Demand", or "TLoads"
+    information (specified in file_type input), and information about what rows
+    we want from it (specified in compare_from input), match the rows.  If
+    command_string input = 'Reduce', remove matched rows; if command_string
+    input = 'Record', record matched rows.  Note: demand_column input needed
+    only in "TLoads" parse """
     # Determine whether we are removing numpy array rows or also recording them
     record_reduce = re.search('Record', command_string, re.IGNORECASE)
-    # Determine whether we are parsing the EIA file or the load component file
-    eia_parse = re.search('EIA', file_type, re.IGNORECASE)
+    # Determine whether we are parsing the "supply" copy of the EIA file
+    supply_parse = re.search('EIA_Supply', file_type, re.IGNORECASE)
+    # Determine whether we are parsing the "demand" copy of the EIA file
+    demand_parse = re.search('EIA_Demand', file_type, re.IGNORECASE)
     # Define intial list of rows to remove from mstxt input
     rows_to_remove = []
     # If recording and removing rows, define initial stock/energy lists
     if record_reduce:
-        if eia_parse:  # Case where we are parsing the EIA AEO file
+        if supply_parse or demand_parse:  # Parsing EIA array
             group_stock = []
             group_energy = []
 
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, txtlines in enumerate(mstxt):
             # Set up 'compareto' list
-            if eia_parse:
+            if supply_parse or demand_parse:  # Parsing EIA array
                 compareto = str(txtlines)
-            else:
+            else:  # Parsing TLoads array
                 # Only compare to first three columns of tloads array
                 compareto = str([txtlines[0], txtlines[1], txtlines[2]])
             # Establish the match
@@ -249,21 +254,28 @@ def txt_parser(mstxt, comparefrom, command_string, file_type, demand_column):
                 rows_to_remove.append(idx)
                 # If recording/removing rows, record energy/stock info.
                 if record_reduce:
-                    if eia_parse:
+                    if supply_parse or demand_parse:  # Parsing EIA array
                         group_stock.append(txtlines['EQSTOCK'])
                         group_energy.append(txtlines['CONSUMPTION'])
-                    else:
+                    else:  # Parsing TLoads array
+                        # Use demand_column indicator to find value
                         tloads_component = (txtlines[demand_column])
 
     # Set up proper function return based on command_string input
     if record_reduce:
-        if eia_parse:
-            # Delete matched rows from numpy array of txt data
+        # "Record" operation
+        # For EIA_supply parse, report values & delete matched rows from array
+        if supply_parse:
             mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
             parse_return = (group_energy, group_stock, mstxt_reduced)
+        # For EIA_demand parse, only report values
+        elif demand_parse:
+            parse_return = (group_energy, group_stock)
+        # For TLoads parase, only report matched value
         else:
             parse_return = (tloads_component)
     else:
+        # "Reduce" operation
         mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
         parse_return = mstxt_reduced
     return parse_return
@@ -285,7 +297,7 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     if 'demand' in filterdata:
         # Find baseline heating or cooling energy microsegment (before
         # application of load component); establish reduced numpy array
-        [group_energy_base, group_stock, mstxt_demand] = txt_parser(mstxt_demand, comparefrom_base, 'Record', 'EIA','')        
+        [group_energy_base, group_stock] = txt_parser(mstxt_demand, comparefrom_base, 'Record', 'EIA_Demand','')
         # Given discovered list of energy values, ensure length = # years
         # currently projected by AEO. If not, reshape the list
         if len(group_energy_base) is not aeo_years:
@@ -310,11 +322,11 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
 
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
-        return [{'stock': 'NA', 'energy': group_energy}, mstxt_supply, mstxt_demand]
+        return [{'stock': 'NA', 'energy': group_energy}, mstxt_supply]
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
-        [group_energy, group_stock, mstxt_supply] = txt_parser(mstxt_supply, comparefrom_base, 'Record', 'EIA','')
+        [group_energy, group_stock, mstxt_supply] = txt_parser(mstxt_supply, comparefrom_base, 'Record', 'EIA_Supply','')
 
         # Given the discovered lists of energy/stock values, ensure length = #
         # years currently projected by AEO. If not, reshape the list
@@ -327,7 +339,7 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
 
         # Return combined stock/energy use values and updated version of EIA
         # supply data with already matched data removed
-        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply, mstxt_demand]
+        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
 
 
 def walk(supply, demand, loads, json_dict, key_list=[]):
@@ -345,7 +357,7 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
         else:
             leaf_node_keys = key_list + [key]
             # Extract data from original data sources
-            [data_dict, supply, demand] = \
+            [data_dict, supply] = \
                 list_generator(supply, demand, loads, leaf_node_keys)
             # Set dict key to extracted data
             json_dict[key] = data_dict
@@ -371,9 +383,9 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array):
                 # Special handling of 1st dict (no addition of the 2nd dict,
                 # only conversion of 1st with approrpriate translator factor)
                 if (cd == 0):
-                    base_dict[k] = [x * cd_convert for x in base_dict[k]]
+                    base_dict[k] = [round((x * cd_convert), 4) for x in base_dict[k]]
                 else:
-                    base_dict[k] = [(x + y * cd_convert) for (x, y) in zip(base_dict[k], add_dict[k2])]
+                    base_dict[k] = [round((x + y * cd_convert), 4) for (x, y) in zip(base_dict[k], add_dict[k2])]
         else:
             print('Error: Merge keys do not match!')
     # Return a single dict representing sum of values of original two dicts
@@ -408,20 +420,20 @@ def main():
     supply = numpy.genfromtxt(EIA_res_file, names=True,
                               delimiter='\t', dtype=None)
     # Reduce supply array to only needed rows
-    supply = txt_parser(supply, unused_supply_re, 'Reduce', 'EIA', '')
+    supply = txt_parser(supply, unused_supply_re, 'Reduce', 'EIA_Supply', '')
 
     # Set RESDBOUT.txt list for separate use in "demand" microsegments
     demand = supply
     # Reduce demand array to only needed rows
-    demand = txt_parser(demand, unused_demand_re, 'Reduce', 'EIA', '')
+    demand = txt_parser(demand, unused_demand_re, 'Reduce', 'EIA_Demand', '')
 
     # Set thermal loads .txt file (*currently residential)
     loads = numpy.genfromtxt(res_tloads, names=True,
                              delimiter='\t', dtype=None)
 
     # Import JSON file and run through updating scheme
-    with open(jsonfile, 'r') as js:
-        msjson = json.load(js)
+    with open(json_in, 'r') as jsi:
+        msjson = json.load(jsi)
         # Run through JSON objects, determine replacement information
         # to mine from .txt file, and make the replacement
         updated_json = walk(supply, demand, loads, msjson)
@@ -430,8 +442,9 @@ def main():
         updated_json_final = clim_converter(updated_json,
                                             res_convert_array)
 
-    # Return the updated json
-    return updated_json_final
+    # Write the updated json to new json file
+    with open(json_out, 'w') as jso:
+        json.dump(updated_json_final, jso, indent=4)
 
 
 if __name__ == '__main__':

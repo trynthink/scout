@@ -248,7 +248,7 @@ class ClimConverterTest(unittest.TestCase):
                 if isinstance(dict1[k], str):
                     self.assertEqual(dict1[k], dict2[k2])
                 else:
-                    self.assertEqual([round(elem, 4) for elem in dict1[k]], dict2[k2])
+                    self.assertEqual([elem for elem in dict1[k]], dict2[k2])
 
     # Implement dict check routine
     def test_convert_match(self):
