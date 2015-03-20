@@ -145,31 +145,66 @@ def json_translator(dictlist, filterformat):
     # Set an indicator for whether a "demand" filtering element has been found
     # (special treatment)
     demand_indicator = 0
+    # Set an indicator for whether the technology level is handled on the end
+    # use level - i.e., set top boxes (special treatment)
+    enduse_techlevel = 0
+    # Set an indicator for what level in the microsegment hierarchy we are in:
+    # 1) end use, 2) census division, 3) bldg type, 4) fuel type,
+    # 5) "supply" tech type, 6) "demand" tech type)
+    ms_level = 0
+    # Reduce dictlist as appropriate to filtering information (if not a
+    # "demand", microsegment, remove "technology_demanddict" from dictlist;
+    # if not a "supply" microsegment", remove "technology_supplydict" from
+    # dictlist; if a microsegment with no technology level (i.e. water heating)
+    # remove "technology_supplydict" and "technology_demanddict" from dictlist.
+    if 'demand' in filterformat:
+        dictlist_loop = dictlist[:(len(dictlist) - 2)]
+        dictlist_add = dictlist[-1]
+        dictlist_loop.append(dictlist_add)
+    elif len(filterformat) <= 4:
+        dictlist_loop = dictlist[:(len(dictlist) - 2)]
+    else:
+        dictlist_loop = dictlist[:(len(dictlist) - 1)]
     # Loop through "dictlist" and determine whether any elements of
     # "filterformat" input are in dict keys; if so, add key value to output
-    for j in dictlist:
+    for j in dictlist_loop:
+        # Count key matches for given dict
+        match_count = 0
+        ms_level += 1
         for num, key in enumerate(filterformat):
             # Check whether element is in dict keys
             if key in j.keys():
+                match_count += 1
                 # "Demand" technologies added to 2nd element of filtering list
                 if demand_indicator != 1:
                     # If there are more levels in a keyed item, go down branch
                     if isinstance(j[key], dict):
-                            nextkey = filterformat[num + 1]
+                        nextkey = filterformat[num + 1]
+                        if nextkey in j[key].keys():
                             json_translate[0].append(j[key][nextkey])
+                            # Update enduse_techlevel indicator
+                            enduse_techlevel = 1
                     else:
-                            json_translate[0].append(j[key])
+                        json_translate[0].append(j[key])
                     break
                 else:
                     if isinstance(j[key], dict):
-                            nextkey = filterformat[num + 1]
+                        nextkey = filterformat[num + 1]
+                        if nextkey in j[key].keys():
                             json_translate[1] = str(j[key][nextkey])
                     else:
-                            json_translate[1] = str(j[key])
+                        json_translate[1] = str(j[key])
                     break
-            # Flag a demand technology
+            # Flag a "demand" microsegment
             elif key == 'demand':
-                    demand_indicator = 1
+                demand_indicator = 1
+        # If there was no key match for given dict and we don't have special
+        # case of a technology being handled on the end use level, raise error
+        if (match_count == 0 and ms_level != (len(dictlist) - 1)) or \
+           (match_count == 0 and ms_level == (len(dictlist) - 1) and
+           enduse_techlevel == 0):
+            raise(KeyError("Filter list element not found in dict keys!"))
+
     # Return updated filtering list of lists: [[supply filter],[demand filter]]
     return json_translate
 
@@ -281,7 +316,8 @@ def txt_parser(mstxt, comparefrom, command_string, file_type, demand_column):
     return parse_return
 
 
-def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
+def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata,
+                   aeo_years):
     """ Given filtering list for a microsegment, find rows in *.txt
     files to reference in determining associated energy data, append
     energy data to a new list """
@@ -290,33 +326,43 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     txt_filter = json_translator(res_dictlist, filterdata)
     # Set up 'compare from' list (based on .txt file)
     [comparefrom_base, column_indicator] = filter_formatter(txt_filter)
-
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
     # technology (handled differently)
     if 'demand' in filterdata:
         # Find baseline heating or cooling energy microsegment (before
         # application of load component); establish reduced numpy array
-        [group_energy_base, group_stock] = txt_parser(mstxt_demand, comparefrom_base, 'Record', 'EIA_Demand','')
+        [group_energy_base, group_stock] = txt_parser(mstxt_demand,
+                                                      comparefrom_base,
+                                                      'Record',
+                                                      'EIA_Demand',
+                                                      '')
         # Given discovered list of energy values, ensure length = # years
         # currently projected by AEO. If not, reshape the list
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) % aeo_years == 0:
-                group_energy_base = numpy.reshape(group_energy_base, (aeo_years, -1), order='F').sum(axis=1).tolist()
+                group_energy_base = \
+                    numpy.reshape(group_energy_base,
+                                  (aeo_years, -1),
+                                  order='F').sum(axis=1).tolist()
             else:
-                print('Error in length of discovered list!')
+                raise(ValueError('Error in length of discovered list!'))
 
         # Find/apply appropriate thermal load component
         # 1. Construct appropriate row filter for tloads array
-        fuel_remove = re.search('(\.\*)(\(*\w+\|*\w+\)*)(\.\+\w+\.\+\w+)', comparefrom_base)
-        # If special case of secondary heating, change end use part of regex to 'HT', which
-        # is what both primary and secondary heating are coded as in thermal loads .txt
+        fuel_remove = re.search('(\.\*)(\(*\w+\|*\w+\)*)(\.\+\w+\.\+\w+)',
+                                comparefrom_base)
+        # If special case of secondary heating, change end use part of regex to
+        # 'HT', which is what both primary and secondary heating are coded as
+        # in thermal loads .txt
         if (fuel_remove.group(2) == '(SH|OA)'):
-            comparefrom_tloads = fuel_remove.group(1) + 'HT' + fuel_remove.group(3)
+            comparefrom_tloads = fuel_remove.group(1) + 'HT' + \
+                fuel_remove.group(3)
         else:
             comparefrom_tloads = fuel_remove.group()
         # 2. Find/return appropriate tloads component and reduced tloads array
-        tloads_component = txt_parser(mstxt_loads, comparefrom_tloads, 'Record', 'TLoads', column_indicator)
+        tloads_component = txt_parser(mstxt_loads, comparefrom_tloads,
+                                      'Record', 'TLoads', column_indicator)
         # 3. Apply component value to baseline energy values for final list
         group_energy = [x * tloads_component for x in group_energy_base]
 
@@ -326,16 +372,20 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata):
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
-        [group_energy, group_stock, mstxt_supply] = txt_parser(mstxt_supply, comparefrom_base, 'Record', 'EIA_Supply','')
+        [group_energy, group_stock, mstxt_supply] = \
+            txt_parser(mstxt_supply, comparefrom_base, 'Record', 'EIA_Supply',
+                       '')
 
         # Given the discovered lists of energy/stock values, ensure length = #
         # years currently projected by AEO. If not, reshape the list
         if len(group_energy) is not aeo_years:
             if len(group_energy) % aeo_years == 0:
-                group_energy = numpy.reshape(group_energy, (aeo_years, -1), order='F').sum(axis=1).tolist()
-                group_stock = numpy.reshape(group_stock, (aeo_years, -1), order='F').sum(axis=1).tolist()
+                group_energy = numpy.reshape(group_energy, (aeo_years, -1),
+                                             order='F').sum(axis=1).tolist()
+                group_stock = numpy.reshape(group_stock, (aeo_years, -1),
+                                            order='F').sum(axis=1).tolist()
             else:
-                print('Error in length of discovered list!')
+                raise(ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values and updated version of EIA
         # supply data with already matched data removed
@@ -358,7 +408,8 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
             leaf_node_keys = key_list + [key]
             # Extract data from original data sources
             [data_dict, supply] = \
-                list_generator(supply, demand, loads, leaf_node_keys)
+                list_generator(supply, demand, loads, leaf_node_keys,
+                               aeo_years)
             # Set dict key to extracted data
             json_dict[key] = data_dict
 
@@ -383,11 +434,13 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array):
                 # Special handling of 1st dict (no addition of the 2nd dict,
                 # only conversion of 1st with approrpriate translator factor)
                 if (cd == 0):
-                    base_dict[k] = [round((x * cd_convert), 4) for x in base_dict[k]]
+                    base_dict[k] = [round((x * cd_convert), 4) for x in
+                                    base_dict[k]]
                 else:
-                    base_dict[k] = [round((x + y * cd_convert), 4) for (x, y) in zip(base_dict[k], add_dict[k2])]
+                    base_dict[k] = [round((x + y * cd_convert), 4) for (x, y)
+                                    in zip(base_dict[k], add_dict[k2])]
         else:
-            print('Error: Merge keys do not match!')
+            raise(KeyError('Merge keys do not match!'))
     # Return a single dict representing sum of values of original two dicts
     return base_dict
 

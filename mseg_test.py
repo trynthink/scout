@@ -8,6 +8,8 @@ import mseg
 # Import needed packages
 import unittest
 import re
+import copy
+import numpy
 
 # class FileImportTest(unittest.TestCase):
 #     """ Tests the file import function """
@@ -82,7 +84,209 @@ class texttype(unittest.TestCase):
 class listgenerator(unittest.TestCase):
     """ Test operation of list_generator function (create dummy inputs and
     test against established outputs) """
-    pass
+
+    # Define sample aeo time horizon for this test
+    aeo_years = 2
+
+    # Define a sample set of supply data
+    supply_data = [('HT ', 1, 1, 'EL', 'ELEC_RAD', 2010, 0, 1, -1),
+                   ('HT ', 1, 1, 'EL', 'ELEC_RAD', 2011, 0, 1, -1),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2010, 2, 3, -1),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2011, 2, 3, -1),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2010, 4, 5, -1),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2011, 4, 5, -1),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2010, 6, 7, -1),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2011, 6, 7, -1),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2010, 8, 9, -1),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2011, 8, 9, -1),
+                   ('SH ', 1, 1, 'EL', 'EL', 2010, 10, 11, -1),
+                   ('SH ', 1, 1, 'EL', 'EL', 2011, 10, 11, -1),
+                   ('SH ', 1, 1, 'GS', 'GS', 2010, 12, 13, -1),
+                   ('SH ', 1, 1, 'GS', 'GS', 2011, 12, 13, -1),
+                   ('OA ', 1, 1, 'EL', 'EL', 2010, 14, 15, -1),
+                   ('OA ', 1, 1, 'EL', 'EL', 2011, 14, 15, -1),
+                   ('OA ', 2, 1, 'GS', 'GS', 2010, 16, 17, -1),
+                   ('OA ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1),
+                   ('OA ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1),
+                   ('OA ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1),
+                   ('OA', 1, 1, 'LG', 'LG', 2010, 20, 21, -1),
+                   ('OA', 1, 1, 'LG', 'LG', 2011, 20, 21, -1),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1)]
+
+    # Convert supply data into numpy array with column names
+    supply_array = numpy.array(supply_data, dtype=[('ENDUSE', 'S3'),
+                                                   ('CDIV', 'i8'),
+                                                   ('BLDG', 'i8'),
+                                                   ('FUEL', 'S2'),
+                                                   ('EQPCLASS', 'S8'),
+                                                   ('YEAR', 'i8'),
+                                                   ('EQSTOCK', 'f8'),
+                                                   ('CONSUMPTION', 'i8'),
+                                                   ('HOUSEHOLDS', 'i8')])
+
+    # Demand array = supply array at start of test
+    demand_array = copy.deepcopy(supply_array)
+
+    #Define a sample set of thermal load components data
+    loads_data = [('CL', 2, 3, 100, -0.25, 0.25, 0, 0, 0.25, 0, 0.5, 0),
+                  ('CL', 1, 2, 200, -0.1, 0.1, 0, 0, 0.4, 0, 0.6, 0),
+                  ('HT', 2, 3, 300, -0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0),
+                  ('HT', 2, 1, 400, -0.75, 0.5, 0, 0, 0.25, 0, 1, 0),
+                  ('HT', 1, 1, 300, -0.2, 0.1, 0, 0.4, 0.1, 0.3, 0.3, 0),
+                  ('CL', 1, 1, 400, -0.3, 0.5, 0.1, 0.1, 0.2, 0, 0.4, 0)]
+
+    # Convert thermal loads data into numpy array with column names
+    loads_array = numpy.array(loads_data, dtype=[('ENDUSE', 'S2'),
+                                                 ('CDIV', 'i8'),
+                                                 ('BLDG', 'i8'),
+                                                 ('NBLDGS', 'f8'),
+                                                 ('WIND_COND', 'f8'),
+                                                 ('WIND_SOL', 'f8'),
+                                                 ('ROOF', 'f8'),
+                                                 ('WALL', 'f8'),
+                                                 ('INFIL', 'f8'),
+                                                 ('PEOPLE', 'f8'),
+                                                 ('GRND', 'f8'),
+                                                 ('EQUIP', 'f8')])
+    # Define a set of filters that should yield matched microsegment
+    # stock/energy data
+    ok_filters = [['new england', 'single family home',
+                   'electricity (grid)', 'heating', 'supply',
+                   'boiler (electric)'],
+                  ['new england', 'single family home',
+                   'electricity (grid)', 'secondary heating',
+                   'supply', 'non-specific'],
+                  ['new england', 'single family home',
+                   'natural gas', 'secondary heating', 'supply',
+                   'non-specific'],
+                  ['east north central', 'single family home',
+                   'electricity (grid)', 'secondary heating', 'supply',
+                   'non-specific'],
+                  ['new england', 'single family home',
+                   'electricity (grid)', 'TVs', 'set top box'],
+                  ['new england', 'multi family home',
+                   'electricity (grid)', 'TVs', 'set top box'],
+                  ['mid atlantic', 'multi family home',
+                   'electricity (grid)', 'other (grid electric)',
+                   'other MELs'],
+                  ['new england', 'single family home',
+                   'electricity (grid)', 'heating',
+                   'demand', 'ground'],
+                  ['mid atlantic', 'single family home',
+                   'natural gas', 'heating', 'demand',
+                   'windows conduction'],
+                  ['mid atlantic', 'mobile home',
+                   'natural gas', 'cooling', 'demand',
+                   'windows solar']]
+
+    # Define a set of filters that should yield zeros for stock/energy
+    # data because they do not make sense
+    nonsense_filters = [['mid atlantic', 'mobile home', 'natural gas',
+                         'lighting', 'room AC'],
+                        ['pacific', 'single family home',
+                         'electricity (on site)', 'water heating', 'solar WH'],
+                        ['new england', 'single family home',
+                         'distillate', 'TVs',
+                         'set top box']]
+
+    # Define a set of filters that should raise an error because certain
+    # filter elements do not have any match in the microsegment dict keys
+    fail_filters = [['the moon', 'single family home',
+                     'electricity (grid)', 'heating', 'supply',
+                     'boiler (electric)'],
+                    ['new england', 'single family cave',
+                     'natural gas', 'secondary heating'],
+                    ['new england', 'mobile home',
+                     'human locomotion', 'lighting', 'reflector'],
+                    ['south atlantic', 'single family home',
+                     'distillate', 'secondary heating', 'supply',
+                     'portable heater'],
+                    ['mid atlantic', 'mobile home',
+                     'electricity (grid)', 'heating',
+                     'supply', 'boiler (electric)'],
+                    ['east north central', 'multi family home',
+                     'natural gas', 'cooling', 'demand', 'windows frames'],
+                    ['pacific', 'multi family home', 'electricity (grid)',
+                     'other (grid electric)', 'beer cooler']]
+
+    # Define the set of outputs that should be yielded by the "ok_filters"
+    # information above
+    ok_out = [[{'stock': [0, 0], 'energy': [1, 1]},
+               supply_array[2:]],
+              [{'stock': [24, 24], 'energy': [26, 26]},
+              numpy.hstack([supply_array[0:10], supply_array[12:14],
+                            supply_array[16:]])],
+              [{'stock': [12, 12], 'energy': [13, 13]},
+               numpy.hstack([supply_array[0:12], supply_array[14:]])],
+              [{'stock': [18, 18], 'energy': [19, 19]},
+               numpy.hstack([supply_array[0:18], supply_array[20:]])],
+              [{'stock': [22, 22], 'energy': [23, 23]},
+               numpy.hstack([supply_array[:-6], supply_array[-4:]])],
+              [{'stock': [24, 24], 'energy': [25, 25]},
+               numpy.hstack([supply_array[:-4], supply_array[-2:]])],
+              [{'stock': [36, 36], 'energy': [37, 37]},
+               supply_array[:-2]],
+              [{'stock': 'NA', 'energy': [0.3, 0.3]}, supply_array],
+              [{'stock': 'NA', 'energy': [-6.0, -6.0]}, supply_array],
+              [{'stock': 'NA', 'energy': [1.75, 1.75]}, supply_array]]
+
+    # Define the set of outputs (zeros) that should be yielded by the
+    # "nonsense_filters" information above
+    nonsense_out = [[{'stock': [0, 0], 'energy': [0, 0]}, supply_array],
+                    [{'stock': [0, 0], 'energy': [0, 0]}, supply_array],
+                    [{'stock': [0, 0], 'energy': [0, 0]}, supply_array]]
+
+    # Test filter that should match and generate stock/energy data
+    def test_ok_filters(self):
+        # "Supply" microsegment test
+        for idx, afilter in enumerate(self.ok_filters):
+            # Assert first output (list of values) is correct
+            self.assertEqual(mseg.list_generator(self.supply_array,
+                             self.demand_array,
+                             self.loads_array, afilter,
+                             self.aeo_years)[0],
+                             self.ok_out[idx][0])
+            # Assert second output (reduced "supply" numpy array) is correct
+            numpy.testing.assert_array_equal(mseg.list_generator(
+                                             self.supply_array,
+                                             self.demand_array,
+                                             self.loads_array,
+                                             afilter,
+                                             self.aeo_years)[1],
+                                             self.ok_out[idx][1])
+
+    # Test filters that should match but ultimately do not make sense
+    def test_nonsense_filters(self):
+        for idx, afilter in enumerate(self.nonsense_filters):
+            # Assert first output (list of values) is correct
+            self.assertEqual(mseg.list_generator(self.supply_array,
+                             self.demand_array,
+                             self.loads_array, afilter,
+                             self.aeo_years)[0],
+                             self.nonsense_out[idx][0])
+            # Assert second output (reduced "supply" numpy array) is correct
+            numpy.testing.assert_array_equal(mseg.list_generator(
+                                             self.supply_array,
+                                             self.demand_array,
+                                             self.loads_array,
+                                             afilter,
+                                             self.aeo_years)[1],
+                                             self.nonsense_out[idx][1])
+
+    # Test filters that should raise an error
+    def test_fail_filters(self):
+        with self.assertRaises(KeyError):
+            for idx, afilter in enumerate(self.fail_filters):
+                # Assert first output (list of values) is correct
+                mseg.list_generator(self.supply_array,
+                                    self.demand_array,
+                                    self.loads_array, afilter,
+                                    self.aeo_years)
 
 
 class JSONFileStructureTest(unittest.TestCase):
@@ -138,22 +342,27 @@ class JSONTranslatorTest(unittest.TestCase):
                   ['west south central', 'mobile home', 'electricity (grid)',
                    'TVs', 'set top box'],
                   ['east north central', 'mobile home', 'electricity (grid)',
-                   'lighting', 'NA', 'general service'],
+                   'lighting', 'general service'],
                   ['west north central', 'mobile home', 'other fuel',
                    'heating', 'supply', 'resistance'],
                   ['south atlantic', 'multi family home', 'distillate',
                    'secondary heating', 'demand', 'windows solar'],
                   ['new england', 'single family home', 'other fuel',
                    'secondary heating', 'secondary heating (coal)',
-                   'supply', 'non-specific']]
-
-    # Define nonsense filter examples (combinations of building types,
-    # end uses, etc. that aren't possible and thus wouldn't appear in
-    # the microsegments JSON)
-    nonsense_filters = [['mountain', 'multi family home', 'natural gas',
-                         'ceiling fan'],
-                        ['mid atlantic', 'mobile home', 'distillate',
-                         'TVs', 'home theater & audio']]
+                   'supply', 'non-specific'],
+                  ['new england', 'single family home', 'natural gas',
+                   'water heating']]
+    # Define nonsense filter examples (combinations of building types, end uses,
+    # etc. that are not possible and thus wouldn't appear in the microsegments
+    # JSON)
+    nonsense_filters = [['west north central', 'mobile home', 'natural gas',
+                         'lighting', 'room AC'],
+                        ['new england', 'single family home',
+                         'electricity (on site)', 'cooling', 'supply',
+                         'room AC'],
+                        ['new england', 'single family home',
+                         'electricity (grid)', 'refrigeration',
+                         'linear fluorescent']]
 
     # Define example filters that do not have information in the
     # correct order to be prepared using json_translator and should
@@ -161,7 +370,15 @@ class JSONTranslatorTest(unittest.TestCase):
     fail_filters = [['west north central', 'cooking', 'natural gas',
                      'drying'],
                     ['pacific', 'multi family home', 'electricity (grid)',
-                     'computers', 'video game consoles']]
+                     'computers', 'video game consoles'],
+                    ['the moon', 'mobile home', 'distillate',
+                     'heating', 'supply', 'boiler (distillate)'],
+                    ['mountain', 'multi family home', 'natural gas',
+                     'ceiling fan'],
+                    ['mid atlantic', 'mobile home', 'distillate',
+                     'TVs', 'home theater & audio'],
+                    ['mid atlantic', 'mobile home', 'electricity (grid)',
+                     'TVs', 'antennas']]
 
     # Define what json_translator should produce for the given filters;
     # this part is critically important, as these tuples and/or lists
@@ -176,9 +393,11 @@ class JSONTranslatorTest(unittest.TestCase):
                 'GE2'], ''],
               [[('SH', 'OA'), 5, 2, 'DS'], 'WIND_SOL'],
               [[('SH', 'OA'), 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
-                'CL'], '']]
-    nonsense_out = [[['CFN', 8, 2, 'GS'], ''],
-                    [['HTS', 2, 3, 'DS'], '']]
+                'CL'], ''],
+              [['HW', 1, 1, 'GS'], '']]
+    nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
+                    [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
+                    [['RF', 1, 1, 'EL', 'LFL'], '']]
 
     # Test filters that have expected technology definitions and should match
     def test_ok_filters(self):
@@ -205,19 +424,19 @@ class ClimConverterTest(unittest.TestCase):
     """ Test operation of climate conversion function (create dummy inputs and
     test against established outputs) """
     # Create a test input dict with 3 census divisions
-    test_input = {'new england': {'single family home': {
-                                  'electricity (grid)': {'lighting': {
-                                                         'linear fluorescent':
-                                                         [1, 1, 1]}}}},
-                  'middle atlantic': {'single family home': {
-                                      'electricity (grid)': {'lighting': {
-                                                             'linear fluorescent':
-                                                             [1, 1, 1]}}}},
-                  'east north central': {'single family home': {
-                                         'electricity (grid)': {'lighting': {
-                                                                'linear fluorescent':
-                                                                [1, 1, 1]}}}}
-                  }
+    test_input = \
+        {'new england': {'single family home': {
+                         'electricity (grid)': {'lighting': {
+                                                'linear fluorescent':
+                                                [1, 1, 1]}}}},
+         'middle atlantic': {'single family home': {
+                             'electricity (grid)': {'lighting': {
+                                                    'linear fluorescent':
+                                                    [1, 1, 1]}}}},
+         'east north central': {'single family home': {
+                                'electricity (grid)': {'lighting': {
+                                                       'linear fluorescent':
+                                                       [1, 1, 1]}}}}}
     # Create an expected output dict broken down by climate zone
     test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
