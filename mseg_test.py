@@ -11,12 +11,6 @@ import re
 import copy
 import numpy
 
-# class FileImportTest(unittest.TestCase):
-#     """ Tests the file import function """
-
-#     def test_import(self):
-#         pass
-
 
 class ResidentialDataIntegrityTest(unittest.TestCase):
     """ Tests the imported residential equipment energy use data from
@@ -81,11 +75,128 @@ class texttype(unittest.TestCase):
     pass
 
 
-class listgenerator(unittest.TestCase):
-    """ Test operation of list_generator function (create dummy inputs and
-    test against established outputs) """
+class NumpyArrayReductionTest(unittest.TestCase):
+    """ Test the operation of the txt_parser function to verify row
+    selection or deletion operations produce the expected output """
 
-    # Define sample aeo time horizon for this test
+    # Define sample structured array with the same form as the
+    # EIA data and that includes some of the rows to be removed
+    EIA_example = numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
+        (b'SF ', 8, 1, b'EL', b'ELEC_RAD', 2011, 78.0, 0, -1),
+        (b'SF ', 8, 1, b'EL', b'ELEC_HP ', 2011, 6.0, 0, -1),
+        (b'SF ', 8, 1, b'GS', b'NG_FA   ', 2011, 0.0, 0, -1),
+        (b'ST ', 3, 1, b'EL', b'ELEC_RAD', 2011, 0.0, 0, -1),
+        (b'ST ', 3, 1, b'EL', b'ELEC_HP ', 2011, 3569.0, 0, -1),
+        (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1)],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8')])
+
+    # Define reduced version of EIA data after applying the supply filter
+    supply_filtered = numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8')])
+
+    # Define reduced version of EIA data after applying the demand filter
+    demand_filtered = numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1)],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8')])
+
+    # Define filter to select a subset of the sample EIA data
+    EIA_flt = '.*DW.+2.+1.+EL.+DS_WASH'
+
+    # Set up selected data from EIA sample array as the basis for comparison
+    EIA_sample = ([6423576, 6466014, 6513706], [9417809, 9387396, 9386813])
+
+    # Define sample structured array comparable in form to the thermal
+    # loads data (note that the numeric data here do not represent
+    # realistic values for these data)
+    tloads_example = numpy.array([
+        (b'HT', 1, 1, 394.8, 0.28, 0.08, 0.08, 0.25, 0.38, -0.02, 0.22, -0.12),
+        (b'CL', 1, 1, 394.8, -0.01, 0.51, 0.10, 0.15, 0.14, 0.03, -0.12, 0.19),
+        (b'HT', 2, 1, 813.3, 0.29, -0.07, 0.10, 0.24, 0.38, 0.01, 0.20, -0.13),
+        (b'CL', 2, 1, 813.3, -0.01, 0.44, 0.12, 0.14, 0.14, 0.03, -0.09, 0.19),
+        (b'HT', 3, 2, 409.5, 0.27, -0.06, 0.23, 0.21, 0.48, 0.05, 0.13, -0.23),
+        (b'CL', 3, 2, 409.5, -0.02, 0.34, 0.13, 0.06, 0.09, 0.13, -0.16, 0.41),
+        (b'HT', 4, 2, 104.8, 0.29, 0.07, 0.23, 0.23, 0.44, -0.05, 0.17, -0.25),
+        (b'CL', 4, 2, 104.8, 0.00, 0.31, 0.09, 0.09, 0.13, 0.11, -0.11, 0.37),
+        (b'HT', 5, 3, 140.9, 0.44, -0.13, 0.11, 0.25, 0.33, -0.02, 0.16, 0.16),
+        (b'CL', 5, 3, 140.9, 0.00, 0.40, 0.12, 0.11, 0.14, 0.04, -0.03, 0.20),
+        (b'HT', 6, 3, 684.1, 0.47, 0.14, 0.18, 0.26, 0.39, -0.03, 0.07, -0.21),
+        (b'CL', 6, 3, 684.1, -0.01, 0.37, 0.14, 0.09, 0.14, 0.04, 0.02, 0.23)],
+        dtype=[('ENDUSE', 'S2'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('NBLDGS', '<f8'), ('WIND_COND', '<f8'), ('WIND_SOL', '<f8'),
+               ('ROOF', '<f8'), ('WALL', '<f8'), ('INFIL', '<f8'),
+               ('PEOPLE', '<f8'), ('GRND', '<f8'), ('EQUIP', '<f8')])
+
+    # Create filter to select thermal load data
+    tl_flt = '.*CL.+2.+1'
+
+    # Identify thermal load data to be reported (based on column names)
+    tl_col = 'INFIL'
+
+    # Set up selected data from thermal loads sample array
+    tloads_sample = 0.14
+
+    # Test removal of rows based on the supply regex in mseg
+    def test_removal_of_rows_using_supply_regex_filter(self):
+        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
+                              mseg.unused_supply_re, 'Reduce',
+                              'EIA_Supply', ''), self.supply_filtered)
+
+    # Test removal of rows based on the demand regex in mseg
+    def test_removal_of_rows_using_demand_regex_filter(self):
+        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
+                              mseg.unused_demand_re, 'Reduce',
+                              'EIA_Demand', ''), self.demand_filtered)
+
+    # Test restructuring of EIA data into stock and consumption lists
+    # using the EIA_Demand option so that the remaining data are not
+    # also returned by the function
+    def test_recording_of_EIA_data(self):
+        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
+                              self.EIA_flt, 'Record', 'EIA_Demand', ''),
+                              self.EIA_sample)
+
+    # Test extraction of the correct value from the thermal load
+    # components data
+    def test_recording_of_thermal_loads_data(self):
+        self.assertEqual(mseg.txt_parser(self.tloads_example,
+                         self.tl_flt, 'Record', 'TLoads', self.tl_col),
+                         self.tloads_sample)
+
+
+class DataToListFormatTest(unittest.TestCase):
+    """ Test operation of list_generator function (create dummy inputs
+    and test against established outputs) """
+
+    # Define sample AEO time horizon for this test
     aeo_years = 2
 
     # Define a sample set of supply data
@@ -132,7 +243,7 @@ class listgenerator(unittest.TestCase):
     # Demand array = supply array at start of test
     demand_array = copy.deepcopy(supply_array)
 
-    #Define a sample set of thermal load components data
+    # Define a sample set of thermal load components data
     loads_data = [('CL', 2, 3, 100, -0.25, 0.25, 0, 0, 0.25, 0, 0.5, 0),
                   ('CL', 1, 2, 200, -0.1, 0.1, 0, 0, 0.4, 0, 0.6, 0),
                   ('HT', 2, 3, 300, -0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0),
@@ -153,6 +264,7 @@ class listgenerator(unittest.TestCase):
                                                  ('PEOPLE', 'f8'),
                                                  ('GRND', 'f8'),
                                                  ('EQUIP', 'f8')])
+
     # Define a set of filters that should yield matched microsegment
     # stock/energy data
     ok_filters = [['new england', 'single family home',
@@ -352,9 +464,10 @@ class JSONTranslatorTest(unittest.TestCase):
                    'supply', 'non-specific'],
                   ['new england', 'single family home', 'natural gas',
                    'water heating']]
-    # Define nonsense filter examples (combinations of building types, end uses,
-    # etc. that are not possible and thus wouldn't appear in the microsegments
-    # JSON)
+
+    # Define nonsense filter examples (combinations of building types,
+    # end uses, etc. that are not possible and thus wouldn't appear in
+    # the microsegments JSON)
     nonsense_filters = [['west north central', 'mobile home', 'natural gas',
                          'lighting', 'room AC'],
                         ['new england', 'single family home',
@@ -421,8 +534,9 @@ class JSONTranslatorTest(unittest.TestCase):
 
 
 class ClimConverterTest(unittest.TestCase):
-    """ Test operation of climate conversion function (create dummy inputs and
-    test against established outputs) """
+    """ Test operation of climate conversion function (create dummy
+    inputs and test against established outputs) """
+
     # Create a test input dict with 3 census divisions
     test_input = \
         {'new england': {'single family home': {
@@ -437,6 +551,7 @@ class ClimConverterTest(unittest.TestCase):
                                 'electricity (grid)': {'lighting': {
                                                        'linear fluorescent':
                                                        [1, 1, 1]}}}}}
+
     # Create an expected output dict broken down by climate zone
     test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
@@ -471,7 +586,6 @@ class ClimConverterTest(unittest.TestCase):
 
     # Implement dict check routine
     def test_convert_match(self):
-
         dict1 = mseg.clim_converter(self.test_input, mseg.res_convert_array)
         dict2 = self.test_output
         self.dict_check(dict1, dict2)
