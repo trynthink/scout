@@ -128,11 +128,28 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
                ('HOUSEHOLDS', '<i8')])
 
+    # Define supply_filtered array after having some of the data recorded
+    # in separate consumption and equipment stock vectors and then
+    # removed from the main/data array
+    supply_reduced = numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8')])
+
     # Define filter to select a subset of the sample EIA data
     EIA_flt = '.*DW.+2.+1.+EL.+DS_WASH'
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_sample = ([6423576, 6466014, 6513706], [9417809, 9387396, 9386813])
+    EIA_sample = ([9417809, 9387396, 9386813],
+                  [6423576, 6466014, 6513706],
+                  supply_reduced)
 
     # Define sample structured array comparable in form to the thermal
     # loads data (note that the numeric data here do not represent
@@ -177,12 +194,15 @@ class NumpyArrayReductionTest(unittest.TestCase):
                               'EIA_Demand', ''), self.demand_filtered)
 
     # Test restructuring of EIA data into stock and consumption lists
-    # using the EIA_Demand option so that the remaining data are not
-    # also returned by the function
+    # using the EIA_Supply option to confirm that both the reported
+    # data and the reduced array with the remaining data are correct
     def test_recording_of_EIA_data(self):
-        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
-                              self.EIA_flt, 'Record', 'EIA_Demand', ''),
-                              self.EIA_sample)
+        (a, b, c) = mseg.txt_parser(self.supply_filtered,
+                                    self.EIA_flt, 'Record', 'EIA_Supply', '')
+
+        self.assertEqual(a, self.EIA_sample[0])  # Compare equipment stock
+        self.assertEqual(b, self.EIA_sample[1])  # Compare consumption
+        self.assertCountEqual(c, self.EIA_sample[2])  # Compare remaining data
 
     # Test extraction of the correct value from the thermal load
     # components data
