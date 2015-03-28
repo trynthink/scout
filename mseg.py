@@ -140,18 +140,23 @@ unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
 
 def json_translator(dictlist, filterformat):
     """ Determine filtering list for finding information in .txt file parse """
+
     # Set base filtering list of lists (1st element supply filter, 2nd demand)
     json_translate = [[], '']
+
     # Set an indicator for whether a "demand" filtering element has been found
     # (special treatment)
     demand_indicator = 0
+
     # Set an indicator for whether the technology level is handled on the end
     # use level - i.e., set top boxes (special treatment)
     enduse_techlevel = 0
+
     # Set an indicator for what level in the microsegment hierarchy we are in:
     # 1) end use, 2) census division, 3) bldg type, 4) fuel type,
     # 5) "supply" tech type, 6) "demand" tech type)
     ms_level = 0
+
     # Reduce dictlist as appropriate to filtering information (if not a
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
     # if not a "supply" microsegment", remove "technology_supplydict" from
@@ -165,6 +170,7 @@ def json_translator(dictlist, filterformat):
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
     else:
         dictlist_loop = dictlist[:(len(dictlist) - 1)]
+
     # Loop through "dictlist" and determine whether any elements of
     # "filterformat" input are in dict keys; if so, add key value to output
     for j in dictlist_loop:
@@ -251,100 +257,106 @@ def filter_formatter(txt_filter):
     return comparefrom
 
 
-def txt_parser(mstxt, comparefrom, command_string, file_type, demand_column):
-    """ Given a numpy array of "EIA_Supply", "EIA_Demand", or "TLoads"
-    information (specified in file_type input), and information about what rows
-    we want from it (specified in compare_from input), match the rows.  If
-    command_string input = 'Reduce', remove matched rows; if command_string
-    input = 'Record', record matched rows.  Note: demand_column input needed
-    only in "TLoads" parse """
-    # Determine whether we are removing numpy array rows or also recording them
-    record_reduce = re.search('Record', command_string, re.IGNORECASE)
+def thermal_load_select(tl_array, comparefrom, demand_column):
+    """ Select the desired thermal load component for the relevant
+    operating condition (heating or cooling) from the input data
+    based on the demand_column variable """
+
+    # Loop through the thermal load component array rows to identify
+    # the row matching the 'comparefrom' selection regex
+    for row in tl_array:
+
+        # Set up 'compareto' regex string using only the first three
+        # columns of the thermal load components array
+        compareto = str([row[0], row[1], row[2]])
+
+        # Check whether there is a match for the current row
+        match = re.search(comparefrom, compareto)
+
+        # If there's a match, extract the demand modifier value
+        # (the fraction of heating or cooling load gained/lost
+        # through the relevant exterior surface) in the appropriate
+        # column using 'demand_column'
+        if match:
+            tloads_component = (row[demand_column])
+
+    return tloads_component
+
+
+def stock_consume_select(data, comparefrom, file_type):
+    """ Select the stock and consumption data for each year for a
+    microsegment and restructure it into lists combining all years
+    together """
+
     # Determine whether we are parsing the "supply" copy of the EIA file
     supply_parse = re.search('EIA_Supply', file_type, re.IGNORECASE)
+
     # Determine whether we are parsing the "demand" copy of the EIA file
     demand_parse = re.search('EIA_Demand', file_type, re.IGNORECASE)
-    # Define intial list of rows to remove from mstxt input
+
+    # Define initial list of rows to remove from data input
     rows_to_remove = []
-    # If recording and removing rows, define initial stock/energy lists
-    if record_reduce:
-        if supply_parse or demand_parse:  # Parsing EIA array
-            group_stock = []
-            group_energy = []
+
+    # Define initial stock and energy lists
+    group_stock = []
+    group_energy = []
 
     # Loop through the numpy input array rows, match to 'comparefrom' input
-    for idx, txtlines in enumerate(mstxt):
-            # Set up 'compareto' list
-            if supply_parse or demand_parse:  # Parsing EIA array
-                compareto = str(txtlines)
-            else:  # Parsing TLoads array
-                # Only compare to first three columns of tloads array
-                compareto = str([txtlines[0], txtlines[1], txtlines[2]])
-            # Establish the match
-            match = re.search(comparefrom, compareto)
-            # If there's a match, append line to stock/energy lists for
-            # the current microsegment
-            if match:
-                # Record additional row index to delete
-                rows_to_remove.append(idx)
-                # If recording/removing rows, record energy/stock info.
-                if record_reduce:
-                    if supply_parse or demand_parse:  # Parsing EIA array
-                        group_stock.append(txtlines['EQSTOCK'])
-                        group_energy.append(txtlines['CONSUMPTION'])
-                    else:  # Parsing TLoads array
-                        # Use demand_column indicator to find value
-                        tloads_component = (txtlines[demand_column])
+    for idx, txtlines in enumerate(data):
+        # Set up 'compareto' list
+        compareto = str(txtlines)
+
+        # Establish the match
+        match = re.search(comparefrom, compareto)
+
+        # If there's a match, append line to stock/energy lists for
+        # the current microsegment
+        if match:
+            # Record additional row index to delete
+            rows_to_remove.append(idx)
+            # Record energy consumption and stock information
+            group_stock.append(txtlines['EQSTOCK'])
+            group_energy.append(txtlines['CONSUMPTION'])
 
     # Set up proper function return based on command_string input
-    if record_reduce:
-        # "Record" operation
-        # For EIA_supply parse, report values & delete matched rows from array
-        if supply_parse:
-            mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
-            parse_return = (group_energy, group_stock, mstxt_reduced)
-        # For EIA_demand parse, only report values
-        elif demand_parse:
-            parse_return = (group_energy, group_stock)
-        # For TLoads parase, only report matched value
-        else:
-            parse_return = (tloads_component)
-    else:
-        # "Reduce" operation
-        mstxt_reduced = numpy.delete(mstxt, rows_to_remove, 0)
-        parse_return = mstxt_reduced
+    # For EIA_supply parse, report values and delete matched rows from array
+    if supply_parse:
+        data_reduced = numpy.delete(data, rows_to_remove, 0)
+        parse_return = (group_energy, group_stock, data_reduced)
+    # For EIA_demand parse, only report values
+    elif demand_parse:
+        parse_return = (group_energy, group_stock)
+
     return parse_return
 
 
-def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata,
-                   aeo_years):
+def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
     """ Given filtering list for a microsegment, find rows in *.txt
     files to reference in determining associated energy data, append
     energy data to a new list """
 
     # Find the corresponding txt filtering information
     txt_filter = json_translator(res_dictlist, filterdata)
+
     # Set up 'compare from' list (based on .txt file)
     [comparefrom_base, column_indicator] = filter_formatter(txt_filter)
+
     # Run through text file and add all appropriate lines to the empty list
     # Check whether current microsegment is a heating/cooling "demand"
     # technology (handled differently)
     if 'demand' in filterdata:
         # Find baseline heating or cooling energy microsegment (before
         # application of load component); establish reduced numpy array
-        [group_energy_base, group_stock] = txt_parser(mstxt_demand,
-                                                      comparefrom_base,
-                                                      'Record',
-                                                      'EIA_Demand',
-                                                      '')
+        [group_energy_base, group_stock] = stock_consume_select(
+            ms_demand, comparefrom_base, 'EIA_Demand')
+
         # Given discovered list of energy values, ensure length = # years
         # currently projected by AEO. If not, reshape the list
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) % aeo_years == 0:
-                group_energy_base = \
-                    numpy.reshape(group_energy_base,
-                                  (aeo_years, -1),
-                                  order='F').sum(axis=1).tolist()
+                group_energy_base = numpy.reshape(
+                    group_energy_base, (aeo_years, -1),
+                    order='F').sum(axis=1).tolist()
             else:
                 raise(ValueError('Error in length of discovered list!'))
 
@@ -361,20 +373,20 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata,
         else:
             comparefrom_tloads = fuel_remove.group()
         # 2. Find/return appropriate tloads component and reduced tloads array
-        tloads_component = txt_parser(mstxt_loads, comparefrom_tloads,
-                                      'Record', 'TLoads', column_indicator)
+        tloads_component = thermal_load_select(
+            ms_loads, comparefrom_tloads, column_indicator)
         # 3. Apply component value to baseline energy values for final list
         group_energy = [x * tloads_component for x in group_energy_base]
 
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
-        return [{'stock': 'NA', 'energy': group_energy}, mstxt_supply]
+        return [{'stock': 'NA', 'energy': group_energy}, ms_supply]
+
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
-        [group_energy, group_stock, mstxt_supply] = \
-            txt_parser(mstxt_supply, comparefrom_base, 'Record', 'EIA_Supply',
-                       '')
+        [group_energy, group_stock, ms_supply] = stock_consume_select(
+            ms_supply, comparefrom_base, 'EIA_Supply')
 
         # Given the discovered lists of energy/stock values, ensure length = #
         # years currently projected by AEO. If not, reshape the list
@@ -389,12 +401,13 @@ def list_generator(mstxt_supply, mstxt_demand, mstxt_loads, filterdata,
 
         # Return combined stock/energy use values and updated version of EIA
         # supply data with already matched data removed
-        return [{'stock': group_stock, 'energy': group_energy}, mstxt_supply]
+        return [{'stock': group_stock, 'energy': group_energy}, ms_supply]
 
 
 def walk(supply, demand, loads, json_dict, key_list=[]):
     """ Proceed recursively through data stored in dict-type structure
     and perform calculations at each leaf/terminal node in the data """
+
     for key, item in json_dict.items():
 
         # If there are additional levels in the dict, call the function
@@ -407,9 +420,8 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
         else:
             leaf_node_keys = key_list + [key]
             # Extract data from original data sources
-            [data_dict, supply] = \
-                list_generator(supply, demand, loads, leaf_node_keys,
-                               aeo_years)
+            [data_dict, supply] = list_generator(supply, demand, loads,
+                                                 leaf_node_keys, aeo_years)
             # Set dict key to extracted data
             json_dict[key] = data_dict
 
@@ -421,6 +433,7 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array):
     """ Given two dicts of the same structure, add values
     at the end of each branch of 2nd dict to those of the 1st dict
     (used to convert cdiv microsegment breakdown to czone) """
+
     for (k, i), (k2, i2) in zip(base_dict.items(), add_dict.items()):
         # Check to ensure dicts do have same structure
         if k == k2:
@@ -441,6 +454,7 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array):
                                     in zip(base_dict[k], add_dict[k2])]
         else:
             raise(KeyError('Merge keys do not match!'))
+
     # Return a single dict representing sum of values of original two dicts
     return base_dict
 
@@ -448,37 +462,70 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array):
 def clim_converter(input_dict, convert_array):
     """ Convert an updated microsegments dict from a census division
     to a climate zone breakdown """
-    # Set climate & census division names
+
+    # Set climate zone and census division names
     clim_list = convert_array.dtype.names[1:]
     cdiv_list = list(input_dict.keys())
+
     # Set up empty dict to be updated
     converted_dict = {}
-    # Climate for loop
+
+    # Climate zone for loop
     for climnum, clim in enumerate(clim_list):
         base_dict = copy.deepcopy(input_dict[cdiv_list[0]])
-        # Cdiv for loop
+
+        # Census division for loop
         for cdivnum, cdiv in enumerate(cdiv_list):
             add_dict = copy.deepcopy(input_dict[cdiv])
             base_dict = merge_sum(base_dict, add_dict, cdivnum, (climnum + 1),
                                   convert_array)
         newadd = base_dict
         converted_dict.update({clim: newadd})
+
     return converted_dict
+
+
+def array_row_remover(data, comparefrom):
+    """ Remove rows from large arrays (e.g. EIA data) based on a
+    regular expression that defines which rows are not going to
+    be needed later in the analysis """
+
+    # Define an initial list of rows to remove from the input array
+    rows_to_remove = []
+
+    # Loop through the numpy input array rows and match to 'comparefrom' regex
+    for idx, row in enumerate(data):
+
+            # Set up 'compareto' string
+            compareto = str(row)
+
+            # Check whether there is a match for the current row
+            match = re.search(comparefrom, compareto)
+
+            # If there is a match, record the row index for later deletion
+            if match:
+                rows_to_remove.append(idx)
+
+    # Delete matched rows from numpy input array
+    data_reduced = numpy.delete(data, rows_to_remove, 0)
+
+    return data_reduced
 
 
 def main():
     """ Import .txt and JSON files; run through JSON objects; find
     analogous .txt information; replace JSON values; update JSON """
+
     # Import EIA RESDBOUT.txt file
     supply = numpy.genfromtxt(EIA_res_file, names=True,
                               delimiter='\t', dtype=None)
     # Reduce supply array to only needed rows
-    supply = txt_parser(supply, unused_supply_re, 'Reduce', 'EIA_Supply', '')
+    supply = array_row_remover(supply, unused_supply_re)
 
     # Set RESDBOUT.txt list for separate use in "demand" microsegments
     demand = supply
     # Reduce demand array to only needed rows
-    demand = txt_parser(demand, unused_demand_re, 'Reduce', 'EIA_Demand', '')
+    demand = array_row_remover(demand, unused_demand_re)
 
     # Set thermal loads .txt file (*currently residential)
     loads = numpy.genfromtxt(res_tloads, names=True,
@@ -491,9 +538,8 @@ def main():
         # to mine from .txt file, and make the replacement
         updated_json = walk(supply, demand, loads, msjson)
 
-        # Convert the updated json from cdiv->climate breakdown
-        updated_json_final = clim_converter(updated_json,
-                                            res_convert_array)
+        # Convert the updated json from census division to climate breakdown
+        updated_json_final = clim_converter(updated_json, res_convert_array)
 
     # Write the updated json to new json file
     with open(json_out, 'w') as jso:

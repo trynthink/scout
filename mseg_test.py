@@ -183,22 +183,20 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Test removal of rows based on the supply regex in mseg
     def test_removal_of_rows_using_supply_regex_filter(self):
-        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
-                              mseg.unused_supply_re, 'Reduce',
-                              'EIA_Supply', ''), self.supply_filtered)
+        self.assertCountEqual(mseg.array_row_remover(self.EIA_example,
+                              mseg.unused_supply_re), self.supply_filtered)
 
     # Test removal of rows based on the demand regex in mseg
     def test_removal_of_rows_using_demand_regex_filter(self):
-        self.assertCountEqual(mseg.txt_parser(self.EIA_example,
-                              mseg.unused_demand_re, 'Reduce',
-                              'EIA_Demand', ''), self.demand_filtered)
+        self.assertCountEqual(mseg.array_row_remover(self.EIA_example,
+                              mseg.unused_demand_re), self.demand_filtered)
 
     # Test restructuring of EIA data into stock and consumption lists
     # using the EIA_Supply option to confirm that both the reported
     # data and the reduced array with the remaining data are correct
     def test_recording_of_EIA_data(self):
-        (a, b, c) = mseg.txt_parser(self.supply_filtered,
-                                    self.EIA_flt, 'Record', 'EIA_Supply', '')
+        (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
+                                              self.EIA_flt, 'EIA_Supply')
 
         self.assertEqual(a, self.EIA_sample[0])  # Compare equipment stock
         self.assertEqual(b, self.EIA_sample[1])  # Compare consumption
@@ -207,8 +205,8 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Test extraction of the correct value from the thermal load
     # components data
     def test_recording_of_thermal_loads_data(self):
-        self.assertEqual(mseg.txt_parser(self.tloads_example,
-                         self.tl_flt, 'Record', 'TLoads', self.tl_col),
+        self.assertEqual(mseg.thermal_load_select(self.tloads_example,
+                         self.tl_flt, self.tl_col),
                          self.tloads_sample)
 
 
