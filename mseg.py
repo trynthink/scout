@@ -288,11 +288,8 @@ def stock_consume_select(data, comparefrom, file_type):
     microsegment and restructure it into lists combining all years
     together """
 
-    # Determine whether we are parsing the "supply" copy of the EIA file
+    # Determine whether we are parsing the "supply" version of the EIA data
     supply_parse = re.search('EIA_Supply', file_type, re.IGNORECASE)
-
-    # Determine whether we are parsing the "demand" copy of the EIA file
-    demand_parse = re.search('EIA_Demand', file_type, re.IGNORECASE)
 
     # Define initial list of rows to remove from data input
     rows_to_remove = []
@@ -302,9 +299,9 @@ def stock_consume_select(data, comparefrom, file_type):
     group_energy = []
 
     # Loop through the numpy input array rows, match to 'comparefrom' input
-    for idx, txtlines in enumerate(data):
+    for idx, row in enumerate(data):
         # Set up 'compareto' list
-        compareto = str(txtlines)
+        compareto = str(row)
 
         # Establish the match
         match = re.search(comparefrom, compareto)
@@ -312,22 +309,22 @@ def stock_consume_select(data, comparefrom, file_type):
         # If there's a match, append line to stock/energy lists for
         # the current microsegment
         if match:
-            # Record additional row index to delete
-            rows_to_remove.append(idx)
             # Record energy consumption and stock information
-            group_stock.append(txtlines['EQSTOCK'])
-            group_energy.append(txtlines['CONSUMPTION'])
+            group_stock.append(row['EQSTOCK'])
+            group_energy.append(row['CONSUMPTION'])
 
-    # Set up proper function return based on command_string input
-    # For EIA_supply parse, report values and delete matched rows from array
-    if supply_parse:
-        data_reduced = numpy.delete(data, rows_to_remove, 0)
-        parse_return = (group_energy, group_stock, data_reduced)
-    # For EIA_demand parse, only report values
-    elif demand_parse:
-        parse_return = (group_energy, group_stock)
+            # If handling the supply data, to reduce computation time,
+            # record row index to delete later
+            if supply_parse:
+                rows_to_remove.append(idx)
 
-    return parse_return
+    # Remove rows specified by rows_to_remove (an empty list when
+    # demand data are being handled by this function, thus deleting no
+    # rows, since the demand microsegments apply to multiple categories,
+    # e.g. heating through window conduction and envelope conduction).
+    data_reduced = numpy.delete(data, rows_to_remove, 0)
+
+    return (group_energy, group_stock, data_reduced)
 
 
 def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
@@ -347,7 +344,7 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
     if 'demand' in filterdata:
         # Find baseline heating or cooling energy microsegment (before
         # application of load component); establish reduced numpy array
-        [group_energy_base, group_stock] = stock_consume_select(
+        [group_energy_base, group_stock, ms_demand] = stock_consume_select(
             ms_demand, comparefrom_base, 'EIA_Demand')
 
         # Given discovered list of energy values, ensure length = # years

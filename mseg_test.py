@@ -78,6 +78,9 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
@@ -100,6 +103,9 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
@@ -115,7 +121,10 @@ class NumpyArrayReductionTest(unittest.TestCase):
     demand_filtered = numpy.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1)],
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1)],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -128,6 +137,9 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
@@ -136,13 +148,21 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
                ('HOUSEHOLDS', '<i8')])
 
-    # Define filter to select a subset of the sample EIA data
-    EIA_flt = '.*DW.+2.+1.+EL.+DS_WASH'
+    # Define filter to select a subset of the sample EIA supply data
+    EIA_supply_filter = '.*DW.+2.+1.+EL.+DS_WASH'
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_sample = ([9417809, 9387396, 9386813],
-                  [6423576, 6466014, 6513706],
-                  supply_reduced)
+    EIA_supply_sample = ([9417809, 9387396, 9386813],
+                         [6423576, 6466014, 6513706],
+                         supply_reduced)
+
+    # Define filter to select a subset of the sample EIA demand data
+    EIA_demand_filter = '.*HT.+1.+1.+EL.+ELEC_RAD'
+
+    # Set up selected data from EIA sample array as the basis for comparison
+    EIA_demand_sample = ([1452680, 1577350, 1324963],
+                         [126007, 125784, 125386],
+                         demand_filtered)
 
     # Define sample structured array comparable in form to the thermal
     # loads data (note that the numeric data here do not represent
@@ -187,13 +207,30 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Test restructuring of EIA data into stock and consumption lists
     # using the EIA_Supply option to confirm that both the reported
     # data and the reduced array with the remaining data are correct
-    def test_recording_of_EIA_data(self):
+    def test_recording_of_EIA_data_with_reduction(self):
         (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
-                                              self.EIA_flt, 'EIA_Supply')
+                                              self.EIA_supply_filter, 
+                                              'EIA_Supply')
+        # Compare equipment stock
+        self.assertEqual(a, self.EIA_supply_sample[0])
+        # Compare consumption
+        self.assertEqual(b, self.EIA_supply_sample[1])
+        # Compare remaining data
+        self.assertCountEqual(c, self.EIA_supply_sample[2])
 
-        self.assertEqual(a, self.EIA_sample[0])  # Compare equipment stock
-        self.assertEqual(b, self.EIA_sample[1])  # Compare consumption
-        self.assertCountEqual(c, self.EIA_sample[2])  # Compare remaining data
+    # Test restructuring of EIA data into stock and consumption lists
+    # using an option besides 'EIA_Supply' to confirm that for all
+    # other cases, the output data are identical to the input
+    def test_recording_of_EIA_data_without_reduction(self):
+        (a, b, c) = mseg.stock_consume_select(self.demand_filtered,
+                                              self.EIA_demand_filter,
+                                              'EIA_Demand')
+        # Compare equipment stock
+        self.assertEqual(a, self.EIA_demand_sample[0])
+        # Compare consumption
+        self.assertEqual(b, self.EIA_demand_sample[1])
+        # Compare remaining data
+        self.assertCountEqual(c, self.EIA_demand_sample[2])
 
     # Test extraction of the correct value from the thermal load
     # components data
