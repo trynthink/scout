@@ -68,13 +68,6 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
                         are different than expected")
 
 
-class texttype(unittest.TestCase):
-    """ Test the formatting (byte or unicode) of the imported EIA data
-    and enforce formatting requirement as dictated by code """
-    # Should potentially be placed inside the txt_parser function test
-    pass
-
-
 class NumpyArrayReductionTest(unittest.TestCase):
     """ Test the operation of the txt_parser function to verify row
     selection or deletion operations produce the expected output """
@@ -417,13 +410,6 @@ class DataToListFormatTest(unittest.TestCase):
                                     self.demand_array,
                                     self.loads_array, afilter,
                                     self.aeo_years)
-
-
-class JSONFileStructureTest(unittest.TestCase):
-    """ Test order of structure in microsegment JSON file to ensure
-    that keys will be provided in the expected order and that terms in
-    the JSON match with the keys of the dicts used for matching data """
-    pass
 
 
 class RegexConstructionTest(unittest.TestCase):
