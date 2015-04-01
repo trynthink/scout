@@ -584,25 +584,39 @@ class ClimConverterTest(unittest.TestCase):
                          'electricity (grid)': {'lighting': {
                                                 'linear fluorescent':
                                                 [1, 1, 1]}}}},
-         'middle atlantic': {'single family home': {
-                             'electricity (grid)': {'lighting': {
-                                                    'linear fluorescent':
-                                                    [1, 1, 1]}}}},
+         'mid atlantic': {'single family home': {
+                          'electricity (grid)': {'lighting': {
+                                                 'linear fluorescent':
+                                                 [2, 2, 2]}}}},
          'east north central': {'single family home': {
                                 'electricity (grid)': {'lighting': {
                                                        'linear fluorescent':
-                                                       [1, 1, 1]}}}}}
+                                                       [3, 3, 3]}}}}}
+
+    test_fail_input = \
+        {'new england': {'single family home': {
+                         'electricity (grid)': {'lighting': {
+                                                'linear fluorescent':
+                                                [1, 1, 1]}}}},
+         'middle atlantic': {'single family home': {
+                             'electricity (grid)': {'lighting': {
+                                                    'linear fluorescent':
+                                                    [2, 2, 2]}}}},
+         'east north central': {'single family home': {
+                                'electricity (grid)': {'lighting': {
+                                                       'linear fluorescent':
+                                                       [3, 3, 3]}}}}}
 
     # Create an expected output dict broken down by climate zone
     test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [0.4349, 0.4349, 0.4349]}}}},
+                                            [0.8056, 0.8056, 0.8056]}}}},
                    'AIA_CZ2': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [1.7419, 1.7419, 1.7419]}}}},
+                                            [3.4304, 3.4304, 3.4304]}}}},
                    'AIA_CZ3': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [0.8233, 0.8233, 0.8233]}}}},
+                                            [1.7641, 1.7641, 1.7641]}}}},
                    'AIA_CZ4': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
                                             [0, 0, 0]}}}},
@@ -630,6 +644,11 @@ class ClimConverterTest(unittest.TestCase):
         dict1 = mseg.clim_converter(self.test_input, mseg.res_convert_array)
         dict2 = self.test_output
         self.dict_check(dict1, dict2)
+
+    # Implement dict fail check routine
+    def test_convert_fail(self):
+        with self.assertRaises(KeyError):
+            mseg.clim_converter(self.test_fail_input, mseg.res_convert_array)
 
 
 # Offer external code execution (include all lines below this point in all

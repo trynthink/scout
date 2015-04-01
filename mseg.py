@@ -426,24 +426,24 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
     return json_dict
 
 
-def merge_sum(base_dict, add_dict, cd, clim, convert_array):
+def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
+              cdiv_list):
     """ Given two dicts of the same structure, add values
     at the end of each branch of 2nd dict to those of the 1st dict
     (used to convert cdiv microsegment breakdown to czone) """
-
     for (k, i), (k2, i2) in zip(base_dict.items(), add_dict.items()):
         # Check to ensure dicts do have same structure
         if k == k2:
             # Recursively loop through both dicts
             if isinstance(i, dict):
-                merge_sum(i, i2, cd, clim, convert_array)
+                merge_sum(i, i2, cd, clim, convert_array, cdivdict, cdiv_list)
             elif type(base_dict[k]) is not str:
                 # Once end of branch is reached, add values weighted by
                 # appropriate cdiv->czone translation factor
                 cd_convert = convert_array[cd][clim]
                 # Special handling of 1st dict (no addition of the 2nd dict,
                 # only conversion of 1st with approrpriate translator factor)
-                if (cd == 0):
+                if (cd == (cdivdict[cdiv_list[0]] - 1)):
                     base_dict[k] = [round((x * cd_convert), 4) for x in
                                     base_dict[k]]
                 else:
@@ -472,10 +472,17 @@ def clim_converter(input_dict, convert_array):
         base_dict = copy.deepcopy(input_dict[cdiv_list[0]])
 
         # Census division for loop
-        for cdivnum, cdiv in enumerate(cdiv_list):
-            add_dict = copy.deepcopy(input_dict[cdiv])
-            base_dict = merge_sum(base_dict, add_dict, cdivnum, (climnum + 1),
-                                  convert_array)
+        for cdiv in cdiv_list:
+            # If cdivnum in cdivdict, find cdivnum using cdivdict; subtract 1
+            # to ensure proper list indexing (1st element = 0th in python)
+            if cdiv in cdivdict.keys():
+                cdivnum = cdivdict[cdiv] - 1
+                add_dict = copy.deepcopy(input_dict[cdiv])
+                base_dict = merge_sum(base_dict, add_dict, cdivnum,
+                                      (climnum + 1), convert_array, cdivdict,
+                                      cdiv_list)
+            else:
+                raise(KeyError("Cdiv name not found in dict keys!"))
         newadd = base_dict
         converted_dict.update({clim: newadd})
 
