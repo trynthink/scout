@@ -1,199 +1,291 @@
-{"new england" : {
-	"single family home" : {
-		"electricity (on site)" : {
-			"water heating" : {
-				"solar WH" : 0
+{
+"years": 0,
+"data": {
+	"new england" : {
+		"single family home" : {
+			"electricity (on site)" : {
+				"water heating" : {
+					"solar WH" : 0
+				}
+				},
+			"electricity (grid)" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"boiler (electric)" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"cooling" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {	
+						"central AC" : 0,
+						"room AC" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
+					}
+					},
+				"fans & pumps" : 0,
+				"ceiling fan" : 0,
+				"lighting" : {
+					"linear fluorescent" : 0,
+					"general service" : 0,
+					"reflector" : 0,
+					"external" : 0
+					},
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"drying" : 0,
+				"TVs" : {
+					"TV" : 0,
+					"set top box" : 0,
+					"DVD" : 0,
+					"home theater & audio" : 0,
+					"video game consoles" : 0
+					},
+				"computers" : {
+					"desktop PC" : 0,
+					"laptop PC" : 0,
+					"monitors" : 0,
+					"network equipment" : 0
+					},
+				"other (grid electric)" : {
+					"clothes washing" : 0,
+					"dishwasher" : 0,
+					"freezers" : 0,
+					"other MELs" : 0
+					}
+				},
+			"natural gas" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (NG)" : 0,
+						"boiler (NG)" : 0,
+						"NGHP" : 0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"cooling" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+					},
+					"supply" : {
+						"NGHP" : 0
+					}
+					},
+				"water heating" : 0,
+				"cooking" : 0
+				},
+			"distillate" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (distillate)":0,
+						"boiler (distillate)":0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"water heating" : 0
+				},
+			"other fuel" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : { 
+						"furnace (kerosene)" : 0,
+						"furnace (LPG)" : 0,
+						"stove (wood)" : 0,
+						"resistance" : 0
+						}
+					},
+				"secondary heating" : {
+					"secondary heating (kerosene)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (wood)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (LPG)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (coal)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						}
+					},
+				"water heating" : 0,
+				"cooking" : 0
 			}
-			},
-		"electricity (grid)" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"boiler (electric)" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
+		},
+		"multi family home" : {
+			"electricity (on site)" : {
+				"water heating" : {
+					"solar WH" : 0
 				}
 				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
+			"electricity (grid)" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"boiler (electric)" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
 					}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
 					},
-				"supply" : {	
-					"central AC" : 0,
-					"room AC" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
-				}
-				},
-			"fans & pumps" : 0,
-			"ceiling fan" : 0,
-			"lighting" : {
-				"linear fluorescent" : 0,
-				"general service" : 0,
-				"reflector" : 0,
-				"external" : 0
-				},
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"drying" : 0,
-			"TVs" : {
-				"TV" : 0,
-				"set top box" : 0,
-				"DVD" : 0,
-				"home theater & audio" : 0,
-				"video game consoles" : 0
-				},
-			"computers" : {
-				"desktop PC" : 0,
-				"laptop PC" : 0,
-				"monitors" : 0,
-				"network equipment" : 0
-				},
-			"other (grid electric)" : {
-				"clothes washing" : 0,
-				"dishwasher" : 0,
-				"freezers" : 0,
-				"other MELs" : 0
-				}
-			},
-		"natural gas" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (NG)" : 0,
-					"boiler (NG)" : 0,
-					"NGHP" : 0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-				},
-				"supply" : {
-					"NGHP" : 0
-				}
-				},
-			"water heating" : 0,
-			"cooking" : 0
-			},
-		"distillate" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (distillate)":0,
-					"boiler (distillate)":0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"water heating" : 0
-			},
-		"other fuel" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : { 
-					"furnace (kerosene)" : 0,
-					"furnace (LPG)" : 0,
-					"stove (wood)" : 0,
-					"resistance" : 0
-					}
-				},
-			"secondary heating" : {
-				"secondary heating (kerosene)" : {
+				"secondary heating" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
@@ -208,7 +300,7 @@
 						"non-specific": 0
 						}
 					},
-				"secondary heating (wood)" : {
+				"cooling" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
@@ -219,240 +311,240 @@
 						"people gain" : 0,
 						"equipment gain" : 0
 						},
-					"supply" : {
-						"non-specific": 0
-						}
+					"supply" : {	
+						"central AC" : 0,
+						"room AC" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
+					}
 					},
-				"secondary heating (LPG)" : {
-					"demand" : {
-						"windows conduction" : 0,
-						"windows solar" : 0,
-						"wall" : 0,
-						"roof" : 0,
-						"ground" : 0,
-						"infiltration" : 0,
-						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+				"fans & pumps" : 0,
+				"ceiling fan" : 0,
+				"lighting" : {
+					"linear fluorescent" : 0,
+					"general service" : 0,
+					"reflector" : 0,
+					"external" : 0
 					},
-				"secondary heating (coal)" : {
-					"demand" : {
-						"windows conduction" : 0,
-						"windows solar" : 0,
-						"wall" : 0,
-						"roof" : 0,
-						"ground" : 0,
-						"infiltration" : 0,
-						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"drying" : 0,
+				"TVs" : {
+					"TV" : 0,
+					"set top box" : 0,
+					"DVD" : 0,
+					"home theater & audio" : 0,
+					"video game consoles" : 0
+					},
+				"computers" : {
+					"desktop PC" : 0,
+					"laptop PC" : 0,
+					"monitors" : 0,
+					"network equipment" : 0
+					},
+				"other (grid electric)" : {
+					"clothes washing" : 0,
+					"dishwasher" : 0,
+					"freezers" : 0,
+					"other MELs" : 0
 					}
 				},
-			"water heating" : 0,
-			"cooking" : 0
-		}
-	},
-	"multi family home" : {
-		"electricity (on site)" : {
-			"water heating" : {
-				"solar WH" : 0
+			"natural gas" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (NG)" : 0,
+						"boiler (NG)" : 0,
+						"NGHP" : 0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"cooling" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+					},
+					"supply" : {
+						"NGHP" : 0
+					}
+					},
+				"water heating" : 0,
+				"cooking" : 0
+				},
+			"distillate" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (distillate)":0,
+						"boiler (distillate)":0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"water heating" : 0
+				},
+			"other fuel" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : { 
+						"furnace (kerosene)" : 0,
+						"furnace (LPG)" : 0,
+						"stove (wood)" : 0,
+						"resistance" : 0
+						}
+					},
+				"secondary heating" : {
+					"secondary heating (kerosene)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (wood)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (LPG)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (coal)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						}
+					},
+				"water heating" : 0,
+				"cooking" : 0
 			}
-			},
-		"electricity (grid)" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"boiler (electric)" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
+		},
+		"mobile home" : {
+			"electricity (on site)" : {
+				"water heating" : {
+					"solar WH" : 0
 				}
 				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
+			"electricity (grid)" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"boiler (electric)" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
 					}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
 					},
-				"supply" : {	
-					"central AC" : 0,
-					"room AC" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
-				}
-				},
-			"fans & pumps" : 0,
-			"ceiling fan" : 0,
-			"lighting" : {
-				"linear fluorescent" : 0,
-				"general service" : 0,
-				"reflector" : 0,
-				"external" : 0
-				},
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"drying" : 0,
-			"TVs" : {
-				"TV" : 0,
-				"set top box" : 0,
-				"DVD" : 0,
-				"home theater & audio" : 0,
-				"video game consoles" : 0
-				},
-			"computers" : {
-				"desktop PC" : 0,
-				"laptop PC" : 0,
-				"monitors" : 0,
-				"network equipment" : 0
-				},
-			"other (grid electric)" : {
-				"clothes washing" : 0,
-				"dishwasher" : 0,
-				"freezers" : 0,
-				"other MELs" : 0
-				}
-			},
-		"natural gas" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (NG)" : 0,
-					"boiler (NG)" : 0,
-					"NGHP" : 0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-				},
-				"supply" : {
-					"NGHP" : 0
-				}
-				},
-			"water heating" : 0,
-			"cooking" : 0
-			},
-		"distillate" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (distillate)":0,
-					"boiler (distillate)":0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"water heating" : 0
-			},
-		"other fuel" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : { 
-					"furnace (kerosene)" : 0,
-					"furnace (LPG)" : 0,
-					"stove (wood)" : 0,
-					"resistance" : 0
-					}
-				},
-			"secondary heating" : {
-				"secondary heating (kerosene)" : {
+				"secondary heating" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
@@ -467,7 +559,7 @@
 						"non-specific": 0
 						}
 					},
-				"secondary heating (wood)" : {
+				"cooling" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
@@ -478,957 +570,869 @@
 						"people gain" : 0,
 						"equipment gain" : 0
 						},
-					"supply" : {
-						"non-specific": 0
-						}
+					"supply" : {	
+						"central AC" : 0,
+						"room AC" : 0,
+						"ASHP" : 0,
+						"GSHP" : 0
+					}
 					},
-				"secondary heating (LPG)" : {
-					"demand" : {
-						"windows conduction" : 0,
-						"windows solar" : 0,
-						"wall" : 0,
-						"roof" : 0,
-						"ground" : 0,
-						"infiltration" : 0,
-						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+				"fans & pumps" : 0,
+				"ceiling fan" : 0,
+				"lighting" : {
+					"linear fluorescent" : 0,
+					"general service" : 0,
+					"reflector" : 0,
+					"external" : 0
 					},
-				"secondary heating (coal)" : {
-					"demand" : {
-						"windows conduction" : 0,
-						"windows solar" : 0,
-						"wall" : 0,
-						"roof" : 0,
-						"ground" : 0,
-						"infiltration" : 0,
-						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"drying" : 0,
+				"TVs" : {
+					"TV" : 0,
+					"set top box" : 0,
+					"DVD" : 0,
+					"home theater & audio" : 0,
+					"video game consoles" : 0
+					},
+				"computers" : {
+					"desktop PC" : 0,
+					"laptop PC" : 0,
+					"monitors" : 0,
+					"network equipment" : 0
+					},
+				"other (grid electric)" : {
+					"clothes washing" : 0,
+					"dishwasher" : 0,
+					"freezers" : 0,
+					"other MELs" : 0
 					}
 				},
-			"water heating" : 0,
-			"cooking" : 0
-		}
-	},
-	"mobile home" : {
-		"electricity (on site)" : {
-			"water heating" : {
-				"solar WH" : 0
+			"natural gas" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (NG)" : 0,
+						"boiler (NG)" : 0,
+						"NGHP" : 0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"cooling" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+					},
+					"supply" : {
+						"NGHP" : 0
+					}
+					},
+				"water heating" : 0,
+				"cooking" : 0
+				},
+			"distillate" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"furnace (distillate)":0,
+						"boiler (distillate)":0
+					}
+					},
+				"secondary heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : {
+						"non-specific": 0
+						}
+					},
+				"water heating" : 0
+				},
+			"other fuel" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
+						},
+					"supply" : { 
+						"furnace (kerosene)" : 0,
+						"furnace (LPG)" : 0,
+						"stove (wood)" : 0,
+						"resistance" : 0
+						}
+					},
+				"secondary heating" : {
+					"secondary heating (kerosene)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (wood)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (LPG)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						},
+					"secondary heating (coal)" : {
+						"demand" : {
+							"windows conduction" : 0,
+							"windows solar" : 0,
+							"wall" : 0,
+							"roof" : 0,
+							"ground" : 0,
+							"infiltration" : 0,
+							"people gain" : 0,
+							"equipment gain" : 0
+							},
+						"supply" : {
+							"non-specific": 0
+							}
+						}
+					},
+				"water heating" : 0,
+				"cooking" : 0
 			}
-			},
-		"electricity (grid)" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"boiler (electric)" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
+		},
+		"assembly" : {
+			"electricity (on site)" : {
+				"water heating" : {
+					"solar WH" : 0
 					}
 				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {	
-					"central AC" : 0,
-					"room AC" : 0,
-					"ASHP" : 0,
-					"GSHP" : 0
-				}
-				},
-			"fans & pumps" : 0,
-			"ceiling fan" : 0,
-			"lighting" : {
-				"linear fluorescent" : 0,
-				"general service" : 0,
-				"reflector" : 0,
-				"external" : 0
-				},
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"drying" : 0,
-			"TVs" : {
-				"TV" : 0,
-				"set top box" : 0,
-				"DVD" : 0,
-				"home theater & audio" : 0,
-				"video game consoles" : 0
-				},
-			"computers" : {
-				"desktop PC" : 0,
-				"laptop PC" : 0,
-				"monitors" : 0,
-				"network equipment" : 0
-				},
-			"other (grid electric)" : {
-				"clothes washing" : 0,
-				"dishwasher" : 0,
-				"freezers" : 0,
-				"other MELs" : 0
-				}
-			},
-		"natural gas" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (NG)" : 0,
-					"boiler (NG)" : 0,
-					"NGHP" : 0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-				},
-				"supply" : {
-					"NGHP" : 0
-				}
-				},
-			"water heating" : 0,
-			"cooking" : 0
-			},
-		"distillate" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"furnace (distillate)":0,
-					"boiler (distillate)":0
-				}
-				},
-			"secondary heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : {
-					"non-specific": 0
-					}
-				},
-			"water heating" : 0
-			},
-		"other fuel" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"people gain" : 0,
-					"equipment gain" : 0
-					},
-				"supply" : { 
-					"furnace (kerosene)" : 0,
-					"furnace (LPG)" : 0,
-					"stove (wood)" : 0,
-					"resistance" : 0
-					}
-				},
-			"secondary heating" : {
-				"secondary heating (kerosene)" : {
+			"electricity (grid)" : {
+				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
 						"wall" : 0,
 						"roof" : 0,
+						"floor" : 0,
 						"ground" : 0,
 						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
 						"people gain" : 0,
-						"equipment gain" : 0
+						"lights gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
-						}
+						"ASHP" : 0,
+						"GSHP" : 0,
+						"boiler" : 0,
+						"resistance" : 0
+					}
 					},
-				"secondary heating (wood)" : {
+				"cooling" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
 						"wall" : 0,
 						"roof" : 0,
+						"floor" : 0,
 						"ground" : 0,
 						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
 						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+						"lights gain" : 0
 					},
-				"secondary heating (LPG)" : {
+					"supply" : {
+						"ASHP" : 0,
+						"GSHP" : 0,
+						"scroll chiller" : 0,
+						"screw chiller" : 0,
+						"centrifugal chiller" : 0,
+						"reciprocating chiller" : 0,
+						"RTU" : 0,
+						"window wall AC" : 0,
+						"res-type HP" : 0,
+						"res-type central AC" : 0
+					}
+					},
+				"ventilation" : {
+					"CAV" : 0,
+					"VAV" : 0
+					},
+				"lighting" : {
+					"incandescent" : 0,
+					"CFL" : 0,
+					"halogen edison" : 0,
+					"high pressure sodium" : 0,
+					"metal halide" : 0,
+					"mercury vapor" : 0,
+					"PAR-38" : 0,
+					"T5" : 0,
+					"T5 2 lamp high output" : 0,
+					"T8" : 0,
+					"T12" : 0,
+					"LED high pressure sodium" : 0,
+					"LED edison" : 0,
+					"LED T8" : 0,
+					"LED high brightness" : 0,
+					"LED low brightness" : 0
+					},
+				"water heating" : {
+					"tank WH" : 0,
+					"booster WH" : 0,
+					"HPWH" : 0
+					},
+				"refrigeration" : {
+					"beverage merch" : 0,
+					"ice machine" : 0,
+					"reach-in freezer" : 0,
+					"reach-in refrigerator" : 0,
+					"SM compressor rack" : 0,
+					"SM condensers" : 0,
+					"SM display case" : 0,
+					"vending machine" : 0,
+					"walk in freezer" : 0,
+					"walk in refrigerator" : 0 
+					},
+				"cooking" : {
+					"oven" : 0,
+					"induction oven" : 0
+					},
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : {
+					"laundry" : 0,
+					"other MELs" : 0
+				}
+				},
+			"natural gas" : {
+				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
 						"wall" : 0,
 						"roof" : 0,
+						"floor" : 0,
 						"ground" : 0,
 						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
 						"people gain" : 0,
-						"equipment gain" : 0
-						},
-					"supply" : {
-						"non-specific": 0
-						}
+						"lights gain" : 0
 					},
-				"secondary heating (coal)" : {
+					"supply" : {
+						"NGHP" : 0,
+						"furnace" : 0,
+						"boiler" : 0,
+						"res-type NGHP": 0
+					}
+					},
+				"cooling" : {
 					"demand" : {
 						"windows conduction" : 0,
 						"windows solar" : 0,
 						"wall" : 0,
 						"roof" : 0,
+						"floor" : 0,
 						"ground" : 0,
 						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
 						"people gain" : 0,
-						"equipment gain" : 0
-						},
+						"lights gain" : 0
+					},
 					"supply" : {
-						"non-specific": 0
+						"NGHP" : 0,
+						"RTAC chiller" : 0,
+						"absorption chiller" : 0,
+						"engine chiller" : 0
+					}
+					},
+				"water heating" : {
+					"tank WH": 0,
+					"booster WH" : 0,
+					"instant WH" : 0
+					},
+				"cooking" : {
+					"oven" : 0,
+					"convection oven" : 0
+					},
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"floor" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
+						"people gain" : 0,
+						"lights gain" : 0
+						},
+					"supply" : {	
+						"furnace" : 0,
+						"boiler" : 0
+					}
+					},
+				"cooling" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"floor" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
+						"people gain" : 0,
+						"lights gain" : 0
 						}
+				},
+				"water heating" : {
+					"tank WH" : 0
+					},
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : {
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"floor" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"ventilation" : 0,
+						"electric equipment gain" : 0,
+						"non electric equipment gain" : 0,
+						"people gain" : 0,
+						"lights gain" : 0
 					}
 				},
-			"water heating" : 0,
-			"cooking" : 0
-		}
-	},
-	"assembly" : {
-		"electricity (on site)" : {
-			"water heating" : {
-				"solar WH" : 0
-				}
-			},
-		"electricity (grid)" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
-					},
-				"supply" : {
-					"ASHP" : 0,
-					"GSHP" : 0,
-					"boiler" : 0,
-					"resistance" : 0
-				}
-				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
-				},
-				"supply" : {
-					"ASHP" : 0,
-					"GSHP" : 0,
-					"scroll chiller" : 0,
-					"screw chiller" : 0,
-					"centrifugal chiller" : 0,
-					"reciprocating chiller" : 0,
-					"RTU" : 0,
-					"window wall AC" : 0,
-					"res-type HP" : 0,
-					"res-type central AC" : 0
-				}
-				},
-			"ventilation" : {
-				"CAV" : 0,
-				"VAV" : 0
-				},
-			"lighting" : {
-				"incandescent" : 0,
-				"CFL" : 0,
-				"halogen edison" : 0,
-				"high pressure sodium" : 0,
-				"metal halide" : 0,
-				"mercury vapor" : 0,
-				"PAR-38" : 0,
-				"T5" : 0,
-				"T5 2 lamp high output" : 0,
-				"T8" : 0,
-				"T12" : 0,
-				"LED high pressure sodium" : 0,
-				"LED edison" : 0,
-				"LED T8" : 0,
-				"LED high brightness" : 0,
-				"LED low brightness" : 0
-				},
-			"water heating" : {
-				"tank WH" : 0,
-				"booster WH" : 0,
-				"HPWH" : 0
-				},
-			"refrigeration" : {
-				"beverage merch" : 0,
-				"ice machine" : 0,
-				"reach-in freezer" : 0,
-				"reach-in refrigerator" : 0,
-				"SM compressor rack" : 0,
-				"SM condensers" : 0,
-				"SM display case" : 0,
-				"vending machine" : 0,
-				"walk in freezer" : 0,
-				"walk in refrigerator" : 0 
-				},
-			"cooking" : {
-				"oven" : 0,
-				"induction oven" : 0
-				},
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : {
-				"laundry" : 0,
-				"other MELs" : 0
+				"other" : 0
 			}
-			},
-		"natural gas" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
+		},
+		"education" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
 				},
-				"supply" : {
-					"NGHP" : 0,
-					"furnace" : 0,
-					"boiler" : 0,
-					"res-type NGHP": 0
-				}
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
 				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
 				},
-				"supply" : {
-					"NGHP" : 0,
-					"RTAC chiller" : 0,
-					"absorption chiller" : 0,
-					"engine chiller" : 0
-				}
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
 				},
-			"water heating" : {
-				"tank WH": 0,
-				"booster WH" : 0,
-				"instant WH" : 0
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"food sales" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
 				},
-			"cooking" : {
-				"oven" : 0,
-				"convection oven" : 0
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
 				},
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
-					},
-				"supply" : {	
-					"furnace" : 0,
-					"boiler" : 0
-				}
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
 				},
-			"cooling" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
-					}
-			},
-			"water heating" : {
-				"tank WH" : 0
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
 				},
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : {
-				"demand" : {
-					"windows conduction" : 0,
-					"windows solar" : 0,
-					"wall" : 0,
-					"roof" : 0,
-					"floor" : 0,
-					"ground" : 0,
-					"infiltration" : 0,
-					"ventilation" : 0,
-					"electric equipment gain" : 0,
-					"non electric equipment gain" : 0,
-					"people gain" : 0,
-					"lights gain" : 0
-				}
-			},
-			"other" : 0
-		}
-	},
-	"education" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"food sales" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"food service" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"health care" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"lodging" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"office large" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"office small" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"merch service" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"warehouse" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
-		}
-	},
-	"commercial other" : {
-		"electricity (on site)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"electricity (grid)" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"ventilation" : 0,
-			"lighting" : 0,
-			"water heating" : 0,
-			"refrigeration" : 0,
-			"cooking" : 0,
-			"pcs" : 0,
-			"non pc equipment" : 0,
-			"other" : 0
-			},
-		"natural gas" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"cooking" : 0,
-			"other" : 0
-			},
-		"distillate" : {
-			"heating" : 0,
-			"cooling" : 0,
-			"water heating" : 0,
-			"other" : 0
-			},
-		"other fuel" : {
-			"heating" : 0,
-			"other" : 0
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"food service" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"health care" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"lodging" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"office large" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"office small" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"merch service" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"warehouse" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
+		},
+		"commercial other" : {
+			"electricity (on site)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"electricity (grid)" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"ventilation" : 0,
+				"lighting" : 0,
+				"water heating" : 0,
+				"refrigeration" : 0,
+				"cooking" : 0,
+				"pcs" : 0,
+				"non pc equipment" : 0,
+				"other" : 0
+				},
+			"natural gas" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"cooking" : 0,
+				"other" : 0
+				},
+			"distillate" : {
+				"heating" : 0,
+				"cooling" : 0,
+				"water heating" : 0,
+				"other" : 0
+				},
+			"other fuel" : {
+				"heating" : 0,
+				"other" : 0
+			}
 		}
 	}
 }

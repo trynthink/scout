@@ -519,7 +519,7 @@ def main():
     # Reduce supply array to only needed rows
     supply = array_row_remover(supply, unused_supply_re)
 
-    # Set RESDBOUT.txt list for separate use in "demand" microsegments
+    # Set RESDBOUT.txt data for separate use in "demand" microsegments
     demand = supply
     # Reduce demand array to only needed rows
     demand = array_row_remover(demand, unused_demand_re)
@@ -531,16 +531,20 @@ def main():
     # Import JSON file and run through updating scheme
     with open(json_in, 'r') as jsi:
         msjson = json.load(jsi)
+
+        # Record list of unique years that appear in the EIA data
+        msjson['years'] = numpy.unique(supply['YEAR']).tolist()
+
         # Run through JSON objects, determine replacement information
-        # to mine from .txt file, and make the replacement
-        updated_json = walk(supply, demand, loads, msjson)
+        # to mine from the imported data, and make the replacements
+        updated_data = walk(supply, demand, loads, msjson['data'])
 
-        # Convert the updated json from census division to climate breakdown
-        updated_json_final = clim_converter(updated_json, res_convert_array)
+        # Convert the updated data from census division to climate breakdown
+        msjson['data'] = clim_converter(updated_data, res_convert_array)
 
-    # Write the updated json to new json file
+    # Write the updated dict of data to a new JSON file
     with open(json_out, 'w') as jso:
-        json.dump(updated_json_final, jso, indent=4)
+        json.dump(msjson, jso, indent=4)
 
 
 if __name__ == '__main__':

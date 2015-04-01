@@ -209,7 +209,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # data and the reduced array with the remaining data are correct
     def test_recording_of_EIA_data_with_reduction(self):
         (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
-                                              self.EIA_supply_filter, 
+                                              self.EIA_supply_filter,
                                               'EIA_Supply')
         # Compare equipment stock
         self.assertEqual(a, self.EIA_supply_sample[0])
