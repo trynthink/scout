@@ -6,8 +6,8 @@ import numpy
 import json
 import copy
 
-# Set AEO time horizon in years (used in "value_listfinder" function
-# below to check correctness of microsegment value lists)
+# Set AEO time horizon in years (used in list_generator function
+# to check for correct length of microsegment value lists)
 aeo_years = 32
 
 # Identify files to import for conversion
@@ -20,7 +20,7 @@ com_tloads = 'Com_TLoads_Final.txt'
 com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
 
 # Define a series of dicts that will translate imported JSON
-# microsegment name to AEO microsegment(s)
+# microsegment names to AEO microsegment(s)
 
 # Census division dict
 cdivdict = {'new england': 1,
@@ -121,7 +121,7 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
                 technology_supplydict, technology_demanddict]
 
-# Import the residential cdiv->climate conversion array
+# Import the residential census division to climate zone conversion array
 res_convert_array = numpy.genfromtxt(res_climate_convert,
                                      names=True, delimiter='\t',
                                      dtype=None)
@@ -139,7 +139,7 @@ unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
 
 
 def json_translator(dictlist, filterformat):
-    """ Determine filtering list for finding information in .txt file parse """
+    """ Determine filtering list for finding information in text file parse """
 
     # Set base filtering list of lists (1st element supply filter, 2nd demand)
     json_translate = [[], '']
@@ -217,16 +217,17 @@ def json_translator(dictlist, filterformat):
 
 def filter_formatter(txt_filter):
     """ Given a filtering list for a microsegment, format into a
-    string that can be entered into a regex comparsion in
-    value_listfinder function """
+    string that can be entered into a regex comparison in the
+    list_generator function """
 
     # Set base "supply" filter string
     supply_filter = '.*'
 
-    # Determine whether we are updating a "demand" microsegment by whether or
-    # not current function input is a tuple.  If so, use first tuple element
-    # as filter for EIA .txt file, and second tuple element as filter for
-    # residential thermal load components .txt file.
+    # Determine whether we are updating a "demand" microsegment by
+    # whether or not the current function input is a tuple. If so,
+    # use the first tuple element as a filter for the EIA data, and
+    # the second tuple element as filter for the residential thermal
+    # load components.
     if txt_filter[1]:
         txt_filter_loop = txt_filter[0]
         demand_filter = txt_filter[1]
@@ -253,8 +254,7 @@ def filter_formatter(txt_filter):
         else:
             print('Error in list finder form!')
 
-    comparefrom = (supply_filter, demand_filter)
-    return comparefrom
+    return (supply_filter, demand_filter)
 
 
 def thermal_load_select(tl_array, comparefrom, demand_column):
@@ -285,8 +285,7 @@ def thermal_load_select(tl_array, comparefrom, demand_column):
 
 def stock_consume_select(data, comparefrom, file_type):
     """ Select the stock and consumption data for each year for a
-    microsegment and restructure it into lists combining all years
-    together """
+    microsegment and combine them into lists for all reported years """
 
     # Determine whether we are parsing the "supply" version of the EIA data
     supply_parse = re.search('EIA_Supply', file_type, re.IGNORECASE)
@@ -328,14 +327,14 @@ def stock_consume_select(data, comparefrom, file_type):
 
 
 def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
-    """ Given filtering list for a microsegment, find rows in *.txt
+    """ Given filtering list for a microsegment, find rows in text
     files to reference in determining associated energy data, append
     energy data to a new list """
 
-    # Find the corresponding txt filtering information
+    # Find the corresponding text filtering information
     txt_filter = json_translator(res_dictlist, filterdata)
 
-    # Set up 'compare from' list (based on .txt file)
+    # Set up 'compare from' list (based on data file contents)
     [comparefrom_base, column_indicator] = filter_formatter(txt_filter)
 
     # Run through text file and add all appropriate lines to the empty list
@@ -358,20 +357,24 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
                 raise(ValueError('Error in length of discovered list!'))
 
         # Find/apply appropriate thermal load component
+
         # 1. Construct appropriate row filter for tloads array
         fuel_remove = re.search('(\.\*)(\(*\w+\|*\w+\)*)(\.\+\w+\.\+\w+)',
                                 comparefrom_base)
         # If special case of secondary heating, change end use part of regex to
         # 'HT', which is what both primary and secondary heating are coded as
-        # in thermal loads .txt
+        # in thermal loads text file data
         if (fuel_remove.group(2) == '(SH|OA)'):
             comparefrom_tloads = fuel_remove.group(1) + 'HT' + \
                 fuel_remove.group(3)
         else:
             comparefrom_tloads = fuel_remove.group()
-        # 2. Find/return appropriate tloads component and reduced tloads array
+
+        # 2. Find/return appropriate thermal loads component and reduced
+        #    thermal loads array
         tloads_component = thermal_load_select(
             ms_loads, comparefrom_tloads, column_indicator)
+
         # 3. Apply component value to baseline energy values for final list
         group_energy = [x * tloads_component for x in group_energy_base]
 
@@ -385,8 +388,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         [group_energy, group_stock, ms_supply] = stock_consume_select(
             ms_supply, comparefrom_base, 'EIA_Supply')
 
-        # Given the discovered lists of energy/stock values, ensure length = #
-        # years currently projected by AEO. If not, reshape the list
+        # Given the discovered lists of energy/stock values, ensure
+        # length is equal to the number of years currently projected
+        # by AEO. If not, reshape the list.
         if len(group_energy) is not aeo_years:
             if len(group_energy) % aeo_years == 0:
                 group_energy = numpy.reshape(group_energy, (aeo_years, -1),
@@ -428,9 +432,11 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
 
 def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
               cdiv_list):
-    """ Given two dicts of the same structure, add values
-    at the end of each branch of 2nd dict to those of the 1st dict
-    (used to convert cdiv microsegment breakdown to czone) """
+    """ Given two dicts of the same structure, add values at the end
+    of each branch of the second dict to those of the first dict
+    (used to convert microsegment data from a census division to a
+    climate zone breakdown) """
+
     for (k, i), (k2, i2) in zip(base_dict.items(), add_dict.items()):
         # Check to ensure dicts do have same structure
         if k == k2:
@@ -438,11 +444,13 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
             if isinstance(i, dict):
                 merge_sum(i, i2, cd, clim, convert_array, cdivdict, cdiv_list)
             elif type(base_dict[k]) is not str:
-                # Once end of branch is reached, add values weighted by
-                # appropriate cdiv->czone translation factor
+                # Once end of branch is reached, add values weighted by an
+                # appropriate census division to climate zone factor
                 cd_convert = convert_array[cd][clim]
-                # Special handling of 1st dict (no addition of the 2nd dict,
-                # only conversion of 1st with approrpriate translator factor)
+
+                # Special handling of first dict (no addition of the
+                # second dict, only conversion of the first dict with
+                # the appropriate factor)
                 if (cd == (cdivdict[cdiv_list[0]] - 1)):
                     base_dict[k] = [round((x * cd_convert), 4) for x in
                                     base_dict[k]]
@@ -517,8 +525,8 @@ def array_row_remover(data, comparefrom):
 
 
 def main():
-    """ Import .txt and JSON files; run through JSON objects; find
-    analogous .txt information; replace JSON values; update JSON """
+    """ Import text and JSON files; run through JSON objects; find
+    analogous text information; replace JSON values; update JSON """
 
     # Import EIA RESDBOUT.txt file
     supply = numpy.genfromtxt(EIA_res_file, names=True,
