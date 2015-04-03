@@ -552,19 +552,16 @@ def main():
     with open(json_in, 'r') as jsi:
         msjson = json.load(jsi)
 
-        # Record list of unique years that appear in the EIA data
-        msjson['years'] = numpy.unique(supply['YEAR']).tolist()
-
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
-        updated_data = walk(supply, demand, loads, msjson['data'])
+        updated_data = walk(supply, demand, loads, msjson)
 
         # Convert the updated data from census division to climate breakdown
-        msjson['data'] = clim_converter(updated_data, res_convert_array)
+        final_data = clim_converter(updated_data, res_convert_array)
 
     # Write the updated dict of data to a new JSON file
     with open(json_out, 'w') as jso:
-        json.dump(msjson, jso, indent=4)
+        json.dump(final_data, jso, indent=4)
 
 
 if __name__ == '__main__':
