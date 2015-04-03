@@ -293,9 +293,9 @@ def stock_consume_select(data, comparefrom, file_type):
     # Define initial list of rows to remove from data input
     rows_to_remove = []
 
-    # Define initial stock and energy lists
-    group_stock = []
-    group_energy = []
+    # Define initial stock and energy dicts
+    group_stock = {}
+    group_energy = {}
 
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, row in enumerate(data):
@@ -305,12 +305,24 @@ def stock_consume_select(data, comparefrom, file_type):
         # Establish the match
         match = re.search(comparefrom, compareto)
 
-        # If there's a match, append line to stock/energy lists for
-        # the current microsegment
+        # If there's a match, append values for the current microsegment
         if match:
-            # Record energy consumption and stock information
-            group_stock.append(row['EQSTOCK'])
-            group_energy.append(row['CONSUMPTION'])
+
+            # If data for the year is already present for the current
+            # microsegment (as with microsegments that combine several
+            # EIA categories together, add the new stock and consumption
+            # values to the existing values (assume that if the year is
+            # present in the group_stock dict it is also in group_energy)
+            if str(row['YEAR']) in group_stock:
+                # Record energy consumption and stock information
+                # (change the year to a string to yield a valid
+                # JSON dict, where all keys must be strings)
+                group_stock[str(row['YEAR'])] += row['EQSTOCK']
+                group_energy[str(row['YEAR'])] += row['CONSUMPTION']
+
+            else:
+                group_stock[str(row['YEAR'])] = row['EQSTOCK']
+                group_energy[str(row['YEAR'])] = row['CONSUMPTION']
 
             # If handling the supply data, to reduce computation time,
             # record row index to delete later
@@ -346,14 +358,11 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         [group_energy_base, group_stock, ms_demand] = stock_consume_select(
             ms_demand, comparefrom_base, 'EIA_Demand')
 
-        # Given discovered list of energy values, ensure length = # years
-        # currently projected by AEO. If not, reshape the list
+        # Given the discovered lists of energy/stock values, ensure
+        # length is equal to the number of years currently projected
+        # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy_base) is not aeo_years:
-            if len(group_energy_base) % aeo_years == 0:
-                group_energy_base = numpy.reshape(
-                    group_energy_base, (aeo_years, -1),
-                    order='F').sum(axis=1).tolist()
-            else:
+            if len(group_energy_base) != 0:
                 raise(ValueError('Error in length of discovered list!'))
 
         # Find/apply appropriate thermal load component
@@ -376,7 +385,8 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
             ms_loads, comparefrom_tloads, column_indicator)
 
         # 3. Apply component value to baseline energy values for final list
-        group_energy = [x * tloads_component for x in group_energy_base]
+        group_energy = {key: val * tloads_component
+                        for key, val in group_energy_base.items()}
 
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
@@ -390,14 +400,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
 
         # Given the discovered lists of energy/stock values, ensure
         # length is equal to the number of years currently projected
-        # by AEO. If not, reshape the list.
+        # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy) is not aeo_years:
-            if len(group_energy) % aeo_years == 0:
-                group_energy = numpy.reshape(group_energy, (aeo_years, -1),
-                                             order='F').sum(axis=1).tolist()
-                group_stock = numpy.reshape(group_stock, (aeo_years, -1),
-                                            order='F').sum(axis=1).tolist()
-            else:
+            if len(group_energy) != 0:
                 raise(ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values and updated version of EIA
@@ -547,19 +552,16 @@ def main():
     with open(json_in, 'r') as jsi:
         msjson = json.load(jsi)
 
-        # Record list of unique years that appear in the EIA data
-        msjson['years'] = numpy.unique(supply['YEAR']).tolist()
-
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
-        updated_data = walk(supply, demand, loads, msjson['data'])
+        updated_data = walk(supply, demand, loads, msjson)
 
         # Convert the updated data from census division to climate breakdown
-        msjson['data'] = clim_converter(updated_data, res_convert_array)
+        final_data = clim_converter(updated_data, res_convert_array)
 
     # Write the updated dict of data to a new JSON file
     with open(json_out, 'w') as jso:
-        json.dump(msjson, jso, indent=4)
+        json.dump(final_data, jso, indent=4)
 
 
 if __name__ == '__main__':

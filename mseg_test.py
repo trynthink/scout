@@ -152,16 +152,16 @@ class NumpyArrayReductionTest(unittest.TestCase):
     EIA_supply_filter = '.*DW.+2.+1.+EL.+DS_WASH'
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_supply_sample = ([9417809, 9387396, 9386813],
-                         [6423576, 6466014, 6513706],
+    EIA_supply_sample = ({"2010": 9417809, "2011": 9387396, "2012": 9386813},
+                         {"2010": 6423576, "2011": 6466014, "2012": 6513706},
                          supply_reduced)
 
     # Define filter to select a subset of the sample EIA demand data
     EIA_demand_filter = '.*HT.+1.+1.+EL.+ELEC_RAD'
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_demand_sample = ([1452680, 1577350, 1324963],
-                         [126007, 125784, 125386],
+    EIA_demand_sample = ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
+                         {"2010": 126007, "2011": 125784, "2012": 125386},
                          demand_filtered)
 
     # Define sample structured array comparable in form to the thermal
@@ -288,7 +288,7 @@ class DataToListFormatTest(unittest.TestCase):
                                                    ('CONSUMPTION', 'i8'),
                                                    ('HOUSEHOLDS', 'i8')])
 
-    # Demand array = supply array at start of test
+    # Demand array is the same as the supply array at the start of the tests
     demand_array = copy.deepcopy(supply_array)
 
     # Define a sample set of thermal load components data
@@ -376,39 +376,52 @@ class DataToListFormatTest(unittest.TestCase):
 
     # Define the set of outputs that should be yielded by the "ok_filters"
     # information above
-    ok_out = [[{'stock': [0, 0], 'energy': [1, 1]},
+    ok_out = [[{'stock': {"2010": 0, "2011": 0},
+                'energy': {"2010": 1, "2011": 1}},
                supply_array[2:]],
-              [{'stock': [24, 24], 'energy': [26, 26]},
-              numpy.hstack([supply_array[0:10], supply_array[12:14],
+              [{'stock': {"2010": 24, "2011": 24},
+                'energy': {"2010": 26, "2011": 26}},
+               numpy.hstack([supply_array[0:10], supply_array[12:14],
                             supply_array[16:]])],
-              [{'stock': [12, 12], 'energy': [13, 13]},
+              [{'stock': {"2010": 12, "2011": 12},
+                'energy': {"2010": 13, "2011": 13}},
                numpy.hstack([supply_array[0:12], supply_array[14:]])],
-              [{'stock': [18, 18], 'energy': [19, 19]},
+              [{'stock': {"2010": 18, "2011": 18},
+                'energy': {"2010": 19, "2011": 19}},
                numpy.hstack([supply_array[0:18], supply_array[20:]])],
-              [{'stock': [22, 22], 'energy': [23, 23]},
+              [{'stock': {"2010": 22, "2011": 22},
+                'energy': {"2010": 23, "2011": 23}},
                numpy.hstack([supply_array[:-6], supply_array[-4:]])],
-              [{'stock': [24, 24], 'energy': [25, 25]},
+              [{'stock': {"2010": 24, "2011": 24},
+                'energy': {"2010": 25, "2011": 25}},
                numpy.hstack([supply_array[:-4], supply_array[-2:]])],
-              [{'stock': [36, 36], 'energy': [37, 37]},
+              [{'stock': {"2010": 36, "2011": 36},
+                'energy': {"2010": 37, "2011": 37}},
                supply_array[:-2]],
-              [{'stock': 'NA', 'energy': [0.3, 0.3]}, supply_array],
-              [{'stock': 'NA', 'energy': [-6.0, -6.0]}, supply_array],
-              [{'stock': 'NA', 'energy': [1.75, 1.75]}, supply_array]]
+              [{'stock': 'NA',
+                'energy': {"2010": 0.3, "2011": 0.3}},
+               supply_array],
+              [{'stock': 'NA',
+                'energy': {"2010": -6.0, "2011": -6.0}},
+               supply_array],
+              [{'stock': 'NA',
+                'energy': {"2010": 1.75, "2011": 1.75}},
+               supply_array]]
 
-    # Define the set of outputs (zeros) that should be yielded by the
-    # "nonsense_filters" information above
-    nonsense_out = [[{'stock': [0, 0], 'energy': [0, 0]}, supply_array],
-                    [{'stock': [0, 0], 'energy': [0, 0]}, supply_array],
-                    [{'stock': [0, 0], 'energy': [0, 0]}, supply_array]]
+    # Define the set of outputs (empty dicts) that should be yielded
+    # by the "nonsense_filters" given above
+    nonsense_out = [[{'stock': {}, 'energy': {}}, supply_array],
+                    [{'stock': {}, 'energy': {}}, supply_array],
+                    [{'stock': {}, 'energy': {}}, supply_array]]
 
     # Test filter that should match and generate stock/energy data
     def test_ok_filters(self):
-        # "Supply" microsegment test
         for idx, afilter in enumerate(self.ok_filters):
             # Assert first output (list of values) is correct
             self.assertEqual(mseg.list_generator(self.supply_array,
                              self.demand_array,
-                             self.loads_array, afilter,
+                             self.loads_array,
+                             afilter,
                              self.aeo_years)[0],
                              self.ok_out[idx][0])
             # Assert second output (reduced "supply" numpy array) is correct
@@ -426,7 +439,8 @@ class DataToListFormatTest(unittest.TestCase):
             # Assert first output (list of values) is correct
             self.assertEqual(mseg.list_generator(self.supply_array,
                              self.demand_array,
-                             self.loads_array, afilter,
+                             self.loads_array,
+                             afilter,
                              self.aeo_years)[0],
                              self.nonsense_out[idx][0])
             # Assert second output (reduced "supply" numpy array) is correct

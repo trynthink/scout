@@ -1,6 +1,4 @@
 {
-"years": 0,
-"data": {
 	"new england" : {
 		"single family home" : {
 			"electricity (on site)" : {
@@ -1435,5 +1433,4 @@
 			}
 		}
 	}
-}
 }
