@@ -12,14 +12,13 @@ with open(measures_file, 'r') as mjs:
 with open(microsegments_file, 'r') as msjs:
         microsegments_input = json.load(msjs)
 
-# Eventually turn measures into objects here (?)
-
 
 # Define class for measure objects
 class Measure(object):
 
-    def __init__(self, measure_info):
-        pass
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     # Find appropriate measure microsegment
     def find_microsegment(self):
@@ -41,3 +40,8 @@ class Engine(object):
     def adopt_measures(self, adopt_rule):
         pass
 
+# Create measures objects list from input measures JSON
+measures_objlist = []
+
+for mi in measures_input:
+    measures_objlist.append(Measure(**mi))
