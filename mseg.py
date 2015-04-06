@@ -53,7 +53,8 @@ fueldict = {'electricity (on site)': 'SL',
 # which will not currently be included in our analysis.
 
 # End use dict
-endusedict = {'heating': 'HT',
+endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
+              'heating': 'HT',
               'secondary heating': ('SH', 'OA'),
               'cooling': 'CL',
               'fans & pumps': 'FF',
@@ -132,7 +133,7 @@ res_convert_array = numpy.genfromtxt(res_climate_convert,
 
 # Unused rows in the supply portion of the analysis
 # Exclude: (Housing Stock | Switch From | Switch To | Sq. Footage | Fuel Pumps)
-unused_supply_re = '^\(b\'(HS|SF|ST|SQ|FP).*'
+unused_supply_re = '^\(b\'(HS|SF|ST|FP).*'
 # Unused rows in the demand portion of the analysis
 # Exclude everything except: (Heating | Cooling | Secondary Heating)
 unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
@@ -161,11 +162,15 @@ def json_translator(dictlist, filterformat):
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
     # if not a "supply" microsegment", remove "technology_supplydict" from
     # dictlist; if a microsegment with no technology level (i.e. water heating)
-    # remove "technology_supplydict" and "technology_demanddict" from dictlist.
+    # remove "technology_supplydict" and "technology_demanddict" from dictlist;
+    # if a microsegment square footage update, include only "endusedict",
+    # "cdivdict", and "bldgtypedict".
     if 'demand' in filterformat:
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
+    elif 'square footage' in filterformat and len(filterformat) == 3:
+        dictlist_loop = dictlist[:(len(dictlist) - 3)]
     elif len(filterformat) <= 4:
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
     else:
@@ -338,6 +343,38 @@ def stock_consume_select(data, comparefrom, file_type):
     return (group_energy, group_stock, data_reduced)
 
 
+def sqft_select(data, comparefrom):
+    """ Select the square footage data for each year for a
+    given census division/building type and combine them into lists for all
+    reported years """
+
+    # Define initial list of rows to remove from data input
+    rows_to_remove = []
+
+    # Define initial sq. footage list
+    group_sqft = {}
+
+    # Loop through the numpy input array rows, match to 'comparefrom' input
+    for idx, row in enumerate(data):
+        # Set up 'compareto' list
+        compareto = str(row)
+
+        # Establish the match
+        match = re.search(comparefrom, compareto)
+
+        # If there's a match, append values for the current cdiv/bldg. type
+        if match:
+            # Record square foot info. (in "HOUSEHOLDS" column in .txt)
+            group_sqft[str(row['YEAR'])] = row['HOUSEHOLDS']
+            # To reduce computation time,
+            # record row index to delete later
+            rows_to_remove.append(idx)
+
+    # Remove rows specified by rows_to_remove
+    data_reduced = numpy.delete(data, rows_to_remove, 0)
+    return (group_sqft, data_reduced)
+
+
 def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
     """ Given filtering list for a microsegment, find rows in text
     files to reference in determining associated energy data, append
@@ -391,7 +428,24 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
         return [{'stock': 'NA', 'energy': group_energy}, ms_supply]
+    # Check whether current microsegment is updating "square footage" info.
+    # (handled differently)
+    elif 'square footage' in filterdata:
+        # Given input numpy array and 'compare from' list, return sq. footage
+        # projection lists and reduced numpy array (with matched rows removed)
+        [group_sqft, ms_supply] = sqft_select(
+            ms_supply, comparefrom_base)
 
+        # Given the discovered lists of sq. footage values, ensure
+        # length is equal to the number of years currently projected
+        # by AEO. If not, and the list isn't empty, trigger an error.
+        if len(group_sqft) is not aeo_years:
+            if len(group_sqft) != 0:
+                raise(ValueError('Error in length of discovered list!'))
+
+        # Return sq. footage values and updated version of EIA
+        # supply data with already matched data removed
+        return [group_sqft, ms_supply]
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
