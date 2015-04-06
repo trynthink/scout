@@ -92,7 +92,10 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'SF ', 8, 1, b'GS', b'NG_FA   ', 2011, 0.0, 0, -1),
         (b'ST ', 3, 1, b'EL', b'ELEC_RAD', 2011, 0.0, 0, -1),
         (b'ST ', 3, 1, b'EL', b'ELEC_HP ', 2011, 3569.0, 0, -1),
-        (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1)],
+        (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -111,7 +114,10 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -142,6 +148,27 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8')])
+
+    sqft_reduced = numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
@@ -155,6 +182,13 @@ class NumpyArrayReductionTest(unittest.TestCase):
     EIA_supply_sample = ({"2010": 9417809, "2011": 9387396, "2012": 9386813},
                          {"2010": 6423576, "2011": 6466014, "2012": 6513706},
                          supply_reduced)
+
+    # Define filter to select sq. footage subset of sample EIA supply data
+    EIA_sqft_filter = '.*SQ.+7.+3'
+
+    # Set up selected data from EIA sample array as the basis for comparison
+    EIA_sqft_sample = ({"2010": 7301, "2011": 7331, "2012": 7371},
+                       sqft_reduced)
 
     # Define filter to select a subset of the sample EIA demand data
     EIA_demand_filter = '.*HT.+1.+1.+EL.+ELEC_RAD'
@@ -207,7 +241,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Test restructuring of EIA data into stock and consumption lists
     # using the EIA_Supply option to confirm that both the reported
     # data and the reduced array with the remaining data are correct
-    def test_recording_of_EIA_data_with_reduction(self):
+    def test_recording_of_EIA_data_with_reduction_supply(self):
         (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
                                               self.EIA_supply_filter,
                                               'EIA_Supply')
@@ -218,10 +252,22 @@ class NumpyArrayReductionTest(unittest.TestCase):
         # Compare remaining data
         self.assertCountEqual(c, self.EIA_supply_sample[2])
 
+    # Test restructuring of EIA data into a sq. footage list, confirming
+    # that both the reported data and the reduced array with the remaining
+    # data are correct
+    def test_recording_of_EIA_data_with_reduction_sqft(self):
+
+        (a, b) = mseg.sqft_select(self.supply_filtered,
+                                  self.EIA_sqft_filter)
+        # Compare sq. footage
+        self.assertEqual(a, self.EIA_sqft_sample[0])
+        # Compare remaining data
+        self.assertCountEqual(b, self.EIA_sqft_sample[1])
+
     # Test restructuring of EIA data into stock and consumption lists
     # using an option besides 'EIA_Supply' to confirm that for all
     # other cases, the output data are identical to the input
-    def test_recording_of_EIA_data_without_reduction(self):
+    def test_recording_of_EIA_data_without_reduction_demand(self):
         (a, b, c) = mseg.stock_consume_select(self.demand_filtered,
                                               self.EIA_demand_filter,
                                               'EIA_Demand')
@@ -275,7 +321,10 @@ class DataToListFormatTest(unittest.TestCase):
                    ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1),
                    ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1),
                    ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1),
-                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1)]
+                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1),
+                   ('SQ', 1, 1, 0, 0, 2009, 99, 100, 101),
+                   ('SQ', 1, 1, 0, 0, 2010, 99, 100, 101)
+                   ]
 
     # Convert supply data into numpy array with column names
     supply_array = numpy.array(supply_data, dtype=[('ENDUSE', 'S3'),
@@ -342,7 +391,8 @@ class DataToListFormatTest(unittest.TestCase):
                    'windows conduction'],
                   ['mid atlantic', 'mobile home',
                    'natural gas', 'cooling', 'demand',
-                   'windows solar']]
+                   'windows solar'],
+                  ['new england', 'single family home', 'square footage']]
 
     # Define a set of filters that should yield zeros for stock/energy
     # data because they do not make sense
@@ -368,11 +418,15 @@ class DataToListFormatTest(unittest.TestCase):
                      'portable heater'],
                     ['mid atlantic', 'mobile home',
                      'electricity (grid)', 'heating',
-                     'supply', 'boiler (electric)'],
+                     'supply', 'boiler (wood fired)'],
                     ['east north central', 'multi family home',
                      'natural gas', 'cooling', 'demand', 'windows frames'],
                     ['pacific', 'multi family home', 'electricity (grid)',
-                     'other (grid electric)', 'beer cooler']]
+                     'other (grid electric)', 'beer cooler'],
+                    ['pacific', 'multi home', 'square footage'],
+                    ['pacific', 'multi family home', 'square foot'],
+                    ['mid atlantic', 'mobile home', 'renewables',
+                     'water heating', 'solar WH']]
 
     # Define the set of outputs that should be yielded by the "ok_filters"
     # information above
@@ -391,13 +445,13 @@ class DataToListFormatTest(unittest.TestCase):
                numpy.hstack([supply_array[0:18], supply_array[20:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               numpy.hstack([supply_array[:-6], supply_array[-4:]])],
+               numpy.hstack([supply_array[:-8], supply_array[-6:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               numpy.hstack([supply_array[:-4], supply_array[-2:]])],
+               numpy.hstack([supply_array[:-6], supply_array[-4:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               supply_array[:-2]],
+               numpy.hstack([supply_array[:-4], supply_array[-2:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -406,7 +460,8 @@ class DataToListFormatTest(unittest.TestCase):
                supply_array],
               [{'stock': 'NA',
                 'energy': {"2010": 1.75, "2011": 1.75}},
-               supply_array]]
+               supply_array],
+              [{"2009": 101, "2010": 101}, supply_array[:-2]]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above
@@ -454,8 +509,8 @@ class DataToListFormatTest(unittest.TestCase):
 
     # Test filters that should raise an error
     def test_fail_filters(self):
-        with self.assertRaises(KeyError):
-            for idx, afilter in enumerate(self.fail_filters):
+        for idx, afilter in enumerate(self.fail_filters):
+            with self.assertRaises(KeyError):
                 # Assert first output (list of values) is correct
                 mseg.list_generator(self.supply_array,
                                     self.demand_array,
@@ -518,7 +573,8 @@ class JSONTranslatorTest(unittest.TestCase):
                    'secondary heating', 'secondary heating (coal)',
                    'supply', 'non-specific'],
                   ['new england', 'single family home', 'natural gas',
-                   'water heating']]
+                   'water heating'],
+                  ['new england', 'single family home', 'square footage']]
 
     # Define nonsense filter examples (combinations of building types,
     # end uses, etc. that are not possible and thus wouldn't appear in
@@ -530,7 +586,10 @@ class JSONTranslatorTest(unittest.TestCase):
                          'room AC'],
                         ['new england', 'single family home',
                          'electricity (grid)', 'refrigeration',
-                         'linear fluorescent']]
+                         'linear fluorescent'],
+                        ['new england', 'single family home', 'natural gas',
+                         'water heating', 'general service']
+                        ]
 
     # Define example filters that do not have information in the
     # correct order to be prepared using json_translator and should
@@ -542,12 +601,19 @@ class JSONTranslatorTest(unittest.TestCase):
                     ['the moon', 'mobile home', 'distillate',
                      'heating', 'supply', 'boiler (distillate)'],
                     ['mountain', 'multi family home', 'natural gas',
-                     'ceiling fan'],
+                     'resistance'],
                     ['mid atlantic', 'mobile home', 'distillate',
-                     'TVs', 'home theater & audio'],
+                     'TVs', 'monitors'],
                     ['mid atlantic', 'mobile home', 'electricity (grid)',
-                     'TVs', 'antennas']]
-
+                     'TVs', 'antennas'],
+                    ['west north central', 'mobile home',
+                     'electricity (grid)', 'cooling', 'supply',
+                     'windows solar'],
+                    ['west north central', 'mobile home',
+                     'heating', 'electricity (grid)', 'demand', 'room AC'],
+                    ['mountain', 'mobile home', 'sq ft'],
+                    ['west north central', 'mobile home', 'square footage',
+                     'water heating', 'room AC']]
     # Define what json_translator should produce for the given filters;
     # this part is critically important, as these tuples and/or lists
     # will be used by later functions to extract data from the imported
@@ -562,10 +628,12 @@ class JSONTranslatorTest(unittest.TestCase):
               [[('SH', 'OA'), 5, 2, 'DS'], 'WIND_SOL'],
               [[('SH', 'OA'), 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
                 'CL'], ''],
-              [['HW', 1, 1, 'GS'], '']]
+              [['HW', 1, 1, 'GS'], ''],
+              [['SQ', 1, 1], '']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
-                    [['RF', 1, 1, 'EL', 'LFL'], '']]
+                    [['RF', 1, 1, 'EL', 'LFL'], ''],
+                    [['HW', 1, 1, 'GS', 'GSL'], '']]
 
     # Test filters that have expected technology definitions and should match
     def test_ok_filters(self):
@@ -583,8 +651,8 @@ class JSONTranslatorTest(unittest.TestCase):
     # Test that filters that don't conform to the structure of the
     # dicts or the expected order of data raise an error or exception
     def test_fail_filters(self):
-        with self.assertRaises(KeyError):
-            for afilter in self.fail_filters:
+        for afilter in self.fail_filters:
+            with self.assertRaises(KeyError):
                 mseg.json_translator(mseg.res_dictlist, afilter)
 
 
