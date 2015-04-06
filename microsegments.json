@@ -1,6 +1,7 @@
 {
 	"new england" : {
 		"single family home" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"water heating" : {
 					"solar WH" : 0
@@ -260,6 +261,7 @@
 			}
 		},
 		"multi family home" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"water heating" : {
 					"solar WH" : 0
@@ -519,6 +521,7 @@
 			}
 		},
 		"mobile home" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"water heating" : {
 					"solar WH" : 0
@@ -778,6 +781,7 @@
 			}
 		},
 		"assembly" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"water heating" : {
 					"solar WH" : 0
@@ -1003,6 +1007,7 @@
 			}
 		},
 		"education" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1046,6 +1051,7 @@
 			}
 		},
 		"food sales" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1089,6 +1095,7 @@
 			}
 		},
 		"food service" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1132,6 +1139,7 @@
 			}
 		},
 		"health care" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1175,6 +1183,7 @@
 			}
 		},
 		"lodging" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1218,6 +1227,7 @@
 			}
 		},
 		"office large" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1261,6 +1271,7 @@
 			}
 		},
 		"office small" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1304,6 +1315,7 @@
 			}
 		},
 		"merch service" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1347,6 +1359,7 @@
 			}
 		},
 		"warehouse" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
@@ -1390,6 +1403,7 @@
 			}
 		},
 		"commercial other" : {
+			"square footage" : 0,
 			"electricity (on site)" : {
 				"heating" : 0,
 				"cooling" : 0,
