@@ -195,65 +195,21 @@
 						}
 					},
 				"secondary heating" : {
-					"secondary heating (kerosene)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
 						},
-					"secondary heating (wood)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (LPG)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (coal)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"supply" : {
+						"secondary heating (kerosene)": 0,
+						"secondary heating (wood)": 0,
+						"secondary heating (LPG)": 0,
+						"secondary heating (coal)":0
 						}
 					},
 				"water heating" : 0,
@@ -455,65 +411,21 @@
 						}
 					},
 				"secondary heating" : {
-					"secondary heating (kerosene)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
 						},
-					"secondary heating (wood)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (LPG)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (coal)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"supply" : {
+						"secondary heating (kerosene)": 0,
+						"secondary heating (wood)": 0,
+						"secondary heating (LPG)": 0,
+						"secondary heating (coal)":0
 						}
 					},
 				"water heating" : 0,
@@ -715,65 +627,21 @@
 						}
 					},
 				"secondary heating" : {
-					"secondary heating (kerosene)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"demand" : {
+						"windows conduction" : 0,
+						"windows solar" : 0,
+						"wall" : 0,
+						"roof" : 0,
+						"ground" : 0,
+						"infiltration" : 0,
+						"people gain" : 0,
+						"equipment gain" : 0
 						},
-					"secondary heating (wood)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (LPG)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
-						},
-					"secondary heating (coal)" : {
-						"demand" : {
-							"windows conduction" : 0,
-							"windows solar" : 0,
-							"wall" : 0,
-							"roof" : 0,
-							"ground" : 0,
-							"infiltration" : 0,
-							"people gain" : 0,
-							"equipment gain" : 0
-							},
-						"supply" : {
-							"non-specific": 0
-							}
+					"supply" : {
+						"secondary heating (kerosene)": 0,
+						"secondary heating (wood)": 0,
+						"secondary heating (LPG)": 0,
+						"secondary heating (coal)":0
 						}
 					},
 				"water heating" : 0,

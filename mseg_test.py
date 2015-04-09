@@ -314,8 +314,8 @@ class DataToListFormatTest(unittest.TestCase):
                    ('OA ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1),
                    ('OA ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1),
                    ('OA ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1),
-                   ('OA', 1, 1, 'LG', 'LG', 2010, 20, 21, -1),
-                   ('OA', 1, 1, 'LG', 'LG', 2011, 20, 21, -1),
+                   ('OA', 3, 1, 'WD', 'WD', 2010, 20, 21, -1),
+                   ('OA', 3, 1, 'WD', 'WD', 2011, 20, 21, -1),
                    ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1),
                    ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1),
                    ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1),
@@ -392,7 +392,11 @@ class DataToListFormatTest(unittest.TestCase):
                   ['mid atlantic', 'mobile home',
                    'natural gas', 'cooling', 'demand',
                    'windows solar'],
-                  ['new england', 'single family home', 'square footage']]
+                  ['new england', 'single family home', 'square footage'],
+                  ['east north central', 'single family home',
+                   'other fuel', 'secondary heating', 'supply',
+                   'secondary heating (wood)']
+                  ]
 
     # Define a set of filters that should yield zeros for stock/energy
     # data because they do not make sense
@@ -426,7 +430,10 @@ class DataToListFormatTest(unittest.TestCase):
                     ['pacific', 'multi home', 'square footage'],
                     ['pacific', 'multi family home', 'square foot'],
                     ['mid atlantic', 'mobile home', 'renewables',
-                     'water heating', 'solar WH']]
+                     'water heating', 'solar WH'],
+                    ['east north central', 'single family home',
+                     'other fuel', 'secondary heating', 'demand',
+                     'secondary heating (wood)']]
 
     # Define the set of outputs that should be yielded by the "ok_filters"
     # information above
@@ -461,7 +468,10 @@ class DataToListFormatTest(unittest.TestCase):
               [{'stock': 'NA',
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
-              [{"2009": 101, "2010": 101}, supply_array[:-2]]]
+              [{"2009": 101, "2010": 101}, supply_array[:-2]],
+              [{'stock': {"2010": 20, "2011": 20},
+                'energy': {"2010": 21, "2011": 21}},
+               numpy.hstack([supply_array[0:20], supply_array[22:]])]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above
@@ -570,11 +580,13 @@ class JSONTranslatorTest(unittest.TestCase):
                   ['south atlantic', 'multi family home', 'distillate',
                    'secondary heating', 'demand', 'windows solar'],
                   ['new england', 'single family home', 'other fuel',
-                   'secondary heating', 'secondary heating (coal)',
-                   'supply', 'non-specific'],
+                   'secondary heating', 'supply', 'secondary heating (coal)'],
                   ['new england', 'single family home', 'natural gas',
                    'water heating'],
-                  ['new england', 'single family home', 'square footage']]
+                  ['new england', 'single family home', 'square footage'],
+                  ['new england', 'single family home', 'other fuel',
+                   'secondary heating', 'secondary heating (kerosene)',
+                   'demand', 'windows conduction']]
 
     # Define nonsense filter examples (combinations of building types,
     # end uses, etc. that are not possible and thus wouldn't appear in
@@ -613,7 +625,14 @@ class JSONTranslatorTest(unittest.TestCase):
                      'heating', 'electricity (grid)', 'demand', 'room AC'],
                     ['mountain', 'mobile home', 'sq ft'],
                     ['west north central', 'mobile home', 'square footage',
-                     'water heating', 'room AC']]
+                     'water heating', 'room AC'],
+                    ['new england', 'single family home', 'other fuel',
+                     'secondary heating', 'supply',
+                     'windows conduction'],
+                    ['new england', 'single family home', 'other fuel',
+                     'secondary heating', 'demand',
+                     'secondary heating (coal)']
+                    ]
     # Define what json_translator should produce for the given filters;
     # this part is critically important, as these tuples and/or lists
     # will be used by later functions to extract data from the imported
@@ -629,7 +648,9 @@ class JSONTranslatorTest(unittest.TestCase):
               [[('SH', 'OA'), 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
                 'CL'], ''],
               [['HW', 1, 1, 'GS'], ''],
-              [['SQ', 1, 1], '']]
+              [['SQ', 1, 1], ''],
+              [[('SH', 'OA'), 1, 1,
+               ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD')], 'WIND_COND']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
                     [['RF', 1, 1, 'EL', 'LFL'], ''],
