@@ -169,6 +169,8 @@ def json_translator(dictlist, filterformat):
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
+    elif 'secondary heating' in filterformat and 'other fuel' in filterformat:
+        dictlist_loop = dictlist
     elif 'square footage' in filterformat and len(filterformat) == 3:
         dictlist_loop = dictlist[:(len(dictlist) - 3)]
     elif len(filterformat) <= 4:
@@ -183,6 +185,7 @@ def json_translator(dictlist, filterformat):
         match_count = 0
         ms_level += 1
         for num, key in enumerate(filterformat):
+            print(key)
             # Check whether element is in dict keys
             if key in j.keys():
                 match_count += 1
