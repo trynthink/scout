@@ -94,7 +94,7 @@
 	"component_cost_source_quality": 0,
 	"installed_cost_source": "website Y",
 	"installed_cost_source_quality": 0,
-	"energy_efficiency": {"heating":{"AIA_CZ1": 2.2, "AIA_CZ2": 2.3, "AIA_CZ3": 2.5, "AIA_CZ4": 2.5, "AIA_CZ5": 2.4}, "cooling":{"AIA_CZ1": 2.7, "AIA_CZ2": 2.9, "AIA_CZ3": 3.1, "AIA_CZ4": 3.2, "AIA_CZ5": 3.1}},
+	"energy_efficiency": {"AIA_CZ1": {"heating": 2.2, "cooling": 2.7}, "AIA_CZ2": {"heating": 2.3, "cooling": 2.9}, "AIA_CZ3": {"heating": 2.5, "cooling": 3.1}, "AIA_CZ4": {"heating": 2.5, "cooling": 3.2}, "AIA_CZ5": {"heating": 2.4, "cooling": 3.1}},
 	"energy_efficiency_units": "COP",
 	"energy_efficiency_source": "website Y",
 	"energy_efficiency_source_quality": 0,
