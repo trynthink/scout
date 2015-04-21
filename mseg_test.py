@@ -686,61 +686,134 @@ class ClimConverterTest(unittest.TestCase):
         {'new england': {'single family home': {
                          'electricity (grid)': {'lighting': {
                                                 'linear fluorescent':
-                                                [1, 1, 1]}}}},
+                                                {'stock':
+                                                 {'2009': 1,
+                                                  '2010': 2,
+                                                  '2011': 3},
+                                                 'energy':
+                                                 {'2009': 4,
+                                                  '2010': 5,
+                                                  '2011': 6}}}}}},
          'mid atlantic': {'single family home': {
                           'electricity (grid)': {'lighting': {
                                                  'linear fluorescent':
-                                                 [2, 2, 2]}}}},
+                                                 {'stock':
+                                                  {'2009': 7,
+                                                   '2010': 8,
+                                                   '2011': 9},
+                                                  'energy':
+                                                  {'2009': 10,
+                                                   '2010': 11,
+                                                   '2011': 12}}}}}},
          'east north central': {'single family home': {
                                 'electricity (grid)': {'lighting': {
                                                        'linear fluorescent':
-                                                       [3, 3, 3]}}}}}
+                                                       {'stock':
+                                                        {'2009': 13,
+                                                         '2010': 14,
+                                                         '2011': 15},
+                                                        'energy':
+                                                        {'2009': 16,
+                                                         '2010': 17,
+                                                         '2011': 18}}}}}}}
 
     test_fail_input = \
         {'new england': {'single family home': {
                          'electricity (grid)': {'lighting': {
                                                 'linear fluorescent':
-                                                [1, 1, 1]}}}},
+                                                {'stock':
+                                                 {'2009': 1,
+                                                  '2010': 1,
+                                                  '2011': 1},
+                                                 'energy':
+                                                 {'2009': 1,
+                                                  '2010': 1,
+                                                  '2011': 1}}}}}},
          'middle atlantic': {'single family home': {
                              'electricity (grid)': {'lighting': {
                                                     'linear fluorescent':
-                                                    [2, 2, 2]}}}},
+                                                    {'stock':
+                                                     {'2009': 2,
+                                                      '2010': 2,
+                                                      '2011': 2},
+                                                     'energy':
+                                                     {'2009': 2,
+                                                      '2010': 2,
+                                                      '2011': 2}}}}}},
          'east north central': {'single family home': {
                                 'electricity (grid)': {'lighting': {
                                                        'linear fluorescent':
-                                                       [3, 3, 3]}}}}}
+                                                       {'stock':
+                                                        {'2009': 3,
+                                                         '2010': 3,
+                                                         '2011': 3},
+                                                        'energy':
+                                                        {'2009': 3,
+                                                         '2010': 3,
+                                                         '2011': 3}}}}}}}
 
     # Create an expected output dict broken down by climate zone
     test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [0.8056, 0.8056, 0.8056]}}}},
+                                            {"stock":
+                                             {"2009": 2.6591,
+                                              "2010": 3.0940,
+                                              "2011": 3.5289},
+                                             "energy":
+                                             {"2009": 3.9638,
+                                              "2010": 4.3987,
+                                              "2011": 4.8336}}}}}},
                    'AIA_CZ2': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [3.4304, 3.4304, 3.4304]}}}},
+                                            {"stock":
+                                             {"2009": 11.8729,
+                                              "2010": 13.6148,
+                                              "2011": 15.3567},
+                                             "energy":
+                                             {"2009": 17.0986,
+                                              "2010": 18.8405,
+                                              "2011": 20.5824}}}}}},
                    'AIA_CZ3': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [1.7641, 1.7641, 1.7641]}}}},
+                                            {"stock":
+                                             {"2009": 6.4681,
+                                              "2010": 7.2914,
+                                              "2011": 8.1147},
+                                             "energy":
+                                             {"2009": 8.9380,
+                                              "2010": 9.7613,
+                                              "2011": 10.5846}}}}}},
                    'AIA_CZ4': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [0, 0, 0]}}}},
+                                            {"stock":
+                                             {"2009": 0,
+                                              "2010": 0,
+                                              "2011": 0},
+                                             "energy":
+                                             {"2009": 0,
+                                              "2010": 0,
+                                              "2011": 0}}}}}},
                    'AIA_CZ5': {'single family home': {'electricity (grid)': {
                                'lighting': {'linear fluorescent':
-                                            [0, 0, 0]}}}}
+                                            {"stock":
+                                             {"2009": 0,
+                                              "2010": 0,
+                                              "2011": 0},
+                                             "energy":
+                                             {"2009": 0,
+                                              "2010": 0,
+                                              "2011": 0}}}}}}
                    }
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(dict1.items(), dict2.items()):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
             if isinstance(i, dict):
                 self.assertCountEqual(i, i2)
                 self.dict_check(i, i2)
             else:
-                # Demand "stock" currently 'NA', this handles that case
-                # if we wanted to test it
-                if isinstance(dict1[k], str):
-                    self.assertEqual(dict1[k], dict2[k2])
-                else:
-                    self.assertEqual([elem for elem in dict1[k]], dict2[k2])
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=4)
 
     # Implement dict check routine
     def test_convert_match(self):
