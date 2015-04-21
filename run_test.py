@@ -8,12 +8,14 @@ import run
 # Import needed packages
 import unittest
 import numpy
+import copy
 
 
 class TestMeasureInit(unittest.TestCase):
     """ Ensure that measure attributes are correctly initiated """
 
-    # Sample measure for use in testing attributes
+    # Sample measure for use in testing attributes * NOTE:
+    # this is duplicated later in another test, look into how to combine?
     sample_measure = {"name": "sample measure 1",
                       "end_use": ["heating", "cooling"],
                       "fuel_type": "electricity (grid)",
@@ -36,6 +38,99 @@ class TestMeasureInit(unittest.TestCase):
         # Check to see that sample measure is correctly identified
         # as inactive
         self.assertEqual(measure_instance.active, 0)
+
+
+class AddKeyValsTest(unittest.TestCase):
+    """ Test the operation of the add_keyvals function to verify it
+    adds together dict items correctly """
+
+    # Sample measure for use in testing add_keyvals
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+    # 1st dict to be entered into the "ok" test of the function
+    base_dict1 = {"level 1a":
+                  {"level 2aa":
+                      {"2009": 2, "2010": 3},
+                   "level2ab":
+                      {"2009": 4, "2010": 5}},
+                  "level 1b":
+                  {"level 2ba":
+                      {"2009": 6, "2010": 7},
+                   "level2bb":
+                      {"2009": 8, "2010": 9}}}
+
+    # 1st dict to be entered into the "fail" test of the function
+    base_dict2 = copy.deepcopy(base_dict1)
+
+    # 2nd dict to be added to "base_dict1" in the "ok" test of the function
+    ok_add_dict2 = {"level 1a":
+                    {"level 2aa":
+                        {"2009": 2, "2010": 3},
+                     "level2ab":
+                        {"2009": 4, "2010": 5}},
+                    "level 1b":
+                    {"level 2ba":
+                        {"2009": 6, "2010": 7},
+                     "level2bb":
+                        {"2009": 8, "2010": 9}}}
+
+    # 2nd dict to be added to "base_dict2" in the "fail" test of the function
+    fail_add_dict2 = {"level 1a":
+                      {"level 2aa":
+                          {"2009": 2, "2010": 3},
+                       "level2ab":
+                          {"2009": 4, "2010": 5}},
+                      "level 1b":
+                      {"level 2ba":
+                          {"2009": 6, "2010": 7},
+                       "level2bb":
+                          {"2009": 8, "2011": 9}}}
+
+    # Correct output of the "ok" test to check against
+    ok_out = {"level 1a":
+              {"level 2aa":
+                  {"2009": 4, "2010": 6},
+               "level2ab":
+                  {"2009": 8, "2010": 10}},
+              "level 1b":
+              {"level 2ba":
+                  {"2009": 12, "2010": 14},
+               "level2bb":
+                  {"2009": 16, "2010": 18}}}
+
+    # Create a routine for checking equality of a dict * NOTE:
+    # this is duplicated later in another test, look into how to combine?
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # Test the "ok" function output
+    def test_ok_add(self):
+        dict1 = self.measure_instance.add_keyvals(self.base_dict1,
+                                                  self.ok_add_dict2)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
+
+    # Test the "fail" function output
+    def test_fail_add(self):
+        with self.assertRaises(KeyError):
+            self.measure_instance.add_keyvals(self.base_dict2,
+                                              self.fail_add_dict2)
 
 
 class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
