@@ -224,18 +224,24 @@ class Measure(object):
                 raise(KeyError('Add dict keys do not match!'))
         return dict1
 
-    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
+    def reduce_sqft_stock_cost(self, dict1, reduce_factor, loop=0):
         """ Divide "stock" and "cost" information by a given factor to
         handle special case when sq.ft. is used as stock """
 
-        for (k, i) in dict1.items():
-            if k == "energy":
-                continue
-            else:
-                if isinstance(i, dict):
-                        self.reduce_sqft_stock_cost(i, reduce_factor)
+        if loop == 0 and sorted(dict1.keys()) == ['cost', 'energy', 'stock'] or \
+           loop > 0:
+            loop += 1
+            for (k, i) in dict1.items():
+                if k == "energy":
+                    continue
                 else:
-                    dict1[k] = dict1[k] / reduce_factor
+                    if isinstance(i, dict):
+                            self.reduce_sqft_stock_cost(i, reduce_factor, loop)
+                    else:
+                        dict1[k] = dict1[k] / reduce_factor
+        else:
+            raise(KeyError('Incorrect keys found in mseg_master dict!'))
+
         return dict1
 
     def partition_microsegment(self, mseg_stock, mseg_energy, rel_perf,

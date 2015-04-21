@@ -54,6 +54,9 @@ class AddKeyValsTest(unittest.TestCase):
                       "bldg_type": "single family home",
                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
     # 1st dict to be entered into the "ok" test of the function
     base_dict1 = {"level 1a":
                   {"level 2aa":
@@ -116,9 +119,6 @@ class AddKeyValsTest(unittest.TestCase):
             else:
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
-    # Create a measure instance to use in the testing
-    measure_instance = run.Measure(**sample_measure)
-
     # Test the "ok" function output
     def test_ok_add(self):
         dict1 = self.measure_instance.add_keyvals(self.base_dict1,
@@ -131,6 +131,109 @@ class AddKeyValsTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.measure_instance.add_keyvals(self.base_dict2,
                                               self.fail_add_dict2)
+
+
+class ReduceSqftStockCostTest(unittest.TestCase):
+    """ Test the operation of the reduce_sqft_stock_cost function to verify
+    that it properly divides dict key values by a given factor (used in special
+    case where square footage is used as the microsegment stock) """
+
+    # Sample measure for use in testing add_keyvals
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # Initialize a factor to divide input dict key values by
+    test_factor = 4
+
+    # Base input dict to be divided by test_factor in "ok" test
+    base_dict = {"stock":
+                 {"total":
+                     {"2009": 100, "2010": 200},
+                  "competed":
+                      {"2009": 300, "2010": 400}},
+                 "energy":
+                 {"total":
+                     {"2009": 500, "2010": 600},
+                  "competed":
+                     {"2009": 700, "2010": 800},
+                  "efficient":
+                     {"2009": 700, "2010": 800}},
+                 "cost":
+                 {"baseline":
+                     {"2009": 900, "2010": 1000},
+                  "measure":
+                     {"2009": 1100, "2010": 1200}}}
+
+    # Base input dict that should yield KeyError in "fail" test (one of the top
+    # level keys ("energetics") is incorrect)
+    fail_dict = {"stock":
+                 {"total":
+                     {"2009": 100, "2010": 200},
+                  "competed":
+                      {"2009": 300, "2010": 400}},
+                 "energetics":
+                 {"total":
+                     {"2009": 500, "2010": 600},
+                  "competed":
+                     {"2009": 700, "2010": 800},
+                  "efficient":
+                     {"2009": 700, "2010": 800}},
+                 "cost":
+                 {"baseline":
+                     {"2009": 900, "2010": 1000},
+                  "measure":
+                     {"2009": 1100, "2010": 1200}}}
+
+    # Correct output of the "ok" test to check against
+    ok_out = {"stock":
+              {"total":
+                  {"2009": 25, "2010": 50},
+               "competed":
+                   {"2009": 75, "2010": 100}},
+              "energy":
+              {"total":
+                  {"2009": 500, "2010": 600},
+               "competed":
+                  {"2009": 700, "2010": 800},
+               "efficient":
+                  {"2009": 700, "2010": 800}},
+              "cost":
+              {"baseline":
+                  {"2009": 225, "2010": 250},
+               "measure":
+                  {"2009": 275, "2010": 300}}}
+
+    # Create a routine for checking equality of a dict
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
+    # Test the "ok" function output
+    def test_ok_add(self):
+        dict1 = self.measure_instance.reduce_sqft_stock_cost(self.base_dict,
+                                                             self.test_factor)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
+
+    # Test the "fail" function output
+    def test_fail_add(self):
+        with self.assertRaises(KeyError):
+            self.measure_instance.reduce_sqft_stock_cost(self.fail_dict,
+                                                         self.test_factor)
 
 
 class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
