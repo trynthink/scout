@@ -496,7 +496,8 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
     (used to convert microsegment data from a census division to a
     climate zone breakdown) """
 
-    for (k, i), (k2, i2) in zip(base_dict.items(), add_dict.items()):
+    for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
+                                sorted(add_dict.items())):
         # Check to ensure dicts do have same structure
         if k == k2:
             # Recursively loop through both dicts
@@ -511,11 +512,9 @@ def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
                 # second dict, only conversion of the first dict with
                 # the appropriate factor)
                 if (cd == (cdivdict[cdiv_list[0]] - 1)):
-                    base_dict[k] = [round((x * cd_convert), 4) for x in
-                                    base_dict[k]]
+                    base_dict[k] = (base_dict[k] * cd_convert)
                 else:
-                    base_dict[k] = [round((x + y * cd_convert), 4) for (x, y)
-                                    in zip(base_dict[k], add_dict[k2])]
+                    base_dict[k] = (base_dict[k] + add_dict[k2] * cd_convert)
         else:
             raise(KeyError('Merge keys do not match!'))
 
