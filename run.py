@@ -2,13 +2,15 @@
 import json
 import itertools
 import copy
+import re
 
 # Define measures/microsegments files
 measures_file = "measures.json"
 microsegments_file = "microsegments_out_test.json"
+mseg_base_costperf_info = "microsegments_base_costperf.json"  # To be developed
 
-# User-specified inputs (draw from GUI?)
-active_measures = []  # For now
+# User-specified inputs (placeholders for now, eventually draw from GUI?)
+active_measures = []
 adopt_scheme = 'Technical potential'
 decision_rule = 'NA'
 
@@ -27,16 +29,18 @@ class Measure(object):
             self.active = 0
         # Initialize other mseg-related attributes
         self.mseg_energy = None  # Energy (whole mseg)
-        self.mseg_units = None  # Units (whole mseg)
-        self.mseg_energy_unit = None  # Energy/unit (whole mseg)
+        self.mseg_stock = None  # No. units and/or sq.ft. (whole mseg)
+        self.mseg_energy_norm = None  # Energy/stock (whole mseg)
         self.compete_energy = None  # Energy (competed mseg)
-        self.compete_units = None  # Units (competed mseg)
-        self.compete_energy_unit = None  # Energy/unit (competed mseg)
+        self.compete_stock = None  # No. units and/or sq.ft. (competed mseg)
+        self.compete_energy_norm = None  # Energy/stock (competed mseg)
+        self.efficient_energy = None  # Energy (efficient scenario)
+        self.efficient_energy_norm = None  # Energy/stock (efficient)
         # Initialize relative improvement attributes
         self.esavings = None  # Total energy savings
-        self.esavings_unit = None  # Energy savings/unit
+        self.esavings_norm = None  # Energy savings/stock
         self.carbsavings = None  # Total CO2 savings
-        self.carbsavings_unit = None  # CO2 savings/unit
+        self.carbsavings_norm = None  # CO2 savings/stock
         # Initialize decision making attributes
         self.irr = None  # Internal rate of return
         self.payback = None  # Simple payback
@@ -45,95 +49,145 @@ class Measure(object):
         self.ccc = None  # Cost of Conserved Carbon
         # Other attributes to be added as needed
 
-    def find_master_microsegment(self, mseg_in):
-        """ Given an input measure with microsegment selection information and a
-        microsegments dict with AEO stock/energy consumption information, find
-        the master microsegment for the measure (maximum possible stock &
-        energy markets for the measure) """
+    def mseg_find_partition(self, mseg_in, base_costperf_in, adopt_scheme):
+        """ Given an input measure with microsegment selection information and two
+        input dicts with AEO microsegment cost and performance and stock and
+        energy consumption information, find: 1) total and competed stock,
+        2) total, competed, and energy efficient consumption and 3)
+        associated cost of the competed stock """
 
-        # Initialize master microsegment dict and a variable that will indicate
-        # the first addition to this dict (special handling)
-        mseg_total = {"stock": None, "energy": None}
-        key_init = 0
-        # Create a variable that will indicate the use of square footage for
-        # master microsegment stock
+        # Initialize master stock, energy, and cost information dict
+        mseg_master = {"stock": {"total": None, "competed": None},
+                       "energy": {"total": None, "competed": None,
+                                  "efficient": None},
+                       "cost": {"baseline": None, "measure": None}}
+
+        # Initialize variable indicating use of sq.ft. as microsegment stock
         sqft_subst = 0
-        # Create a list of lists where each list has key information for
-        # one of the microsegment levels. Use this list to find all possible
-        # microsegment key chains and store each in a tuple (i.e. ("new
-        # england", "single family home", "natural gas", "water heating")).
-        # Add in "demand" and "supply keys where needed (heating, secondary
-        # heating, cooling end uses)
+
+        # Initialize variable flagging heating, 2nd heat, and cooling end uses
         htcl_enduse_ct = 0
+        # Determine end use case, first ensuring end use is input as a list
         if isinstance(self.end_use, list) is False:
             self.end_use = [self.end_use]
         for eu in self.end_use:
             if eu == "heating" or eu == "secondary heating" or eu == "cooling":
                 htcl_enduse_ct += 1
+
+        # Create a list of lists where each list has key information for
+        # one of the microsegment levels. Use list to find all possible
+        # microsegment key chains (i.e. ("new england", "single family home",
+        # "natural gas", "water heating")). Add in "demand" and "supply keys
+        # where needed (heating, secondary heating, cooling end uses)
         if (htcl_enduse_ct > 0):
             ms_lists = [self.climate_zone, self.bldg_type, self.fuel_type,
                         self.end_use, self.technology_type, self.technology]
         else:
             ms_lists = [self.climate_zone, self.bldg_type, self.fuel_type,
                         self.end_use, self.technology]
-        # Ensure that every "ms_lists" element is itself a list
+
+        # Ensure that every list element is itself a list
         for x in range(0, len(ms_lists)):
             if isinstance(ms_lists[x], list) is False:
                 ms_lists[x] = [ms_lists[x]]
         # Find all possible microsegment key chains
         ms_iterable = list(itertools.product(*ms_lists))
 
-        # Loop through the discovered key chains to find stock/energy
-        # information in "mseg_in" for each microsegment that contributes to
-        # the master microsegment
-        for mskeys in ms_iterable:
-            # Make a new copy of "mseg_in" for use in each loop through the
-            # discovered key chains (otherwise the initial dict is reduced with
-            # each loop, yielding errors).  Here, we also initialize a separate
-            # dict for use in grabbing sqft. info., which will serve as the
-            # "stock" for microsegments with no number of units information
-            mseg_dict = copy.deepcopy(mseg_in)
-            mseg_dict_sqft = copy.deepcopy(mseg_in)
-            # Loop recursively through input dict copy, moving down key chain
-            for i in range(0, len(mskeys)):  # Check for key in dict level
-                if mskeys[i] in mseg_dict.keys():
-                    mseg_dict = mseg_dict[mskeys[i]]
-                else:  # If no key match, break the loop
-                    break
-                # For sq.ft. info., only move two levels down the dict
-                # (sq.ft. is only broken out by census division and bldg. type)
-                if i < 2:
-                    mseg_dict_sqft = mseg_dict_sqft[mskeys[i]]
-            # If the current loop didn't make it down to the "stock" and
-            # "energy" key level (because of mismatch somewhere along the key
-            # chain), move to the next loop
-            if "stock" not in list(mseg_dict.keys()):
-                pass
-            # If the loop did make it to the "stock" and "energy" key level,
-            # add this information to existing master microsegment dict. If
-            # this is the first addition, append the full set of {"year": val}
-            # pairs; otherwise, add to existing values for each year.
-            else:
-                # If number of units stock info. is unavailable, use sq.
-                # footage info. from "mseg_dict_sqft" as stock.
-                if mseg_dict["stock"] == "NA":
-                    sqft_subst = 1
-                    add_stock = mseg_dict_sqft["square footage"]
-                else:
-                    add_stock = mseg_dict["stock"]
-                add_energy = mseg_dict["energy"]
+        # Create a factor for reduction of msegs with sq.ft. stock (see below)
+        reduce_factor = (len(ms_lists[-1]) * htcl_enduse_ct)
 
-                if key_init == 0:
-                    key_init = 1
-                    mseg_total["stock"] = add_stock
-                    mseg_total["energy"] = add_energy
+        # Loop through discovered key chains to find needed performance/cost
+        # and stock/energy information for measure
+        for mskeys in ms_iterable:
+            # Initialize performance/cost and units (* could each be dict)
+            perf_meas = self.energy_efficiency
+            cost_meas = self.installed_cost
+            perf_units = self.energy_efficiency_units
+            cost_units = self.cost_units
+
+            # Initialize dicts of microsegment information specific to this run
+            # of for loop; also initialize dict for mining sq.ft. information
+            # to be used as stock for microsegments without no. units info.
+            base_costperf = base_costperf_in
+            mseg = mseg_in
+            mseg_sqft = mseg_in
+
+            # Loop recursively through the above dicts, moving down key chain
+            for i in range(0, len(mskeys)):
+                # Check for key in dict level
+                if mskeys[i] in base_costperf.keys():
+                    # Restrict base cost/performance dict to key chain info.
+                    base_costperf = base_costperf[mskeys[i]]
+                    # Restrict stock/energy dict to key chain info.
+                    mseg = mseg[mskeys[i]]
+                    # Restrict any measure cost/performance info. that is
+                    # a dict type to key chain info.
+                    if isinstance(perf_meas, dict) and mskeys[i] in \
+                       perf_meas.keys():
+                            perf_meas = perf_meas[mskeys[i]]
+                    if isinstance(perf_units, dict) and mskeys[i] in \
+                       perf_units.keys():
+                            perf_units = perf_units[mskeys[i]]
+                    if isinstance(cost_meas, dict) and mskeys[i] in \
+                       cost_meas.keys():
+                            cost_meas = cost_meas[mskeys[i]]
+                    if isinstance(cost_units, dict) and mskeys[i] in \
+                       cost_units.keys():
+                            cost_units = cost_units[mskeys[i]]
+                    # Restrict sq.ft. dict to key chain info.
+                    if i < 2:  # Note: sq.ft. broken out 2 levels (cdiv, bldg)
+                        mseg_sqft = mseg_sqft[mskeys[i]]
+                # If no key match, break the loop
                 else:
-                    for (key1, key2) in zip(mseg_total["stock"].keys(),
-                                            mseg_total["energy"].keys()):
-                        mseg_total["stock"][key1] = mseg_total["stock"][key1] + \
-                            add_stock[key1]
-                        mseg_total["energy"][key2] = mseg_total["energy"][key2] + \
-                            add_energy[key2]
+                    break
+
+            # If mseg dict isn't defined to "stock" info. level, go no further
+            if "stock" not in list(mseg.keys()):
+                continue
+            # Otherwise update all stock/energy/cost information for each year
+            else:
+                # Determine relative measure performance after checking for
+                # consistent baseline/measure performance and cost units
+                if base_costperf["performance"]["units"] == perf_units and \
+                   base_costperf["cost"]["units"] == cost_units:
+                    # Measure performance can be higher than baseline (COP = 4
+                    # vs. COP 3) or lower (ACH50 = 1 vs. ACH50 = 13)
+                    if (perf_meas > base_costperf["performance"]["value"]):
+                        rel_perf = 1 - (base_costperf["performance"]["value"] /
+                                        perf_meas)
+                    else:
+                        rel_perf = 1 - (perf_meas /
+                                        base_costperf["performance"]["value"])
+                    base_cost = base_costperf["cost"]["value"]
+                else:
+                    raise(KeyError('Inconsistent performance or cost units!'))
+
+                # Update total stock and energy information
+                if mseg["stock"] == "NA":  # Use sq.ft. in absence of no. units
+                    sqft_subst = 1
+                    add_stock = mseg_sqft["square footage"]
+                else:
+                    add_stock = mseg["stock"]
+                add_energy = mseg["energy"]
+
+                # Update competed and efficient stock and energy info.
+                # and competed cost info. based on adoption scheme
+                [add_compete_stock, add_compete_energy, add_efficient, add_cost] = \
+                    self.partition_microsegment(add_stock, add_energy,
+                                                rel_perf, base_cost,
+                                                cost_meas, adopt_scheme)
+
+                # Combine stock/energy/cost updating info. into a dict
+                add_dict = {"stock": {"total": add_stock, "competed":
+                            add_compete_stock}, "energy": {"total": add_energy,
+                            "competed": add_compete_energy, "efficient":
+                                                            add_efficient},
+                            "cost": {"baseline": add_cost["baseline"],
+                                     "measure": add_cost["measure"]}}
+
+                # Add all updated info. to existing master mseg dict and
+                # move to next iteration of the loop through key chains
+                mseg_master = self.add_keyvals(mseg_master, add_dict)
 
         # In microsegments where square footage must be used as stock, the
         # square footages cannot be summed to calculate the master microsegment
@@ -144,19 +198,87 @@ class Measure(object):
         # this case (heating and cooling). This is remedied by dividing summed
         # sq. footage values by (# technologies * # end uses), including only
         # technologies/end uses that contribute to the square footage sums.
+        # Note that cost information is based on competed stock and thus must
+        # be divided in the same manner (see reduce_sqft_stock function).
         if sqft_subst == 1:
-            for x in mseg_total["stock"].keys():
-                mseg_total["stock"][str(x)] = (mseg_total["stock"][str(x)] /
-                                               (len(ms_lists[-1]) *
-                                                htcl_enduse_ct))
+            mseg_master = self.reduce_sqft_stock_cost(mseg_master,
+                                                      reduce_factor)
 
-        # Return the master microsegment
-        return mseg_total
+        # Return the final master microsegment
+        return mseg_master
 
-    def partition_microsegment(self, adopt_scheme):
-        """ Partition microsegment to find "competed" and "non-competed"
-        stock """
-        pass
+    def add_keyvals(self, dict1, dict2):
+        """ Add key values of two identically structured dicts together """
+
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if k == k2:
+                if isinstance(i, dict):
+                    self.add_keyvals(i, i2)
+                else:
+                    if dict1[k] is None:
+                        dict1[k] = copy.deepcopy(dict2[k2])
+                    else:
+                        dict1[k] = dict1[k] + dict2[k2]
+            else:
+                raise(KeyError('Add dict keys do not match!'))
+        return dict1
+
+    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
+        """ Divide "stock" and "cost" information by a given factor to
+        handle special case when sq.ft. is used as stock """
+
+        for (k, i) in dict1.items():
+            if k == "energy":
+                continue
+            else:
+                if isinstance(i, dict):
+                        self.reduce_sqft_stock_cost(i, reduce_factor)
+                else:
+                    dict1[k] = dict1[k] / reduce_factor
+        return dict1
+
+    def partition_microsegment(self, mseg_stock, mseg_energy, rel_perf,
+                               base_cost, cost_meas, adopt_scheme):
+        """ Partition microsegment to find "competed" stock and energy
+        consumption as well as "efficient" energy consumption (representing
+        consumption under the measure).  Also find the total cost of the
+        competed stock for baseline and measure cost levels """
+
+        # Initialize efficient dict
+        mseg_efficient = dict.fromkeys(mseg_energy)
+
+        # Determine whether this is a technical potential calculation
+        tp = re.search('Technical potential', adopt_scheme, re.IGNORECASE)
+
+        # If a technical potential calculation, "competed" = "total" mseg
+        if tp:
+            mseg_competed_stock = mseg_stock
+            mseg_competed_energy = mseg_energy
+            for yr in mseg_competed_energy.keys():
+                mseg_efficient[yr] = mseg_competed_energy[yr] * (1 - rel_perf)
+        else:
+            pass
+
+        # Find base and measure cost of competed stock (cost/stock * stock).
+        # Initialize these as simply the competed stock, then multiply by
+        # by either the baseline or measure cost/stock to finalize.
+        mseg_competed_cost = {"baseline":
+                              dict.fromkeys(mseg_competed_stock.keys()),
+                              "measure":
+                              dict.fromkeys(mseg_competed_stock.keys())}
+        for ctype in mseg_competed_cost.keys():
+            if ctype == "baseline":
+                multiplier = base_cost
+            else:
+                multiplier = cost_meas
+            for yr in mseg_competed_cost[ctype].keys():
+                mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
+                    multiplier
+
+        # Return updated stock, energy, and cost information
+        return [mseg_competed_stock, mseg_competed_energy, mseg_efficient,
+                mseg_competed_cost]
 
     def calc_metrics(self):
         """ Calculate measure decision making metrics using competed
@@ -170,14 +292,14 @@ class Engine(object):
     def __init__(self, measure_objects):
         self.measure_objs = measure_objects
 
-    def adopt_active(self, adopt_scheme, decision_rule, mseg_in):
+    def adopt_active(self, mseg_in, base_costperf_in, adopt_scheme,
+                     decision_rule):
         """ Run adoption scheme on active measures only """
         for m in self.measure_objs:
             if m.active == 1:
-                # Find microsegment
-                m.find_master_microsegment(mseg_in)
-                # Find competed microsegment
-                m.partition_microsegment(adopt_scheme)
+                # Find master microsegment and partitions
+                m.mseg_master_find_partition(mseg_in, base_costperf_in,
+                                             adopt_scheme)
                 # Update cost/savings outcomes based on competed microsegment
                 m.calc_metrics()
         # Eventually adopt measures here using updated measure decision info.
@@ -192,6 +314,9 @@ def main():
     with open(microsegments_file, 'r') as msjs:
         microsegments_input = json.load(msjs)
 
+    with open(mseg_base_costperf_info, 'r') as bjs:
+        base_costperf_info_input = json.load(bjs)
+
     # Create measures objects list from input measures JSON
     measures_objlist = []
 
@@ -199,7 +324,8 @@ def main():
         measures_objlist.append(Measure(**mi))
 
     a_run = Engine(measures_objlist)
-    a_run.adopt_active(adopt_scheme, decision_rule, microsegments_input)
+    a_run.adopt_active(microsegments_input, base_costperf_info_input,
+                       adopt_scheme, decision_rule)
 
 if __name__ == '__main__':
     main()
