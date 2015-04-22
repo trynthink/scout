@@ -273,7 +273,7 @@ class PartitionMicrosegmentTest(unittest.TestCase):
 
     # Set a relative performance list that should yield a
     # full list of valid outputs
-    ok_relperf = [0.70, 0.85, 0.25]
+    ok_relperf = [0.30, 0.15, 0.75]
 
     # Correct output of the "ok" function test
     ok_out = [[{"2009": 100, "2010": 200, "2011": 300},
@@ -917,7 +917,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
                     "energy_efficiency": {"windows conduction": 20,
-                                          "windows solar": 25},
+                                          "windows solar": 1},
                     "energy_efficiency_units": {"windows conduction":
                                                 "R Value",
                                                 "windows solar": "SHGC"},
@@ -932,7 +932,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                    {"name": "sample measure 5",
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
-                    "energy_efficiency": 10,
+                    "energy_efficiency": 1,
                     "energy_efficiency_units": "SHGC",
                     "end_use": "heating",
                     "fuel_type": "electricity (grid)",
@@ -944,7 +944,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
                     "energy_efficiency": {"windows conduction": 10,
-                                          "windows solar": 15},
+                                          "windows solar": 1},
                     "energy_efficiency_units": {"windows conduction":
                                                 "R Value",
                                                 "windows solar": "SHGC"},
@@ -1068,21 +1068,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "competed": {"2009": 1600, "2010": 2000}},
                "energy": {"total": {"2009": 4, "2010": 4},
                           "competed": {"2009": 4, "2010": 4},
-                          "efficient": {"2009": 1.76, "2010": 1.76}},
+                          "efficient": {"2009": 1.1, "2010": 1.1}},
                "cost": {"baseline": {"2009": 20400, "2010": 24600},
                         "measure": {"2009": 16000, "2010": 20000}}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 2, "2010": 2},
                           "competed": {"2009": 2, "2010": 2},
-                          "efficient": {"2009": 0.4, "2010": 0.4}},
+                          "efficient": {"2009": 1, "2010": 1}},
                "cost": {"baseline": {"2009": 1200, "2010": 1600},
                         "measure": {"2009": 6000, "2010": 8000}}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 46, "2010": 46},
                           "competed": {"2009": 46, "2010": 46},
-                          "efficient": {"2009": 25.27, "2010": 25.27}},
+                          "efficient": {"2009": 17.33, "2010": 17.33}},
                "cost": {"baseline": {"2009": 3100, "2010": 4133.33},
                         "measure": {"2009": 6000, "2010": 8000}}}]
 

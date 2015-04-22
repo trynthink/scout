@@ -14,6 +14,11 @@ active_measures = []
 adopt_scheme = 'Technical potential'
 decision_rule = 'NA'
 
+# Define end use cases where relative performance calculation should be
+# inverted (i.e., a lower air change rate is an improvement)
+inverted_relperf_list = ["ACH50", "CFM/sf", "kWh/yr", "kWh/day", "SHGC",
+                         "HP/CFM"]
+
 
 # Define class for measure objects
 class Measure(object):
@@ -150,14 +155,15 @@ class Measure(object):
                 # consistent baseline/measure performance and cost units
                 if base_costperf["performance"]["units"] == perf_units and \
                    base_costperf["cost"]["units"] == cost_units:
-                    # Measure performance can be higher than baseline (COP = 4
-                    # vs. COP 3) or lower (ACH50 = 1 vs. ACH50 = 13)
-                    if (perf_meas > base_costperf["performance"]["value"]):
-                        rel_perf = 1 - (base_costperf["performance"]["value"] /
-                                        perf_meas)
+                    # Relative performance calculation depends on tech. case
+                    # (i.e. COP  of 4 is higher rel. performance than COP 3,
+                    # (but 1 ACH50 is higher rel. performance than 13 ACH50)
+                    if perf_units not in inverted_relperf_list:
+                        rel_perf = (base_costperf["performance"]["value"] /
+                                    perf_meas)
                     else:
-                        rel_perf = 1 - (perf_meas /
-                                        base_costperf["performance"]["value"])
+                        rel_perf = (perf_meas /
+                                    base_costperf["performance"]["value"])
                     base_cost = base_costperf["cost"]["value"]
                 else:
                     raise(KeyError('Inconsistent performance or cost units!'))
@@ -262,8 +268,7 @@ class Measure(object):
             mseg_competed_stock = mseg_stock
             mseg_competed_energy = mseg_energy
             for yr in mseg_competed_energy.keys():
-                mseg_efficient[yr] = mseg_competed_energy[yr] * (1 -
-                                                                 rel_perf)
+                mseg_efficient[yr] = mseg_competed_energy[yr] * (rel_perf)
         else:  # The below few lines are temporary
             mseg_competed_stock = None
             mseg_competed_energy = None
