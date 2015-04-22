@@ -236,6 +236,113 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                                                          self.test_factor)
 
 
+class PartitionMicrosegmentTest(unittest.TestCase):
+    """ Test the operation of the partition_microsegment function to verify
+    that it properly partitions an input microsegment to yield the required
+    competed stock/energy/cost and energy efficient consumption information """
+
+    # Sample measure for use in testing add_keyvals
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # Set sample stock and energy inputs for testing
+    test_stock = [{"2009": 100, "2010": 200, "2011": 300},
+                  {"2025": 400, "2028": 500, "2035": 600},
+                  {"2020": 700, "2021": 800, "2022": 900}]
+    test_energy = [{"2009": 10, "2010": 20, "2011": 30},
+                   {"2025": 40, "2028": 50, "2035": 60},
+                   {"2020": 70, "2021": 80, "2022": 90}]
+
+    # Set sample base and measure costs to use in the testing
+    test_base_cost = [10, 20, 30]
+    test_cost_meas = [20, 30, 40]
+
+    # Set two alternative schemes to use in the testing,
+    # where the first should yield a full list of outputs
+    # and the second should yield a list with blank elements
+    test_schemes = ['Technical potential', 'Undefined']
+
+    # Set a relative performance list that should yield a
+    # full list of valid outputs
+    ok_relperf = [0.70, 0.85, 0.25]
+
+    # Correct output of the "ok" function test
+    ok_out = [[{"2009": 100, "2010": 200, "2011": 300},
+               {"2009": 10, "2010": 20, "2011": 30},
+               {"2009": 3, "2010": 6, "2011": 9},
+               {"baseline":
+                {"2009": 1000, "2010": 2000, "2011": 3000},
+                "measure":
+                {"2009": 2000, "2010": 4000, "2011": 6000}}],
+              [{"2025": 400, "2028": 500, "2035": 600},
+               {"2025": 40, "2028": 50, "2035": 60},
+               {"2025": 6, "2028": 7.5, "2035": 9},
+               {"baseline":
+                {"2025": 8000, "2028": 10000, "2035": 12000},
+                "measure":
+                {"2025": 12000, "2028": 15000, "2035": 18000}}],
+              [{"2020": 700, "2021": 800, "2022": 900},
+               {"2020": 70, "2021": 80, "2022": 90},
+               {"2020": 52.5, "2021": 60, "2022": 67.5},
+               {"baseline":
+               {"2020": 21000, "2021": 24000, "2022": 27000},
+                "measure":
+                {"2020": 28000, "2021": 32000, "2022": 36000}}]]
+
+    # Correct output of the "blank" function test
+    blank_out = [None, None, None, None]  # For now (pass)
+
+    # Create a routine for checking equality of a dict
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
+    # Test the "ok" function output
+    def test_ok(self):
+        for elem in range(0, len(self.test_stock)):
+            lists1 = self.measure_instance.partition_microsegment(
+                self.test_stock[elem],
+                self.test_energy[elem],
+                self.ok_relperf[elem],
+                self.test_base_cost[elem],
+                self.test_cost_meas[elem],
+                self.test_schemes[0])
+
+            lists2 = self.ok_out[elem]
+
+            for elem2 in range(0, len(lists1)):
+                self.dict_check(lists1[elem2], lists2[elem2])
+
+    # Test the "blank" function output
+    def test_blank(self):
+        for elem in range(0, len(self.test_stock)):
+            lists1 = self.measure_instance.partition_microsegment(
+                self.test_stock[elem],
+                self.test_energy[elem],
+                self.ok_relperf[elem],
+                self.test_base_cost[elem],
+                self.test_cost_meas[elem],
+                self.test_schemes[1])
+
+            lists2 = self.blank_out
+
+            self.assertEqual(lists1, lists2)
+
+
 class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
     """ Test the operation of the mseg_find_partition function to
     verify measure microsegment-related attribute inputs yield expected master

@@ -262,25 +262,31 @@ class Measure(object):
             mseg_competed_stock = mseg_stock
             mseg_competed_energy = mseg_energy
             for yr in mseg_competed_energy.keys():
-                mseg_efficient[yr] = mseg_competed_energy[yr] * (1 - rel_perf)
-        else:
-            pass
+                mseg_efficient[yr] = mseg_competed_energy[yr] * (1 -
+                                                                 rel_perf)
+        else:  # The below few lines are temporary
+            mseg_competed_stock = None
+            mseg_competed_energy = None
+            mseg_efficient = None
 
         # Find base and measure cost of competed stock (cost/stock * stock).
         # Initialize these as simply the competed stock, then multiply by
         # by either the baseline or measure cost/stock to finalize.
-        mseg_competed_cost = {"baseline":
-                              dict.fromkeys(mseg_competed_stock.keys()),
-                              "measure":
-                              dict.fromkeys(mseg_competed_stock.keys())}
-        for ctype in mseg_competed_cost.keys():
-            if ctype == "baseline":
-                multiplier = base_cost
-            else:
-                multiplier = cost_meas
-            for yr in mseg_competed_cost[ctype].keys():
-                mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
-                    multiplier
+        if mseg_competed_stock is not None:  # If statement is temporary
+            mseg_competed_cost = {"baseline":
+                                  dict.fromkeys(mseg_competed_stock.keys()),
+                                  "measure":
+                                  dict.fromkeys(mseg_competed_stock.keys())}
+            for ctype in mseg_competed_cost.keys():
+                if ctype == "baseline":
+                    multiplier = base_cost
+                else:
+                    multiplier = cost_meas
+                for yr in mseg_competed_cost[ctype].keys():
+                    mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
+                        multiplier
+        else:
+            mseg_competed_cost = None
 
         # Return updated stock, energy, and cost information
         return [mseg_competed_stock, mseg_competed_energy, mseg_efficient,
