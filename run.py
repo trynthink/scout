@@ -67,6 +67,9 @@ class Measure(object):
                                   "efficient": None},
                        "cost": {"baseline": None, "measure": None}}
 
+        # Initialize a counter of valid key chains
+        key_chain_ct = 0
+
         # Initialize variable indicating use of sq.ft. as microsegment stock
         sqft_subst = 0
 
@@ -97,9 +100,6 @@ class Measure(object):
                 ms_lists[x] = [ms_lists[x]]
         # Find all possible microsegment key chains
         ms_iterable = list(itertools.product(*ms_lists))
-
-        # Create a factor for reduction of msegs with sq.ft. stock (see below)
-        reduce_factor = (len(ms_lists[-1]) * htcl_enduse_ct)
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
@@ -151,6 +151,7 @@ class Measure(object):
                 continue
             # Otherwise update all stock/energy/cost information for each year
             else:
+                key_chain_ct += 1
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units
                 if base_costperf["performance"]["units"] == perf_units and \
@@ -202,11 +203,21 @@ class Measure(object):
         # should not yield 2000 total square feet of stock in the master
         # microsegment even though there are two contributing microsegments in
         # this case (heating and cooling). This is remedied by dividing summed
-        # sq. footage values by (# technologies * # end uses), including only
-        # technologies/end uses that contribute to the square footage sums.
-        # Note that cost information is based on competed stock and thus must
-        # be divided in the same manner (see reduce_sqft_stock function).
+        # square footage values by (# valid key chains / (# czones * # bldg
+        # types)), where the numerator refers to the number of full dict key
+        # chains that contributed to the mseg stock, energy, and cost calcs,
+        # and the denominator reflects the breakdown of square footage by
+        # climate zone and building type. Note that cost information is based
+        # on competed stock and must be divided in the same manner (see
+        # reduce_sqft_stock function).
         if sqft_subst == 1:
+            # Create a factor for reduction of msegs with sq.ft. stock
+            if key_chain_ct != 0:
+                reduce_factor = key_chain_ct / (len(ms_lists[0]) *
+                                                len(ms_lists[1]))
+            else:
+                raise(ValueError('No valid key chains discovered for sq.ft. \
+                                  stock and cost division operation!'))
             mseg_master = self.reduce_sqft_stock_cost(mseg_master,
                                                       reduce_factor)
 
