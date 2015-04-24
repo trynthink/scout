@@ -67,6 +67,10 @@ class Measure(object):
                                   "efficient": None},
                        "cost": {"baseline": None, "measure": None}}
 
+        # Initialize a dict to register contributing microsegments for
+        # later use in determining overlapping measure microsegments in staging
+        overlap_dict = {}
+
         # Initialize a counter of valid key chains
         key_chain_ct = 0
 
@@ -192,6 +196,10 @@ class Measure(object):
                             "cost": {"baseline": add_cost["baseline"],
                                      "measure": add_cost["measure"]}}
 
+                # Register contributing microsegment for later use
+                # in determining staging overlaps
+                overlap_dict[str(mskeys)] = add_dict
+
                 # Add all updated info. to existing master mseg dict and
                 # move to next iteration of the loop through key chains
                 mseg_master = self.add_keyvals(mseg_master, add_dict)
@@ -220,9 +228,15 @@ class Measure(object):
                                   stock and cost division operation!'))
             mseg_master = self.reduce_sqft_stock_cost(mseg_master,
                                                       reduce_factor)
+        else:
+            reduce_factor = 1
+
+        # Register contributing microsegment for later use
+        # in determining staging overlaps
+        overlap_dict["reduce factor"] = reduce_factor
 
         # Return the final master microsegment
-        return mseg_master
+        return [mseg_master, overlap_dict]
 
     def add_keyvals(self, dict1, dict2):
         """ Add key values of two identically structured dicts together """

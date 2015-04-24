@@ -1130,9 +1130,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
             # Create an instance of the object based on ok measure info
             measure_instance = run.Measure(**measure)
             # Assert output dict is correct
-            dict1 = measure_instance.mseg_find_partition(self.sample_msegin,
-                                                         self.sample_basein,
-                                                         "Technical potential")
+            dict1 = measure_instance.mseg_find_partition(
+                self.sample_msegin,
+                self.sample_basein,
+                "Technical potential")[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
 
@@ -1142,9 +1143,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
             # Create an instance of the object based on partial measure info
             measure_instance = run.Measure(**measure)
             # Assert output dict is correct
-            dict1 = measure_instance.mseg_find_partition(self.sample_msegin,
-                                                         self.sample_basein,
-                                                         "Technical potential")
+            dict1 = measure_instance.mseg_find_partition(
+                self.sample_msegin,
+                self.sample_basein,
+                "Technical potential")[0]
             dict2 = self.partial_out[idx]
             self.dict_check(dict1, dict2)
 
@@ -1154,9 +1156,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
             # Create an instance of the object based on blank measure info
             measure_instance = run.Measure(**measure)
             # Assert output dict is correct
-            dict1 = measure_instance.mseg_find_partition(self.sample_msegin,
-                                                         self.sample_basein,
-                                                         "Technical potential")
+            dict1 = measure_instance.mseg_find_partition(
+                self.sample_msegin,
+                self.sample_basein,
+                "Technical potential")[0]
             dict2 = self.blank_out[idx]
             self.dict_check(dict1, dict2)
 
