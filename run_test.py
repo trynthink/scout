@@ -8,7 +8,9 @@ import run
 # Import needed packages
 import unittest
 import numpy
+import scipy.stats as ss
 import copy
+import math
 
 
 class TestMeasureInit(unittest.TestCase):
@@ -234,6 +236,71 @@ class ReduceSqftStockCostTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.measure_instance.reduce_sqft_stock_cost(self.fail_dict,
                                                          self.test_factor)
+
+
+class RandomSampleTest(unittest.TestCase):
+    """ Test that the "rand_list_gen" yields an output
+    list of sampled values that are correctly distributed """
+
+    # Sample measure for use in testing attributes
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # Set test sampling number
+    test_sample_n = 100
+
+    # Set of input distribution information that should
+    # yield valid outputs
+    test_ok_in = [["normal", 10, 2], ["weibull", 5, 8],
+                  ["triangular", 3, 7, 10]]
+
+    # Set of input distribution information that should
+    # yield value errors
+    test_fail_in = [[1, 10, 2], ["triangle", 5, 8, 10],
+                    ["triangular", 3, 7]]
+
+    # Calls to the scipy fit function that will be used
+    # to check for correct fitted distribution parameters
+    # for sampled values
+    test_fit_calls = ['ss.norm.fit(sample)',
+                      'ss.weibull_min.fit(sample, floc = 0)',
+                      'ss.triang.fit(sample)']
+
+    # Correct set of outputs for given random sampling seed
+    test_outputs = [[10.06, 2.03], [4.93, 0, 8.02], [0.51, 3.01, 7.25]]
+
+    # Test for correct output from "ok" input distribution info.
+    def test_distrib_ok(self):
+        # Seed random number generator to yield repeatable results
+        numpy.random.seed(5423)
+        for idx in range(0, len(self.test_ok_in)):
+            # Sample values based on distribution input info.
+            sample = self.measure_instance.rand_list_gen(self.test_ok_in[idx],
+                                                         self.test_sample_n)
+            # Fit parameters for sampled values and check against
+            # known correct parameter values in "test_outputs" * NOTE:
+            # this adds ~ 0.15 s to test computation
+            for elem in range(0, len(self.test_outputs[idx])):
+                with numpy.errstate(divide='ignore'):
+                    self.assertAlmostEqual(
+                        list(eval(self.test_fit_calls[idx]))[elem],
+                        self.test_outputs[idx][elem], 2)
+
+    # Test for correct output from "fail" input distribution info.
+    def test_distrib_fail(self):
+        for idx in range(0, len(self.test_fail_in)):
+            with self.assertRaises(ValueError):
+                self.measure_instance.rand_list_gen(
+                    self.test_fail_in[idx], self.test_sample_n)
 
 
 class PartitionMicrosegmentTest(unittest.TestCase):
@@ -955,6 +1022,55 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "bldg_type": "single family home",
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
 
+    # List of selected "ok" measures above with certain inputs now specified
+    # as probability distributions
+    ok_measures_dist = [{"name": "distrib measure 1",
+                         "installed_cost": ["normal", 25, 5],
+                         "cost_units": "2014$/unit",
+                         "energy_efficiency": {"AIA_CZ1": {"heating":
+                                                           ["normal", 30, 1],
+                                                           "cooling":
+                                                           ["normal", 25, 2]},
+                                               "AIA_CZ2": {"heating": 30,
+                                                           "cooling":
+                                                           ["normal", 15, 4]}},
+                         "energy_efficiency_units": "COP",
+                         "end_use": ["heating", "cooling"],
+                         "fuel_type": "electricity (grid)",
+                         "technology_type": "supply",
+                         "technology": ["boiler (electric)",
+                                        "ASHP", "GSHP", "room AC"],
+                         "bldg_type": "single family home",
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                        {"name": "distrib measure 2",
+                         "installed_cost": ["lognormal", 3.22, 0.06],
+                         "cost_units": "2014$/unit",
+                         "energy_efficiency": ["normal", 25, 5],
+                         "energy_efficiency_units": "Energy Factor",
+                         "end_use": "water heating",
+                         "fuel_type": "natural gas",
+                         "technology_type": "supply",
+                         "technology": None,
+                         "bldg_type": "single family home",
+                         "climate_zone": "AIA_CZ1"},
+                        {"name": "distrib measure 2",
+                         "installed_cost": ["normal", 10, 5],
+                         "cost_units": "2014$/sf",
+                         "energy_efficiency": {"windows conduction":
+                                               ["lognormal", 2.29, 0.14],
+                                               "windows solar":
+                                               ["normal", 1, 0.1]},
+                         "energy_efficiency_units": {"windows conduction":
+                                                     "R Value",
+                                                     "windows solar": "SHGC"},
+                         "end_use": ["heating", "secondary heating",
+                                     "cooling"],
+                         "fuel_type": "electricity (grid)",
+                         "technology_type": "demand",
+                         "technology": ["windows conduction", "windows solar"],
+                         "bldg_type": "single family home",
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
+
     # List of measures with attribute combinations that should match some of
     # the key chains in the "sample_msegin" dict above (i.e., AIA_CZ1 ->
     # single family home -> electricity (grid) -> cooling -> GSHP is
@@ -1086,6 +1202,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                "cost": {"baseline": {"2009": 3100, "2010": 4133.33},
                         "measure": {"2009": 6000, "2010": 8000}}}]
 
+    # Means and sampling Ns for energy and cost that should be generated by
+    # "ok_measures_dist" above using the "sample_msegin" dict
+    ok_out_dist = [[38.89, 50, 1860.93, 50], [11.84, 50, 375.32, 50],
+                   [17.64, 50, 6448.37, 50]]
+
     # Master stock, energy, and cost information that should be generated by
     # "partial_measures" above using the "sample_msegin" dict
     partial_out = [{"stock": {"total": {"2009": 18, "2010": 18},
@@ -1136,6 +1257,27 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                 "Technical potential")[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_measures_dist" input
+    def test_mseg_ok_distrib(self):
+        # Seed random number generator to yield repeatable results
+        numpy.random.seed(1234)
+        for idx, measure in enumerate(self.ok_measures_dist):
+            # Create an instance of the object based on ok_dist measure info
+            measure_instance = run.Measure(**measure)
+            # Generate lists of energy and cost output values
+            test_e = measure_instance.mseg_find_partition(
+                self.sample_msegin, self.sample_basein,
+                "Technical potential")[0]["energy"]["efficient"]["2009"]
+            test_c = measure_instance.mseg_find_partition(
+                self.sample_msegin, self.sample_basein,
+                "Technical potential")[0]["cost"]["measure"]["2009"]
+            # Calculate mean values from output lists for testing
+            param_e = round(sum(test_e) / len(test_e), 2)
+            param_c = round(sum(test_c) / len(test_c), 2)
+            # Check mean values and length of output lists to ensure correct
+            self.assertEqual([param_e, len(test_e), param_c, len(test_c)],
+                             self.ok_out_dist[idx])
 
     # Test for correct output from "partial_measures" input
     def test_mseg_partial(self):

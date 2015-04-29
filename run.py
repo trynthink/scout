@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import itertools
+import numpy
 import copy
 import re
 
@@ -13,6 +14,9 @@ mseg_base_costperf_info = "microsegments_base_costperf.json"  # To be developed
 active_measures = []
 adopt_scheme = 'Technical potential'
 decision_rule = 'NA'
+
+# Set default number of input samples for Monte Carlo runs
+nsamples = 50
 
 # Define end use cases where relative performance calculation should be
 # inverted (i.e., a lower air change rate is an improvement)
@@ -108,11 +112,18 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for mskeys in ms_iterable:
-            # Initialize performance/cost and units (* could each be dict)
-            perf_meas = self.energy_efficiency
-            cost_meas = self.installed_cost
-            perf_units = self.energy_efficiency_units
-            cost_units = self.cost_units
+            # Initialize (or re-initialize) performance/cost and units if dicts
+            if mskeys == ms_iterable[0] or isinstance(
+                    self.energy_efficiency, dict):
+                perf_meas = self.energy_efficiency
+            if mskeys == ms_iterable[0] or isinstance(
+                    self.installed_cost, dict):
+                cost_meas = self.installed_cost
+            if mskeys == ms_iterable[0] or isinstance(
+                    self.energy_efficiency_units, dict):
+                perf_units = self.energy_efficiency_units
+            if mskeys == ms_iterable[0] or isinstance(self.cost_units, dict):
+                cost_units = self.cost_units
 
             # Initialize dicts of microsegment information specific to this run
             # of for loop; also initialize dict for mining sq.ft. information
@@ -156,6 +167,14 @@ class Measure(object):
             # Otherwise update all stock/energy/cost information for each year
             else:
                 key_chain_ct += 1
+                # If the measure performance/cost variable is list with
+                # distribution information, sample values from distribution
+                if isinstance(perf_meas, list) and isinstance(perf_meas[0],
+                                                              str):
+                    perf_meas = self.rand_list_gen(perf_meas, nsamples)
+                if isinstance(cost_meas, list) and isinstance(cost_meas[0],
+                                                              str):
+                    cost_meas = self.rand_list_gen(cost_meas, nsamples)
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units
                 if base_costperf["performance"]["units"] == perf_units and \
@@ -164,11 +183,19 @@ class Measure(object):
                     # (i.e. COP  of 4 is higher rel. performance than COP 3,
                     # (but 1 ACH50 is higher rel. performance than 13 ACH50)
                     if perf_units not in inverted_relperf_list:
-                        rel_perf = (base_costperf["performance"]["value"] /
-                                    perf_meas)
+                        if isinstance(perf_meas, list):  # Perf. distrib. case
+                            rel_perf = [(x ** -1 * base_costperf["performance"]
+                                        ["value"]) for x in perf_meas]
+                        else:
+                            rel_perf = (base_costperf["performance"]["value"] /
+                                        perf_meas)
                     else:
-                        rel_perf = (perf_meas /
-                                    base_costperf["performance"]["value"])
+                        if isinstance(perf_meas, list):  # Perf. distrib. case
+                            rel_perf = [(x / base_costperf["performance"]
+                                        ["value"]) for x in perf_meas]
+                        else:
+                            rel_perf = (perf_meas /
+                                        base_costperf["performance"]["value"])
                     base_cost = base_costperf["cost"]["value"]
                 else:
                     raise(KeyError('Inconsistent performance or cost units!'))
@@ -250,7 +277,28 @@ class Measure(object):
                     if dict1[k] is None:
                         dict1[k] = copy.deepcopy(dict2[k2])
                     else:
-                        dict1[k] = dict1[k] + dict2[k2]
+                        # Note: the below lines check to see if one, both, or
+                        # neither of the key items being added is a list, and
+                        # performs the addition accordingly.  Key values
+                        # will be lists in cases where probability distrbutions
+                        # were specified for measure cost/performance inputs
+                        if type(dict1[k]) != list and type(dict2[k2]) != list:
+                                dict1[k] = dict1[k] + dict2[k2]
+                        elif isinstance(dict1[k], list) and \
+                                isinstance(dict2[k2], list):
+                                dict1[k] = [x + y for (x, y)
+                                            in zip(dict1[k], dict2[k2])]
+                        elif isinstance(dict1[k], list) and \
+                                type(dict2[k2]) != list:
+                                dict1[k] = [x + dict2[k2] for x
+                                            in dict1[k]]
+                        elif type(dict1[k]) != list and \
+                                isinstance(dict2[k2], list):
+                                dict1[k] = [y + dict1[k] for y
+                                            in dict2[k2]]
+                        else:
+                            raise(ValueError(('Key values to be added are not \
+                                              of expected types!')))
             else:
                 raise(KeyError('Add dict keys do not match!'))
         return dict1
@@ -269,11 +317,49 @@ class Measure(object):
                     if isinstance(i, dict):
                             self.reduce_sqft_stock_cost(i, reduce_factor, loop)
                     else:
-                        dict1[k] = dict1[k] / reduce_factor
+                        if isinstance(dict1[k], list):  # Cost distrib. case
+                            dict1[k] = [x / reduce_factor for x in dict1[k]]
+                        else:
+                            dict1[k] = dict1[k] / reduce_factor
         else:
             raise(KeyError('Incorrect keys found in mseg_master dict!'))
 
         return dict1
+
+    def rand_list_gen(self, distrib_info, nsamples):
+        """ Given input distribution type, parameters, and sample N information,
+        generate list of N randomly sampled values from that distribution """
+
+        # Generate string to pair with "numpy.random" call
+        if len(distrib_info) == 3 and distrib_info[0] in ["normal",
+                                                          "lognormal",
+                                                          "uniform",
+                                                          "gamma"]:
+            vals = str(distrib_info[1]) + ',' + str(distrib_info[2]) + ',' + \
+                str(nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "weibull":
+            vals = str(distrib_info[1]) + ',' + str(nsamples)
+        elif len(distrib_info) == 4 and distrib_info[0] == "triangular":
+            vals = str(distrib_info[1]) + ',' + str(distrib_info[2]) + ',' + \
+                str(distrib_info[3]) + ',' + str(nsamples)
+        else:
+            raise(ValueError("Unsupported input distribution specification!"))
+
+        # Pair generated string with "numpy.random" call
+        rand_string = 'numpy.random.' + distrib_info[0] + '(' + vals + ')'
+
+        # Evaluate "numpy.random" call
+        if distrib_info[0] != "weibull":
+            rand_list = eval(rand_string)
+        else:  # Apply scaling factor here for Weibull distrib. case
+            rand_list = distrib_info[2] * eval(rand_string)
+
+        # Remove any sampled values below zero if they exist
+        if any(rand_list < 0):
+            rand_list = rand_list[rand_list >= 0]
+
+        # Return the randomly sampled values as a list
+        return list(rand_list)
 
     def partition_microsegment(self, mseg_stock, mseg_energy, rel_perf,
                                base_cost, cost_meas, adopt_scheme):
@@ -293,7 +379,11 @@ class Measure(object):
             mseg_competed_stock = mseg_stock
             mseg_competed_energy = mseg_energy
             for yr in mseg_competed_energy.keys():
-                mseg_efficient[yr] = mseg_competed_energy[yr] * (rel_perf)
+                if isinstance(rel_perf, list):  # Perf. distribution case
+                    mseg_efficient[yr] = [x * mseg_competed_energy[yr] for
+                                          x in rel_perf]
+                else:
+                    mseg_efficient[yr] = mseg_competed_energy[yr] * (rel_perf)
         else:  # The below few lines are temporary
             mseg_competed_stock = None
             mseg_competed_energy = None
@@ -313,8 +403,12 @@ class Measure(object):
                 else:
                     multiplier = cost_meas
                 for yr in mseg_competed_cost[ctype].keys():
-                    mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
-                        multiplier
+                    if isinstance(multiplier, list):  # Cost distribution case
+                        mseg_competed_cost[ctype][yr] = \
+                            [x * mseg_competed_stock[yr] for x in multiplier]
+                    else:
+                        mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
+                            multiplier
         else:
             mseg_competed_cost = None
 
