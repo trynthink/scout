@@ -10,6 +10,34 @@ measures_file = "measures.json"
 microsegments_file = "microsegments_out_test.json"
 mseg_base_costperf_info = "microsegments_base_costperf.json"  # To be developed
 
+# Define and import site-source conversions and CO2 emissions data
+cost_sitesource_co2 = "Cost_S-S_CO2.txt"
+cost_ss_co2 = numpy.genfromtxt(cost_sitesource_co2,
+                               names=True, delimiter='\t',
+                               dtype=None)
+
+# Set fuel type site-source conversion factors dict
+ss_conv = {"electricity (grid)": cost_ss_co2[7],
+           "natural gas": cost_ss_co2[8],
+           "distillate": cost_ss_co2[9], "other fuel": cost_ss_co2[9]}
+
+# Set fuel type carbon intensity dict
+carb_int = {"electricity (grid)": cost_ss_co2[10],
+            "natural gas": cost_ss_co2[11],
+            "distillate": cost_ss_co2[12], "other fuel": cost_ss_co2[12]}
+
+# Set energy costs dict
+ecosts = {"residential": {"electricity (grid)": cost_ss_co2[0],
+                          "natural gas": cost_ss_co2[1],
+                          "distillate": cost_ss_co2[2],
+                          "other fuel": cost_ss_co2[2]},
+          "commercial": {"electricity (grid)": cost_ss_co2[3],
+                         "natural gas": cost_ss_co2[4],
+                         "distillate": cost_ss_co2[5],
+                         "other fuel": cost_ss_co2[5]}}
+# Set carbon costs dict
+ccosts = cost_ss_co2[6]
+
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 active_measures = []
 adopt_scheme = 'Technical potential'
@@ -65,11 +93,16 @@ class Measure(object):
         2) total, competed, and energy efficient consumption and 3)
         associated cost of the competed stock """
 
-        # Initialize master stock, energy, and cost information dict
+        # Initialize master stock, energy, carbon, and cost information dict
         mseg_master = {"stock": {"total": None, "competed": None},
                        "energy": {"total": None, "competed": None,
                                   "efficient": None},
-                       "cost": {"baseline": None, "measure": None}}
+                       "carbon": {"total": None, "competed": None,
+                                  "efficient": None},
+                       "cost": {"baseline": {"stock": None, "energy": None,
+                                             "carbon": None},
+                                "measure": {"stock": None, "energy": None,
+                                            "carbon": None}}}
 
         # Initialize a dict to register contributing microsegments for
         # later use in determining overlapping measure microsegments in staging
@@ -200,28 +233,60 @@ class Measure(object):
                 else:
                     raise(KeyError('Inconsistent performance or cost units!'))
 
+                # Set appropriate site-source factor, energy cost, and CO2
+                # intensity for given key chain
+                site_source_conv = ss_conv[mskeys[2]]
+                intensity_carb = carb_int[mskeys[2]]
+                # Reduce energy costs info. to appropriate building type and
+                # fuel before entering into "partition_microsegment"
+                if mskeys[1] in ["single family home", "mobile home",
+                                 "multi family home"]:
+                    cost_energy = ecosts["residential"][mskeys[2]]
+                else:
+                    cost_energy = ecosts["commercial"][mskeys[2]]
+
                 # Update total stock and energy information
                 if mseg["stock"] == "NA":  # Use sq.ft. in absence of no. units
                     sqft_subst = 1
                     add_stock = mseg_sqft["square footage"]
                 else:
                     add_stock = mseg["stock"]
-                add_energy = mseg["energy"]
+                add_energy_site = mseg["energy"]  # Site energy information
+                add_energy = {}  # Source energy dict
+                add_carb = {}  # Carbon emissions dict
+                for yr in add_energy_site:  # Site-source & CO2 calc.
+                    add_energy[yr] = add_energy_site[yr] * site_source_conv[yr]
+                    add_carb[yr] = add_energy[yr] * intensity_carb[yr]
 
-                # Update competed and efficient stock and energy info.
-                # and competed cost info. based on adoption scheme
-                [add_compete_stock, add_compete_energy, add_efficient, add_cost] = \
+                # Update competed and efficient stock, energy, CO2
+                # and baseline/measure cost info. based on adoption scheme
+                [add_compete_stock, add_compete_energy, add_compete_carb,
+                 add_efficient_energy, add_efficient_carb, add_cost_stock_base,
+                 add_cost_energy_base, add_cost_carb_base, add_cost_stock_meas,
+                 add_cost_energy_meas, add_cost_carb_meas] = \
                     self.partition_microsegment(add_stock, add_energy,
-                                                rel_perf, base_cost,
-                                                cost_meas, adopt_scheme)
+                                                add_carb, rel_perf, base_cost,
+                                                cost_meas, cost_energy,
+                                                ccosts, adopt_scheme)
 
-                # Combine stock/energy/cost updating info. into a dict
-                add_dict = {"stock": {"total": add_stock, "competed":
-                            add_compete_stock}, "energy": {"total": add_energy,
-                            "competed": add_compete_energy, "efficient":
-                                                            add_efficient},
-                            "cost": {"baseline": add_cost["baseline"],
-                                     "measure": add_cost["measure"]}}
+                # Combine stock/energy/carbon/cost updating info. into a dict
+                add_dict = {"stock": {"total": add_stock,
+                                      "competed": add_compete_stock},
+                            "energy": {"total": add_energy,
+                                       "competed": add_compete_energy,
+                                       "efficient": add_efficient_energy},
+                            "carbon": {"total": add_carb,
+                                       "competed": add_compete_carb,
+                                       "efficient": add_efficient_carb},
+                            "cost": {"baseline": {
+                                     "stock": add_cost_stock_base,
+                                     "energy": add_cost_energy_base,
+                                     "carbon": add_cost_carb_base
+                                     },
+                                     "measure": {
+                                     "stock": add_cost_stock_meas,
+                                     "energy": add_cost_energy_meas,
+                                     "carbon": add_cost_carb_meas}}}
 
                 # Register contributing microsegment for later use
                 # in determining staging overlaps
@@ -303,27 +368,21 @@ class Measure(object):
                 raise(KeyError('Add dict keys do not match!'))
         return dict1
 
-    def reduce_sqft_stock_cost(self, dict1, reduce_factor, loop=0):
-        """ Divide "stock" and "cost" information by a given factor to
+    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
+        """ Divide "stock" and "stock cost" information by a given factor to
         handle special case when sq.ft. is used as stock """
-
-        if loop == 0 and sorted(dict1.keys()) == ['cost', 'energy', 'stock'] or \
-           loop > 0:
-            loop += 1
-            for (k, i) in dict1.items():
-                if k == "energy":
+        for (k, i) in dict1.items():
+            # Do not divide any energy or carbon information
+            if (k == "energy" or k == "carbon"):
                     continue
-                else:
+            else:
                     if isinstance(i, dict):
-                            self.reduce_sqft_stock_cost(i, reduce_factor, loop)
+                        self.reduce_sqft_stock_cost(i, reduce_factor)
                     else:
                         if isinstance(dict1[k], list):  # Cost distrib. case
                             dict1[k] = [x / reduce_factor for x in dict1[k]]
                         else:
                             dict1[k] = dict1[k] / reduce_factor
-        else:
-            raise(KeyError('Incorrect keys found in mseg_master dict!'))
-
         return dict1
 
     def rand_list_gen(self, distrib_info, nsamples):
@@ -361,60 +420,83 @@ class Measure(object):
         # Return the randomly sampled values as a list
         return list(rand_list)
 
-    def partition_microsegment(self, mseg_stock, mseg_energy, rel_perf,
-                               base_cost, cost_meas, adopt_scheme):
+    def partition_microsegment(self, mseg_stock, mseg_energy, mseg_carb,
+                               rel_perf, base_cost, cost_meas, cost_energy,
+                               cost_carb, adopt_scheme):
         """ Partition microsegment to find "competed" stock and energy
         consumption as well as "efficient" energy consumption (representing
-        consumption under the measure).  Also find the total cost of the
-        competed stock for baseline and measure cost levels """
+        consumption under the measure).  Also find the cost of the baseline
+        and measure stock, energy, and carbon """
 
-        # Initialize efficient dict
-        mseg_efficient = dict.fromkeys(mseg_energy)
+        # Initialize stock, energy, and carbon information addition dicts
+        stock_compete_cost_base = {}
+        stock_compete_cost_meas = {}
+        energy_compete_cost = {}
+        carb_compete_cost = {}
+        energy_eff = {}
+        energy_eff_cost = {}
+        carb_eff = {}
+        carb_eff_cost = {}
 
         # Determine whether this is a technical potential calculation
         tp = re.search('Technical potential', adopt_scheme, re.IGNORECASE)
 
-        # If a technical potential calculation, "competed" = "total" mseg
         if tp:
-            mseg_competed_stock = mseg_stock
-            mseg_competed_energy = mseg_energy
-            for yr in mseg_competed_energy.keys():
-                if isinstance(rel_perf, list):  # Perf. distribution case
-                    mseg_efficient[yr] = [x * mseg_competed_energy[yr] for
-                                          x in rel_perf]
-                else:
-                    mseg_efficient[yr] = mseg_competed_energy[yr] * (rel_perf)
-        else:  # The below few lines are temporary
-            mseg_competed_stock = None
-            mseg_competed_energy = None
-            mseg_efficient = None
+            # If a technical potential calculation, "competed" stock, energy
+            # and carbon = "total" stock, energy and carbon
+            stock_compete = mseg_stock
+            energy_compete = mseg_energy
+            carb_compete = mseg_carb
 
-        # Find base and measure cost of competed stock (cost/stock * stock).
-        # Initialize these as simply the competed stock, then multiply by
-        # by either the baseline or measure cost/stock to finalize.
-        if mseg_competed_stock is not None:  # If statement is temporary
-            mseg_competed_cost = {"baseline":
-                                  dict.fromkeys(mseg_competed_stock.keys()),
-                                  "measure":
-                                  dict.fromkeys(mseg_competed_stock.keys())}
-            for ctype in mseg_competed_cost.keys():
-                if ctype == "baseline":
-                    multiplier = base_cost
-                else:
-                    multiplier = cost_meas
-                for yr in mseg_competed_cost[ctype].keys():
-                    if isinstance(multiplier, list):  # Cost distribution case
-                        mseg_competed_cost[ctype][yr] = \
-                            [x * mseg_competed_stock[yr] for x in multiplier]
-                    else:
-                        mseg_competed_cost[ctype][yr] = mseg_competed_stock[yr] * \
-                            multiplier
-        else:
-            mseg_competed_cost = None
+            # Loop through all projection years to update remaining energy,
+            # carbon, and cost information
+            for yr in stock_compete.keys():
+                # Update "competed" stock cost (baseline)
+                stock_compete_cost_base[yr] = stock_compete[yr] * base_cost
+
+                # Update "competed" stock cost (measure)
+                if isinstance(cost_meas, list):  # Measure stock cost distrib.
+                    stock_compete_cost_meas[yr] = [x * stock_compete[yr]
+                                                   for x in cost_meas]
+                else:  # Measure stock cost point value
+                    stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+
+                # Update "competed" energy and carbon costs (baseline)
+                energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
+                carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
+
+                # Update "efficient" energy and carbon and associated costs
+                if isinstance(rel_perf, list):  # Relative performance distrib.
+                    energy_eff[yr] = [x * energy_compete[yr] for x in rel_perf]
+                    energy_eff_cost[yr] = [x * cost_energy[yr] for x in
+                                           energy_eff[yr]]
+                    carb_eff[yr] = [x * carb_compete[yr] for x in rel_perf]
+                    carb_eff_cost[yr] = [x * cost_carb[yr] for x in
+                                         carb_eff[yr]]
+                else:  # Relative performance point value
+                    energy_eff[yr] = energy_compete[yr] * (rel_perf)
+                    energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
+                    carb_eff[yr] = carb_compete[yr] * (rel_perf)
+                    carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
+
+        else:  # The below few lines are temporary
+            stock_compete = None
+            energy_compete = None
+            carb_compete = None
+            stock_compete_cost_base = None
+            stock_compete_cost_meas = None
+            energy_compete_cost = None
+            carb_compete_cost = None
+            energy_eff = None
+            energy_eff_cost = None
+            carb_eff = None
+            carb_eff_cost = None
 
         # Return updated stock, energy, and cost information
-        return [mseg_competed_stock, mseg_competed_energy, mseg_efficient,
-                mseg_competed_cost]
+        return [stock_compete, energy_compete, carb_compete, energy_eff,
+                carb_eff, stock_compete_cost_base, energy_compete_cost,
+                carb_compete_cost, stock_compete_cost_meas, energy_eff_cost,
+                carb_eff_cost]
 
     def calc_metrics(self):
         """ Calculate measure decision making metrics using competed

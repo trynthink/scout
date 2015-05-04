@@ -169,20 +169,7 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                      {"2009": 700, "2010": 800},
                   "efficient":
                      {"2009": 700, "2010": 800}},
-                 "cost":
-                 {"baseline":
-                     {"2009": 900, "2010": 1000},
-                  "measure":
-                     {"2009": 1100, "2010": 1200}}}
-
-    # Base input dict that should yield KeyError in "fail" test (one of the top
-    # level keys ("energetics") is incorrect)
-    fail_dict = {"stock":
-                 {"total":
-                     {"2009": 100, "2010": 200},
-                  "competed":
-                      {"2009": 300, "2010": 400}},
-                 "energetics":
+                 "carbon":
                  {"total":
                      {"2009": 500, "2010": 600},
                   "competed":
@@ -190,10 +177,14 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                   "efficient":
                      {"2009": 700, "2010": 800}},
                  "cost":
-                 {"baseline":
-                     {"2009": 900, "2010": 1000},
-                  "measure":
-                     {"2009": 1100, "2010": 1200}}}
+                 {"baseline": {
+                     "stock": {"2009": 900, "2010": 1000},
+                     "energy": {"2009": 900, "2010": 1000},
+                     "carbon": {"2009": 900, "2010": 1000}},
+                  "measure": {
+                     "stock": {"2009": 1100, "2010": 1200},
+                     "energy": {"2009": 1100, "2010": 1200},
+                     "carbon": {"2009": 1100, "2010": 1200}}}}
 
     # Correct output of the "ok" test to check against
     ok_out = {"stock":
@@ -208,11 +199,22 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                   {"2009": 700, "2010": 800},
                "efficient":
                   {"2009": 700, "2010": 800}},
+              "carbon":
+              {"total":
+                   {"2009": 500, "2010": 600},
+               "competed":
+                   {"2009": 700, "2010": 800},
+               "efficient":
+                   {"2009": 700, "2010": 800}},
               "cost":
-              {"baseline":
-                  {"2009": 225, "2010": 250},
-               "measure":
-                  {"2009": 275, "2010": 300}}}
+              {"baseline": {
+                  "stock": {"2009": 225, "2010": 250},
+                  "energy": {"2009": 900, "2010": 1000},
+                  "carbon": {"2009": 900, "2010": 1000}},
+               "measure": {
+                  "stock": {"2009": 275, "2010": 300},
+                  "energy": {"2009": 1100, "2010": 1200},
+                  "carbon": {"2009": 1100, "2010": 1200}}}}
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -230,12 +232,6 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                                                              self.test_factor)
         dict2 = self.ok_out
         self.dict_check(dict1, dict2)
-
-    # Test the "fail" function output
-    def test_fail_add(self):
-        with self.assertRaises(KeyError):
-            self.measure_instance.reduce_sqft_stock_cost(self.fail_dict,
-                                                         self.test_factor)
 
 
 class RandomSampleTest(unittest.TestCase):
@@ -290,7 +286,7 @@ class RandomSampleTest(unittest.TestCase):
             # known correct parameter values in "test_outputs" * NOTE:
             # this adds ~ 0.15 s to test computation
             for elem in range(0, len(self.test_outputs[idx])):
-                with numpy.errstate(divide='ignore'):
+                with numpy.errstate(divide='ignore'):  # Warning for triang
                     self.assertAlmostEqual(
                         list(eval(self.test_fit_calls[idx]))[elem],
                         self.test_outputs[idx][elem], 2)
@@ -328,10 +324,27 @@ class PartitionMicrosegmentTest(unittest.TestCase):
     test_energy = [{"2009": 10, "2010": 20, "2011": 30},
                    {"2025": 40, "2028": 50, "2035": 60},
                    {"2020": 70, "2021": 80, "2022": 90}]
+    test_carbon = [{"2009": 30, "2010": 60, "2011": 90},
+                   {"2025": 120, "2028": 150, "2035": 180},
+                   {"2020": 210, "2021": 240, "2022": 270}]
 
     # Set sample base and measure costs to use in the testing
     test_base_cost = [10, 20, 30]
     test_cost_meas = [20, 30, 40]
+
+    # Set sample energy and carbon costs to use in the testing
+    cost_energy = numpy.array((b'Test', 1, 2, 2, 2, 2, 2, 2, 2, 2),
+                              dtype=[('Category', 'S11'), ('2009', '<f8'),
+                                     ('2010', '<f8'), ('2011', '<f8'),
+                                     ('2020', '<f8'), ('2021', '<f8'),
+                                     ('2022', '<f8'), ('2025', '<f8'),
+                                     ('2028', '<f8'), ('2035', '<f8')])
+    cost_carbon = numpy.array((b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3),
+                              dtype=[('Category', 'S11'), ('2009', '<f8'),
+                                     ('2010', '<f8'), ('2011', '<f8'),
+                                     ('2020', '<f8'), ('2021', '<f8'),
+                                     ('2022', '<f8'), ('2025', '<f8'),
+                                     ('2028', '<f8'), ('2035', '<f8')])
 
     # Set two alternative schemes to use in the testing,
     # where the first should yield a full list of outputs
@@ -345,28 +358,40 @@ class PartitionMicrosegmentTest(unittest.TestCase):
     # Correct output of the "ok" function test
     ok_out = [[{"2009": 100, "2010": 200, "2011": 300},
                {"2009": 10, "2010": 20, "2011": 30},
+               {"2009": 30, "2010": 60, "2011": 90},
                {"2009": 3, "2010": 6, "2011": 9},
-               {"baseline":
-                {"2009": 1000, "2010": 2000, "2011": 3000},
-                "measure":
-                {"2009": 2000, "2010": 4000, "2011": 6000}}],
+               {"2009": 9, "2010": 18, "2011": 27},
+               {"2009": 1000, "2010": 2000, "2011": 3000},
+               {"2009": 10, "2010": 40, "2011": 60},
+               {"2009": 30, "2010": 240, "2011": 90},
+               {"2009": 2000, "2010": 4000, "2011": 6000},
+               {"2009": 3, "2010": 12, "2011": 18},
+               {"2009": 9, "2010": 72, "2011": 27}],
               [{"2025": 400, "2028": 500, "2035": 600},
                {"2025": 40, "2028": 50, "2035": 60},
+               {"2025": 120, "2028": 150, "2035": 180},
                {"2025": 6, "2028": 7.5, "2035": 9},
-               {"baseline":
-                {"2025": 8000, "2028": 10000, "2035": 12000},
-                "measure":
-                {"2025": 12000, "2028": 15000, "2035": 18000}}],
+               {"2025": 18, "2028": 22.5, "2035": 27},
+               {"2025": 8000, "2028": 10000, "2035": 12000},
+               {"2025": 80, "2028": 100, "2035": 120},
+               {"2025": 120, "2028": 150, "2035": 540},
+               {"2025": 12000, "2028": 15000, "2035": 18000},
+               {"2025": 12, "2028": 15, "2035": 18},
+               {"2025": 18, "2028": 22.5, "2035": 81}],
               [{"2020": 700, "2021": 800, "2022": 900},
                {"2020": 70, "2021": 80, "2022": 90},
+               {"2020": 210, "2021": 240, "2022": 270},
                {"2020": 52.5, "2021": 60, "2022": 67.5},
-               {"baseline":
+               {"2020": 157.5, "2021": 180, "2022": 202.5},
                {"2020": 21000, "2021": 24000, "2022": 27000},
-                "measure":
-                {"2020": 28000, "2021": 32000, "2022": 36000}}]]
+               {"2020": 140, "2021": 160, "2022": 180},
+               {"2020": 210, "2021": 240, "2022": 270},
+               {"2020": 28000, "2021": 32000, "2022": 36000},
+               {"2020": 105, "2021": 120, "2022": 135},
+               {"2020": 157.5, "2021": 180, "2022": 202.5}]]
 
-    # Correct output of the "blank" function test
-    blank_out = [None, None, None, None]  # For now (pass)
+    blank_out = [None, None, None, None, None, None,
+                 None, None, None, None, None]
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -384,9 +409,12 @@ class PartitionMicrosegmentTest(unittest.TestCase):
             lists1 = self.measure_instance.partition_microsegment(
                 self.test_stock[elem],
                 self.test_energy[elem],
+                self.test_carbon[elem],
                 self.ok_relperf[elem],
                 self.test_base_cost[elem],
                 self.test_cost_meas[elem],
+                self.cost_energy,
+                self.cost_carbon,
                 self.test_schemes[0])
 
             lists2 = self.ok_out[elem]
@@ -400,9 +428,12 @@ class PartitionMicrosegmentTest(unittest.TestCase):
             lists1 = self.measure_instance.partition_microsegment(
                 self.test_stock[elem],
                 self.test_energy[elem],
+                self.test_carbon[elem],
                 self.ok_relperf[elem],
                 self.test_base_cost[elem],
                 self.test_cost_meas[elem],
+                self.cost_energy,
+                self.cost_carbon,
                 self.test_schemes[1])
 
             lists2 = self.blank_out
@@ -414,6 +445,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
     """ Test the operation of the mseg_find_partition function to
     verify measure microsegment-related attribute inputs yield expected master
     microsegment output """
+
+    # Set cost, site-source, and carbon intensity info. from "run.py"
+    ccosts = run.ccosts
+    ss_conv = run.ss_conv
+    carb_int = run.carb_int
 
     # Sample input dict of microsegment performance/cost info. to reference in
     # generating and partitioning master microsegments for a measure
@@ -1161,68 +1197,183 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
     # "ok_measures" above using the "sample_msegin" dict
     ok_out = [{"stock": {"total": {"2009": 72, "2010": 72},
                          "competed": {"2009": 72, "2010": 72}},
-               "energy": {"total": {"2009": 72, "2010": 72},
-                          "competed": {"2009": 72, "2010": 72},
-                          "efficient": {"2009": 36.7067, "2010": 36.7067}},
-               "cost": {"baseline": {"2009": 710, "2010": 710},
-                        "measure": {"2009": 1800, "2010": 1800}}},
+               "energy": {"total": {"2009": 229.68, "2010": 230.4},
+                          "competed": {"2009": 229.68, "2010": 230.4},
+                          "efficient": {"2009": 117.0943, "2010": 117.4613}},
+               "carbon": {"total": {"2009": 13056.63, "2010": 12941.16},
+                          "competed": {"2009": 13056.63, "2010": 12941.16},
+                          "efficient": {"2009": 6656.461, "2010": 6597.595}},
+               "cost": {"baseline": {"stock": {"2009": 710,
+                                               "2010": 710},
+                                     "energy": {"2009": 2328.955,
+                                                "2010": 2227.968},
+                                     "carbon": {"2009": 430868.6,
+                                                "2010": 427058.3},
+                                     },
+                        "measure": {"stock": {"2009": 1800,
+                                              "2010": 1800},
+                                    "energy": {"2009": 1187.336,
+                                               "2010": 1135.851},
+                                    "carbon": {"2009": 219663.2,
+                                               "2010": 217720.6}}}},
               {"stock": {"total": {"2009": 15, "2010": 15},
                          "competed": {"2009": 15, "2010": 15}},
-               "energy": {"total": {"2009": 15, "2010": 15},
-                          "competed": {"2009": 15, "2010": 15},
-                          "efficient": {"2009": 10.80, "2010": 10.80}},
-               "cost": {"baseline": {"2009": 270, "2010": 270},
-                        "measure": {"2009": 375, "2010": 375}}},
+               "energy": {"total": {"2009": 15.15, "2010": 15.15},
+                          "competed": {"2009": 15.15, "2010": 15.15},
+                          "efficient": {"2009": 10.908, "2010": 10.908}},
+               "carbon": {"total": {"2009": 856.2139, "2010": 832.0021},
+                          "competed": {"2009": 856.2139, "2010": 832.0021},
+                          "efficient": {"2009": 616.474, "2010": 599.0415}},
+               "cost": {"baseline": {"stock": {"2009": 270,
+                                               "2010": 270},
+                                     "energy": {"2009": 170.892,
+                                                "2010": 163.317},
+                                     "carbon": {"2009": 28255.06,
+                                                "2010": 27456.07},
+                                     },
+                        "measure": {"stock": {"2009": 375,
+                                              "2010": 375},
+                                    "energy": {"2009": 123.0422,
+                                               "2010": 117.5882},
+                                    "carbon": {"2009": 20343.64,
+                                               "2010": 19768.37}}}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
-               "energy": {"total": {"2009": 148, "2010": 148},
-                          "competed": {"2009": 148, "2010": 148},
-                          "efficient": {"2009": 118.88, "2010": 118.88}},
-               "cost": {"baseline": {"2009": 2972, "2010": 2972},
-                        "measure": {"2009": 3700, "2010": 3700}}},
+               "energy": {"total": {"2009": 472.12, "2010": 473.6},
+                          "competed": {"2009": 472.12, "2010": 473.6},
+                          "efficient": {"2009": 379.2272, "2010": 380.416}},
+               "carbon": {"total": {"2009": 26838.62, "2010": 26601.27},
+                          "competed": {"2009": 26838.62, "2010": 26601.27},
+                          "efficient": {"2009": 21557.94, "2010": 21367.29}},
+               "cost": {"baseline": {"stock": {"2009": 2972,
+                                               "2010": 2972},
+                                     "energy": {"2009": 4787.297,
+                                                "2010": 4579.712},
+                                     "carbon": {"2009": 885674.4,
+                                                "2010": 877842.1},
+                                     },
+                        "measure": {"stock": {"2009": 3700,
+                                              "2010": 3700},
+                                    "energy": {"2009": 3845.364,
+                                               "2010": 3678.623},
+                                    "carbon": {"2009": 711412,
+                                               "2010": 705120.7}}}},
               {"stock": {"total": {"2009": 1600, "2010": 2000},
                          "competed": {"2009": 1600, "2010": 2000}},
-               "energy": {"total": {"2009": 4, "2010": 4},
-                          "competed": {"2009": 4, "2010": 4},
-                          "efficient": {"2009": 1.1, "2010": 1.1}},
-               "cost": {"baseline": {"2009": 20400, "2010": 24600},
-                        "measure": {"2009": 16000, "2010": 20000}}},
+               "energy": {"total": {"2009": 12.76, "2010": 12.8},
+                          "competed": {"2009": 12.76, "2010": 12.8},
+                          "efficient": {"2009": 3.509, "2010": 3.52}},
+               "carbon": {"total": {"2009": 725.3681, "2010": 718.9534},
+                          "competed": {"2009": 725.3681, "2010": 718.9534},
+                          "efficient": {"2009": 199.4762, "2010": 197.7122}},
+               "cost": {"baseline": {"stock": {"2009": 20400,
+                                               "2010": 24600},
+                                     "energy": {"2009": 129.3864,
+                                                "2010": 123.776},
+                                     "carbon": {"2009": 23937.15,
+                                                "2010": 23725.46},
+                                     },
+                        "measure": {"stock": {"2009": 16000,
+                                              "2010": 20000},
+                                    "energy": {"2009": 35.58126,
+                                               "2010": 34.0384},
+                                    "carbon": {"2009": 6582.715,
+                                               "2010": 6524.502}}}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
-               "energy": {"total": {"2009": 2, "2010": 2},
-                          "competed": {"2009": 2, "2010": 2},
-                          "efficient": {"2009": 1, "2010": 1}},
-               "cost": {"baseline": {"2009": 1200, "2010": 1600},
-                        "measure": {"2009": 6000, "2010": 8000}}},
+               "energy": {"total": {"2009": 6.38, "2010": 6.4},
+                          "competed": {"2009": 6.38, "2010": 6.4},
+                          "efficient": {"2009": 3.19, "2010": 3.2}},
+               "carbon": {"total": {"2009": 362.684, "2010": 359.4767},
+                          "competed": {"2009": 362.684, "2010": 359.4767},
+                          "efficient": {"2009": 181.342, "2010": 179.7383}},
+               "cost": {"baseline": {"stock": {"2009": 1200,
+                                               "2010": 1600},
+                                     "energy": {"2009": 64.6932,
+                                                "2010": 61.888},
+                                     "carbon": {"2009": 11968.57,
+                                                "2010": 11862.73},
+                                     },
+                        "measure": {"stock": {"2009": 6000,
+                                              "2010": 8000},
+                                    "energy": {"2009": 32.3466,
+                                               "2010": 30.944},
+                                    "carbon": {"2009": 5984.287,
+                                               "2010": 5931.365}}}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
-               "energy": {"total": {"2009": 46, "2010": 46},
-                          "competed": {"2009": 46, "2010": 46},
-                          "efficient": {"2009": 17.33, "2010": 17.33}},
-               "cost": {"baseline": {"2009": 3100, "2010": 4133.33},
-                        "measure": {"2009": 6000, "2010": 8000}}}]
+               "energy": {"total": {"2009": 146.74, "2010": 147.2},
+                          "competed": {"2009": 146.74, "2010": 147.2},
+                          "efficient": {"2009": 55.29333, "2010": 55.46667}},
+               "carbon": {"total": {"2009": 8341.733, "2010": 8267.964},
+                          "competed": {"2009": 8341.733, "2010": 8267.964},
+                          "efficient": {"2009": 3143.262, "2010": 3115.465}},
+               "cost": {"baseline": {"stock": {"2009": 3100,
+                                               "2010": 4133.33},
+                                     "energy": {"2009": 1487.944,
+                                                "2010": 1423.424},
+                                     "carbon": {"2009": 275277.2,
+                                                "2010": 272842.8},
+                                     },
+                        "measure": {"stock": {"2009": 6000,
+                                              "2010": 8000},
+                                    "energy": {"2009": 560.6744,
+                                               "2010": 536.3627},
+                                    "carbon": {"2009": 103727.6,
+                                               "2010": 102810.3}}}}]
 
     # Means and sampling Ns for energy and cost that should be generated by
     # "ok_measures_dist" above using the "sample_msegin" dict
-    ok_out_dist = [[38.89, 50, 1860.93, 50], [11.84, 50, 375.32, 50],
-                   [17.64, 50, 6448.37, 50]]
+    ok_out_dist = [[124.07, 50, 1860.93, 50], [11.96, 50, 375.32, 50],
+                   [56.29, 50, 6448.37, 50]]
 
     # Master stock, energy, and cost information that should be generated by
     # "partial_measures" above using the "sample_msegin" dict
     partial_out = [{"stock": {"total": {"2009": 18, "2010": 18},
                               "competed": {"2009": 18, "2010": 18}},
-                    "energy": {"total": {"2009": 18, "2010": 18},
-                               "competed": {"2009": 18, "2010": 18},
-                               "efficient": {"2009": 8.64, "2010": 8.64}},
-                    "cost": {"baseline": {"2009": 216, "2010": 216},
-                             "measure": {"2009": 450, "2010": 450}}},
+                    "energy": {"total": {"2009": 57.42, "2010": 57.6},
+                               "competed": {"2009": 57.42, "2010": 57.6},
+                               "efficient": {"2009": 27.5616, "2010": 27.648}},
+                    "carbon": {"total": {"2009": 3264.156, "2010": 3235.29},
+                               "competed": {"2009": 3264.156, "2010": 3235.29},
+                               "efficient": {"2009": 1566.795,
+                                             "2010": 1552.939}},
+                    "cost": {"baseline": {"stock": {"2009": 216,
+                                                    "2010": 216},
+                                          "energy": {"2009": 582.2388,
+                                                     "2010": 556.992},
+                                          "carbon": {"2009": 107717.2,
+                                                     "2010": 106764.6},
+                                          },
+                             "measure": {"stock": {"2009": 450,
+                                                   "2010": 450},
+                                         "energy": {"2009": 279.4746,
+                                                    "2010": 267.3562},
+                                         "carbon": {"2009": 51704.24,
+                                                    "2010": 51247}}}},
                    {"stock": {"total": {"2009": 52, "2010": 52},
                               "competed": {"2009": 52, "2010": 52}},
-                    "energy": {"total": {"2009": 52, "2010": 52},
-                               "competed": {"2009": 52, "2010": 52},
-                               "efficient": {"2009": 21.04, "2010": 21.04}},
-                    "cost": {"baseline": {"2009": 526, "2010": 526},
-                             "measure": {"2009": 1300, "2010": 1300}}}]
+                    "energy": {"total": {"2009": 165.88, "2010": 166.4},
+                               "competed": {"2009": 165.88, "2010": 166.4},
+                               "efficient": {"2009": 67.1176, "2010": 67.328}},
+                    "carbon": {"total": {"2009": 9429.785, "2010": 9346.394},
+                               "competed": {"2009": 9429.785,
+                                            "2010": 9346.394},
+                               "efficient": {"2009": 3815.436,
+                                             "2010": 3781.695}},
+                    "cost": {"baseline": {"stock": {"2009": 526,
+                                                    "2010": 526},
+                                          "energy": {"2009": 1682.023,
+                                                     "2010": 1609.088},
+                                          "carbon": {"2009": 311182.9,
+                                                     "2010": 308431},
+                                          },
+                             "measure": {"stock": {"2009": 1300,
+                                                   "2010": 1300},
+                                         "energy": {"2009": 680.5725,
+                                                    "2010": 651.0618},
+                                         "carbon": {"2009": 125909.4,
+                                                    "2010": 124795.9}}}}]
 
     # Master stock, energy, and cost information that should be generated by
     # "blank_measures" above using the "sample_msegin" dict
@@ -1231,8 +1382,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                    "energy": {"total": None,
                                               "competed": None,
                                               "efficient": None},
-                                   "cost": {"baseline": None,
-                                            "measure": None}},
+                                   "carbon": {"total": None,
+                                              "competed": None,
+                                              "efficient": None},
+                                   "cost": {"baseline": {"stock": None,
+                                                         "energy": None,
+                                                         "carbon": None},
+                                            "measure": {"stock": None,
+                                                        "energy": None,
+                                                        "carbon": None}}},
                                   len(blank_measures)))
 
     # Create a routine for checking equality of a dict
@@ -1243,7 +1401,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                 self.assertCountEqual(i, i2)
                 self.dict_check(i, i2)
             else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=1)
 
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
@@ -1271,7 +1429,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                 "Technical potential")[0]["energy"]["efficient"]["2009"]
             test_c = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")[0]["cost"]["measure"]["2009"]
+                "Technical potential")[0]["cost"]["measure"]["stock"]["2009"]
             # Calculate mean values from output lists for testing
             param_e = round(sum(test_e) / len(test_e), 2)
             param_c = round(sum(test_c) / len(test_c), 2)
