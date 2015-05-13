@@ -38,6 +38,9 @@ ecosts = {"residential": {"electricity (grid)": cost_ss_co2[0],
 # Set carbon costs dict
 ccosts = cost_ss_co2[6]
 
+# Set discount rate for cost calculations
+rate = 0.07
+
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 active_measures = []
 adopt_scheme = 'Technical potential'
@@ -64,27 +67,24 @@ class Measure(object):
             self.active = 1
         else:
             self.active = 0
+
+        # Initialize master microsegment attribute
+        self.master_mseg = None
+        self.master_savings = None
+
         # Initialize other mseg-related attributes
-        self.mseg_energy = None  # Energy (whole mseg)
-        self.mseg_stock = None  # No. units and/or sq.ft. (whole mseg)
-        self.mseg_energy_norm = None  # Energy/stock (whole mseg)
-        self.compete_energy = None  # Energy (competed mseg)
-        self.compete_stock = None  # No. units and/or sq.ft. (competed mseg)
-        self.compete_energy_norm = None  # Energy/stock (competed mseg)
-        self.efficient_energy = None  # Energy (efficient scenario)
-        self.efficient_energy_norm = None  # Energy/stock (efficient)
-        # Initialize relative improvement attributes
-        self.esavings = None  # Total energy savings
-        self.esavings_norm = None  # Energy savings/stock
-        self.carbsavings = None  # Total CO2 savings
-        self.carbsavings_norm = None  # CO2 savings/stock
-        # Initialize decision making attributes
-        self.irr = None  # Internal rate of return
-        self.payback = None  # Simple payback
-        self.initexpend_pct = None  # Initial expenditure as % of budget
-        self.cce = None  # Cost of Conserved Energy
-        self.ccc = None  # Cost of Conserved Carbon
-        # Other attributes to be added as needed
+        self.total_energy_norm = {}  # Energy/stock (whole mseg)
+        self.compete_energy_norm = {}  # Energy/stock (competed mseg)
+        self.efficient_energy_norm = {}  # Energy/stock (efficient)
+        self.total_carb_norm = {}  # Carbon/stock (whole mseg)
+        self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
+        self.efficient_carb_norm = {}  # Carbon/stock (efficient)
+
+        # Initialize relative change attributes (meas vs. base)
+        self.esavings_norm = {}  # Energy savings/stock
+        self.ecostsavings_norm = {}  # Total energy cost savings/stock
+        self.carbsavings_norm = {}  # CO2 savings/stock
+        self.carbcostsavings_norm = {}  # CO2 cost savings/stock
 
     def mseg_find_partition(self, mseg_in, base_costperf_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
@@ -231,7 +231,7 @@ class Measure(object):
                                         base_costperf["performance"]["value"])
                     base_cost = base_costperf["cost"]["value"]
                 else:
-                    raise(KeyError('Inconsistent performance or cost units!'))
+                    raise KeyError('Inconsistent performance or cost units!')
 
                 # Set appropriate site-source factor, energy cost, and CO2
                 # intensity for given key chain
@@ -316,8 +316,8 @@ class Measure(object):
                 reduce_factor = key_chain_ct / (len(ms_lists[0]) *
                                                 len(ms_lists[1]))
             else:
-                raise(ValueError('No valid key chains discovered for sq.ft. \
-                                  stock and cost division operation!'))
+                raise ValueError('No valid key chains discovered for sq.ft. \
+                                  stock and cost division operation!')
             mseg_master = self.reduce_sqft_stock_cost(mseg_master,
                                                       reduce_factor)
         else:
@@ -342,83 +342,10 @@ class Measure(object):
                     if dict1[k] is None:
                         dict1[k] = copy.deepcopy(dict2[k2])
                     else:
-                        # Note: the below lines check to see if one, both, or
-                        # neither of the key items being added is a list, and
-                        # performs the addition accordingly.  Key values
-                        # will be lists in cases where probability distrbutions
-                        # were specified for measure cost/performance inputs
-                        if type(dict1[k]) != list and type(dict2[k2]) != list:
-                                dict1[k] = dict1[k] + dict2[k2]
-                        elif isinstance(dict1[k], list) and \
-                                isinstance(dict2[k2], list):
-                                dict1[k] = [x + y for (x, y)
-                                            in zip(dict1[k], dict2[k2])]
-                        elif isinstance(dict1[k], list) and \
-                                type(dict2[k2]) != list:
-                                dict1[k] = [x + dict2[k2] for x
-                                            in dict1[k]]
-                        elif type(dict1[k]) != list and \
-                                isinstance(dict2[k2], list):
-                                dict1[k] = [y + dict1[k] for y
-                                            in dict2[k2]]
-                        else:
-                            raise(ValueError(('Key values to be added are not \
-                                              of expected types!')))
+                        dict1[k] = dict1[k] + dict2[k]
             else:
-                raise(KeyError('Add dict keys do not match!'))
+                raise KeyError('Add dict keys do not match!')
         return dict1
-
-    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
-        """ Divide "stock" and "stock cost" information by a given factor to
-        handle special case when sq.ft. is used as stock """
-        for (k, i) in dict1.items():
-            # Do not divide any energy or carbon information
-            if (k == "energy" or k == "carbon"):
-                    continue
-            else:
-                    if isinstance(i, dict):
-                        self.reduce_sqft_stock_cost(i, reduce_factor)
-                    else:
-                        if isinstance(dict1[k], list):  # Cost distrib. case
-                            dict1[k] = [x / reduce_factor for x in dict1[k]]
-                        else:
-                            dict1[k] = dict1[k] / reduce_factor
-        return dict1
-
-    def rand_list_gen(self, distrib_info, nsamples):
-        """ Given input distribution type, parameters, and sample N information,
-        generate list of N randomly sampled values from that distribution """
-
-        # Generate string to pair with "numpy.random" call
-        if len(distrib_info) == 3 and distrib_info[0] in ["normal",
-                                                          "lognormal",
-                                                          "uniform",
-                                                          "gamma"]:
-            vals = str(distrib_info[1]) + ',' + str(distrib_info[2]) + ',' + \
-                str(nsamples)
-        elif len(distrib_info) == 3 and distrib_info[0] == "weibull":
-            vals = str(distrib_info[1]) + ',' + str(nsamples)
-        elif len(distrib_info) == 4 and distrib_info[0] == "triangular":
-            vals = str(distrib_info[1]) + ',' + str(distrib_info[2]) + ',' + \
-                str(distrib_info[3]) + ',' + str(nsamples)
-        else:
-            raise(ValueError("Unsupported input distribution specification!"))
-
-        # Pair generated string with "numpy.random" call
-        rand_string = 'numpy.random.' + distrib_info[0] + '(' + vals + ')'
-
-        # Evaluate "numpy.random" call
-        if distrib_info[0] != "weibull":
-            rand_list = eval(rand_string)
-        else:  # Apply scaling factor here for Weibull distrib. case
-            rand_list = distrib_info[2] * eval(rand_string)
-
-        # Remove any sampled values below zero if they exist
-        if any(rand_list < 0):
-            rand_list = rand_list[rand_list >= 0]
-
-        # Return the randomly sampled values as a list
-        return list(rand_list)
 
     def partition_microsegment(self, mseg_stock, mseg_energy, mseg_carb,
                                rel_perf, base_cost, cost_meas, cost_energy,
@@ -453,31 +380,17 @@ class Measure(object):
             for yr in stock_compete.keys():
                 # Update "competed" stock cost (baseline)
                 stock_compete_cost_base[yr] = stock_compete[yr] * base_cost
-
-                # Update "competed" stock cost (measure)
-                if isinstance(cost_meas, list):  # Measure stock cost distrib.
-                    stock_compete_cost_meas[yr] = [x * stock_compete[yr]
-                                                   for x in cost_meas]
-                else:  # Measure stock cost point value
-                    stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
 
                 # Update "competed" energy and carbon costs (baseline)
                 energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
                 carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
 
                 # Update "efficient" energy and carbon and associated costs
-                if isinstance(rel_perf, list):  # Relative performance distrib.
-                    energy_eff[yr] = [x * energy_compete[yr] for x in rel_perf]
-                    energy_eff_cost[yr] = [x * cost_energy[yr] for x in
-                                           energy_eff[yr]]
-                    carb_eff[yr] = [x * carb_compete[yr] for x in rel_perf]
-                    carb_eff_cost[yr] = [x * cost_carb[yr] for x in
-                                         carb_eff[yr]]
-                else:  # Relative performance point value
-                    energy_eff[yr] = energy_compete[yr] * (rel_perf)
-                    energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
-                    carb_eff[yr] = carb_compete[yr] * (rel_perf)
-                    carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
+                energy_eff[yr] = energy_compete[yr] * rel_perf
+                energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
+                carb_eff[yr] = carb_compete[yr] * rel_perf
+                carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
 
         else:  # The below few lines are temporary
             stock_compete = None
@@ -498,10 +411,317 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_meas, energy_eff_cost,
                 carb_eff_cost]
 
-    def calc_metrics(self):
-        """ Calculate measure decision making metrics using competed
-        microsegment """
-        pass
+    def calc_metric_update(self, rate):
+        """ Given information on a measure's master microsegment for
+        each projection year and a discount rate, determine capital ("stock"),
+        energy, and carbon cost savings; energy and carbon savings; and the
+        internal rate of return, simple payback, cost of conserved energy, and
+        cost of conserved carbon for the measure. """
+
+        # Initialize a set of dicts including information on capital
+        # cost savings; energy and energy costs savings; carbon and carbon cost
+        # savings; and a series of possible measure prioritization metrics
+        # (internal rate of return, simple payback, cost of conserved energy,
+        # cost of conserved carbon)
+        scostsave_list, esave_list, ecostsave_list, csave_list, ccostsave_list, \
+            irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
+            ({} for d in range(13))
+
+        # Define ratio of measure lifetime to baseline lifetime.  This will be
+        # used below in determining capital cashflows over the measure lifetime
+        life_ratio = int(self.life_meas / self.life_base)
+
+        # Calculate capital cost savings, energy/carbon savings, and
+        # energy/carbon cost savings for each projection year
+        for yr in self.master_mseg["stock"]["competed"].keys():
+
+            # Determine the initial incremental capital cost of the
+            # measure over the baseline
+            stock_costsave_init = \
+                self.master_mseg["cost"]["baseline"]["stock"][yr] - \
+                self.master_mseg["cost"]["measure"]["stock"][yr]
+
+            # Determine subsequent capital cost gains (if any) of the measure
+            # over the baseline due to a comparatively longer lifetime (i.e, if
+            # a measure has twice the lifetime of a baseline technology it
+            # will take two purchases of the baseline technology to
+            # equal one purchase of the measure technology).
+            if life_ratio != 1:
+                # Determine the cost gain (= capital cost of baseline tech.)
+                stock_costsave_life = \
+                    self.master_mseg["cost"]["baseline"]["stock"][yr]
+                # Determine when over the course of the measure lifetime
+                # this cost gain is realized; store this information in
+                # a list of year indicators for subsequent use below
+                added_stockcost_gain_yrs = []
+                for i in range(0, life_ratio - 1):
+                    added_stockcost_gain_yrs.append(2 * i + self.life_base)
+
+            # Calculate annual energy savings for the measure vs. baseline
+            esave = \
+                self.master_mseg["energy"]["competed"][yr] - \
+                self.master_mseg["energy"]["efficient"][yr]
+            # Calculate annual energy cost savings for the measure vs. baseline
+            ecostsave = \
+                self.master_mseg["cost"]["baseline"]["energy"][yr] - \
+                self.master_mseg["cost"]["measure"]["energy"][yr]
+            # Calculate annual carbon savings for the measure vs. baseline
+            csave = \
+                self.master_mseg["carbon"]["competed"][yr] - \
+                self.master_mseg["carbon"]["efficient"][yr]
+            # Calculate annual carbon cost savings for the measure vs. baseline
+            ccostsave = \
+                self.master_mseg["cost"]["baseline"]["carbon"][yr] - \
+                self.master_mseg["cost"]["measure"]["carbon"][yr]
+
+            # Combine each of the above capital/energy/carbon savings variables
+            # into a single list for use in determining consistency of
+            # formatting.  For example, if a user specifies a distribution on
+            # the measure capital cost but not the performance, energy/carbon
+            # cost savings information will be in a list format, while
+            # energy/carbon savings will be point values.  The few lines
+            # below ensure formatting of all variables as lists of length N,
+            # where N is the maximum length of "check_format" elements
+            check_format = [stock_costsave_init, esave, ecostsave,
+                            csave, ccostsave]
+            # First, ensure that all variables in "check_format" are formatted
+            # as lists
+            for c in range(0, len(check_format)):
+                if type(check_format[c]) != list:
+                    check_format[c] = [check_format[c]]
+            # Then, find "check_format" element lengths and ensure they are
+            # consistent; if there are differences in the element lengths, find
+            # the maximum element length and extend all elements to this length
+            # to simplify later operations
+            if all(len(n) == 1 for n in check_format):  # All point values
+                list_length = 1
+            elif all(len(n) > 1 for n in check_format):  # All lists
+                list_length = len(check_format[0])
+            else:  # Mix of point values and lists
+                list_length = \
+                    len(next(x for x in check_format if type(x) == list))
+                for elem in check_format:
+                    if type(elem) != list:
+                        elem = [elem] * list_length
+
+            # Develop a list of zeros consistent with maximum element
+            # length, to be added to initial capital cost savings list below
+            # for all years > 0; and to initial energy/energy cost and carbon/
+            # carbon cost savings lists below for year == 0
+            zeros_add = [0] * list_length
+
+            # Develop initial list of capital cost savings across measure life
+            scostsave_list[yr] = numpy.array(check_format[0] + zeros_add *
+                                             self.life_meas)
+            # Develop initial list of energy savings across measure life
+            esave_list[yr] = numpy.array(zeros_add + check_format[1] *
+                                         self.life_meas)
+            # Develop initial list of energy cost savings across measure life
+            ecostsave_list[yr] = numpy.array(zeros_add + check_format[2] *
+                                             self.life_meas)
+            # Develop initial list of carbon savings across measure life
+            csave_list[yr] = numpy.array(zeros_add + check_format[3] *
+                                         self.life_meas)
+            # Develop initial list of carbon cost savings across measure life
+            ccostsave_list[yr] = numpy.array(zeros_add + check_format[4] *
+                                             self.life_meas)
+
+            # Develop three initial cash flow scenarios over the measure life:
+            # 1) Cash flows considering capital costs and energy costs
+            # 2) Cash flows considering capital costs and carbon costs
+            # 3) Cash flows considering capital, energy, and carbon costs
+            cashflows_se = scostsave_list[yr] + ecostsave_list[yr]
+            cashflows_sc = scostsave_list[yr] + ccostsave_list[yr]
+            cashflows_sec = scostsave_list[yr] + ecostsave_list[yr] + \
+                ccostsave_list[yr]
+
+            # If measure has longer life than baseline, update all cash flows
+            # to reflect capital cost gains from longer life in the appropriate
+            # years (indicated by "added_stockcost_gain_yrs" list)
+            if stock_costsave_life:
+                for elem in range(0, len(scostsave_list[yr]) + 1):
+                    if any(added_stockcost_gain_yrs) == elem:
+                        # Reflect additional capital gains in
+                        # appropriate years of capital cost
+                        # savings list
+                        scostsave_list[yr][elem] = stock_costsave_life + \
+                            scostsave_list[yr][elem]
+                        # Reflect additional capital gains in
+                        # appropriate years of cash flows
+                        cashflows_se[elem] = stock_costsave_life + \
+                            cashflows_se[elem]
+                        cashflows_sc[elem] = stock_costsave_life + \
+                            cashflows_sc[elem]
+                        cashflows_sec[elem] = stock_costsave_life + \
+                            cashflows_sec[elem]
+
+            # Using the above lifetime capital costs, cash flows, and energy
+            # and carbon savings, calculate desired prioritization metrics
+
+            # If the inputs are each lists, expect metric outputs that are also
+            # lists of the same length; otherwise, expect point value outputs
+            if list_length > 1:
+                # Initialize output lists
+                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr], \
+                    cce_bens[yr], ccc[yr], ccc_bens[yr] = \
+                    ([None] * list_length for i in range(8))
+                # Loop through each output list element and update with
+                # appropriate metric calculation
+                for x in range(0, list_length):
+                    irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
+                        payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
+                        ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
+                            rate, scostsave_list[yr][x], cashflows_se[yr][x],
+                            cashflows_sc[x], cashflows_sec[x],
+                            esave_list[yr][x], csave_list[yr][x])
+            else:
+                # Update each output value with appropriate metric calculation
+                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
+                    cce_bens[yr], ccc[yr], ccc_bens[yr] = self.metric_update(
+                        rate, scostsave_list[yr], cashflows_se,
+                        cashflows_sc, cashflows_sec, esave_list[yr],
+                        csave_list[yr])
+
+        # Record final measure savings figures and prioritization metrics
+        # in a dict that is returned by the function
+        mseg_save = {"stock": {"cost savings": scostsave_list},
+                     "energy": {"savings": esave_list,
+                                "cost savings": ecostsave_list},
+                     "carbon": {"savings": csave_list,
+                                "cost savings": ccostsave_list},
+                     "metrics": {"irr (w/ energy $)": irr_e,
+                                 "irr (w/ energy and carbon $)": irr_ec,
+                                 "payback (w/ energy $)": payback_e,
+                                 "payback (w/ energy and carbon $)":
+                                 payback_ec,
+                                 "cce": cce,
+                                 "cce (w/ carbon $ benefits)": cce_bens,
+                                 "ccc": ccc,
+                                 "ccc (w/ energy $ benefits)": ccc_bens}}
+
+        # Return final savings figures and prioritization metrics
+        return mseg_save
+
+    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
+        """ Divide "stock" and "stock cost" information by a given factor to
+        handle special case when sq.ft. is used as stock """
+        for (k, i) in dict1.items():
+            # Do not divide any energy or carbon information
+            if (k == "energy" or k == "carbon"):
+                    continue
+            else:
+                    if isinstance(i, dict):
+                        self.reduce_sqft_stock_cost(i, reduce_factor)
+                    else:
+                        if isinstance(dict1[k], list):  # Cost distrib. case
+                            dict1[k] = [x / reduce_factor for x in dict1[k]]
+                        else:
+                            dict1[k] = dict1[k] / reduce_factor
+        return dict1
+
+    def rand_list_gen(self, distrib_info, nsamples):
+        """ Generate list of N randomly sampled values given input
+        information on distribution name, parameters, and sample N """
+
+        # Generate a list of randomly generated numbers using the
+        # distribution name and parameters provided in "distrib_info".
+        # Check that the correct number of parameters is specified for
+        # each distribution.
+        if len(distrib_info) == 3 and distrib_info[0] == "normal":
+            rand_list = numpy.random.normal(distrib_info[1],
+                                            distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "lognormal":
+            rand_list = numpy.random.lognormal(distrib_info[1],
+                                               distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "uniform":
+            rand_list = numpy.random.uniform(distrib_info[1],
+                                             distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "gamma":
+            rand_list = numpy.random.gamma(distrib_info[1],
+                                           distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "weibull":
+            rand_list = numpy.random.weibull(distrib_info[1], nsamples)
+            rand_list = distrib_info[2] * rand_list
+        elif len(distrib_info) == 4 and distrib_info[0] == "triangular":
+            rand_list = numpy.random.triangular(distrib_info[1],
+                                                distrib_info[2],
+                                                distrib_info[3], nsamples)
+        else:  # Raise error if unsupported distribution is entered
+            raise ValueError("Unsupported input distribution specification!")
+
+        # Return the randomly sampled list of values
+        return rand_list
+
+    def metric_update(self, rate, scostsave_list, cashflows_se, cashflows_sc,
+                      cashflows_sec, esave_list, csave_list):
+        """ Calculate internal rate of return, simple payback, and cost of
+        conserved energy/carbon given input cash flows and energy/carbon
+        savings across the measure lifetime """
+
+        # Calculate irr for capital + energy and capital + energy + carbon
+        # cash flows
+        irr_e = numpy.irr(cashflows_se)
+        irr_ec = numpy.irr(cashflows_sec)
+        # Calculate simple payback for capital + energy and capital + energy +
+        # carbon cash flows
+        payback_e = self.payback(cashflows_se)
+        payback_ec = self.payback(cashflows_sec)
+        # Calculate cost of conserved energy w/o carbon cost savings benefits
+        cce = numpy.npv(rate, scostsave_list) / numpy.npv(rate, esave_list)
+        # Calculate cost of conserved energy w/ carbon cost savings benefits
+        cce_bens = numpy.npv(rate, cashflows_sc) / numpy.npv(rate, esave_list)
+        # Calculate cost of conserved carbon w/o energy cost savings benefits
+        ccc = numpy.npv(rate, scostsave_list) / numpy.npv(rate, csave_list)
+        # Calculate cost of conserved carbon w/ energy cost savings benefits
+        ccc_bens = numpy.npv(rate, cashflows_se) / numpy.npv(rate, csave_list)
+
+        # Return all updated prioritization metrics
+        return irr_e, irr_ec, payback_e, payback_ec, \
+            cce, cce_bens, ccc, ccc_bens
+
+    def payback(self, cashflows):
+        """ Calculate the simple payback period given an input list of
+        cash flows, which may be uneven """
+
+        # Separate initial investment and subsequent cash flows
+        # from "cashflows" input
+        investment, cashflows = cashflows[0], cashflows[1:]
+        # If initial investment is positive, payback = 0
+        if investment >= 0:
+            payback_val = 0
+        else:
+            # Find absolute value of initial investment to compare
+            # subsequent cash flows against
+            investment = abs(investment)
+            # Initialize cumulative cashflow and # years tracking
+            total, years, cumulative = 0, 0, []
+            # Add to years and cumulative cashflow trackers while cumulative
+            # cashflow < investment
+            for cashflow in cashflows:
+                total += cashflow
+                if total < investment:
+                    years += 1
+                cumulative.append(total)
+            # If investment pays back within the measure lifetime,
+            # calculate this payback period in years
+            if years < len(cashflows):
+                a = years
+                # Case where payback period < 1 year
+                if (years - 1) < 0:
+                    b = investment
+                    c = cumulative[0]
+                # Case where payback period >= 1 year
+                else:
+                    b = investment - cumulative[years - 1]
+                    c = cumulative[years] - cumulative[years - 1]
+                payback_val = a + (b / c)
+            # If investment does not pay back within measure lifetime,
+            # set payback period to artifically high number
+            else:
+                payback_val = 999
+
+        # Return updated payback period value in years
+        return payback_val
 
 
 # Engine runs active measure adoption
@@ -511,15 +731,15 @@ class Engine(object):
         self.measure_objs = measure_objects
 
     def adopt_active(self, mseg_in, base_costperf_in, adopt_scheme,
-                     decision_rule):
+                     decision_rule, rate):
         """ Run adoption scheme on active measures only """
         for m in self.measure_objs:
             if m.active == 1:
                 # Find master microsegment and partitions
-                m.mseg_master_find_partition(mseg_in, base_costperf_in,
-                                             adopt_scheme)
-                # Update cost/savings outcomes based on competed microsegment
-                m.calc_metrics()
+                m.master_mseg = m.mseg_find_partition(
+                    mseg_in, base_costperf_in, adopt_scheme)
+                # Update cost/savings outcomes based on master microsegment
+                m.master_savings = m.calc_metric_update(rate)
         # Eventually adopt measures here using updated measure decision info.
 
 
@@ -543,7 +763,7 @@ def main():
 
     a_run = Engine(measures_objlist)
     a_run.adopt_active(microsegments_input, base_costperf_info_input,
-                       adopt_scheme, decision_rule)
+                       adopt_scheme, decision_rule, rate)
 
 if __name__ == '__main__':
     main()

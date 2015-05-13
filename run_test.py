@@ -272,7 +272,9 @@ class RandomSampleTest(unittest.TestCase):
                       'ss.triang.fit(sample)']
 
     # Correct set of outputs for given random sampling seed
-    test_outputs = [[10.06, 2.03], [4.93, 0, 8.02], [0.51, 3.01, 7.25]]
+    test_outputs = [numpy.array([10.06, 2.03]),
+                    numpy.array([4.93, 0, 8.02]),
+                    numpy.array([0.51, 3.01, 7.25])]
 
     # Test for correct output from "ok" input distribution info.
     def test_distrib_ok(self):
@@ -1462,6 +1464,192 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                 "Technical potential")[0]
             dict2 = self.blank_out[idx]
             self.dict_check(dict1, dict2)
+
+
+class PrioritizationMetricsTest(unittest.TestCase):
+    """ Test the operation of the calc_metric_update function to
+    verify measure master microsegment inputs yield expected savings
+    and prioritization metrics outputs """
+
+    # Sample measure for use in testing
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                      "life_base": 1,
+                      "life_meas": 2}
+
+    # Discount rate used for testing
+    ok_rate = 0.07
+
+    # Create an "ok" master microsegment input dict to use in calculating
+    # savings and prioritization metrics outputs to be tested
+    ok_master_mseg = {"stock": {"total": {"2009": 10, "2010": 20},
+                                "competed": {"2009": 5, "2010": 10}},
+                      "energy": {"total": {"2009": 20, "2010": 30},
+                                 "competed": {"2009": 10, "2010": 15},
+                                 "efficient": {"2009": 5, "2010": 10}},
+                      "carbon": {"total": {"2009": 200, "2010": 300},
+                                 "competed": {"2009": 100, "2010": 150},
+                                 "efficient": {"2009": 50, "2010": 100}},
+                      "cost": {"baseline": {"stock": {"2009": 10,
+                                                      "2010": 15},
+                                            "energy": {"2009": 20,
+                                                       "2010": 25},
+                                            "carbon": {"2009": 30,
+                                                       "2010": 35}},
+                               "measure": {"stock": {"2009": 15,
+                                                     "2010": 20},
+                                           "energy": {"2009": 10,
+                                                      "2010": 20},
+                                           "carbon": {"2009": 25,
+                                                      "2010": 25}}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above master microsegment dict input
+    ok_out = {"stock": {"cost savings": {"2009": numpy.array([-5, 10, 0]),
+                                         "2010": numpy.array([-5, 15, 0])}},
+              "energy": {"savings": {"2009": numpy.array([0, 5, 5]),
+                                     "2010": numpy.array([0, 5, 5])},
+                         "cost savings": {"2009": numpy.array([0, 10, 10]),
+                                          "2010": numpy.array([0, 5, 5])}},
+              "carbon": {"savings": {"2009": numpy.array([0, 50, 50]),
+                                     "2010": numpy.array([0, 50, 50])},
+                         "cost savings": {"2009": numpy.array([0, 5, 5]),
+                                          "2010": numpy.array([0, 10, 10])}},
+              "metrics": {"irr (w/ energy $)":
+                          {"2009": 3.45, "2010": 3.24},
+                          "irr (w/ energy and carbon $)":
+                          {"2009": 4.54, "2010": 5.46},
+                          "payback (w/ energy $)":
+                          {"2009": 0.25, "2010": 0.25},
+                          "payback (w/ energy and carbon $)":
+                          {"2009": 0.2, "2010": 0.17},
+                          "cce": {"2009": 0.48, "2010": 1.00},
+                          "cce (w/ carbon $ benefits)":
+                          {"2009": 1.48, "2010": 3.00},
+                          "ccc": {"2009": 0.05, "2010": 0.10},
+                          "ccc (w/ energy $ benefits)":
+                          {"2009": 0.25, "2010": 0.20}}}
+
+    # Create a routine for checking equality of a dict
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                # Expect numpy arrays and/or point values
+                if type(i) != int and type(i) != float:
+                    numpy.testing.assert_almost_equal(
+                        i, i2, decimal=2)
+                else:
+                    self.assertAlmostEqual(dict1[k], dict2[k2],
+                                           places=2)
+
+    # Test for correct output from "ok_master_mseg" input
+    def test_metrics_ok(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**self.sample_measure)
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
+
+
+class MetricUpdateTest(unittest.TestCase):
+    """ Test the operation of the metrics_update function to
+    verify cashflow inputs generate expected prioritization metric outputs """
+
+    # Sample measure for use in testing
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                      "life_base": 1,
+                      "life_meas": 2}
+
+    # Define ok test inputs
+
+    # Test discount rate
+    ok_rate = 0.07
+    # Test stock cashflow input
+    ok_s_list = numpy.array([-10, 0, 0, 10, 0, 0, 0])
+    # Test stock + energy cashflow input
+    ok_se_list = numpy.array([-10, 5, 5, 15, 5, 5, 5])
+    # Test stock + carbon cashflow input
+    ok_sc_list = numpy.array([-10, 10, 10, 20, 10, 10, 10])
+    # Test stock + energy + carbon cashflow input
+    ok_sec_list = numpy.array([-10, 15, 15, 25, 15, 15, 15])
+    # Test energy savings input
+    ok_esave_list = numpy.array([0, 25, 25, 25, 25, 25, 25])
+    # Test carbon savings input
+    ok_csave_list = numpy.array([0, 50, 50, 50, 50, 50, 50])
+
+    # Correct metric output values that should be yielded by using "ok"
+    # inputs above
+    ok_out = numpy.array([0.62, 1.59, 2, 0.67, -0.02, 0.38, -0.01, 0.09])
+
+    # Test for correct outputs given "ok" inputs above
+    def test_metric_updates(self):
+        # Create a sample measure instance using sample_measure
+        measure_instance = run.Measure(**self.sample_measure)
+        # Test that "ok" inputs yield correct output metric values
+        # (* Note: outputs should be formatted as numpy arrays)
+        numpy.testing.assert_almost_equal(
+            measure_instance.metric_update(self.ok_rate, self.ok_s_list,
+                                           self.ok_se_list, self.ok_sc_list,
+                                           self.ok_sec_list,
+                                           self.ok_esave_list,
+                                           self.ok_csave_list), self.ok_out,
+            decimal=2)
+
+
+class PaybackTest(unittest.TestCase):
+    """ Test the operation of the payback function to
+    verify cashflow input generates expected payback output """
+
+    # Sample measure for use in testing
+    sample_measure = {"name": "sample measure 1",
+                      "end_use": ["heating", "cooling"],
+                      "fuel_type": "electricity (grid)",
+                      "technology_type": "supply",
+                      "technology": ["boiler (electric)",
+                                     "ASHP", "GSHP", "room AC"],
+                      "bldg_type": "single family home",
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                      "life_base": 1,
+                      "life_meas": 2}
+
+    # Define ok test cashflow inputs
+    ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8],
+                    [-10, 14, 2, 3, 4],
+                    [-10, 0, 1, 2],
+                    [10, 4, 7, 8, 10]]
+
+    # Correct outputs that should be yielded by above "ok" cashflow inputs
+    ok_out = [5.14, 0.71, 999, 0]
+
+    # Test for correct outputs given "ok" input cashflows above
+    def test_cashflow_paybacks(self):
+        # Create a sample measure instance using sample_measure
+        measure_instance = run.Measure(**self.sample_measure)
+        # Test that "ok" input cashflows yield correct output payback values
+        for idx, cf in enumerate(self.ok_cashflows):
+            self.assertAlmostEqual(measure_instance.payback(cf),
+                                   self.ok_out[idx], places=2)
 
 
 # Offer external code execution (include all lines below this point in all
