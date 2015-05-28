@@ -1,0 +1,108 @@
+.affix {
+  top: 80px; /* IS THERE A WAY TO DEFINE THIS WITH VARIABLES? */
+  width: 212.5px;
+  height: 217px; /*189px; /* IS THERE A WAY TO DEFINE THIS WITH VARIABLES? NEED TO BE ABLE TO UPDATE WITH CHANGES IN CONTENT INSIDE PANEL. */
+}
+
+.affix-bottom {
+  position: absolute;
+  width: 212.5px;
+  height: 217px; /* 189px; /* without CO2 number */ 
+}
+
+.affix-top {
+  width: 212.5px;
+}
+
+/* THIS MIGHT NOT BE QUITE RIGHT */
+@media all and (max-width: 992px) {
+  .affix {
+    margin-top: 20px;
+    position: static;
+  }
+  .affix-bottom {
+    margin-top: 20px;
+    position: static;
+  }
+}
+
+/* adjust placement of button relative to text on the same line so
+that the bottom of the button is even with the bottom of the text */
+.btn-baseline {
+  margin-top: -10px;
+}
+
+.jumbotron {
+	background: linear-gradient(#1E824C, #00B16A);
+  color: #FFFFFF;
+  margin-top: 50px; /* pushes jumbotron content below fixed top navbar */
+}
+
+#disclaimer {
+  color: #F00;
+}
+
+.frontpage {
+  background-image: url('../resources/26382.jpg');
+  height: 530px;
+  color: #FFFFFF;
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+#footer {
+  margin-top: 20px;
+  height: 60px;
+  background-color: #EDEDED;
+}
+
+#initial-selections{
+  padding-bottom: 14px;
+}
+
+#instructions {
+  padding-bottom: 10px;
+}
+
+.popover {
+  max-width: 50%; /* resize image to 50% of bounding box (HTML <body>) */
+}
+
+/* Provide vertical padding on end use drop down menus and button groups
+   that appear on the market calculator */
+.row-end-use {
+  padding-bottom: 10px;
+}
+
+.row-front {
+  text-align: center;
+  padding-bottom: 30px; /* MAKE THIS SCALE WITH DEVICE SIZE? */
+}
+
+.row-front h4 {
+  color: #777;
+  font-weight: normal;
+}
+
+.row-front p {
+  color: #777;
+  font-size: 16px; /* MAKE THIS SCALE WITH DEVICE SIZE? */
+}
+
+#energy-num, #carbon-num {
+  margin: 0px;
+}
+
+#units {
+  margin-top: 2px;
+  margin-bottom: 18px;
+  line-height: 95%;
+}
+
+/* This lines up the baseline of the project name with the link text, 
+   but is not a permanent solution to the apparent alignment problem */
+#temp-align {
+  margin-top: -2px;
+}

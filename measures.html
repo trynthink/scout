@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<!-- nothing else can come before this point in <head> -->
+		<title>name: Measure Database</title>
+
+		<!-- jQuery (minified) (required for Bootstrap) -->
+		<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+
+		<!-- Bootstrap CSS and JavaScript (minified) (using CDN) -->
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>
+		<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+
+		<!-- CSS -->
+		<link rel='stylesheet' type='text/css' href='css/styles.css'>
+
+		<!-- JavaScript --> 
+		<script type='text/javascript' src='js/actions.js'></script>
+	</head>
+
+	<body>
+
+		<nav class='navbar navbar-inverse navbar-fixed-top'>
+			<div class='container'>
+				<div id='nav_header' class='navbar-header'>
+					<!-- Provides support for menus on mobile devices/narrow screens -->
+					<button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#navbar' aria-expanded='false' aria-controls='navbar'>
+						<span class='sr-only'>Toggle navigation</span>
+						<span class='icon-bar'></span>
+						<span class='icon-bar'></span>
+						<span class='icon-bar'></span>
+					</button>
+					<a class='navbar-brand' href='index.html' id='temp-align'><strong>name</strong> <small><em>alpha</em></small></a>
+				</div>
+				<div id='navbar' class='navbar-collapse collapse' aria-expanded='false'>
+					<ul class='nav navbar-nav'>
+						<li><a href='dashboard.html'>Dashboard</a></li>
+						<li class='active'><a href='measures.html'>Measure Database</a></li>
+						<li><a href='calculator.html'>Market Calculator</a></li>
+					</ul>
+					<ul class='nav navbar-nav navbar-right'>
+						<li><a href='https://www.github.com/trynthink/ptool2/wiki'>Wiki/Docs</a></li>
+					</ul>
+				</div>
+
+			</div>
+		</nav>
+
+		<div class='jumbotron'>
+			<div class='container'>
+				<h1>Measure Database</h1>
+				<p>View, edit, and add measures to the database of next-generation building products.</p>
+			</div>
+		</div>
+
+		<!-- _______________________ All Body Content Below Jumbotron _______________________ -->
+		<div class='container'>
+			<div class='row'> <!-- explanatory text -->
+				<div class='col-md-12'>
+					<p id='disclaimer'><em>This is currently an incomplete product. The measures shown are for testing purposes and do not represent any commercialized, pre-commercial, real, or imaginary products, programs, devices, or systems. Many elements on this page are non-functional.</em></p> <!-- TEMPORARY -->
+
+					<p>Measures are specific technologies or products that are more efficient than the technology or product currently used in buildings to provide the same building service. For example, lighting is an important building service. A (hypothetical) new type of light bulb might provide 200 lumens (a measure of visible light) per Watt (denoted lm/W). To evaluate the energy savings possible from the sales and installation of this new light bulb, it must first be defined with a measure. The measure for the light bulb will include information about efficiency, price, how long the bulb lasts, and other key attributes.</p> <!-- from wiki? -->
+
+					<p>In the table of measures below, a summary of key parameters defining each measure is shown. Additional details can be viewed by clicking on an individual measure.</p>
+
+					<p>Before adding a measure to the database, please review the section in the Wiki on the <a href='https://github.com/trynthink/ptool2/wiki/Technical-Measures#attributes-of-a-well-posed-measure'>attributes of a well-posed measure.</a></p>
+				</div>
+			</div> <!-- /row -->
+
+			<div class='row'> <!-- measure table section -->
+				<div class='col-md-12'>
+					<div id='instructions'>
+						<h3 style='display: inline;'>Measure list</h3>
+
+						<!-- button to open new measure modal -->
+						<button type='button' class='btn btn-primary btn-baseline pull-right' data-toggle='modal' data-target='#newMeasureModal'>Add new measure</button>
+						
+						<!-- new measure modal content -->
+						<div class='modal fade' id='newMeasureModal' tabindex='-1' role='dialog' aria-labelledby='newMeasureModalLabel' aria-hidden='true'>
+							<div class='modal-dialog'>
+								<div class='modal-content'>
+									<div class='modal-header'>
+										<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+										<h4 class='modal-title' id='myModalLabel'>Define new measure</h4>
+									</div>
+									<div class='modal-body'>
+										<form>
+											<div class='form-group'>
+												<label for='name'>Name</label>
+												<input class='form-control' id='name' type='text'>
+											</div>
+											<div class='form-group'>
+												<label for='description'>Description</label>
+												<input class='form-control' id='description' type='text'>
+											</div>
+											<div class='form-group'>
+												<label for='component_cost'>Component Cost</label>
+												<input class='form-control' id='component_cost' type='number' placeholder='Enter number without currency symbol'>
+											</div>
+											<div class='form-group'>
+												<label for='name'>Component Cost Units</label>
+												<select class='form-control'>
+													<option>$/sq. ft.</option>
+													<option>$/unit</option>
+												</select>
+											</div>
+											<div class='form-group'>
+												<label for='installed_cost'>Installed Cost</label>
+												<input class='form-control' id='installed_cost' type='number' placeholder='Enter number without currency symbol'>
+											</div>
+											<div class='form-group'>
+												<label for='name'>Installed Cost Units</label>
+												<select class='form-control'>
+													<option>$/sq. ft.</option>
+													<option>$/unit</option>
+												</select>
+											</div>
+											<div class='form-group'>
+												<label for='energy_efficiency'>Energy Efficiency</label>
+												<input class='form-control' id='energy_efficiency' type='number'>
+											</div>
+											<div class='form-group'>
+												<label for='energy_efficiency_units'>Units</label>
+												<input class='form-control' id='energy_efficiency_units' type='text'>
+											</div>
+											<div class='form-group'>
+												<label for='energy_efficiency_source'>Source</label>
+												<input class='form-control' id='energy_efficiency_source' type='url'>
+											</div>
+<!-- 											<div class='form-group'>
+												<label for='name'></label>
+												<input class='form-control' id='name' type=''>
+											</div> -->
+										</form>
+									</div>
+									<div class='modal-footer'>
+										<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
+										<button type='button' class='btn btn-primary'>Save changes</button>
+									</div>
+								</div>
+							</div>
+						</div> <!-- /modal -->
+					</div> <!-- /instructions -->
+
+				<!-- measure table -->
+				<table class='table table-hover table-condensed' id='measure-list'>
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th colspan='2'>Efficiency</th>
+							<th colspan='2'>Component Cost</th>
+							<th colspan='2'>Installed Cost</th>
+							<th>Market Entry</th>
+							<th>Product Lifetime</th>
+						</tr>
+					</thead>
+				</table>
+				</div>
+
+				<!-- modal for current measure selected from table -->
+				<div id='measureModal' class='modal fade' role='dialog' aria-labelledby='orderModalLabel' aria-hidden='true' data-backdrop='static'>
+					<div class='modal-dialog'>
+						<div class='modal-content'>
+							<div class='modal-header'>
+								<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+								<h4 class='modal-title' id='myModalLabel'>Review measure</h4>
+							</div>
+							<div class='modal-body' id='measureDetails'></div>
+							<div class='modal-footer'>
+								<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
+								<button type='button' class='btn btn-primary'>Edit</button>
+							</div>
+						</div>
+					</div>
+				</div> <!-- /modal -->
+
+			</div> <!-- /row -->
+		</div> <!-- /container -->
+
+
+
+		<div id='footer'>
+		</div>
+
+	</body>
+</html>

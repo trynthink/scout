@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<!-- nothing else can come before this point in <head> -->
+		<title>name: Market Calculator</title>
+
+		<!-- jQuery (minified) (required for Bootstrap) -->
+		<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+
+		<!-- Bootstrap CSS and JavaScript (minified) (using CDN) -->
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>
+		<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+
+		<!-- Font Awesome CSS (minified) (using CDN) -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+		<!-- CSS -->
+		<link rel='stylesheet' type='text/css' href='css/styles.css'>
+
+		<!-- JavaScript --> 
+		<!-- <script type='text/javascript' src='js/actions.js'></script> --> <!-- TEMPORARY -->
+		<script type='text/javascript' src='js/calculator.js'></script> <!-- TEMPORARY -->
+	</head>
+
+	<body>
+
+		<nav class='navbar navbar-inverse navbar-fixed-top'>
+			<div class='container'>
+				<div id='nav_header' class='navbar-header'>
+					<!-- Provides support for menus on mobile devices/narrow screens -->
+					<button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#navbar' aria-expanded='false' aria-controls='navbar'>
+						<span class='sr-only'>Toggle navigation</span>
+						<span class='icon-bar'></span>
+						<span class='icon-bar'></span>
+						<span class='icon-bar'></span>
+					</button>
+					<a class='navbar-brand' href='index.html' id='temp-align'><strong>name</strong> <small><em>alpha</em></small></a>
+				</div>
+				<div id='navbar' class='navbar-collapse collapse' aria-expanded='false'>
+					<ul class='nav navbar-nav'>
+						<li><a href='dashboard.html'>Dashboard</a></li>
+						<li><a href='measures.html'>Measure Database</a></li>
+						<li class='active'><a href='calculator.html'>Market Calculator</a></li>
+					</ul>
+					<ul class='nav navbar-nav navbar-right'>
+						<li><a href='https://www.github.com/trynthink/ptool2/wiki'>Wiki/Docs</a></li>
+					</ul>
+				</div>
+
+			</div>
+		</nav>
+
+		<div class='jumbotron'>
+			<div class='container'>
+				<h1>Market Calculator</h1>
+				<p>Determine the energy use associated with building components, appliances, and other end uses in residential and commercial buildings.</p>
+			</div>
+		</div>
+
+		<!-- _______________________ All Body Content Below Jumbotron _______________________ -->
+		<div class='container'>
+			<div class='row'>
+				<div class='col-md-9'> <!-- LH column -->
+					<div class='row'> <!-- introductory text -->
+						<div class='col-md-12'>
+							<p id='disclaimer'><em>This is currently an incomplete product. The content shown here is intended to demonstrate appearance and provides no functionality. Any apparent outputs or results should be considered inaccurate.</em></p> <!-- TEMPORARY -->
+
+							<p>The Market Calculator yields the estimated energy use from losses through the building envelope and appliances and devices within homes and businesses in the United States. This energy use can be divided by building type, climate zone, technology type, and other factors indicated below.</p>
+
+							<p>To obtain an estimate for a market or markets of interest, the appropriate definitions must be selected below. In each category shown, at least one selection must be made to yield a complete market definition. In some categories, multiple selections are permitted. Categories where multiple selectons are allowed are indicated as such. Selections for the relevant groups are made by simply clicking the appropriate terms. Selected terms are highlighted, and clicking them again will remove them from the chosen market segment. Follow the numbered steps below, making the desired selections at each step. Once selections have been made in each category, click the 'Update' button in the Market Size box on the right side of the screen to get the size of the selected market.</p>
+
+							<p> The underlying data for this calculator are from the latest <a href='http://www.eia.gov/forecasts/aeo/'>Annual Energy Outlook (AEO) <i class="fa fa-external-link"></i></a> released by the <a href='http://www.eia.gov/'>U.S. Energy Information Administration (EIA) <i class="fa fa-external-link"></i></a>.</p>
+						</div>
+					</div> <!-- /row introductory text -->
+
+					<div class='row'> <!-- market entry year -->
+						<div class='col-md-8'>
+							<h4>1. Choose a projection year</h4>
+						</div>
+						<div class='col-md-4'>
+							<select class='form-control' id='proj-year'>
+								<option value='2015'>2015</option>
+								<option value='2016'>2016</option>
+								<option value='2017'>2017</option>
+								<option value='2018'>2018</option>
+								<option value='2019'>2019</option>
+								<option value='2020'>2020</option>
+								<option value='2021'>2021</option>
+								<option value='2022'>2022</option>
+								<option value='2023'>2023</option>
+								<option value='2024'>2024</option>
+								<option value='2025'>2025</option>
+								<option value='2026'>2026</option>
+								<option value='2027'>2027</option>
+								<option value='2028'>2028</option>
+								<option value='2029'>2029</option>
+								<option value='2030' selected>2030</option>
+								<option value='2031'>2031</option>
+								<option value='2032'>2032</option>
+								<option value='2033'>2033</option>
+								<option value='2034'>2034</option>
+								<option value='2035'>2035</option>
+								<option value='2036'>2036</option>
+								<option value='2037'>2037</option>
+								<option value='2038'>2038</option>
+								<option value='2039'>2039</option>
+								<option value='2040'>2040</option>
+							</select>
+						</div>
+					</div> <!-- /row market entry year -->
+
+					<div class='row'> <!-- climate zone -->
+						<div class='col-md-8'>
+							<!-- <h4>2. Select the relevant <a href='http://www.eia.gov/consumption/residential/maps.cfm'>AIA climate zone(s) <i class="fa fa-external-link"></i></a></h4> -->
+							<h4>2. Select the relevant <a id='AIA-CZ-popover' tabindex='0' rel='popover' data-trigger='focus' title='' data-content=''>AIA climate zone(s)</a></h4>
+						</div>
+						<div class='col-md-4'>
+							<!-- SHOW THIS AS A MAP? -->
+							<div class='btn-group pull-right' data-toggle='buttons' id='climate-zone'>
+								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ1'>1</label>
+								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ2'>2</label>
+								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ3'>3</label>
+								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ4'>4</label>
+								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ5'>5</label>
+							</div>
+						</div>
+					</div> <!-- /row climate zone -->
+
+					<div class='row'> <!-- building type -->
+						<div class='col-md-12'>
+							<h4>3. Select all of the applicable residential and commercial building types</h4>
+						</div>
+						<div class='col-md-6'>
+							<h5>Residential</h5>
+							<select multiple class='form-control' id='residential-bldgs'>
+							  <option value='single family home'>Single-family Homes</option>
+							  <option value='multi family home'>Multi-family Homes</option>
+							  <option value='mobile home'>Mobile Homes</option>
+							</select>
+						</div>
+						<div class='col-md-6'>
+							<h5>Commercial</h5>
+							<select multiple class='form-control' id='commercial-bldgs'>
+							  <option value=''>Assembly</option>
+							  <option value=''>Education</option>
+							  <option value=''>Food Sales</option>
+							  <option value=''>Food Service</option>
+							  <option value=''>Health Care</option>
+							  <option value=''>Lodging</option>
+								<option value=''>Mercantile/Service</option>
+								<option value=''>Small Office</option>
+								<option value=''>Large Office</option>
+								<option value=''>Warehouse</option>
+								<option value=''>Other</option>
+							</select>
+						</div>
+					</div> <!-- /row building type -->
+
+					<hr>
+
+					<!-- Additional Selections -->
+					<div class='row row-end-use' id='end-use-row'>
+						<div class='col-md-12'>
+							<h4>4. Now make selections from each of the dropdowns and button groups that appear below <!-- Additional market segments can be incorporated into the total using the "Add end use" button near the bottom of the page. --></h4>
+							<select class='form-control' id='end-use'>
+							</select>
+						</div>
+					</div>
+					
+				</div> <!-- /LH column -->
+
+				<div class='col-md-3'> <!-- RH column -->
+					<div data-spy='affix' id='calc-panel'><!--  data-offset-top='250' data-offset-bottom='10'> -->
+						<div class='panel panel-default'>
+							<div class='panel-heading'>
+								<h3 class='panel-title' style='display: inline;'>Market Size</h3><button type='button' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
+							</div>
+							<div class='panel-body'>
+								<h2 id='energy-num'>0</h2>
+								<h3 id='units'><small><span data-toggle='tooltip' title='Quadrillion British Thermal Units'>Quads</span> (primary energy)</small></h3>
+								<h2 id='carbon-num'>0</h2>
+								<h3 id='units'><small><span data-toggle='tooltip' title='Million Metric Tons'>MMT</span> CO<sub>2</sub></small></h3>
+								<button type='button' class='btn btn-default'>Recall</button>
+								<button type='button' class='btn btn-primary'>Save</button>
+							</div>
+						</div>
+					</div>
+				</div> <!-- /RH column -->
+
+			</div> <!-- /row -->
+		</div> <!-- /container -->
+
+		<div id='footer'>
+		</div>
+
+	</body>
+</html>
