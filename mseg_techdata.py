@@ -120,7 +120,7 @@ tech_eia_nonlt = {'ASHP': ['EIA_EQUIP', 'ELEC_HP', 'ELEC_HP1', 'ELEC_HP4',
                   'drying': ['EIA_EQUIP',
                              ['ELEC_DRY', 'NG_DRY'], ['ELEC_DRY1', 'NG_DRY1'],
                              ['ELECDRY2', 'NG_DRY2'], ['EF', 'EF']],
-                  'refrigeration': ['EIA_EQUIP', 'REFR'
+                  'refrigeration': ['EIA_EQUIP', 'REFR',
                                     ['RefBF#1', 'RefSF#1', 'RefTF#1'],
                                     ['RefBF#2', 'RefSF#2', 'RefTF#3'],
                                     ['kWh/yr', 'kWh/yr']],
@@ -609,33 +609,32 @@ def fill_years_lt(match_list, project_dict):
 
 def stitch(input_array, project_dict, col_name):
     """ Given EIA performance, cost, and lifetime projections for a technology
-    between a certain series of time periods (i.e. 2010-2014, 2014-2020,
-    2020-2040), reconstruct this information in a dict annually for the
-    projection period used in "mseg.py" (i.e. {"2009": XXX, "2010": XXX, ...,
-    "2040": XXX}) """
+    between a series of time periods (i.e. 2010-2014, 2014-2020, 2020-2040),
+    reconstruct this information in a dict with annual keys across the
+    modeling time horizon used in "mseg.py" (i.e. {"2009": XXX, "2010": XXX,
+    ..., "2040": XXX}) """
 
     # Initialize output dict which will contain EIA performance, cost,
     # or lifetime information continuous across each year of the
-    # projection horizon
+    # modeling time horizon
     output_dict = {}
 
     # Initialize a previous year value indicator to be used
     # in cases where the input array does not contain information
-    # for a given year in the projection horizon
+    # for a given year in the modeling time horizon
     prev_yr_val = None
 
     # Loop through each year of the projection and fill in information
     # from the appropriate row and column from the input array
-    for (yr_ind, yr) in enumerate(project_dict.keys()):
+    for (yr_ind, yr) in enumerate(sorted(project_dict.keys())):
         # Reduce the input array to only the row concerning the year being
         # looped through (if this year exists in the 'START_EQUIP_YR' column)
-        array_reduce = input_array[input_array['START_EQUIP_YR'] == yr]
-
+        array_reduce = input_array[input_array['START_EQUIP_YR'] == int(yr)]
         # If a row has been discovered for the looped year, draw output
         # information from column in that row keyed by col_name input
-        if len(array_reduce) > 0:
-            if len(array_reduce) == 1:
-                output_dict[yr] = array_reduce[col_name]
+        if array_reduce.shape[0] > 0:
+            if array_reduce.shape[0] == 1:
+                output_dict[yr] = float(array_reduce[col_name])
             else:
                 raise ValueError('Multiple identical years in filtered array!')
         # If no row has been discovered for the looped year and we are not in
@@ -656,12 +655,13 @@ def stitch(input_array, project_dict, col_name):
             # If only one row has been found above, draw output information
             # from the column in that row keyed by col_name input
             if len(array_close_ind) == 1:
-                output_dict[yr] = input_array[array_close_ind][col_name]
+                output_dict[yr] = float(input_array[array_close_ind][col_name])
             # If multiple rows have been found above, draw output information
             # from the column in the first of these rows keyed by col_name
             # input
             else:
-                output_dict[yr] = input_array[array_close_ind][0][col_name]
+                output_dict[yr] = float(
+                    input_array[array_close_ind][0][col_name])
 
         # Update previous year value indicator to the output information for
         # the current loop
@@ -692,7 +692,7 @@ def main():
     eia_lt = numpy.genfromtxt(r_lt_all, names=r_lt_names, dtype=None,
                               skip_header=35, skip_footer=54)
 
-    # Establish the projection horizon to be consistent with the "mseg.py"
+    # Establish the modeling time horizon to be consistent with the "mseg.py"
     # routine
     aeo_min = mseg.aeo_years_min
     aeo_max = aeo_min + (mseg.aeo_years - 1)
