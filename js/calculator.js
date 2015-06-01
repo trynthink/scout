@@ -176,7 +176,7 @@ $(document).ready(function(){
 			// Specify HTML for equipment/envelope radio button
 			eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
 							+ "<div class='col-md-12'>"
-							+ "<div class='btn-group' data-toggle='buttons' id='eq-env'>"
+							+ "<div class='btn-group' data-toggle='buttons'>"
 							+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
 							+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
 							+ "</div>"
@@ -234,24 +234,24 @@ $(document).ready(function(){
 
 	// Detect selected radio button (equipment/envelope) 
 	// and respond accordingly
-	$(document).on('change', '#eq-env', function(){
+	$(document).on('change', '#eq-env-radio', function(){
 		// Identify element of radio button selected
-		var radioSelection = $('input[name=eq-env]:checked', '#eq-env').val();
+		var radio_selection = $('input[name=eq-env]:checked').val();
 
-		if (radioSelection === 'demand') {
+		if (radio_selection === 'demand') {
 			// Remove any equipment content
 			$('.row.subtype.supply').remove();
 
 			// Create space for envelope buttons
-			insertNextButtonGroup('env-buttons', radioSelection, '#eq-env-radio');
+			insertNextButtonGroup('env-buttons', radio_selection, '#eq-env-radio');
 
 			// Add envelope buttons to HTML DOM
-			populateButtonGroup(radioSelection, envelope, envelope_values);
+			populateButtonGroup(radio_selection, envelope, envelope_values);
 
 			// Add 'envelope' class to button group just added so that it
 			// will be removed automatically if the radio button selection
 			// is changed from envelope to equipment
-			$('#env-buttons').addClass(radioSelection);
+			$('#env-buttons').addClass(radio_selection);
 		}
 		else {
 			// Remove any envelope content
@@ -282,7 +282,7 @@ $(document).ready(function(){
 	// appropriate technology types
 	$(document).on('change', '#fuel-type', function(){
 		// Determine what fuel type was selected
-		var HVAC_FT = $('#HVAC').val();
+		var HVAC_FT = $('option:selected', '#fuel-type').val();
 		
 		// Clear any existing equipment type buttons
 		$('#eq-buttons').remove();
@@ -332,14 +332,14 @@ $(document).ready(function(){
 		hvac_tt = [];
 
 		// Record all currently selected tech types in the array
-		$.each($('input:checkbox:checked', '#demand'), function(){hvac_tt.push($(this).val());});
+		$.each($('input:checkbox:checked', '#env-buttons'), function(){hvac_tt.push($(this).val());});
 	});	
 	$(document).on('change', '#eq-buttons', function(){
 		// Clear tech types from list
 		hvac_tt = [];
 
 		// Record all currently selected tech types in the array
-		$.each($('input:checkbox:checked', '#eq-buttons-list'), function(){hvac_tt.push($(this).val());});
+		$.each($('input:checkbox:checked', '#eq-buttons'), function(){hvac_tt.push($(this).val());});
 	});	
 	
 
@@ -349,21 +349,15 @@ $(document).ready(function(){
 	var other_tt; // global scope variable for later use
 
 	$(document).on('change', '#last', function(){
-		// Only act on fuel type end uses (because #last is common to several cases)
-		// if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
-			ft_only_sel = $('#ft-only-dd').val();	
-		// }
+		ft_only_sel = $('option:selected', '#last').val();
 	});
 
 	$(document).on('change', '#last-tt', function(){
-		// Only act on end uses that have no fuel type
-		// if (selected_end_use === 'lighting' || selected_end_use === 'computers' || selected_end_use === 'TVs' || selected_end_use === 'other') {
-			// Clear tech types from list
-			other_tt = [];
+		// Clear tech types from list
+		other_tt = [];
 
-			// Record all currently selected tech types in the array
-			$.each($('input:checkbox:checked', '#last-tt'), function(){other_tt.push($(this).val());}); // POSSIBLY NOT SUFFICIENTLY SPECIFIC, DEPENDS ON '#last' DELEGATED EVENT SPECIFIER
-		// }
+		// Record all currently selected tech types in the array
+		$.each($('input:checkbox:checked', '#last-tt'), function(){other_tt.push($(this).val());});
 	});
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -387,11 +381,11 @@ $(document).ready(function(){
 				// [climate zone][building type][fuel type][end use][supply/demand][tech type]['energy'][year]
 
 				// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
-				var HVAC_FT = $('#HVAC').val(); 
-				var radioSelection = $('input[name=eq-env]:checked', '#eq-env').val();
+				var HVAC_FT = $('option:selected', '#fuel-type').val(); 
+				var radio_selection = $('input[name=eq-env]:checked').val();
 
-				// Define function call based on radioSelection (supply or demand)
-				if (radioSelection === 'supply') {
+				// Define function call based on radio_selection (supply or demand)
+				if (radio_selection === 'supply') {
 					// For all fuel types except 'other fuel', the tech type is 'non-specific' (secondary heating, equipment/demand only)
 					if (HVAC_FT !== 'other fuel' && selected_end_use === 'secondary heating') {
 						hvac_tt = ['non-specific'];
@@ -404,7 +398,7 @@ $(document).ready(function(){
 						for (var i = 0; i < resBuildings.length; i++) {
 							// Loop over all tech types selected
 							for (var j = 0; j < hvac_tt.length; j++) {
-								amtToAdd = data[climate_zone[a]][resBuildings[i]][HVAC_FT][selected_end_use][radioSelection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+								amtToAdd = data[climate_zone[a]][resBuildings[i]][HVAC_FT][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
 								total_energy += amtToAdd;
 								total_co2 += amtToAdd/1e9 * co2_conv;
 							}
@@ -427,7 +421,7 @@ $(document).ready(function(){
 							for (var i = 0; i < resBuildings.length; i++) {
 								// Loop over all tech types selected
 								for (var j = 0; j < hvac_tt.length; j++) {
-									amtToAdd = data[climate_zone[a]][resBuildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radioSelection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+									amtToAdd = data[climate_zone[a]][resBuildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
 									total_energy += amtToAdd;
 									total_co2 += amtToAdd/1e9 * co2_conv;
 								}
