@@ -29,6 +29,30 @@ $(document).ready(function(){
 		co2_ot = data['other']['CO2 intensity'];
 	});
 
+	// Generate #proj-year drop down list
+
+	// From today's date, get the current year minus one (year), which will be
+	// the earliest baseline year available in the calculator
+	var intended_year = new Date().getFullYear() - 1;
+
+	// Identify the default year (to be selected when the page loads) 
+	// and the last year in the list
+	var default_year = 2030;
+	var max_year = 2040;
+
+	// Generate array of years to appear in the drop down
+	var yr_array = [];
+	for (var i = 0; i <= (max_year - intended_year); i++) {
+		year = intended_year + i; // Calculate the year using the iterator
+		yr_array.push(year);
+	}
+
+	// Populate the drop down menu and set the default year
+	populateDropdown('proj-year', '', yr_array, yr_array)
+	$('#proj-year').val(default_year);
+
+
+
 	// Initialize empty variables
 	var resBuildings;
 	var comBuildings;
@@ -552,12 +576,12 @@ $(document).ready(function(){
 
 		// Add to the initialized string the buttons to be generated
 		if (typeof index === 'undefined') {
-			for (i = 0; i < names.length; i++) {
+			for (var i = 0; i < names.length; i++) {
 				content += '<option value="' + values[i] + '">' + names[i] + '</option>';
 			}
 		}
 		else {
-			for (i = 0; i < index.length; i++) {
+			for (var i = 0; i < index.length; i++) {
 				content += '<option value="' + values[index[i]] + '">' + names[index[i]] + '</option>';
 			}
 		}
@@ -578,12 +602,12 @@ $(document).ready(function(){
 
 		// Add to the initialized string the buttons to be generated
 		if (typeof index === 'undefined') {
-			for (i = 0; i < names.length; i++) {
+			for (var i = 0; i < names.length; i++) {
 				content += '<label class="btn btn-default"><input type="checkbox" autocomplete="off" value="' + values[i] + '">' + names[i] + '</label>';
 			}
 		}
 		else {
-			for (i = 0; i < index.length; i++) {
+			for (var i = 0; i < index.length; i++) {
 				content += '<label class="btn btn-default"><input type="checkbox" autocomplete="off" value="' + values[index[i]] + '">' + names[index[i]] + '</label>';
 			}
 		}
