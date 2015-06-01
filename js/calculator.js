@@ -195,38 +195,27 @@ $(document).ready(function(){
 			else if (selected_end_use === 'cooking') {var ft_select = cooking_FT;}
 			else {var ft_select = drying_FT;}
 
-			insertNextDropdown('last', 'ft-only-dd', '#end-use-row');
-
 			// (Re)define variable to hold choices in dropdown
 			var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
 
 			// Populate the selected drop down menu in the DOM with choices
-			populateDropdown('ft-only-dd', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+			generateDropdown('last', '#end-use-row', ft_dropdown, fuel_type, fuel_type_values, ft_select);
 		}
 		else if (selected_end_use === 'lighting') {
-			insertNextButtonGroup('last-tt', selected_end_use, '#end-use-row');
-
 			// Add lighting technology type buttons to HTML DOM
-			populateButtonGroup(selected_end_use, lighting, lighting_values);
+			generateButtonGroup('last-tt', '#end-use-row', lighting, lighting_values);
 		}
 		else if (selected_end_use === 'TVs') {
-			insertNextButtonGroup('last-tt', selected_end_use, '#end-use-row');
-
 			// Add entertainment technology type buttons to HTML DOM
-			populateButtonGroup(selected_end_use, entertainment, entertainment_values);
+			generateButtonGroup('last-tt', '#end-use-row', entertainment, entertainment_values);
 		}
 		else if (selected_end_use === 'computers') {
-			insertNextButtonGroup('last-tt', selected_end_use, '#end-use-row');
-
 			// Add computers technology type buttons to HTML DOM
-			populateButtonGroup(selected_end_use, computers, computers_values);
+			generateButtonGroup('last-tt', '#end-use-row', computers, computers_values);
 		}
 		else if (selected_end_use === 'other') {
-			// Create space for next dropdown
-			insertNextButtonGroup('last-tt', selected_end_use, '#end-use-row');
-
 			// Add other technology type buttons to HTML DOM
-			populateButtonGroup(selected_end_use, other, other_values);
+			generateButtonGroup('last-tt', '#end-use-row', other, other_values);
 		}
 		// else terminal categories (fans & pumps, ceiling fan, 
 		// refrigeration), no action required
@@ -242,11 +231,8 @@ $(document).ready(function(){
 			// Remove any equipment content
 			$('.row.subtype.supply').remove();
 
-			// Create space for envelope buttons
-			insertNextButtonGroup('env-buttons', radio_selection, '#eq-env-radio');
-
 			// Add envelope buttons to HTML DOM
-			populateButtonGroup(radio_selection, envelope, envelope_values);
+			generateButtonGroup('env-buttons', '#eq-env-radio', envelope, envelope_values);
 
 			// Add 'envelope' class to button group just added so that it
 			// will be removed automatically if the radio button selection
@@ -257,9 +243,6 @@ $(document).ready(function(){
 			// Remove any envelope content
 			$('.row.subtype.demand').remove();
 
-			// Create space for fuel type selection
-			insertNextDropdown('fuel-type', 'HVAC', '#eq-env-radio');
-
 			// Identify the appropriate fuel types to display for the selected end use
 			if (selected_end_use === 'heating') {var ft_select = heating_FT;}
 			else if (selected_end_use === 'secondary heating') {var ft_select = sec_heating_FT;}
@@ -269,7 +252,7 @@ $(document).ready(function(){
 			var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
 
 			// Populate the selected drop down menu in the DOM with choices
-			populateDropdown('HVAC', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+			generateDropdown('fuel-type', '#eq-env-radio', ft_dropdown, fuel_type, fuel_type_values, ft_select);
 
 			// Add 'equipment' class to dropdown just added so that it
 			// will be removed automatically if the radio button selection
@@ -287,9 +270,6 @@ $(document).ready(function(){
 		// Clear any existing equipment type buttons
 		$('#eq-buttons').remove();
 
-		// Generate new button field for equipment types
-		insertNextButtonGroup('eq-buttons', 'eq-buttons-list', '#fuel-type');
-
 		// Add the appropriate buttons to the appropriate HTML DOM element
 		if (selected_end_use === 'heating') {
 			if (HVAC_FT === 'electricity (grid)') {var eq_select = heating_equip_el;}
@@ -298,12 +278,12 @@ $(document).ready(function(){
 			else {var eq_select = heating_equip_ot;}
 
 			// Add heating equipment type buttons to HTML DOM
-			populateButtonGroup('eq-buttons-list', heating_equip, heating_equip_values, eq_select);
+			generateButtonGroup('eq-buttons', '#fuel-type', heating_equip, heating_equip_values, eq_select);
 		}
 		else if (selected_end_use === 'secondary heating') {
 			if (HVAC_FT === 'other fuel') {
 				// Add secondary heating equipment type buttons to HTML DOM
-				populateButtonGroup('eq-buttons-list', sec_heating_equip, sec_heating_equip_values);
+				generateButtonGroup('eq-buttons', '#fuel-type', sec_heating_equip, sec_heating_equip_values);
 			}
 		}
 		else {
@@ -311,7 +291,7 @@ $(document).ready(function(){
 			else {var eq_select = cooling_equip_ng}
 
 			// Add cooling equipment type buttons to HTML DOM
-			populateButtonGroup('eq-buttons-list', cooling_equip, cooling_equip_values, eq_select);
+			generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, eq_select);
 		}
 
 		// Add 'equipment' class to button group just added so that it will be
@@ -494,20 +474,6 @@ $(document).ready(function(){
 	//////////////////////////////////////////////////////////////////////////////
 	// Functions
 
-	// // Extract site to source energy conversion parameter based on fuel type and
-	// // the projection year selected by the user
-	// function primaryEnergyConversion(fuel_type, year, callback) {
-	// 	// Assess fuel type lookup parameter
-	// 	if (fuel_type === 'electricity (grid)' || fuel_type === 'natural gas') { var lookup_ft = fuel_type; }
-	// 	else { var lookup_ft = 'other'; }
-
-	// 	// Look up the appropriate data based on the user's inputs and return the
-	// 	// reported primary energy conversion factor
-	// 	$.getJSON('ss_co2_conversions.json', function(data){
-	// 		callback(data[lookup_ft]['site to source conversion'][year]);
-	// 	});
-	// };
-
 	// Extract site to source energy conversion parameter based on fuel type and
 	// the projection year selected by the user
 	function primaryEnergyConversion(fuel_type, year) {
@@ -551,7 +517,7 @@ $(document).ready(function(){
 		// and the btn-group div
 		insertionText = "<div class='row row-end-use subtype' id='" + rowID +"'>"
 						+ "<div class='col-md-12'>"
-						+ "<div class='btn-group-vertical' data-toggle='buttons' id='" + contentID + "'></select>"
+						+ "<div class='btn-group-vertical' data-toggle='buttons' id='" + contentID + "'>"
 						+ "</div>"
 						+ "</div>"
 						+ "</div>";
@@ -559,7 +525,6 @@ $(document).ready(function(){
 		// Insert HTML content with custom tags
 		$(placementID).after(insertionText);
 	};
-
 
 	// Take name and value arrays (what appears to the user, and the keys used
 	// in the JSON file, respectively) and insert them into the DOM at the
@@ -582,7 +547,7 @@ $(document).ready(function(){
 	
 		// Insert content to HTML DOM at the location specified by contentID
 		$('#' + contentID).append(content);
-	}
+	};
 
 	// Take name and value arrays (what appears to the user, and the keys used
 	// in the JSON file, respectively) and insert them into the DOM at the
@@ -608,6 +573,34 @@ $(document).ready(function(){
 
 		// Insert content to HTML DOM at the location specified by contentID
 		$('#' + contentID).append(content);
+	};
+
+	// Combine the insert and populate functions into a single function that
+	// eliminates the need to define an ID for the button or select group
+	// and removes the temporary ID needed between the two functions from the
+	// DOM as a cleanup step before finishing
+	function generateDropdown(rowID, placementID, content, names, values, index) {
+		// index is an optional argument
+
+		// Define temporary ID solely for use by the insert and populate functions
+		var contentID = 'temporary-id';
+		insertNextDropdown(rowID, contentID, placementID);
+		populateDropdown(contentID, content, names, values, index);
+		
+		// Remove the temporary ID from the DOM
+		$('#' + contentID).removeAttr('id');
+	};
+
+	function generateButtonGroup(rowID, placementID, names, values, index) {
+		// index is an optional argument
+
+		// Define temporary ID solely for use by the insert and populate functions
+		var contentID = 'temporary-id';
+		insertNextButtonGroup(rowID, contentID, placementID);
+		populateButtonGroup(contentID, names, values, index);
+
+		// Remove the temporary ID from the DOM
+		$('#' + contentID).removeAttr('id');
 	};
 
 });
