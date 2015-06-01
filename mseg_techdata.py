@@ -341,7 +341,8 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                 # fuel type: electric, then natural gas, then 'other' fuel
 
                 # Determine filtering names for case a) in comment above
-                if tech_dict_key in ['refrigeration', 'freezers']:
+                if any(x in ['refrigerators', 'freezers'] for x in
+                   tech_dict_key):
                     # Note: refrigeration has three technology configuration
                     # variants for filtering (bottom freezer, side freezer,
                     # top freezer)
@@ -545,15 +546,15 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
 
 
 def fill_years_nlt(match_list, project_dict, tech_dict_key):
-    """ Reconstruct EIA performance, cost, and lifetime projections for
-    non-lighting technologies into a dict containing information for each
+    """ Reconstruct EIA performance and cost projections for non-lighting
+    technologies into a list of dicts containing information for each
     projection year used for microsegments in 'mseg.py' """
 
     # For the special non-lighting technology cases of refrigeration and
     # freezers, any given year will have multiple technology configurations.
     # The next few lines average the performance and cost figures across those
     # configurations to yield just one number for each in each year
-    if tech_dict_key in ['refrigeration', 'freezers']:
+    if any(x in ['refrigerators', 'freezers'] for x in tech_dict_key):
 
         # Initialize a new list to append averaged performance/cost information
         # to
@@ -579,7 +580,6 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
                                  dtype=[('START_EQUIP_YR', '<i8'),
                                         ('BASE_EFF', '<f8'),
                                         ('INST_COST', '<f8')])
-
     # Update performance information for projection years
     perf = stitch(match_list, project_dict, 'BASE_EFF')
     # Update performance information for projection years
@@ -592,7 +592,7 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
 
 def fill_years_lt(match_list, project_dict):
     """ Reconstruct EIA performance, cost, and lifetime projections for
-    lighting technologies into a dict containing information for each
+    lighting technologies into a list of dicts containing information for each
     projection year used for microsegments in 'mseg.py' """
 
     # Update performance information for projection years
@@ -600,7 +600,10 @@ def fill_years_lt(match_list, project_dict):
     # Update cost information for projection years
     cost = stitch(match_list, project_dict, 'INST_COST')
     # Update lifetime information for projection years
-    life = stitch(match_list, project_dict, 'LIFE_HRS') / 61194  # Hrs -> yrs
+    life = stitch(match_list, project_dict, 'LIFE_HRS')
+    # Convert lighting lifetimes from hours to years
+    for yr in life.keys():
+        life[yr] = life[yr] / 8760
 
     # Return updated EIA performance, cost, and lifetime information
     # for lighting technologies
@@ -630,8 +633,9 @@ def stitch(input_array, project_dict, col_name):
         # Reduce the input array to only the row concerning the year being
         # looped through (if this year exists in the 'START_EQUIP_YR' column)
         array_reduce = input_array[input_array['START_EQUIP_YR'] == int(yr)]
-        # If a row has been discovered for the looped year, draw output
-        # information from column in that row keyed by col_name input
+        # If a unique row has been discovered for the looped year, draw output
+        # information from column in that row keyed by col_name input; if
+        # there are multiple rows that match the looped year, yield an error
         if array_reduce.shape[0] > 0:
             if array_reduce.shape[0] == 1:
                 output_dict[yr] = float(array_reduce[col_name])
@@ -651,17 +655,24 @@ def stitch(input_array, project_dict, col_name):
             array_close_ind = numpy.where(abs(int(yr) -
                                           input_array['START_EQUIP_YR']) ==
                                           min(abs(int(yr) -
-                                              input_array['START_EQUIP_YR'])))
+                                              input_array[
+                                              'START_EQUIP_YR'])))[0]
             # If only one row has been found above, draw output information
             # from the column in that row keyed by col_name input
             if len(array_close_ind) == 1:
                 output_dict[yr] = float(input_array[array_close_ind][col_name])
-            # If multiple rows have been found above, draw output information
-            # from the column in the first of these rows keyed by col_name
-            # input
+            # If multiple rows have been found above and each has a unique year
+            # value, draw output information from the column in the first of
+            # these rows keyed by col_name input; if multiple rows have been
+            # found with the same year value, yield an error
             else:
-                output_dict[yr] = float(
-                    input_array[array_close_ind][0][col_name])
+                if len(array_close_ind) > 1 and \
+                   len(numpy.unique(array_close_ind)) == len(array_close_ind):
+                    output_dict[yr] = float(
+                        input_array[array_close_ind][0][col_name])
+                else:
+                    raise ValueError('Multiple identical years in filtered \
+                                      array!')
 
         # Update previous year value indicator to the output information for
         # the current loop
