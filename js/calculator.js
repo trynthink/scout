@@ -63,7 +63,7 @@ $(document).ready(function(){
 	var com_end_use_values;
 	// Freezers, Dishwashers, Clothes Washers
 	var res_end_use = ['Heating', 'Secondary Heating', 'Cooling', 'Fans and Pumps', 'Ceiling Fans', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Clothes Drying', 'Home Entertainment', 'Computers', 'Other'];
-	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other']
+	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)']
 
 	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration'];
 	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration'];
@@ -213,7 +213,7 @@ $(document).ready(function(){
 			// Add computers technology type buttons to HTML DOM
 			generateButtonGroup('last-tt', '#end-use-row', computers, computers_values);
 		}
-		else if (selected_end_use === 'other') {
+		else if (selected_end_use === 'other (grid electric)') {
 			// Add other technology type buttons to HTML DOM
 			generateButtonGroup('last-tt', '#end-use-row', other, other_values);
 		}
@@ -425,7 +425,7 @@ $(document).ready(function(){
 					}
 				}
 			}
-			else if (selected_end_use === 'lighting' || selected_end_use === 'computers' || selected_end_use === 'TVs' || selected_end_use === 'other') {
+			else if (selected_end_use === 'lighting' || selected_end_use === 'computers' || selected_end_use === 'TVs' || selected_end_use === 'other (grid electric)') {
 				// [climate zone][building type]['electricity (grid)'][end use][tech type]['energy'][year]
 
 				// Loop over all climate zones selected
