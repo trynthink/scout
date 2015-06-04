@@ -22,8 +22,6 @@ $(document).ready(function(){
 	var ss_el, ss_ng, ss_ot, co2_el, co2_ng, co2_ot;
 	$.getJSON('ss_co2_conversions.json', function(data){
 		ss_el = data['electricity (grid)']['site to source conversion'];
-		ss_ng = data['natural gas']['site to source conversion'];
-		ss_ot = data['other']['site to source conversion'];
 		co2_el = data['electricity (grid)']['CO2 intensity'];
 		co2_ng = data['natural gas']['CO2 intensity'];
 		co2_ot = data['other']['CO2 intensity'];
@@ -480,8 +478,7 @@ $(document).ready(function(){
 		// Look up the appropriate data based on the user's inputs and return the
 		// reported primary energy conversion factor
 		if (fuel_type === 'electricity (grid)') { return ss_el[year]; }
-		else if (fuel_type === 'natural gas') { return ss_ng[year]; }
-		else { return ss_ot[year]; }
+		else { return 1; }
 	};
 
 	// Extract CO2 emissions intensity factor (from primary energy in quads
