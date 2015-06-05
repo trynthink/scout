@@ -11,6 +11,14 @@ json_in = 'microsegments.json'
 # file name
 json_out = 'base_costperflife.json'
 
+# Import the residential census to climate conversion factors needed to
+# roll the performance/cost/lifetime data available for each census division
+# into properly weighted figures for each AIA climate zone.
+res_climate_convert_rev = 'Res_Cdiv_Czone_ConvertTable_Rev_Final.txt'
+res_convert_array_rev = numpy.genfromtxt(res_climate_convert_rev,
+                                         names=True, delimiter='\t',
+                                         dtype=None)
+
 # Set the file names for the EIA information on the performance,
 # cost, and lifetime of non-lighting and lighting technologies in the
 # residential sector
@@ -94,7 +102,7 @@ tech_eia_nonlt = {'ASHP': ['EIA_EQUIP', 'ELEC_HP', 'ELEC_HP1', 'ELEC_HP4',
                   'NGHP': ['EIA_EQUIP', 'NG_HP', 'NG_HP', 'NG_HP', 'COP'],
                   'boiler (NG)': ['EIA_EQUIP', 'NG_RAD', 'NG_RAD1', 'NG_RAD3',
                                   'AFUE'],
-                  'boiler (distillate)': ['EIA_EQUIP', 'DISTRAD', 'DISTRAD1',
+                  'boiler (distillate)': ['EIA_EQUIP', 'DIST_RAD', 'DISTRAD1',
                                           'DISTRAD3', 'AFUE'],
                   'boiler (electric)': ['EIA_EQUIP', 'ELEC_RAD', 'ELEC_RAD',
                                         'ELEC_RAD', 'AFUE'],
@@ -108,26 +116,28 @@ tech_eia_nonlt = {'ASHP': ['EIA_EQUIP', 'ELEC_HP', 'ELEC_HP1', 'ELEC_HP4',
                                    'AFUE'],
                   'stove (wood)': ['EIA_EQUIP', 'WOOD_HT', 'WOOD_HT',
                                    'WOOD_HT', 'COP'],
-                  'solar WH': ['EIA_EQUIP', 'SOLAR_WH', 'SOLAR_WH1',
-                               'SOLAR_WH1', 'EF'],
-                  'central AC': ['EIA_EQUIP', 'CT_AIR', 'CT_AIR#1', 'CT_AIR#4',
-                                 'COP'],
-                  'room AC': ['EIA_EQUIP', 'RM_AIR', 'RM_AIR#1', 'RM_AIR#3',
+                  'solar WH': ['EIA_EQUIP', 'SOLAR_WH', 'SOLR_WH1',
+                               'SOLR_WH1', 'EF'],
+                  'central AC': ['EIA_EQUIP', 'CENT_AIR', 'CT_AIR#1',
+                                 'CT_AIR#4', 'COP'],
+                  'room AC': ['EIA_EQUIP', 'ROOM_AIR', 'RM_AIR#1', 'RM_AIR#3',
                               'COP'],
-                  'clothes washing': ['EIA_EQUIP', 'CW', 'CW#1', 'CW#3',
+                  'clothes washing': ['EIA_EQUIP', 'CL_WASH', 'CW#1', 'CW#3',
                                       'kWh/cycle'],
+                  'dishwasher': ['EIA_EQUIP', 'DS_WASH', 'DW#1', 'DW#3',
+                                 'EF'],
                   'water heating': ['EIA_EQUIP',
-                                     ['ELEC_WH', 'NG_WH', 'LPG_WH'],
-                                     ['ELEC_WH1', 'NG_WH#1', 'LPG_WH#1'],
-                                     ['ELEC_WH5', 'NG_WH#4', 'LPG_WH#4'],
-                                     ['EF', 'EF', 'EF']],
+                                    ['ELEC_WH', 'NG_WH', 'LPG_WH'],
+                                    ['ELEC_WH1', 'NG_WH#1', 'LPG_WH#1'],
+                                    ['ELEC_WH5', 'NG_WH#4', 'LPG_WH#4'],
+                                    ['EF', 'EF', 'EF']],
                   'cooking': ['EIA_EQUIP',
                               ['ELEC_STV', 'NG_STV', 'LPG_STV'],
-                              ['ELEC_STV1', 'NG_STV1', 'LPG_STV1'],
-                              ['ELEC_STV2', 'NG_STV2', 'LPG_STV2'],
+                              ['ELECSTV1', 'NG_STV1', 'LPG_STV1'],
+                              ['ELECSTV2', 'NG_STV2', 'LPG_STV2'],
                               ['kWh/yr', 'TEff', 'TEff']],
                   'drying': ['EIA_EQUIP',
-                             ['ELEC_DRY', 'NG_DRY'], ['ELEC_DRY1', 'NG_DRY1'],
+                             ['ELEC_DRY', 'NG_DRY'], ['ELECDRY1', 'NG_DRY1'],
                              ['ELECDRY2', 'NG_DRY2'], ['EF', 'EF']],
                   'refrigeration': ['EIA_EQUIP', 'REFR',
                                     ['RefBF#1', 'RefSF#1', 'RefTF#1'],
@@ -143,7 +153,7 @@ tech_eia_nonlt = {'ASHP': ['EIA_EQUIP', 'ELEC_HP', 'ELEC_HP1', 'ELEC_HP4',
 #   performance units (* Note: cost units are addressed separately)]
 tech_eia_lt = {'linear fluorescent (T-12)': ['EIA_LT', ['LFL', 'T12'],
                                              'lm/W'],
-               'linear fluorescent (T-8)': ['EIA_LT', ['LFL', 'T8'], 'lm/W'],
+               'linear fluorescent (T-8)': ['EIA_LT', ['LFL', 'T-8'], 'lm/W'],
                'linear fluorescent (LED)': ['EIA_LT', ['LFL', 'LED'], 'lm/W'],
                'general service (incandescent)': ['EIA_LT', ['GSL', 'INC'],
                                                   'lm/W'],
@@ -195,7 +205,7 @@ tech_noneia = {'secondary heating (electric)': [[0, 0, 'NA'], [0, 0, 'NA'],
                'fans & pumps': [[0, 0, 'NA'], [0, 0, 'NA'], [0, 0, 'NA'],
                                 'HP/W'],
                'ceiling fan': [[0, 0, 'NA'], [0, 0, 'NA'], [0, 0, 'NA'], 'W'],
-               'dishwasher': [[0, 0, 'NA'], [0, 0, 'NA'], [0, 0, 'NA'], 'NA'],
+               'resistance': [[0, 0, 'NA'], [0, 0, 'NA'], [0, 0, 'NA'], 'NA'],
                'other MELs': [[0, 0, 'NA'], [0, 0, 'NA'], [0, 0, 'NA'], 'NA'],
                'windows conduction': [[0, 0, 'NA'],
                                       [0, 0, 'NREL Efficiency DB'],
@@ -228,18 +238,18 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
     technology """
 
     for key, item in json_dict.items():
-
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
-                          tech_eia_lt, tech_noneia, item, key_list + [key])
+                          tech_eia_lt, tech_noneia, item, project_dict,
+                          key_list + [key])
         # If a leaf node has been reached, finish constructing the key
         # list for the current location and update the data in the dict
         else:
             leaf_node_keys = key_list + [key]
             # Update data
-            [data_dict, eia_nlt_cp] = \
+            data_dict = \
                 list_generator_techdata(eia_nlt_cp, eia_nlt_l,
                                         eia_lt, tech_eia_nonlt,
                                         tech_eia_lt, tech_noneia,
@@ -268,13 +278,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
 
     # The census division name to be used in filtering EIA data is the
     # first level in the dict key hierarchy of the input microsegments JSON.
-    # To set the census divison, first check to ensure that the census division
-    # name is correctly specified in the key chain input; if not, yield an
-    # error; otherwise set the census division to this name
-    if leaf_node_keys[0] not in mseg_cdiv_translate.keys():
+    cdiv = leaf_node_keys[0]
+
+    # Check that the census division name can be translated to the
+    # filtering information needed by this routine; if not, yield an error
+    if cdiv not in mseg_cdiv_translate.keys():
         raise KeyError('Invalid census division in microsegment!')
-    else:
-        cdiv = leaf_node_keys[0]
 
     # Set the fuel type to be used in filtering EIA data as the
     # third level in the dict key hierarchy of the input microsegments JSON
@@ -282,21 +291,24 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
 
     # The end use name to be used in filtering EIA data is the fourth or fifth
     # level in the dict key hierarchy of the input microsegments JSON.
-    # To set the end use, first check to ensure that the end use name is
-    # correctly specified in the key chain input; if not, yield an error.
-    # Otherwise, check for a special case where the end use is grouped into a
-    # larger category (i.e., "freezers" grouped into "other (grid electric)").
-    # If it is a part of this larger grouping, move one more level down the key
-    # hierarchy (to the fifth level) to set the specific end use name; if it is
-    # not, set the end use name as the fourth level in the key hierarchy.
-    if leaf_node_keys[3] not in mseg_enduse_translate.keys() and \
-       leaf_node_keys[3] not in \
-       ["lighting", "secondary heating", "other (grid electric)"]:
-        raise KeyError('Invalid end use in microsegment!')
-    elif leaf_node_keys[3] in ["other (grid electric)", "TVs", "computers"]:
+    # To set the end use, check for a special case where the end use is grouped
+    # into a larger category (i.e., "freezers" grouped into "other (grid
+    # electric)"). If it is a part of this larger grouping, move one more level
+    # down the key hierarchy (to the fifth level) to set the specific end use
+    # name; if it is not, set the end use name as the fourth level in the key
+    # hierarchy.
+    if leaf_node_keys[3] in ["other (grid electric)", "TVs", "computers"]:
         end_use = leaf_node_keys[4]
     else:
         end_use = leaf_node_keys[3]
+
+    # Check that the end use name can be translated to the filtering
+    # information needed by this routine; if not, yield an error
+    if end_use not in mseg_enduse_translate.keys() and \
+       end_use not in \
+       ["lighting", "secondary heating", "other (grid electric)"] and \
+       end_use not in tech_noneia:
+        raise KeyError('Invalid end use in microsegment!')
 
     # Identify the technology to be used in filtering EIA data as the last
     # level in the dict key hierarchy of the input microsegments JSON
@@ -339,9 +351,6 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
         # and cost information for the non-lighting technology in the EIA files
         match_list_typ_perfcost = []
         match_list_best_perfcost = []
-
-        # Initialize a list for recording and removing matched rows
-        rows_to_remove_nlt_cp = []
 
         # Loop through the EIA non-lighting technology performance and cost
         # data array, searching for a match with the desired technology
@@ -413,14 +422,14 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                         # (cost units set later)
                         perf_units = filter_info[4][1]
                     elif fuel_type in ["distillate", "other fuel"] and \
-                            len(filter_info[2] == 3):
+                            len(filter_info[2]) == 3:
                         typ_filter_name = filter_info[2][2]
                         best_filter_name = filter_info[3][2]
                         # Update performance units for case b) in comment above
                         # (cost units set later)
                         perf_units = filter_info[4][2]
                     else:
-                        raise ValueError('Invalid fuel type in microsegment!')
+                        raise KeyError('Invalid fuel type in microsegment!')
                 # Determine performance/cost filtering names and performance
                 # units for a non-lighting technology with only one
                 # configuration/fuel type
@@ -439,11 +448,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
 
                 # Check for a match between the 'typical' performance and cost
                 # filtering information and the row
-                match_typ = re.search(comparefrom_typ, compareto)
+                match_typ = re.search(comparefrom_typ, compareto,
+                                      re.IGNORECASE)
                 # If there is no match for the 'typical' performance and cost
                 # case, check for a 'best' case performance and cost match
-                if not match_typ:
-                    match_best = re.search(comparefrom_best, compareto)
+                match_best = re.search(comparefrom_best, compareto,
+                                       re.IGNORECASE)
 
                 # If there was a match for the 'typical' performance and cost
                 # cases, append the row to the match lists initialized for
@@ -451,32 +461,26 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                 # match for the 'best' performance and cost case
                 if match_typ:
                     match_list_typ_perfcost.append(row)
-                    # Record any matched rows for removal
-                    rows_to_remove_nlt_cp.append(idx)
-                elif match_best:
+                if match_best:
                     match_list_best_perfcost.append(row)
-                    # Record any matched rows for removal
-                    rows_to_remove_nlt_cp.append(idx)
             else:
                 continue
 
         # After search through EIA non-lighting technology performance/cost
         # array is complete:
 
-        # Reduce the size of array by removing matched rows
-        eia_nlt_cp = numpy.delete(eia_nlt_cp, rows_to_remove_nlt_cp, 0)
-        # Convert matched "typical" and "best" performance and cost lists back
-        # to numpy arrays for later operations
-        match_list_typ_perfcost = numpy.array(
-            match_list_typ_perfcost, dtype=[
-                ('ENDUSE', '<i8'), ('START_EQUIP_YR', '<i8'),
-                ('END_EQUIP_YR', '<f8'), ('CDIV', '<i8'), ('BASE_EFF', '<f8'),
-                ('INST_COST', '<f8'), ('NAME', 'S10')])
-        match_list_best_perfcost = numpy.array(
-            match_list_best_perfcost, dtype=[
-                ('ENDUSE', '<i8'), ('START_EQUIP_YR', '<i8'),
-                ('END_EQUIP_YR', '<f8'), ('CDIV', '<i8'), ('BASE_EFF', '<f8'),
-                ('INST_COST', '<f8'), ('NAME', 'S10')])
+        # If the matched "typical" and "best" performance and cost lists are
+        # populated, convert them back to numpy arrays for later operations;
+        # otherwise, yield an error
+        if len(match_list_typ_perfcost) > 0 and \
+           len(match_list_best_perfcost) > 0:
+            match_list_typ_perfcost = numpy.array(
+                match_list_typ_perfcost, dtype=eia_nlt_cp.dtype)
+            match_list_best_perfcost = numpy.array(
+                match_list_best_perfcost, dtype=eia_nlt_cp.dtype)
+        else:
+            raise ValueError('No EIA performance/cost data match for non-lighting \
+                              technology!')
 
         # Once matched 'typical' and 'best' performance and cost arrays are
         # finalized for the given non-lighting technology, rearrange the
@@ -487,6 +491,9 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                                               project_dict, tech_dict_key)
         [perf_best, cost_best] = fill_years_nlt(match_list_best_perfcost,
                                                 project_dict, tech_dict_key)
+
+        # Initialize a count of the number of matched lifetime data rows
+        life_match_ct = 0
 
         # Loop through the EIA non-lighting technology lifetime
         # data, searching for a match with the desired technology
@@ -520,7 +527,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                     elif fuel_type == "natural gas":
                         filter_name = filter_info[1][1]
                     elif fuel_type in ["distillate", "other fuel"] and \
-                            len(filter_info[2] == 3):
+                            len(filter_info[1]) == 3:
                         filter_name = filter_info[1][2]
                     else:
                         raise ValueError('Invalid fuel type in microsegment!')
@@ -534,10 +541,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                 comparefrom = '.+' + filter_name
 
                 # Check for a match between the filtering information and row
-                match = re.search(comparefrom, compareto)
+                match = re.search(comparefrom, compareto, re.IGNORECASE)
                 # If there was a match, draw the final technology lifetime
                 # info. (average and range) from the appropriate column in row
                 if match:
+                    # Update matched rows count
+                    life_match_ct += 1
                     # Establish single values for avg. life and range (EIA does
                     # not break out life by year for non-lighting technologies)
                     life_avg_set = (row['LIFE_MAX'] + row['LIFE_MIN']) / 2
@@ -550,6 +559,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
                                                         life_range_set]]
             else:
                 continue
+
+        # If there were no matches for lifetime data on the technology, yield
+        # an error
+        if life_match_ct == 0:
+            raise ValueError('No EIA lifetime data match for non-lighting \
+                              technology!')
 
         # Set source to EIA AEO for these non-lighting technologies
         [perf_source, cost_source, life_source] = ['EIA AEO' for n in range(3)]
@@ -575,22 +590,24 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
             comparefrom = '.+' + filter_info[1][0] + '.+' + filter_info[1][1]
 
             # Check for a match between the filtering information and row
-            match = re.search(comparefrom, compareto)
+            match = re.search(comparefrom, compareto, re.IGNORECASE)
             # If there was a match, append the row to the match list
             # initialized for lighting technologies above
             if match:
                 match_list.append(row)
 
-        # After search through EIA lighting technology performance/cost/
-        # lifetime array is complete:
+        # If the matched performance, cost, and lifetime list is
+        # populated, convert it back to a numpy array for later operations;
+        # otherwise, yield an error
 
         # Convert matched performance, cost, and lifetime list back to numpy
         # array for later operations
-        match_list = numpy.array(
-            match_list, dtype=[
-                ('START_EQUIP_YR', '<i8'), ('END_EQUIP_YR', '<f8'),
-                ('BASE_EFF', '<f8'), ('LIFE_HRS', '<f8'), ('INST_COST', '<f8'),
-                ('NAME', 'S3'), ('BULB_TYPE', 'S3')])
+        if len(match_list) > 0:
+            match_list = numpy.array(
+                match_list, dtype=eia_lt.dtype)
+        else:
+            raise ValueError('No performance/cost/lifetime data match for lighting \
+                              technology!')
 
         # Once the performance, cost, and lifetime arrays have been constructed
         # for the given lighting technology, rearrange the projection year
@@ -643,25 +660,22 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, tech_eia_nonlt,
     # and lifetime information for the given technology
 
     # Update performance information
-    data_dict['performance'] = {'typical': perf_typ,
-                                'best': perf_best,
-                                'units': perf_units,
-                                'source': perf_source}
+    data_dict['performance'] = {
+        'typical': perf_typ, 'best': perf_best, 'units': perf_units,
+        'source': perf_source}
     # Update cost information
-    data_dict['installed cost'] = {'typical': cost_typ,
-                                   'best': cost_best,
-                                   'units': cost_units,
-                                   'source': cost_source}
+    data_dict['installed cost'] = {
+        'typical': cost_typ, 'best': cost_best, 'units': cost_units,
+        'source': cost_source}
     # Update lifetime information
-    data_dict['lifetime'] = {'average': life_avg,
-                             'range': life_range,
-                             'units': 'years',
-                             'source': life_source}
+    data_dict['lifetime'] = {
+        'average': life_avg, 'range': life_range, 'units': 'years',
+        'source': life_source}
 
     # Return updated technology performance, cost, and lifetime information
     # as well as reduced EIA non-lighting technology data array with matched
     # rows removed
-    return [data_dict, eia_nlt_cp]
+    return data_dict
 
 
 def fill_years_nlt(match_list, project_dict, tech_dict_key):
@@ -812,45 +826,20 @@ def main():
 
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(r_nlt_costperf, names=r_nlt_cp_names,
-                                  dtype=None, skip_header=20)
-
-    # Reduce EIA non-lighting residential cost and performance data to include
-    # only those parameters that are relevant to this routine
-    eia_nlt_cp = numpy.column_stack(eia_nlt_cp['ENDUSE'],
-                                    eia_nlt_cp['START_EQUIP_YR'],
-                                    eia_nlt_cp['CDIV'],
-                                    eia_nlt_cp['BASE_EFF'],
-                                    eia_nlt_cp['INST_COST'],
-                                    eia_nlt_cp['NAME'])
+                                  dtype=None, skip_header=20, comments=None)
 
     # Import EIA non-lighting residential lifetime data
     eia_nlt_l = numpy.genfromtxt(r_nlt_life, names=r_nlt_l_names,
-                                 dtype=None, skip_header=19)
-
-    # Reduce EIA non-lighting residential lifetime data to include
-    # only those parameters that are relevant to this routine
-    eia_nlt_l = numpy.column_stack(eia_nlt_l['ENDUSE'],
-                                   eia_nlt_l['LIFEMIN'],
-                                   eia_nlt_l['LIFEMAX'],
-                                   eia_nlt_l['NAME'])
+                                 dtype=None, skip_header=19, comments=None)
 
     # Import EIA lighting residential cost, performance and lifetime data
     eia_lt = numpy.genfromtxt(r_lt_all, names=r_lt_names, dtype=None,
-                              skip_header=35, skip_footer=54)
-
-    # Reduce EIA ighting residential cost, performance and lifetime data to
-    # include only those parameters that are relevant to this routine
-    eia_lt = numpy.column_stack(eia_lt['START_EQUIP_YR'],
-                                eia_lt['BASE_EFF'],
-                                eia_lt['LIFE_HRS'],
-                                eia_lt['INST_COST'],
-                                eia_lt['NAME'],
-                                eia_lt['BULBTYPE'])
+                              skip_header=35, skip_footer=54, comments=None)
 
     # Establish the modeling time horizon to be consistent with the "mseg.py"
     # routine
-    aeo_min = mseg.aeo_years_min
-    aeo_max = aeo_min + (mseg.aeo_years - 1)
+    aeo_min = 2009  # mseg.aeo_years_min
+    aeo_max = 2040  # aeo_min + (mseg.aeo_years - 1)
     aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
     project_dict = dict.fromkeys(aeo_years)
 
@@ -865,7 +854,7 @@ def main():
                                  msjson, project_dict)
 
     # Convert the updated data from census division to climate breakdown
-    final_data = mseg.clim_converter(updated_data, mseg.res_convert_array)
+    final_data = mseg.clim_converter(updated_data, res_convert_array_rev)
 
     # Write the updated dict of data to a new JSON file
     with open(json_out, 'w') as jso:

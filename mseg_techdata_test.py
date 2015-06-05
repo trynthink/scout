@@ -177,7 +177,11 @@ class ListGeneratorTest(unittest.TestCase):
                               (8, 2013, 2040, 3, 1700, 550, b'RefTF#3'),
                               (8, 2005, 2009, 1, 1500, 700, b'RefTF#3'),
                               (8, 2009, 2013, 1, 1600, 650, b'RefTF#3'),
-                              (8, 2013, 2040, 1, 1700, 550, b'RefTF#3')
+                              (8, 2013, 2040, 1, 1700, 550, b'RefTF#3'),
+                              (2, 2005, 2009, 4, 2.75, 500, b'NG_HP'),
+                              (2, 2009, 2011, 4, 2.95, 550, b'NG_HP'),
+                              (2, 2011, 2050, 4, 3.15, 575, b'NG_HP'),
+                              (1, 2009, 2050, 3, 3.15, 575, b'NG_RAD')
                               ],
                              dtype=[('ENDUSE', '<i8'),
                                     ('START_EQUIP_YR', '<i8'),
@@ -201,9 +205,11 @@ class ListGeneratorTest(unittest.TestCase):
                              (6, 14.7, 27, b'LPG_STV'),
                              (7, 13.2, 21.6, b'ELEC_DRY'),
                              (7, 10, 17, b'NG_DRY'),
-                             (3, 8.9, 16.7, b'CW'),
+                             (3, 8.9, 16.7, b'CL_WASH'),
                              (8, 6.5, 11.1, b'REFR'),
-                             (9, 5, 10.1, b'FREZ')],
+                             (9, 5, 10.1, b'FREZ'),
+                             (2, 2, 10, b'NG_HP'),
+                             (1, 2, 20, b'NG_FA')],
                             dtype=[('ENDUSE', '<i8'),
                                    ('LIFE_MIN', '<f8'),
                                    ('LIFE_MAX', '<f8'),
@@ -303,20 +309,30 @@ class ListGeneratorTest(unittest.TestCase):
                      'supply', 'non-specific'],
                     ['mid atlantic', 'single family home',
                      'electricity (grid)', 'secondary heating',
-                     'demand', 'windows conduction']]
+                     'demand', 'windows conduction'],
+                    ['west north central', 'multi family home',
+                     'electricity (grid)', 'cooling',
+                     'supply', 'NGHP']]
 
     # Define a sample list of full dictionary key chains as above that should
-    # cause the function to fail
-    tech_fail_keys = [['nengland', 'single family home',
-                       'electricity', 'heating', 'supply', 'ASHP'],
-                      ['east north central', 'multi family home',
-                       'electric', 'refrigeration'],
-                      ['east north central', 'multi family home',
-                       'electricity (grid)', 'other (gas electric)',
-                       'clothes washing'],
-                      ['east north central', 'multi family home',
-                       'electricity (grid)', 'other (gas electric)',
-                       'washing device']]
+    # cause the function to yield a KeyError
+    tech_fail_keys_ke = [['nengland', 'single family home',
+                          'electricity', 'heating', 'supply', 'ASHP'],
+                         ['east north central', 'multi family home',
+                          'electricity (grid)', 'other (gas electric)',
+                          'cooking'],
+                         ['east north central', 'multi family home',
+                          'electricity (grid)', 'other (gas electric)',
+                          'washing device']]
+
+    # Define a sample list of full dictionary key chains as above that should
+    # cause the function to yield a ValueError
+    tech_fail_keys_ve = [['east north central', 'multi family home',
+                          'natural gas', 'heating', 'boiler (NG)'],
+                         ['east north central', 'multi family home',
+                          'natural gas', 'heating', 'furnace (NG)'],
+                         ['east north central', 'multi family home',
+                          'electric', 'drying'],]
 
     # Define an output dict with leaf node values that should be yielded
     # by the walk_techdata function given the valid inputs above.  Output dict
@@ -324,7 +340,7 @@ class ListGeneratorTest(unittest.TestCase):
     # installed cost, and lifetime.  Within the performance and cost
     # categories, a "typical" and "best" level are provided.  For all three
     # categories, the units and source of the information are provided.
-    ok_datadict_out = [[{
+    ok_datadict_out = [{
         "performance": {
             "typical": {"2009": 2.65, "2010": 2.65, "2011": 3.1, "2012": 4.5,
                         "2013": 4.5},
@@ -345,188 +361,192 @@ class ListGeneratorTest(unittest.TestCase):
             "range": {"2009": 2.55, "2010": 2.55, "2011": 2.55, "2012": 2.55,
                       "2013": 2.55},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 433.33, "2010": 433.33, "2011": 433.33,
                         "2012": 433.33, "2013": 533.33},
             "best": {"2009": 1166.67, "2010": 1166.67, "2011": 1166.67,
                      "2012": 1166.67, "2013": 1266.67},
             "units": "kWh/yr",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 316.67, "2010": 316.67, "2011": 316.67,
                         "2012": 316.67, "2013": 233.33},
             "best": {"2009": 483.33, "2010": 483.33, "2011": 483.33,
                      "2012": 483.33, "2013": 400},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 8.8, "2010": 8.8, "2011": 8.8, "2012": 8.8,
                         "2013": 8.8},
             "range": {"2009": 2.3, "2010": 2.3, "2011": 2.3, "2012": 2.3,
                       "2013": 2.3},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 15, "2010": 15, "2011": 15, "2012": 15,
                         "2013": 15},
             "best": {"2009": 10, "2010": 10, "2011": 10, "2012": 10,
                      "2013": 10},
             "units": "kWh/cycle",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 150, "2010": 150, "2011": 150, "2012": 150,
                         "2013": 150},
             "best": {"2009": 300, "2010": 300, "2011": 300, "2012": 300,
                      "2013": 300},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 12.8, "2010": 12.8, "2011": 12.8, "2012": 12.8,
                         "2013": 12.8},
             "range": {"2009": 3.9, "2010": 3.9, "2011": 3.9, "2012": 3.9,
                       "2013": 3.9},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 29, "2010": 29, "2011": 29, "2012": 32,
                         "2013": 32},
             "best": {"2009": 31, "2010": 31, "2011": 31, "2012": 33,
                      "2013": 33},
             "units": "TEff",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 150, "2010": 150, "2011": 150, "2012": 160,
                         "2013": 160},
             "best": {"2009": 200, "2010": 200, "2011": 200, "2012": 170,
                      "2013": 170},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 21.45, "2010": 21.45, "2011": 21.45,
                         "2012": 21.45, "2013": 21.45},
             "range": {"2009": 3.55, "2010": 3.55, "2011": 3.55, "2012": 3.55,
                       "2013": 3.55},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 129, "2010": 129, "2011": 129, "2012": 132,
                         "2013": 132},
             "best": {"2009": 131, "2010": 131, "2011": 131, "2012": 133,
                      "2013": 133},
             "units": "EF",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 1510, "2010": 1510, "2011": 1510, "2012": 1610,
                         "2013": 1610},
             "best": {"2009": 2010, "2010": 2010, "2011": 2010, "2012": 1710,
                      "2013": 1710},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 13.5, "2010": 13.5, "2011": 13.5, "2012": 13.5,
                         "2013": 13.5},
             "range": {"2009": 3.5, "2010": 3.5, "2011": 3.5, "2012": 3.5,
                       "2013": 3.5},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 2.9, "2010": 2.9, "2011": 2.9, "2012": 2.9,
                         "2013": 2.9},
             "best": {"2009": 3.5, "2010": 3.5, "2011": 3.5, "2012": 3.5,
                      "2013": 3.5},
             "units": "EF",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 1300, "2010": 1300, "2011": 1300, "2012": 1300,
                         "2013": 1300},
             "best": {"2009": 1500, "2010": 1500, "2011": 1500, "2012": 1500,
                      "2013": 1500},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 11.75, "2010": 11.75, "2011": 11.75,
                         "2012": 11.75, "2013": 11.75},
             "range": {"2009": 3.25, "2010": 3.25, "2011": 3.25, "2012": 3.25,
                       "2013": 3.25},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 1.13, "2010": 1.55, "2011": 1.55, "2012": 2.78,
                         "2013": 2.78},
             "best": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
                      "2013": "NA"},
             "units": "lm/W",
             "source": "EIA AEO"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 65, "2010": 63.2, "2011": 63.2, "2012": 90.3,
                         "2013": 90.3},
             "best": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
                      "2013": "NA"},
             "units": "2013$/unit",
             "source": "EIA AEO"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 3.42, "2010": 4.22, "2011": 4.22, "2012": 4.79,
                         "2013": 4.79},
             "range": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
                       "2013": "NA"},
             "units": "years",
-            "source": "EIA AEO"}}],
-        [{"performance": {
+            "source": "EIA AEO"}},
+        {"performance": {
             "typical": {"2009": 2, "2010": 2, "2011": 2, "2012": 2, "2013": 2},
             "best": {"2009": 3, "2010": 3, "2011": 3, "2012": 3, "2013": 3},
             "units": "COP",
             "source": "Source 2"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 50, "2010": 50, "2011": 50, "2012": 50,
                         "2013": 50},
             "best": {"2009": 70, "2010": 70, "2011": 70, "2012": 70,
                      "2013": 70},
             "units": "2013$/unit",
             "source": "Source 3"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 5, "2010": 5, "2011": 5, "2012": 5,
                         "2013": 5},
             "range": {"2009": 2, "2010": 2, "2011": 2, "2012": 2, "2013": 2},
             "units": "years",
-            "source": "Source 1"}}],
-        [{"performance": {
+            "source": "Source 1"}},
+        {"performance": {
             "typical": {"2009": 7, "2010": 7, "2011": 7, "2012": 7, "2013": 7},
             "best": {"2009": 10, "2010": 10, "2011": 10, "2012": 10, 
                      "2013": 10},
             "units": "R Value",
             "source": "NREL Efficiency DB"},
-          "installed cost": {
+         "installed cost": {
             "typical": {"2009": 20, "2010": 20, "2011": 20, "2012": 20,
                         "2013": 20},
             "best": {"2009": 30, "2010": 30, "2011": 30, "2012": 30,
                      "2013": 30},
             "units": "2013$/sf",
             "source": "RS Means"},
-          "lifetime": {
+         "lifetime": {
             "average": {"2009": 25, "2010": 25, "2011": 25, "2012": 25,
                         "2013": 25},
             "range": {"2009": 5, "2010": 5, "2011": 5, "2012": 5,
                       "2013": 5},
             "units": "years",
-            "source": "RS Means"}}]]
-
-    # The EIA array with cost and performance data on non-lighting
-    # technologies is reduced during the walk_techdata routine as rows are
-    # matched and removed from it.  The following list elements represent the
-    # reduced arrays that should be produced from running each of the dict
-    # key chains in tech_ok_keys above through the walk_techdata function
-    eia_nlt_cp_reduced = [numpy.hstack([eia_nlt_cp[0:1], eia_nlt_cp[5:17],
-                                        eia_nlt_cp[22:]]),
-                          numpy.hstack([eia_nlt_cp[0:56], eia_nlt_cp[71:74],
-                                        eia_nlt_cp[77:]]),
-                          numpy.hstack([eia_nlt_cp[0:53], eia_nlt_cp[54],
-                                        eia_nlt_cp[56:]]),
-                          numpy.hstack([eia_nlt_cp[0:37], eia_nlt_cp[41:]]),
-                          numpy.hstack([eia_nlt_cp[0:47], eia_nlt_cp[51:]]),
-                          numpy.hstack([eia_nlt_cp[0:23], eia_nlt_cp[25:27],
-                                        eia_nlt_cp[29:]]),
-                          eia_nlt_cp, eia_nlt_cp, eia_nlt_cp]
+            "source": "RS Means"}},
+        {"performance": {
+            "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                        "2013": 3.15},
+            "best": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                     "2013": 3.15},
+            "units": "COP",
+            "source": "EIA AEO"},
+         "installed cost": {
+            "typical": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                        "2013": 575},
+            "best": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                     "2013": 575},
+            "units": "2013$/unit",
+            "source": "EIA AEO"},
+         "lifetime": {
+            "average": {"2009": 6, "2010": 6, "2011": 6, "2012": 6,
+                        "2013": 6},
+            "range": {"2009": 4, "2010": 4, "2011": 4, "2012": 4,
+                      "2013": 4},
+            "units": "years",
+            "source": "EIA AEO"}}]
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -553,20 +573,24 @@ class ListGeneratorTest(unittest.TestCase):
                 self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
                 mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                 self.tech_non_eia, tk, self.project_dict)
-            dict2 = self.ok_datadict_out[idx][0]
-            self.dict_check(dict1[0], dict2)
-            numpy.testing.assert_array_equal(
-                dict1[1], self.eia_nlt_cp_reduced[idx])
+            dict2 = self.ok_datadict_out[idx]
+            self.dict_check(dict1, dict2)
 
     # Test that the walk_techdata function yields a KeyError given the
     # invalid key chain input along with the other sample inputs defined above
     def test_listgen_fail(self):
-        with self.assertRaises(KeyError):
-            for tk_f in self.tech_fail_keys:
+        for ke in self.tech_fail_keys_ke:
+            with self.assertRaises(KeyError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
-                    self.tech_non_eia, tk_f, self.project_dict)
+                    self.tech_non_eia, ke, self.project_dict)
+        for ve in self.tech_fail_keys_ve:
+            with self.assertRaises(ValueError):
+                mseg_techdata.list_generator_techdata(
+                    self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
+                    mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
+                    self.tech_non_eia, ve, self.project_dict)
 
 
 class FillYrsTest(unittest.TestCase):
