@@ -83,6 +83,7 @@ endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
 
 # Technology types (supply) dict
 technology_supplydict = {'solar WH': 'SOLAR_WH',
+                         'electric WH': 'ELEC_WH',
                          'boiler (electric)': 'ELEC_RAD',
                          'ASHP': 'ELEC_HP',
                          'GSHP': 'GEO_HP',
@@ -454,9 +455,10 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
 
         # Given the discovered lists of energy/stock values, ensure
         # length is equal to the number of years currently projected
-        # by AEO. If not, trigger an error.
+        # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy) is not aeo_years:
-            raise(ValueError('Error in length of discovered list!'))
+            if len(group_energy) != 0:
+                raise(ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values and updated version of EIA
         # supply data with already matched data removed
