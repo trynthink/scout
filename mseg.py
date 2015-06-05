@@ -12,7 +12,7 @@ aeo_years = 32
 
 # Identify files to import for conversion
 EIA_res_file = 'RESDBOUT.txt'
-json_in = 'microsegments_test.json'
+json_in = 'microsegments.json'
 json_out = 'microsegments_out.json'
 res_tloads = 'Res_TLoads_Final.txt'
 res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
@@ -132,8 +132,8 @@ res_convert_array = numpy.genfromtxt(res_climate_convert,
 # the microsegment updating routine
 
 # Unused rows in the supply portion of the analysis
-# Exclude: (Housing Stock | Switch From | Switch To | Sq. Footage | Fuel Pumps)
-unused_supply_re = '^\(b\'(HS|SF|ST|FP).*'
+# Exclude: (Housing Stock | Switch From | Switch To | Fuel Pumps)
+unused_supply_re = '^\(b\'(HS|SF|ST |FP).*'
 # Unused rows in the demand portion of the analysis
 # Exclude everything except: (Heating | Cooling | Secondary Heating)
 unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
@@ -454,10 +454,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
 
         # Given the discovered lists of energy/stock values, ensure
         # length is equal to the number of years currently projected
-        # by AEO. If not, and the list isn't empty, trigger an error.
+        # by AEO. If not, trigger an error.
         if len(group_energy) is not aeo_years:
-            if len(group_energy) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+            raise(ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values and updated version of EIA
         # supply data with already matched data removed
