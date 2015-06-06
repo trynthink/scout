@@ -165,6 +165,10 @@ class Measure(object):
             mseg = mseg_in
             mseg_sqft = mseg_in
 
+            # Initialize a dict for relative performance (broken out by year in
+            # modeling time horizon)
+            rel_perf = {}
+
             # Loop recursively through the above dicts, moving down key chain
             for i in range(0, len(mskeys)):
                 # Check for key in dict level
@@ -211,25 +215,34 @@ class Measure(object):
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units
                 if base_costperf["performance"]["units"] == perf_units and \
-                   base_costperf["cost"]["units"] == cost_units:
+                   base_costperf["installed cost"]["units"] == cost_units:
+                    # Set base performance dict
+                    base_perf = base_costperf["performance"]["typical"]
+
                     # Relative performance calculation depends on tech. case
                     # (i.e. COP  of 4 is higher rel. performance than COP 3,
-                    # (but 1 ACH50 is higher rel. performance than 13 ACH50)
+                    # (but 1 ACH50 is higher rel. performance than 13 ACH50).
+                    # Note that relative performance values are stored in a
+                    # dict with keys for each year in the modeling time horizon
                     if perf_units not in inverted_relperf_list:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
-                            rel_perf = [(x ** -1 * base_costperf["performance"]
-                                        ["value"]) for x in perf_meas]
+                            for yr in base_perf.keys():
+                                rel_perf[yr] = [(x ** -1 * base_perf[yr])
+                                                for x in perf_meas]
                         else:
-                            rel_perf = (base_costperf["performance"]["value"] /
-                                        perf_meas)
+                            for yr in base_perf.keys():
+                                rel_perf[yr] = (base_perf[yr] / perf_meas)
                     else:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
-                            rel_perf = [(x / base_costperf["performance"]
-                                        ["value"]) for x in perf_meas]
+                            for yr in base_perf.keys():
+                                rel_perf[yr] = [
+                                    (x / base_perf) for x in perf_meas]
                         else:
-                            rel_perf = (perf_meas /
-                                        base_costperf["performance"]["value"])
-                    base_cost = base_costperf["cost"]["value"]
+                            for yr in base_perf.keys():
+                                rel_perf[yr] = (perf_meas / base_perf[yr])
+
+                    # Set base)cost
+                    base_cost = base_costperf["installed cost"]["typical"]
                 else:
                     raise KeyError('Inconsistent performance or cost units!')
 
@@ -379,7 +392,7 @@ class Measure(object):
             # carbon, and cost information
             for yr in stock_compete.keys():
                 # Update "competed" stock cost (baseline)
-                stock_compete_cost_base[yr] = stock_compete[yr] * base_cost
+                stock_compete_cost_base[yr] = stock_compete[yr] * base_cost[yr]
                 stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
 
                 # Update "competed" energy and carbon costs (baseline)
@@ -387,9 +400,9 @@ class Measure(object):
                 carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
 
                 # Update "efficient" energy and carbon and associated costs
-                energy_eff[yr] = energy_compete[yr] * rel_perf
+                energy_eff[yr] = energy_compete[yr] * rel_perf[yr]
                 energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
-                carb_eff[yr] = carb_compete[yr] * rel_perf
+                carb_eff[yr] = carb_compete[yr] * rel_perf[yr]
                 carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
 
         else:  # The below few lines are temporary

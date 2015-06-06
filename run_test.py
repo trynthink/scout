@@ -331,7 +331,9 @@ class PartitionMicrosegmentTest(unittest.TestCase):
                    {"2020": 210, "2021": 240, "2022": 270}]
 
     # Set sample base and measure costs to use in the testing
-    test_base_cost = [10, 20, 30]
+    test_base_cost = [{"2009": 10, "2010": 10, "2011": 10},
+                      {"2025": 20, "2028": 20, "2035": 20},
+                      {"2020": 30, "2021": 30, "2022": 30}]
     test_cost_meas = [20, 30, 40]
 
     # Set sample energy and carbon costs to use in the testing
@@ -355,7 +357,9 @@ class PartitionMicrosegmentTest(unittest.TestCase):
 
     # Set a relative performance list that should yield a
     # full list of valid outputs
-    ok_relperf = [0.30, 0.15, 0.75]
+    ok_relperf = [{"2009": 0.30, "2010": 0.30, "2011": 0.30},
+                  {"2025": 0.15, "2028": 0.15, "2035": 0.15},
+                  {"2020": 0.75, "2021": 0.75, "2022": 0.75}]
 
     # Correct output of the "ok" function test
     ok_out = [[{"2009": 100, "2010": 200, "2011": 300},
@@ -459,320 +463,1067 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
         "AIA_CZ1": {
             "single family home": {
                 "electricity (grid)": {
-                    "heating": {"demand": {"windows conduction": {
-                                           "performance": {"value": 1,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 1,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 2,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 2,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"boiler (electric)": {
-                                           "performance": {"value": 2,
-                                                           "units": "COP"},
-                                           "cost": {"value": 2,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 3,
-                                                           "units": "COP"},
-                                           "cost": {"value": 3,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 4,
-                                                           "units": "COP"},
-                                           "cost": {"value": 4,
-                                                    "units": "2014$/unit"}}}},
-                    "secondary heating": {"demand":
-                                          {"windows conduction": {
-                                           "performance": {"value": 5,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 5,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 6,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 6,
-                                                    "units": "2014$/sf"}}},
-                                          "supply": {"performance":
-                                                     {"value": 7,
-                                                      "units": "COP"},
-                                                     "cost":
-                                                     {"value": 7,
-                                                      "units": "2014$/unit"}}},
-                    "cooling": {"demand": {"windows conduction": {
-                                           "performance": {"value": 8,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 8,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 9,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 9,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"central AC": {
-                                           "performance": {"value": 10,
-                                                           "units": "COP"},
-                                           "cost": {"value": 10,
-                                                    "units": "2014$/unit"}},
-                                           "room AC": {
-                                           "performance": {"value": 11,
-                                                           "units": "COP"},
-                                           "cost": {"value": 11,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 12,
-                                                           "units": "COP"},
-                                           "cost": {"value": 12,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 13,
-                                                           "units": "COP"},
-                                           "cost": {"value": 13,
-                                                    "units": "2014$/unit"}}}},
-                    "lighting": {"linear fluorescent": {
-                                 "performance": {"value": 14,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 14,
-                                          "units": "2014$/unit"}},
-                                 "general service": {
-                                 "performance": {"value": 15,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 15,
-                                          "units": "2014$/unit"}},
-                                 "reflector": {
-                                 "performance": {"value": 16,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 16,
-                                          "units": "2014$/unit"}},
-                                 "external": {
-                                 "performance": {"value": 17,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 17,
-                                          "units": "2014$/unit"}}}},
-                    "natural gas": {"water heating": {
-                                    "performance": {"value": 18,
-                                                    "units": "Energy Factor"},
-                                    "cost": {"value": 18,
-                                             "units": "2014$/unit"}}}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "boiler (electric)": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 3, "2010": 3},
+                                    "best": {"2009": 3, "2010": 3},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 3, "2010": 3},
+                                    "best": {"2009": 3, "2010": 3},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 30, "2010": 30},
+                                    "range": {"2009": 3, "2010": 3},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 4, "2010": 4},
+                                    "best": {"2009": 4, "2010": 4},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 4, "2010": 4},
+                                    "best": {"2009": 4, "2010": 4},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 40, "2010": 40},
+                                    "range": {"2009": 4, "2010": 4},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "secondary heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 50, "2010": 50},
+                                    "range": {"2009": 5, "2010": 5},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 60, "2010": 60},
+                                    "range": {"2009": 6, "2010": 6},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "non-specific": {
+                                "performance": {
+                                    "typical": {"2009": 7, "2010": 7},
+                                    "best": {"2009": 7, "2010": 7},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 7, "2010": 7},
+                                    "best": {"2009": 7, "2010": 7},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 70, "2010": 70},
+                                    "range": {"2009": 7, "2010": 7},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "cooling": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 80, "2010": 80},
+                                    "range": {"2009": 8, "2010": 8},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 90, "2010": 90},
+                                    "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "central AC": {
+                                "performance": {
+                                    "typical": {"2009": 10, "2010": 10},
+                                    "best": {"2009": 10, "2010": 10},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 10, "2010": 10},
+                                    "best": {"2009": 10, "2010": 10},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 100, "2010": 100},
+                                    "range": {"2009": 10, "2010": 10},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "room AC": {
+                                "performance": {
+                                    "typical": {"2009": 11, "2010": 11},
+                                    "best": {"2009": 11, "2010": 11},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 11, "2010": 11},
+                                    "best": {"2009": 11, "2010": 11},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 110, "2010": 110},
+                                    "range": {"2009": 11, "2010": 11},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 12, "2010": 12},
+                                    "best": {"2009": 12, "2010": 12},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 12, "2010": 12},
+                                    "best": {"2009": 12, "2010": 12},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 120, "2010": 120},
+                                    "range": {"2009": 12, "2010": 12},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 13, "2010": 13},
+                                    "best": {"2009": 13, "2010": 13},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 13, "2010": 13},
+                                    "best": {"2009": 13, "2010": 13},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 130, "2010": 130},
+                                    "range": {"2009": 13, "2010": 13},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "lighting": {
+                        "linear fluorescent (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 14, "2010": 14},
+                                    "best": {"2009": 14, "2010": 14},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 14, "2010": 14},
+                                    "best": {"2009": 14, "2010": 14},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 140, "2010": 140},
+                                    "range": {"2009": 14, "2010": 14},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "general service (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 15, "2010": 15},
+                                    "best": {"2009": 15, "2010": 15},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 15, "2010": 15},
+                                    "best": {"2009": 15, "2010": 15},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 150, "2010": 150},
+                                    "range": {"2009": 15, "2010": 15},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "reflector (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 16, "2010": 16},
+                                    "best": {"2009": 16, "2010": 16},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 16, "2010": 16},
+                                    "best": {"2009": 16, "2010": 16},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 160, "2010": 160},
+                                    "range": {"2009": 16, "2010": 16},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "external (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 17, "2010": 17},
+                                    "best": {"2009": 17, "2010": 17},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 17, "2010": 17},
+                                    "best": {"2009": 17, "2010": 17},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 170, "2010": 170},
+                                    "range": {"2009": 17, "2010": 17},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "natural gas": {
+                        "water heating": {
+                                "performance": {
+                                    "typical": {"2009": 18, "2010": 18},
+                                    "best": {"2009": 18, "2010": 18},
+                                    "units": "EF",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 18, "2010": 18},
+                                    "best": {"2009": 18, "2010": 18},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 180, "2010": 180},
+                                    "range": {"2009": 18, "2010": 18},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
             "multi family home": {
                 "electricity (grid)": {
-                    "heating": {"demand": {"windows conduction": {
-                                           "performance": {"value": 19,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 19,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 20,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 20,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"boiler (electric)": {
-                                           "performance": {"value": 21,
-                                                           "units": "COP"},
-                                           "cost": {"value": 21,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 22,
-                                                           "units": "COP"},
-                                           "cost": {"value": 22,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 23,
-                                                           "units": "COP"},
-                                           "cost": {"value": 23,
-                                                    "units": "2014$/unit"}}}},
-                    "lighting": {"linear fluorescent": {
-                                 "performance": {"value": 24,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 24,
-                                          "units": "2014$/unit"}},
-                                 "general service": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}},
-                                 "reflector": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}},
-                                 "external": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}}}}}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 19, "2010": 19},
+                                    "best": {"2009": 19, "2010": 19},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 19, "2010": 19},
+                                    "best": {"2009": 19, "2010": 19},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 190, "2010": 190},
+                                    "range": {"2009": 19, "2010": 19},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 20, "2010": 20},
+                                    "best": {"2009": 20, "2010": 20},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 20, "2010": 20},
+                                    "best": {"2009": 20, "2010": 20},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 200, "2010": 200},
+                                    "range": {"2009": 20, "2010": 20},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "boiler (electric)": {
+                                "performance": {
+                                    "typical": {"2009": 21, "2010": 21},
+                                    "best": {"2009": 21, "2010": 21},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 21, "2010": 21},
+                                    "best": {"2009": 21, "2010": 21},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 210, "2010": 210},
+                                    "range": {"2009": 21, "2010": 21},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 22, "2010": 22},
+                                    "best": {"2009": 22, "2010": 22},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 22, "2010": 22},
+                                    "best": {"2009": 22, "2010": 22},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 220, "2010": 220},
+                                    "range": {"2009": 22, "2010": 22},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 23, "2010": 23},
+                                    "best": {"2009": 23, "2010": 23},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 23, "2010": 23},
+                                    "best": {"2009": 23, "2010": 23},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 230, "2010": 230},
+                                    "range": {"2009": 23, "2010": 23},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "lighting": {
+                        "linear fluorescent (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 240, "2010": 240},
+                                    "range": {"2009": 24, "2010": 24},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "general service (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "reflector (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "external (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}}}},
         "AIA_CZ2": {
             "single family home": {
                 "electricity (grid)": {
-                    "heating": {"demand": {"windows conduction": {
-                                           "performance": {"value": 1,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 1,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 2,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 2,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"boiler (electric)": {
-                                           "performance": {"value": 2,
-                                                           "units": "COP"},
-                                           "cost": {"value": 2,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 3,
-                                                           "units": "COP"},
-                                           "cost": {"value": 3,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 4,
-                                                           "units": "COP"},
-                                           "cost": {"value": 4,
-                                                    "units": "2014$/unit"}}}},
-                    "secondary heating": {"demand":
-                                          {"windows conduction": {
-                                           "performance": {"value": 5,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 5,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 6,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 6,
-                                                    "units": "2014$/sf"}}},
-                                          "supply": {"performance":
-                                                     {"value": 7,
-                                                      "units": "COP"},
-                                                     "cost":
-                                                     {"value": 7,
-                                                      "units": "2014$/unit"}}},
-                    "cooling": {"demand": {"windows conduction": {
-                                           "performance": {"value": 8,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 8,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 9,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 9,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"central AC": {
-                                           "performance": {"value": 10,
-                                                           "units": "COP"},
-                                           "cost": {"value": 10,
-                                                    "units": "2014$/unit"}},
-                                           "room AC": {
-                                           "performance": {"value": 11,
-                                                           "units": "COP"},
-                                           "cost": {"value": 11,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 12,
-                                                           "units": "COP"},
-                                           "cost": {"value": 12,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 13,
-                                                           "units": "COP"},
-                                           "cost": {"value": 13,
-                                                    "units": "2014$/unit"}}}},
-                    "lighting": {"linear fluorescent": {
-                                 "performance": {"value": 14,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 14,
-                                          "units": "2014$/unit"}},
-                                 "general service": {
-                                 "performance": {"value": 15,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 15,
-                                          "units": "2014$/unit"}},
-                                 "reflector": {
-                                 "performance": {"value": 16,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 16,
-                                          "units": "2014$/unit"}},
-                                 "external": {
-                                 "performance": {"value": 17,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 17,
-                                          "units": "2014$/unit"}}}},
-                    "natural gas": {"water heating": {
-                                    "performance": {"value": 18,
-                                                    "units": "Energy Factor"},
-                                    "cost": {"value": 18,
-                                             "units": "2014$/unit"}}}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "boiler (electric)": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 3, "2010": 3},
+                                    "best": {"2009": 3, "2010": 3},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 3, "2010": 3},
+                                    "best": {"2009": 3, "2010": 3},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 30, "2010": 30},
+                                    "range": {"2009": 3, "2010": 3},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 4, "2010": 4},
+                                    "best": {"2009": 4, "2010": 4},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 4, "2010": 4},
+                                    "best": {"2009": 4, "2010": 4},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 40, "2010": 40},
+                                    "range": {"2009": 4, "2010": 4},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "secondary heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 50, "2010": 50},
+                                    "range": {"2009": 5, "2010": 5},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 60, "2010": 60},
+                                    "range": {"2009": 6, "2010": 6},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "non-specific": {
+                                "performance": {
+                                    "typical": {"2009": 7, "2010": 7},
+                                    "best": {"2009": 7, "2010": 7},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 7, "2010": 7},
+                                    "best": {"2009": 7, "2010": 7},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 70, "2010": 70},
+                                    "range": {"2009": 7, "2010": 7},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "cooling": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 80, "2010": 80},
+                                    "range": {"2009": 8, "2010": 8},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 90, "2010": 90},
+                                    "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "central AC": {
+                                "performance": {
+                                    "typical": {"2009": 10, "2010": 10},
+                                    "best": {"2009": 10, "2010": 10},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 10, "2010": 10},
+                                    "best": {"2009": 10, "2010": 10},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 100, "2010": 100},
+                                    "range": {"2009": 10, "2010": 10},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "room AC": {
+                                "performance": {
+                                    "typical": {"2009": 11, "2010": 11},
+                                    "best": {"2009": 11, "2010": 11},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 11, "2010": 11},
+                                    "best": {"2009": 11, "2010": 11},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 110, "2010": 110},
+                                    "range": {"2009": 11, "2010": 11},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 12, "2010": 12},
+                                    "best": {"2009": 12, "2010": 12},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 12, "2010": 12},
+                                    "best": {"2009": 12, "2010": 12},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 120, "2010": 120},
+                                    "range": {"2009": 12, "2010": 12},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 13, "2010": 13},
+                                    "best": {"2009": 13, "2010": 13},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 13, "2010": 13},
+                                    "best": {"2009": 13, "2010": 13},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 130, "2010": 130},
+                                    "range": {"2009": 13, "2010": 13},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "lighting": {
+                        "linear fluorescent (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 14, "2010": 14},
+                                    "best": {"2009": 14, "2010": 14},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 14, "2010": 14},
+                                    "best": {"2009": 14, "2010": 14},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 140, "2010": 140},
+                                    "range": {"2009": 14, "2010": 14},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "general service (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 15, "2010": 15},
+                                    "best": {"2009": 15, "2010": 15},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 15, "2010": 15},
+                                    "best": {"2009": 15, "2010": 15},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 150, "2010": 150},
+                                    "range": {"2009": 15, "2010": 15},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "reflector (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 16, "2010": 16},
+                                    "best": {"2009": 16, "2010": 16},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 16, "2010": 16},
+                                    "best": {"2009": 16, "2010": 16},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 160, "2010": 160},
+                                    "range": {"2009": 16, "2010": 16},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "external (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 17, "2010": 17},
+                                    "best": {"2009": 17, "2010": 17},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 17, "2010": 17},
+                                    "best": {"2009": 17, "2010": 17},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 170, "2010": 170},
+                                    "range": {"2009": 17, "2010": 17},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "natural gas": {
+                        "water heating": {
+                                "performance": {
+                                    "typical": {"2009": 18, "2010": 18},
+                                    "best": {"2009": 18, "2010": 18},
+                                    "units": "EF",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 18, "2010": 18},
+                                    "best": {"2009": 18, "2010": 18},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 180, "2010": 180},
+                                    "range": {"2009": 18, "2010": 18},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
             "multi family home": {
                 "electricity (grid)": {
-                    "heating": {"demand": {"windows conduction": {
-                                           "performance": {"value": 19,
-                                                           "units": "R Value"},
-                                           "cost": {"value": 19,
-                                                    "units": "2014$/sf"}},
-                                           "windows solar": {
-                                           "performance": {"value": 20,
-                                                           "units": "SHGC"},
-                                           "cost": {"value": 20,
-                                                    "units": "2014$/sf"}}},
-                                "supply": {"boiler (electric)": {
-                                           "performance": {"value": 21,
-                                                           "units": "COP"},
-                                           "cost": {"value": 21,
-                                                    "units": "2014$/unit"}},
-                                           "ASHP": {
-                                           "performance": {"value": 22,
-                                                           "units": "COP"},
-                                           "cost": {"value": 22,
-                                                    "units": "2014$/unit"}},
-                                           "GSHP": {
-                                           "performance": {"value": 23,
-                                                           "units": "COP"},
-                                           "cost": {"value": 23,
-                                                    "units": "2014$/unit"}}}},
-                    "lighting": {"linear fluorescent": {
-                                 "performance": {"value": 24,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 24,
-                                          "units": "2014$/unit"}},
-                                 "general service": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}},
-                                 "reflector": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}},
-                                 "external": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}}}}}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 19, "2010": 19},
+                                    "best": {"2009": 19, "2010": 19},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 19, "2010": 19},
+                                    "best": {"2009": 19, "2010": 19},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 190, "2010": 190},
+                                    "range": {"2009": 19, "2010": 19},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 20, "2010": 20},
+                                    "best": {"2009": 20, "2010": 20},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 20, "2010": 20},
+                                    "best": {"2009": 20, "2010": 20},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 200, "2010": 200},
+                                    "range": {"2009": 20, "2010": 20},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}},
+                        "supply": {
+                            "boiler (electric)": {
+                                "performance": {
+                                    "typical": {"2009": 21, "2010": 21},
+                                    "best": {"2009": 21, "2010": 21},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 21, "2010": 21},
+                                    "best": {"2009": 21, "2010": 21},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 210, "2010": 210},
+                                    "range": {"2009": 21, "2010": 21},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "ASHP": {
+                                "performance": {
+                                    "typical": {"2009": 22, "2010": 22},
+                                    "best": {"2009": 22, "2010": 22},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 22, "2010": 22},
+                                    "best": {"2009": 22, "2010": 22},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 220, "2010": 220},
+                                    "range": {"2009": 22, "2010": 22},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "GSHP": {
+                                "performance": {
+                                    "typical": {"2009": 23, "2010": 23},
+                                    "best": {"2009": 23, "2010": 23},
+                                    "units": "COP",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 23, "2010": 23},
+                                    "best": {"2009": 23, "2010": 23},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 230, "2010": 230},
+                                    "range": {"2009": 23, "2010": 23},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "lighting": {
+                        "linear fluorescent (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 240, "2010": 240},
+                                    "range": {"2009": 24, "2010": 24},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "general service (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "reflector (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "external (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}}}},
         "AIA_CZ4": {
             "multi family home": {
                 "electricity (grid)": {
-                    "lighting": {"linear fluorescent": {
-                                 "performance": {"value": 24,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 24,
-                                          "units": "2014$/unit"}},
-                                 "general service": {
-                                 "performance": {"value": 25,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 25,
-                                          "units": "2014$/unit"}},
-                                 "reflector": {
-                                 "performance": {"value": 26,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 26,
-                                          "units": "2014$/unit"}},
-                                 "external": {
-                                 "performance": {"value": 27,
-                                                 "units": "lm/W"},
-                                 "cost": {"value": 27,
-                                          "units": "2014$/unit"}}}}}}}
+                    "lighting": {
+                        "linear fluorescent (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 24, "2010": 24},
+                                    "best": {"2009": 24, "2010": 24},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 240, "2010": 240},
+                                    "range": {"2009": 24, "2010": 24},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "general service (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 25, "2010": 25},
+                                    "best": {"2009": 25, "2010": 25},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 250, "2010": 250},
+                                    "range": {"2009": 25, "2010": 25},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "reflector (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 26, "2010": 26},
+                                    "best": {"2009": 26, "2010": 26},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 26, "2010": 26},
+                                    "best": {"2009": 26, "2010": 26},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 260, "2010": 260},
+                                    "range": {"2009": 26, "2010": 26},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                        "external (LED)": {
+                                "performance": {
+                                    "typical": {"2009": 27, "2010": 27},
+                                    "best": {"2009": 27, "2010": 27},
+                                    "units": "lm/W",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 27, "2010": 27},
+                                    "best": {"2009": 27, "2010": 27},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 270, "2010": 270},
+                                    "range": {"2009": 27, "2010": 27},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}}}}}
 
     # Sample input dict of microsegment stock/energy info. to reference in
     # generating and partitioning master microsegments for a measure
@@ -824,16 +1575,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                            "stock": {"2009": 10, "2010": 10},
                                            "energy": {"2009": 10,
                                                       "2010": 10}}}},
-                    "lighting": {"linear fluorescent": {
+                    "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
                                  "energy": {"2009": 11, "2010": 11}},
-                                 "general service": {
+                                 "general service (LED)": {
                                  "stock": {"2009": 12, "2010": 12},
                                  "energy": {"2009": 12, "2010": 12}},
-                                 "reflector": {
+                                 "reflector (LED)": {
                                  "stock": {"2009": 13, "2010": 13},
                                  "energy": {"2009": 13, "2010": 13}},
-                                 "external": {
+                                 "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}},
                     "natural gas": {"water heating": {
@@ -856,16 +1607,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                            "energy": {"2009": 3, "2010": 3}},
                                            "GSHP": {
                                            "stock": {"2009": 4, "2010": 4}}}},
-                    "lighting": {"linear fluorescent": {
+                    "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
                                  "energy": {"2009": 11, "2010": 11}},
-                                 "general service": {
+                                 "general service (LED)": {
                                  "stock": {"2009": 12, "2010": 12},
                                  "energy": {"2009": 12, "2010": 12}},
-                                 "reflector": {
+                                 "reflector (LED)": {
                                  "stock": {"2009": 13, "2010": 13},
                                  "energy": {"2009": 13, "2010": 13}},
-                                 "external": {
+                                 "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}}}},
         "AIA_CZ2": {
@@ -915,16 +1666,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                            "stock": {"2009": 10, "2010": 10},
                                            "energy": {"2009": 10,
                                                       "2010": 10}}}},
-                    "lighting": {"linear fluorescent": {
+                    "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
                                  "energy": {"2009": 11, "2010": 11}},
-                                 "general service": {
+                                 "general service (LED)": {
                                  "stock": {"2009": 12, "2010": 12},
                                  "energy": {"2009": 12, "2010": 12}},
-                                 "reflector": {
+                                 "reflector (LED)": {
                                  "stock": {"2009": 13, "2010": 13},
                                  "energy": {"2009": 13, "2010": 13}},
-                                 "external": {
+                                 "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}},
                     "natural gas": {"water heating": {
@@ -947,32 +1698,32 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                            "energy": {"2009": 3, "2010": 3}},
                                            "GSHP": {
                                            "stock": {"2009": 4, "2010": 4}}}},
-                    "lighting": {"linear fluorescent": {
+                    "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
                                  "energy": {"2009": 11, "2010": 11}},
-                                 "general service": {
+                                 "general service (LED)": {
                                  "stock": {"2009": 12, "2010": 12},
                                  "energy": {"2009": 12, "2010": 12}},
-                                 "reflector": {
+                                 "reflector (LED)": {
                                  "stock": {"2009": 13, "2010": 13},
                                  "energy": {"2009": 13, "2010": 13}},
-                                 "external": {
+                                 "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}}}},
         "AIA_CZ4": {
             "multi family home": {
                 "square footage": {"2009": 900, "2010": 1000},
                 "electricity (grid)": {
-                    "lighting": {"linear fluorescent": {
+                    "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
                                  "energy": {"2009": 11, "2010": 11}},
-                                 "general service": {
+                                 "general service (LED)": {
                                  "stock": {"2009": 12, "2010": 12},
                                  "energy": {"2009": 12, "2010": 12}},
-                                 "reflector": {
+                                 "reflector (LED)": {
                                  "stock": {"2009": 13, "2010": 13},
                                  "energy": {"2009": 13, "2010": 13}},
-                                 "external": {
+                                 "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}}}}}
 
@@ -997,7 +1748,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
                     "energy_efficiency": 25,
-                    "energy_efficiency_units": "Energy Factor",
+                    "energy_efficiency_units": "EF",
                     "end_use": "water heating",
                     "fuel_type": "natural gas",
                     "technology_type": "supply",
@@ -1012,9 +1763,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "end_use": "lighting",
                     "fuel_type": "electricity (grid)",
                     "technology_type": "supply",
-                    "technology": ["linear fluorescent",
-                                   "general service",
-                                   "external"],
+                    "technology": ["linear fluorescent (LED)",
+                                   "general service (LED)",
+                                   "external (LED)"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
@@ -1084,7 +1835,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "installed_cost": ["lognormal", 3.22, 0.06],
                          "cost_units": "2014$/unit",
                          "energy_efficiency": ["normal", 25, 5],
-                         "energy_efficiency_units": "Energy Factor",
+                         "energy_efficiency_units": "EF",
                          "end_use": "water heating",
                          "fuel_type": "natural gas",
                          "technology_type": "supply",
@@ -1133,9 +1884,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "end_use": ["heating", "cooling"],
                          "fuel_type": "electricity (grid)",
                          "technology_type": "supply",
-                         "technology": ["linear fluorescent",
-                                        "general service",
-                                        "external", "GSHP", "ASHP"],
+                         "technology": ["linear fluorescent (LED)",
+                                        "general service (LED)",
+                                        "external (LED)", "GSHP", "ASHP"],
                          "bldg_type": "single family home",
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
 
@@ -1163,9 +1914,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "end_use": ["heating", "cooling"],
                        "fuel_type": "electricity (grid)",
                        "technology_type": "supply",
-                       "technology": ["linear fluorescent",
-                                      "general service",
-                                      "external"],
+                       "technology": ["linear fluorescent (LED)",
+                                      "general service (LED)",
+                                      "external (LED)"],
                        "bldg_type": "single family home",
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
                       {"name": "blank measure 3",
@@ -1176,9 +1927,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "end_use": "lighting",
                        "fuel_type": "natural gas",
                        "technology_type": "supply",
-                       "technology": ["linear fluorescent",
-                                      "general service",
-                                      "external"],
+                       "technology": ["linear fluorescent (LED)",
+                                      "general service (LED)",
+                                      "external (LED)"],
                        "bldg_type": "single family home",
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
                       {"name": "blank measure 4",
@@ -1189,9 +1940,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "end_use": "lighting",
                        "fuel_type": "solar",
                        "technology_type": "supply",
-                       "technology": ["linear fluorescent",
-                                      "general service",
-                                      "external"],
+                       "technology": ["linear fluorescent (LED)",
+                                      "general service (LED)",
+                                      "external (LED)"],
                        "bldg_type": "single family home",
                        "climate_zone": "AIA_CZ1"}]
 
