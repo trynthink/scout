@@ -55,7 +55,7 @@ fueldict = {'electricity (on site)': 'SL',
 # End use dict
 endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
               'heating': 'HT',
-              'secondary heating': ('SH', 'OA'),
+              'secondary heating': 'SH',
               'cooling': 'CL',
               'fans & pumps': 'FF',
               'ceiling fan': 'CFN',
@@ -137,7 +137,7 @@ res_convert_array = numpy.genfromtxt(res_climate_convert,
 unused_supply_re = '^\(b\'(HS|SF|ST |FP).*'
 # Unused rows in the demand portion of the analysis
 # Exclude everything except: (Heating | Cooling | Secondary Heating)
-unused_demand_re = '^\(b\'(?!(HT|CL|SH|OA)).*'
+unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
 
 
 def json_translator(dictlist, filterformat):
@@ -411,7 +411,7 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         # If special case of secondary heating, change end use part of regex to
         # 'HT', which is what both primary and secondary heating are coded as
         # in thermal loads text file data
-        if (fuel_remove.group(2) == '(SH|OA)'):
+        if (fuel_remove.group(2) == 'SH'):
             comparefrom_tloads = fuel_remove.group(1) + 'HT' + \
                 fuel_remove.group(3)
         else:
