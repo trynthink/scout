@@ -10,8 +10,8 @@ $(document).ready(function(){
 
 	// Enable tooltips
 	$(function () {
-	  $('[data-toggle="tooltip"]').tooltip()
-	})
+	  $('[data-toggle="tooltip"]').tooltip();
+	});
 
 	// Enable specific popover (for AIA climate zone image)
 	var AIA_CZ_image_HTML = '<img width="100%" src="http://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg">';
@@ -46,7 +46,7 @@ $(document).ready(function(){
 	}
 
 	// Populate the drop down menu and set the default year
-	populateDropdown('proj-year', '', yr_array, yr_array)
+	populateDropdown('proj-year', '', yr_array, yr_array);
 	$('#proj-year').val(default_year);
 
 
@@ -61,13 +61,13 @@ $(document).ready(function(){
 	var com_end_use_values;
 	// Freezers, Dishwashers, Clothes Washers
 	var res_end_use = ['Heating', 'Secondary Heating', 'Cooling', 'Fans and Pumps', 'Ceiling Fans', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Clothes Drying', 'Home Entertainment', 'Computers', 'Other'];
-	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)']
+	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)'];
 
 	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration'];
 	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration'];
 
 	var fuel_type = ['Electricity', 'Natural Gas', 'Distillate', 'Solar', 'Other'];
-	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'electricity (on site)', 'other fuel'];
+	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'solar', 'other fuel'];
 	var heating_FT = [0, 1, 2, 4]; // Selection of applicable fuel types for each residential end use
 	var sec_heating_FT = [0, 1, 2, 4];
 	var cooling_FT = [0, 1];
@@ -85,7 +85,7 @@ $(document).ready(function(){
 	var heating_equip_ot = [8, 9, 10, 11];
 
 	var sec_heating_equip = ['Kerosene Heater', 'Wood Heater', 'LPG Heater', 'Coal Heater']; // FOR ALL FUEL TYPES EXCEPT OTHER, THE EQUIPMENT IS 'non-specific'
-	var sec_heating_equip_values = ['secondary heating (kerosene)', 'secondary heating (wood)', 'secondary heating (LPG)', 'secondary heating (coal)']
+	var sec_heating_equip_values = ['secondary heating (kerosene)', 'secondary heating (wood)', 'secondary heating (LPG)', 'secondary heating (coal)'];
 
 	var cooling_equip = ['Central AC', 'Room/Window AC', 'Air-Source Heat Pump', 'Ground-Source Heat Pump', 'Heat Pump'];
 	var cooling_equip_values = ['central AC', 'room AC', 'ASHP', 'GSHP', 'NGHP'];
@@ -153,7 +153,7 @@ $(document).ready(function(){
 				bldgs_selected = 1;
 
 				// Populate the selected drop down menu in the DOM with choices
-				populateDropdown('end-use', end_use_dropdown, res_end_use, res_end_use_values)
+				populateDropdown('end-use', end_use_dropdown, res_end_use, res_end_use_values);
 			}
 		}		
 	});
@@ -182,7 +182,7 @@ $(document).ready(function(){
 							+ "</div>";
 
 			// Insert radio button in appropriate location
-			$('#end-use-row').after(eqEnvRadioBtn)
+			$('#end-use-row').after(eqEnvRadioBtn);
 		}
 		else if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
 			// Identify the appropriate fuel types to display for the selected end use
@@ -285,8 +285,8 @@ $(document).ready(function(){
 			}
 		}
 		else {
-			if (HVAC_FT === 'electricity (grid)') {var eq_select = cooling_equip_el}
-			else {var eq_select = cooling_equip_ng}
+			if (HVAC_FT === 'electricity (grid)') {var eq_select = cooling_equip_ell;}
+			else {var eq_select = cooling_equip_ng;}
 
 			// Add cooling equipment type buttons to HTML DOM
 			generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, eq_select);
@@ -385,9 +385,9 @@ $(document).ready(function(){
 				}
 				else {
 					// Identify the applicable fuel types
-					if (selected_end_use === 'heating') {var ft_select_f = heating_FT}
-					else if (selected_end_use === 'secondary heating') {var ft_select_f = sec_heating_FT}
-					else {var ft_select_f = cooling_FT}
+					if (selected_end_use === 'heating') {var ft_select_f = heating_FT;}
+					else if (selected_end_use === 'secondary heating') {var ft_select_f = sec_heating_FT;}
+					else {var ft_select_f = cooling_FT;}
 
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
@@ -404,6 +404,45 @@ $(document).ready(function(){
 									total_co2 += amtToAdd/1e9 * co2_conv;
 								}
 							}
+						}
+					}
+				}
+			}
+			else if (selected_end_use === 'water heating') {
+				var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
+				var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+
+				// Define function call based on the fuel type
+				if (ft_only_sel === 'electricity (grid)') {
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < resBuildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][resBuildings[i]][ft_only_sel][selected_end_use]['electric WH']['energy'][proj_year] * energy_conv;
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e9 * co2_conv;
+						}
+					}
+				}
+				else if (ft_only_sel === 'solar') {
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < resBuildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][resBuildings[i]]['electricity (grid)'][selected_end_use]['solar WH']['energy'][proj_year] * energy_conv;
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e9 * co2_conv;
+						}
+					}
+				}
+				else {
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < resBuildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][resBuildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e9 * co2_conv;
 						}
 					}
 				}
@@ -479,7 +518,7 @@ $(document).ready(function(){
 		// reported primary energy conversion factor
 		if (fuel_type === 'electricity (grid)') { return ss_el[year]; }
 		else { return 1; }
-	};
+	}
 
 	// Extract CO2 emissions intensity factor (from primary energy in quads
 	// to million metric tons CO2) based on fuel type and the projection
@@ -490,7 +529,7 @@ $(document).ready(function(){
 		if (fuel_type === 'electricity (grid)') { return co2_el[year]; }
 		else if (fuel_type === 'natural gas') { return co2_ng[year]; }
 		else { return co2_ot[year]; }
-	};
+	}
 
 	// Insert a formatted 'row' div for a blank drop down menu into the HTML DOM 
 	// with specified id tags for the row and content
@@ -521,7 +560,7 @@ $(document).ready(function(){
 
 		// Insert HTML content with custom tags
 		$(placementID).after(insertionText);
-	};
+	}
 
 	// Take name and value arrays (what appears to the user, and the keys used
 	// in the JSON file, respectively) and insert them into the DOM at the
@@ -544,7 +583,7 @@ $(document).ready(function(){
 	
 		// Insert content to HTML DOM at the location specified by contentID
 		$('#' + contentID).append(content);
-	};
+	}
 
 	// Take name and value arrays (what appears to the user, and the keys used
 	// in the JSON file, respectively) and insert them into the DOM at the
@@ -570,7 +609,7 @@ $(document).ready(function(){
 
 		// Insert content to HTML DOM at the location specified by contentID
 		$('#' + contentID).append(content);
-	};
+	}
 
 	// Combine the insert and populate functions into a single function that
 	// eliminates the need to define an ID for the button or select group
@@ -586,7 +625,7 @@ $(document).ready(function(){
 		
 		// Remove the temporary ID from the DOM
 		$('#' + contentID).removeAttr('id');
-	};
+	}
 
 	function generateButtonGroup(rowID, placementID, names, values, index) {
 		// index is an optional argument
@@ -598,6 +637,6 @@ $(document).ready(function(){
 
 		// Remove the temporary ID from the DOM
 		$('#' + contentID).removeAttr('id');
-	};
+	}
 
 });
