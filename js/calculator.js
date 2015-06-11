@@ -66,13 +66,13 @@ $(document).ready(function(){
 	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration'];
 	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration'];
 
-	var fuel_type = ['Electricity', 'Natural Gas', 'Distillate', 'Solar', 'Other'];
-	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'solar', 'other fuel'];
+	var fuel_type = ['Electricity', 'Natural Gas', 'Distillate', 'Solar', 'Other', 'Propane/LPG'];
+	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'solar', 'other fuel', 'other fuel'];
 	var heating_FT = [0, 1, 2, 4]; // Selection of applicable fuel types for each residential end use
 	var sec_heating_FT = [0, 1, 2, 4];
 	var cooling_FT = [0, 1];
-	var water_heating_FT = [0, 1, 2, 3, 4];
-	var cooking_FT = [0, 1, 4];
+	var water_heating_FT = [0, 1, 2, 5, 3]; // 'other fuel' corresponds to only LPG
+	var cooking_FT = [0, 1, 5]; // 'other fuel' corresponds to only LPG
 	var drying_FT = [0, 1];
 	
 		// For heating, secondary heating, and cooling for residential
