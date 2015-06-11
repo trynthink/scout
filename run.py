@@ -8,7 +8,7 @@ import re
 # Define measures/microsegments files
 measures_file = "measures.json"
 microsegments_file = "microsegments_out_test.json"
-mseg_base_costperf_info = "microsegments_base_costperf.json"  # To be developed
+mseg_base_costperflife_info = "microsegments_base_costperflife.json"
 
 # Define and import site-source conversions and CO2 emissions data
 cost_sitesource_co2 = "Cost_S-S_CO2.txt"
@@ -86,14 +86,15 @@ class Measure(object):
         self.carbsavings_norm = {}  # CO2 savings/stock
         self.carbcostsavings_norm = {}  # CO2 cost savings/stock
 
-    def mseg_find_partition(self, mseg_in, base_costperf_in, adopt_scheme):
+    def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
         energy consumption information, find: 1) total and competed stock,
         2) total, competed, and energy efficient consumption and 3)
         associated cost of the competed stock """
 
-        # Initialize master stock, energy, carbon, and cost information dict
+        # Initialize master microsegment stock, energy, carbon, cost, and
+        # lifetime information dict
         mseg_master = {"stock": {"total": None, "competed": None},
                        "energy": {"total": None, "competed": None,
                                   "efficient": None},
@@ -102,7 +103,8 @@ class Measure(object):
                        "cost": {"baseline": {"stock": None, "energy": None,
                                              "carbon": None},
                                 "measure": {"stock": None, "energy": None,
-                                            "carbon": None}}}
+                                            "carbon": None}},
+                       "lifetime": None}
 
         # Initialize a dict to register contributing microsegments for
         # later use in determining overlapping measure microsegments in staging
@@ -145,7 +147,8 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for mskeys in ms_iterable:
-            # Initialize (or re-initialize) performance/cost and units if dicts
+            # Initialize (or re-initialize) performance/cost/lifetime and
+            # performance/cost units if dicts (lifetime assumed to be in years)
             if mskeys == ms_iterable[0] or isinstance(
                     self.energy_efficiency, dict):
                 perf_meas = self.energy_efficiency
@@ -157,11 +160,14 @@ class Measure(object):
                 perf_units = self.energy_efficiency_units
             if mskeys == ms_iterable[0] or isinstance(self.cost_units, dict):
                 cost_units = self.cost_units
+            if mskeys == ms_iterable[0] or isinstance(
+                    self.product_lifetime, dict):
+                life_meas = self.product_lifetime
 
             # Initialize dicts of microsegment information specific to this run
             # of for loop; also initialize dict for mining sq.ft. information
             # to be used as stock for microsegments without no. units info.
-            base_costperf = base_costperf_in
+            base_costperflife = base_costperflife_in
             mseg = mseg_in
             mseg_sqft = mseg_in
 
@@ -172,13 +178,14 @@ class Measure(object):
             # Loop recursively through the above dicts, moving down key chain
             for i in range(0, len(mskeys)):
                 # Check for key in dict level
-                if mskeys[i] in base_costperf.keys():
-                    # Restrict base cost/performance dict to key chain info.
-                    base_costperf = base_costperf[mskeys[i]]
+                if mskeys[i] in base_costperflife.keys():
+                    # Restrict base cost/performance/lifetime dict to key chain
+                    # info.
+                    base_costperflife = base_costperflife[mskeys[i]]
                     # Restrict stock/energy dict to key chain info.
                     mseg = mseg[mskeys[i]]
-                    # Restrict any measure cost/performance info. that is
-                    # a dict type to key chain info.
+                    # Restrict any measure cost/performance/lifetime info. that
+                    # is a dict type to key chain info.
                     if isinstance(perf_meas, dict) and mskeys[i] in \
                        perf_meas.keys():
                             perf_meas = perf_meas[mskeys[i]]
@@ -191,6 +198,9 @@ class Measure(object):
                     if isinstance(cost_units, dict) and mskeys[i] in \
                        cost_units.keys():
                             cost_units = cost_units[mskeys[i]]
+                    if isinstance(life_meas, dict) and mskeys[i] in \
+                       life_meas.keys():
+                            life_meas = life_meas[mskeys[i]]
                     # Restrict sq.ft. dict to key chain info.
                     if i < 2:  # Note: sq.ft. broken out 2 levels (cdiv, bldg)
                         mseg_sqft = mseg_sqft[mskeys[i]]
@@ -212,12 +222,16 @@ class Measure(object):
                 if isinstance(cost_meas, list) and isinstance(cost_meas[0],
                                                               str):
                     cost_meas = self.rand_list_gen(cost_meas, nsamples)
+                if isinstance(life_meas, list) and isinstance(life_meas[0],
+                                                              str):
+                    life_meas = self.rand_list_gen(life_meas, nsamples)
+
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units
-                if base_costperf["performance"]["units"] == perf_units and \
-                   base_costperf["installed cost"]["units"] == cost_units:
+                if base_costperflife["performance"]["units"] == perf_units and \
+                   base_costperflife["installed cost"]["units"] == cost_units:
                     # Set base performance dict
-                    base_perf = base_costperf["performance"]["typical"]
+                    perf_base = base_costperflife["performance"]["typical"]
 
                     # Relative performance calculation depends on tech. case
                     # (i.e. COP  of 4 is higher rel. performance than COP 3,
@@ -226,25 +240,28 @@ class Measure(object):
                     # dict with keys for each year in the modeling time horizon
                     if perf_units not in inverted_relperf_list:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
-                            for yr in base_perf.keys():
-                                rel_perf[yr] = [(x ** -1 * base_perf[yr])
+                            for yr in perf_base.keys():
+                                rel_perf[yr] = [(x ** -1 * perf_base[yr])
                                                 for x in perf_meas]
                         else:
-                            for yr in base_perf.keys():
-                                rel_perf[yr] = (base_perf[yr] / perf_meas)
+                            for yr in perf_base.keys():
+                                rel_perf[yr] = (perf_base[yr] / perf_meas)
                     else:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
-                            for yr in base_perf.keys():
+                            for yr in perf_base.keys():
                                 rel_perf[yr] = [
-                                    (x / base_perf) for x in perf_meas]
+                                    (x / perf_base) for x in perf_meas]
                         else:
-                            for yr in base_perf.keys():
-                                rel_perf[yr] = (perf_meas / base_perf[yr])
+                            for yr in perf_base.keys():
+                                rel_perf[yr] = (perf_meas / perf_base[yr])
 
-                    # Set base)cost
-                    base_cost = base_costperf["installed cost"]["typical"]
+                    # Set base cost
+                    cost_base = base_costperflife["installed cost"]["typical"]
                 else:
                     raise KeyError('Inconsistent performance or cost units!')
+
+                # Set base lifetime
+                life_base = base_costperflife["lifetime"]["average"]
 
                 # Set appropriate site-source factor, energy cost, and CO2
                 # intensity for given key chain
@@ -278,11 +295,12 @@ class Measure(object):
                  add_cost_energy_base, add_cost_carb_base, add_cost_stock_meas,
                  add_cost_energy_meas, add_cost_carb_meas] = \
                     self.partition_microsegment(add_stock, add_energy,
-                                                add_carb, rel_perf, base_cost,
+                                                add_carb, rel_perf, cost_base,
                                                 cost_meas, cost_energy,
                                                 ccosts, adopt_scheme)
 
-                # Combine stock/energy/carbon/cost updating info. into a dict
+                # Combine stock/energy/carbon/cost/lifetime updating info. into
+                # a dict
                 add_dict = {"stock": {"total": add_stock,
                                       "competed": add_compete_stock},
                             "energy": {"total": add_energy,
@@ -299,7 +317,8 @@ class Measure(object):
                                      "measure": {
                                      "stock": add_cost_stock_meas,
                                      "energy": add_cost_energy_meas,
-                                     "carbon": add_cost_carb_meas}}}
+                                     "carbon": add_cost_carb_meas}},
+                            "lifetime": life_base}
 
                 # Register contributing microsegment for later use
                 # in determining staging overlaps
@@ -309,32 +328,40 @@ class Measure(object):
                 # move to next iteration of the loop through key chains
                 mseg_master = self.add_keyvals(mseg_master, add_dict)
 
-        # In microsegments where square footage must be used as stock, the
-        # square footages cannot be summed to calculate the master microsegment
-        # stock values (as is the case when using no. of units).  For example,
-        # 1000 Btu of cooling and heating in the same 1000 square foot building
-        # should not yield 2000 total square feet of stock in the master
-        # microsegment even though there are two contributing microsegments in
-        # this case (heating and cooling). This is remedied by dividing summed
-        # square footage values by (# valid key chains / (# czones * # bldg
-        # types)), where the numerator refers to the number of full dict key
-        # chains that contributed to the mseg stock, energy, and cost calcs,
-        # and the denominator reflects the breakdown of square footage by
-        # climate zone and building type. Note that cost information is based
-        # on competed stock and must be divided in the same manner (see
-        # reduce_sqft_stock function).
-        if sqft_subst == 1:
-            # Create a factor for reduction of msegs with sq.ft. stock
-            if key_chain_ct != 0:
+        if key_chain_ct != 0:
+
+            # Reduce summed lifetimes by number of microsegments that
+            # contributed to the sum
+            for yr in mseg_master["lifetime"].keys():
+                mseg_master["lifetime"][yr] = mseg_master["lifetime"][yr] / \
+                    key_chain_ct
+
+            # In microsegments where square footage must be used as stock, the
+            # square footages cannot be summed to calculate the master
+            # microsegment stock values (as is the case when using no. of
+            # units).  For example, 1000 Btu of cooling and heating in the same
+            # 1000 square foot building should not yield 2000 total square feet
+            # of stock in the master microsegment even though there are two
+            # contributing microsegments in this case (heating and cooling).
+            # This is remedied by dividing summed square footage values by (#
+            # valid key chains / (# czones * # bldg types)), where the
+            # numerator refers to the number of full dict key chains that
+            # contributed to the mseg stock, energy, and cost calcs, and the
+            # denominator reflects the breakdown of square footage by climate
+            # zone and building type. Note that cost information is based
+            # on competed stock and must be divided in the same manner (see
+            # reduce_sqft_stock function).
+            if sqft_subst == 1:
+                # Create a factor for reduction of msegs with sq.ft. stock
                 reduce_factor = key_chain_ct / (len(ms_lists[0]) *
                                                 len(ms_lists[1]))
+                mseg_master = self.reduce_sqft_stock_cost(mseg_master,
+                                                          reduce_factor)
             else:
-                raise ValueError('No valid key chains discovered for sq.ft. \
-                                  stock and cost division operation!')
-            mseg_master = self.reduce_sqft_stock_cost(mseg_master,
-                                                      reduce_factor)
+                reduce_factor = 1
         else:
-            reduce_factor = 1
+                raise KeyError('No valid key chains discovered for lifetime and sq.ft. \
+                                  stock and cost division operation!')
 
         # Register contributing microsegment for later use
         # in determining staging overlaps
@@ -361,7 +388,7 @@ class Measure(object):
         return dict1
 
     def partition_microsegment(self, mseg_stock, mseg_energy, mseg_carb,
-                               rel_perf, base_cost, cost_meas, cost_energy,
+                               rel_perf, cost_base, cost_meas, cost_energy,
                                cost_carb, adopt_scheme):
         """ Partition microsegment to find "competed" stock and energy
         consumption as well as "efficient" energy consumption (representing
@@ -392,7 +419,7 @@ class Measure(object):
             # carbon, and cost information
             for yr in stock_compete.keys():
                 # Update "competed" stock cost (baseline)
-                stock_compete_cost_base[yr] = stock_compete[yr] * base_cost[yr]
+                stock_compete_cost_base[yr] = stock_compete[yr] * cost_base[yr]
                 stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
 
                 # Update "competed" energy and carbon costs (baseline)
@@ -440,13 +467,14 @@ class Measure(object):
             irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
             ({} for d in range(13))
 
-        # Define ratio of measure lifetime to baseline lifetime.  This will be
-        # used below in determining capital cashflows over the measure lifetime
-        life_ratio = int(self.life_meas / self.life_base)
-
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
         for yr in self.master_mseg["stock"]["competed"].keys():
+
+            # Define ratio of measure lifetime to baseline lifetime.  This will
+            # be used below in determining capital cashflows over the measure
+            # lifetime
+            life_ratio = int(self.life_meas / self.master_mseg["lifetime"][yr])
 
             # Determine the initial incremental capital cost of the
             # measure over the baseline
@@ -468,7 +496,8 @@ class Measure(object):
                 # a list of year indicators for subsequent use below
                 added_stockcost_gain_yrs = []
                 for i in range(0, life_ratio - 1):
-                    added_stockcost_gain_yrs.append(2 * i + self.life_base)
+                    added_stockcost_gain_yrs.append(
+                        2 * i + self.master_mseg["lifetime"][yr])
 
             # Calculate annual energy savings for the measure vs. baseline
             esave = \
@@ -620,16 +649,13 @@ class Measure(object):
         handle special case when sq.ft. is used as stock """
         for (k, i) in dict1.items():
             # Do not divide any energy or carbon information
-            if (k == "energy" or k == "carbon"):
+            if (k == "energy" or k == "carbon" or k == "lifetime"):
                     continue
             else:
                     if isinstance(i, dict):
                         self.reduce_sqft_stock_cost(i, reduce_factor)
                     else:
-                        if isinstance(dict1[k], list):  # Cost distrib. case
-                            dict1[k] = [x / reduce_factor for x in dict1[k]]
-                        else:
-                            dict1[k] = dict1[k] / reduce_factor
+                        dict1[k] = dict1[k] / reduce_factor
         return dict1
 
     def rand_list_gen(self, distrib_info, nsamples):
@@ -743,14 +769,14 @@ class Engine(object):
     def __init__(self, measure_objects):
         self.measure_objs = measure_objects
 
-    def adopt_active(self, mseg_in, base_costperf_in, adopt_scheme,
+    def adopt_active(self, mseg_in, base_costperflife_in, adopt_scheme,
                      decision_rule, rate):
         """ Run adoption scheme on active measures only """
         for m in self.measure_objs:
             if m.active == 1:
                 # Find master microsegment and partitions
                 m.master_mseg = m.mseg_find_partition(
-                    mseg_in, base_costperf_in, adopt_scheme)
+                    mseg_in, base_costperflife_in, adopt_scheme)
                 # Update cost/savings outcomes based on master microsegment
                 m.master_savings = m.calc_metric_update(rate)
         # Eventually adopt measures here using updated measure decision info.
@@ -765,8 +791,8 @@ def main():
     with open(microsegments_file, 'r') as msjs:
         microsegments_input = json.load(msjs)
 
-    with open(mseg_base_costperf_info, 'r') as bjs:
-        base_costperf_info_input = json.load(bjs)
+    with open(mseg_base_costperflife_info, 'r') as bjs:
+        base_costperflife_info_input = json.load(bjs)
 
     # Create measures objects list from input measures JSON
     measures_objlist = []
@@ -775,7 +801,7 @@ def main():
         measures_objlist.append(Measure(**mi))
 
     a_run = Engine(measures_objlist)
-    a_run.adopt_active(microsegments_input, base_costperf_info_input,
+    a_run.adopt_active(microsegments_input, base_costperflife_info_input,
                        adopt_scheme, decision_rule, rate)
 
 if __name__ == '__main__':

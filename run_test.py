@@ -1737,6 +1737,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                           "AIA_CZ2": {"heating": 30,
                                                       "cooling": 15}},
                     "energy_efficiency_units": "COP",
+                    "product_lifetime": 10,
                     "end_use": ["heating", "cooling"],
                     "fuel_type": "electricity (grid)",
                     "technology_type": "supply",
@@ -1749,6 +1750,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "cost_units": "2014$/unit",
                     "energy_efficiency": 25,
                     "energy_efficiency_units": "EF",
+                    "product_lifetime": 10,
                     "end_use": "water heating",
                     "fuel_type": "natural gas",
                     "technology_type": "supply",
@@ -1760,6 +1762,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "cost_units": "2014$/unit",
                     "energy_efficiency": 25,
                     "energy_efficiency_units": "lm/W",
+                    "product_lifetime": 10,
                     "end_use": "lighting",
                     "fuel_type": "electricity (grid)",
                     "technology_type": "supply",
@@ -1777,6 +1780,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "energy_efficiency_units": {"windows conduction":
                                                 "R Value",
                                                 "windows solar": "SHGC"},
+                    "product_lifetime": 10,
                     "end_use": "heating",
                     "fuel_type": "electricity (grid)",
                     "technology_type": "demand",
@@ -1790,6 +1794,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "cost_units": "2014$/sf",
                     "energy_efficiency": 1,
                     "energy_efficiency_units": "SHGC",
+                    "product_lifetime": 10,
                     "end_use": "heating",
                     "fuel_type": "electricity (grid)",
                     "technology_type": "demand",
@@ -1804,6 +1809,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "energy_efficiency_units": {"windows conduction":
                                                 "R Value",
                                                 "windows solar": "SHGC"},
+                    "product_lifetime": 10,
                     "end_use": ["heating", "secondary heating", "cooling"],
                     "fuel_type": "electricity (grid)",
                     "technology_type": "demand",
@@ -1824,6 +1830,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                            "cooling":
                                                            ["normal", 15, 4]}},
                          "energy_efficiency_units": "COP",
+                         "product_lifetime": 10,
                          "end_use": ["heating", "cooling"],
                          "fuel_type": "electricity (grid)",
                          "technology_type": "supply",
@@ -1836,6 +1843,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "cost_units": "2014$/unit",
                          "energy_efficiency": ["normal", 25, 5],
                          "energy_efficiency_units": "EF",
+                         "product_lifetime": 10,
                          "end_use": "water heating",
                          "fuel_type": "natural gas",
                          "technology_type": "supply",
@@ -1852,6 +1860,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "energy_efficiency_units": {"windows conduction":
                                                      "R Value",
                                                      "windows solar": "SHGC"},
+                         "product_lifetime": 10,
                          "end_use": ["heating", "secondary heating",
                                      "cooling"],
                          "fuel_type": "electricity (grid)",
@@ -1869,6 +1878,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "installed_cost": 25,
                          "cost_units": "2014$/unit",
                          "energy_efficiency": 25,
+                         "product_lifetime": 10,
                          "energy_efficiency_units": "COP",
                          "end_use": "cooling",
                          "fuel_type": "electricity (grid)",
@@ -1880,6 +1890,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "installed_cost": 25,
                          "cost_units": "2014$/unit",
                          "energy_efficiency": 25,
+                         "product_lifetime": 10,
                          "energy_efficiency_units": "COP",
                          "end_use": ["heating", "cooling"],
                          "fuel_type": "electricity (grid)",
@@ -1897,6 +1908,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": 10,
                        "energy_efficiency_units": "COP",
+                       "product_lifetime": 10,
                        "end_use": "cooling",
                        "fuel_type": "electricity (grid)",
                        "technology_type": "supply",
@@ -1911,6 +1923,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                              "AIA_CZ2": {"heating": 30,
                                                          "cooling": 15}},
                        "energy_efficiency_units": "COP",
+                       "product_lifetime": 10,
                        "end_use": ["heating", "cooling"],
                        "fuel_type": "electricity (grid)",
                        "technology_type": "supply",
@@ -1923,6 +1936,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
                        "energy_efficiency": 25,
+                       "product_lifetime": 10,
                        "energy_efficiency_units": "lm/W",
                        "end_use": "lighting",
                        "fuel_type": "natural gas",
@@ -1936,6 +1950,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
                        "energy_efficiency": 25,
+                       "product_lifetime": 10,
                        "energy_efficiency_units": "lm/W",
                        "end_use": "lighting",
                        "fuel_type": "solar",
@@ -1968,7 +1983,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 1187.336,
                                                "2010": 1135.851},
                                     "carbon": {"2009": 219663.2,
-                                               "2010": 217720.6}}}},
+                                               "2010": 217720.6}}},
+               "lifetime": {"2009": 75, "2010": 75}},
               {"stock": {"total": {"2009": 15, "2010": 15},
                          "competed": {"2009": 15, "2010": 15}},
                "energy": {"total": {"2009": 15.15, "2010": 15.15},
@@ -1989,7 +2005,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 123.0422,
                                                "2010": 117.5882},
                                     "carbon": {"2009": 20343.64,
-                                               "2010": 19768.37}}}},
+                                               "2010": 19768.37}}},
+               "lifetime": {"2009": 180, "2010": 180}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
                "energy": {"total": {"2009": 472.12, "2010": 473.6},
@@ -2010,7 +2027,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 3845.364,
                                                "2010": 3678.623},
                                     "carbon": {"2009": 711412,
-                                               "2010": 705120.7}}}},
+                                               "2010": 705120.7}}},
+               "lifetime": {"2009": 200, "2010": 200}},
               {"stock": {"total": {"2009": 1600, "2010": 2000},
                          "competed": {"2009": 1600, "2010": 2000}},
                "energy": {"total": {"2009": 12.76, "2010": 12.8},
@@ -2031,7 +2049,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 35.58126,
                                                "2010": 34.0384},
                                     "carbon": {"2009": 6582.715,
-                                               "2010": 6524.502}}}},
+                                               "2010": 6524.502}}},
+               "lifetime": {"2009": 105, "2010": 105}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 6.38, "2010": 6.4},
@@ -2052,7 +2071,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 32.3466,
                                                "2010": 30.944},
                                     "carbon": {"2009": 5984.287,
-                                               "2010": 5931.365}}}},
+                                               "2010": 5931.365}}},
+               "lifetime": {"2009": 20, "2010": 20}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 146.74, "2010": 147.2},
@@ -2073,7 +2093,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                     "energy": {"2009": 560.6744,
                                                "2010": 536.3627},
                                     "carbon": {"2009": 103727.6,
-                                               "2010": 102810.3}}}}]
+                                               "2010": 102810.3}}},
+               "lifetime": {"2009": 51.67, "2010": 51.67}}]
 
     # Means and sampling Ns for energy and cost that should be generated by
     # "ok_measures_dist" above using the "sample_msegin" dict
@@ -2103,7 +2124,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                          "energy": {"2009": 279.4746,
                                                     "2010": 267.3562},
                                          "carbon": {"2009": 51704.24,
-                                                    "2010": 51247}}}},
+                                                    "2010": 51247}}},
+                    "lifetime": {"2009": 120, "2010": 120}},
                    {"stock": {"total": {"2009": 52, "2010": 52},
                               "competed": {"2009": 52, "2010": 52}},
                     "energy": {"total": {"2009": 165.88, "2010": 166.4},
@@ -2126,25 +2148,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                          "energy": {"2009": 680.5725,
                                                     "2010": 651.0618},
                                          "carbon": {"2009": 125909.4,
-                                                    "2010": 124795.9}}}}]
-
-    # Master stock, energy, and cost information that should be generated by
-    # "blank_measures" above using the "sample_msegin" dict
-    blank_out = list(numpy.repeat({"stock": {"total": None,
-                                             "competed": None},
-                                   "energy": {"total": None,
-                                              "competed": None,
-                                              "efficient": None},
-                                   "carbon": {"total": None,
-                                              "competed": None,
-                                              "efficient": None},
-                                   "cost": {"baseline": {"stock": None,
-                                                         "energy": None,
-                                                         "carbon": None},
-                                            "measure": {"stock": None,
-                                                        "energy": None,
-                                                        "carbon": None}}},
-                                  len(blank_measures)))
+                                                    "2010": 124795.9}}},
+                    "lifetime": {"2009": 80, "2010": 80}}]
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -2209,12 +2214,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
             # Create an instance of the object based on blank measure info
             measure_instance = run.Measure(**measure)
             # Assert output dict is correct
-            dict1 = measure_instance.mseg_find_partition(
-                self.sample_msegin,
-                self.sample_basein,
-                "Technical potential")[0]
-            dict2 = self.blank_out[idx]
-            self.dict_check(dict1, dict2)
+            with self.assertRaises(KeyError):
+                measure_instance.mseg_find_partition(
+                    self.sample_msegin,
+                    self.sample_basein,
+                    "Technical potential")
 
 
 class PrioritizationMetricsTest(unittest.TestCase):
@@ -2224,15 +2228,14 @@ class PrioritizationMetricsTest(unittest.TestCase):
 
     # Sample measure for use in testing
     sample_measure = {"name": "sample measure 1",
+                      "product_lifetime": 2,
                       "end_use": ["heating", "cooling"],
                       "fuel_type": "electricity (grid)",
                       "technology_type": "supply",
                       "technology": ["boiler (electric)",
                                      "ASHP", "GSHP", "room AC"],
                       "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                      "life_base": 1,
-                      "life_meas": 2}
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Discount rate used for testing
     ok_rate = 0.07
@@ -2258,7 +2261,8 @@ class PrioritizationMetricsTest(unittest.TestCase):
                                            "energy": {"2009": 10,
                                                       "2010": 20},
                                            "carbon": {"2009": 25,
-                                                      "2010": 25}}}}
+                                                      "2010": 25}}},
+                      "lifetime": {"2009": 1, "2010": 1}}
 
     # Savings/prioritization metrics dict keys and values that should be
     # yielded by above master microsegment dict input
@@ -2310,6 +2314,16 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg
+        # Set measure "life_meas" parameter based on the sample
+        # "product_lifetime" attribute (* Note: this is necessary because
+        # "life_meas" is set in the "mseg_find_partition" function, which is
+        # not being executed here)
+        measure_instance.life_meas = measure_instance.product_lifetime
+        # Set measure "life_base" parameter using the measure "master_mseg"
+        # information (* Note: this is necessary because "life_base" is set
+        # in the "mseg_find_partition" function, which is not being excuted
+        # here)
+        measure_instance.life_base = measure_instance.master_mseg["lifetime"]
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out
