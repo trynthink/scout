@@ -45,12 +45,16 @@ fueldict = {'electricity (on site)': 'SL',
             'electricity (grid)': 'EL',
             'natural gas': 'GS',
             'distillate': 'DS',
-            'other fuel': ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD')
+            'other fuel': ('LG', 'KS', 'CL', 'GE', 'WD')
             }
 # Note that currently in RESDBOUT.txt, electric resistance heaters are
-# categorized under GE (geothermal) fuel. SL (solar) fuel is attached
-# to water heating, but the end technology is only listed as "Solar",
-# which will not currently be included in our analysis.
+# categorized under GE (geothermal) fuel. Fuel types "SL" and "NG" have
+# been removed from the "other fuel" category. "SL" (solar) fuel
+# corresponds to solar insolation for solar water heating, and is only
+# associated with the "SOLAR" technology type. "NG" is only used by the
+# "FP" end use, and in an attempt to avoid problems later if EIA
+# changes their natural gas fuel type code to "NG" from "GS", it is
+# also left out of the "other fuel" definition.
 
 # End use dict
 endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use

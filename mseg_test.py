@@ -538,7 +538,7 @@ class RegexConstructionTest(unittest.TestCase):
                      [[('BAT', 'COF', 'DEH', 'EO', 'MCO', 'OA', 'PHP', 'SEC',
                       'SPA'), 7, 1, 'EL'], ''],
                      [['HT', 1, 2, 'DS'], 'ROOF'],
-                     [['HT', 5, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+                     [['HT', 5, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
                       'WOOD_HT'], '']]
 
     # Define the desired final regular expressions output using the
@@ -548,7 +548,7 @@ class RegexConstructionTest(unittest.TestCase):
                      ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA).+7.+1.+EL.+',
                       'NA'),
                      ('.*HT.+1.+2.+DS.+', 'ROOF'),
-                     ('.*HT.+5.+3.+(LG|KS|CL|SL|GE|NG|WD).+WOOD_HT.+', 'NA')]
+                     ('.*HT.+5.+3.+(LG|KS|CL|GE|WD).+WOOD_HT.+', 'NA')]
 
     # Compare the regular expressions with the conversion function output
     def test_regex_creation_function(self):
@@ -641,15 +641,15 @@ class JSONTranslatorTest(unittest.TestCase):
               [['CL', 2, 1, 'EL', 'ROOM_AIR'], ''],
               [['STB', 7, 3, 'EL'], ''],
               [['LT', 3, 3, 'EL', 'GSL'], ''],
-              [['HT', 4, 3, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+              [['HT', 4, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
                 'GE2'], ''],
               [['SH', 5, 2, 'DS'], 'WIND_SOL'],
-              [['SH', 1, 1, ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD'),
+              [['SH', 1, 1, ('LG', 'KS', 'CL', 'GE', 'WD'),
                 'CL'], ''],
               [['HW', 1, 1, 'GS'], ''],
               [['SQ', 1, 1], ''],
               [['SH', 1, 1,
-               ('LG', 'KS', 'CL', 'SL', 'GE', 'NG', 'WD')], 'WIND_COND']]
+               ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
                     [['RF', 1, 1, 'EL', 'LFL'], ''],
