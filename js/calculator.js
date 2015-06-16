@@ -347,8 +347,14 @@ $(document).ready(function(){
 		var total_energy = 0;
 		var total_co2 = 0;
 		
+		// Disable update button while request is pending
+		$('#update').attr('disabled', true);
+
 		// Sum the totals for the selected data
 		$.getJSON('microsegments_out.json', function(data){
+			
+			// Enable update button inside "success handler" on query completion
+			$('#update').attr('disabled', false);
 
 			// Define intermediate quantity variable to store each quantity to
 			// be added to the total
