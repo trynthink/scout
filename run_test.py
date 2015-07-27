@@ -10,7 +10,6 @@ import unittest
 import numpy
 import scipy.stats as ss
 import copy
-import math
 
 
 class TestMeasureInit(unittest.TestCase):
@@ -2228,7 +2227,6 @@ class PrioritizationMetricsTest(unittest.TestCase):
 
     # Sample measure for use in testing
     sample_measure = {"name": "sample measure 1",
-                      "product_lifetime": 2,
                       "end_use": ["heating", "cooling"],
                       "fuel_type": "electricity (grid)",
                       "technology_type": "supply",
@@ -2240,56 +2238,310 @@ class PrioritizationMetricsTest(unittest.TestCase):
     # Discount rate used for testing
     ok_rate = 0.07
 
-    # Create an "ok" master microsegment input dict to use in calculating
+    # Measure lifetime point value used for testing
+    ok_life_point = 2
+    # Measure lifetime list of values used for testing
+    ok_life_distrib = numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])
+
+    # Create an "ok" master microsegment input dict with all point
+    # values to use in calculating savings and prioritization metrics
+    # outputs to be tested
+    ok_master_mseg_point = {"stock": {"total": {"2009": 10, "2010": 20},
+                                      "competed": {"2009": 5, "2010": 10}},
+                            "energy": {"total": {"2009": 20, "2010": 30},
+                                       "competed": {"2009": 10, "2010": 15},
+                                       "efficient": {"2009": 5, "2010": 10}},
+                            "carbon": {"total": {"2009": 200, "2010": 300},
+                                       "competed": {"2009": 100, "2010": 150},
+                                       "efficient": {"2009": 50, "2010": 100}},
+                            "cost": {"baseline": {"stock": {"2009": 10,
+                                                            "2010": 15},
+                                                  "energy": {"2009": 20,
+                                                             "2010": 25},
+                                                  "carbon": {"2009": 30,
+                                                             "2010": 35}},
+                                     "measure": {"stock": {"2009": 15,
+                                                           "2010": 20},
+                                                 "energy": {"2009": 10,
+                                                            "2010": 20},
+                                                 "carbon": {"2009": 25,
+                                                            "2010": 25}}},
+                            "lifetime": {"2009": 1, "2010": 1}}
+
+    # Create an "ok" master microsegment input dict with arrays for
+    # measure energy use/cost and carbon emitted/cost to use in calculating
     # savings and prioritization metrics outputs to be tested
-    ok_master_mseg = {"stock": {"total": {"2009": 10, "2010": 20},
-                                "competed": {"2009": 5, "2010": 10}},
-                      "energy": {"total": {"2009": 20, "2010": 30},
-                                 "competed": {"2009": 10, "2010": 15},
-                                 "efficient": {"2009": 5, "2010": 10}},
-                      "carbon": {"total": {"2009": 200, "2010": 300},
-                                 "competed": {"2009": 100, "2010": 150},
-                                 "efficient": {"2009": 50, "2010": 100}},
-                      "cost": {"baseline": {"stock": {"2009": 10,
-                                                      "2010": 15},
-                                            "energy": {"2009": 20,
-                                                       "2010": 25},
-                                            "carbon": {"2009": 30,
-                                                       "2010": 35}},
-                               "measure": {"stock": {"2009": 15,
-                                                     "2010": 20},
-                                           "energy": {"2009": 10,
-                                                      "2010": 20},
-                                           "carbon": {"2009": 25,
-                                                      "2010": 25}}},
-                      "lifetime": {"2009": 1, "2010": 1}}
+    ok_master_mseg_dist1 = {"stock": {"total": {"2009": 10, "2010": 20},
+                                      "competed": {"2009": 5, "2010": 10}},
+                            "energy": {
+                                "total": {"2009": 20, "2010": 30},
+                                "competed": {"2009": 10, "2010": 15},
+                                "efficient": {
+                                    "2009": numpy.array(
+                                        [1.6, 2.7, 3.1, 6, 5.1]),
+                                    "2010": numpy.array(
+                                        [10.6, 9.5, 8.1, 11, 12.4])}},
+                            "carbon": {
+                                "total": {"2009": 200, "2010": 300},
+                                "competed": {"2009": 100, "2010": 150},
+                                "efficient": {
+                                    "2009": numpy.array(
+                                        [50.6, 57.7, 58.1, 50, 51.1]),
+                                    "2010": numpy.array(
+                                        [100.6, 108.7, 105.1,
+                                         105, 106.1])}},
+                            "cost": {"baseline": {"stock": {"2009": 10,
+                                                            "2010": 15},
+                                                  "energy": {"2009": 20,
+                                                             "2010": 25},
+                                                  "carbon": {"2009": 30,
+                                                             "2010": 35}},
+                                     "measure": {
+                                         "stock": {"2009": 15,
+                                                   "2010": 20},
+                                         "energy": {
+                                             "2009": numpy.array(
+                                                 [9.1, 8.7, 7.7, 11.2, 12.5]),
+                                             "2010": numpy.array(
+                                                 [20.1, 18.7, 21.7,
+                                                  21.2, 22.5])},
+                                         "carbon": {
+                                             "2009": numpy.array(
+                                                 [25.1, 24.7, 23.7,
+                                                  31.2, 18.5]),
+                                             "2010": numpy.array(
+                                                 [20.1, 18.7, 21.7,
+                                                  21.2, 22.5])}}},
+                            "lifetime": {"2009": 1, "2010": 1}}
+
+    # Create an "ok" master microsegment input dict with arrays for
+    # measure capital cost to use in calculating savings and prioritization
+    # metrics outputs to be tested
+    ok_master_mseg_dist2 = {"stock": {"total": {"2009": 10, "2010": 20},
+                                      "competed": {"2009": 5, "2010": 10}},
+                            "energy": {"total": {"2009": 20, "2010": 30},
+                                       "competed": {"2009": 10, "2010": 15},
+                                       "efficient": {"2009": 5, "2010": 10}},
+                            "carbon": {"total": {"2009": 200, "2010": 300},
+                                       "competed": {"2009": 100, "2010": 150},
+                                       "efficient": {"2009": 50, "2010": 100}},
+                            "cost": {"baseline": {"stock": {"2009": 10,
+                                                            "2010": 15},
+                                                  "energy": {"2009": 20,
+                                                             "2010": 25},
+                                                  "carbon": {"2009": 30,
+                                                             "2010": 35}},
+                                     "measure": {
+                                         "stock": {
+                                             "2009": numpy.array(
+                                                 [15.1, 12.7, 14.1,
+                                                  14.2, 15.5]),
+                                             "2010": numpy.array(
+                                                 [20.1, 18.7, 21.7,
+                                                  19.2, 20.5])},
+                                         "energy": {"2009": 10,
+                                                    "2010": 20},
+                                         "carbon": {"2009": 25,
+                                                    "2010": 25}}},
+                            "lifetime": {"2009": 1, "2010": 1}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above master microsegment dict input
-    ok_out = {"stock": {"cost savings": {"2009": numpy.array([-5, 10, 0]),
-                                         "2010": numpy.array([-5, 15, 0])}},
-              "energy": {"savings": {"2009": numpy.array([0, 5, 5]),
-                                     "2010": numpy.array([0, 5, 5])},
-                         "cost savings": {"2009": numpy.array([0, 10, 10]),
-                                          "2010": numpy.array([0, 5, 5])}},
-              "carbon": {"savings": {"2009": numpy.array([0, 50, 50]),
-                                     "2010": numpy.array([0, 50, 50])},
-                         "cost savings": {"2009": numpy.array([0, 5, 5]),
-                                          "2010": numpy.array([0, 10, 10])}},
-              "metrics": {"irr (w/ energy $)":
-                          {"2009": 3.45, "2010": 3.24},
-                          "irr (w/ energy and carbon $)":
-                          {"2009": 4.54, "2010": 5.46},
-                          "payback (w/ energy $)":
-                          {"2009": 0.25, "2010": 0.25},
-                          "payback (w/ energy and carbon $)":
-                          {"2009": 0.2, "2010": 0.17},
-                          "cce": {"2009": 0.48, "2010": 1.00},
-                          "cce (w/ carbon $ benefits)":
-                          {"2009": 1.48, "2010": 3.00},
-                          "ccc": {"2009": 0.05, "2010": 0.10},
-                          "ccc (w/ energy $ benefits)":
-                          {"2009": 0.25, "2010": 0.20}}}
+    # yielded by above point value master microsegment dict input used
+    # with point value measure lifetime input
+    ok_out_point = {"stock": {"cost savings": {"2009": -5,
+                                               "2010": -5}},
+                    "energy": {"savings": {"2009": 5,
+                                           "2010": 5},
+                               "cost savings": {"2009": 10,
+                                                "2010": 5}},
+                    "carbon": {"savings": {"2009": 50,
+                                           "2010": 50},
+                               "cost savings": {"2009": 5,
+                                                "2010": 10}},
+                    "metrics": {"irr (w/ energy $)":
+                                {"2009": 3.45, "2010": 3.24},
+                                "irr (w/ energy and carbon $)":
+                                {"2009": 4.54, "2010": 5.46},
+                                "payback (w/ energy $)":
+                                {"2009": 0.25, "2010": 0.25},
+                                "payback (w/ energy and carbon $)":
+                                {"2009": 0.2, "2010": 0.17},
+                                "cce": {"2009": -0.48, "2010": -1.00},
+                                "cce (w/ carbon $ benefits)":
+                                {"2009": -1.48, "2010": -3.00},
+                                "ccc": {"2009": -0.05, "2010": -0.10},
+                                "ccc (w/ energy $ benefits)":
+                                {"2009": -0.25, "2010": -0.20}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above dist1 master microsegment dict input used with point
+    # value measure lifetime input
+    ok_out_dist1 = {"stock": {"cost savings": {"2009": [-5, -5, -5, -5, -5],
+                                               "2010": [-5, -5, -5, -5, -5]}},
+                    "energy": {"savings": {"2009": [8.4, 7.3, 6.9, 4.0, 4.9],
+                                           "2010": [4.4, 5.5, 6.9, 4.0, 2.6]},
+                               "cost savings": {"2009": [10.9, 11.3, 12.3,
+                                                         8.8, 7.5],
+                                                "2010": [4.9, 6.3, 3.3, 3.8,
+                                                         2.5]}},
+                    "carbon": {"savings": {"2009": [49.4, 42.3, 41.9,
+                                                    50.0, 48.9],
+                                           "2010": [49.4, 41.3, 44.9,
+                                                    45.0, 43.9]},
+                               "cost savings": {"2009": [4.9, 5.3, 6.3,
+                                                         -1.2, 11.5],
+                                                "2010": [14.9, 16.3, 13.3,
+                                                         13.8, 12.5]}},
+                    "metrics": {"irr (w/ energy $)":
+                                {"2009": [3.65, 3.74, 3.96, 3.18, 2.89],
+                                 "2010": [3.21, 3.54, 2.83, 2.95, 2.64]},
+                                "irr (w/ energy and carbon $)":
+                                {"2009": [4.71, 4.88, 5.31, 2.91, 5.39],
+                                 "2010": [6.49, 7.08, 5.81, 6.02, 5.46]},
+                                "payback (w/ energy $)":
+                                {"2009": [0.24, 0.23, 0.22, 0.27, 0.29],
+                                 "2010": [0.25, 0.23, 0.27, 0.27, 0.29]},
+                                "payback (w/ energy and carbon $)":
+                                {"2009": [0.19, 0.19, 0.17, 0.28, 0.17],
+                                 "2010": [0.14, 0.13, 0.16, 0.15, 0.17]},
+                                "cce": {"2009": [-0.29, -0.33, -0.35, -0.60,
+                                                 -0.49],
+                                        "2010": [-1.13, -0.91, -0.72, -1.25,
+                                                 -1.92]},
+                                "cce (w/ carbon $ benefits)":
+                                {"2009": [-0.87, -1.06, -1.26, -0.30, -2.84],
+                                 "2010": [-4.52, -3.87, -2.65, -4.70, -6.73]},
+                                "ccc": {"2009": [-0.05, -0.06, -0.06, -0.05,
+                                                 -0.05],
+                                        "2010": [-0.10, -0.12, -0.11, -0.11,
+                                                 -0.11]},
+                                "ccc (w/ energy $ benefits)":
+                                {"2009": [-0.27, -0.32, -0.35, -0.22, -0.20],
+                                 "2010": [-0.20, -0.27, -0.18, -0.20, -0.17]}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above dist2 master microsegment dict input used with point
+    # value measure lifetime input
+    ok_out_dist2 = {"stock": {"cost savings": {"2009": [-5.1, -2.7, -4.1, -4.2,
+                                                        -5.5],
+                                               "2010": [-5.1, -3.7, -6.7, -4.2,
+                                                        -5.5]}},
+                    "energy": {"savings": {"2009": [5, 5, 5, 5, 5],
+                                           "2010": [5, 5, 5, 5, 5]},
+                               "cost savings": {"2009": [10, 10, 10, 10, 10],
+                                                "2010": [5, 5, 5, 5, 5]}},
+                    "carbon": {"savings": {"2009": [50, 50, 50, 50, 50],
+                                           "2010": [50, 50, 50, 50, 50]},
+                               "cost savings": {"2009": [5, 5, 5, 5, 5],
+                                                "2010": [10, 10, 10, 10, 10]}},
+                    "metrics": {"irr (w/ energy $)":
+                                {"2009": [3.37, 6.88, 4.34, 4.22, 3.08],
+                                 "2010": [3.16, 4.64, 2.22, 4.00, 2.87]},
+                                "irr (w/ energy and carbon $)":
+                                {"2009": [4.44, 8.82, 5.65, 5.50, 4.08],
+                                 "2010": [5.35, 7.58, 3.93, 6.61, 4.92]},
+                                "payback (w/ energy $)":
+                                {"2009": [0.26, 0.14, 0.21, 0.21, 0.28],
+                                 "2010": [0.26, 0.19, 0.34, 0.21, 0.28]},
+                                "payback (w/ energy and carbon $)":
+                                {"2009": [0.20, 0.11, 0.16, 0.17, 0.22],
+                                 "2010": [0.17, 0.12, 0.22, 0.14, 0.18]},
+                                "cce": {"2009": [-0.47, -0.74, -0.58, -0.57,
+                                                 -0.43],
+                                        "2010": [-0.99, -1.14, -0.81, -1.09,
+                                                 -0.94]},
+                                "cce (w/ carbon $ benefits)":
+                                {"2009": [-1.47, -1.74, -1.58, -1.57, -1.43],
+                                 "2010": [-3.00, -3.14, -2.81, -3.09, -2.94]},
+                                "ccc": {"2009": [-0.05, -0.07, -0.06, -0.06,
+                                                 -0.04],
+                                        "2010": [-0.10, -0.11, -0.08, -0.11,
+                                                 -0.09]},
+                                "ccc (w/ energy $ benefits)":
+                                {"2009": [-0.25, -0.27, -0.26, -0.26, -0.24],
+                                 "2010": [-0.20, -0.21, -0.18, -0.21, -0.19]}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above point value master microsegment dict input used with
+    # array of measure lifetime values input
+    ok_out_dist3 = {"stock": {"cost savings": {"2009": [-5, -5, -5, -5, -5],
+                                               "2010": [-5, -5, -5, -5, -5]}},
+                    "energy": {"savings": {"2009": [5, 5, 5, 5, 5],
+                                           "2010": [5, 5, 5, 5, 5]},
+                               "cost savings": {"2009": [10, 10, 10, 10, 10],
+                                                "2010": [5, 5, 5, 5, 5]}},
+                    "carbon": {"savings": {"2009": [50, 50, 50, 50, 50],
+                                           "2010": [50, 50, 50, 50, 50]},
+                               "cost savings": {"2009": [5, 5, 5, 5, 5],
+                                                "2010": [10, 10, 10, 10, 10]}},
+                    "metrics": {"irr (w/ energy $)":
+                                {"2009": [1.00, 1.00, 3.45, 3.45, 4.00],
+                                 "2010": [0.00, 0.00, 3.24, 3.24, 4.00]},
+                                "irr (w/ energy and carbon $)":
+                                {"2009": [2.00, 2.00, 4.54, 4.54, 5.00],
+                                 "2010": [2.00, 2.00, 5.46, 5.46, 6.00]},
+                                "payback (w/ energy $)":
+                                {"2009": [0.50, 0.50, 0.25, 0.25, 0.25],
+                                 "2010": [1.00, 1.00, 0.25, 0.25, 0.25]},
+                                "payback (w/ energy and carbon $)":
+                                {"2009": [0.33, 0.33, 0.20, 0.20, 0.20],
+                                 "2010": [0.33, 0.33, 0.17, 0.17, 0.17]},
+                                "cce": {"2009": [1.07, 1.07, -0.48, -0.48,
+                                                 -1.41],
+                                        "2010": [1.07, 1.07, -1.00, -1.00,
+                                                 -2.23]},
+                                "cce (w/ carbon $ benefits)":
+                                {"2009": [0.07, 0.07, -1.48, -1.48, -2.41],
+                                 "2010": [-0.93, -0.93, -3.00, -3.00, -4.23]},
+                                "ccc": {"2009": [0.11, 0.11, -0.05, -0.05,
+                                                 -0.14],
+                                        "2010": [0.11, 0.11, -0.10, -0.10,
+                                                 -0.22]},
+                                "ccc (w/ energy $ benefits)":
+                                {"2009": [-0.10, -0.10, -0.25, -0.25, -0.34],
+                                 "2010": [0.01, 0.01, -0.20, -0.20, -0.32]}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above dist2 master microsegment dict input used with
+    # array of measure lifetime values input
+    ok_out_dist4 = {"stock": {"cost savings": {"2009": [-5.1, -2.7, -4.1, -4.2,
+                                                        -5.5],
+                                               "2010": [-5.1, -3.7, -6.7, -4.2,
+                                                        -5.5]}},
+                    "energy": {"savings": {"2009": [5, 5, 5, 5, 5],
+                                           "2010": [5, 5, 5, 5, 5]},
+                               "cost savings": {"2009": [10, 10, 10, 10, 10],
+                                                "2010": [5, 5, 5, 5, 5]}},
+                    "carbon": {"savings": {"2009": [50, 50, 50, 50, 50],
+                                           "2010": [50, 50, 50, 50, 50]},
+                               "cost savings": {"2009": [5, 5, 5, 5, 5],
+                                                "2010": [10, 10, 10, 10, 10]}},
+                    "metrics": {"irr (w/ energy $)":
+                                {"2009": [0.96, 2.70, 4.34, 4.22, 3.63],
+                                 "2010": [-0.02, 0.35, 2.22, 4.00, 3.63]},
+                                "irr (w/ energy and carbon $)":
+                                {"2009": [1.94, 4.56, 5.65, 5.50, 4.54],
+                                 "2010": [1.94, 3.05, 3.93, 6.61, 5.45]},
+                                "payback (w/ energy $)":
+                                {"2009": [0.51, 0.27, 0.21, 0.21, 0.28],
+                                 "2010": [999.00, 0.74, 0.34, 0.21, 0.28]},
+                                "payback (w/ energy and carbon $)":
+                                {"2009": [0.34, 0.18, 0.16, 0.17, 0.22],
+                                 "2010": [0.34, 0.25, 0.22, 0.14, 0.18]},
+                                "cce": {"2009": [1.09, 0.58, -0.58, -0.57,
+                                                 -1.38],
+                                        "2010": [1.09, 0.79, -0.81, -1.09,
+                                                 -2.21]},
+                                "cce (w/ carbon $ benefits)":
+                                {"2009": [0.09, -0.42, -1.58, -1.57, -2.38],
+                                 "2010": [-0.91, -1.21, -2.81, -3.09, -4.21]},
+                                "ccc": {"2009": [0.11, 0.06, -0.06, -0.06,
+                                                 -0.14],
+                                        "2010": [0.11, 0.08, -0.08, -0.11,
+                                                 -0.22]},
+                                "ccc (w/ energy $ benefits)":
+                                {"2009": [-0.09, -0.14, -0.26, -0.26, -0.34],
+                                 "2010": [0.01, -0.02, -0.19, -0.21, -0.32]}}}
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -2300,33 +2552,93 @@ class PrioritizationMetricsTest(unittest.TestCase):
                 self.dict_check(i, i2)
             else:
                 # Expect numpy arrays and/or point values
-                if type(i) != int and type(i) != float:
-                    numpy.testing.assert_almost_equal(
+                if (type(i) != int and type(i) != float):
+                    numpy.testing.assert_array_almost_equal(
                         i, i2, decimal=2)
                 else:
                     self.assertAlmostEqual(dict1[k], dict2[k2],
                                            places=2)
 
-    # Test for correct output from "ok_master_mseg" input
-    def test_metrics_ok(self):
+    # Test for correct output from "ok_master_mseg_point" + "ok_life_point"
+    # inputs
+    def test_metrics_ok_point(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**self.sample_measure)
         # Set the master microsegment for the measure instance
-        # to the "ok_master_mseg" dict defined above
-        measure_instance.master_mseg = self.ok_master_mseg
-        # Set measure "life_meas" parameter based on the sample
-        # "product_lifetime" attribute (* Note: this is necessary because
+        # to the "ok_master_mseg_point" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_point
+        # Set measure "life_meas" parameter based on pre-defined
+        # "ok_life_point" variable (* Note: this is necessary because
         # "life_meas" is set in the "mseg_find_partition" function, which is
         # not being executed here)
-        measure_instance.life_meas = measure_instance.product_lifetime
-        # Set measure "life_base" parameter using the measure "master_mseg"
-        # information (* Note: this is necessary because "life_base" is set
-        # in the "mseg_find_partition" function, which is not being excuted
-        # here)
-        measure_instance.life_base = measure_instance.master_mseg["lifetime"]
+        measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
-        dict2 = self.ok_out
+        dict2 = self.ok_out_point
+        self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_master_mseg_dist1" + "ok_life_point"
+    # inputs
+    def test_metrics_ok_distrib1(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**self.sample_measure)
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg_dist1" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_dist1
+        # Set measure "life_meas" parameter based on pre-defined
+        # "ok_life_point" variable
+        measure_instance.life_meas = self.ok_life_point
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict2 = self.ok_out_dist1
+        self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
+    # inputs
+    def test_metrics_ok_distrib2(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**self.sample_measure)
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg_dist2" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_dist2
+        # Set measure "life_meas" parameter based on pre-defined
+        # "ok_life_point" variable
+        measure_instance.life_meas = self.ok_life_point
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict2 = self.ok_out_dist2
+        self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_master_mseg_point" + "ok_life_distrib"
+    # inputs
+    def test_metrics_ok_distrib3(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**self.sample_measure)
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg_point" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_point
+        # Set measure "life_meas" parameter based on pre-defined
+        # "ok_life_distrib" variable
+        measure_instance.life_meas = self.ok_life_distrib
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict2 = self.ok_out_dist3
+        self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
+    # inputs
+    def test_metrics_ok_distrib4(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**self.sample_measure)
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg_dist2" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_dist2
+        # Set measure "life_meas" parameter based on pre-defined
+        # "ok_life_distrib" variable
+        measure_instance.life_meas = self.ok_life_distrib
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict2 = self.ok_out_dist4
         self.dict_check(dict1, dict2)
 
 
@@ -2342,30 +2654,34 @@ class MetricUpdateTest(unittest.TestCase):
                       "technology": ["boiler (electric)",
                                      "ASHP", "GSHP", "room AC"],
                       "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                      "life_base": 1,
-                      "life_meas": 2}
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Define ok test inputs
 
     # Test discount rate
     ok_rate = 0.07
-    # Test stock cashflow input
-    ok_s_list = numpy.array([-10, 0, 0, 10, 0, 0, 0])
-    # Test stock + energy cashflow input
-    ok_se_list = numpy.array([-10, 5, 5, 15, 5, 5, 5])
-    # Test stock + carbon cashflow input
-    ok_sc_list = numpy.array([-10, 10, 10, 20, 10, 10, 10])
-    # Test stock + energy + carbon cashflow input
-    ok_sec_list = numpy.array([-10, 15, 15, 25, 15, 15, 15])
-    # Test energy savings input
-    ok_esave_list = numpy.array([0, 25, 25, 25, 25, 25, 25])
-    # Test carbon savings input
-    ok_csave_list = numpy.array([0, 50, 50, 50, 50, 50, 50])
+    # Test ok base stock cost
+    ok_base_scost = 10
+    # Test ok base stock life
+    ok_base_life = 3
+    # Test ok life of the measure
+    ok_life_meas = 6
+    # Test ok capital cost increment
+    ok_scostsave = -10
+    # Test ok energy savings
+    ok_esave = 25
+    # Test ok energy cost savings
+    ok_ecostsave = 5
+    # Test ok carbon savings
+    ok_csave = 50
+    # Test ok carbon cost savings
+    ok_ccostsave = 10
+    # Test ok life ratio
+    ok_life_ratio = 2
 
     # Correct metric output values that should be yielded by using "ok"
     # inputs above
-    ok_out = numpy.array([0.62, 1.59, 2, 0.67, -0.02, 0.38, -0.01, 0.09])
+    ok_out = numpy.array([0.62, 1.59, 2, 0.67, 0.02, -0.38, 0.01, -0.09])
 
     # Test for correct outputs given "ok" inputs above
     def test_metric_updates(self):
@@ -2373,13 +2689,13 @@ class MetricUpdateTest(unittest.TestCase):
         measure_instance = run.Measure(**self.sample_measure)
         # Test that "ok" inputs yield correct output metric values
         # (* Note: outputs should be formatted as numpy arrays)
-        numpy.testing.assert_almost_equal(
-            measure_instance.metric_update(self.ok_rate, self.ok_s_list,
-                                           self.ok_se_list, self.ok_sc_list,
-                                           self.ok_sec_list,
-                                           self.ok_esave_list,
-                                           self.ok_csave_list), self.ok_out,
-            decimal=2)
+        numpy.testing.assert_array_almost_equal(
+            measure_instance.metric_update(
+                self.ok_rate, self.ok_base_scost, self.ok_base_life,
+                self.ok_scostsave, self.ok_esave, self.ok_ecostsave,
+                self.ok_csave, self.ok_ccostsave, self.ok_life_ratio,
+                self.ok_life_meas),
+            self.ok_out, decimal=2)
 
 
 class PaybackTest(unittest.TestCase):
@@ -2394,9 +2710,7 @@ class PaybackTest(unittest.TestCase):
                       "technology": ["boiler (electric)",
                                      "ASHP", "GSHP", "room AC"],
                       "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                      "life_base": 1,
-                      "life_meas": 2}
+                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Define ok test cashflow inputs
     ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8],

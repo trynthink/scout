@@ -80,12 +80,6 @@ class Measure(object):
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
 
-        # Initialize relative change attributes (meas vs. base)
-        self.esavings_norm = {}  # Energy savings/stock
-        self.ecostsavings_norm = {}  # Total energy cost savings/stock
-        self.carbsavings_norm = {}  # CO2 savings/stock
-        self.carbcostsavings_norm = {}  # CO2 cost savings/stock
-
     def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
@@ -360,8 +354,8 @@ class Measure(object):
             else:
                 reduce_factor = 1
         else:
-                raise KeyError('No valid key chains discovered for lifetime and sq.ft. \
-                                  stock and cost division operation!')
+                raise KeyError('No valid key chains discovered for lifetime \
+                                and stock and cost division operations!')
 
         # Register contributing microsegment for later use
         # in determining staging overlaps
@@ -458,179 +452,123 @@ class Measure(object):
         internal rate of return, simple payback, cost of conserved energy, and
         cost of conserved carbon for the measure. """
 
-        # Initialize a set of dicts including information on capital
-        # cost savings; energy and energy costs savings; carbon and carbon cost
-        # savings; and a series of possible measure prioritization metrics
-        # (internal rate of return, simple payback, cost of conserved energy,
-        # cost of conserved carbon)
-        scostsave_list, esave_list, ecostsave_list, csave_list, ccostsave_list, \
-            irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
+        # Initialize capital cost, energy/energy cost savings, carbon/carbon
+        # cost savings, and prioritization metrics as dicts with years as keys
+        scost_dif_init, esave, ecostsave, csave, ccostsave, irr_e, irr_ec, \
+            payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
             ({} for d in range(13))
 
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
         for yr in self.master_mseg["stock"]["competed"].keys():
 
-            # Define ratio of measure lifetime to baseline lifetime.  This will
-            # be used below in determining capital cashflows over the measure
-            # lifetime
-            life_ratio = int(self.life_meas / self.master_mseg["lifetime"][yr])
-
-            # Determine the initial incremental capital cost of the
-            # measure over the baseline
-            stock_costsave_init = \
-                self.master_mseg["cost"]["baseline"]["stock"][yr] - \
-                self.master_mseg["cost"]["measure"]["stock"][yr]
-
-            # Determine subsequent capital cost gains (if any) of the measure
-            # over the baseline due to a comparatively longer lifetime (i.e, if
-            # a measure has twice the lifetime of a baseline technology it
-            # will take two purchases of the baseline technology to
-            # equal one purchase of the measure technology).
-            if life_ratio != 1:
-                # Determine the cost gain (= capital cost of baseline tech.)
-                stock_costsave_life = \
-                    self.master_mseg["cost"]["baseline"]["stock"][yr]
-                # Determine when over the course of the measure lifetime
-                # this cost gain is realized; store this information in
-                # a list of year indicators for subsequent use below
-                added_stockcost_gain_yrs = []
-                for i in range(0, life_ratio - 1):
-                    added_stockcost_gain_yrs.append(
-                        2 * i + self.master_mseg["lifetime"][yr])
+            # Set the capital cost of the baseline technology for comparison
+            # with measure capital cost
+            scost_base = self.master_mseg["cost"]["baseline"]["stock"][yr]
+            # Calculate initial incremental capital cost of the measure over
+            # the baseline
+            scost_dif_init[yr] = \
+                scost_base - self.master_mseg["cost"]["measure"]["stock"][yr]
 
             # Calculate annual energy savings for the measure vs. baseline
-            esave = \
+            esave[yr] = \
                 self.master_mseg["energy"]["competed"][yr] - \
                 self.master_mseg["energy"]["efficient"][yr]
             # Calculate annual energy cost savings for the measure vs. baseline
-            ecostsave = \
+            ecostsave[yr] = \
                 self.master_mseg["cost"]["baseline"]["energy"][yr] - \
                 self.master_mseg["cost"]["measure"]["energy"][yr]
+
             # Calculate annual carbon savings for the measure vs. baseline
-            csave = \
+            csave[yr] = \
                 self.master_mseg["carbon"]["competed"][yr] - \
                 self.master_mseg["carbon"]["efficient"][yr]
             # Calculate annual carbon cost savings for the measure vs. baseline
-            ccostsave = \
+            ccostsave[yr] = \
                 self.master_mseg["cost"]["baseline"]["carbon"][yr] - \
                 self.master_mseg["cost"]["measure"]["carbon"][yr]
 
-            # Combine each of the above capital/energy/carbon savings variables
-            # into a single list for use in determining consistency of
-            # formatting.  For example, if a user specifies a distribution on
-            # the measure capital cost but not the performance, energy/carbon
-            # cost savings information will be in a list format, while
-            # energy/carbon savings will be point values.  The few lines
-            # below ensure formatting of all variables as lists of length N,
-            # where N is the maximum length of "check_format" elements
-            check_format = [stock_costsave_init, esave, ecostsave,
-                            csave, ccostsave]
-            # First, ensure that all variables in "check_format" are formatted
-            # as lists
-            for c in range(0, len(check_format)):
-                if type(check_format[c]) != list:
-                    check_format[c] = [check_format[c]]
-            # Then, find "check_format" element lengths and ensure they are
-            # consistent; if there are differences in the element lengths, find
-            # the maximum element length and extend all elements to this length
-            # to simplify later operations
-            if all(len(n) == 1 for n in check_format):  # All point values
-                list_length = 1
-            elif all(len(n) > 1 for n in check_format):  # All lists
-                list_length = len(check_format[0])
-            else:  # Mix of point values and lists
-                list_length = \
-                    len(next(x for x in check_format if type(x) == list))
-                for elem in check_format:
-                    if type(elem) != list:
-                        elem = [elem] * list_length
+            # Set the lifetime of the baseline technology for comparison with
+            # measure lifetime
+            life_base = self.master_mseg["lifetime"][yr]
+            # Set life of the measure
+            life_meas = self.life_meas
+            # Define ratio of measure lifetime to baseline lifetime.  This will
+            # be used below in determining capital cashflows over the measure
+            # lifetime
+            life_ratio = life_meas / life_base
 
-            # Develop a list of zeros consistent with maximum element
-            # length, to be added to initial capital cost savings list below
-            # for all years > 0; and to initial energy/energy cost and carbon/
-            # carbon cost savings lists below for year == 0
-            zeros_add = [0] * list_length
+            # Calculate prioritization metrics using "metric_update" function
+            # with above variables as inputs
 
-            # Develop initial list of capital cost savings across measure life
-            scostsave_list[yr] = numpy.array(check_format[0] + zeros_add *
-                                             self.life_meas)
-            # Develop initial list of energy savings across measure life
-            esave_list[yr] = numpy.array(zeros_add + check_format[1] *
-                                         self.life_meas)
-            # Develop initial list of energy cost savings across measure life
-            ecostsave_list[yr] = numpy.array(zeros_add + check_format[2] *
-                                             self.life_meas)
-            # Develop initial list of carbon savings across measure life
-            csave_list[yr] = numpy.array(zeros_add + check_format[3] *
-                                         self.life_meas)
-            # Develop initial list of carbon cost savings across measure life
-            ccostsave_list[yr] = numpy.array(zeros_add + check_format[4] *
-                                             self.life_meas)
+            # Check whether any "metric_update" inputs that could be arrays are
+            # arrays
+            if any(type(x) == numpy.ndarray for x in
+                    [scost_dif_init[yr], esave[yr], life_ratio]):
 
-            # Develop three initial cash flow scenarios over the measure life:
-            # 1) Cash flows considering capital costs and energy costs
-            # 2) Cash flows considering capital costs and carbon costs
-            # 3) Cash flows considering capital, energy, and carbon costs
-            cashflows_se = scostsave_list[yr] + ecostsave_list[yr]
-            cashflows_sc = scostsave_list[yr] + ccostsave_list[yr]
-            cashflows_sec = scostsave_list[yr] + ecostsave_list[yr] + \
-                ccostsave_list[yr]
+                # Ensure consistency in length of all "metric_update" inputs
+                # that can be arrays
 
-            # If measure has longer life than baseline, update all cash flows
-            # to reflect capital cost gains from longer life in the appropriate
-            # years (indicated by "added_stockcost_gain_yrs" list)
-            if stock_costsave_life:
-                for elem in range(0, len(scostsave_list[yr]) + 1):
-                    if any(added_stockcost_gain_yrs) == elem:
-                        # Reflect additional capital gains in
-                        # appropriate years of capital cost
-                        # savings list
-                        scostsave_list[yr][elem] = stock_costsave_life + \
-                            scostsave_list[yr][elem]
-                        # Reflect additional capital gains in
-                        # appropriate years of cash flows
-                        cashflows_se[elem] = stock_costsave_life + \
-                            cashflows_se[elem]
-                        cashflows_sc[elem] = stock_costsave_life + \
-                            cashflows_sc[elem]
-                        cashflows_sec[elem] = stock_costsave_life + \
-                            cashflows_sec[elem]
+                # Determine the length that any array inputs to "metric_update"
+                # should consistently have
+                length_array = next(
+                    (len(item) for item in [scost_dif_init[yr], esave[yr],
+                     life_ratio] if type(item) == numpy.ndarray), None)
 
-            # Using the above lifetime capital costs, cash flows, and energy
-            # and carbon savings, calculate desired prioritization metrics
+                # Ensure all array inputs to "metric_update" are of the above
+                # length
 
-            # If the inputs are each lists, expect metric outputs that are also
-            # lists of the same length; otherwise, expect point value outputs
-            if list_length > 1:
-                # Initialize output lists
-                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr], \
+                # Check incremental capital cost input
+                if type(scost_dif_init[yr]) != numpy.ndarray:
+                    scost_dif_init[yr] = numpy.repeat(scost_dif_init[yr],
+                                                      length_array)
+                # Check energy/energy cost and carbon/cost savings inputs
+                if type(esave[yr]) != numpy.ndarray:
+                    esave[yr] = numpy.repeat(esave[yr], length_array)
+                    ecostsave[yr] = numpy.repeat(ecostsave[yr], length_array)
+                    csave[yr] = numpy.repeat(csave[yr], length_array)
+                    ccostsave[yr] = numpy.repeat(ccostsave[yr], length_array)
+                # Check measure lifetime and lifetime ratio inputs
+                if type(life_ratio) != numpy.ndarray:
+                    life_meas = numpy.repeat(life_meas, length_array)
+                    life_ratio = numpy.repeat(life_ratio, length_array)
+
+                # Initialize numpy arrays for prioritization metric outputs
+                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                    ([None] * list_length for i in range(8))
-                # Loop through each output list element and update with
-                # appropriate metric calculation
-                for x in range(0, list_length):
+                    (numpy.zeros(len(scost_dif_init[yr])) for v in range(8))
+
+                # Run measure energy/carbon/cost savings and lifetime inputs
+                # through "metric_update" function to yield prioritization
+                # metric outputs. To handle inputs that are arrays, use a for
+                # loop to generate an output for each input array element
+                # one-by-one and append it to the appropriate output list.
+                for x in range(0, len(scost_dif_init[yr])):
                     irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
                         payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
                         ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
-                            rate, scostsave_list[yr][x], cashflows_se[yr][x],
-                            cashflows_sc[x], cashflows_sec[x],
-                            esave_list[yr][x], csave_list[yr][x])
+                            rate, scost_base, life_base, scost_dif_init[yr][x],
+                            esave[yr][x], ecostsave[yr][x], csave[yr][x],
+                            ccostsave[yr][x], int(life_ratio[x]),
+                            int(life_meas[x]))
             else:
-                # Update each output value with appropriate metric calculation
+
+                # Run measure energy/carbon/cost savings and lifetime inputs
+                # through "metric_update" function to yield prioritization
+                # metric outputs
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = self.metric_update(
-                        rate, scostsave_list[yr], cashflows_se,
-                        cashflows_sc, cashflows_sec, esave_list[yr],
-                        csave_list[yr])
+                        rate, scost_base, life_base, scost_dif_init[yr],
+                        esave[yr], ecostsave[yr], csave[yr], ccostsave[yr],
+                        int(life_ratio), int(life_meas))
 
         # Record final measure savings figures and prioritization metrics
         # in a dict that is returned by the function
-        mseg_save = {"stock": {"cost savings": scostsave_list},
-                     "energy": {"savings": esave_list,
-                                "cost savings": ecostsave_list},
-                     "carbon": {"savings": csave_list,
-                                "cost savings": ccostsave_list},
+        mseg_save = {"stock": {"cost savings": scost_dif_init},
+                     "energy": {"savings": esave,
+                                "cost savings": ecostsave},
+                     "carbon": {"savings": csave,
+                                "cost savings": ccostsave},
                      "metrics": {"irr (w/ energy $)": irr_e,
                                  "irr (w/ energy and carbon $)": irr_ec,
                                  "payback (w/ energy $)": payback_e,
@@ -640,7 +578,6 @@ class Measure(object):
                                  "cce (w/ carbon $ benefits)": cce_bens,
                                  "ccc": ccc,
                                  "ccc (w/ energy $ benefits)": ccc_bens}}
-
         # Return final savings figures and prioritization metrics
         return mseg_save
 
@@ -691,11 +628,62 @@ class Measure(object):
         # Return the randomly sampled list of values
         return rand_list
 
-    def metric_update(self, rate, scostsave_list, cashflows_se, cashflows_sc,
-                      cashflows_sec, esave_list, csave_list):
+    def metric_update(self, rate, scost_base, life_base, scost_dif_init, esave,
+                      ecostsave, csave, ccostsave, life_ratio, life_meas):
         """ Calculate internal rate of return, simple payback, and cost of
-        conserved energy/carbon given input cash flows and energy/carbon
+        conserved energy/carbon from cash flows and energy/carbon
         savings across the measure lifetime """
+
+        # Develop four initial cash flow scenarios over the measure life:
+        # 1) Cash flows considering capital costs only
+        # 2) Cash flows considering capital costs and energy costs
+        # 3) Cash flows considering capital costs and carbon costs
+        # 4) Cash flows considering capital, energy, and carbon costs
+
+        # Cash flow lists are initialized with the incremental capital
+        # cost as the first list element; these lists are further updated below
+        cashflows_s = [scost_dif_init]
+        cashflows_se = [scost_dif_init]
+        cashflows_sc = [scost_dif_init]
+        cashflows_sec = [scost_dif_init]
+        # Determine when over the course of the measure lifetime (if at all)
+        # a cost gain is realized from an avoided purchase of the baseline
+        # technology due to longer measure lifetime; store this information in
+        # a list of year indicators for subsequent use below.  Example: an LED
+        # bulb lasts 30 years compared to a baseline bulb's 10 years, meaning
+        # 3 purchases of the baseline bulb would have occured by the time the
+        # LED bulb has reached the end of its life.
+        added_stockcost_gain_yrs = []
+        if life_ratio > 1:
+            for i in range(0, life_ratio - 1):
+                added_stockcost_gain_yrs.append(
+                    (life_base - 1) + (life_base * i))
+        # If the measure lifetime is less than 1 year, set it to 1 year
+        # (a minimum for measure lifetime to work in below calculations)
+        if life_meas < 1:
+            life_meas = 1
+        # Update above cashflow lists to construct complete cash flows across
+        # measure lifetime
+        for life_yr in range(0, life_meas):
+            # Check whether an avoided cost of the baseline technology should
+            # be added for given year; if not, set this term to zero
+            if life_yr in added_stockcost_gain_yrs:
+                scost_life = scost_base
+            else:
+                scost_life = 0
+
+            # Add avoided capital costs and saved energy and carbon costs
+            # as appropriate
+            cashflows_s.append(scost_life)
+            cashflows_se.append(scost_life + ecostsave)
+            cashflows_sc.append(scost_life + ccostsave)
+            cashflows_sec.append(scost_life + ecostsave + ccostsave)
+
+        # Develop lists of energy and carbon savings across measure
+        # lifetime (for use in cost of conserved energy and carbon calcs).
+        # First term (reserved for initial savings figure) is zero.
+        esave_list = [0] + [esave] * life_meas
+        csave_list = [0] + [csave] * life_meas
 
         # Calculate irr for capital + energy and capital + energy + carbon
         # cash flows
@@ -706,13 +694,17 @@ class Measure(object):
         payback_e = self.payback(cashflows_se)
         payback_ec = self.payback(cashflows_sec)
         # Calculate cost of conserved energy w/o carbon cost savings benefits
-        cce = numpy.npv(rate, scostsave_list) / numpy.npv(rate, esave_list)
+        cce = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
+            numpy.npv(rate, esave_list)
         # Calculate cost of conserved energy w/ carbon cost savings benefits
-        cce_bens = numpy.npv(rate, cashflows_sc) / numpy.npv(rate, esave_list)
+        cce_bens = (abs(cashflows_sc[0]) - numpy.npv(rate, ([0] +
+                    cashflows_sc[1:]))) / numpy.npv(rate, esave_list)
         # Calculate cost of conserved carbon w/o energy cost savings benefits
-        ccc = numpy.npv(rate, scostsave_list) / numpy.npv(rate, csave_list)
+        ccc = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
+            numpy.npv(rate, csave_list)
         # Calculate cost of conserved carbon w/ energy cost savings benefits
-        ccc_bens = numpy.npv(rate, cashflows_se) / numpy.npv(rate, csave_list)
+        ccc_bens = (abs(cashflows_se[0]) - numpy.npv(rate, ([0] +
+                    cashflows_se[1:]))) / numpy.npv(rate, csave_list)
 
         # Return all updated prioritization metrics
         return irr_e, irr_ec, payback_e, payback_ec, \
