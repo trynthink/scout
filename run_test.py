@@ -2238,6 +2238,9 @@ class PrioritizationMetricsTest(unittest.TestCase):
     # Discount rate used for testing
     ok_rate = 0.07
 
+    # Decision rule prioritization metric used for testing
+    ok_prior_metric = 'cce'
+
     # Measure lifetime point value used for testing
     ok_life_point = 2
     # Measure lifetime list of values used for testing
@@ -2573,9 +2576,13 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # not being executed here)
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate,
+                                                    self.ok_prior_metric)
         dict2 = self.ok_out_point
-        self.dict_check(dict1, dict2)
+        # Check full dictionary output
+        self.dict_check(dict1[0], dict2)
+        # Check unique prioritization metric output
+        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
 
     # Test for correct output from "ok_master_mseg_dist1" + "ok_life_point"
     # inputs
@@ -2589,9 +2596,13 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_point" variable
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate,
+                                                    self.ok_prior_metric)
         dict2 = self.ok_out_dist1
-        self.dict_check(dict1, dict2)
+        # Check first calc_metric_update output (master savings dict)
+        self.dict_check(dict1[0], dict2)
+        # Check second calc_metric_update output (prioritization metric value)
+        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
 
     # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
     # inputs
@@ -2605,9 +2616,13 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_point" variable
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate,
+                                                    self.ok_prior_metric)
         dict2 = self.ok_out_dist2
-        self.dict_check(dict1, dict2)
+        # Check first calc_metric_update output (master savings dict)
+        self.dict_check(dict1[0], dict2)
+        # Check second calc_metric_update output (prioritization metric value)
+        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
 
     # Test for correct output from "ok_master_mseg_point" + "ok_life_distrib"
     # inputs
@@ -2621,9 +2636,13 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_distrib" variable
         measure_instance.life_meas = self.ok_life_distrib
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate,
+                                                    self.ok_prior_metric)
         dict2 = self.ok_out_dist3
-        self.dict_check(dict1, dict2)
+        # Check first calc_metric_update output (master savings dict)
+        self.dict_check(dict1[0], dict2)
+        # Check second calc_metric_update output (prioritization metric value)
+        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
 
     # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
     # inputs
@@ -2637,9 +2656,13 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_distrib" variable
         measure_instance.life_meas = self.ok_life_distrib
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate,
+                                                    self.ok_prior_metric)
         dict2 = self.ok_out_dist4
-        self.dict_check(dict1, dict2)
+        # Check first calc_metric_update output (master savings dict)
+        self.dict_check(dict1[0], dict2)
+        # Check second calc_metric_update output (prioritization metric value)
+        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
 
 
 class MetricUpdateTest(unittest.TestCase):

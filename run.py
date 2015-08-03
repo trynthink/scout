@@ -44,7 +44,8 @@ rate = 0.07
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 active_measures = []
 adopt_scheme = 'Technical potential'
-decision_rule = 'NA'
+staging = True
+prior_metric = 'cce'
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -79,6 +80,9 @@ class Measure(object):
         self.total_carb_norm = {}  # Carbon/stock (whole mseg)
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
+
+        # Initialize prioritization metric
+        self.prior_metric_val = None
 
     def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
@@ -445,7 +449,7 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_meas, energy_eff_cost,
                 carb_eff_cost]
 
-    def calc_metric_update(self, rate):
+    def calc_metric_update(self, rate, prior_metric):
         """ Given information on a measure's master microsegment for
         each projection year and a discount rate, determine capital ("stock"),
         energy, and carbon cost savings; energy and carbon savings; and the
@@ -578,8 +582,12 @@ class Measure(object):
                                  "cce (w/ carbon $ benefits)": cce_bens,
                                  "ccc": ccc,
                                  "ccc (w/ energy $ benefits)": ccc_bens}}
+
+        # Grab correct prioritization metric from the mseg_save dict
+        prior_metric_val = mseg_save["metrics"][prior_metric]
+
         # Return final savings figures and prioritization metrics
-        return mseg_save
+        return [mseg_save, prior_metric_val]
 
     def reduce_sqft_stock_cost(self, dict1, reduce_factor):
         """ Divide "stock" and "stock cost" information by a given factor to
@@ -761,17 +769,23 @@ class Engine(object):
     def __init__(self, measure_objects):
         self.measure_objs = measure_objects
 
-    def adopt_active(self, mseg_in, base_costperflife_in, adopt_scheme,
-                     decision_rule, rate):
-        """ Run adoption scheme on active measures only """
+    def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
+                          prior_metric, rate):
+        """ Run initialization scheme on active measures only """
         for m in self.measure_objs:
             if m.active == 1:
                 # Find master microsegment and partitions
                 m.master_mseg = m.mseg_find_partition(
                     mseg_in, base_costperflife_in, adopt_scheme)
-                # Update cost/savings outcomes based on master microsegment
-                m.master_savings = m.calc_metric_update(rate)
-        # Eventually adopt measures here using updated measure decision info.
+                # Update cost/savings outcomes and prioritization metric
+                # based on master microsegment
+                [m.master_savings, m.prior_metric_val] = m.calc_metric_update(
+                    rate, prior_metric)
+
+    def run_staging(self, prior_metric, rate):
+        """ Stage active measures to remove overlapping microsegments and
+        avoid double counting energy/carbon savings """
+        pass
 
 
 def main():
@@ -793,8 +807,10 @@ def main():
         measures_objlist.append(Measure(**mi))
 
     a_run = Engine(measures_objlist)
-    a_run.adopt_active(microsegments_input, base_costperflife_info_input,
-                       adopt_scheme, decision_rule, rate)
+    a_run.initialize_active(microsegments_input, base_costperflife_info_input,
+                            adopt_scheme, prior_metric, rate)
+    if staging is True:
+        a_run.run_staging(prior_metric, rate)
 
 if __name__ == '__main__':
     main()
