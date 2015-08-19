@@ -11,49 +11,68 @@ import numpy
 import scipy.stats as ss
 import copy
 
+# Define sample measure for use in all tests below
+sample_measure = {"name": "sample measure 1",
+                  "end_use": ["heating", "cooling"],
+                  "fuel_type": "electricity (grid)",
+                  "technology_type": "supply",
+                  "technology": ["boiler (electric)",
+                                 "ASHP", "GSHP", "room AC"],
+                  "bldg_type": "single family home",
+                  "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+
+class CommonMethods(object):
+    """ Define common methods for use in all tests below """
+
+    # Create a routine for checking equality of a dict with point vals
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
+    # Create a routine for checking equality of a dict with list vals
+    def dict_check_list(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check_list(i, i2)
+            else:
+                # Expect numpy arrays and/or point values
+                if (type(i) != int and type(i) != float):
+                    numpy.testing.assert_array_almost_equal(
+                        i, i2, decimal=2)
+                else:
+                    self.assertAlmostEqual(dict1[k], dict2[k2],
+                                           places=2)
+
 
 class TestMeasureInit(unittest.TestCase):
     """ Ensure that measure attributes are correctly initiated """
 
-    # Sample measure for use in testing attributes * NOTE:
-    # this is duplicated later in another test, look into how to combine?
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
-
     def test_attributes(self):
         # Create an instance of the object using sample_measure
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Put object attributes into a dict
         attribute_dict = measure_instance.__dict__
         # Loop through sample measure keys and compare key values
         # to those from the "attribute_dict"
-        for key in self.sample_measure.keys():
+        for key in sample_measure.keys():
             self.assertEqual(attribute_dict[key],
-                             self.sample_measure[key])
+                             sample_measure[key])
         # Check to see that sample measure is correctly identified
         # as inactive
         self.assertEqual(measure_instance.active, 0)
 
 
-class AddKeyValsTest(unittest.TestCase):
+class AddKeyValsTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the add_keyvals function to verify it
     adds together dict items correctly """
-
-    # Sample measure for use in testing add_keyvals
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Create a measure instance to use in the testing
     measure_instance = run.Measure(**sample_measure)
@@ -109,17 +128,6 @@ class AddKeyValsTest(unittest.TestCase):
                "level2bb":
                   {"2009": 16, "2010": 18}}}
 
-    # Create a routine for checking equality of a dict * NOTE:
-    # this is duplicated later in another test, look into how to combine?
-    def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-
     # Test the "ok" function output
     def test_ok_add(self):
         dict1 = self.measure_instance.add_keyvals(self.base_dict1,
@@ -134,20 +142,10 @@ class AddKeyValsTest(unittest.TestCase):
                                               self.fail_add_dict2)
 
 
-class ReduceSqftStockCostTest(unittest.TestCase):
-    """ Test the operation of the reduce_sqft_stock_cost function to verify
+class ReduceSqftStockCostTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the reduce_sqft function to verify
     that it properly divides dict key values by a given factor (used in special
     case where square footage is used as the microsegment stock) """
-
-    # Sample measure for use in testing add_keyvals
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Create a measure instance to use in the testing
     measure_instance = run.Measure(**sample_measure)
@@ -215,105 +213,77 @@ class ReduceSqftStockCostTest(unittest.TestCase):
                   "energy": {"2009": 1100, "2010": 1200},
                   "carbon": {"2009": 1100, "2010": 1200}}}}
 
-    # Create a routine for checking equality of a dict
-    def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-
     # Test the "ok" function output
     def test_ok_add(self):
-        dict1 = self.measure_instance.reduce_sqft_stock_cost(self.base_dict,
-                                                             self.test_factor)
+        dict1 = self.measure_instance.reduce_sqft(self.base_dict,
+                                                  self.test_factor)
         dict2 = self.ok_out
         self.dict_check(dict1, dict2)
 
 
-class RandomSampleTest(unittest.TestCase):
-    """ Test that the "rand_list_gen" yields an output
-    list of sampled values that are correctly distributed """
+# NOT SURE WE NEED THIS TEST
 
-    # Sample measure for use in testing attributes
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+# class RandomSampleTest(unittest.TestCase):
+#     """ Test that the "rand_list_gen" yields an output
+#     list of sampled values that are correctly distributed """
 
-    # Create a measure instance to use in the testing
-    measure_instance = run.Measure(**sample_measure)
+#     # Create a measure instance to use in the testing
+#     measure_instance = run.Measure(**sample_measure)
 
-    # Set test sampling number
-    test_sample_n = 100
+#     # Set test sampling number
+#     test_sample_n = 100
 
-    # Set of input distribution information that should
-    # yield valid outputs
-    test_ok_in = [["normal", 10, 2], ["weibull", 5, 8],
-                  ["triangular", 3, 7, 10]]
+#     # Set of input distribution information that should
+#     # yield valid outputs
+#     test_ok_in = [["normal", 10, 2], ["weibull", 5, 8],
+#                   ["triangular", 3, 7, 10]]
 
-    # Set of input distribution information that should
-    # yield value errors
-    test_fail_in = [[1, 10, 2], ["triangle", 5, 8, 10],
-                    ["triangular", 3, 7]]
+#     # Set of input distribution information that should
+#     # yield value errors
+#     test_fail_in = [[1, 10, 2], ["triangle", 5, 8, 10],
+#                     ["triangular", 3, 7]]
 
-    # Calls to the scipy fit function that will be used
-    # to check for correct fitted distribution parameters
-    # for sampled values
-    test_fit_calls = ['ss.norm.fit(sample)',
-                      'ss.weibull_min.fit(sample, floc = 0)',
-                      'ss.triang.fit(sample)']
+#     # Calls to the scipy fit function that will be used
+#     # to check for correct fitted distribution parameters
+#     # for sampled values
+#     test_fit_calls = ['ss.norm.fit(sample)',
+#                       'ss.weibull_min.fit(sample, floc = 0)',
+#                       'ss.triang.fit(sample)']
 
-    # Correct set of outputs for given random sampling seed
-    test_outputs = [numpy.array([10.06, 2.03]),
-                    numpy.array([4.93, 0, 8.02]),
-                    numpy.array([0.51, 3.01, 7.25])]
+#     # Correct set of outputs for given random sampling seed
+#     test_outputs = [numpy.array([10.06, 2.03]),
+#                     numpy.array([4.93, 0, 8.02]),
+#                     numpy.array([0.51, 3.01, 7.25])]
 
-    # Test for correct output from "ok" input distribution info.
-    def test_distrib_ok(self):
-        # Seed random number generator to yield repeatable results
-        numpy.random.seed(5423)
-        for idx in range(0, len(self.test_ok_in)):
-            # Sample values based on distribution input info.
-            sample = self.measure_instance.rand_list_gen(self.test_ok_in[idx],
-                                                         self.test_sample_n)
-            # Fit parameters for sampled values and check against
-            # known correct parameter values in "test_outputs" * NOTE:
-            # this adds ~ 0.15 s to test computation
-            for elem in range(0, len(self.test_outputs[idx])):
-                with numpy.errstate(divide='ignore'):  # Warning for triang
-                    self.assertAlmostEqual(
-                        list(eval(self.test_fit_calls[idx]))[elem],
-                        self.test_outputs[idx][elem], 2)
+#     # Test for correct output from "ok" input distribution info.
+#     def test_distrib_ok(self):
+#         # Seed random number generator to yield repeatable results
+#         numpy.random.seed(5423)
+#         for idx in range(0, len(self.test_ok_in)):
+#             # Sample values based on distribution input info.
+#             sample = self.measure_instance.rand_list_gen(self.test_ok_in[idx],
+#                                                          self.test_sample_n)
+#             # Fit parameters for sampled values and check against
+#             # known correct parameter values in "test_outputs" * NOTE:
+#             # this adds ~ 0.15 s to test computation
+#             for elem in range(0, len(self.test_outputs[idx])):
+#                 with numpy.errstate(divide='ignore'):  # Warning for triang
+#                     self.assertAlmostEqual(
+#                         list(eval(self.test_fit_calls[idx]))[elem],
+#                         self.test_outputs[idx][elem], 2)
 
-    # Test for correct output from "fail" input distribution info.
-    def test_distrib_fail(self):
-        for idx in range(0, len(self.test_fail_in)):
-            with self.assertRaises(ValueError):
-                self.measure_instance.rand_list_gen(
-                    self.test_fail_in[idx], self.test_sample_n)
+#     # Test for correct output from "fail" input distribution info.
+#     def test_distrib_fail(self):
+#         for idx in range(0, len(self.test_fail_in)):
+#             with self.assertRaises(ValueError):
+#                 self.measure_instance.rand_list_gen(
+#                     self.test_fail_in[idx], self.test_sample_n)
 
 
-class PartitionMicrosegmentTest(unittest.TestCase):
+class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the partition_microsegment function to verify
     that it properly partitions an input microsegment to yield the required
     competed stock/energy/cost and energy efficient consumption information """
-
-    # Sample measure for use in testing add_keyvals
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Create a measure instance to use in the testing
     measure_instance = run.Measure(**sample_measure)
@@ -398,16 +368,6 @@ class PartitionMicrosegmentTest(unittest.TestCase):
     blank_out = [None, None, None, None, None, None,
                  None, None, None, None, None]
 
-    # Create a routine for checking equality of a dict
-    def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-
     # Test the "ok" function output
     def test_ok(self):
         for elem in range(0, len(self.test_stock)):
@@ -446,7 +406,7 @@ class PartitionMicrosegmentTest(unittest.TestCase):
             self.assertEqual(lists1, lists2)
 
 
-class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
+class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the mseg_find_partition function to
     verify measure microsegment-related attribute inputs yield expected master
     microsegment output """
@@ -1849,7 +1809,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                          "technology": None,
                          "bldg_type": "single family home",
                          "climate_zone": "AIA_CZ1"},
-                        {"name": "distrib measure 2",
+                        {"name": "distrib measure 3",
                          "installed_cost": ["normal", 10, 5],
                          "cost_units": "2014$/sf",
                          "energy_efficiency": {"windows conduction":
@@ -1974,15 +1934,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                "2010": 710},
                                      "energy": {"2009": 2328.955,
                                                 "2010": 2227.968},
-                                     "carbon": {"2009": 430868.6,
+                                     "carbon": {"2009": 430868.63,
                                                 "2010": 427058.3},
                                      },
                         "measure": {"stock": {"2009": 1800,
                                               "2010": 1800},
                                     "energy": {"2009": 1187.336,
                                                "2010": 1135.851},
-                                    "carbon": {"2009": 219663.2,
-                                               "2010": 217720.6}}},
+                                    "carbon": {"2009": 219663.21,
+                                               "2010": 217720.65}}},
                "lifetime": {"2009": 75, "2010": 75}},
               {"stock": {"total": {"2009": 15, "2010": 15},
                          "competed": {"2009": 15, "2010": 15}},
@@ -2018,15 +1978,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                "2010": 2972},
                                      "energy": {"2009": 4787.297,
                                                 "2010": 4579.712},
-                                     "carbon": {"2009": 885674.4,
-                                                "2010": 877842.1},
+                                     "carbon": {"2009": 885674.41,
+                                                "2010": 877842.06},
                                      },
                         "measure": {"stock": {"2009": 3700,
                                               "2010": 3700},
                                     "energy": {"2009": 3845.364,
                                                "2010": 3678.623},
-                                    "carbon": {"2009": 711412,
-                                               "2010": 705120.7}}},
+                                    "carbon": {"2009": 711411.98,
+                                               "2010": 705120.71}}},
                "lifetime": {"2009": 200, "2010": 200}},
               {"stock": {"total": {"2009": 1600, "2010": 2000},
                          "competed": {"2009": 1600, "2010": 2000}},
@@ -2084,15 +2044,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                "2010": 4133.33},
                                      "energy": {"2009": 1487.944,
                                                 "2010": 1423.424},
-                                     "carbon": {"2009": 275277.2,
+                                     "carbon": {"2009": 275277.18,
                                                 "2010": 272842.8},
                                      },
                         "measure": {"stock": {"2009": 6000,
                                               "2010": 8000},
                                     "energy": {"2009": 560.6744,
                                                "2010": 536.3627},
-                                    "carbon": {"2009": 103727.6,
-                                               "2010": 102810.3}}},
+                                    "carbon": {"2009": 103727.63,
+                                               "2010": 102810.33}}},
                "lifetime": {"2009": 51.67, "2010": 51.67}}]
 
     # Means and sampling Ns for energy and cost that should be generated by
@@ -2115,8 +2075,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                     "2010": 216},
                                           "energy": {"2009": 582.2388,
                                                      "2010": 556.992},
-                                          "carbon": {"2009": 107717.2,
-                                                     "2010": 106764.6},
+                                          "carbon": {"2009": 107717.16,
+                                                     "2010": 106764.58},
                                           },
                              "measure": {"stock": {"2009": 450,
                                                    "2010": 450},
@@ -2146,19 +2106,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                                                    "2010": 1300},
                                          "energy": {"2009": 680.5725,
                                                     "2010": 651.0618},
-                                         "carbon": {"2009": 125909.4,
-                                                    "2010": 124795.9}}},
+                                         "carbon": {"2009": 125909.39,
+                                                    "2010": 124795.93}}},
                     "lifetime": {"2009": 80, "2010": 80}}]
-
-    # Create a routine for checking equality of a dict
-    def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=1)
 
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
@@ -2220,26 +2170,13 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase):
                     "Technical potential")
 
 
-class PrioritizationMetricsTest(unittest.TestCase):
+class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the calc_metric_update function to
     verify measure master microsegment inputs yield expected savings
     and prioritization metrics outputs """
 
-    # Sample measure for use in testing
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
-
     # Discount rate used for testing
     ok_rate = 0.07
-
-    # Decision rule prioritization metric used for testing
-    ok_prior_metric = 'cce'
 
     # Measure lifetime point value used for testing
     ok_life_point = 2
@@ -2546,27 +2483,11 @@ class PrioritizationMetricsTest(unittest.TestCase):
                                 {"2009": [-0.09, -0.14, -0.26, -0.26, -0.34],
                                  "2010": [0.01, -0.02, -0.19, -0.21, -0.32]}}}
 
-    # Create a routine for checking equality of a dict
-    def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                # Expect numpy arrays and/or point values
-                if (type(i) != int and type(i) != float):
-                    numpy.testing.assert_array_almost_equal(
-                        i, i2, decimal=2)
-                else:
-                    self.assertAlmostEqual(dict1[k], dict2[k2],
-                                           places=2)
-
     # Test for correct output from "ok_master_mseg_point" + "ok_life_point"
     # inputs
     def test_metrics_ok_point(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
@@ -2576,19 +2497,16 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # not being executed here)
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate,
-                                                    self.ok_prior_metric)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_point
-        # Check full dictionary output
-        self.dict_check(dict1[0], dict2)
-        # Check unique prioritization metric output
-        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check(dict1, dict2)
 
     # Test for correct output from "ok_master_mseg_dist1" + "ok_life_point"
     # inputs
     def test_metrics_ok_distrib1(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist1" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist1
@@ -2596,19 +2514,16 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_point" variable
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate,
-                                                    self.ok_prior_metric)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist1
-        # Check first calc_metric_update output (master savings dict)
-        self.dict_check(dict1[0], dict2)
-        # Check second calc_metric_update output (prioritization metric value)
-        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check_list(dict1, dict2)
 
     # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
     # inputs
     def test_metrics_ok_distrib2(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
@@ -2616,19 +2531,16 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_point" variable
         measure_instance.life_meas = self.ok_life_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate,
-                                                    self.ok_prior_metric)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist2
-        # Check first calc_metric_update output (master savings dict)
-        self.dict_check(dict1[0], dict2)
-        # Check second calc_metric_update output (prioritization metric value)
-        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check_list(dict1, dict2)
 
     # Test for correct output from "ok_master_mseg_point" + "ok_life_distrib"
     # inputs
     def test_metrics_ok_distrib3(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
@@ -2636,19 +2548,16 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_distrib" variable
         measure_instance.life_meas = self.ok_life_distrib
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate,
-                                                    self.ok_prior_metric)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist3
-        # Check first calc_metric_update output (master savings dict)
-        self.dict_check(dict1[0], dict2)
-        # Check second calc_metric_update output (prioritization metric value)
-        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check_list(dict1, dict2)
 
     # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
     # inputs
     def test_metrics_ok_distrib4(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
@@ -2656,28 +2565,15 @@ class PrioritizationMetricsTest(unittest.TestCase):
         # "ok_life_distrib" variable
         measure_instance.life_meas = self.ok_life_distrib
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate,
-                                                    self.ok_prior_metric)
+        dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist4
-        # Check first calc_metric_update output (master savings dict)
-        self.dict_check(dict1[0], dict2)
-        # Check second calc_metric_update output (prioritization metric value)
-        self.dict_check(dict1[1], dict2["metrics"][self.ok_prior_metric])
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check_list(dict1, dict2)
 
 
 class MetricUpdateTest(unittest.TestCase):
     """ Test the operation of the metrics_update function to
     verify cashflow inputs generate expected prioritization metric outputs """
-
-    # Sample measure for use in testing
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
     # Define ok test inputs
 
@@ -2709,7 +2605,7 @@ class MetricUpdateTest(unittest.TestCase):
     # Test for correct outputs given "ok" inputs above
     def test_metric_updates(self):
         # Create a sample measure instance using sample_measure
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Test that "ok" inputs yield correct output metric values
         # (* Note: outputs should be formatted as numpy arrays)
         numpy.testing.assert_array_almost_equal(
@@ -2725,16 +2621,6 @@ class PaybackTest(unittest.TestCase):
     """ Test the operation of the payback function to
     verify cashflow input generates expected payback output """
 
-    # Sample measure for use in testing
-    sample_measure = {"name": "sample measure 1",
-                      "end_use": ["heating", "cooling"],
-                      "fuel_type": "electricity (grid)",
-                      "technology_type": "supply",
-                      "technology": ["boiler (electric)",
-                                     "ASHP", "GSHP", "room AC"],
-                      "bldg_type": "single family home",
-                      "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
-
     # Define ok test cashflow inputs
     ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8],
                     [-10, 14, 2, 3, 4],
@@ -2747,7 +2633,7 @@ class PaybackTest(unittest.TestCase):
     # Test for correct outputs given "ok" input cashflows above
     def test_cashflow_paybacks(self):
         # Create a sample measure instance using sample_measure
-        measure_instance = run.Measure(**self.sample_measure)
+        measure_instance = run.Measure(**sample_measure)
         # Test that "ok" input cashflows yield correct output payback values
         for idx, cf in enumerate(self.ok_cashflows):
             self.assertAlmostEqual(measure_instance.payback(cf),

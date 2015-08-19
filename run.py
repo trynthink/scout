@@ -44,8 +44,7 @@ rate = 0.07
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 active_measures = []
 adopt_scheme = 'Technical potential'
-staging = True
-prior_metric = 'cce'
+compete_measures = True
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -69,7 +68,7 @@ class Measure(object):
         else:
             self.active = 0
 
-        # Initialize master microsegment attribute
+        # Initialize master microsegment and savings attributes
         self.master_mseg = None
         self.master_savings = None
 
@@ -80,9 +79,6 @@ class Measure(object):
         self.total_carb_norm = {}  # Carbon/stock (whole mseg)
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
-
-        # Initialize prioritization metric
-        self.prior_metric_val = None
 
     def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
@@ -105,8 +101,12 @@ class Measure(object):
                        "lifetime": None}
 
         # Initialize a dict to register contributing microsegments for
-        # later use in determining overlapping measure microsegments in staging
-        overlap_dict = {}
+        # later use in determining overlapping measure microsegments in
+        # competing measures
+        mseg_compete = {
+            "competed mseg keys and values": {},
+            "competed savings adjustment": {"already competed": False,
+                                            "adjustment factor": 1}}
 
         # Initialize a counter of valid key chains
         key_chain_ct = 0
@@ -319,8 +319,10 @@ class Measure(object):
                             "lifetime": life_base}
 
                 # Register contributing microsegment for later use
-                # in determining staging overlaps
-                overlap_dict[str(mskeys)] = add_dict
+                # in determining savings overlaps for measures that apply
+                # to this microsegment
+                mseg_compete["competed mseg keys and values"][str(mskeys)] = \
+                    add_dict
 
                 # Add all updated info. to existing master mseg dict and
                 # move to next iteration of the loop through key chains
@@ -353,20 +355,19 @@ class Measure(object):
                 # Create a factor for reduction of msegs with sq.ft. stock
                 reduce_factor = key_chain_ct / (len(ms_lists[0]) *
                                                 len(ms_lists[1]))
-                mseg_master = self.reduce_sqft_stock_cost(mseg_master,
-                                                          reduce_factor)
+                mseg_master = self.reduce_sqft(mseg_master, reduce_factor)
+                mseg_compete = self.reduce_sqft(
+                    copy.deepcopy(
+                        mseg_compete["competed mseg keys and values"]),
+                    reduce_factor)
             else:
                 reduce_factor = 1
         else:
                 raise KeyError('No valid key chains discovered for lifetime \
                                 and stock and cost division operations!')
 
-        # Register contributing microsegment for later use
-        # in determining staging overlaps
-        overlap_dict["reduce factor"] = reduce_factor
-
         # Return the final master microsegment
-        return [mseg_master, overlap_dict]
+        return [mseg_master, mseg_compete]
 
     def add_keyvals(self, dict1, dict2):
         """ Add key values of two identically structured dicts together """
@@ -449,7 +450,7 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_meas, energy_eff_cost,
                 carb_eff_cost]
 
-    def calc_metric_update(self, rate, prior_metric):
+    def calc_metric_update(self, rate):
         """ Given information on a measure's master microsegment for
         each projection year and a discount rate, determine capital ("stock"),
         energy, and carbon cost savings; energy and carbon savings; and the
@@ -457,7 +458,7 @@ class Measure(object):
         cost of conserved carbon for the measure. """
 
         # Initialize capital cost, energy/energy cost savings, carbon/carbon
-        # cost savings, and prioritization metrics as dicts with years as keys
+        # cost savings, and economic metrics as dicts with years as keys
         scost_dif_init, esave, ecostsave, csave, ccostsave, irr_e, irr_ec, \
             payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
             ({} for d in range(13))
@@ -502,7 +503,7 @@ class Measure(object):
             # lifetime
             life_ratio = life_meas / life_base
 
-            # Calculate prioritization metrics using "metric_update" function
+            # Calculate economic metrics using "metric_update" function
             # with above variables as inputs
 
             # Check whether any "metric_update" inputs that could be arrays are
@@ -537,13 +538,13 @@ class Measure(object):
                     life_meas = numpy.repeat(life_meas, length_array)
                     life_ratio = numpy.repeat(life_ratio, length_array)
 
-                # Initialize numpy arrays for prioritization metric outputs
+                # Initialize numpy arrays for economic metric outputs
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = \
                     (numpy.zeros(len(scost_dif_init[yr])) for v in range(8))
 
                 # Run measure energy/carbon/cost savings and lifetime inputs
-                # through "metric_update" function to yield prioritization
+                # through "metric_update" function to yield economic
                 # metric outputs. To handle inputs that are arrays, use a for
                 # loop to generate an output for each input array element
                 # one-by-one and append it to the appropriate output list.
@@ -558,7 +559,7 @@ class Measure(object):
             else:
 
                 # Run measure energy/carbon/cost savings and lifetime inputs
-                # through "metric_update" function to yield prioritization
+                # through "metric_update" function to yield economic
                 # metric outputs
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = self.metric_update(
@@ -566,7 +567,7 @@ class Measure(object):
                         esave[yr], ecostsave[yr], csave[yr], ccostsave[yr],
                         int(life_ratio), int(life_meas))
 
-        # Record final measure savings figures and prioritization metrics
+        # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
         mseg_save = {"stock": {"cost savings": scost_dif_init},
                      "energy": {"savings": esave,
@@ -583,22 +584,19 @@ class Measure(object):
                                  "ccc": ccc,
                                  "ccc (w/ energy $ benefits)": ccc_bens}}
 
-        # Grab correct prioritization metric from the mseg_save dict
-        prior_metric_val = mseg_save["metrics"][prior_metric]
+        # Return final savings figures and economic metrics
+        return mseg_save
 
-        # Return final savings figures and prioritization metrics
-        return [mseg_save, prior_metric_val]
-
-    def reduce_sqft_stock_cost(self, dict1, reduce_factor):
+    def reduce_sqft(self, dict1, reduce_factor):
         """ Divide "stock" and "stock cost" information by a given factor to
         handle special case when sq.ft. is used as stock """
         for (k, i) in dict1.items():
-            # Do not divide any energy or carbon information
+            # Do not divide any energy, carbon, or lifetime information
             if (k == "energy" or k == "carbon" or k == "lifetime"):
                     continue
             else:
                     if isinstance(i, dict):
-                        self.reduce_sqft_stock_cost(i, reduce_factor)
+                        self.reduce_sqft(i, reduce_factor)
                     else:
                         dict1[k] = dict1[k] / reduce_factor
         return dict1
@@ -693,28 +691,40 @@ class Measure(object):
         esave_list = [0] + [esave] * life_meas
         csave_list = [0] + [csave] * life_meas
 
-        # Calculate irr for capital + energy and capital + energy + carbon
-        # cash flows
-        irr_e = numpy.irr(cashflows_se)
-        irr_ec = numpy.irr(cashflows_sec)
-        # Calculate simple payback for capital + energy and capital + energy +
-        # carbon cash flows
-        payback_e = self.payback(cashflows_se)
-        payback_ec = self.payback(cashflows_sec)
-        # Calculate cost of conserved energy w/o carbon cost savings benefits
-        cce = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
-            numpy.npv(rate, esave_list)
-        # Calculate cost of conserved energy w/ carbon cost savings benefits
-        cce_bens = (abs(cashflows_sc[0]) - numpy.npv(rate, ([0] +
-                    cashflows_sc[1:]))) / numpy.npv(rate, esave_list)
-        # Calculate cost of conserved carbon w/o energy cost savings benefits
-        ccc = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
-            numpy.npv(rate, csave_list)
-        # Calculate cost of conserved carbon w/ energy cost savings benefits
-        ccc_bens = (abs(cashflows_se[0]) - numpy.npv(rate, ([0] +
-                    cashflows_se[1:]))) / numpy.npv(rate, csave_list)
+        # Initially set economic metrics to 999 for cases where the
+        # metric cannot be computed (e.g., zeros in 'cce' denominator due to
+        # no energy savings)
+        irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
+            (999 for n in range(8))
 
-        # Return all updated prioritization metrics
+        # Calculate irr and simple payback for capital + energy cash flows
+        if any(cashflows_se) != 0:
+            irr_e = numpy.irr(cashflows_se)
+            payback_e = self.payback(cashflows_se)
+
+        # Calculate irr and simple payback for capital + energy + carbon cash
+        # flows
+        if any(cashflows_sec) != 0:
+            irr_ec = numpy.irr(cashflows_sec)
+            payback_ec = self.payback(cashflows_sec)
+
+        # Calculate cost of conserved energy w/ and w/o carbon cost save
+        # benefits
+        if any(esave_list) != 0:
+            cce = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
+                numpy.npv(rate, esave_list)
+            cce_bens = (abs(cashflows_sc[0]) - numpy.npv(rate, ([0] +
+                        cashflows_sc[1:]))) / numpy.npv(rate, esave_list)
+
+        # Calculate cost of conserved carbon w/ and w/o energy cost save
+        # benefits
+        if any(csave_list) != 0:
+            ccc = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
+                numpy.npv(rate, csave_list)
+            ccc_bens = (abs(cashflows_se[0]) - numpy.npv(rate, ([0] +
+                        cashflows_se[1:]))) / numpy.npv(rate, csave_list)
+
+        # Return all updated economic metrics
         return irr_e, irr_ec, payback_e, payback_ec, \
             cce, cce_bens, ccc, ccc_bens
 
@@ -765,25 +775,31 @@ class Measure(object):
 
 # Engine runs active measure adoption
 class Engine(object):
-
     def __init__(self, measure_objects):
-        self.measure_objs = measure_objects
+        self.measures = measure_objects
+
+    @property
+    def energy_savings_sum(self):
+        return sum([x.mseg_save["energy"]["savings"] for x in self._measures])
+
+    @property
+    def carbon_savings_sum(self):
+        return sum([x.mseg_save["carbon"]["savings"] for x in self._measures])
 
     def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
-                          prior_metric, rate):
+                          rate):
         """ Run initialization scheme on active measures only """
-        for m in self.measure_objs:
+        for m in self.measures:
             if m.active == 1:
                 # Find master microsegment and partitions
                 m.master_mseg = m.mseg_find_partition(
                     mseg_in, base_costperflife_in, adopt_scheme)
-                # Update cost/savings outcomes and prioritization metric
+                # Update cost/savings outcomes and economic metric
                 # based on master microsegment
-                [m.master_savings, m.prior_metric_val] = m.calc_metric_update(
-                    rate, prior_metric)
+                m.master_savings = m.calc_metric_update(rate)
 
-    def run_staging(self, prior_metric, rate):
-        """ Stage active measures to remove overlapping microsegments and
+    def compete_measures(self, rate):
+        """ Compete active measures to address overlapping microsegments and
         avoid double counting energy/carbon savings """
         pass
 
@@ -803,14 +819,19 @@ def main():
     # Create measures objects list from input measures JSON
     measures_objlist = []
 
+    # Loop through measures in JSON to initialize measure objects,
+    # and run methods on these objects
     for mi in measures_input:
         measures_objlist.append(Measure(**mi))
 
+    # Instantiate an Engine object with input measures as attribute
     a_run = Engine(measures_objlist)
+    # Find master microsegment information for each active measure
     a_run.initialize_active(microsegments_input, base_costperflife_info_input,
-                            adopt_scheme, prior_metric, rate)
-    if staging is True:
-        a_run.run_staging(prior_metric, rate)
+                            adopt_scheme, rate)
+    # Compete active measures if user has specified this option
+    if compete_measures is True:
+        a_run.compete_measures(rate)
 
 if __name__ == '__main__':
     main()
