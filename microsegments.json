@@ -56,11 +56,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -271,11 +281,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -486,11 +506,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -703,11 +733,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -918,11 +958,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1133,11 +1183,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1350,11 +1410,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1565,11 +1635,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1780,11 +1860,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1997,11 +2087,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2212,11 +2312,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2427,11 +2537,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2644,11 +2764,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2859,11 +2989,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3074,11 +3214,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3291,11 +3441,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3506,11 +3666,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3721,11 +3891,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3938,11 +4118,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4153,11 +4343,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4368,11 +4568,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4585,11 +4795,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4800,11 +5020,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5015,11 +5245,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5232,11 +5472,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5447,11 +5697,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5662,11 +5922,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
