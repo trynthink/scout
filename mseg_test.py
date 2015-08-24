@@ -294,36 +294,41 @@ class DataToListFormatTest(unittest.TestCase):
     aeo_years = 2
 
     # Define a sample set of supply data
-    supply_data = [('HT ', 1, 1, 'EL', 'ELEC_RAD', 2010, 0, 1, -1),
-                   ('HT ', 1, 1, 'EL', 'ELEC_RAD', 2011, 0, 1, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_FA', 2010, 2, 3, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_FA', 2011, 2, 3, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2010, 4, 5, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2011, 4, 5, -1),
-                   ('CL ', 2, 3, 'GS', 'NG_HP', 2010, 6, 7, -1),
-                   ('CL ', 2, 3, 'GS', 'NG_HP', 2011, 6, 7, -1),
-                   ('CL ', 1, 3, 'GS', 'NG_HP', 2010, 8, 9, -1),
-                   ('CL ', 1, 3, 'GS', 'NG_HP', 2011, 8, 9, -1),
-                   ('SH ', 1, 1, 'EL', 'EL', 2010, 10, 11, -1),
-                   ('SH ', 1, 1, 'EL', 'EL', 2011, 10, 11, -1),
-                   ('SH ', 1, 1, 'GS', 'GS', 2010, 12, 13, -1),
-                   ('SH ', 1, 1, 'GS', 'GS', 2011, 12, 13, -1),
+    supply_data = [('HT ', 1, 1, 'EL', 'ELEC_RAD', 2010, 0, 1, -1, ''),
+                   ('HT ', 1, 1, 'EL', 'ELEC_RAD', 2011, 0, 1, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2010, 2, 3, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2011, 2, 3, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2010, 4, 5, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2011, 4, 5, -1, ''),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2010, 6, 7, -1, ''),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2011, 6, 7, -1, ''),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2010, 8, 9, -1, ''),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2011, 8, 9, -1, ''),
+                   ('SH ', 1, 1, 'EL', 'EL', 2010, 10, 11, -1, ''),
+                   ('SH ', 1, 1, 'EL', 'EL', 2011, 10, 11, -1, ''),
+                   ('SH ', 1, 1, 'GS', 'GS', 2010, 12, 13, -1, ''),
+                   ('SH ', 1, 1, 'GS', 'GS', 2011, 12, 13, -1, ''),
                    # ('OA ', 1, 1, 'EL', 'EL', 2010, 14, 15, -1),
                    # ('OA ', 1, 1, 'EL', 'EL', 2011, 14, 15, -1),
-                   ('SH ', 2, 1, 'GS', 'GS', 2010, 16, 17, -1),
-                   ('SH ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1),
-                   ('SH ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1),
-                   ('SH ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1),
-                   ('SH ', 3, 1, 'WD', 'WD', 2010, 20, 21, -1),
-                   ('SH ', 3, 1, 'WD', 'WD', 2011, 20, 21, -1),
-                   ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1),
-                   ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1),
-                   ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1),
-                   ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1),
-                   ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1),
-                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1),
-                   ('SQ', 1, 1, 0, 0, 2009, 99, 100, 101),
-                   ('SQ', 1, 1, 0, 0, 2010, 99, 100, 101)
+                   ('SH ', 2, 1, 'GS', 'GS', 2010, 16, 17, -1, ''),
+                   ('SH ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1, ''),
+                   ('SH ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1, ''),
+                   ('SH ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1, ''),
+                   ('SH ', 3, 1, 'WD', 'WD', 2010, 20, 21, -1, ''),
+                   ('SH ', 3, 1, 'WD', 'WD', 2011, 20, 21, -1, ''),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1, ''),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1, ''),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1, ''),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1, ''),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1, ''),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1, ''),
+                   ('SQ', 1, 1, 0, 0, 2009, 99, 100, 101, ''),
+                   ('SQ', 1, 1, 0, 0, 2010, 99, 100, 101, ''),
+                   ('LT', 1, 1, 'EL', 'GSL', 2010, 102, 103, -1, 'LED'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
+                   ('LT', 1, 2, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'Inc'),
+                   ('LT', 1, 1, 'EL', 'EXT', 2011, 103, 104, -1, 'LED'),
                    ]
 
     # Convert supply data into numpy array with column names
@@ -335,7 +340,8 @@ class DataToListFormatTest(unittest.TestCase):
                                                    ('YEAR', 'i8'),
                                                    ('EQSTOCK', 'f8'),
                                                    ('CONSUMPTION', 'i8'),
-                                                   ('HOUSEHOLDS', 'i8')])
+                                                   ('HOUSEHOLDS', 'i8'),
+                                                   ('BULB TYPE', 'S5')])
 
     # Demand array is the same as the supply array at the start of the tests
     demand_array = copy.deepcopy(supply_array)
@@ -395,7 +401,10 @@ class DataToListFormatTest(unittest.TestCase):
                   ['new england', 'single family home', 'square footage'],
                   ['east north central', 'single family home',
                    'other fuel', 'secondary heating', 'supply',
-                   'secondary heating (wood)']
+                   'secondary heating (wood)'],
+                  ['new england', 'single family home',
+                   'electricity (grid)', 'lighting',
+                   'general service (LED)']
                   ]
 
     # Define a set of filters that should yield zeros for stock/energy
@@ -451,13 +460,13 @@ class DataToListFormatTest(unittest.TestCase):
                numpy.hstack([supply_array[0:16], supply_array[18:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               numpy.hstack([supply_array[:-8], supply_array[-6:]])],
+               numpy.hstack([supply_array[:-13], supply_array[-11:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               numpy.hstack([supply_array[:-6], supply_array[-4:]])],
+               numpy.hstack([supply_array[:-11], supply_array[-9:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               numpy.hstack([supply_array[:-4], supply_array[-2:]])],
+               numpy.hstack([supply_array[:-9], supply_array[-7:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -467,10 +476,14 @@ class DataToListFormatTest(unittest.TestCase):
               [{'stock': 'NA',
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
-              [{"2009": 101, "2010": 101}, supply_array[:-2]],
+              [{"2009": 101, "2010": 101},
+               numpy.hstack([supply_array[0:-7], supply_array[-5:]])],
               [{'stock': {"2010": 20, "2011": 20},
                 'energy': {"2010": 21, "2011": 21}},
-               numpy.hstack([supply_array[0:18], supply_array[20:]])]]
+               numpy.hstack([supply_array[0:18], supply_array[20:]])],
+              [{'stock': {"2010": 102, "2011": 103},
+                'energy': {"2010": 103, "2011": 104}},
+               numpy.hstack([supply_array[0:-5], supply_array[-3:]])]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above
@@ -534,7 +547,7 @@ class RegexConstructionTest(unittest.TestCase):
 
     # Identify lists to convert into regex formats using the mseg function
     convert_lists = [[['VGC', 4, 1, 'EL'], ''],
-                     [['LT', 3, 2, 'EL', 'GSL'], ''],
+                     [['LT', 3, 2, 'EL', ('GSL', 'LED')], ''],
                      [[('BAT', 'COF', 'DEH', 'EO', 'MCO', 'OA', 'PHP', 'SEC',
                       'SPA'), 7, 1, 'EL'], ''],
                      [['HT', 1, 2, 'DS'], 'ROOF'],
@@ -544,7 +557,7 @@ class RegexConstructionTest(unittest.TestCase):
     # Define the desired final regular expressions output using the
     # regex conversion function in mseg
     final_regexes = [('.*VGC.+4.+1.+EL.+', 'NA'),
-                     ('.*LT.+3.+2.+EL.+GSL.+', 'NA'),
+                     ('.*LT.+3.+2.+EL.+GSL.+LED.+', 'NA'),
                      ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA).+7.+1.+EL.+',
                       'NA'),
                      ('.*HT.+1.+2.+DS.+', 'ROOF'),
@@ -573,7 +586,7 @@ class JSONTranslatorTest(unittest.TestCase):
                   ['west south central', 'mobile home', 'electricity (grid)',
                    'TVs', 'set top box'],
                   ['east north central', 'mobile home', 'electricity (grid)',
-                   'lighting', 'general service'],
+                   'lighting', 'general service (LED)'],
                   ['west north central', 'mobile home', 'other fuel',
                    'heating', 'supply', 'resistance'],
                   ['south atlantic', 'multi family home', 'distillate',
@@ -597,9 +610,9 @@ class JSONTranslatorTest(unittest.TestCase):
                          'room AC'],
                         ['new england', 'single family home',
                          'electricity (grid)', 'refrigeration',
-                         'linear fluorescent'],
+                         'linear fluorescent (T-8)'],
                         ['new england', 'single family home', 'natural gas',
-                         'water heating', 'general service']
+                         'water heating', 'general service (incandescent)']
                         ]
 
     # Define example filters that do not have information in the
@@ -640,7 +653,7 @@ class JSONTranslatorTest(unittest.TestCase):
               [['CL', 1, 3, 'EL'], 'PEOPLE'],
               [['CL', 2, 1, 'EL', 'ROOM_AIR'], ''],
               [['STB', 7, 3, 'EL'], ''],
-              [['LT', 3, 3, 'EL', 'GSL'], ''],
+              [['LT', 3, 3, 'EL', ('GSL', 'LED')], ''],
               [['HT', 4, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
                 'GE2'], ''],
               [['SH', 5, 2, 'DS'], 'WIND_SOL'],
@@ -652,8 +665,8 @@ class JSONTranslatorTest(unittest.TestCase):
                ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
-                    [['RF', 1, 1, 'EL', 'LFL'], ''],
-                    [['HW', 1, 1, 'GS', 'GSL'], '']]
+                    [['RF', 1, 1, 'EL', ('LFL', 'T-8')], ''],
+                    [['HW', 1, 1, 'GS', ('GSL', 'Inc')], '']]
 
     # Test filters that have expected technology definitions and should match
     def test_ok_filters(self):

@@ -93,10 +93,20 @@ technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'GSHP': 'GEO_HP',
                          'central AC': 'CENT_AIR',
                          'room AC': 'ROOM_AIR',
-                         'linear fluorescent': 'LFL',
-                         'general service': 'GSL',
-                         'reflector': 'REF',
-                         'external': 'EXT',
+                         'linear fluorescent (T-12)': ('LFL', 'T12'),
+                         'linear fluorescent (T-8)': ('LFL', 'T-8'),
+                         'linear fluorescent (LED)': ('LFL', 'LED'),
+                         'general service (incandescent)': ('GSL', 'Inc'),
+                         'general service (CFL)': ('GSL', 'CFL'),
+                         'general service (LED)': ('GSL', 'LED'),
+                         'reflector (incandescent)': ('REF', 'Inc'),
+                         'reflector (CFL)': ('REF', 'CFL'),
+                         'reflector (halogen)': ('REF', 'HAL'),
+                         'reflector (LED)': ('REF', 'LED'),
+                         'external (incandescent)': ('EXT', 'Inc'),
+                         'external (CFL)': ('EXT', 'CFL'),
+                         'external (high pressure sodium)': ('EXT', 'HPS'),
+                         'external (LED)': ('EXT', 'LED'),
                          'furnace (NG)': 'NG_FA',
                          'boiler (NG)': 'NG_RAD',
                          'NGHP': 'NG_HP',
@@ -250,8 +260,12 @@ def filter_formatter(txt_filter):
         # the tuple into a single string, put brackets around it for regex
         # comparison
         if isinstance(element, tuple):
-            newelement = '|'.join(element)
-            supply_filter = supply_filter + '(' + newelement + ').+'
+            if endusedict['lighting'] in txt_filter_loop:
+                newelement = element[0] + '.+' + element[1]
+                supply_filter = supply_filter + newelement + '.+'
+            else:
+                newelement = '|'.join(element)
+                supply_filter = supply_filter + '(' + newelement + ').+'
         # If element is a number and not on the "demand" technology level, turn
         # into a string for regex comparison
         elif isinstance(element, int):
