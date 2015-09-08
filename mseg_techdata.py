@@ -143,7 +143,7 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP1", "ELEC_HP4",
                              ["ELECDRY2", "NG_DRY2"], ["EF", "EF"]],
                   "refrigeration": ["EIA_EQUIP", "REFR",
                                     ["RefBF#1", "RefSF#1", "RefTF#1"],
-                                    ["RefBF#2", "RefSF#2", "RefTF#3"],
+                                    ["RefBF#2", "RefSF#2", "RefTF#2"],  # Check
                                     "kWh/yr"],
                   "freezers": ["EIA_EQUIP", "FREZ", ["FrzrC#1", "FrzrU#1"],
                                ["FrzrC#2", "FrzrU#2"], "kWh/yr"]}
@@ -754,8 +754,11 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
     # For the special non-lighting technology cases of refrigeration and
     # freezers, any given year will have multiple technology configurations.
     # The next few lines average the performance and cost figures across those
-    # configurations to yield just one number for each in each year
+    # configurations to yield just one number for each year
     if tech_dict_key == "refrigeration" or tech_dict_key == "freezers":
+
+        # Register number of refrigerator/freezer technology sub-types
+        ntypes = len(tech_eia_nonlt[tech_dict_key][2])
 
         # Initialize a new list to append averaged performance/cost/consumer
         # choice information to
@@ -765,19 +768,30 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
         # performance, cost, and consumer choice data by year; then append
         # to match_list_new
         for x in sorted(numpy.unique(match_list["START_EQUIP_YR"])):
-            match_list_new.append(
-                (x, numpy.average(
-                    match_list[numpy.where(
-                        match_list["START_EQUIP_YR"] == x)]["BASE_EFF"]),
-                    numpy.average(
-                    match_list[numpy.where(
-                        match_list["START_EQUIP_YR"] == x)]["INST_COST"]),
-                    numpy.average(
-                    match_list[numpy.where(
-                        match_list["START_EQUIP_YR"] == x)]["EFF_CHOICE_P1"]),
-                    numpy.average(
-                    match_list[numpy.where(
-                        match_list["START_EQUIP_YR"] == x)]["EFF_CHOICE_P2"])))
+
+            # Check for year bin consistency across the multiple refrigeration/
+            # freezer technology sub-types being averaged
+            if len(numpy.where(match_list["START_EQUIP_YR"] == x)[0]) == \
+               ntypes:
+                    match_list_new.append(
+                        (x, numpy.average(
+                            match_list[numpy.where(
+                                match_list["START_EQUIP_YR"] == x)][
+                                "BASE_EFF"]),
+                            numpy.average(
+                            match_list[numpy.where(
+                                match_list["START_EQUIP_YR"] == x)][
+                                "INST_COST"]),
+                            numpy.average(
+                            match_list[numpy.where(
+                                match_list["START_EQUIP_YR"] == x)]
+                                ["EFF_CHOICE_P1"]),
+                            numpy.average(
+                            match_list[numpy.where(
+                                match_list["START_EQUIP_YR"] == x)]
+                                ["EFF_CHOICE_P2"])))
+            else:
+                raise ValueError('Technology sub-type year bins inconsistent!')
 
         # Once all the averaged figures are available, reconstruct this
         # information into a numpy array with named columns for later use
@@ -949,8 +963,7 @@ def main():
                                  tech_eia_nonlt, tech_eia_lt, tech_noneia,
                                  msjson, project_dict)
 
-    #print(updated_data["new england"]["single family home"]["electricity (grid)"]["cooling"]["supply"]["ASHP"])
-    #Convert the updated data from census division to climate breakdown
+    # Convert the updated data from census division to climate breakdown
     final_data = mseg.clim_converter(updated_data, res_convert_array_rev)
 
     # Write the updated dict of data to a new JSON file

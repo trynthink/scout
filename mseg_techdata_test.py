@@ -198,15 +198,15 @@ class ListGeneratorTest(unittest.TestCase):
                               (8, 2005, 2009, 3, 900, 200, 6, 6, b"RefBF#2"),
                               (8, 2009, 2013, 3, 1000, 100, 6, 6, b"RefBF#2"),
                               (8, 2013, 2040, 3, 1100, 50, 6, 6, b"RefBF#2"),
-                              (8, 2005, 2009, 3, 900, 1400, 6, 6, b"RefTF#2"),
-                              (8, 2009, 2013, 3, 950, 1200, 6, 6, b"RefTF#2"),
-                              (8, 2013, 2040, 3, 1000, 1100, 6, 6, b"RefTF#2"),
-                              (8, 2005, 2009, 3, 1500, 700, 6, 6, b"RefTF#3"),
-                              (8, 2009, 2013, 3, 1600, 650, 6, 6, b"RefTF#3"),
-                              (8, 2013, 2040, 3, 1700, 550, 6, 6, b"RefTF#3"),
-                              (8, 2005, 2009, 1, 1500, 700, 6, 6, b"RefTF#3"),
-                              (8, 2009, 2013, 1, 1600, 650, 6, 6, b"RefTF#3"),
-                              (8, 2013, 2040, 1, 1700, 550, 6, 6, b"RefTF#3"),
+                              (8, 2005, 2009, 3, 900, 1400, 6, 6, b"RefTF#3"),
+                              (8, 2009, 2013, 3, 950, 1200, 6, 6, b"RefTF#3"),
+                              (8, 2013, 2040, 3, 1000, 1100, 6, 6, b"RefTF#3"),
+                              (8, 2005, 2009, 3, 1500, 700, 6, 6, b"RefTF#2"),
+                              (8, 2009, 2013, 3, 1600, 650, 6, 6, b"RefTF#2"),
+                              (8, 2013, 2040, 3, 1700, 550, 6, 6, b"RefTF#2"),
+                              (8, 2005, 2009, 1, 1500, 700, 6, 6, b"RefTF#2"),
+                              (8, 2009, 2013, 1, 1600, 650, 6, 6, b"RefTF#2"),
+                              (8, 2013, 2040, 1, 1700, 550, 6, 6, b"RefTF#2"),
                               (2, 2005, 2009, 4, 2.75, 500, 6, 6, b"NG_HP"),
                               (2, 2009, 2011, 4, 2.95, 550, 6, 6, b"NG_HP"),
                               (2, 2011, 2050, 4, 3.15, 575, 6, 6, b"NG_HP"),
@@ -832,21 +832,32 @@ class FillYrsTest(unittest.TestCase):
     # error in the fill_years_nlt and fill_years_lt function executions
     # when paired with the tech_fail_keys below (multiple rows with same
     # starting year and not a special technology case (refrigerators, freezers)
-    in_fail = numpy.array([(2005, 2010, 2.5, 1000, b"Fail_Test1"),
-                           (2010, 2011, 2.65, 1200, b"Fail_Test1"),
-                           (2011, 2012, 3.1, 1250, b"Fail_Test1"),
-                           (2012, 2014, 4.5, 1450, b"Fail_Test1"),
-                           (2014, 2040, 5, 2000, b"Fail_Test1"),
-                           (2005, 2010, 3, 2000, b"Fail_Test1"),
-                           (2010, 2011, 3.1, 1500, b"Fail_Test1"),
-                           (2011, 2012, 3.7, 1500, b"Fail_Test1"),
-                           (2012, 2014, 3.7, 1600, b"Fail_Test1"),
-                           (2014, 2040, 6, 1900, b"Fail_Test1")],
-                          dtype=[("START_EQUIP_YR", "<i8"),
-                                 ("END_EQUIP_YR", "<f8"),
-                                 ("BASE_EFF", "<f8"),
-                                 ("INST_COST", "<f8"),
-                                 ("NAME", "S3")])
+    # or refrigerator/freezer case with inconsistent year bins
+    in_fail = [numpy.array([(2005, 2010, 2.5, 1000, b"Fail_Test1"),
+                            (2010, 2011, 2.65, 1200, b"Fail_Test1"),
+                            (2011, 2012, 3.1, 1250, b"Fail_Test1"),
+                            (2012, 2014, 4.5, 1450, b"Fail_Test1"),
+                            (2014, 2040, 5, 2000, b"Fail_Test1"),
+                            (2005, 2010, 3, 2000, b"Fail_Test1"),
+                            (2010, 2011, 3.1, 1500, b"Fail_Test1"),
+                            (2011, 2012, 3.7, 1500, b"Fail_Test1"),
+                            (2012, 2014, 3.7, 1600, b"Fail_Test1"),
+                            (2014, 2040, 6, 1900, b"Fail_Test1")],
+                           dtype=[("START_EQUIP_YR", "<i8"),
+                                  ("END_EQUIP_YR", "<f8"),
+                                  ("BASE_EFF", "<f8"),
+                                  ("INST_COST", "<f8"),
+                                  ("NAME", "S10")]),
+               numpy.array([(2009, 2013, 1, 500, b"FrzrU#1"),
+                            (2013, 2040, 2, 600, b"FrzrU#1"),
+                            (2009, 2011, 1, 500, b"FrzrC#1"),
+                            (2011, 2013, 1, 500, b"FrzrC#1"),
+                            (2013, 2040, 2, 600, b"FrzrC#1")],
+                           dtype=[("START_EQUIP_YR", "<i8"),
+                                  ("END_EQUIP_YR", "<f8"),
+                                  ("BASE_EFF", "<f8"),
+                                  ("INST_COST", "<f8"),
+                                  ("NAME", "S10")])]
 
     # Define a sample list of the technology-level keys that are defined while
     # running through the microsegments JSON structure; these keys are used to
@@ -859,7 +870,7 @@ class FillYrsTest(unittest.TestCase):
     # fill_years_nonlt function to fail when paired with an input array that
     # includes multiple rows with the same "START_EQUIP_YR" value (this is
     # only allowed when "refrigerators" or "freezers" is in the key list)
-    tech_fail_key = ["ASHP"]
+    tech_fail_keys = ["ASHP", "freezers"]
 
     # Define the modeling time horizon to test (2009:2015)
     years = [str(i) for i in range(2009, 2015 + 1)]
@@ -933,12 +944,15 @@ class FillYrsTest(unittest.TestCase):
 
     # Test that both the fill_years nlt and fill_years_lt functions yield a
     # ValueError when provided a numpy array input that has multiple rows
-    # with the same "START_EQUIP_YR" value
+    # with the same "START_EQUIP_YR" value or a special case with multiple
+    # sub-types of a technology that have inconsistent year bins
     def test_fail(self):
-        with self.assertRaises(ValueError):
-            mseg_techdata.fill_years_nlt(self.in_fail, self.project_dict,
-                                         self.tech_fail_key)
-            mseg_techdata.fill_years_lt(self.in_fail, self.project_dict)
+        for idx, x in enumerate(self.tech_fail_keys):
+            with self.assertRaises(ValueError):
+                mseg_techdata.fill_years_nlt(self.in_fail[idx],
+                                             self.project_dict,
+                                             x)
+                mseg_techdata.fill_years_lt(self.in_fail, self.project_dict)
 
 
 class StitchTest(unittest.TestCase):
