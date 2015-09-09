@@ -225,18 +225,29 @@ class Measure(object):
                     life_meas = self.rand_list_gen(life_meas, nsamples)
 
                 # Determine relative measure performance after checking for
-                # consistent baseline/measure performance and cost units
-                if base_costperflife["performance"]["units"] == perf_units and \
+                # consistent baseline/measure performance and cost units;
+                # make an exception for cases where performance is specified
+                # in 'relative savings' units (no explicit check
+                # of baseline units needed in this case)
+                if (perf_units == 'relative savings' or
+                   base_costperflife["performance"]["units"] == perf_units) and \
                    base_costperflife["installed cost"]["units"] == cost_units:
+
                     # Set base performance dict
                     perf_base = base_costperflife["performance"]["typical"]
 
-                    # Relative performance calculation depends on tech. case
-                    # (i.e. COP  of 4 is higher rel. performance than COP 3,
-                    # (but 1 ACH50 is higher rel. performance than 13 ACH50).
+                    # Relative performance calculation depends on whether the
+                    # performance units are already specified as 'relative
+                    # savings' over the baseline technology; if not, the
+                    # calculation depends on the technology case (i.e. COP  of
+                    # 4 is higher relative performance than a baseline COP 3,
+                    # but 1 ACH50 is higher rel. performance than 13 ACH50).
                     # Note that relative performance values are stored in a
                     # dict with keys for each year in the modeling time horizon
-                    if perf_units not in inverted_relperf_list:
+                    if perf_units == 'relative savings':
+                        for yr in perf_base.keys():
+                            rel_perf[yr] = 1 - perf_meas
+                    elif perf_units not in inverted_relperf_list:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
                             for yr in perf_base.keys():
                                 rel_perf[yr] = [(x ** -1 * perf_base[yr])
