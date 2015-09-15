@@ -114,53 +114,62 @@ class Measure(object):
         # Initialize variable indicating use of sq.ft. as microsegment stock
         sqft_subst = 0
 
-        # Initialize variable flagging heating, 2nd heat, and cooling end uses
-        htcl_enduse_ct = 0
-        # Determine end use case, first ensuring end use is input as a list
-        if isinstance(self.end_use, list) is False:
-            self.end_use = [self.end_use]
-        for eu in self.end_use:
-            if eu == "heating" or eu == "secondary heating" or eu == "cooling":
-                htcl_enduse_ct += 1
+        # Find all possible microsegment key chains.  First, determine all
+        # "primary" microsegment key chains, where "primary" refers to the
+        # baseline microsegment(s) directly affected by a measure (e.g.,
+        # incandescent bulb lights for an LED replacement measure).  Second,
+        # if needed, determine all "secondary" microsegment key chains, where
+        # "secondary" refers to baseline microsegments that are indirectly
+        # affected by the measure (e.g., heating and cooling for the above
+        # LED replacement).  Secondary microsegments are only relevant for
+        # energy/carbon and associated energy/carbon cost calculations, as
+        # they do not indicate additional equipment purchases (and thus do not
+        # affect stock, stock costs, or equipment lifetime calculations)
 
-        # Create a list of lists where each list has key information for
-        # one of the microsegment levels. Use list to find all possible
-        # microsegment key chains (i.e. ("new england", "single family home",
-        # "natural gas", "water heating")). Add in "demand" and "supply keys
-        # where needed (heating, secondary heating, cooling end uses)
-        if (htcl_enduse_ct > 0):
-            ms_lists = [self.climate_zone, self.bldg_type, self.fuel_type,
-                        self.end_use, self.technology_type, self.technology]
-        else:
-            ms_lists = [self.climate_zone, self.bldg_type, self.fuel_type,
-                        self.end_use, self.technology]
+        # Determine "primary" microsegment key chains
+        ms_iterable, ms_lists = self.create_keychain("primary")
 
-        # Ensure that every list element is itself a list
-        for x in range(0, len(ms_lists)):
-            if isinstance(ms_lists[x], list) is False:
-                ms_lists[x] = [ms_lists[x]]
-        # Find all possible microsegment key chains
-        ms_iterable = list(itertools.product(*ms_lists))
+        # Determine "secondary" microsegment key chains and add to the
+        # "primary" microsegment key chain list, if needed.
+        if self.end_use["secondary"] is not None:
+            ms_iterable_second, ms_lists_second = self.create_keychain(
+                "secondary")
+            ms_iterable.extend(ms_iterable_second)
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
-        for mskeys in ms_iterable:
-            # Initialize (or re-initialize) performance/cost/lifetime and
-            # performance/cost units if dicts (lifetime assumed to be in years)
-            if mskeys == ms_iterable[0] or isinstance(
-                    self.energy_efficiency, dict):
+        for ind, mskeys in enumerate(ms_iterable):
+
+            # Initialize performance/cost/lifetime and units if:
+            # a) For loop through all measure mseg key chains is in first
+            # iteration, b) A switch has been made from updating "primary"
+            # microsegment info. to updating "secondary" microsegment info.
+            # (relevant to performance/performance units only), or c) Any of
+            # performance/cost/lifetime/units is a dict which must be parsed
+            # further to reach the final value. * Note: cost/cost units and
+            # lifetime information is not updated for "secondary"
+            # microsegments, which do not affect these variables;
+            # lifetime units are assumed to be years
+            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+               or isinstance(self.energy_efficiency, dict):
                 perf_meas = self.energy_efficiency
-            if mskeys == ms_iterable[0] or isinstance(
-                    self.installed_cost, dict):
-                cost_meas = self.installed_cost
-            if mskeys == ms_iterable[0] or isinstance(
-                    self.energy_efficiency_units, dict):
+            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+               or isinstance(self.energy_efficiency_units, dict):
                 perf_units = self.energy_efficiency_units
-            if mskeys == ms_iterable[0] or isinstance(self.cost_units, dict):
-                cost_units = self.cost_units
-            if mskeys == ms_iterable[0] or isinstance(
-                    self.product_lifetime, dict):
-                life_meas = self.product_lifetime
+            if mskeys[0] == "secondary":
+                cost_meas = 0
+                cost_units = "NA"
+                life_meas = "NA"
+            else:
+                if mskeys == ms_iterable[0] or isinstance(
+                        self.installed_cost, dict):
+                        cost_meas = self.installed_cost
+                if mskeys == ms_iterable[0] or isinstance(
+                        self.cost_units, dict):
+                        cost_units = self.cost_units
+                if mskeys == ms_iterable[0] or isinstance(
+                        self.product_lifetime, dict):
+                        life_meas = self.product_lifetime
 
             # Initialize dicts of microsegment information specific to this run
             # of for loop; also initialize dict for mining sq.ft. information
@@ -176,32 +185,41 @@ class Measure(object):
             # Loop recursively through the above dicts, moving down key chain
             for i in range(0, len(mskeys)):
                 # Check for key in dict level
-                if mskeys[i] in base_costperflife.keys():
-                    # Restrict base cost/performance/lifetime dict to key chain
-                    # info.
-                    base_costperflife = base_costperflife[mskeys[i]]
-                    # Restrict stock/energy dict to key chain info.
-                    mseg = mseg[mskeys[i]]
-                    # Restrict any measure cost/performance/lifetime info. that
-                    # is a dict type to key chain info.
+                if mskeys[i] in base_costperflife.keys() or mskeys[i] in \
+                   ["primary", "secondary"]:
+
+                    # Skip over "primary" or "secondary" key in updating
+                    # cost and lifetime information (not relevant)
+                    if mskeys[i] not in ["primary", "secondary"]:
+                        # Restrict base cost/performance/lifetime dict to key
+                        # chain info.
+                        base_costperflife = base_costperflife[mskeys[i]]
+
+                        # Restrict stock/energy dict to key chain info.
+                        mseg = mseg[mskeys[i]]
+
+                        # Restrict sq.ft. dict to key chain info.
+                        if i < 3:  # Note: sq.ft. broken out 2 levels
+                            mseg_sqft = mseg_sqft[mskeys[i]]
+
+                        # Restrict any measure cost/performance/lifetime info.
+                        # that is a dict type to key chain info.
+                        if isinstance(cost_meas, dict) and mskeys[i] in \
+                           cost_meas.keys():
+                            cost_meas = cost_meas[mskeys[i]]
+                        if isinstance(cost_units, dict) and mskeys[i] in \
+                           cost_units.keys():
+                            cost_units = cost_units[mskeys[i]]
+                        if isinstance(life_meas, dict) and mskeys[i] in \
+                           life_meas.keys():
+                            life_meas = life_meas[mskeys[i]]
+
                     if isinstance(perf_meas, dict) and mskeys[i] in \
                        perf_meas.keys():
                             perf_meas = perf_meas[mskeys[i]]
                     if isinstance(perf_units, dict) and mskeys[i] in \
                        perf_units.keys():
                             perf_units = perf_units[mskeys[i]]
-                    if isinstance(cost_meas, dict) and mskeys[i] in \
-                       cost_meas.keys():
-                            cost_meas = cost_meas[mskeys[i]]
-                    if isinstance(cost_units, dict) and mskeys[i] in \
-                       cost_units.keys():
-                            cost_units = cost_units[mskeys[i]]
-                    if isinstance(life_meas, dict) and mskeys[i] in \
-                       life_meas.keys():
-                            life_meas = life_meas[mskeys[i]]
-                    # Restrict sq.ft. dict to key chain info.
-                    if i < 2:  # Note: sq.ft. broken out 2 levels (cdiv, bldg)
-                        mseg_sqft = mseg_sqft[mskeys[i]]
                 # If no key match, break the loop
                 else:
                     break
@@ -211,7 +229,13 @@ class Measure(object):
                 continue
             # Otherwise update all stock/energy/cost information for each year
             else:
-                key_chain_ct += 1
+                # Restrict valid key chain count to "primary" microsegment
+                # key chains only, as the key chain count is used later in
+                # stock and stock cost calculations, which secondary
+                # microsegments do not contribute to
+                if mskeys[0] == "primary":
+                    key_chain_ct += 1
+
                 # If the measure performance/cost variable is list with
                 # distribution information, sample values from distribution
                 if isinstance(perf_meas, list) and isinstance(perf_meas[0],
@@ -229,9 +253,10 @@ class Measure(object):
                 # make an exception for cases where performance is specified
                 # in 'relative savings' units (no explicit check
                 # of baseline units needed in this case)
-                if (perf_units == 'relative savings' or
-                   base_costperflife["performance"]["units"] == perf_units) and \
-                   base_costperflife["installed cost"]["units"] == cost_units:
+                if perf_units == 'relative savings' or \
+                    (base_costperflife["performance"]["units"] == perf_units
+                     and base_costperflife["installed cost"]["units"] ==
+                     cost_units):
 
                     # Set base performance dict
                     perf_base = base_costperflife["performance"]["typical"]
@@ -264,28 +289,44 @@ class Measure(object):
                             for yr in perf_base.keys():
                                 rel_perf[yr] = (perf_meas / perf_base[yr])
 
-                    # Set base cost
-                    cost_base = base_costperflife["installed cost"]["typical"]
+                    # Set base stock cost. Note that secondary microsegments
+                    # make no contribution to the stock cost calculation, as
+                    # they only affect energy/carbon and associated costs
+                    if mskeys[0] == "secondary":
+                        cost_base = dict.fromkeys(mseg["energy"].keys(), 0)
+                    else:
+                        cost_base = base_costperflife[
+                            "installed cost"]["typical"]
                 else:
                     raise KeyError('Inconsistent performance or cost units!')
 
-                # Set base lifetime
-                life_base = base_costperflife["lifetime"]["average"]
+                # Set base lifetime.  Note that secondary microsegments make
+                # no contribution to the lifetime calculation, as they only
+                # affect energy/carbon and associated costs
+                if mskeys[0] == "secondary":
+                    life_base = dict.fromkeys(mseg["energy"].keys(), 0)
+                else:
+                    life_base = base_costperflife["lifetime"]["average"]
 
                 # Set appropriate site-source factor, energy cost, and CO2
                 # intensity for given key chain
-                site_source_conv = ss_conv[mskeys[2]]
-                intensity_carb = carb_int[mskeys[2]]
+                site_source_conv = ss_conv[mskeys[3]]
+                intensity_carb = carb_int[mskeys[3]]
                 # Reduce energy costs info. to appropriate building type and
                 # fuel before entering into "partition_microsegment"
-                if mskeys[1] in ["single family home", "mobile home",
+                if mskeys[2] in ["single family home", "mobile home",
                                  "multi family home"]:
-                    cost_energy = ecosts["residential"][mskeys[2]]
+                    cost_energy = ecosts["residential"][mskeys[3]]
                 else:
-                    cost_energy = ecosts["commercial"][mskeys[2]]
+                    cost_energy = ecosts["commercial"][mskeys[3]]
 
-                # Update total stock and energy information
-                if mseg["stock"] == "NA":  # Use sq.ft. in absence of no. units
+                # Update total stock and energy information. Note that
+                # secondary microsegments make no contribution to the stock
+                # calculation, as they only affect energy/carbon and associated
+                # costs.
+                if mskeys[0] == 'secondary':
+                    add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
+                elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
                     add_stock = mseg_sqft["square footage"]
                 else:
@@ -379,6 +420,49 @@ class Measure(object):
 
         # Return the final master microsegment
         return [mseg_master, mseg_compete]
+
+    def create_keychain(self, mseg_type, htcl_enduse_ct=0):
+        """ Given input microsegment information, create a list of keys that
+        represents associated branch on the microsegment tree """
+
+        # Determine end use case, first ensuring end use is input as a list
+        if isinstance(self.end_use[mseg_type], list) is False:
+            self.end_use[mseg_type] = [self.end_use[mseg_type]]
+        for eu in self.end_use[mseg_type]:
+            if eu == "heating" or eu == "secondary heating" or eu == "cooling":
+                htcl_enduse_ct += 1
+
+        # Create a list of lists where each list has key information for
+        # one of the microsegment levels. Use list to find all possible
+        # microsegment key chains (i.e. ("new england", "single family home",
+        # "natural gas", "water heating")). Add in "demand" and "supply keys
+        # where needed (heating, secondary heating, cooling end uses)
+        if (htcl_enduse_ct > 0):
+            ms_lists = [self.climate_zone, self.bldg_type,
+                        self.fuel_type[mseg_type],
+                        self.end_use[mseg_type],
+                        self.technology_type[mseg_type],
+                        self.technology[mseg_type]]
+        else:
+            ms_lists = [self.climate_zone, self.bldg_type,
+                        self.fuel_type[mseg_type], self.end_use[mseg_type],
+                        self.technology[mseg_type]]
+
+        # Ensure that every list element is itself a list
+        for x in range(0, len(ms_lists)):
+            if isinstance(ms_lists[x], list) is False:
+                ms_lists[x] = [ms_lists[x]]
+
+        # Find all possible microsegment key chains
+        ms_iterable = list(itertools.product(*ms_lists))
+
+        # Add "primary" or "secondary" microsegment type
+        # indicator to beginning of each key chain
+        for i in range(0, len(ms_iterable)):
+            ms_iterable[i] = (mseg_type,) + ms_iterable[i]
+
+        # Output list of key chains
+        return ms_iterable, ms_lists
 
     def add_keyvals(self, dict1, dict2):
         """ Add key values of two identically structured dicts together """

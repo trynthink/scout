@@ -13,13 +13,31 @@ import copy
 
 # Define sample measure for use in all tests below
 sample_measure = {"name": "sample measure 1",
-                  "end_use": ["heating", "cooling"],
-                  "fuel_type": "electricity (grid)",
-                  "technology_type": "supply",
-                  "technology": ["boiler (electric)",
+                  "end_use": {"primary": ["heating", "cooling"],
+                              "secondary": None},
+                  "fuel_type": {"primary": "electricity (grid)",
+                                "secondary": None},
+                  "technology_type": {"primary": "supply",
+                                      "secondary": None},
+                  "technology": {"primary": ["boiler (electric)",
                                  "ASHP", "GSHP", "room AC"],
+                                 "secondary": None},
                   "bldg_type": "single family home",
                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+# Define sample measure w/ secondary msegs for use in all tests below
+sample_measure2 = {"name": "sample measure 1",
+                   "end_use": {"primary": ["heating", "cooling"],
+                               "secondary": "lighting"},
+                   "fuel_type": {"primary": "electricity (grid)",
+                                 "secondary": "electricity (grid)"},
+                   "technology_type": {"primary": "supply",
+                                       "secondary": "supply"},
+                   "technology": {"primary": ["boiler (electric)",
+                                  "ASHP", "GSHP", "room AC"],
+                                  "secondary": "general service (LED)"},
+                   "bldg_type": "single family home",
+                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
 
 class CommonMethods(object):
@@ -278,6 +296,71 @@ class ReduceSqftStockCostTest(unittest.TestCase, CommonMethods):
 #             with self.assertRaises(ValueError):
 #                 self.measure_instance.rand_list_gen(
 #                     self.test_fail_in[idx], self.test_sample_n)
+
+class CreateKeyChainTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the create_keychain function to verify that
+    it yields proper key chain output given input microsegment information """
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure2)
+
+    # Correct key chain output (primary microsegment)
+    ok_out_primary = [('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'heating', 'supply',
+                       'boiler (electric)'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'ASHP'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'GSHP'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'room AC'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply',
+                       'boiler (electric)'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'ASHP'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'GSHP'),
+                      ('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'room AC'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'heating', 'supply',
+                       'boiler (electric)'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'ASHP'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'GSHP'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'heating', 'supply', 'room AC'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply',
+                       'boiler (electric)'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'ASHP'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'GSHP'),
+                      ('primary', 'AIA_CZ2', 'single family home',
+                       'electricity (grid)', 'cooling', 'supply', 'room AC')]
+
+    # Correct key chain output (secondary microsegment)
+    ok_out_secondary = [('secondary', 'AIA_CZ1', 'single family home',
+                         'electricity (grid)', 'lighting',
+                         'general service (LED)'),
+                        ('secondary', 'AIA_CZ2', 'single family home',
+                         'electricity (grid)', 'lighting',
+                         'general service (LED)')]
+
+    # Test the generation of a list of primary mseg key chains
+    def test_primary(self):
+        self.assertEqual(
+            self.measure_instance.create_keychain("primary")[0],
+            self.ok_out_primary)
+
+    # Test the generation of a list of secondary mseg key chains
+    def test_secondary(self):
+        self.assertEqual(
+            self.measure_instance.create_keychain("secondary")[0],
+            self.ok_out_secondary)
 
 
 class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
@@ -738,24 +821,132 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "range": {"2009": 17, "2010": 17},
                                     "units": "years",
                                     "source": "EIA AEO"}}}},
-                    "natural gas": {
-                        "water heating": {
+                "natural gas": {
+                    "water heating": {
+                        "performance": {
+                            "typical": {"2009": 18, "2010": 18},
+                            "best": {"2009": 18, "2010": 18},
+                            "units": "EF",
+                            "source":
+                            "EIA AEO"},
+                        "installed cost": {
+                            "typical": {"2009": 18, "2010": 18},
+                            "best": {"2009": 18, "2010": 18},
+                            "units": "2014$/unit",
+                            "source": "EIA AEO"},
+                        "lifetime": {
+                            "average": {"2009": 180, "2010": 180},
+                            "range": {"2009": 18, "2010": 18},
+                            "units": "years",
+                            "source": "EIA AEO"}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
                                 "performance": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "EF",
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
                                     "source":
                                     "EIA AEO"},
                                 "installed cost": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "2014$/unit",
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
                                     "source": "EIA AEO"},
                                 "lifetime": {
-                                    "average": {"2009": 180, "2010": 180},
-                                    "range": {"2009": 18, "2010": 18},
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
                                     "units": "years",
                                     "source": "EIA AEO"}}}},
+                    "secondary heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 5, "2010": 5},
+                                    "best": {"2009": 5, "2010": 5},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 50, "2010": 50},
+                                    "range": {"2009": 5, "2010": 5},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 6, "2010": 6},
+                                    "best": {"2009": 6, "2010": 6},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 60, "2010": 60},
+                                    "range": {"2009": 6, "2010": 6},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}},
+                    "cooling": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 8, "2010": 8},
+                                    "best": {"2009": 8, "2010": 8},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 80, "2010": 80},
+                                    "range": {"2009": 8, "2010": 8},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 9, "2010": 9},
+                                    "best": {"2009": 9, "2010": 9},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 90, "2010": 90},
+                                    "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"}}}}}},
             "multi family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -1234,24 +1425,24 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "range": {"2009": 17, "2010": 17},
                                     "units": "years",
                                     "source": "EIA AEO"}}}},
-                    "natural gas": {
-                        "water heating": {
-                                "performance": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "EF",
-                                    "source":
-                                    "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "2014$/unit",
-                                    "source": "EIA AEO"},
-                                "lifetime": {
-                                    "average": {"2009": 180, "2010": 180},
-                                    "range": {"2009": 18, "2010": 18},
-                                    "units": "years",
-                                    "source": "EIA AEO"}}}},
+                "natural gas": {
+                    "water heating": {
+                            "performance": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "EF",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "2014$/unit",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 180, "2010": 180},
+                                "range": {"2009": 18, "2010": 18},
+                                "units": "years",
+                                "source": "EIA AEO"}}}},
             "multi family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -1546,9 +1737,38 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}},
-                    "natural gas": {"water heating": {
-                                    "stock": {"2009": 15, "2010": 15},
-                                    "energy": {"2009": 15, "2010": 15}}}},
+                "natural gas": {
+                    "water heating": {
+                        "stock": {"2009": 15, "2010": 15},
+                        "energy": {"2009": 15, "2010": 15}},
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2009": 0,
+                                           "2010": 0}},
+                            "windows solar": {
+                                "stock": "NA",
+                                "energy": {"2009": 1,
+                                           "2010": 1}}}},
+                    "secondary heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2009": 5,
+                                           "2010": 5}},
+                            "windows solar": {
+                                "stock": "NA",
+                                "energy": {"2009": 6,
+                                           "2010": 6}}}},
+                    "cooling": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2009": 5, "2010": 5}},
+                            "windows solar": {
+                                "stock": "NA",
+                                "energy": {"2009": 6, "2010": 6}}}}}},
             "multi family home": {
                 "square footage": {"2009": 300, "2010": 400},
                 "electricity (grid)": {
@@ -1637,9 +1857,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}},
-                    "natural gas": {"water heating": {
-                                    "stock": {"2009": 15, "2010": 15},
-                                    "energy": {"2009": 15, "2010": 15}}}},
+                "natural gas": {"water heating": {
+                                "stock": {"2009": 15, "2010": 15},
+                                "energy": {"2009": 15, "2010": 15}}}},
             "multi family home": {
                 "square footage": {"2009": 700, "2010": 800},
                 "electricity (grid)": {
@@ -1691,157 +1911,239 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     ok_measures = [{"name": "sample measure 1",
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
-                    "energy_efficiency": {"AIA_CZ1": {"heating": 30,
-                                                      "cooling": 25},
-                                          "AIA_CZ2": {"heating": 30,
-                                                      "cooling": 15}},
-                    "energy_efficiency_units": "COP",
+                    "energy_efficiency": {"primary":
+                                          {"AIA_CZ1": {"heating": 30,
+                                                       "cooling": 25},
+                                           "AIA_CZ2": {"heating": 30,
+                                                       "cooling": 15}},
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "COP",
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": ["heating", "cooling"],
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "supply",
-                    "technology": ["boiler (electric)",
-                                   "ASHP", "GSHP", "room AC"],
                     "bldg_type": "single family home",
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": None},
+                    "end_use": {"primary": ["heating", "cooling"],
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": "demand"},
+                    "technology": {"primary": ["boiler (electric)",
+                                   "ASHP", "GSHP", "room AC"],
+                                   "secondary": None}},
                    {"name": "sample measure 2",
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
-                    "energy_efficiency": 25,
-                    "energy_efficiency_units": "EF",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "EF",
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": "water heating",
-                    "fuel_type": "natural gas",
-                    "technology_type": "supply",
-                    "technology": None,
                     "bldg_type": "single family home",
-                    "climate_zone": "AIA_CZ1"},
+                    "climate_zone": "AIA_CZ1",
+                    "fuel_type": {"primary": "natural gas",
+                                  "secondary": None},
+                    "end_use": {"primary": "water heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": None,
+                                   "secondary": None}},
                    {"name": "sample measure 3",  # Add heat/cool end uses later
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
-                    "energy_efficiency": 25,
-                    "energy_efficiency_units": "lm/W",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": {
+                                              "heating": 0.4,
+                                              "secondary heating": 0.4,
+                                              "cooling": -0.4}},
+                    "energy_efficiency_units": {"primary": "lm/W",
+                                                "secondary":
+                                                "relative savings"},
                     "product_lifetime": 10,
-                    "end_use": "lighting",
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "supply",
-                    "technology": ["linear fluorescent (LED)",
-                                   "general service (LED)",
-                                   "external (LED)"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": ["electricity (grid)",
+                                                "natural gas"]},
+                    "end_use": {"primary": "lighting",
+                                "secondary": ["heating", "secondary heating",
+                                              "cooling"]},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": "demand"},
+                    "technology": {"primary":
+                                   ["linear fluorescent (LED)",
+                                    "general service (LED)",
+                                    "external (LED)"],
+                                   "secondary":
+                                   ["windows conduction",
+                                    "windows solar"]}},
                    {"name": "sample measure 4",
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
-                    "energy_efficiency": {"windows conduction": 20,
-                                          "windows solar": 1},
-                    "energy_efficiency_units": {"windows conduction":
-                                                "R Value",
-                                                "windows solar": "SHGC"},
+                    "energy_efficiency": {"primary":
+                                          {"windows conduction": 20,
+                                           "windows solar": 1},
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary":
+                                                {"windows conduction":
+                                                 "R Value",
+                                                 "windows solar": "SHGC"},
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": "heating",
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "demand",
-                    "technology": ["windows conduction",
-                                   "windows solar"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": None},
+                    "end_use": {"primary": "heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "demand",
+                                        "secondary": None},
+                    "technology": {"primary": ["windows conduction",
+                                   "windows solar"],
+                                   "secondary": None}},
                    {"name": "sample measure 5",
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
-                    "energy_efficiency": 1,
-                    "energy_efficiency_units": "SHGC",
+                    "energy_efficiency": {"primary": 1, "secondary": None},
+                    "energy_efficiency_units": {"primary": "SHGC",
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": "heating",
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "demand",
-                    "technology": "windows solar",
                     "bldg_type": "single family home",
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": None},
+                    "end_use": {"primary": "heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "demand",
+                                        "secondary": None},
+                    "technology": {"primary": "windows solar",
+                                   "secondary": None}},
                    {"name": "sample measure 6",
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
-                    "energy_efficiency": {"windows conduction": 10,
-                                          "windows solar": 1},
-                    "energy_efficiency_units": {"windows conduction":
-                                                "R Value",
-                                                "windows solar": "SHGC"},
+                    "energy_efficiency": {"primary": {"windows conduction": 10,
+                                                      "windows solar": 1},
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary":
+                                                {"windows conduction":
+                                                 "R Value",
+                                                 "windows solar": "SHGC"},
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": ["heating", "secondary heating", "cooling"],
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "demand",
-                    "technology": ["windows conduction", "windows solar"],
                     "bldg_type": "single family home",
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": None},
+                    "end_use": {"primary": ["heating", "secondary heating",
+                                            "cooling"],
+                                "secondary": None},
+                    "technology_type": {"primary": "demand",
+                                        "secondary": None},
+                    "technology": {"primary": ["windows conduction",
+                                               "windows solar"],
+                                   "secondary": None}},
                    {"name": "sample measure 7",
                     "installed_cost": 10,
                     "cost_units": "2014$/sf",
-                    "energy_efficiency": {"windows conduction": 0.4,
-                                          "windows solar": 1},
-                    "energy_efficiency_units": {"windows conduction":
-                                                "relative savings",
-                                                "windows solar": "SHGC"},
+                    "energy_efficiency": {"primary":
+                                          {"windows conduction": 0.4,
+                                           "windows solar": 1},
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary":
+                                                {"windows conduction":
+                                                 "relative savings",
+                                                 "windows solar": "SHGC"},
+                                                "secondary": None},
                     "product_lifetime": 10,
-                    "end_use": ["heating", "secondary heating", "cooling"],
-                    "fuel_type": "electricity (grid)",
-                    "technology_type": "demand",
-                    "technology": ["windows conduction", "windows solar"],
                     "bldg_type": "single family home",
-                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": None},
+                    "end_use": {"primary": ["heating", "secondary heating",
+                                            "cooling"],
+                                "secondary": None},
+                    "technology_type": {"primary": "demand",
+                                        "secondary": None},
+                    "technology": {"primary": ["windows conduction",
+                                               "windows solar"],
+                                   "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
     # as probability distributions
     ok_measures_dist = [{"name": "distrib measure 1",
                          "installed_cost": ["normal", 25, 5],
                          "cost_units": "2014$/unit",
-                         "energy_efficiency": {"AIA_CZ1": {"heating":
-                                                           ["normal", 30, 1],
-                                                           "cooling":
-                                                           ["normal", 25, 2]},
-                                               "AIA_CZ2": {"heating": 30,
-                                                           "cooling":
-                                                           ["normal", 15, 4]}},
-                         "energy_efficiency_units": "COP",
+                         "energy_efficiency": {"primary":
+                                               {"AIA_CZ1": {"heating":
+                                                            ["normal", 30, 1],
+                                                            "cooling":
+                                                            ["normal", 25, 2]},
+                                                "AIA_CZ2": {"heating": 30,
+                                                            "cooling":
+                                                            ["normal", 15,
+                                                             4]}},
+                                               "secondary": None},
+                         "energy_efficiency_units": {"primary": "COP",
+                                                     "secondary": None},
                          "product_lifetime": 10,
-                         "end_use": ["heating", "cooling"],
-                         "fuel_type": "electricity (grid)",
-                         "technology_type": "supply",
-                         "technology": ["boiler (electric)",
-                                        "ASHP", "GSHP", "room AC"],
                          "bldg_type": "single family home",
-                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                         "fuel_type": {"primary": "electricity (grid)",
+                                       "secondary": None},
+                         "end_use": {"primary": ["heating", "cooling"],
+                                     "secondary": None},
+                         "technology_type": {"primary": "supply",
+                                             "secondary": None},
+                         "technology": {"primary": ["boiler (electric)",
+                                        "ASHP", "GSHP", "room AC"],
+                                        "secondary": None}},
                         {"name": "distrib measure 2",
                          "installed_cost": ["lognormal", 3.22, 0.06],
                          "cost_units": "2014$/unit",
-                         "energy_efficiency": ["normal", 25, 5],
-                         "energy_efficiency_units": "EF",
+                         "energy_efficiency": {"primary": ["normal", 25, 5],
+                                               "secondary": None},
+                         "energy_efficiency_units": {"primary": "EF",
+                                                     "secondary": None},
                          "product_lifetime": 10,
-                         "end_use": "water heating",
-                         "fuel_type": "natural gas",
-                         "technology_type": "supply",
-                         "technology": None,
                          "bldg_type": "single family home",
-                         "climate_zone": "AIA_CZ1"},
+                         "climate_zone": "AIA_CZ1",
+                         "fuel_type": {"primary": "natural gas",
+                                       "secondary": None},
+                         "end_use": {"primary": "water heating",
+                                     "secondary": None},
+                         "technology_type": {"primary": "supply",
+                                             "secondary": None},
+                         "technology": {"primary": None,
+                                        "secondary": None}},
                         {"name": "distrib measure 3",
                          "installed_cost": ["normal", 10, 5],
                          "cost_units": "2014$/sf",
-                         "energy_efficiency": {"windows conduction":
-                                               ["lognormal", 2.29, 0.14],
-                                               "windows solar":
-                                               ["normal", 1, 0.1]},
+                         "energy_efficiency": {"primary":
+                                               {"windows conduction":
+                                                ["lognormal", 2.29, 0.14],
+                                                "windows solar":
+                                                ["normal", 1, 0.1]},
+                                               "secondary": None},
                          "energy_efficiency_units": {"windows conduction":
                                                      "R Value",
                                                      "windows solar": "SHGC"},
                          "product_lifetime": 10,
-                         "end_use": ["heating", "secondary heating",
-                                     "cooling"],
-                         "fuel_type": "electricity (grid)",
-                         "technology_type": "demand",
-                         "technology": ["windows conduction", "windows solar"],
                          "bldg_type": "single family home",
-                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                         "fuel_type": {"primary": "electricity (grid)",
+                                       "secondary": None},
+                         "end_use": {"primary": ["heating",
+                                                 "secondary heating",
+                                                 "cooling"],
+                                     "secondary": None},
+                         "technology_type": {"primary": "demand",
+                                             "secondary": None},
+                         "technology": {"primary": ["windows conduction",
+                                                    "windows solar"],
+                                        "secondary": None}}]
 
     # List of measures with attribute combinations that should match some of
     # the key chains in the "sample_msegin" dict above (i.e., AIA_CZ1 ->
@@ -1851,89 +2153,136 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     partial_measures = [{"name": "partial measure 1",
                          "installed_cost": 25,
                          "cost_units": "2014$/unit",
-                         "energy_efficiency": 25,
+                         "energy_efficiency": {"primary": 25,
+                                               "secondary": None},
                          "product_lifetime": 10,
-                         "energy_efficiency_units": "COP",
-                         "end_use": "cooling",
-                         "fuel_type": "electricity (grid)",
-                         "technology_type": "supply",
-                         "technology": ["boiler (electric)", "ASHP"],
+                         "energy_efficiency_units": {"primary": "COP",
+                                                     "secondary": None},
                          "bldg_type": "single family home",
-                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                         "fuel_type": {"primary": "electricity (grid)",
+                                       "secondary": None},
+                         "end_use": {"primary": "cooling",
+                                     "secondary": None},
+                         "technology_type": {"primary": "supply",
+                                             "secondary": None},
+                         "technology": {"primary": ["boiler (electric)",
+                                                    "ASHP"],
+                                        "secondary": None}},
                         {"name": "partial measure 2",
                          "installed_cost": 25,
                          "cost_units": "2014$/unit",
-                         "energy_efficiency": 25,
+                         "energy_efficiency": {"primary": 25,
+                                               "secondary": None},
                          "product_lifetime": 10,
-                         "energy_efficiency_units": "COP",
-                         "end_use": ["heating", "cooling"],
-                         "fuel_type": "electricity (grid)",
-                         "technology_type": "supply",
-                         "technology": ["linear fluorescent (LED)",
-                                        "general service (LED)",
-                                        "external (LED)", "GSHP", "ASHP"],
+                         "energy_efficiency_units": {"primary": "COP",
+                                                     "secondary": None},
                          "bldg_type": "single family home",
-                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}]
+                         "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                         "fuel_type": {"primary": "electricity (grid)",
+                                       "secondary": None},
+                         "end_use": {"primary": ["heating", "cooling"],
+                                     "secondary": None},
+                         "technology_type": {"primary": "supply",
+                                             "secondary": None},
+                         "technology": {"primary":
+                                        ["linear fluorescent (LED)",
+                                         "general service (LED)",
+                                         "external (LED)", "GSHP", "ASHP"],
+                                        "secondary": None}}]
 
     # List of measures with attribute combinations that should not match any
     # of the key chains in the "sample_msegin" dict above
     blank_measures = [{"name": "blank measure 1",
                        "installed_cost": 10,
                        "cost_units": "2014$/unit",
-                       "energy_efficiency": 10,
-                       "energy_efficiency_units": "COP",
+                       "energy_efficiency": {"primary": 10,
+                                             "secondary": None},
+                       "energy_efficiency_units": {"primary": "COP",
+                                                   "secondary": None},
                        "product_lifetime": 10,
-                       "end_use": "cooling",
-                       "fuel_type": "electricity (grid)",
-                       "technology_type": "supply",
-                       "technology": "boiler (electric)",
                        "bldg_type": "single family home",
-                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                       "fuel_type": {"primary": "electricity (grid)",
+                                     "secondary": None},
+                       "end_use": {"primary": "cooling",
+                                   "secondary": None},
+                       "technology_type": {"primary": "supply",
+                                           "secondary": None},
+                       "technology": {"primary": "boiler (electric)",
+                                      "secondary": None}},
                       {"name": "blank measure 2",
                        "installed_cost": 10,
                        "cost_units": "2014$/unit",
-                       "energy_efficiency": {"AIA_CZ1": {"heating": 30,
-                                                         "cooling": 25},
-                                             "AIA_CZ2": {"heating": 30,
-                                                         "cooling": 15}},
-                       "energy_efficiency_units": "COP",
+                       "energy_efficiency": {"primary":
+                                             {"AIA_CZ1": {"heating": 30,
+                                                          "cooling": 25},
+                                              "AIA_CZ2": {"heating": 30,
+                                                          "cooling": 15}},
+                                             "secondary": None},
+                       "energy_efficiency_units": {"primary": "COP",
+                                                   "secondary": None},
                        "product_lifetime": 10,
-                       "end_use": ["heating", "cooling"],
-                       "fuel_type": "electricity (grid)",
-                       "technology_type": "supply",
-                       "technology": ["linear fluorescent (LED)",
-                                      "general service (LED)",
-                                      "external (LED)"],
                        "bldg_type": "single family home",
-                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                       "fuel_type": {"primary": "electricity (grid)",
+                                     "secondary": None},
+                       "end_use": {"primary": ["heating", "cooling"],
+                                   "secondary": None},
+                       "technology_type": {"primary": "supply",
+                                           "secondary": None},
+                       "technology": {"primary": ["linear fluorescent (LED)",
+                                                  "general service (LED)",
+                                                  "external (LED)"],
+                                      "secondary": None}},
                       {"name": "blank measure 3",
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
-                       "energy_efficiency": 25,
+                       "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 10,
-                       "energy_efficiency_units": "lm/W",
-                       "end_use": "lighting",
-                       "fuel_type": "natural gas",
-                       "technology_type": "supply",
-                       "technology": ["linear fluorescent (LED)",
-                                      "general service (LED)",
-                                      "external (LED)"],
+                       "energy_efficiency_units": {"primary": "lm/W",
+                                                   "secondary": None},
                        "bldg_type": "single family home",
-                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"]},
+                       "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                       "fuel_type": {"primary": "natural gas",
+                                     "secondary": None},
+                       "end_use": {"primary": "lighting",
+                                   "secondary": ["heating",
+                                                 "secondary heating",
+                                                 "cooling"]},
+                       "technology_type": {"primary": "supply",
+                                           "secondary": "demand"},
+                       "technology": {"primary":
+                                      ["linear fluorescent (LED)",
+                                       "general service (LED)",
+                                       "external (LED)"],
+                                      "secondary":
+                                      ["windows conduction",
+                                       "windows solar"]}},
                       {"name": "blank measure 4",
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
-                       "energy_efficiency": 25,
+                       "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 10,
-                       "energy_efficiency_units": "lm/W",
-                       "end_use": "lighting",
-                       "fuel_type": "solar",
-                       "technology_type": "supply",
-                       "technology": ["linear fluorescent (LED)",
-                                      "general service (LED)",
-                                      "external (LED)"],
+                       "energy_efficiency_units": {"primary": "lm/W",
+                                                   "secondary": None},
                        "bldg_type": "single family home",
-                       "climate_zone": "AIA_CZ1"}]
+                       "climate_zone": "AIA_CZ1",
+                       "fuel_type": {"primary": "solar",
+                                     "secondary": None},
+                       "end_use": {"primary": "lighting",
+                                   "secondary": ["heating",
+                                                 "secondary heating",
+                                                 "cooling"]},
+                       "technology_type": {"primary": "supply",
+                                           "secondary": "demand"},
+                       "technology": {"primary":
+                                      ["linear fluorescent (LED)",
+                                       "general service (LED)",
+                                       "external (LED)"],
+                                      "secondary":
+                                      ["windows conduction",
+                                       "windows solar"]}}]
 
     # Master stock, energy, and cost information that should be generated by
     # "ok_measures" above using the "sample_msegin" dict
@@ -1983,25 +2332,25 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                "lifetime": {"2009": 180, "2010": 180}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
-               "energy": {"total": {"2009": 472.12, "2010": 473.6},
-                          "competed": {"2009": 472.12, "2010": 473.6},
-                          "efficient": {"2009": 379.2272, "2010": 380.416}},
-               "carbon": {"total": {"2009": 26838.62, "2010": 26601.27},
-                          "competed": {"2009": 26838.62, "2010": 26601.27},
-                          "efficient": {"2009": 21557.94, "2010": 21367.29}},
+               "energy": {"total": {"2009": 648.47, "2010": 650.43},
+                          "competed": {"2009": 648.47, "2010": 650.43},
+                          "efficient": {"2009": 550.0692, "2010": 551.722}},
+               "carbon": {"total": {"2009": 36855.9, "2010": 36504.45},
+                          "competed": {"2009": 36855.9, "2010": 36504.45},
+                          "efficient": {"2009": 31262.24, "2010": 30960.7}},
                "cost": {"baseline": {"stock": {"2009": 2972,
                                                "2010": 2972},
-                                     "energy": {"2009": 4787.297,
-                                                "2010": 4579.712},
-                                     "carbon": {"2009": 885674.41,
-                                                "2010": 877842.06},
+                                     "energy": {"2009": 6601.968,
+                                                "2010": 6315.443},
+                                     "carbon": {"2009": 1216244.58,
+                                                "2010": 1204646.90},
                                      },
                         "measure": {"stock": {"2009": 3700,
                                               "2010": 3700},
-                                    "energy": {"2009": 3845.364,
-                                               "2010": 3678.623},
-                                    "carbon": {"2009": 711411.98,
-                                               "2010": 705120.71}}},
+                                    "energy": {"2009": 5603.723,
+                                               "2010": 5360.489},
+                                    "carbon": {"2009": 1031653.83,
+                                               "2010": 1021703.20}}},
                "lifetime": {"2009": 200, "2010": 200}},
               {"stock": {"total": {"2009": 1600, "2010": 2000},
                          "competed": {"2009": 1600, "2010": 2000}},
