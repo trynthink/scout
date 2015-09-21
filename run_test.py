@@ -503,6 +503,185 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     # generating and partitioning master microsegments for a measure
     sample_basein = {
         "AIA_CZ1": {
+            "assembly": {
+                "electricity (grid)": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "lights": {
+                                "performance": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source":
+                                    "NA"},
+                                "installed cost": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "average": 0,
+                                    "range": 0,
+                                    "units": "NA",
+                                    "source": "NA"}}}},
+                    "secondary heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "lights": {
+                                "performance": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source":
+                                    "NA"},
+                                "installed cost": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "average": 0,
+                                    "range": 0,
+                                    "units": "NA",
+                                    "source": "NA"}}}},
+                    "cooling": {
+                        "demand": {
+                            "windows conduction": {
+                                "performance": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "R Value",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 1, "2010": 1},
+                                    "best": {"2009": 1, "2010": 1},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 10, "2010": 10},
+                                    "range": {"2009": 1, "2010": 1},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "windows solar": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "SHGC",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"}},
+                            "lights": {
+                                "performance": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source":
+                                    "NA"},
+                                "installed cost": {
+                                    "typical": 0,
+                                    "best": 0,
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "average": 0,
+                                    "range": 0,
+                                    "units": "NA",
+                                    "source": "NA"}}}},
+                    "lighting": {
+                        "commercial light type X": {
+                            "performance": {
+                                "typical": {"2009": 14, "2010": 14},
+                                "best": {"2009": 14, "2010": 14},
+                                "units": "lm/W",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 14, "2010": 14},
+                                "best": {"2009": 14, "2010": 14},
+                                "units": "2014$/unit",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 140, "2010": 140},
+                                "range": {"2009": 14, "2010": 14},
+                                "units": "years",
+                                "source": "EIA AEO"}}}}},
             "single family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -1679,6 +1858,41 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     # generating and partitioning master microsegments for a measure
     sample_msegin = {
         "AIA_CZ1": {
+            "assembly": {
+                "electricity (grid)": {
+                    "heating": {"demand": {"windows conduction": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 0, "2010": 0}},
+                                           "windows solar": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 1, "2010": 1}},
+                                           "lights": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 1, "2010": 1}}}},
+                    "secondary heating": {"demand": {"windows conduction": {
+                                                     "stock": "NA",
+                                                     "energy": {"2009": 5,
+                                                                "2010": 5}},
+                                                     "windows solar": {
+                                                     "stock": "NA",
+                                                     "energy": {"2009": 6,
+                                                                "2010": 6}},
+                                                     "lights": {
+                                                     "stock": "NA",
+                                                     "energy": {"2009": 6,
+                                                                "2010": 6}}}},
+                    "cooling": {"demand": {"windows conduction": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 5, "2010": 5}},
+                                           "windows solar": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 6, "2010": 6}},
+                                           "lights": {
+                                           "stock": "NA",
+                                           "energy": {"2009": 6, "2010": 6}}}},
+                    "lighting": {"commercial light type X": {
+                                 "stock": {"2009": 11, "2010": 11},
+                                 "energy": {"2009": 11, "2010": 11}}}}},
             "single family home": {
                 "square footage": {"2009": 100, "2010": 200},
                 "electricity (grid)": {
@@ -2069,6 +2283,26 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "secondary": None},
                     "technology": {"primary": ["windows conduction",
                                                "windows solar"],
+                                   "secondary": None}},
+                   {"name": "sample measure 8",  # Add heat/cool end uses later
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "lm/W",
+                                                "secondary": None},
+                    "product_lifetime": 10,
+                    "bldg_type": "assembly",
+                    "climate_zone": "AIA_CZ1",
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": ["electricity (grid)",
+                                                "natural gas"]},
+                    "end_use": {"primary": "lighting",
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary":
+                                   "commercial light type X",
                                    "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
@@ -2439,7 +2673,29 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                "2010": 505.4187},
                                     "carbon": {"2009": 97743.35,
                                                "2010": 96878.97}}},
-               "lifetime": {"2009": 51.67, "2010": 51.67}}]
+               "lifetime": {"2009": 51.67, "2010": 51.67}},
+              {"stock": {"total": {"2009": 11, "2010": 11},
+                         "competed": {"2009": 11, "2010": 11}},
+               "energy": {"total": {"2009": 76.56, "2010": 76.8},
+                          "competed": {"2009": 76.56, "2010": 76.8},
+                          "efficient": {"2009": 62.524, "2010": 62.72}},
+               "carbon": {"total": {"2009": 4352.208, "2010": 4313.72},
+                          "competed": {"2009": 4352.208, "2010": 4313.72},
+                          "efficient": {"2009": 3554.304, "2010": 3522.872}},
+               "cost": {"baseline": {"stock": {"2009": 154,
+                                               "2010": 154},
+                                     "energy": {"2009": 695.1648,
+                                                "2010": 656.64},
+                                     "carbon": {"2009": 143622.88,
+                                                "2010": 142352.77},
+                                     },
+                        "measure": {"stock": {"2009": 275,
+                                              "2010": 275},
+                                    "energy": {"2009": 567.7179,
+                                               "2010": 536.256},
+                                    "carbon": {"2009": 117292.02,
+                                               "2010": 116254.76}}},
+               "lifetime": {"2009": 140, "2010": 140}}]
 
     # Means and sampling Ns for energy and cost that should be generated by
     # "ok_measures_dist" above using the "sample_msegin" dict

@@ -114,6 +114,15 @@ class Measure(object):
         # Initialize variable indicating use of sq.ft. as microsegment stock
         sqft_subst = 0
 
+        # Establish a flag for a commercial lighting case where the user has
+        # not specified secondary end use effects on heating and cooling.  In
+        # this case, secondary effects are added automatically by adjusting
+        # the "lights" thermal load component in accordance with the lighting
+        # efficiency change (e.g., a 40% relative savings from efficient
+        # lighting equipment translates to a 40% increase in heating loads and
+        # 40% decrease in cooling load)
+        lighting_secondary = False
+
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
         # baseline microsegment(s) directly affected by a measure (e.g.,
@@ -130,11 +139,50 @@ class Measure(object):
         ms_iterable, ms_lists = self.create_keychain("primary")
 
         # Determine "secondary" microsegment key chains and add to the
-        # "primary" microsegment key chain list, if needed.
+        # "primary" microsegment key chain list, if needed. In a commercial
+        # lighting measure case where no secondary microsegment is specified,
+        # use the "lights" thermal load component microsegments to represent
+        # secondary end use effects of the lighting measure
         if self.end_use["secondary"] is not None:
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
+        elif "lighting" in self.end_use["primary"] and \
+            self.bldg_type not in \
+            ["single family", "multi family", "mobile"] and \
+                self.end_use["secondary"] is None:
+                    # Set secondary lighting microsegment flag to True
+                    lighting_secondary = True
+                    # Set secondary energy efficiency value to "Missing"
+                    # (used below as a flag)
+                    self.energy_efficiency["secondary"] = \
+                        "Missing (secondary lighting)"
+                    # Set secondary energy efficiency units to "relative
+                    # savings"
+                    self.energy_efficiency_units["secondary"] = \
+                        "relative savings"
+                    # Set secondary fuel type to include all heating/cooling
+                    # fuels
+                    self.fuel_type["secondary"] = ["electricity (grid)",
+                                                   "natural gas",
+                                                   "other"]
+                    # Set relevant secondary end uses
+                    self.end_use["secondary"] = ["heating",
+                                                 "secondary heating",
+                                                 "cooling"]
+                    # Set secondary technology type ("demand" as the lighting
+                    # measure affects heating/cooling loads)
+                    self.technology_type["secondary"] = "demand"
+                    # Set secondary technology class to "lights", which will
+                    # access the portion of commercial heating/cooling demand
+                    # that is attributable to waste heat from lights
+                    self.technology["secondary"] = "lights"
+
+                    # Determine secondary microsegment key chains and add to
+                    # the primary microsegment key chain list
+                    ms_iterable_second, ms_lists_second = self.create_keychain(
+                        "secondary")
+                    ms_iterable.extend(ms_iterable_second)
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
@@ -269,9 +317,34 @@ class Measure(object):
                     # but 1 ACH50 is higher rel. performance than 13 ACH50).
                     # Note that relative performance values are stored in a
                     # dict with keys for each year in the modeling time horizon
-                    if perf_units == 'relative savings':
-                        for yr in perf_base.keys():
-                            rel_perf[yr] = 1 - perf_meas
+                    if perf_units == "relative savings":
+                        # In a commercial lighting case where the relative
+                        # savings impact of the lighting change on a secondary
+                        # end use (heating/cooling) has not been user-
+                        # specified, draw from the "lighting_secondary"
+                        # variable to determine relative performance for this
+                        # secondary microsegment; in all other cases where
+                        # relative savings are directly user-specified in the
+                        # measure definition, calculate relative performance
+                        # based on the relative savings value
+                        if perf_meas == "Missing (secondary lighting)":
+                            # If relevant secondary lighting performance
+                            # information doesn't exist, throw an error
+                            if type(lighting_secondary) == dict:
+                                # Relative performance for heating end uses
+                                if mskeys[4] in ["heating",
+                                                 "secondary heating"]:
+                                    rel_perf = lighting_secondary["heat"]
+                                # Relative performance for cooling end uses
+                                else:
+                                    rel_perf = lighting_secondary["cool"]
+                            else:
+                                raise ValueError("No performance value available for \
+                                                 secondary lighting end use \
+                                                 effect calculation!")
+                        else:
+                            for yr in perf_base.keys():
+                                rel_perf[yr] = 1 - perf_meas
                     elif perf_units not in inverted_relperf_list:
                         if isinstance(perf_meas, list):  # Perf. distrib. case
                             for yr in perf_base.keys():
@@ -288,6 +361,29 @@ class Measure(object):
                         else:
                             for yr in perf_base.keys():
                                 rel_perf[yr] = (perf_meas / perf_base[yr])
+
+                    # If looping through a commercial lighting microsegment
+                    # where secondary end use effects (heating/cooling) are not
+                    # specified by the user and must be added, store the
+                    # relative performance of the efficient lighting equipment
+                    # for later use in updating these secondary microsegments
+                    if mskeys[4] == "lighting" and mskeys[0] == "primary" and\
+                            lighting_secondary is True:
+
+                        # The impact of a lighting efficiency change on heating
+                        # is the negative of that on cooling, as improved
+                        # lighting efficiency reduces waste heat from lights,
+                        # increasing heating load and decreasing cooling load
+                        secondary_perf_cool = rel_perf
+                        secondary_perf_heat = copy.deepcopy(rel_perf)
+                        secondary_perf_heat.update((x, (2 - y)) for x, y in
+                                                   secondary_perf_heat.items())
+
+                        # Store the secondary microsegment performance
+                        # information for later use in updating these secondary
+                        # microsegments
+                        lighting_secondary = {"heat": secondary_perf_heat,
+                                              "cool": secondary_perf_cool}
 
                     # Set base stock cost. Note that secondary microsegments
                     # make no contribution to the stock cost calculation, as
