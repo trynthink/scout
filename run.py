@@ -10,6 +10,10 @@ measures_file = "measures.json"
 microsegments_file = "microsegments_out_test.json"
 mseg_base_costperflife_info = "microsegments_base_costperflife.json"
 
+# Define and import new building stock data (broken out by year)
+bldg_turnover = {"residential": None,
+                 "commercial": None}
+
 # Define and import site-source conversions and CO2 emissions data
 cost_sitesource_co2 = "Cost_S-S_CO2.txt"
 cost_ss_co2 = numpy.genfromtxt(cost_sitesource_co2,
@@ -80,7 +84,8 @@ class Measure(object):
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
 
-    def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
+    def mseg_find_partition(self, mseg_in, base_costperflife_in, bldg_turnover,
+                            adopt_scheme):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
         energy consumption information, find: 1) total and competed stock,
@@ -105,8 +110,7 @@ class Measure(object):
         # competing measures
         mseg_compete = {
             "competed mseg keys and values": {},
-            "competed savings adjustment": {"already competed": False,
-                                            "adjustment factor": 1}}
+            "competed choice parameters": {}}
 
         # Initialize a counter of valid key chains
         key_chain_ct = 0
@@ -408,13 +412,26 @@ class Measure(object):
                 # intensity for given key chain
                 site_source_conv = ss_conv[mskeys[3]]
                 intensity_carb = carb_int[mskeys[3]]
-                # Reduce energy costs info. to appropriate building type and
-                # fuel before entering into "partition_microsegment"
+                # Reduce energy costs and stock turnover info. to appropriate
+                # building type and - for energy costs - fuel, before
+                # entering into "partition_microsegment"
                 if mskeys[2] in ["single family home", "mobile home",
                                  "multi family home"]:
+                    new_bldg_frac = bldg_turnover["residential"]
                     cost_energy = ecosts["residential"][mskeys[3]]
                 else:
+                    new_bldg_frac = bldg_turnover["commercial"]
                     cost_energy = ecosts["commercial"][mskeys[3]]
+
+                # Update bass diffusion parameters needed to determine the
+                # fraction of the baseline microegment that will be captured
+                # by efficient alternatives to the baseline technology
+                diffuse_params = None  # Placeholder for now
+
+                # Update technology choice parameters needed to choose between
+                # multiple efficient technology options that may access
+                # this baseline microsegment
+                choice_params = None  # Placeholder for now
 
                 # Update total stock and energy information. Note that
                 # secondary microsegments make no contribution to the stock
@@ -428,22 +445,21 @@ class Measure(object):
                 else:
                     add_stock = mseg["stock"]
                 add_energy_site = mseg["energy"]  # Site energy information
-                add_energy = {}  # Source energy dict
-                add_carb = {}  # Carbon emissions dict
-                for yr in add_energy_site:  # Site-source & CO2 calc.
-                    add_energy[yr] = add_energy_site[yr] * site_source_conv[yr]
-                    add_carb[yr] = add_energy[yr] * intensity_carb[yr]
 
-                # Update competed and efficient stock, energy, CO2
+                # Update total, competed, and efficient stock, energy, CO2
                 # and baseline/measure cost info. based on adoption scheme
-                [add_compete_stock, add_compete_energy, add_compete_carb,
-                 add_efficient_energy, add_efficient_carb, add_cost_stock_base,
-                 add_cost_energy_base, add_cost_carb_base, add_cost_stock_meas,
-                 add_cost_energy_meas, add_cost_carb_meas] = \
-                    self.partition_microsegment(add_stock, add_energy,
-                                                add_carb, rel_perf, cost_base,
+                [add_stock, add_energy, add_carb, add_compete_stock,
+                 add_compete_energy, add_compete_carb, add_efficient_energy,
+                 add_efficient_carb, add_cost_stock_base, add_cost_energy_base,
+                 add_cost_carb_base, add_cost_stock_meas, add_cost_energy_meas,
+                 add_cost_carb_meas] = \
+                    self.partition_microsegment(add_stock, add_energy_site,
+                                                rel_perf, cost_base,
                                                 cost_meas, cost_energy,
-                                                ccosts, adopt_scheme)
+                                                ccosts, site_source_conv,
+                                                intensity_carb,
+                                                new_bldg_frac, diffuse_params,
+                                                adopt_scheme)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -471,6 +487,12 @@ class Measure(object):
                 # to this microsegment
                 mseg_compete["competed mseg keys and values"][str(mskeys)] = \
                     add_dict
+
+                # Register choice parameters associated with contributing
+                # microsegment for later use in portioning out various
+                # technology options across competed stock
+                mseg_compete["competed choice parameters"][str(mskeys)] = \
+                    choice_params
 
                 # Add all updated info. to existing master mseg dict and
                 # move to next iteration of the loop through key chains
@@ -577,68 +599,163 @@ class Measure(object):
                 raise KeyError('Add dict keys do not match!')
         return dict1
 
-    def partition_microsegment(self, mseg_stock, mseg_energy, mseg_carb,
+    def partition_microsegment(self, mseg_stock, mseg_energy_site,
                                rel_perf, cost_base, cost_meas, cost_energy,
-                               cost_carb, adopt_scheme):
-        """ Partition microsegment to find "competed" stock and energy
+                               cost_carb, site_source_conv, intensity_carb,
+                               new_bldg_frac, diffuse_params, adopt_scheme):
+        """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
         consumption under the measure).  Also find the cost of the baseline
         and measure stock, energy, and carbon """
 
-        # Initialize stock, energy, and carbon information addition dicts
+        # Initialize stock, energy, and carbon mseg partition dicts, where the
+        # dict keys will be years in the modeling time horizon
+        stock_total = {}
+        energy_total = {}
+        carb_total = {}
+        stock_compete = {}
         stock_compete_cost_base = {}
         stock_compete_cost_meas = {}
+        energy_compete = {}
         energy_compete_cost = {}
+        carb_compete = {}
         carb_compete_cost = {}
         energy_eff = {}
         energy_eff_cost = {}
         carb_eff = {}
         carb_eff_cost = {}
 
-        # Determine whether this is a technical potential calculation
-        tp = re.search('Technical potential', adopt_scheme, re.IGNORECASE)
+        # Loop through and update stock, energy, and carbon mseg partitions for
+        # each year in the modeling time horizon
+        for yr in mseg_stock.keys():
 
-        if tp:
-            # If a technical potential calculation, "competed" stock, energy
-            # and carbon = "total" stock, energy and carbon
-            stock_compete = mseg_stock
-            energy_compete = mseg_energy
-            carb_compete = mseg_carb
+            # Calculate the fractions of new and existing buildings
+            # in the stock for the given year
+            new_frac = new_bldg_frac[yr]
+            exist_frac = 1 - new_frac
 
-            # Loop through all projection years to update remaining energy,
-            # carbon, and cost information
-            for yr in stock_compete.keys():
-                # Update "competed" stock cost (baseline)
-                stock_compete_cost_base[yr] = stock_compete[yr] * cost_base[yr]
-                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+            # Calculate the fractions of existing buildings that have
+            # baseline (e.g., conventional) and efficient technologies
+            # installed
+            exist_base_frac = 1
+            exist_eff_frac = 1 - exist_base_frac
 
-                # Update "competed" energy and carbon costs (baseline)
-                energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
-                carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
+            # Calculate the fractions of baseline and efficient technologies
+            # in existing buildings that are up for replacement or survive
+            exist_base_replace_frac = 1
+            exist_eff_replace_frac = 1
+            exist_base_survive_frac = 1 - exist_base_replace_frac
+            exist_eff_survive_frac = 1 - exist_eff_replace_frac
 
-                # Update "efficient" energy and carbon and associated costs
-                energy_eff[yr] = energy_compete[yr] * rel_perf[yr]
-                energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
-                carb_eff[yr] = carb_compete[yr] * rel_perf[yr]
-                carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
+            # For the adjusted adoption potential case, calculate the
+            # fractions of "competed" (new/replacement) technologies
+            # that remain with the baseline technology or change to the
+            # efficient alternative technology; otherwise, for all other
+            # scenarios, set both fractions to 1
+            if adopt_scheme == "Adjusted adoption potential":
+                diffuse_base_frac = 1
+                diffuse_eff_frac = 1 - diffuse_base_frac
+            else:
+                diffuse_base_frac = 0
+                diffuse_eff_frac = 1
 
-        else:  # The below few lines are temporary
-            stock_compete = None
-            energy_compete = None
-            carb_compete = None
-            stock_compete_cost_base = None
-            stock_compete_cost_meas = None
-            energy_compete_cost = None
-            carb_compete_cost = None
-            energy_eff = None
-            energy_eff_cost = None
-            carb_eff = None
-            carb_eff_cost = None
+            # Construct all possible mseg partitions from the above fractions
 
-        # Return updated stock, energy, and cost information
-        return [stock_compete, energy_compete, carb_compete, energy_eff,
-                carb_eff, stock_compete_cost_base, energy_compete_cost,
-                carb_compete_cost, stock_compete_cost_meas, energy_eff_cost,
+            # New stock/energy, baseline and efficient partitions
+            new_base = new_frac * diffuse_base_frac
+            new_eff = new_frac * diffuse_eff_frac
+
+            # Replacement stock/energy, baseline, and efficient partitions
+            replace_b2b = exist_frac * \
+                exist_base_frac * \
+                exist_base_replace_frac * \
+                diffuse_base_frac
+            replace_b2e = exist_frac * \
+                exist_base_frac * \
+                exist_base_replace_frac * \
+                diffuse_eff_frac
+            replace_e2e = exist_frac * \
+                exist_eff_frac * \
+                exist_eff_replace_frac
+
+            # Surviving stock/energy, baseline and efficient partitions
+            survive_base = exist_frac * \
+                exist_base_frac * \
+                exist_base_survive_frac
+            survive_eff = exist_frac * \
+                exist_eff_frac * \
+                exist_eff_survive_frac
+
+            # Wrap the above partitions up into total and competed
+            # stock/energy partitions for given technology adoption scenario
+
+            # Check if measure only applies to new or existing buildings
+            if type(self.structure_type) != list:
+                # Measure only applies to new buildings
+                if self.structure_type == "new":
+                    # Calculate total and competed stock fractions
+                    total_frac = new_base + new_eff
+                    if adopt_scheme == "Technical potential":
+                        compete_frac = total_frac
+                    else:
+                        compete_frac = total_frac - new_base
+                # Measure only applies to existing buildings
+                else:
+                    # Calculate total and competed stock fractions
+                    total_frac = replace_b2b + replace_b2e + \
+                        replace_e2e
+                    if adopt_scheme == "Technical potential":
+                        compete_frac = total_frac
+                    else:
+                        compete_frac = total_frac - replace_b2b
+            # Otherwise, measure applies to all buildings
+            else:
+                # Calculate total and competed stock fractions
+                total_frac = 1
+                if adopt_scheme == "Technical potential":
+                    compete_frac = total_frac
+                else:
+                    compete_frac = total_frac - new_base - replace_b2b
+
+            # Apply total and competed partition fractions to input stock
+            # and energy data to arrive at final partitioned mseg outputs
+
+            # Update total stock, energy, and carbon
+            stock_total[yr] = mseg_stock[yr] * total_frac
+            energy_total[yr] = mseg_energy_site[yr] * total_frac * \
+                site_source_conv[yr]
+            carb_total[yr] = energy_total[yr] * intensity_carb[yr]
+
+            # Update competed stock, energy, and carbon
+            stock_compete[yr] = mseg_stock[yr] * compete_frac
+            energy_compete[yr] = mseg_energy_site[yr] * compete_frac * \
+                site_source_conv[yr]
+            carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
+
+            # Update competed stock, energy, and carbon costs
+            stock_compete_cost_base[yr] = stock_compete[yr] * cost_base[yr]
+            stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+            energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
+            carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
+
+            # Update "efficient" energy and carbon (* Note: "efficient" is
+            # comprised of the portion of competed energy/carbon remaining
+            # after measure implementation plus non-competed energy/carbon)
+            energy_eff[yr] = (energy_compete[yr] * rel_perf[yr]) + \
+                (energy_total[yr] - energy_compete[yr])
+            carb_eff[yr] = (carb_compete[yr] * rel_perf[yr]) + \
+                (carb_total[yr] - carb_compete[yr])
+
+            # Update efficient energy and carbon costs
+            energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
+            carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
+
+        # Return partitioned stock, energy, and cost mseg information
+        return [stock_total, energy_total, carb_total,
+                stock_compete, energy_compete,
+                carb_compete, energy_eff, carb_eff, stock_compete_cost_base,
+                energy_compete_cost, carb_compete_cost,
+                stock_compete_cost_meas, energy_eff_cost,
                 carb_eff_cost]
 
     def calc_metric_update(self, rate):
@@ -984,7 +1101,7 @@ class Engine(object):
             if m.active == 1:
                 # Find master microsegment and partitions
                 m.master_mseg = m.mseg_find_partition(
-                    mseg_in, base_costperflife_in, adopt_scheme)
+                    mseg_in, base_costperflife_in, bldg_turnover, adopt_scheme)
                 # Update cost/savings outcomes and economic metric
                 # based on master microsegment
                 m.master_savings = m.calc_metric_update(rate)

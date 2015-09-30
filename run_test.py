@@ -23,6 +23,7 @@ sample_measure = {"name": "sample measure 1",
                                  "ASHP", "GSHP", "room AC"],
                                  "secondary": None},
                   "bldg_type": "single family home",
+                  "structure_type": ["new", "existing"],
                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
 # Define sample measure w/ secondary msegs for use in all tests below
@@ -36,6 +37,7 @@ sample_measure2 = {"name": "sample measure 1",
                    "technology": {"primary": ["boiler (electric)",
                                   "ASHP", "GSHP", "room AC"],
                                   "secondary": "general service (LED)"},
+                   "structure_type": ["new", "existing"],
                    "bldg_type": "single family home",
                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
@@ -405,7 +407,13 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     # Set two alternative schemes to use in the testing,
     # where the first should yield a full list of outputs
     # and the second should yield a list with blank elements
-    test_schemes = ['Technical potential', 'Undefined']
+    test_scheme = 'Technical potential'
+
+    # Set a sample dict with information about stock turnover fractions
+    # (new buildings)
+    new_bldg_frac = [{"2009": 0.1, "2010": 0.05, "2011": 0.1},
+                     {"2025": 0.1, "2028": 0.05, "2035": 0.1},
+                     {"2020": 0.1, "2021": 0.95, "2022": 0.1}]
 
     # Set a relative performance list that should yield a
     # full list of valid outputs
@@ -413,8 +421,30 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                   {"2025": 0.15, "2028": 0.15, "2035": 0.15},
                   {"2020": 0.75, "2021": 0.75, "2022": 0.75}]
 
+    # Set site-source conversion factors
+    site_source_conv = numpy.array((b'Test', 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                                   dtype=[('Category', 'S11'), ('2009', '<f8'),
+                                          ('2010', '<f8'), ('2011', '<f8'),
+                                          ('2020', '<f8'), ('2021', '<f8'),
+                                          ('2022', '<f8'), ('2025', '<f8'),
+                                          ('2028', '<f8'), ('2035', '<f8')])
+
+    # Set carbon intensity factors
+    intensity_carb = numpy.array((b'Test', 3, 3, 3, 3, 3, 3, 3, 3, 3),
+                                 dtype=[('Category', 'S11'), ('2009', '<f8'),
+                                        ('2010', '<f8'), ('2011', '<f8'),
+                                        ('2020', '<f8'), ('2021', '<f8'),
+                                        ('2022', '<f8'), ('2025', '<f8'),
+                                        ('2028', '<f8'), ('2035', '<f8')])
+
+    # Set placeholder for technology diffusion parameters (currently blank)
+    diffuse_params = None
+
     # Correct output of the "ok" function test
     ok_out = [[{"2009": 100, "2010": 200, "2011": 300},
+               {"2009": 10, "2010": 20, "2011": 30},
+               {"2009": 30, "2010": 60, "2011": 90},
+               {"2009": 100, "2010": 200, "2011": 300},
                {"2009": 10, "2010": 20, "2011": 30},
                {"2009": 30, "2010": 60, "2011": 90},
                {"2009": 3, "2010": 6, "2011": 9},
@@ -428,6 +458,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
               [{"2025": 400, "2028": 500, "2035": 600},
                {"2025": 40, "2028": 50, "2035": 60},
                {"2025": 120, "2028": 150, "2035": 180},
+               {"2025": 400, "2028": 500, "2035": 600},
+               {"2025": 40, "2028": 50, "2035": 60},
+               {"2025": 120, "2028": 150, "2035": 180},
                {"2025": 6, "2028": 7.5, "2035": 9},
                {"2025": 18, "2028": 22.5, "2035": 27},
                {"2025": 8000, "2028": 10000, "2035": 12000},
@@ -439,6 +472,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
               [{"2020": 700, "2021": 800, "2022": 900},
                {"2020": 70, "2021": 80, "2022": 90},
                {"2020": 210, "2021": 240, "2022": 270},
+               {"2020": 700, "2021": 800, "2022": 900},
+               {"2020": 70, "2021": 80, "2022": 90},
+               {"2020": 210, "2021": 240, "2022": 270},
                {"2020": 52.5, "2021": 60, "2022": 67.5},
                {"2020": 157.5, "2021": 180, "2022": 202.5},
                {"2020": 21000, "2021": 24000, "2022": 27000},
@@ -448,56 +484,33 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                {"2020": 105, "2021": 120, "2022": 135},
                {"2020": 157.5, "2021": 180, "2022": 202.5}]]
 
-    blank_out = [None, None, None, None, None, None,
-                 None, None, None, None, None]
-
     # Test the "ok" function output
     def test_ok(self):
         for elem in range(0, len(self.test_stock)):
             lists1 = self.measure_instance.partition_microsegment(
                 self.test_stock[elem],
                 self.test_energy[elem],
-                self.test_carbon[elem],
                 self.ok_relperf[elem],
                 self.test_base_cost[elem],
                 self.test_cost_meas[elem],
                 self.cost_energy,
                 self.cost_carbon,
-                self.test_schemes[0])
+                self.site_source_conv,
+                self.intensity_carb,
+                self.new_bldg_frac[elem],
+                self.diffuse_params,
+                self.test_scheme)
 
             lists2 = self.ok_out[elem]
 
             for elem2 in range(0, len(lists1)):
                 self.dict_check(lists1[elem2], lists2[elem2])
 
-    # Test the "blank" function output
-    def test_blank(self):
-        for elem in range(0, len(self.test_stock)):
-            lists1 = self.measure_instance.partition_microsegment(
-                self.test_stock[elem],
-                self.test_energy[elem],
-                self.test_carbon[elem],
-                self.ok_relperf[elem],
-                self.test_base_cost[elem],
-                self.test_cost_meas[elem],
-                self.cost_energy,
-                self.cost_carbon,
-                self.test_schemes[1])
-
-            lists2 = self.blank_out
-
-            self.assertEqual(lists1, lists2)
-
 
 class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the mseg_find_partition function to
     verify measure microsegment-related attribute inputs yield expected master
     microsegment output """
-
-    # Set cost, site-source, and carbon intensity info. from "run.py"
-    ccosts = run.ccosts
-    ss_conv = run.ss_conv
-    carb_int = run.carb_int
 
     # Sample input dict of microsegment performance/cost info. to reference in
     # generating and partitioning master microsegments for a measure
@@ -2120,6 +2133,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}}}}}
 
+    # Sample input dict with information about building stock turnover
+    # fractions (new buildings)
+    bldg_turnover = {"residential": {"2009": 0.1, "2010": 0.05},
+                     "commercial": {"2009": 0.1, "2010": 0.05}}
+
     # List of measures with attribute combinations that should all be found in
     # the key chains of the "sample_msegin" dict above
     ok_measures = [{"name": "sample measure 1",
@@ -2134,6 +2152,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "COP",
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "single family home",
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
@@ -2153,6 +2172,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "single family home",
                     "climate_zone": "AIA_CZ1",
                     "fuel_type": {"primary": "natural gas",
@@ -2175,6 +2195,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary":
                                                 "relative savings"},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -2206,6 +2227,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                  "windows solar": "SHGC"},
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -2225,6 +2247,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "SHGC",
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "single family home",
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
@@ -2247,6 +2270,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                  "windows solar": "SHGC"},
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "single family home",
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
@@ -2272,6 +2296,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                  "windows solar": "SHGC"},
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "single family home",
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
@@ -2292,6 +2317,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary": None},
                     "product_lifetime": 10,
+                    "structure_type": ["new", "existing"],
                     "bldg_type": "assembly",
                     "climate_zone": "AIA_CZ1",
                     "fuel_type": {"primary": "electricity (grid)",
@@ -2303,6 +2329,44 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "secondary": None},
                     "technology": {"primary":
                                    "commercial light type X",
+                                   "secondary": None}},
+                   {"name": "sample measure 9",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "EF",
+                                                "secondary": None},
+                    "product_lifetime": 10,
+                    "structure_type": "new",
+                    "bldg_type": "single family home",
+                    "climate_zone": "AIA_CZ1",
+                    "fuel_type": {"primary": "natural gas",
+                                  "secondary": None},
+                    "end_use": {"primary": "water heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": None,
+                                   "secondary": None}},
+                   {"name": "sample measure 10",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "EF",
+                                                "secondary": None},
+                    "product_lifetime": 10,
+                    "structure_type": "existing",
+                    "bldg_type": "single family home",
+                    "climate_zone": "AIA_CZ1",
+                    "fuel_type": {"primary": "natural gas",
+                                  "secondary": None},
+                    "end_use": {"primary": "water heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": None,
                                    "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
@@ -2323,6 +2387,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
                          "product_lifetime": 10,
+                         "structure_type": ["new", "existing"],
                          "bldg_type": "single family home",
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
@@ -2342,6 +2407,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency_units": {"primary": "EF",
                                                      "secondary": None},
                          "product_lifetime": 10,
+                         "structure_type": ["new", "existing"],
                          "bldg_type": "single family home",
                          "climate_zone": "AIA_CZ1",
                          "fuel_type": {"primary": "natural gas",
@@ -2365,6 +2431,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "R Value",
                                                      "windows solar": "SHGC"},
                          "product_lifetime": 10,
+                         "structure_type": ["new", "existing"],
                          "bldg_type": "single family home",
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
@@ -2390,6 +2457,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency": {"primary": 25,
                                                "secondary": None},
                          "product_lifetime": 10,
+                         "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
                          "bldg_type": "single family home",
@@ -2409,6 +2477,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency": {"primary": 25,
                                                "secondary": None},
                          "product_lifetime": 10,
+                         "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
                          "bldg_type": "single family home",
@@ -2435,6 +2504,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "energy_efficiency_units": {"primary": "COP",
                                                    "secondary": None},
                        "product_lifetime": 10,
+                       "structure_type": ["new", "existing"],
                        "bldg_type": "single family home",
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": "electricity (grid)",
@@ -2457,6 +2527,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "energy_efficiency_units": {"primary": "COP",
                                                    "secondary": None},
                        "product_lifetime": 10,
+                       "structure_type": ["new", "existing"],
                        "bldg_type": "single family home",
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": "electricity (grid)",
@@ -2474,6 +2545,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 10,
+                       "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
                        "bldg_type": "single family home",
@@ -2498,6 +2570,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 10,
+                       "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
                        "bldg_type": "single family home",
@@ -2695,7 +2768,51 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                "2010": 536.256},
                                     "carbon": {"2009": 117292.02,
                                                "2010": 116254.76}}},
-               "lifetime": {"2009": 140, "2010": 140}}]
+               "lifetime": {"2009": 140, "2010": 140}},
+              {"stock": {"total": {"2009": 1.5, "2010": 0.75},
+                         "competed": {"2009": 1.5, "2010": 0.75}},
+               "energy": {"total": {"2009": 1.515, "2010": 0.7575},
+                          "competed": {"2009": 1.515, "2010": 0.7575},
+                          "efficient": {"2009": 1.0908, "2010": 0.5454}},
+               "carbon": {"total": {"2009": 85.62139, "2010": 41.60011},
+                          "competed": {"2009": 85.62139, "2010": 41.60011},
+                          "efficient": {"2009": 61.6474, "2010": 29.95208}},
+               "cost": {"baseline": {"stock": {"2009": 27,
+                                               "2010": 13.5},
+                                     "energy": {"2009": 17.0892,
+                                                "2010": 8.16585},
+                                     "carbon": {"2009": 2825.506,
+                                                "2010": 1372.803},
+                                     },
+                        "measure": {"stock": {"2009": 37.5,
+                                              "2010": 18.75},
+                                    "energy": {"2009": 12.30422,
+                                               "2010": 5.87941},
+                                    "carbon": {"2009": 2034.364,
+                                               "2010": 988.4185}}},
+               "lifetime": {"2009": 180, "2010": 180}},
+              {"stock": {"total": {"2009": 13.5, "2010": 14.25},
+                         "competed": {"2009": 13.5, "2010": 14.25}},
+               "energy": {"total": {"2009": 13.635, "2010": 14.3925},
+                          "competed": {"2009": 13.635, "2010": 14.3925},
+                          "efficient": {"2009": 9.8172, "2010": 10.3626}},
+               "carbon": {"total": {"2009": 770.5925, "2010": 790.402},
+                          "competed": {"2009": 770.5925, "2010": 790.402},
+                          "efficient": {"2009": 554.8266, "2010": 569.0894}},
+               "cost": {"baseline": {"stock": {"2009": 243,
+                                               "2010": 256.5},
+                                     "energy": {"2009": 153.8028,
+                                                "2010": 155.1512},
+                                     "carbon": {"2009": 25429.55,
+                                                "2010": 26083.26},
+                                     },
+                        "measure": {"stock": {"2009": 337.5,
+                                              "2010": 356.25},
+                                    "energy": {"2009": 110.738,
+                                               "2010": 111.7088},
+                                    "carbon": {"2009": 18309.28,
+                                               "2010": 18779.95}}},
+               "lifetime": {"2009": 180, "2010": 180}}]
 
     # Means and sampling Ns for energy and cost that should be generated by
     # "ok_measures_dist" above using the "sample_msegin" dict
@@ -2760,7 +2877,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Assert output dict is correct
             dict1 = measure_instance.mseg_find_partition(
                 self.sample_msegin,
-                self.sample_basein,
+                self.sample_basein, self.bldg_turnover,
                 "Technical potential")[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
@@ -2775,10 +2892,14 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Generate lists of energy and cost output values
             test_e = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")[0]["energy"]["efficient"]["2009"]
+                self.bldg_turnover,
+                "Technical potential")[
+                0]["energy"]["efficient"]["2009"]
             test_c = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")[0]["cost"]["measure"]["stock"]["2009"]
+                self.bldg_turnover,
+                "Technical potential")[
+                0]["cost"]["measure"]["stock"]["2009"]
             # Calculate mean values from output lists for testing
             param_e = round(sum(test_e) / len(test_e), 2)
             param_c = round(sum(test_c) / len(test_c), 2)
@@ -2795,6 +2916,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             dict1 = measure_instance.mseg_find_partition(
                 self.sample_msegin,
                 self.sample_basein,
+                self.bldg_turnover,
                 "Technical potential")[0]
             dict2 = self.partial_out[idx]
             self.dict_check(dict1, dict2)
@@ -2809,6 +2931,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 measure_instance.mseg_find_partition(
                     self.sample_msegin,
                     self.sample_basein,
+                    self.bldg_turnover,
                     "Technical potential")
 
 
