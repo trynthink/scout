@@ -1908,6 +1908,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "energy": {"2009": 11, "2010": 11}}}}},
             "single family home": {
                 "square footage": {"2009": 100, "2010": 200},
+                "total homes": {"2009": 1000, "2010": 1000},
+                "new homes": {"2009": 100, "2010": 50},
                 "electricity (grid)": {
                     "heating": {"demand": {"windows conduction": {
                                            "stock": "NA",
@@ -1998,6 +2000,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 6, "2010": 6}}}}}},
             "multi family home": {
                 "square footage": {"2009": 300, "2010": 400},
+                "total homes": {"2009": 1000, "2010": 1000},
+                "new homes": {"2009": 100, "2010": 50},
                 "electricity (grid)": {
                     "heating": {"demand": {"windows conduction": {
                                            "stock": "NA",
@@ -2028,6 +2032,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "AIA_CZ2": {
             "single family home": {
                 "square footage": {"2009": 500, "2010": 600},
+                "total homes": {"2009": 1000, "2010": 1000},
+                "new homes": {"2009": 100, "2010": 50},
                 "electricity (grid)": {
                     "heating": {"demand": {"windows conduction": {
                                            "stock": "NA",
@@ -2089,6 +2095,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 15, "2010": 15}}}},
             "multi family home": {
                 "square footage": {"2009": 700, "2010": 800},
+                "total homes": {"2009": 1000, "2010": 1000},
+                "new homes": {"2009": 100, "2010": 50},
                 "electricity (grid)": {
                     "heating": {"demand": {"windows conduction": {
                                            "stock": "NA",
@@ -2119,6 +2127,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "AIA_CZ4": {
             "multi family home": {
                 "square footage": {"2009": 900, "2010": 1000},
+                "total homes": {"2009": 1000, "2010": 1000},
+                "new homes": {"2009": 100, "2010": 50},
                 "electricity (grid)": {
                     "lighting": {"linear fluorescent (LED)": {
                                  "stock": {"2009": 11, "2010": 11},
@@ -2132,11 +2142,6 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
                                  "energy": {"2009": 14, "2010": 14}}}}}}}
-
-    # Sample input dict with information about building stock turnover
-    # fractions (new buildings)
-    bldg_turnover = {"residential": {"2009": 0.1, "2010": 0.05},
-                     "commercial": {"2009": 0.1, "2010": 0.05}}
 
     # List of measures with attribute combinations that should all be found in
     # the key chains of the "sample_msegin" dict above
@@ -2877,7 +2882,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Assert output dict is correct
             dict1 = measure_instance.mseg_find_partition(
                 self.sample_msegin,
-                self.sample_basein, self.bldg_turnover,
+                self.sample_basein,
                 "Technical potential")[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
@@ -2892,12 +2897,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Generate lists of energy and cost output values
             test_e = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                self.bldg_turnover,
                 "Technical potential")[
                 0]["energy"]["efficient"]["2009"]
             test_c = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                self.bldg_turnover,
                 "Technical potential")[
                 0]["cost"]["measure"]["stock"]["2009"]
             # Calculate mean values from output lists for testing
@@ -2916,7 +2919,6 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             dict1 = measure_instance.mseg_find_partition(
                 self.sample_msegin,
                 self.sample_basein,
-                self.bldg_turnover,
                 "Technical potential")[0]
             dict2 = self.partial_out[idx]
             self.dict_check(dict1, dict2)
@@ -2931,7 +2933,6 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 measure_instance.mseg_find_partition(
                     self.sample_msegin,
                     self.sample_basein,
-                    self.bldg_turnover,
                     "Technical potential")
 
 

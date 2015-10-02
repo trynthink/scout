@@ -10,10 +10,6 @@ measures_file = "measures.json"
 microsegments_file = "microsegments_out_test.json"
 mseg_base_costperflife_info = "microsegments_base_costperflife.json"
 
-# Define and import new building stock data (broken out by year)
-bldg_turnover = {"residential": None,
-                 "commercial": None}
-
 # Define and import site-source conversions and CO2 emissions data
 cost_sitesource_co2 = "Cost_S-S_CO2.txt"
 cost_ss_co2 = numpy.genfromtxt(cost_sitesource_co2,
@@ -84,8 +80,7 @@ class Measure(object):
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
 
-    def mseg_find_partition(self, mseg_in, base_costperflife_in, bldg_turnover,
-                            adopt_scheme):
+    def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
         energy consumption information, find: 1) total and competed stock,
@@ -225,10 +220,15 @@ class Measure(object):
 
             # Initialize dicts of microsegment information specific to this run
             # of for loop; also initialize dict for mining sq.ft. information
-            # to be used as stock for microsegments without no. units info.
+            # to be used as stock for microsegments without no. units info.;
+            # finally, initialize a dict to store information about the portion
+            # of this microsegment's stock and energy that is attributable to
+            # new buildings. The new buildings fraction will be used in the
+            # partitition_microsegment function below
             base_costperflife = base_costperflife_in
             mseg = mseg_in
-            mseg_sqft = mseg_in
+            mseg_sqft_stock = mseg_in
+            new_bldg_frac = {}
 
             # Initialize a dict for relative performance (broken out by year in
             # modeling time horizon)
@@ -252,7 +252,7 @@ class Measure(object):
 
                         # Restrict sq.ft. dict to key chain info.
                         if i < 3:  # Note: sq.ft. broken out 2 levels
-                            mseg_sqft = mseg_sqft[mskeys[i]]
+                            mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
 
                         # Restrict any measure cost/performance/lifetime info.
                         # that is a dict type to key chain info.
@@ -417,11 +417,18 @@ class Measure(object):
                 # entering into "partition_microsegment"
                 if mskeys[2] in ["single family home", "mobile home",
                                  "multi family home"]:
-                    new_bldg_frac = bldg_turnover["residential"]
+                    # Update energy cost information
                     cost_energy = ecosts["residential"][mskeys[3]]
+                    # Update new buildings fraction information
+                    for yr in mseg["energy"].keys():
+                        new_bldg_frac[yr] = mseg_sqft_stock["new homes"][yr] / \
+                            mseg_sqft_stock["total homes"][yr]
                 else:
-                    new_bldg_frac = bldg_turnover["commercial"]
+                    # Update energy cost information
                     cost_energy = ecosts["commercial"][mskeys[3]]
+                    # Update new buildings fraction information
+                    for yr in mseg["energy"].keys():
+                        new_bldg_frac[yr] = 0  # *** Placeholder ***
 
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microegment that will be captured
@@ -441,7 +448,7 @@ class Measure(object):
                     add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
-                    add_stock = mseg_sqft["square footage"]
+                    add_stock = mseg_sqft_stock["square footage"]
                 else:
                     add_stock = mseg["stock"]
                 add_energy_site = mseg["energy"]  # Site energy information
@@ -1101,7 +1108,7 @@ class Engine(object):
             if m.active == 1:
                 # Find master microsegment and partitions
                 m.master_mseg = m.mseg_find_partition(
-                    mseg_in, base_costperflife_in, bldg_turnover, adopt_scheme)
+                    mseg_in, base_costperflife_in, adopt_scheme)
                 # Update cost/savings outcomes and economic metric
                 # based on master microsegment
                 m.master_savings = m.calc_metric_update(rate)
