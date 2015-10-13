@@ -739,19 +739,37 @@ class Measure(object):
                 site_source_conv[yr]
             carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
 
-            # Update competed stock, energy, and carbon costs
+            # Update competed stock, energy, and carbon costs. * Note:
+            # competed stock cost for the measure is dependent upon whether
+            # that measure is on the market for the given year (if not, use
+            # baseline technology cost)
             stock_compete_cost_base[yr] = stock_compete[yr] * cost_base[yr]
-            stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+            if (self.market_entry_year is None or
+                int(yr) >= self.market_entry_year) and \
+               (self.market_exit_year is None or
+               int(yr) < self.market_exit_year):
+                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
+            else:
+                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_base[yr]
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
             carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
 
-            # Update "efficient" energy and carbon (* Note: "efficient" is
+            # Update efficient energy and carbon, where efficient is
             # comprised of the portion of competed energy/carbon remaining
-            # after measure implementation plus non-competed energy/carbon)
-            energy_eff[yr] = (energy_compete[yr] * rel_perf[yr]) + \
-                (energy_total[yr] - energy_compete[yr])
-            carb_eff[yr] = (carb_compete[yr] * rel_perf[yr]) + \
-                (carb_total[yr] - carb_compete[yr])
+            # after measure implementation plus non-competed energy/carbon.
+            # * Note: Efficient energy and carbon is dependent upon whether the
+            # measure is on the market for the given year (if not, use total
+            # energy and carbon)
+            if (self.market_entry_year is None or int(yr) >= self.market_entry_year) \
+               and (self.market_exit_year is None or
+                    int(yr) < self.market_exit_year):
+                energy_eff[yr] = (energy_compete[yr] * rel_perf[yr]) + \
+                    (energy_total[yr] - energy_compete[yr])
+                carb_eff[yr] = (carb_compete[yr] * rel_perf[yr]) + \
+                    (carb_total[yr] - carb_compete[yr])
+            else:
+                energy_eff[yr] = energy_total[yr]
+                carb_eff[yr] = carb_total[yr]
 
             # Update efficient energy and carbon costs
             energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
