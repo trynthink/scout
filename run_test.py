@@ -2513,7 +2513,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "product_lifetime": 10,
+                         "product_lifetime": ["normal", 10, 1],
                          "structure_type": ["new", "existing"],
                          "bldg_type": "single family home",
                          "climate_zone": "AIA_CZ1",
@@ -2735,7 +2735,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 430868.63, "2010": 427058.3},
                        "competed": {"2009": 430868.63, "2010": 427058.3},
                        "efficient": {"2009": 219663.21, "2010": 217720.65}}},
-               "lifetime": {"2009": 75, "2010": 75}},
+               "lifetime": {"baseline": {"2009": 75, "2010": 75},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 15, "2010": 15},
                          "competed": {"2009": 15, "2010": 15}},
                "energy": {"total": {"2009": 15.15, "2010": 15.15},
@@ -2757,7 +2758,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 28255.06, "2010": 27456.07},
                        "competed": {"2009": 28255.06, "2010": 27456.07},
                        "efficient": {"2009": 20343.64, "2010": 19768.37}}},
-               "lifetime": {"2009": 180, "2010": 180}},
+               "lifetime": {"baseline": {"2009": 180, "2010": 180},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
                "energy": {"total": {"2009": 648.47, "2010": 650.43},
@@ -2779,7 +2781,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 1216244.58, "2010": 1204646.90},
                        "competed": {"2009": 1216244.58, "2010": 1204646.90},
                        "efficient": {"2009": 1031653.83, "2010": 1021703.20}}},
-               "lifetime": {"2009": 200, "2010": 200}},
+               "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 1600, "2010": 2000},
                          "competed": {"2009": 1600, "2010": 2000}},
                "energy": {"total": {"2009": 12.76, "2010": 12.8},
@@ -2801,7 +2804,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 23937.15, "2010": 23725.46},
                        "competed": {"2009": 23937.15, "2010": 23725.46},
                        "efficient": {"2009": 6582.715, "2010": 6524.502}}},
-               "lifetime": {"2009": 105, "2010": 105}},
+               "lifetime": {"baseline": {"2009": 105, "2010": 105},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 6.38, "2010": 6.4},
@@ -2823,7 +2827,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 11968.57, "2010": 11862.73},
                        "competed": {"2009": 11968.57, "2010": 11862.73},
                        "efficient": {"2009": 5984.287, "2010": 5931.365}}},
-               "lifetime": {"2009": 20, "2010": 20}},
+               "lifetime": {"baseline": {"2009": 20, "2010": 20},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 146.74, "2010": 147.2},
@@ -2845,7 +2850,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 275277.18, "2010": 272842.8},
                        "competed": {"2009": 275277.18, "2010": 272842.8},
                        "efficient": {"2009": 103727.63, "2010": 102810.33}}},
-               "lifetime": {"2009": 51.67, "2010": 51.67}},
+               "lifetime": {"baseline": {"2009": 51.67, "2010": 51.67},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 600, "2010": 800},
                          "competed": {"2009": 600, "2010": 800}},
                "energy": {"total": {"2009": 146.74, "2010": 147.2},
@@ -2867,7 +2873,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 275277.18, "2010": 272842.8},
                        "competed": {"2009": 275277.18, "2010": 272842.8},
                        "efficient": {"2009": 97743.35, "2010": 96878.97}}},
-               "lifetime": {"2009": 51.67, "2010": 51.67}},
+               "lifetime": {"baseline": {"2009": 51.67, "2010": 51.67},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 11, "2010": 11},
                          "competed": {"2009": 11, "2010": 11}},
                "energy": {"total": {"2009": 76.56, "2010": 76.8},
@@ -2889,7 +2896,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 143622.88, "2010": 142352.77},
                        "competed": {"2009": 143622.88, "2010": 142352.77},
                        "efficient": {"2009": 117292.02, "2010": 116254.76}}},
-               "lifetime": {"2009": 140, "2010": 140}},
+               "lifetime": {"baseline": {"2009": 140, "2010": 140},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 1.5, "2010": 0.75},
                          "competed": {"2009": 1.5, "2010": 0.75}},
                "energy": {"total": {"2009": 1.515, "2010": 0.7575},
@@ -2911,7 +2919,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 2825.506, "2010": 1372.803},
                        "competed": {"2009": 2825.506, "2010": 1372.803},
                        "efficient": {"2009": 2034.364, "2010": 988.4185}}},
-               "lifetime": {"2009": 180, "2010": 180}},
+               "lifetime": {"baseline": {"2009": 180, "2010": 180},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 13.5, "2010": 14.25},
                          "competed": {"2009": 13.5, "2010": 14.25}},
                "energy": {"total": {"2009": 13.635, "2010": 14.3925},
@@ -2933,7 +2942,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 25429.55, "2010": 26083.26},
                        "competed": {"2009": 25429.55, "2010": 26083.26},
                        "efficient": {"2009": 18309.28, "2010": 18779.95}}},
-               "lifetime": {"2009": 180, "2010": 180}},
+               "lifetime": {"baseline": {"2009": 180, "2010": 180},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
                "energy": {"total": {"2009": 648.47, "2010": 650.43},
@@ -2955,7 +2965,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 1216244.58, "2010": 1204646.90},
                        "competed": {"2009": 1216244.58, "2010": 1204646.90},
                        "efficient": {"2009": 1216244.58, "2010": 1021703.20}}},
-               "lifetime": {"2009": 200, "2010": 200}},
+               "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                            "measure": 10}},
               {"stock": {"total": {"2009": 148, "2010": 148},
                          "competed": {"2009": 148, "2010": 148}},
                "energy": {"total": {"2009": 648.47, "2010": 650.43},
@@ -2977,12 +2988,14 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "total": {"2009": 1216244.58, "2010": 1204646.90},
                        "competed": {"2009": 1216244.58, "2010": 1204646.90},
                        "efficient": {"2009": 1031653.83, "2010": 1204646.90}}},
-               "lifetime": {"2009": 200, "2010": 200}}]
+               "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                            "measure": 10}}]
 
-    # Means and sampling Ns for energy and cost that should be generated by
-    # "ok_measures_dist" above using the "sample_msegin" dict
-    ok_out_dist = [[124.07, 50, 1860.93, 50], [11.96, 50, 375.32, 50],
-                   [56.29, 50, 6448.37, 50]]
+    # Means and sampling Ns for energy, cost, and lifetime that should be
+    # generated by "ok_measures_dist" above using the "sample_msegin" dict
+    ok_out_dist = [[124.07, 50, 1798.44, 50, 10, 1],
+                   [11.13, 50, 379.91, 50, 9.78, 50],
+                   [55.74, 50, 6342.07, 50, 10, 1]]
 
     # Master stock, energy, and cost information that should be generated by
     # "partial_measures" above using the "sample_msegin" dict
@@ -3008,7 +3021,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                             "total": {"2009": 107717.16, "2010": 106764.58},
                             "competed": {"2009": 107717.16, "2010": 106764.58},
                             "efficient": {"2009": 51704.24, "2010": 51247}}},
-                    "lifetime": {"2009": 120, "2010": 120}},
+                    "lifetime": {"baseline": {"2009": 120, "2010": 120},
+                                 "measure": 10}},
                    {"stock": {"total": {"2009": 52, "2010": 52},
                               "competed": {"2009": 52, "2010": 52}},
                     "energy": {"total": {"2009": 165.88, "2010": 166.4},
@@ -3033,7 +3047,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                             "competed": {"2009": 311182.9, "2010": 308431},
                             "efficient": {"2009": 125909.39,
                                           "2010": 124795.93}}},
-                    "lifetime": {"2009": 80, "2010": 80}}]
+                    "lifetime": {"baseline": {"2009": 80, "2010": 80},
+                                 "measure": 10}}]
 
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
@@ -3056,19 +3071,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Create an instance of the object based on ok_dist measure info
             measure_instance = run.Measure(**measure)
             # Generate lists of energy and cost output values
-            test_e = measure_instance.mseg_find_partition(
+            test_outputs = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")[
-                0]["energy"]["efficient"]["2009"]
-            test_c = measure_instance.mseg_find_partition(
-                self.sample_msegin, self.sample_basein,
-                "Technical potential")[
-                0]["cost"]["stock"]["efficient"]["2009"]
+                "Technical potential")[0]
+            test_e = test_outputs["energy"]["efficient"]["2009"]
+            test_c = test_outputs["cost"]["stock"]["efficient"]["2009"]
+            test_l = test_outputs["lifetime"]["measure"]
+            if type(test_l) == float:
+                test_l = [test_l]
             # Calculate mean values from output lists for testing
             param_e = round(sum(test_e) / len(test_e), 2)
             param_c = round(sum(test_c) / len(test_c), 2)
+            param_l = round(sum(test_l) / len(test_l), 2)
             # Check mean values and length of output lists to ensure correct
-            self.assertEqual([param_e, len(test_e), param_c, len(test_c)],
+            self.assertEqual([param_e, len(test_e), param_c, len(test_c),
+                              param_l, len(test_l)],
                              self.ok_out_dist[idx])
 
     # Test for correct output from "partial_measures" input
@@ -3105,11 +3122,6 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     # Discount rate used for testing
     ok_rate = 0.07
 
-    # Measure lifetime point value used for testing
-    ok_life_point = 2
-    # Measure lifetime list of values used for testing
-    ok_life_distrib = numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])
-
     # Create an "ok" master microsegment input dict with all point
     # values to use in calculating savings and prioritization metrics
     # outputs to be tested
@@ -3138,7 +3150,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "total": {"2009": 30, "2010": 40},
                 "competed": {"2009": 30, "2010": 40},
                 "efficient": {"2009": 25, "2010": 25}}},
-        "lifetime": {"2009": 1, "2010": 1}}
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": 2}}
 
     # Create an "ok" master microsegment input dict with arrays for
     # measure energy use/cost and carbon emitted/cost to use in calculating
@@ -3176,7 +3189,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "efficient": {
                     "2009": numpy.array([25.1, 24.7, 23.7, 31.2, 18.5]),
                     "2010": numpy.array([20.1, 18.7, 21.7, 21.2, 22.5])}}},
-        "lifetime": {"2009": 1, "2010": 1}}
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": 2}}
 
     # Create an "ok" master microsegment input dict with arrays for
     # measure capital cost to use in calculating savings and prioritization
@@ -3208,7 +3222,72 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "total": {"2009": 30, "2010": 40},
                 "competed": {"2009": 30, "2010": 40},
                 "efficient": {"2009": 25, "2010": 25}}},
-        "lifetime": {"2009": 1, "2010": 1}}
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": 2}}
+
+    # Create an "ok" master microsegment input dict with arrays for
+    # measure lifetime to use in calculating savings and prioritization
+    # metrics outputs to be tested
+    ok_master_mseg_dist3 = {
+        "stock": {
+            "total": {"2009": 10, "2010": 20},
+            "competed": {"2009": 5, "2010": 10}},
+        "energy": {
+            "total": {"2009": 20, "2010": 30},
+            "competed": {"2009": 10, "2010": 15},
+            "efficient": {"2009": 5, "2010": 10}},
+        "carbon": {
+            "total": {"2009": 200, "2010": 300},
+            "competed": {"2009": 100, "2010": 150},
+            "efficient": {"2009": 50, "2010": 100}},
+        "cost": {
+            "stock": {
+                "total": {"2009": 10, "2010": 15},
+                "competed": {"2009": 10, "2010": 15},
+                "efficient": {"2009": 15, "2010": 25}},
+            "energy": {
+                "total": {"2009": 20, "2010": 35},
+                "competed": {"2009": 20, "2010": 35},
+                "efficient": {"2009": 10, "2010": 20}},
+            "carbon": {
+                "total": {"2009": 30, "2010": 40},
+                "competed": {"2009": 30, "2010": 40},
+                "efficient": {"2009": 25, "2010": 25}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
+
+    # Create an "ok" master microsegment input dict with arrays for
+    # measure capital cost and lifetime to use in calculating savings
+    # and prioritization metrics outputs to be tested
+    ok_master_mseg_dist4 = {
+        "stock": {
+            "total": {"2009": 10, "2010": 20},
+            "competed": {"2009": 5, "2010": 10}},
+        "energy": {
+            "total": {"2009": 20, "2010": 30},
+            "competed": {"2009": 10, "2010": 15},
+            "efficient": {"2009": 5, "2010": 10}},
+        "carbon": {
+            "total": {"2009": 200, "2010": 300},
+            "competed": {"2009": 100, "2010": 150},
+            "efficient": {"2009": 50, "2010": 100}},
+        "cost": {
+            "stock": {
+                "total": {"2009": 10, "2010": 10},
+                "competed": {"2009": 10, "2010": 10},
+                "efficient": {
+                    "2009": numpy.array([15.1, 12.7, 14.1, 14.2, 15.5]),
+                    "2010": numpy.array([20.1, 18.7, 21.7, 19.2, 20.5])}},
+            "energy": {
+                "total": {"2009": 20, "2010": 35},
+                "competed": {"2009": 20, "2010": 35},
+                "efficient": {"2009": 10, "2010": 20}},
+            "carbon": {
+                "total": {"2009": 30, "2010": 40},
+                "competed": {"2009": 30, "2010": 40},
+                "efficient": {"2009": 25, "2010": 25}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
 
     # Savings/prioritization metrics dict keys and values that should be
     # yielded by above point value master microsegment dict input used
@@ -3437,87 +3516,65 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [-0.03, -0.05, -0.09, -0.09, -0.11],
                  "2010": [0.01, 0.03, -0.12, -0.15, -0.24]}}}
 
-    # Test for correct output from "ok_master_mseg_point" + "ok_life_point"
-    # inputs
+    # Test for correct output from "ok_master_mseg_point"
     def test_metrics_ok_point(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
-        # Set measure "product_lifetime" parameter based on pre-defined
-        # "ok_life_point" variable (* Note: this is necessary because
-        # "product_lifetime" is set in the "mseg_find_partition" function, which is
-        # not being executed here)
-        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_point
         # Check calc_metric_update output (master savings dict)
         self.dict_check(dict1, dict2)
 
-    # Test for correct output from "ok_master_mseg_dist1" + "ok_life_point"
-    # inputs
+    # Test for correct output from "ok_master_mseg_dist1"
     def test_metrics_ok_distrib1(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist1" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist1
-        # Set measure "product_lifetime" parameter based on pre-defined
-        # "ok_life_point" variable
-        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist1
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
 
-    # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
-    # inputs
+    # Test for correct output from "ok_master_mseg_dist2"
     def test_metrics_ok_distrib2(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
-        # Set measure "product_lifetime" parameter based on pre-defined
-        # "ok_life_point" variable
-        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist2
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
 
-    # Test for correct output from "ok_master_mseg_point" + "ok_life_distrib"
-    # inputs
+    # Test for correct output from "ok_master_mseg_dist3"
     def test_metrics_ok_distrib3(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
-        measure_instance.master_mseg = self.ok_master_mseg_point
-        # Set measure "product_lifetime" parameter based on pre-defined
-        # "ok_life_distrib" variable
-        measure_instance.product_lifetime = self.ok_life_distrib
+        measure_instance.master_mseg = self.ok_master_mseg_dist3
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist3
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
 
-    # Test for correct output from "ok_master_mseg_dist2" + "ok_life_point"
-    # inputs
+    # Test for correct output from "ok_master_mseg_dist4"
     def test_metrics_ok_distrib4(self):
         # Create a measure instance to use in the test
         measure_instance = run.Measure(**sample_measure)
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
-        measure_instance.master_mseg = self.ok_master_mseg_dist2
-        # Set measure "product_lifetime" parameter based on pre-defined
-        # "ok_life_distrib" variable
-        measure_instance.product_lifetime = self.ok_life_distrib
+        measure_instance.master_mseg = self.ok_master_mseg_dist4
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist4

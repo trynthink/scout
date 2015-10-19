@@ -98,7 +98,7 @@ class Measure(object):
                                            "efficient": None},
                                 "carbon": {"total": None, "competed": None,
                                            "efficient": None}},
-                       "lifetime": None}
+                       "lifetime": {"baseline": None, "measure": None}}
 
         # Initialize a dict to register contributing microsegments for
         # later use in determining overlapping measure microsegments in
@@ -206,7 +206,7 @@ class Measure(object):
             if mskeys[0] == "secondary":
                 cost_meas = 0
                 cost_units = "NA"
-                life_meas = "NA"
+                life_meas = 0
             else:
                 if mskeys == ms_iterable[0] or isinstance(
                         self.installed_cost, dict):
@@ -493,7 +493,8 @@ class Measure(object):
                                     "total": add_carb_total_cost,
                                     "competed": add_carb_compete_cost,
                                     "efficient": add_carb_eff_cost}},
-                            "lifetime": life_base}
+                            "lifetime": {"baseline": life_base,
+                                         "measure": life_meas}}
 
                 # Register contributing microsegment for later use
                 # in determining savings overlaps for measures that apply
@@ -514,10 +515,12 @@ class Measure(object):
         if key_chain_ct != 0:
 
             # Reduce summed lifetimes by number of microsegments that
-            # contributed to the sum
-            for yr in mseg_master["lifetime"].keys():
-                mseg_master["lifetime"][yr] = mseg_master["lifetime"][yr] / \
-                    key_chain_ct
+            # contributed to the sums
+            for yr in mseg_master["lifetime"]["baseline"].keys():
+                mseg_master["lifetime"]["baseline"][yr] = mseg_master[
+                    "lifetime"]["baseline"][yr] / key_chain_ct
+            mseg_master["lifetime"]["measure"] = mseg_master[
+                "lifetime"]["measure"] / key_chain_ct
 
             # In microsegments where square footage must be used as stock, the
             # square footages cannot be summed to calculate the master
@@ -862,9 +865,9 @@ class Measure(object):
 
             # Set the lifetime of the baseline technology for comparison with
             # measure lifetime
-            life_base = self.master_mseg["lifetime"][yr]
+            life_base = self.master_mseg["lifetime"]["baseline"][yr]
             # Set life of the measure
-            life_meas = self.product_lifetime
+            life_meas = self.master_mseg["lifetime"]["measure"]
             # Define ratio of measure lifetime to baseline lifetime.  This will
             # be used below in determining capital cashflows over the measure
             # lifetime
@@ -1287,7 +1290,7 @@ def main():
     # Compete active measures if user has specified this option
     if compete_measures is True:
         pass
-        # a_run.compete_measures(rate)
+        a_run.compete_measures(rate)
 
     # Write selected outputs to a summary CSV file for post-processing
     a_run.write_outputs(csv_output_file)
