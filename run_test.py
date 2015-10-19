@@ -13,6 +13,7 @@ import copy
 
 # Define sample measure for use in all tests below
 sample_measure = {"name": "sample measure 1",
+                  "active": 1,
                   "market_entry_year": None,
                   "market_exit_year": None,
                   "end_use": {"primary": ["heating", "cooling"],
@@ -30,6 +31,7 @@ sample_measure = {"name": "sample measure 1",
 
 # Define sample measure w/ secondary msegs for use in all tests below
 sample_measure2 = {"name": "sample measure 1",
+                   "active": 1,
                    "market_entry_year": None,
                    "market_exit_year": None,
                    "end_use": {"primary": ["heating", "cooling"],
@@ -89,9 +91,6 @@ class TestMeasureInit(unittest.TestCase):
         for key in sample_measure.keys():
             self.assertEqual(attribute_dict[key],
                              sample_measure[key])
-        # Check to see that sample measure is correctly identified
-        # as inactive
-        self.assertEqual(measure_instance.active, 0)
 
 
 class AddKeyValsTest(unittest.TestCase, CommonMethods):
@@ -3446,11 +3445,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
-        # Set measure "life_meas" parameter based on pre-defined
+        # Set measure "product_lifetime" parameter based on pre-defined
         # "ok_life_point" variable (* Note: this is necessary because
-        # "life_meas" is set in the "mseg_find_partition" function, which is
+        # "product_lifetime" is set in the "mseg_find_partition" function, which is
         # not being executed here)
-        measure_instance.life_meas = self.ok_life_point
+        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_point
@@ -3465,9 +3464,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist1" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist1
-        # Set measure "life_meas" parameter based on pre-defined
+        # Set measure "product_lifetime" parameter based on pre-defined
         # "ok_life_point" variable
-        measure_instance.life_meas = self.ok_life_point
+        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist1
@@ -3482,9 +3481,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
-        # Set measure "life_meas" parameter based on pre-defined
+        # Set measure "product_lifetime" parameter based on pre-defined
         # "ok_life_point" variable
-        measure_instance.life_meas = self.ok_life_point
+        measure_instance.product_lifetime = self.ok_life_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist2
@@ -3499,9 +3498,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
-        # Set measure "life_meas" parameter based on pre-defined
+        # Set measure "product_lifetime" parameter based on pre-defined
         # "ok_life_distrib" variable
-        measure_instance.life_meas = self.ok_life_distrib
+        measure_instance.product_lifetime = self.ok_life_distrib
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist3
@@ -3516,9 +3515,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
-        # Set measure "life_meas" parameter based on pre-defined
+        # Set measure "product_lifetime" parameter based on pre-defined
         # "ok_life_distrib" variable
-        measure_instance.life_meas = self.ok_life_distrib
+        measure_instance.product_lifetime = self.ok_life_distrib
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(self.ok_rate)
         dict2 = self.ok_out_dist4
@@ -3539,7 +3538,7 @@ class MetricUpdateTest(unittest.TestCase):
     # Test ok base stock life
     ok_base_life = 3
     # Test ok life of the measure
-    ok_life_meas = 6
+    ok_product_lifetime = 6
     # Test ok capital cost increment
     ok_scostsave = -10
     # Test ok energy savings
@@ -3568,7 +3567,7 @@ class MetricUpdateTest(unittest.TestCase):
                 self.ok_rate, self.ok_base_scost, self.ok_base_life,
                 self.ok_scostsave, self.ok_esave, self.ok_ecostsave,
                 self.ok_csave, self.ok_ccostsave, self.ok_life_ratio,
-                self.ok_life_meas),
+                self.ok_product_lifetime),
             self.ok_out, decimal=2)
 
 

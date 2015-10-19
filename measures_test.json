@@ -1,0 +1,55 @@
+[
+{
+	"name": "Energy Star 2010-2015 CFL Reflectors",
+	"active": 1,
+	"component_cost": 8.83,
+	"installed_cost": 8.83,
+	"cost_units": "2014$/unit",
+	"component_cost_source": "NA",
+	"component_cost_source_quality": "NA",
+	"installed_cost_source": "NA",
+	"installed_cost_source_quality": "NA",
+	"energy_efficiency": {"primary": 40, "secondary": null},
+	"energy_efficiency_units": {"primary": "lm/W", "secondary": null},
+	"energy_efficiency_source": "NA",
+	"energy_efficiency_source_quality": 0,
+	"market_entry_year": null,
+	"market_entry_year_source": "NA",
+	"market_entry_year_source_quality": 0,
+	"market_exit_year": null,
+	"market_exit_year_source": "NA",
+	"market_exit_year_source_quality": 0,
+	"product_lifetime": 6.6,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "NA",
+	"product_lifetime_source_quality": "NA",
+	"TRL": "NA",
+	"end_use": {"primary": "lighting",
+                "secondary": null},
+	"fuel_type": {"primary": "electricity (grid)",
+				  "secondary": null},
+	"technology_type": {"primary": "supply",
+						"secondary": null},
+	"technology": {"primary": 
+				   ["reflector (incandescent)",
+               	    "reflector (halogen)"],
+               	    "secondary": null},
+	"bldg_type": ["single family home","multi family home","mobile home"],
+	"climate_zone": ["AIA_CZ1","AIA_CZ2","AIA_CZ3","AIA_CZ4","AIA_CZ5"],
+	"structure_type": ["new", "retrofit"],
+	"_description": null,
+	"_notes": null,
+	"_added_by": {
+		"name": "Jared Langevin",
+		"organization": "DOE Building Technologies Office",
+		"email": "jared.langevin@gmail.com",
+		"timestamp": "2015-10-19 04:43:10 GMT"
+	},
+	"_updated_by": {
+		"name": null,
+		"organization": null,
+		"email": null,
+		"timestamp": null
+	}
+}
+]

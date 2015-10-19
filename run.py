@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 import json
+import csv
 import itertools
 import numpy
 import copy
 import re
 
 # Define measures/microsegments files
-measures_file = "measures.json"
-microsegments_file = "microsegments_out_test.json"
-mseg_base_costperflife_info = "microsegments_base_costperflife.json"
+measures_file = "measures_test.json"
+microsegments_file = "microsegments_out.json"
+mseg_base_costperflife_info = "base_costperflife.json"
+
+# Define a summary CSV file
+csv_output_file = "output_summary.csv"
 
 # Define and import site-source conversions and CO2 emissions data
 cost_sitesource_co2 = "Cost_S-S_CO2.txt"
@@ -42,7 +46,6 @@ ccosts = cost_ss_co2[6]
 rate = 0.07
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
-active_measures = []
 adopt_scheme = 'Technical potential'
 compete_measures = True
 
@@ -62,11 +65,6 @@ class Measure(object):
         # Initialize attributes from JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
-        # Initialize measure inclusion state attribute
-        if self.name in active_measures:
-            self.active = 1
-        else:
-            self.active = 0
 
         # Initialize master microsegment and savings attributes
         self.master_mseg = None
@@ -866,7 +864,7 @@ class Measure(object):
             # measure lifetime
             life_base = self.master_mseg["lifetime"][yr]
             # Set life of the measure
-            life_meas = self.life_meas
+            life_meas = self.product_lifetime
             # Define ratio of measure lifetime to baseline lifetime.  This will
             # be used below in determining capital cashflows over the measure
             # lifetime
@@ -1194,18 +1192,67 @@ class Engine(object):
                           rate):
         """ Run initialization scheme on active measures only """
         for m in self.measures:
-            if m.active == 1:
-                # Find master microsegment and partitions
-                m.master_mseg = m.mseg_find_partition(
-                    mseg_in, base_costperflife_in, adopt_scheme)
-                # Update cost/savings outcomes and economic metric
-                # based on master microsegment
-                m.master_savings = m.calc_metric_update(rate)
+            # Find master microsegment and partitions
+            m.master_mseg = m.mseg_find_partition(
+                mseg_in, base_costperflife_in, adopt_scheme)[0]
+            # Update cost/savings outcomes and economic metric
+            # based on master microsegment
+            m.master_savings = m.calc_metric_update(rate)
 
     def compete_measures(self, rate):
         """ Compete active measures to address overlapping microsegments and
         avoid double counting energy/carbon savings """
         pass
+
+    def write_outputs(self, csv_output_file):
+        """ Write selected measure outputs to a summary CSV file """
+
+        # Initialize a list to be populated with measure summary outputs
+        measure_summary_list = []
+
+        # Loop through all measures and append a dict of summary outputs to
+        # the measure summary list above
+        for m in self.measures:
+            for yr in m.master_mseg["stock"]["total"].keys():
+                measure_summary_dict_yr = {
+                    "year": yr,
+                    "measure name": m.name,
+                    "total energy":
+                        m.master_mseg["energy"]["total"][yr],
+                    "competed energy":
+                        m.master_mseg["energy"]["competed"][yr],
+                    "efficient energy":
+                        m.master_mseg["energy"]["efficient"][yr],
+                    "energy savings":
+                        m.master_savings["energy"]["savings (total)"][yr],
+                    "energy cost savings":
+                        m.master_savings["energy"]["cost savings (total)"][yr],
+                    "total carbon":
+                        m.master_mseg["carbon"]["total"][yr],
+                    "competed carbon":
+                        m.master_mseg["carbon"]["competed"][yr],
+                    "efficient carbon":
+                        m.master_mseg["carbon"]["efficient"][yr],
+                    "carbon savings":
+                        m.master_savings["carbon"]["savings (total)"][yr],
+                    "carbon cost savings":
+                        m.master_savings["carbon"]["cost savings (total)"][yr]
+                }
+                # Append the dict of summary outputs for the current measure to
+                # the summary list of outputs across all active measures
+                measure_summary_list.append(measure_summary_dict_yr)
+
+        # Write the summary outputs list to a CSV
+        with open(csv_output_file, 'w', newline="") as f:
+            dict_writer = csv.DictWriter(
+                f, fieldnames=[
+                    "year", "measure name", "total energy", "competed energy",
+                    "efficient energy", "energy savings",
+                    "energy cost savings", "total carbon", "competed carbon",
+                    "efficient carbon", "carbon savings",
+                    "carbon cost savings"])
+            dict_writer.writeheader()
+            dict_writer.writerows(measure_summary_list)
 
 
 def main():
@@ -1228,14 +1275,23 @@ def main():
     for mi in measures_input:
         measures_objlist.append(Measure(**mi))
 
+    # Remove all measure objects that are not specified as "active" for
+    # the current analysis run
+    measures_objlist_fin = [x for x in measures_objlist if x.active == 1]
+
     # Instantiate an Engine object with input measures as attribute
-    a_run = Engine(measures_objlist)
+    a_run = Engine(measures_objlist_fin)
     # Find master microsegment information for each active measure
     a_run.initialize_active(microsegments_input, base_costperflife_info_input,
                             adopt_scheme, rate)
     # Compete active measures if user has specified this option
     if compete_measures is True:
-        a_run.compete_measures(rate)
+        pass
+        # a_run.compete_measures(rate)
+
+    # Write selected outputs to a summary CSV file for post-processing
+    a_run.write_outputs(csv_output_file)
+
 
 if __name__ == '__main__':
     main()
