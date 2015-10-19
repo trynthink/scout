@@ -1292,6 +1292,8 @@ def main():
     # Write selected outputs to a summary CSV file for post-processing
     a_run.write_outputs(csv_output_file)
 
-
 if __name__ == '__main__':
+    import time
+    start_time = time.time()
     main()
+    print("--- Runtime: %s seconds ---" % round((time.time() - start_time), 2))
