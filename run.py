@@ -94,10 +94,12 @@ class Measure(object):
                                   "efficient": None},
                        "carbon": {"total": None, "competed": None,
                                   "efficient": None},
-                       "cost": {"baseline": {"stock": None, "energy": None,
-                                             "carbon": None},
-                                "measure": {"stock": None, "energy": None,
-                                            "carbon": None}},
+                       "cost": {"stock": {"total": None, "competed": None,
+                                          "efficient": None},
+                                "energy": {"total": None, "competed": None,
+                                           "efficient": None},
+                                "carbon": {"total": None, "competed": None,
+                                           "efficient": None}},
                        "lifetime": None}
 
         # Initialize a dict to register contributing microsegments for
@@ -456,10 +458,12 @@ class Measure(object):
                 # Update total, competed, and efficient stock, energy, CO2
                 # and baseline/measure cost info. based on adoption scheme
                 [add_stock, add_energy, add_carb, add_compete_stock,
-                 add_compete_energy, add_compete_carb, add_efficient_energy,
-                 add_efficient_carb, add_cost_stock_base, add_cost_energy_base,
-                 add_cost_carb_base, add_cost_stock_meas, add_cost_energy_meas,
-                 add_cost_carb_meas] = \
+                 add_compete_energy, add_compete_carb, add_energy_eff,
+                 add_carb_eff, add_stock_total_cost,
+                 add_energy_total_cost, add_carb_total_cost,
+                 add_stock_compete_cost, add_energy_compete_cost,
+                 add_carb_compete_cost, add_stock_eff_cost,
+                 add_energy_eff_cost, add_carb_eff_cost] = \
                     self.partition_microsegment(add_stock, add_energy_site,
                                                 rel_perf, cost_base,
                                                 cost_meas, cost_energy,
@@ -474,19 +478,23 @@ class Measure(object):
                                       "competed": add_compete_stock},
                             "energy": {"total": add_energy,
                                        "competed": add_compete_energy,
-                                       "efficient": add_efficient_energy},
+                                       "efficient": add_energy_eff},
                             "carbon": {"total": add_carb,
                                        "competed": add_compete_carb,
-                                       "efficient": add_efficient_carb},
-                            "cost": {"baseline": {
-                                     "stock": add_cost_stock_base,
-                                     "energy": add_cost_energy_base,
-                                     "carbon": add_cost_carb_base
-                                     },
-                                     "measure": {
-                                     "stock": add_cost_stock_meas,
-                                     "energy": add_cost_energy_meas,
-                                     "carbon": add_cost_carb_meas}},
+                                       "efficient": add_carb_eff},
+                            "cost": {
+                                "stock": {
+                                    "total": add_stock_total_cost,
+                                    "competed": add_stock_compete_cost,
+                                    "efficient": add_stock_eff_cost},
+                                "energy": {
+                                    "total": add_energy_total_cost,
+                                    "competed": add_energy_compete_cost,
+                                    "efficient": add_energy_eff_cost},
+                                "carbon": {
+                                    "total": add_carb_total_cost,
+                                    "competed": add_carb_compete_cost,
+                                    "efficient": add_carb_eff_cost}},
                             "lifetime": life_base}
 
                 # Register contributing microsegment for later use
@@ -618,11 +626,14 @@ class Measure(object):
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
         stock_total = {}
+        stock_total_cost = {}
         energy_total = {}
+        energy_total_cost = {}
         carb_total = {}
+        carb_total_cost = {}
         stock_compete = {}
-        stock_compete_cost_base = {}
-        stock_compete_cost_meas = {}
+        stock_compete_cost = {}
+        stock_eff_cost = {}
         energy_compete = {}
         energy_compete_cost = {}
         carb_compete = {}
@@ -741,21 +752,6 @@ class Measure(object):
                 site_source_conv[yr]
             carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
 
-            # Update competed stock, energy, and carbon costs. * Note:
-            # competed stock cost for the measure is dependent upon whether
-            # that measure is on the market for the given year (if not, use
-            # baseline technology cost)
-            stock_compete_cost_base[yr] = stock_compete[yr] * cost_base[yr]
-            if (self.market_entry_year is None or
-                int(yr) >= self.market_entry_year) and \
-               (self.market_exit_year is None or
-               int(yr) < self.market_exit_year):
-                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_meas
-            else:
-                stock_compete_cost_meas[yr] = stock_compete[yr] * cost_base[yr]
-            energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
-            carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
-
             # Update efficient energy and carbon, where efficient is
             # comprised of the portion of competed energy/carbon remaining
             # after measure implementation plus non-competed energy/carbon.
@@ -773,17 +769,34 @@ class Measure(object):
                 energy_eff[yr] = energy_total[yr]
                 carb_eff[yr] = carb_total[yr]
 
-            # Update efficient energy and carbon costs
+            # Update total, competed, and efficient stock, energy, and carbon
+            # costs. * Note: competed stock cost for the measure is dependent
+            # upon whether that measure is on the market for the given year (if
+            # not, use baseline technology cost)
+            stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
+            stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
+            if (self.market_entry_year is None or
+                int(yr) >= self.market_entry_year) and \
+               (self.market_exit_year is None or
+               int(yr) < self.market_exit_year):
+                stock_eff_cost[yr] = stock_compete[yr] * cost_meas + \
+                    (stock_total[yr] - stock_compete[yr]) * cost_base[yr]
+            else:
+                stock_eff_cost[yr] = stock_total_cost[yr]
+            energy_total_cost[yr] = energy_total[yr] * cost_energy[yr]
+            energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
             energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
+            carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]
+            carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
             carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total,
                 stock_compete, energy_compete,
-                carb_compete, energy_eff, carb_eff, stock_compete_cost_base,
+                carb_compete, energy_eff, carb_eff, stock_total_cost,
+                energy_total_cost, carb_total_cost, stock_compete_cost,
                 energy_compete_cost, carb_compete_cost,
-                stock_compete_cost_meas, energy_eff_cost,
-                carb_eff_cost]
+                stock_eff_cost, energy_eff_cost, carb_eff_cost]
 
     def calc_metric_update(self, rate):
         """ Given information on a measure's master microsegment for
@@ -794,10 +807,10 @@ class Measure(object):
 
         # Initialize capital cost, energy/energy cost savings, carbon/carbon
         # cost savings, and economic metrics as dicts with years as keys
-        scost_dif_init, scost_dif_init_calcs, esave_tot, esave_add, esave_calcs, \
-            ecostsave_add, ecostsave_calcs, csave_tot, csave_add, csave_calcs, \
-            ccostsave_add, ccostsave_calcs, irr_e, irr_ec, payback_e, \
-            payback_ec, cce, cce_bens, ccc, ccc_bens = ({} for d in range(20))
+        scostsave_tot, scostsave_add, esave_tot, esave_add, ecostsave_tot, \
+            ecostsave_add, csave_tot, csave_add, ccostsave_tot, ccostsave_add, \
+            irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
+            ({} for d in range(18))
 
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
@@ -806,42 +819,48 @@ class Measure(object):
 
             # Set the capital cost of the baseline technology for comparison
             # with measure capital cost
-            scost_base = self.master_mseg["cost"]["baseline"]["stock"][yr]
-            # Calculate initial incremental capital cost of the measure over
-            # the baseline
-            scost_dif_init[yr] = \
-                scost_base - self.master_mseg["cost"]["measure"]["stock"][yr]
+            scost_base = self.master_mseg["cost"]["stock"]["total"][yr]
 
-            # Calculate total annual energy and carbon savings for the measure
-            # vs. baseline. Total savings reflect the impact of all measure
-            # adoptions simulated up until and including the current year
-            # of the modeling time horizon.
+            # Calculate total annual energy/carbon and stock/energy/carbon cost
+            # savings for the measure vs. baseline. Total savings reflect the
+            # impact of all measure adoptions simulated up until and including
+            # the current year of the modeling time horizon.
             esave_tot[yr] = \
                 self.master_mseg["energy"]["total"][yr] - \
                 self.master_mseg["energy"]["efficient"][yr]
             csave_tot[yr] = \
                 self.master_mseg["carbon"]["total"][yr] - \
                 self.master_mseg["carbon"]["efficient"][yr]
+            scostsave_tot[yr] = \
+                scost_base - \
+                self.master_mseg["cost"]["stock"]["efficient"][yr]
+            ecostsave_tot[yr] = \
+                self.master_mseg["cost"]["energy"]["total"][yr] - \
+                self.master_mseg["cost"]["energy"]["efficient"][yr]
+            ccostsave_tot[yr] = \
+                self.master_mseg["cost"]["carbon"]["total"][yr] - \
+                self.master_mseg["cost"]["carbon"]["efficient"][yr]
 
-            # Calculate the added annual energy and carbon savings for the
-            # measure vs. baseline.  Added savings reflect the impact of
-            # only the measure adoptions simulated in the current year of
-            # the modeling time horizon.
+            # Calculate the added annual energy/carbon and stock/energy/carbon
+            # cost savings for the measure vs. baseline.  Added savings reflect
+            # the impact of only the measure adoptions simulated in the current
+            # year of the modeling time horizon.
             if ind != 0:
                 esave_add[yr] = esave_tot[yr] - esave_tot[(str(int(yr) - 1))]
                 csave_add[yr] = csave_tot[yr] - csave_tot[(str(int(yr) - 1))]
+                scostsave_add[yr] = scostsave_tot[yr] - \
+                    scostsave_tot[(str(int(yr) - 1))]
+                ecostsave_add[yr] = ecostsave_tot[yr] - \
+                    ecostsave_tot[(str(int(yr) - 1))]
+                ccostsave_add[yr] = ccostsave_tot[yr] - \
+                    ccostsave_tot[(str(int(yr) - 1))]
+
             else:
                 esave_add[yr] = esave_tot[yr]
                 csave_add[yr] = csave_tot[yr]
-
-            # Calculate the added annual energy and carbon cost savings for the
-            # measure vs. baseline.
-            ecostsave_add[yr] = \
-                self.master_mseg["cost"]["baseline"]["energy"][yr] - \
-                self.master_mseg["cost"]["measure"]["energy"][yr]
-            ccostsave_add[yr] = \
-                self.master_mseg["cost"]["baseline"]["carbon"][yr] - \
-                self.master_mseg["cost"]["measure"]["carbon"][yr]
+                scostsave_add[yr] = scostsave_tot[yr]
+                ecostsave_add[yr] = ecostsave_tot[yr]
+                ccostsave_add[yr] = ccostsave_tot[yr]
 
             # Set the lifetime of the baseline technology for comparison with
             # measure lifetime
@@ -856,21 +875,20 @@ class Measure(object):
             # Make copies of the above stock, energy, carbon, and cost
             # variables for possible further manipulation below before serving
             # as inputs to the "metric update" function
-            scost_dif_init_calcs[yr] = scost_dif_init[yr]
-            esave_calcs[yr] = esave_add[yr]
-            ecostsave_calcs[yr] = ecostsave_add[yr]
-            csave_calcs[yr] = csave_add[yr]
-            ccostsave_calcs[yr] = ccostsave_add[yr]
-            life_meas_calcs = life_meas
-            life_ratio_calcs = life_ratio
+            scostsave_add_temp = scostsave_add[yr]
+            esave_add_temp = esave_add[yr]
+            ecostsave_add_temp = ecostsave_add[yr]
+            csave_add_temp = csave_add[yr]
+            ccostsave_add_temp = ccostsave_add[yr]
+            life_meas_temp = life_meas
+            life_ratio_temp = life_ratio
 
             # Calculate economic metrics using "metric_update" function
 
             # Check whether any "metric_update" inputs that can be arrays are
             # in fact arrays
             if any(type(x) == numpy.ndarray for x in
-                    [scost_dif_init_calcs[yr], esave_calcs[yr],
-                     life_meas_calcs]):
+                    [scostsave_add_temp, esave_add_temp, life_meas_temp]):
 
                 # Ensure consistency in length of all "metric_update" inputs
                 # that can be arrays
@@ -878,37 +896,37 @@ class Measure(object):
                 # Determine the length that any array inputs to "metric_update"
                 # should consistently have
                 length_array = next(
-                    (len(item) for item in [scost_dif_init[yr], esave_add[yr],
+                    (len(item) for item in [scostsave_add[yr], esave_add[yr],
                      life_ratio] if type(item) == numpy.ndarray), None)
 
                 # Ensure all array inputs to "metric_update" are of the above
                 # length
 
                 # Check incremental capital cost input
-                if type(scost_dif_init_calcs[yr]) != numpy.ndarray:
-                    scost_dif_init_calcs[yr] = numpy.repeat(
-                        scost_dif_init_calcs[yr], length_array)
+                if type(scostsave_add_temp) != numpy.ndarray:
+                    scostsave_add_temp = numpy.repeat(
+                        scostsave_add_temp, length_array)
                 # Check energy/energy cost and carbon/cost savings inputs
-                if type(esave_calcs[yr]) != numpy.ndarray:
-                    esave_calcs[yr] = numpy.repeat(
-                        esave_calcs[yr], length_array)
-                    ecostsave_calcs[yr] = numpy.repeat(
-                        ecostsave_calcs[yr], length_array)
-                    csave_calcs[yr] = numpy.repeat(
-                        csave_calcs[yr], length_array)
-                    ccostsave_calcs[yr] = numpy.repeat(
-                        ccostsave_calcs[yr], length_array)
+                if type(esave_add_temp) != numpy.ndarray:
+                    esave_add_temp = numpy.repeat(
+                        esave_add_temp, length_array)
+                    ecostsave_add_temp = numpy.repeat(
+                        ecostsave_add_temp, length_array)
+                    csave_add_temp = numpy.repeat(
+                        csave_add_temp, length_array)
+                    ccostsave_add_temp = numpy.repeat(
+                        ccostsave_add_temp, length_array)
                 # Check measure lifetime and lifetime ratio inputs
-                if type(life_meas_calcs) != numpy.ndarray:
-                    life_meas_calcs = numpy.repeat(
-                        life_meas_calcs, length_array)
-                    life_ratio_calcs = numpy.repeat(
-                        life_ratio_calcs, length_array)
+                if type(life_meas_temp) != numpy.ndarray:
+                    life_meas_temp = numpy.repeat(
+                        life_meas_temp, length_array)
+                    life_ratio_temp = numpy.repeat(
+                        life_ratio_temp, length_array)
 
                 # Initialize numpy arrays for economic metric outputs
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                    (numpy.zeros(len(scost_dif_init_calcs[yr]))
+                    (numpy.zeros(len(scostsave_add_temp))
                      for v in range(8))
 
                 # Run measure energy/carbon/cost savings and lifetime inputs
@@ -916,15 +934,15 @@ class Measure(object):
                 # metric outputs. To handle inputs that are arrays, use a for
                 # loop to generate an output for each input array element
                 # one-by-one and append it to the appropriate output list.
-                for x in range(0, len(scost_dif_init_calcs[yr])):
+                for x in range(0, len(scostsave_add_temp)):
                     irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
                         payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
                         ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
                             rate, scost_base, life_base,
-                            scost_dif_init_calcs[yr][x], esave_calcs[yr][x],
-                            ecostsave_calcs[yr][x], csave_calcs[yr][x],
-                            ccostsave_calcs[yr][x], int(life_ratio_calcs[x]),
-                            int(life_meas_calcs[x]))
+                            scostsave_add_temp[x], esave_add_temp[x],
+                            ecostsave_add_temp[x], csave_add_temp[x],
+                            ccostsave_add_temp[x], int(life_ratio_temp[x]),
+                            int(life_meas_temp[x]))
             else:
 
                 # Run measure energy/carbon/cost savings and lifetime inputs
@@ -932,20 +950,23 @@ class Measure(object):
                 # metric outputs
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = self.metric_update(
-                        rate, scost_base, life_base, scost_dif_init_calcs[yr],
-                        esave_calcs[yr], ecostsave_calcs[yr], csave_calcs[yr],
-                        ccostsave_calcs[yr], int(life_ratio_calcs),
-                        int(life_meas_calcs))
+                        rate, scost_base, life_base, scostsave_add_temp,
+                        esave_add_temp, ecostsave_add_temp, csave_add_temp,
+                        ccostsave_add_temp, int(life_ratio_temp),
+                        int(life_meas_temp))
 
         # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
-        mseg_save = {"stock": {"cost savings": scost_dif_init},
+        mseg_save = {"stock": {"cost savings (total)": scostsave_tot,
+                               "cost savings (added)": scostsave_add},
                      "energy": {"savings (total)": esave_tot,
                                 "savings (added)": esave_add,
-                                "cost savings": ecostsave_add},
+                                "cost savings (total)": ecostsave_tot,
+                                "cost savings (added)": ecostsave_add},
                      "carbon": {"savings (total)": csave_tot,
                                 "savings (added)": csave_add,
-                                "cost savings": ccostsave_add},
+                                "cost savings (total)": ccostsave_tot,
+                                "cost savings (added)": ccostsave_add},
                      "metrics": {"irr (w/ energy $)": irr_e,
                                  "irr (w/ energy and carbon $)": irr_ec,
                                  "payback (w/ energy $)": payback_e,
@@ -1006,7 +1027,7 @@ class Measure(object):
         # Return the randomly sampled list of values
         return rand_list
 
-    def metric_update(self, rate, scost_base, life_base, scost_dif_init, esave,
+    def metric_update(self, rate, scost_base, life_base, scostsave_add, esave,
                       ecostsave, csave, ccostsave, life_ratio, life_meas):
         """ Calculate internal rate of return, simple payback, and cost of
         conserved energy/carbon from cash flows and energy/carbon
@@ -1020,10 +1041,10 @@ class Measure(object):
 
         # Cash flow lists are initialized with the incremental capital
         # cost as the first list element; these lists are further updated below
-        cashflows_s = [scost_dif_init]
-        cashflows_se = [scost_dif_init]
-        cashflows_sc = [scost_dif_init]
-        cashflows_sec = [scost_dif_init]
+        cashflows_s = [scostsave_add]
+        cashflows_se = [scostsave_add]
+        cashflows_sc = [scostsave_add]
+        cashflows_sec = [scostsave_add]
         # Determine when over the course of the measure lifetime (if at all)
         # a cost gain is realized from an avoided purchase of the baseline
         # technology due to longer measure lifetime; store this information in
@@ -1069,19 +1090,27 @@ class Measure(object):
         irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
             (999 for n in range(8))
 
-        # Calculate irr and simple payback for capital + energy cash flows
-        if any(cashflows_se) != 0:
+        # Calculate irr and simple payback for capital + energy cash flows.
+        # Check to ensure thar irr/payback can be calculated for the
+        # given cash flows
+        try:
             irr_e = numpy.irr(cashflows_se)
             payback_e = self.payback(cashflows_se)
+        except ValueError:
+            pass
 
         # Calculate irr and simple payback for capital + energy + carbon cash
-        # flows
-        if any(cashflows_sec) != 0:
+        # flows.  Check to ensure thar irr/payback can be calculated for the
+        # given cash flows
+        try:
             irr_ec = numpy.irr(cashflows_sec)
             payback_ec = self.payback(cashflows_sec)
+        except ValueError:
+            pass
 
         # Calculate cost of conserved energy w/ and w/o carbon cost save
-        # benefits
+        # benefits.  Check to ensure energy savings in the denominator are
+        # not zero
         if any(esave_list) != 0:
             cce = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
                 numpy.npv(rate, esave_list)
@@ -1089,7 +1118,8 @@ class Measure(object):
                         cashflows_sc[1:]))) / numpy.npv(rate, esave_list)
 
         # Calculate cost of conserved carbon w/ and w/o energy cost save
-        # benefits
+        # benefits.  Check to ensure carbon savings in the denominator are
+        # not zero.
         if any(csave_list) != 0:
             ccc = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
                 numpy.npv(rate, csave_list)
