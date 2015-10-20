@@ -3119,6 +3119,10 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     verify measure master microsegment inputs yield expected savings
     and prioritization metrics outputs """
 
+    # Set compete measures to True to ensure the full range of measure
+    # outputs are calculated
+    compete_measures = True
+
     # Discount rate used for testing
     ok_rate = 0.07
 
@@ -3524,7 +3528,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures)
         dict2 = self.ok_out_point
         # Check calc_metric_update output (master savings dict)
         self.dict_check(dict1, dict2)
@@ -3537,7 +3542,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # to the "ok_master_mseg_dist1" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist1
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures)
         dict2 = self.ok_out_dist1
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3550,7 +3556,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist2
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures)
         dict2 = self.ok_out_dist2
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3563,7 +3570,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist3
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures)
         dict2 = self.ok_out_dist3
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3576,7 +3584,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # to the "ok_master_mseg_dist2" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_dist4
         # Assert that output dict is correct
-        dict1 = measure_instance.calc_metric_update(self.ok_rate)
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures)
         dict2 = self.ok_out_dist4
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)

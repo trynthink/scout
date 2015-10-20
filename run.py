@@ -47,7 +47,7 @@ rate = 0.07
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'
-compete_measures = True
+compete_measures = False
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -799,7 +799,7 @@ class Measure(object):
                 energy_compete_cost, carb_compete_cost,
                 stock_eff_cost, energy_eff_cost, carb_eff_cost]
 
-    def calc_metric_update(self, rate):
+    def calc_metric_update(self, rate, compete_measures):
         """ Given information on a measure's master microsegment for
         each projection year and a discount rate, determine capital ("stock"),
         energy, and carbon cost savings; energy and carbon savings; and the
@@ -863,98 +863,111 @@ class Measure(object):
                 ecostsave_add[yr] = ecostsave_tot[yr]
                 ccostsave_add[yr] = ccostsave_tot[yr]
 
-            # Set the lifetime of the baseline technology for comparison with
-            # measure lifetime
-            life_base = self.master_mseg["lifetime"]["baseline"][yr]
-            # Set life of the measure
-            life_meas = self.master_mseg["lifetime"]["measure"]
-            # Define ratio of measure lifetime to baseline lifetime.  This will
-            # be used below in determining capital cashflows over the measure
-            # lifetime
-            life_ratio = life_meas / life_base
+            # Only run remaining economic calculations if measure is being
+            # competed, in which case these calculations will be necessary
+            if compete_measures is True:
 
-            # Make copies of the above stock, energy, carbon, and cost
-            # variables for possible further manipulation below before serving
-            # as inputs to the "metric update" function
-            scostsave_add_temp = scostsave_add[yr]
-            esave_add_temp = esave_add[yr]
-            ecostsave_add_temp = ecostsave_add[yr]
-            csave_add_temp = csave_add[yr]
-            ccostsave_add_temp = ccostsave_add[yr]
-            life_meas_temp = life_meas
-            life_ratio_temp = life_ratio
+                # Set the lifetime of the baseline technology for comparison
+                # with measure lifetime
+                life_base = self.master_mseg["lifetime"]["baseline"][yr]
+                if life_base == 0:  # Temporary - need wind./env. tech info.
+                    life_base = 999
+                # Set life of the measure
+                life_meas = self.master_mseg["lifetime"]["measure"]
+                # Define ratio of measure lifetime to baseline lifetime.  This
+                # will be used below in determining capital cashflows over the
+                # measure lifetime
+                life_ratio = life_meas / life_base
 
-            # Calculate economic metrics using "metric_update" function
+                # Make copies of the above stock, energy, carbon, and cost
+                # variables for possible further manipulation below before
+                # as inputs to the "metric update" function
+                scostsave_add_temp = scostsave_add[yr]
+                esave_add_temp = esave_add[yr]
+                ecostsave_add_temp = ecostsave_add[yr]
+                csave_add_temp = csave_add[yr]
+                ccostsave_add_temp = ccostsave_add[yr]
+                life_meas_temp = life_meas
+                life_ratio_temp = life_ratio
 
-            # Check whether any "metric_update" inputs that can be arrays are
-            # in fact arrays
-            if any(type(x) == numpy.ndarray for x in
-                    [scostsave_add_temp, esave_add_temp, life_meas_temp]):
+                # Calculate economic metrics using "metric_update" function
 
-                # Ensure consistency in length of all "metric_update" inputs
-                # that can be arrays
+                # Check whether any "metric_update" inputs that can be arrays
+                # are in fact arrays
+                if any(type(x) == numpy.ndarray for x in
+                        [scostsave_add_temp, esave_add_temp, life_meas_temp]):
 
-                # Determine the length that any array inputs to "metric_update"
-                # should consistently have
-                length_array = next(
-                    (len(item) for item in [scostsave_add[yr], esave_add[yr],
-                     life_ratio] if type(item) == numpy.ndarray), None)
+                    # Ensure consistency in length of all "metric_update"
+                    # inputs that can be arrays
 
-                # Ensure all array inputs to "metric_update" are of the above
-                # length
+                    # Determine the length that any array inputs to
+                    # "metric_update" should consistently have
+                    length_array = next(
+                        (len(item) for item in [scostsave_add[yr],
+                         esave_add[yr], life_ratio] if type(item) ==
+                         numpy.ndarray), None)
 
-                # Check incremental capital cost input
-                if type(scostsave_add_temp) != numpy.ndarray:
-                    scostsave_add_temp = numpy.repeat(
-                        scostsave_add_temp, length_array)
-                # Check energy/energy cost and carbon/cost savings inputs
-                if type(esave_add_temp) != numpy.ndarray:
-                    esave_add_temp = numpy.repeat(
-                        esave_add_temp, length_array)
-                    ecostsave_add_temp = numpy.repeat(
-                        ecostsave_add_temp, length_array)
-                    csave_add_temp = numpy.repeat(
-                        csave_add_temp, length_array)
-                    ccostsave_add_temp = numpy.repeat(
-                        ccostsave_add_temp, length_array)
-                # Check measure lifetime and lifetime ratio inputs
-                if type(life_meas_temp) != numpy.ndarray:
-                    life_meas_temp = numpy.repeat(
-                        life_meas_temp, length_array)
-                    life_ratio_temp = numpy.repeat(
-                        life_ratio_temp, length_array)
+                    # Ensure all array inputs to "metric_update" are of the
+                    # above length
 
-                # Initialize numpy arrays for economic metric outputs
+                    # Check incremental capital cost input
+                    if type(scostsave_add_temp) != numpy.ndarray:
+                        scostsave_add_temp = numpy.repeat(
+                            scostsave_add_temp, length_array)
+                    # Check energy/energy cost and carbon/cost savings inputs
+                    if type(esave_add_temp) != numpy.ndarray:
+                        esave_add_temp = numpy.repeat(
+                            esave_add_temp, length_array)
+                        ecostsave_add_temp = numpy.repeat(
+                            ecostsave_add_temp, length_array)
+                        csave_add_temp = numpy.repeat(
+                            csave_add_temp, length_array)
+                        ccostsave_add_temp = numpy.repeat(
+                            ccostsave_add_temp, length_array)
+                    # Check measure lifetime and lifetime ratio inputs
+                    if type(life_meas_temp) != numpy.ndarray:
+                        life_meas_temp = numpy.repeat(
+                            life_meas_temp, length_array)
+                        life_ratio_temp = numpy.repeat(
+                            life_ratio_temp, length_array)
+
+                    # Initialize numpy arrays for economic metric outputs
+                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
+                        cce_bens[yr], ccc[yr], ccc_bens[yr] = \
+                        (numpy.zeros(len(scostsave_add_temp))
+                         for v in range(8))
+
+                    # Run measure energy/carbon/cost savings and lifetime
+                    # inputs through "metric_update" function to yield economic
+                    # metric outputs. To handle inputs that are arrays, use a
+                    # for loop to generate an output for each input array
+                    # element one-by-one and append it to the appropriate
+                    # output list.
+                    for x in range(0, len(scostsave_add_temp)):
+                        irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
+                            payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
+                            ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
+                                rate, scost_base, life_base,
+                                scostsave_add_temp[x], esave_add_temp[x],
+                                ecostsave_add_temp[x], csave_add_temp[x],
+                                ccostsave_add_temp[x], int(life_ratio_temp[x]),
+                                int(life_meas_temp[x]))
+                else:
+
+                    # Run measure energy/carbon/cost savings and lifetime
+                    # inputs through "metric_update" function to yield economic
+                    # metric outputs
+                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
+                        cce_bens[yr], ccc[yr], ccc_bens[yr] = \
+                        self.metric_update(
+                            rate, scost_base, life_base, scostsave_add_temp,
+                            esave_add_temp, ecostsave_add_temp, csave_add_temp,
+                            ccostsave_add_temp, int(life_ratio_temp),
+                            int(life_meas_temp))
+            else:
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                    (numpy.zeros(len(scostsave_add_temp))
-                     for v in range(8))
-
-                # Run measure energy/carbon/cost savings and lifetime inputs
-                # through "metric_update" function to yield economic
-                # metric outputs. To handle inputs that are arrays, use a for
-                # loop to generate an output for each input array element
-                # one-by-one and append it to the appropriate output list.
-                for x in range(0, len(scostsave_add_temp)):
-                    irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
-                        payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
-                        ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
-                            rate, scost_base, life_base,
-                            scostsave_add_temp[x], esave_add_temp[x],
-                            ecostsave_add_temp[x], csave_add_temp[x],
-                            ccostsave_add_temp[x], int(life_ratio_temp[x]),
-                            int(life_meas_temp[x]))
-            else:
-
-                # Run measure energy/carbon/cost savings and lifetime inputs
-                # through "metric_update" function to yield economic
-                # metric outputs
-                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
-                    cce_bens[yr], ccc[yr], ccc_bens[yr] = self.metric_update(
-                        rate, scost_base, life_base, scostsave_add_temp,
-                        esave_add_temp, ecostsave_add_temp, csave_add_temp,
-                        ccostsave_add_temp, int(life_ratio_temp),
-                        int(life_meas_temp))
+                    (None for x in range(8))
 
         # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
@@ -1192,7 +1205,7 @@ class Engine(object):
                     self._measures])
 
     def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
-                          rate):
+                          rate, compete_measures):
         """ Run initialization scheme on active measures only """
         for m in self.measures:
             # Find master microsegment and partitions
@@ -1200,7 +1213,7 @@ class Engine(object):
                 mseg_in, base_costperflife_in, adopt_scheme)[0]
             # Update cost/savings outcomes and economic metric
             # based on master microsegment
-            m.master_savings = m.calc_metric_update(rate)
+            m.master_savings = m.calc_metric_update(rate, compete_measures)
 
     def compete_measures(self, rate):
         """ Compete active measures to address overlapping microsegments and
@@ -1286,7 +1299,7 @@ def main():
     a_run = Engine(measures_objlist_fin)
     # Find master microsegment information for each active measure
     a_run.initialize_active(microsegments_input, base_costperflife_info_input,
-                            adopt_scheme, rate)
+                            adopt_scheme, rate, compete_measures)
     # Compete active measures if user has specified this option
     if compete_measures is True:
         pass
