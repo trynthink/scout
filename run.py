@@ -1281,29 +1281,25 @@ class Engine(object):
                         95)
                 else:
                     # Efficient energy and energy/cost savings outputs
-                    energy_eff_avg = m.master_mseg["energy"]["efficient"][yr]
-                    energy_eff_low = energy_eff_avg
-                    energy_eff_high = energy_eff_avg
-                    energy_save_avg = \
-                        m.master_savings["energy"]["savings (total)"][yr]
-                    energy_save_low = energy_save_avg
-                    energy_save_high = energy_save_avg
-                    energy_costsave_avg = \
-                        m.master_savings["energy"]["cost savings (total)"][yr]
-                    energy_costsave_low = energy_costsave_avg
-                    energy_costsave_high = energy_costsave_avg
+                    energy_eff_avg, energy_eff_low, energy_eff_high = \
+                        (m.master_mseg["energy"]["efficient"][yr] for x in
+                         range(3))
+                    energy_save_avg, energy_save_low, energy_save_high = \
+                        (m.master_savings["energy"]["savings (total)"][yr] for
+                         x in range(3))
+                    energy_costsave_avg, energy_costsave_low, \
+                        energy_costsave_high = (m.master_savings["energy"][
+                            "cost savings (total)"][yr] for x in range(3))
                     # Efficient carbon and carbon/cost savings outputs
-                    carb_eff_avg = m.master_mseg["carbon"]["efficient"][yr]
-                    carb_eff_low = carb_eff_avg
-                    carb_eff_high = carb_eff_avg
-                    carb_save_avg = \
-                        m.master_savings["carbon"]["savings (total)"][yr]
-                    carb_save_low = carb_save_avg
-                    carb_save_high = carb_save_avg
-                    carb_costsave_avg = \
-                        m.master_savings["carbon"]["cost savings (total)"][yr]
-                    carb_costsave_low = carb_costsave_avg
-                    carb_costsave_high = carb_costsave_avg
+                    carb_eff_avg, carb_eff_low, carb_eff_high = \
+                        (m.master_mseg["carbon"]["efficient"][yr] for x in
+                         range(3))
+                    carb_save_avg, carb_save_low, carb_save_high = \
+                        (m.master_savings["carbon"]["savings (total)"][yr] for
+                         x in range(3))
+                    carb_costsave_avg, carb_costsave_low, carb_costsave_high = \
+                        (m.master_savings["carbon"]["cost savings (total)"][yr]
+                         for x in range(3))
                 # Define a dict of summary output keys and values for the
                 # current measure
                 measure_summary_dict_yr = {
