@@ -1230,29 +1230,108 @@ class Engine(object):
         # the measure summary list above
         for m in self.measures:
             for yr in m.master_mseg["stock"]["total"].keys():
+                # Check if the current measure's efficent energy/carbon
+                # markets, energy/carbon savings, and associated cost outputs
+                # are arrays of values.  If so, find the average and 5th/95th
+                # percentile values of each output array and report out.
+                # Otherwise, report the point values for each output
+                if type(m.master_mseg["energy"]["efficient"][yr]) == \
+                   numpy.ndarray:
+                    # Efficient energy and energy/cost savings outputs
+                    energy_eff_avg = numpy.mean(
+                        m.master_mseg["energy"]["efficient"][yr])
+                    energy_eff_low = numpy.percentile(
+                        m.master_mseg["energy"]["efficient"][yr], 5)
+                    energy_eff_high = numpy.percentile(
+                        m.master_mseg["energy"]["efficient"][yr], 95)
+                    energy_save_avg = numpy.mean(
+                        m.master_savings["energy"]["savings (total)"][yr])
+                    energy_save_low = numpy.percentile(
+                        m.master_savings["energy"]["savings (total)"][yr], 5)
+                    energy_save_high = numpy.percentile(
+                        m.master_savings["energy"]["savings (total)"][yr], 95)
+                    energy_costsave_avg = numpy.mean(
+                        m.master_savings["energy"]["cost savings (total)"][yr])
+                    energy_costsave_low = numpy.percentile(
+                        m.master_savings["energy"]["cost savings (total)"][yr],
+                        5)
+                    energy_costsave_high = numpy.percentile(
+                        m.master_savings["energy"]["cost savings (total)"][yr],
+                        95)
+                    # Efficient carbon and carbon/cost savings outputs
+                    carb_eff_avg = numpy.mean(
+                        m.master_mseg["carbon"]["efficient"][yr])
+                    carb_eff_low = numpy.percentile(
+                        m.master_mseg["carbon"]["efficient"][yr], 5)
+                    carb_eff_high = numpy.percentile(
+                        m.master_mseg["carbon"]["efficient"][yr], 95)
+                    carb_save_avg = numpy.mean(
+                        m.master_savings["carbon"]["savings (total)"][yr])
+                    carb_save_low = numpy.percentile(
+                        m.master_savings["carbon"]["savings (total)"][yr], 5)
+                    carb_save_high = numpy.percentile(
+                        m.master_savings["carbon"]["savings (total)"][yr], 95)
+                    carb_costsave_avg = numpy.mean(
+                        m.master_savings["carbon"]["cost savings (total)"][yr])
+                    carb_costsave_low = numpy.percentile(
+                        m.master_savings["carbon"]["cost savings (total)"][yr],
+                        5)
+                    carb_costsave_high = numpy.percentile(
+                        m.master_savings["carbon"]["cost savings (total)"][yr],
+                        95)
+                else:
+                    # Efficient energy and energy/cost savings outputs
+                    energy_eff_avg = m.master_mseg["energy"]["efficient"][yr]
+                    energy_eff_low = energy_eff_avg
+                    energy_eff_high = energy_eff_avg
+                    energy_save_avg = \
+                        m.master_savings["energy"]["savings (total)"][yr]
+                    energy_save_low = energy_save_avg
+                    energy_save_high = energy_save_avg
+                    energy_costsave_avg = \
+                        m.master_savings["energy"]["cost savings (total)"][yr]
+                    energy_costsave_low = energy_costsave_avg
+                    energy_costsave_high = energy_costsave_avg
+                    # Efficient carbon and carbon/cost savings outputs
+                    carb_eff_avg = m.master_mseg["carbon"]["efficient"][yr]
+                    carb_eff_low = carb_eff_avg
+                    carb_eff_high = carb_eff_avg
+                    carb_save_avg = \
+                        m.master_savings["carbon"]["savings (total)"][yr]
+                    carb_save_low = carb_save_avg
+                    carb_save_high = carb_save_avg
+                    carb_costsave_avg = \
+                        m.master_savings["carbon"]["cost savings (total)"][yr]
+                    carb_costsave_low = carb_costsave_avg
+                    carb_costsave_high = carb_costsave_avg
+                # Define a dict of summary output keys and values for the
+                # current measure
                 measure_summary_dict_yr = {
                     "year": yr,
                     "measure name": m.name,
-                    "total energy":
-                        m.master_mseg["energy"]["total"][yr],
-                    "competed energy":
-                        m.master_mseg["energy"]["competed"][yr],
-                    "efficient energy":
-                        m.master_mseg["energy"]["efficient"][yr],
-                    "energy savings":
-                        m.master_savings["energy"]["savings (total)"][yr],
-                    "energy cost savings":
-                        m.master_savings["energy"]["cost savings (total)"][yr],
-                    "total carbon":
-                        m.master_mseg["carbon"]["total"][yr],
-                    "competed carbon":
-                        m.master_mseg["carbon"]["competed"][yr],
+                    "total energy": m.master_mseg["energy"]["total"][yr],
+                    "competed energy": m.master_mseg["energy"]["competed"][yr],
+                    "efficient energy": energy_eff_avg,
+                    "efficient energy (low)": energy_eff_low,
+                    "efficient energy (high)": energy_eff_high,
+                    "energy savings": energy_save_avg,
+                    "energy savings (low)": energy_save_low,
+                    "energy savings (high)": energy_save_high,
+                    "energy cost savings": energy_costsave_avg,
+                    "energy cost savings (low)": energy_costsave_low,
+                    "energy cost savings (high)": energy_costsave_high,
+                    "total carbon": m.master_mseg["carbon"]["total"][yr],
+                    "competed carbon": m.master_mseg["carbon"]["competed"][yr],
                     "efficient carbon":
-                        m.master_mseg["carbon"]["efficient"][yr],
-                    "carbon savings":
-                        m.master_savings["carbon"]["savings (total)"][yr],
-                    "carbon cost savings":
-                        m.master_savings["carbon"]["cost savings (total)"][yr]
+                        m.master_mseg["carbon"]["total"][yr],
+                    "efficient carbon (low)": carb_eff_low,
+                    "efficient carbon (high)": carb_eff_high,
+                    "carbon savings": carb_save_avg,
+                    "carbon savings (low)": carb_save_low,
+                    "carbon savings (high)": carb_save_high,
+                    "carbon cost savings": carb_costsave_avg,
+                    "carbon cost savings (low)": carb_costsave_low,
+                    "carbon cost savings (high)": carb_costsave_high,
                 }
                 # Append the dict of summary outputs for the current measure to
                 # the summary list of outputs across all active measures
@@ -1261,12 +1340,7 @@ class Engine(object):
         # Write the summary outputs list to a CSV
         with open(csv_output_file, 'w', newline="") as f:
             dict_writer = csv.DictWriter(
-                f, fieldnames=[
-                    "year", "measure name", "total energy", "competed energy",
-                    "efficient energy", "energy savings",
-                    "energy cost savings", "total carbon", "competed carbon",
-                    "efficient carbon", "carbon savings",
-                    "carbon cost savings"])
+                f, fieldnames=measure_summary_list[0].keys())
             dict_writer.writeheader()
             dict_writer.writerows(measure_summary_list)
 
