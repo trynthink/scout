@@ -3311,6 +3311,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": 5, "2010": 15},
             "cost savings (added)": {"2009": 5, "2010": 10}},
         "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": numpy.pmt(0.07, 2, 0.8691589),
+                    "2010": numpy.pmt(0.07, 2, 0.9018692)},
+                "energy cost": {
+                    "2009": numpy.pmt(0.07, 2, 3.616036),
+                    "2010": numpy.pmt(0.07, 2, 0.9040091)},
+                "carbon cost": {
+                    "2009": numpy.pmt(0.07, 2, 1.808018),
+                    "2010": numpy.pmt(0.07, 2, 1.808018)}},
             "irr (w/ energy $)": {
                 "2009": 3.45, "2010": 3.24},
             "irr (w/ energy and carbon $)": {
@@ -3360,6 +3370,40 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2009": [4.9, 5.3, 6.3, -1.2, 11.5],
                 "2010": [10, 11, 7, 15, 1]}},
         "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": [numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 2, 0.8691589)],
+                    "2010": [numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.4345794)]},
+                "energy cost": {
+                    "2009": [numpy.pmt(0.07, 2, 1.7718578),
+                             numpy.pmt(0.07, 2, 2.2781029),
+                             numpy.pmt(0.07, 2, 1.1932920),
+                             numpy.pmt(0.07, 2, 1.3740938),
+                             numpy.pmt(0.07, 2, 0.9040091)],
+                    "2010": [numpy.pmt(0.07, 2, 1.0848109),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 1.6272164),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091)]},
+                "carbon cost": {
+                    "2009": [numpy.pmt(0.07, 2, 1.7718578),
+                             numpy.pmt(0.07, 2, 1.9164993),
+                             numpy.pmt(0.07, 2, 2.2781029),
+                             numpy.pmt(0.07, 2, -0.4339244),
+                             numpy.pmt(0.07, 2, 4.1584418)],
+                    "2010": [numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.9888200),
+                             numpy.pmt(0.07, 2, 1.2656127),
+                             numpy.pmt(0.07, 2, 2.7120273),
+                             numpy.pmt(0.07, 2, 0.1808018)]}},
             "irr (w/ energy $)": {
                 "2009": [2.28, 2.61, 1.89, 2.01, 1.69],
                 "2010": [2.54, 2.30, 3.23, 2.30, 2.30]},
@@ -3406,6 +3450,40 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": 5, "2010": 15},
             "cost savings (added)": {"2009": 5, "2010": 10}},
         "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": [numpy.pmt(0.07, 2, 0.8491589),
+                             numpy.pmt(0.07, 2, 1.329159),
+                             numpy.pmt(0.07, 2, 1.049159),
+                             numpy.pmt(0.07, 2, 1.029159),
+                             numpy.pmt(0.07, 2, 0.7691589)],
+                    "2010": [numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.3345794),
+                             numpy.pmt(0.07, 2, 0.1745794),
+                             numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 2, 0.4345794)]},
+                "energy cost": {
+                    "2009": [numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036)],
+                    "2010": [numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091)]},
+                "carbon cost": {
+                    "2009": [numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018)],
+                    "2010": [numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018)]}},
             "irr (w/ energy $)":
                 {"2009": [3.37, 6.88, 4.34, 4.22, 3.08],
                  "2010": [2.30, 1.80, 1.26, 2.30, 2.30]},
@@ -3449,6 +3527,40 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": 5, "2010": 15},
             "cost savings (added)": {"2009": 5, "2010": 10}},
         "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": [numpy.pmt(0.07, 1, -1.0000000),
+                             numpy.pmt(0.07, 1, -1.0000000),
+                             numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 2, 0.8691589),
+                             numpy.pmt(0.07, 5, 5.7744225)],
+                    "2010": [numpy.pmt(0.07, 1, -0.5000000),
+                             numpy.pmt(0.07, 1, -0.5000000),
+                             numpy.pmt(0.07, 2, 0.9018692),
+                             numpy.pmt(0.07, 2, 0.9018692),
+                             numpy.pmt(0.07, 5, 4.5808169)]},
+                "energy cost": {
+                    "2009": [numpy.pmt(0.07, 1, 1.869159),
+                             numpy.pmt(0.07, 1, 1.869159),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 5, 8.200395)],
+                    "2010": [numpy.pmt(0.07, 1, 0.4672897),
+                             numpy.pmt(0.07, 1, 0.4672897),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 5, 2.0500987)]},
+                "carbon cost": {
+                    "2009": [numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 5, 4.1001974)],
+                    "2010": [numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 5, 4.1001974)]}},
             "irr (w/ energy $)":
                 {"2009": [1.00, 1.00, 3.45, 3.45, 4.00],
                  "2010": [0.00, 0.00, 3.24, 3.24, 3.99]},
@@ -3495,6 +3607,40 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": 5, "2010": 15},
             "cost savings (added)": {"2009": 5, "2010": 10}},
         "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": [numpy.pmt(0.07, 1, -1.02),
+                             numpy.pmt(0.07, 1, -0.54),
+                             numpy.pmt(0.07, 2, 1.049159),
+                             numpy.pmt(0.07, 2, 1.029159),
+                             numpy.pmt(0.07, 5, 5.674423)],
+                    "2010": [numpy.pmt(0.07, 1, -0.5000000),
+                             numpy.pmt(0.07, 1, -0.6000000),
+                             numpy.pmt(0.07, 2, 0.1745794),
+                             numpy.pmt(0.07, 2, 0.4345794),
+                             numpy.pmt(0.07, 5, 2.887211)]},
+                "energy cost": {
+                    "2009": [numpy.pmt(0.07, 1, 1.869159),
+                             numpy.pmt(0.07, 1, 1.869159),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 2, 3.616036),
+                             numpy.pmt(0.07, 5, 8.200395)],
+                    "2010": [numpy.pmt(0.07, 1, 0.4672897),
+                             numpy.pmt(0.07, 1, 0.4672897),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 2, 0.9040091),
+                             numpy.pmt(0.07, 5, 2.0500987)]},
+                "carbon cost": {
+                    "2009": [numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 5, 4.1001974)],
+                    "2010": [numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 1, 0.9345794),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 2, 1.808018),
+                             numpy.pmt(0.07, 5, 4.1001974)]}},
             "irr (w/ energy $)":
                 {"2009": [0.96, 2.70, 4.34, 4.22, 3.63],
                  "2010": [0.00, -0.17, 1.26, 2.30, 2.99]},
@@ -3599,12 +3745,14 @@ class MetricUpdateTest(unittest.TestCase):
 
     # Test discount rate
     ok_rate = 0.07
+    # Test number of units
+    ok_num_units = 10
     # Test ok base stock cost
     ok_base_scost = 10
     # Test ok base stock life
     ok_base_life = 3
     # Test ok life of the measure
-    ok_product_lifetime = 6
+    ok_product_lifetime = 6.2
     # Test ok capital cost increment
     ok_scostsave = -10
     # Test ok energy savings
@@ -3620,7 +3768,10 @@ class MetricUpdateTest(unittest.TestCase):
 
     # Correct metric output values that should be yielded by using "ok"
     # inputs above
-    ok_out = numpy.array([0.62, 1.59, 2, 0.67, 0.02, -0.38, 0.01, -0.09])
+    ok_out = numpy.array(
+        [numpy.pmt(0.07, 6, -0.1837021), numpy.pmt(0.07, 6, 2.38327),
+         numpy.pmt(0.07, 6, 4.76654), 0.62, 1.59, 2, 0.67, 0.02,
+         -0.38, 0.01, -0.09])
 
     # Test for correct outputs given "ok" inputs above
     def test_metric_updates(self):
@@ -3632,8 +3783,8 @@ class MetricUpdateTest(unittest.TestCase):
             measure_instance.metric_update(
                 self.ok_rate, self.ok_base_scost, self.ok_base_life,
                 self.ok_scostsave, self.ok_esave, self.ok_ecostsave,
-                self.ok_csave, self.ok_ccostsave, self.ok_life_ratio,
-                self.ok_product_lifetime),
+                self.ok_csave, self.ok_ccostsave, int(self.ok_life_ratio),
+                int(self.ok_product_lifetime), self.ok_num_units),
             self.ok_out, decimal=2)
 
 

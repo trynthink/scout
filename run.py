@@ -810,14 +810,19 @@ class Measure(object):
         # cost savings, and economic metrics as dicts with years as keys
         scostsave_tot, scostsave_add, esave_tot, esave_add, ecostsave_tot, \
             ecostsave_add, csave_tot, csave_add, ccostsave_tot, ccostsave_add, \
-            irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
-            ({} for d in range(18))
+            stock_anpv, energy_anpv, carbon_anpv, irr_e, irr_ec, \
+            payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
+            ({} for d in range(21))
 
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
         for ind, yr in enumerate(
                 sorted(self.master_mseg["stock"]["competed"].keys())):
 
+            # Set the number of competed stock units, to be used in normalizing
+            # stock, energy and carbon cash flows to a per unit basis in the
+            # "metric_update" function below
+            num_units = self.master_mseg["stock"]["competed"][yr]
             # Set the capital cost of the baseline technology for comparison
             # with measure capital cost
             scost_base = self.master_mseg["cost"]["stock"]["total"][yr]
@@ -932,10 +937,12 @@ class Measure(object):
                             life_ratio_temp, length_array)
 
                     # Initialize numpy arrays for economic metric outputs
-                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
-                        cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        (numpy.zeros(len(scostsave_add_temp))
-                         for v in range(8))
+                    stock_anpv[yr], energy_anpv[yr], \
+                        carbon_anpv[yr], irr_e[yr], irr_ec[yr], \
+                        payback_e[yr], payback_ec[yr], \
+                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
+                        (numpy.zeros(len(scostsave_add_temp)) for v in
+                         range(11))
 
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield economic
@@ -944,30 +951,30 @@ class Measure(object):
                     # element one-by-one and append it to the appropriate
                     # output list.
                     for x in range(0, len(scostsave_add_temp)):
-                        irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
-                            payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
-                            ccc[yr][x], ccc_bens[yr][x] = self.metric_update(
+                        stock_anpv[yr][x], energy_anpv[yr][x],\
+                            carbon_anpv[yr][x], irr_e[yr][x], irr_ec[yr][x],\
+                            payback_e[yr][x], payback_ec[yr][x], cce[yr][x], \
+                            cce_bens[yr][x], ccc[yr][x], ccc_bens[yr][x] = \
+                            self.metric_update(
                                 rate, scost_base, life_base,
                                 scostsave_add_temp[x], esave_add_temp[x],
                                 ecostsave_add_temp[x], csave_add_temp[x],
                                 ccostsave_add_temp[x], int(life_ratio_temp[x]),
-                                int(life_meas_temp[x]))
+                                int(life_meas_temp[x]), num_units)
                 else:
 
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield economic
                     # metric outputs
-                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
+                    stock_anpv[yr], energy_anpv[yr],\
+                        carbon_anpv[yr], irr_e[yr], irr_ec[yr],\
+                        payback_e[yr], payback_ec[yr], cce[yr],\
                         cce_bens[yr], ccc[yr], ccc_bens[yr] = \
                         self.metric_update(
                             rate, scost_base, life_base, scostsave_add_temp,
                             esave_add_temp, ecostsave_add_temp, csave_add_temp,
                             ccostsave_add_temp, int(life_ratio_temp),
-                            int(life_meas_temp))
-            else:
-                irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
-                    cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                    (None for x in range(8))
+                            int(life_meas_temp), num_units)
 
         # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
@@ -981,7 +988,11 @@ class Measure(object):
                                 "savings (added)": csave_add,
                                 "cost savings (total)": ccostsave_tot,
                                 "cost savings (added)": ccostsave_add},
-                     "metrics": {"irr (w/ energy $)": irr_e,
+                     "metrics": {"anpv": {
+                                 "stock cost": stock_anpv,
+                                 "energy cost": energy_anpv,
+                                 "carbon cost": carbon_anpv},
+                                 "irr (w/ energy $)": irr_e,
                                  "irr (w/ energy and carbon $)": irr_ec,
                                  "payback (w/ energy $)": payback_e,
                                  "payback (w/ energy and carbon $)":
@@ -1042,7 +1053,8 @@ class Measure(object):
         return rand_list
 
     def metric_update(self, rate, scost_base, life_base, scostsave_add, esave,
-                      ecostsave, csave, ccostsave, life_ratio, life_meas):
+                      ecostsave, csave, ccostsave, life_ratio, life_meas,
+                      num_units):
         """ Calculate internal rate of return, simple payback, and cost of
         conserved energy/carbon from cash flows and energy/carbon
         savings across the measure lifetime """
@@ -1053,12 +1065,6 @@ class Measure(object):
         # 3) Cash flows considering capital costs and carbon costs
         # 4) Cash flows considering capital, energy, and carbon costs
 
-        # Cash flow lists are initialized with the incremental capital
-        # cost as the first list element; these lists are further updated below
-        cashflows_s = [scostsave_add]
-        cashflows_se = [scostsave_add]
-        cashflows_sc = [scostsave_add]
-        cashflows_sec = [scostsave_add]
         # Determine when over the course of the measure lifetime (if at all)
         # a cost gain is realized from an avoided purchase of the baseline
         # technology due to longer measure lifetime; store this information in
@@ -1075,8 +1081,13 @@ class Measure(object):
         # (a minimum for measure lifetime to work in below calculations)
         if life_meas < 1:
             life_meas = 1
-        # Update above cashflow lists to construct complete cash flows across
-        # measure lifetime
+
+        # Construct complete stock cash flows across measure lifetime
+        # (normalized by number of competed stock units)
+
+        # Initialize stock cash flows with incremental capital cost
+        cashflows_s = numpy.array(scostsave_add)
+
         for life_yr in range(0, life_meas):
             # Check whether an avoided cost of the baseline technology should
             # be added for given year; if not, set this term to zero
@@ -1087,16 +1098,36 @@ class Measure(object):
 
             # Add avoided capital costs and saved energy and carbon costs
             # as appropriate
-            cashflows_s.append(scost_life)
-            cashflows_se.append(scost_life + ecostsave)
-            cashflows_sc.append(scost_life + ccostsave)
-            cashflows_sec.append(scost_life + ecostsave + ccostsave)
+            cashflows_s = numpy.append(cashflows_s, scost_life)
 
-        # Develop lists of energy and carbon savings across measure
+        cashflows_s = cashflows_s / num_units
+
+        # Construct complete energy and carbon cash flows across measure
+        # lifetime (normalized by number of competed stock units). First
+        # term (reserved for initial investment figure) is zero.
+        cashflows_e = numpy.append(0, [ecostsave] * life_meas) / num_units
+        cashflows_c = numpy.append(0, [ccostsave] * life_meas) / num_units
+
+        # Calculate Net Present Value and Annualized Net Present Value
+        # using the above cashflows
+        npv_s = numpy.npv(rate, cashflows_s)
+        anpv_s = numpy.pmt(rate, life_meas, npv_s)
+        npv_e = numpy.npv(rate, cashflows_e)
+        anpv_e = numpy.pmt(rate, life_meas, npv_e)
+        npv_c = numpy.npv(rate, cashflows_c)
+        anpv_c = numpy.pmt(rate, life_meas, npv_c)
+
+        # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).
-        # First term (reserved for initial savings figure) is zero.
-        esave_list = [0] + [esave] * life_meas
-        csave_list = [0] + [csave] * life_meas
+        # First term (reserved for initial investment figure) is zero, and
+        # each array is normalized by number of competed stock units
+        esave_array = numpy.append(0, [esave] * life_meas) / num_units
+        csave_array = numpy.append(0, [csave] * life_meas) / num_units
+
+        # Calculate Net Present Value and Annualized Net Present Value (anpv)
+        # of the above energy and carbon savings
+        npv_esave = numpy.npv(rate, esave_array)
+        npv_csave = numpy.npv(rate, csave_array)
 
         # Initially set economic metrics to 999 for cases where the
         # metric cannot be computed (e.g., zeros in 'cce' denominator due to
@@ -1108,8 +1139,8 @@ class Measure(object):
         # Check to ensure thar irr/payback can be calculated for the
         # given cash flows
         try:
-            irr_e = numpy.irr(cashflows_se)
-            payback_e = self.payback(cashflows_se)
+            irr_e = numpy.irr(cashflows_s + cashflows_e)
+            payback_e = self.payback(cashflows_s + cashflows_e)
         except ValueError:
             pass
 
@@ -1117,32 +1148,28 @@ class Measure(object):
         # flows.  Check to ensure thar irr/payback can be calculated for the
         # given cash flows
         try:
-            irr_ec = numpy.irr(cashflows_sec)
-            payback_ec = self.payback(cashflows_sec)
+            irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
+            payback_ec = self.payback(cashflows_s + cashflows_e + cashflows_c)
         except ValueError:
             pass
 
-        # Calculate cost of conserved energy w/ and w/o carbon cost save
-        # benefits.  Check to ensure energy savings in the denominator are
+        # Calculate cost of conserved energy w/ and w/o carbon cost savings
+        # benefits.  Check to ensure energy savings NPV in the denominator is
         # not zero
-        if any(esave_list) != 0:
-            cce = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
-                numpy.npv(rate, esave_list)
-            cce_bens = (abs(cashflows_sc[0]) - numpy.npv(rate, ([0] +
-                        cashflows_sc[1:]))) / numpy.npv(rate, esave_list)
+        if any(esave_array) != 0:
+            cce = (-npv_s / npv_esave)
+            cce_bens = (-(npv_s + npv_c) / npv_esave)
 
-        # Calculate cost of conserved carbon w/ and w/o energy cost save
-        # benefits.  Check to ensure carbon savings in the denominator are
+        # Calculate cost of conserved carbon w/ and w/o energy cost savings
+        # benefits.  Check to ensure carbon savings NPV in the denominator is
         # not zero.
-        if any(csave_list) != 0:
-            ccc = (abs(cashflows_s[0]) - numpy.npv(rate, ([0] + cashflows_s[1:]))) / \
-                numpy.npv(rate, csave_list)
-            ccc_bens = (abs(cashflows_se[0]) - numpy.npv(rate, ([0] +
-                        cashflows_se[1:]))) / numpy.npv(rate, csave_list)
+        if any(csave_array) != 0:
+            ccc = (-npv_s / npv_csave)
+            ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
         # Return all updated economic metrics
-        return irr_e, irr_ec, payback_e, payback_ec, \
-            cce, cce_bens, ccc, ccc_bens
+        return anpv_s, anpv_e, anpv_c, irr_e, irr_ec, payback_e, \
+            payback_ec, cce, cce_bens, ccc, ccc_bens
 
     def payback(self, cashflows):
         """ Calculate the simple payback period given an input list of
