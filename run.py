@@ -106,7 +106,8 @@ class Measure(object):
         # competing measures
         mseg_compete = {
             "competed mseg keys and values": {},
-            "competed choice parameters": {}}
+            "competed choice parameters": {},
+            "already competed": False}
 
         # Initialize a counter of valid key chains
         key_chain_ct = 0
@@ -1232,13 +1233,56 @@ class Engine(object):
             # Find master microsegment and partitions
             m.master_mseg = m.mseg_find_partition(
                 mseg_in, base_costperflife_in, adopt_scheme)[0]
-            # Update cost/savings outcomes and economic metric
+            # Update savings outcomes and economic metrics
             # based on master microsegment
             m.master_savings = m.calc_metric_update(rate, compete_measures)
 
     def compete_measures(self, rate):
         """ Compete active measures to address overlapping microsegments and
-        avoid double counting energy/carbon savings """
+        avoid double counting energy/carbon/cost savings """
+        # Establish list of key chains for all microsegments that contribute to
+        # measure master microsegments, across all active measures
+        msegs = numpy.unique([
+            x.mseg_compete["competed mseg keys and values"].keys()
+            for x in self.measures])
+
+        # Run through all unique contributing microsegments in above list,
+        # determining how each is apportioned across multiple efficiency
+        # measures that are competing for it
+        for msu in msegs:
+            # Determine the subset of measures that compete for the given
+            # microsegment
+            measures_compete = [x for x in self.measures if any(
+                x.mseg_compete["competed mseg keys and values"].keys()) == msu]
+
+            # If multiple measures are competing for the microsegment,
+            # determine the market shares of the competing measures and adjust
+            # measure master microsegments accordingly, using separate market
+            # share modeling approaches for residential and commercial sectors
+            if len(measures_compete) > 1 and \
+                any(x in msu for x in (
+                    'single family home', 'multi family home', 'mobile home')):
+                self.res_compete(measures_compete)
+            elif len(measures_compete) > 1 and \
+                all(x not in msu for x in (
+                    'single family home', 'multi family home', 'mobile home')):
+                self.com_compete(measures_compete)
+
+        # For each measure that has been competed against other measures and
+        # had its master microsegment updated accordingly, also update the
+        # savings outcomes and economic metrics for that measure
+        for m in self.measures:
+            if m.mseg_compete["already competed"] is True:
+                m.master_savings = m.calc_metric_update(rate, compete_measures)
+
+    def res_compete(self, measures_compete):
+        """ Determine market shares captured by competing residential efficiency
+        measures """
+        pass
+
+    def com_compete(self, measures_compete):
+        """ Determine market shares captured by competing commercial efficiency
+        measures """
         pass
 
     def write_outputs(self, csv_output_file):
