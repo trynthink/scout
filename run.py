@@ -87,7 +87,8 @@ class Measure(object):
 
         # Initialize master microsegment stock, energy, carbon, cost, and
         # lifetime information dict
-        mseg_master = {"stock": {"total": None, "competed": None},
+        mseg_master = {"stock": {"total": None, "competed": None,
+                                 "competed (captured)": None},
                        "energy": {"total": None, "competed": None,
                                   "efficient": None},
                        "carbon": {"total": None, "competed": None,
@@ -455,9 +456,9 @@ class Measure(object):
 
                 # Update total, competed, and efficient stock, energy, CO2
                 # and baseline/measure cost info. based on adoption scheme
-                [add_stock, add_energy, add_carb, add_compete_stock,
-                 add_compete_energy, add_compete_carb, add_energy_eff,
-                 add_carb_eff, add_stock_total_cost,
+                [add_stock, add_energy, add_carb, add_stock_compete,
+                 add_compete_energy, add_compete_carb, add_stock_compete_capt,
+                 add_energy_eff, add_carb_eff, add_stock_total_cost,
                  add_energy_total_cost, add_carb_total_cost,
                  add_stock_compete_cost, add_energy_compete_cost,
                  add_carb_compete_cost, add_stock_eff_cost,
@@ -473,7 +474,9 @@ class Measure(object):
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
                 add_dict = {"stock": {"total": add_stock,
-                                      "competed": add_compete_stock},
+                                      "competed": add_stock_compete,
+                                      "competed (captured)":
+                                          add_stock_compete_capt},
                             "energy": {"total": add_energy,
                                        "competed": add_compete_energy,
                                        "efficient": add_energy_eff},
@@ -626,23 +629,11 @@ class Measure(object):
 
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total = {}
-        stock_total_cost = {}
-        energy_total = {}
-        energy_total_cost = {}
-        carb_total = {}
-        carb_total_cost = {}
-        stock_compete = {}
-        stock_compete_cost = {}
-        stock_eff_cost = {}
-        energy_compete = {}
-        energy_compete_cost = {}
-        carb_compete = {}
-        carb_compete_cost = {}
-        energy_eff = {}
-        energy_eff_cost = {}
-        carb_eff = {}
-        carb_eff_cost = {}
+        stock_total, stock_total_cost, energy_total, energy_total_cost, \
+            carb_total, carb_total_cost, stock_compete, stock_compete_cost, \
+            stock_eff_cost, energy_compete, energy_compete_cost, carb_compete, \
+            carb_compete_cost, stock_compete_capt, energy_eff, energy_eff_cost, \
+            carb_eff, carb_eff_cost = ({} for n in range(18))
 
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
@@ -687,24 +678,17 @@ class Measure(object):
             new_eff = new_frac * diffuse_eff_frac
 
             # Replacement stock/energy, baseline, and efficient partitions
-            replace_b2b = exist_frac * \
-                exist_base_frac * \
-                exist_base_replace_frac * \
-                diffuse_base_frac
-            replace_b2e = exist_frac * \
-                exist_base_frac * \
-                exist_base_replace_frac * \
-                diffuse_eff_frac
-            replace_e2e = exist_frac * \
-                exist_eff_frac * \
+            replace_b2b = exist_frac * exist_base_frac * \
+                exist_base_replace_frac * diffuse_base_frac
+            replace_b2e = exist_frac * exist_base_frac * \
+                exist_base_replace_frac * diffuse_eff_frac
+            replace_e2e = exist_frac * exist_eff_frac * \
                 exist_eff_replace_frac
 
             # Surviving stock/energy, baseline and efficient partitions
-            survive_base = exist_frac * \
-                exist_base_frac * \
+            survive_base = exist_frac * exist_base_frac * \
                 exist_base_survive_frac
-            survive_eff = exist_frac * \
-                exist_eff_frac * \
+            survive_eff = exist_frac * exist_eff_frac * \
                 exist_eff_survive_frac
 
             # Wrap the above partitions up into total and competed
@@ -753,6 +737,15 @@ class Measure(object):
                 site_source_conv[yr]
             carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
 
+            # Update the captured portion of the competed stock as initially
+            # being equal to the competed stock. * Note: captured stock numbers
+            # are used in the cost_metric_update function below to normalize
+            # measure cost metrics to a per unit basis.  The captured stock
+            # will be less than the competed stock in cases where the measure
+            # captures less than 100% of the competed market share (determined
+            # in the compete_measures function below).
+            stock_compete_capt[yr] = stock_compete[yr]
+
             # Update efficient energy and carbon, where efficient is
             # comprised of the portion of competed energy/carbon remaining
             # after measure implementation plus non-competed energy/carbon.
@@ -771,7 +764,7 @@ class Measure(object):
                 carb_eff[yr] = carb_total[yr]
 
             # Update total, competed, and efficient stock, energy, and carbon
-            # costs. * Note: competed stock cost for the measure is dependent
+            # costs. * Note: efficient stock cost for the measure is dependent
             # upon whether that measure is on the market for the given year (if
             # not, use baseline technology cost)
             stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
@@ -793,8 +786,8 @@ class Measure(object):
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total,
-                stock_compete, energy_compete,
-                carb_compete, energy_eff, carb_eff, stock_total_cost,
+                stock_compete, energy_compete, carb_compete,
+                stock_compete_capt, energy_eff, carb_eff, stock_total_cost,
                 energy_total_cost, carb_total_cost, stock_compete_cost,
                 energy_compete_cost, carb_compete_cost,
                 stock_eff_cost, energy_eff_cost, carb_eff_cost]
@@ -817,12 +810,13 @@ class Measure(object):
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
         for ind, yr in enumerate(
-                sorted(self.master_mseg["stock"]["competed"].keys())):
+                sorted(self.master_mseg["stock"][
+                    "competed (captured)"].keys())):
 
-            # Set the number of competed stock units, to be used in normalizing
-            # stock, energy and carbon cash flows to a per unit basis in the
-            # "metric_update" function below
-            num_units = self.master_mseg["stock"]["competed"][yr]
+            # Set the number captured stock units for the given year,
+            # which is used for normalizing stock, energy and carbon cash
+            # flows to a per unit basis in the "metric_update" function below
+            num_units = self.master_mseg["stock"]["competed (captured)"][yr]
             # Set the capital cost of the baseline technology for comparison
             # with measure capital cost
             scost_base = self.master_mseg["cost"]["stock"]["total"][yr]
@@ -1083,7 +1077,7 @@ class Measure(object):
             life_meas = 1
 
         # Construct complete stock cash flows across measure lifetime
-        # (normalized by number of competed stock units)
+        # (normalized by number of captured stock units)
 
         # Initialize stock cash flows with incremental capital cost
         cashflows_s = numpy.array(scostsave_add)
@@ -1103,7 +1097,7 @@ class Measure(object):
         cashflows_s = cashflows_s / num_units
 
         # Construct complete energy and carbon cash flows across measure
-        # lifetime (normalized by number of competed stock units). First
+        # lifetime (normalized by number of captured stock units). First
         # term (reserved for initial investment figure) is zero.
         cashflows_e = numpy.append(0, [ecostsave] * life_meas) / num_units
         cashflows_c = numpy.append(0, [ccostsave] * life_meas) / num_units
@@ -1120,7 +1114,7 @@ class Measure(object):
         # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).
         # First term (reserved for initial investment figure) is zero, and
-        # each array is normalized by number of competed stock units
+        # each array is normalized by number of captured stock units
         esave_array = numpy.append(0, [esave] * life_meas) / num_units
         csave_array = numpy.append(0, [csave] * life_meas) / num_units
 
@@ -1257,6 +1251,15 @@ class Engine(object):
         # the measure summary list above
         for m in self.measures:
             for yr in m.master_mseg["stock"]["total"].keys():
+                # Create list of output variables
+                summary_mat = [
+                    m.master_mseg["energy"]["efficient"][yr],
+                    m.master_savings["energy"]["savings (total)"][yr],
+                    m.master_savings["energy"]["cost savings (total)"][yr],
+                    m.master_mseg["carbon"]["efficient"][yr],
+                    m.master_savings["carbon"]["savings (total)"][yr],
+                    m.master_savings["carbon"]["cost savings (total)"][yr]]
+
                 # Check if the current measure's efficent energy/carbon
                 # markets, energy/carbon savings, and associated cost outputs
                 # are arrays of values.  If so, find the average and 5th/95th
@@ -1264,74 +1267,31 @@ class Engine(object):
                 # Otherwise, report the point values for each output
                 if type(m.master_mseg["energy"]["efficient"][yr]) == \
                    numpy.ndarray:
-                    # Efficient energy and energy/cost savings outputs
-                    energy_eff_avg = numpy.mean(
-                        m.master_mseg["energy"]["efficient"][yr])
-                    energy_eff_low = numpy.percentile(
-                        m.master_mseg["energy"]["efficient"][yr], 5)
-                    energy_eff_high = numpy.percentile(
-                        m.master_mseg["energy"]["efficient"][yr], 95)
-                    energy_save_avg = numpy.mean(
-                        m.master_savings["energy"]["savings (total)"][yr])
-                    energy_save_low = numpy.percentile(
-                        m.master_savings["energy"]["savings (total)"][yr], 5)
-                    energy_save_high = numpy.percentile(
-                        m.master_savings["energy"]["savings (total)"][yr], 95)
-                    energy_costsave_avg = numpy.mean(
-                        m.master_savings["energy"]["cost savings (total)"][yr])
-                    energy_costsave_low = numpy.percentile(
-                        m.master_savings["energy"]["cost savings (total)"][yr],
-                        5)
-                    energy_costsave_high = numpy.percentile(
-                        m.master_savings["energy"]["cost savings (total)"][yr],
-                        95)
-                    # Efficient carbon and carbon/cost savings outputs
-                    carb_eff_avg = numpy.mean(
-                        m.master_mseg["carbon"]["efficient"][yr])
-                    carb_eff_low = numpy.percentile(
-                        m.master_mseg["carbon"]["efficient"][yr], 5)
-                    carb_eff_high = numpy.percentile(
-                        m.master_mseg["carbon"]["efficient"][yr], 95)
-                    carb_save_avg = numpy.mean(
-                        m.master_savings["carbon"]["savings (total)"][yr])
-                    carb_save_low = numpy.percentile(
-                        m.master_savings["carbon"]["savings (total)"][yr], 5)
-                    carb_save_high = numpy.percentile(
-                        m.master_savings["carbon"]["savings (total)"][yr], 95)
-                    carb_costsave_avg = numpy.mean(
-                        m.master_savings["carbon"]["cost savings (total)"][yr])
-                    carb_costsave_low = numpy.percentile(
-                        m.master_savings["carbon"]["cost savings (total)"][yr],
-                        5)
-                    carb_costsave_high = numpy.percentile(
-                        m.master_savings["carbon"]["cost savings (total)"][yr],
-                        95)
+                    # Average values for outputs
+                    energy_eff_avg, energy_save_avg, energy_costsave_avg, \
+                        carb_eff_avg, carb_save_avg, carb_costsave_avg = \
+                        [numpy.mean(x) for x in summary_mat]
+                    # 5th percentile values for outputs
+                    energy_eff_low, energy_save_low, energy_costsave_low, \
+                        carb_eff_low, carb_save_low, carb_costsave_low = \
+                        [numpy.percentile(x, 5) for x in summary_mat]
+                    # 95th percentile values for outputs
+                    energy_eff_high, energy_save_high, energy_costsave_high, \
+                        carb_eff_high, carb_save_high, carb_costsave_high = \
+                        [numpy.percentile(x, 95) for x in summary_mat]
                 else:
-                    # Efficient energy and energy/cost savings outputs
-                    energy_eff_avg, energy_eff_low, energy_eff_high = \
-                        (m.master_mseg["energy"]["efficient"][yr] for x in
-                         range(3))
-                    energy_save_avg, energy_save_low, energy_save_high = \
-                        (m.master_savings["energy"]["savings (total)"][yr] for
-                         x in range(3))
-                    energy_costsave_avg, energy_costsave_low, \
-                        energy_costsave_high = (m.master_savings["energy"][
-                            "cost savings (total)"][yr] for x in range(3))
-                    # Efficient carbon and carbon/cost savings outputs
-                    carb_eff_avg, carb_eff_low, carb_eff_high = \
-                        (m.master_mseg["carbon"]["efficient"][yr] for x in
-                         range(3))
-                    carb_save_avg, carb_save_low, carb_save_high = \
-                        (m.master_savings["carbon"]["savings (total)"][yr] for
-                         x in range(3))
-                    carb_costsave_avg, carb_costsave_low, carb_costsave_high = \
-                        (m.master_savings["carbon"]["cost savings (total)"][yr]
-                         for x in range(3))
+                    energy_eff_avg, energy_save_avg, energy_costsave_avg, \
+                        carb_eff_avg, carb_save_avg, carb_costsave_avg, \
+                        energy_eff_low, energy_save_low, energy_costsave_low, \
+                        carb_eff_low, carb_save_low, carb_costsave_low, \
+                        energy_eff_high, energy_save_high, energy_costsave_high, \
+                        carb_eff_high, carb_save_high, carb_costsave_high = \
+                        [x for x in summary_mat] * 3
+
                 # Define a dict of summary output keys and values for the
                 # current measure
                 measure_summary_dict_yr = {
-                    "year": yr,
-                    "measure name": m.name,
+                    "year": yr, "measure name": m.name,
                     "total energy": m.master_mseg["energy"]["total"][yr],
                     "competed energy": m.master_mseg["energy"]["competed"][yr],
                     "efficient energy": energy_eff_avg,
