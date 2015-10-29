@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import numpy as np
+import re
+import csv
+
 # Identify files to import for conversion
 serv_dmd = 'KDBOUT.txt'
 catg_dmd = 'KDBOUT.txt'
@@ -81,12 +85,122 @@ fueldict = {'electricity': 1,
 # motor gasoline (7), and kerosene (8)
 
 
+def dtype_eval(entry):
+    """ Takes as input an entry from a standard line (row) of a text
+    or CSV file and determines its type (only string, float, or
+    integer), returning the specified type, which can be added to a
+    list to be used in creating a numpy structured array of the data """
+
+    # Strip leading and trailing spaces off of string
+    entry = entry.strip()
+
+    if '.' in entry:
+        dtype = 'f8'
+    elif re.search('[a-zA-Z]+', entry):  # At least one letter somewhere
+        dtype = '<U50'  # Assumed to be no more than 50 characters
+    else:
+        dtype = 'i4'
+
+    return dtype
+
+
+def dtype_array(data_file_path):
+    """ Use the csv module to read the first two lines of a text data
+    file to determine the column names and data types for each column
+    and construct a list of tuples that can be used to define the dtype
+    of a numpy structured array """
+
+    # This approach is most useful when there is a header row in the
+    # file, the data are not of the same type in every column, and
+    # them, as this last bit will cause np.genfromtxt to fail
+
+    # Open the target CSV formatted data file
+    with open(data_file_path) as thefile:
+
+        # This use of csv.reader assumes that the default settings of
+        # delimiter ',' and quotechar '"' are appropriate
+        filecont = csv.reader(thefile)
+
+        # Extract header (first) row and remove leading and trailing
+        # spaces from all entries
+        header_names = [entry.strip() for entry in next(filecont)]
+
+        # Determine dtype using the second line of the file (since the
+        # first line is a header row)
+        dtypes = [dtype_eval(col) for col in next(filecont)]
+
+        # Combine data types and header names into list of tuples
+        comb_dtypes = list(zip(header_names, dtypes))
+
+        return comb_dtypes
+
+
+def data_import(data_file_path, dtype_list):
+    """ Read the contents of a data file with a header line and convert
+    it into a numpy structured array using the provided dtype definition,
+    skipping any non-conforming informational lines at the end of the file """
+
+    # This method is most useful when the end of the file has lines
+    # that provide background information, since those data can't be
+    # inserted into the same array as the main data
+
+    # Open the target CSV formatted data file
+    with open(data_file_path) as thefile:
+
+        # This use of csv.reader assumes that the default settings of
+        # delimiter ',' and quotechar '"' are appropriate
+        filecont = csv.reader(thefile)
+
+        # Create list to be populated with tuples of each row of data
+        # from the data file
+        data = []
+
+        # Skip first line of the file
+        next(filecont)
+
+        # Import the data, skipping lines that are not the correct length
+        for row in filecont:
+            if len(tuple(row)) == len(dtype_list):
+                data.append(tuple(row))
+
+        # Convert data into numpy structured array
+        final_struct = np.array(data, dtype=dtype_list)
+
+        return final_struct
+
+
+def str_cleaner(data_array, column_name):
+    """ Fix improperly formatted (extraneously) double-quoted strings
+    with extra leading and/or trailing spaces in the specified column
+    of a numpy array (IMPORTANT! - should only be applied where all
+    entries in the column have extraneous enclosing double quotes) """
+
+    # Operate on each row in the specified column of the structured array
+    for row_idx, entry in enumerate(data_array[column_name]):
+
+        # Delete leading and trailing spaces
+        entry = entry.strip()
+
+        # Delete quotes (assumed to now be first and last characters of string)
+        entry = entry[1:-1]
+
+        # Delete any newly "apparent" (no longer enclosed by the double
+        # quotes) trailing or (unlikely) leading spaces and replace the
+        # original entry
+        data_array[column_name][row_idx] = entry.strip()
+
+    return data_array
+
+
 def main():
     """ Import input data files and do other things """
 
     # Import EIA AEO 'KSDOUT' service demand file
+    the_dtypes = dtype_array(serv_dmd)
+    data = data_import(serv_dmd, the_dtypes)
+    data = str_cleaner(data, 'Description')
 
-    # Import EIA AEO 'KDBOUT' additiona data file
+    # Import EIA AEO 'KDBOUT' additional data file
 
 
 if __name__ == '__main__':
