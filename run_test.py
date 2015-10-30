@@ -3833,6 +3833,435 @@ class PaybackTest(unittest.TestCase):
                                    self.ok_out[idx], places=2)
 
 
+class ResCompeteTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the res_compete function to verify that
+    it correctly calculates market shares and updates master microsegments
+    for a series of competing residential measures"""
+
+    # Define sample string for the competed microsegment key chain being tested
+    overlap_key = str(['AIA_CZ1', 'single family home', 'electricity (grid)',
+                       'lighting', 'reflector (LED)'])
+
+    # Define master microsegments, the microsegment(s) that contribute to the
+    # master microsegment (one of which is being competed), and capital/
+    # operating cost information for three competing sample measures
+    compete_meas1 = {
+        "name": "sample compete measure 1",
+        "master_mseg": {
+            "stock": {
+                "total": {"2009": 10, "2010": 10},
+                "competed": {"2009": 5, "2010": 5},
+                "competed (captured)": {"2009": 5, "2010": 5}},
+            "energy": {
+                "total": {"2009": 20, "2010": 20},
+                "competed": {"2009": 10, "2010": 10},
+                "efficient": {"2009": 15, "2010": 15}},
+            "carbon": {
+                "total": {"2009": 30, "2010": 30},
+                "competed": {"2009": 15, "2010": 15},
+                "efficient": {"2009": 20, "2010": 20}},
+            "cost": {
+                "stock": {
+                    "total": {"2009": 10, "2010": 10},
+                    "competed": {"2009": 5, "2010": 5},
+                    "efficient": {"2009": 5, "2010": 5}},
+                "energy": {
+                    "total": {"2009": 20, "2010": 20},
+                    "competed": {"2009": 10, "2010": 10},
+                    "efficient": {"2009": 15, "2010": 15}},
+                "carbon": {
+                    "total": {"2009": 30, "2010": 30},
+                    "competed": {"2009": 15, "2010": 15},
+                    "efficient": {"2009": 20, "2010": 20}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": {"2009": 1, "2010": 1}}},
+        "mseg_compete": {
+            "competed mseg keys and values": {
+                overlap_key: {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}}},
+            "competed choice parameters": {
+                overlap_key: {"b1": {"2009": -0.95, "2010": -0.95},
+                              "b2": {"2009": -0.10, "2010": -0.10}}},
+            "already competed": False},
+        "mseg_save": {
+            "anpv": {
+                "stock cost": {"2009": 95, "2010": 95},
+                "energy cost": {"2009": -150, "2010": -150},
+                "carbon cost": {"2009": -150, "2010": -50}}}}
+
+    compete_meas2 = {
+        "name": "sample compete measure 1",
+        "master_mseg": {
+            "stock": {
+                "total": {"2009": 20, "2010": 20},
+                "competed": {"2009": 10, "2010": 10},
+                "competed (captured)": {"2009": 10, "2010": 10}},
+            "energy": {
+                "total": {"2009": 40, "2010": 40},
+                "competed": {"2009": 20, "2010": 20},
+                "efficient": {"2009": 30, "2010": 30}},
+            "carbon": {
+                "total": {"2009": 60, "2010": 60},
+                "competed": {"2009": 30, "2010": 30},
+                "efficient": {"2009": 40, "2010": 40}},
+            "cost": {
+                "stock": {
+                    "total": {"2009": 20, "2010": 20},
+                    "competed": {"2009": 10, "2010": 10},
+                    "efficient": {"2009": 10, "2010": 10}},
+                "energy": {
+                    "total": {"2009": 40, "2010": 40},
+                    "competed": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 30, "2010": 30}},
+                "carbon": {
+                    "total": {"2009": 60, "2010": 60},
+                    "competed": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 40, "2010": 40}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": {"2009": 1, "2010": 1}}},
+        "mseg_compete": {
+            "competed mseg keys and values": {
+                overlap_key: {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}},
+                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
+                     'lighting', 'reflector (LED)']): {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}}},
+            "competed choice parameters": {
+                overlap_key: {"b1": {"2009": -0.95, "2010": -0.95},
+                              "b2": {"2009": -0.10, "2010": -0.10}}},
+            "already competed": False},
+        "mseg_save": {
+            "anpv": {
+                "stock cost": {"2009": 120, "2010": 120},
+                "energy cost": {"2009": -400, "2010": -400},
+                "carbon cost": {"2009": -50, "2010": -50}}}}
+
+    compete_meas3 = {
+        "name": "sample compete measure 1",
+        "master_mseg": {
+            "stock": {
+                "total": {"2009": 30, "2010": 30},
+                "competed": {"2009": 15, "2010": 15},
+                "competed (captured)": {"2009": 15, "2010": 15}},
+            "energy": {
+                "total": {"2009": 60, "2010": 60},
+                "competed": {"2009": 30, "2010": 30},
+                "efficient": {"2009": 45, "2010": 45}},
+            "carbon": {
+                "total": {"2009": 90, "2010": 90},
+                "competed": {"2009": 45, "2010": 45},
+                "efficient": {"2009": 60, "2010": 60}},
+            "cost": {
+                "stock": {
+                    "total": {"2009": 30, "2010": 30},
+                    "competed": {"2009": 15, "2010": 15},
+                    "efficient": {"2009": 15, "2010": 15}},
+                "energy": {
+                    "total": {"2009": 60, "2010": 60},
+                    "competed": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 45, "2010": 45}},
+                "carbon": {
+                    "total": {"2009": 90, "2010": 90},
+                    "competed": {"2009": 45, "2010": 45},
+                    "efficient": {"2009": 60, "2010": 60}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": {"2009": 1, "2010": 1}}},
+        "mseg_compete": {
+            "competed mseg keys and values": {
+                overlap_key: {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}},
+                str(['AIA_CZ1', 'multi family home', 'electricity (grid)',
+                     'lighting', 'reflector (LED)']): {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}},
+                str(['AIA_CZ1', 'single family home', 'electricity (grid)',
+                     'lighting', 'reflector (incandescent)']): {
+                    "stock": {
+                        "total": {"2009": 10, "2010": 10},
+                        "competed": {"2009": 5, "2010": 5},
+                        "competed (captured)": {"2009": 5, "2010": 5}},
+                    "energy": {
+                        "total": {"2009": 20, "2010": 20},
+                        "competed": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "carbon": {
+                        "total": {"2009": 30, "2010": 30},
+                        "competed": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "cost": {
+                        "stock": {
+                            "total": {"2009": 10, "2010": 10},
+                            "competed": {"2009": 5, "2010": 5},
+                            "efficient": {"2009": 5, "2010": 5}},
+                        "energy": {
+                            "total": {"2009": 20, "2010": 20},
+                            "competed": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "carbon": {
+                            "total": {"2009": 30, "2010": 30},
+                            "competed": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}}},
+            "competed choice parameters": {
+                overlap_key: {"b1": {"2009": -0.95, "2010": -0.95},
+                              "b2": {"2009": -0.10, "2010": -0.10}}},
+            "already competed": False},
+        "mseg_save": {
+            "anpv": {
+                "stock cost": {"2009": 100, "2010": 100},
+                "energy cost": {"2009": -200, "2010": -200},
+                "carbon cost": {"2009": -100, "2010": -100}}}}
+
+    # Instantiate the three competing sample measure objects
+    # and an engine object that uses these measures as its input
+    measures_compete = [run.Measure(**x) for x in [
+        compete_meas1, compete_meas2, compete_meas3]]
+    a_run = run.Engine(measures_compete)
+
+    # Define the correct master microsegment output for each sample measure
+    # after running its competition with the other sample measures to
+    # determine market shares
+    measures_master_msegs = [{
+        "stock": {
+            "total": {"2009": 10, "2010": 10},
+            "competed": {"2009": 5, "2010": 5},
+            "competed (captured)": {"2009": 0.87, "2010": 0.87}},
+        "energy": {
+            "total": {"2009": 20, "2010": 20},
+            "competed": {"2009": 10, "2010": 10},
+            "efficient": {"2009": 19.13, "2010": 19.13}},
+        "carbon": {
+            "total": {"2009": 30, "2010": 30},
+            "competed": {"2009": 15, "2010": 15},
+            "efficient": {"2009": 28.27, "2010": 28.27}},
+        "cost": {
+            "stock": {
+                "total": {"2009": 10, "2010": 10},
+                "competed": {"2009": 5, "2010": 5},
+                "efficient": {"2009": 9.13, "2010": 9.13}},
+            "energy": {
+                "total": {"2009": 20, "2010": 20},
+                "competed": {"2009": 10, "2010": 10},
+                "efficient": {"2009": 19.13, "2010": 19.13}},
+            "carbon": {
+                "total": {"2009": 30, "2010": 30},
+                "competed": {"2009": 15, "2010": 15},
+                "efficient": {"2009": 28.27, "2010": 28.27}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": {"2009": 1, "2010": 1}}},
+        {
+        "stock": {
+            "total": {"2009": 20, "2010": 20},
+            "competed": {"2009": 10, "2010": 10},
+            "competed (captured)": {"2009": 6.04, "2010": 6.04}},
+        "energy": {
+            "total": {"2009": 40, "2010": 40},
+            "competed": {"2009": 20, "2010": 20},
+            "efficient": {"2009": 31.98, "2010": 31.98}},
+        "carbon": {
+            "total": {"2009": 60, "2010": 60},
+            "competed": {"2009": 30, "2010": 30},
+            "efficient": {"2009": 43.96, "2010": 43.96}},
+        "cost": {
+            "stock": {
+                "total": {"2009": 20, "2010": 20},
+                "competed": {"2009": 10, "2010": 10},
+                "efficient": {"2009": 11.98, "2010": 11.98}},
+            "energy": {
+                "total": {"2009": 40, "2010": 40},
+                "competed": {"2009": 20, "2010": 20},
+                "efficient": {"2009": 31.98, "2010": 31.98}},
+            "carbon": {
+                "total": {"2009": 60, "2010": 60},
+                "competed": {"2009": 30, "2010": 30},
+                "efficient": {"2009": 43.96, "2010": 43.96}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": {"2009": 1, "2010": 1}}},
+        {
+        "stock": {
+            "total": {"2009": 30, "2010": 30},
+            "competed": {"2009": 15, "2010": 15},
+            "competed (captured)": {"2009": 3.34, "2010": 3.34}},
+        "energy": {
+            "total": {"2009": 60, "2010": 60},
+            "competed": {"2009": 30, "2010": 30},
+            "efficient": {"2009": 48.89, "2010": 48.89}},
+        "carbon": {
+            "total": {"2009": 90, "2010": 90},
+            "competed": {"2009": 45, "2010": 45},
+            "efficient": {"2009": 67.78, "2010": 67.78}},
+        "cost": {
+            "stock": {
+                "total": {"2009": 30, "2010": 30},
+                "competed": {"2009": 15, "2010": 15},
+                "efficient": {"2009": 18.89, "2010": 18.89}},
+            "energy": {
+                "total": {"2009": 60, "2010": 60},
+                "competed": {"2009": 30, "2010": 30},
+                "efficient": {"2009": 48.89, "2010": 48.89}},
+            "carbon": {
+                "total": {"2009": 90, "2010": 90},
+                "competed": {"2009": 45, "2010": 45},
+                "efficient": {"2009": 67.78, "2010": 67.78}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": {"2009": 1, "2010": 1}}}]
+
+    # Define the correct outputs for the competition state of each
+    # sample measure after having been competed against the other
+    # sample measures (this attribute is used in the 'compete_measures'
+    # function to determine whether a measure has been competed, in which
+    # case its savings/cost metrics are updated using 'calc_metric_update')
+    measures_compete_state = [True, True, True]
+
+    # Test the residential measure competition routine by competing the
+    # above sample measures on the specified overlapping microsegment
+    # key chain and verifying that the resultant updated measure master
+    # microsegment and competition state is correct for each sample measure
+    def test_compete_res(self):
+        # Run the measure competition routine on sample measures
+        self.a_run.res_compete(self.measures_compete, self.overlap_key)
+        # Check outputs for each sample measure after competition
+        for ind, d in enumerate(self.a_run.measures):
+            # Check updated measure master microsegment
+            self.dict_check(
+                self.measures_master_msegs[ind],
+                self.a_run.measures[ind].master_mseg)
+            # Check updated measure competition state
+            self.assertEqual(
+                self.measures_compete_state[ind],
+                self.a_run.measures[ind].mseg_compete["already competed"])
+
+
 # Offer external code execution (include all lines below this point in all
 # test files)
 def main():

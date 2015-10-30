@@ -62,10 +62,6 @@ inverted_relperf_list = ["ACH50", "CFM/sf", "kWh/yr", "kWh/day", "SHGC",
 class Measure(object):
 
     def __init__(self, **kwargs):
-        # Initialize attributes from JSON
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
         # Initialize master microsegment and savings attributes
         self.master_mseg = None
         self.master_savings = None
@@ -77,6 +73,10 @@ class Measure(object):
         self.total_carb_norm = {}  # Carbon/stock (whole mseg)
         self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
         self.efficient_carb_norm = {}  # Carbon/stock (efficient)
+
+        # Initialize attributes from JSON
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
         """ Given an input measure with microsegment selection information and two
@@ -1237,7 +1237,7 @@ class Engine(object):
             # based on master microsegment
             m.master_savings = m.calc_metric_update(rate, compete_measures)
 
-    def compete_measures(self, rate):
+    def compete_measures(self):
         """ Compete active measures to address overlapping microsegments and
         avoid double counting energy/carbon/cost savings """
         # Establish list of key chains for all microsegments that contribute to
@@ -1262,11 +1262,11 @@ class Engine(object):
             if len(measures_compete) > 1 and \
                 any(x in msu for x in (
                     'single family home', 'multi family home', 'mobile home')):
-                self.res_compete(measures_compete)
+                self.res_compete(measures_compete, msu)
             elif len(measures_compete) > 1 and \
                 all(x not in msu for x in (
                     'single family home', 'multi family home', 'mobile home')):
-                self.com_compete(measures_compete)
+                self.com_compete(measures_compete, msu)
 
         # For each measure that has been competed against other measures and
         # had its master microsegment updated accordingly, also update the
@@ -1275,10 +1275,86 @@ class Engine(object):
             if m.mseg_compete["already competed"] is True:
                 m.master_savings = m.calc_metric_update(rate, compete_measures)
 
-    def res_compete(self, measures_compete):
-        """ Determine market shares captured by competing residential efficiency
-        measures """
-        pass
+    def res_compete(self, measures_compete, mseg_key):
+        """ Determine the shares of a given market microsegment that are
+        captured by a series of residential efficiency measures that compete
+        for this market microsegment """
+        # Initialize list of dicts that each store the annual market fractions
+        # captured by competing measures; also initialize a dict that sums
+        # market fractions by year across competing measures (used to normalize
+        # the measure market fractions such that they all sum to 1)
+        mkt_fracs = [{} for l in range(0, len(measures_compete))]
+        mkt_fracs_tot = dict.fromkeys(
+            measures_compete[0].master_mseg["stock"]["total"].keys(), 0)
+
+        # Loop through competing measures and calculate market shares for each
+        # based on their annualized capital and operating costs.
+        for ind, m in enumerate(measures_compete):
+            # Register that this measure has been competed with others (for
+            # use at the end of the 'compete_measures' function in determining
+            # whether to update the measure's savings/cost metric outputs)
+            m.mseg_compete["already competed"] = True
+            # Loop through all years in modeling time horizon
+            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                # Set measure capital and operating cost inputs. * Note:
+                # operating cost is set to just energy costs (for now), but
+                # could be expanded to include maintenance and carbon costs
+                cap_cost = m.mseg_save["anpv"]["stock cost"][yr]
+                op_cost = m.mseg_save["anpv"]["energy cost"][yr]
+                # Calculate measure market fraction using log-linear regression
+                # equation that takes capital/operating costs as inputs
+                mkt_fracs[ind][yr] = numpy.exp(cap_cost * m.mseg_compete[
+                    "competed choice parameters"][str(mseg_key)]["b1"][yr] +
+                    op_cost * m.mseg_compete["competed choice parameters"][
+                    str(mseg_key)]["b2"][yr])
+                # Add calculated market fraction to market fractions sum
+                mkt_fracs_tot[yr] += mkt_fracs[ind][yr]
+
+        # Loop through competing measures to normalize their calculated market
+        # shares to the total market share sum; use normalized market shares to
+        # make adjustments to each measure's master microsegment values
+        for ind, m in enumerate(measures_compete):
+            # Organize relevant starting master microsegment values into a list
+            base = m.master_mseg
+            base_list = [
+                base["energy"]["efficient"],
+                base["carbon"]["efficient"],
+                base["cost"]["stock"]["efficient"],
+                base["cost"]["energy"]["efficient"],
+                base["cost"]["carbon"]["efficient"]]
+            # Set up lists that will be used to determine the energy, carbon,
+            # and cost savings associated with the competed microsegment that
+            # must be adjusted according to a measure's calculated market share
+            adj = m.mseg_compete["competed mseg keys and values"][mseg_key]
+            adj_list_tot = [
+                adj["energy"]["total"], adj["carbon"]["total"],
+                adj["cost"]["stock"]["total"], adj["cost"]["energy"]["total"],
+                adj["cost"]["carbon"]["total"]]
+            adj_list_eff = [
+                adj["energy"]["efficient"], adj["carbon"]["efficient"],
+                adj["cost"]["stock"]["efficient"],
+                adj["cost"]["energy"]["efficient"],
+                adj["cost"]["carbon"]["efficient"]]
+
+            # Normalize annual market share fraction for the measure and adjust
+            # measure's master microsegment values accordingly
+            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                # Normalize measure market share
+                mkt_fracs[ind][yr] = mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                # Adjust the measure's master microsegment values by applying
+                # its normalized market share to the captured stock, energy
+                # savings, carbon savings, and cost savings for the measure
+                # that are attributed to the current competed microsegment
+                base["stock"]["competed (captured)"][yr] = \
+                    base["stock"]["competed (captured)"][yr] * \
+                    mkt_fracs[ind][yr]
+                base["energy"]["efficient"][yr], \
+                    base["carbon"]["efficient"][yr], \
+                    base["cost"]["stock"]["efficient"][yr], \
+                    base["cost"]["energy"]["efficient"][yr], \
+                    base["cost"]["carbon"]["efficient"][yr] = \
+                    [x[yr] + ((y[yr] - z[yr]) * (1 - mkt_fracs[ind][yr])) for
+                        x, y, z in zip(base_list, adj_list_tot, adj_list_eff)]
 
     def com_compete(self, measures_compete):
         """ Determine market shares captured by competing commercial efficiency
@@ -1403,8 +1479,7 @@ def main():
                             adopt_scheme, rate, compete_measures)
     # Compete active measures if user has specified this option
     if compete_measures is True:
-        pass
-        a_run.compete_measures(rate)
+        a_run.compete_measures()
 
     # Write selected outputs to a summary CSV file for post-processing
     a_run.write_outputs(csv_output_file)
