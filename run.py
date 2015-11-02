@@ -42,8 +42,21 @@ ecosts = {"residential": {"electricity (grid)": cost_ss_co2[0],
 # Set carbon costs dict
 ccosts = cost_ss_co2[6]
 
-# Set discount rate for cost calculations
+# Set a general discount rate for cost calculations
 rate = 0.07
+
+# Placeholder for dict yielding end use-specific discount rates for use in
+# commercial section measure competition
+com_timeprefs = {
+    "rates": [10, 1.529, 0.553, 0.309, 0.199, 0.136, 0],  # *** Placeholder
+    "distributions": {
+        "heating": {},
+        "cooling": {},
+        "water heating": {},
+        "ventilation": {},
+        "cooking": {},
+        "lighting": {},
+        "refrigeration": {}}}
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'
@@ -150,7 +163,7 @@ class Measure(object):
             ms_iterable.extend(ms_iterable_second)
         elif "lighting" in self.end_use["primary"] and \
             self.bldg_type not in \
-            ["single family", "multi family", "mobile"] and \
+            ["single family home", "multi family home", "mobile home"] and \
                 self.end_use["secondary"] is None:
                     # Set secondary lighting microsegment flag to True
                     lighting_secondary = True
@@ -793,7 +806,7 @@ class Measure(object):
                 energy_compete_cost, carb_compete_cost,
                 stock_eff_cost, energy_eff_cost, carb_eff_cost]
 
-    def calc_metric_update(self, rate, compete_measures):
+    def calc_metric_update(self, rate, compete_measures, com_timeprefs):
         """ Given information on a measure's master microsegment for
         each projection year and a discount rate, determine capital ("stock"),
         energy, and carbon cost savings; energy and carbon savings; and the
@@ -955,9 +968,9 @@ class Measure(object):
                                 scostsave_add_temp[x], esave_add_temp[x],
                                 ecostsave_add_temp[x], csave_add_temp[x],
                                 ccostsave_add_temp[x], int(life_ratio_temp[x]),
-                                int(life_meas_temp[x]), num_units)
+                                int(life_meas_temp[x]), num_units,
+                                com_timeprefs)
                 else:
-
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield economic
                     # metric outputs
@@ -969,7 +982,7 @@ class Measure(object):
                             rate, scost_base, life_base, scostsave_add_temp,
                             esave_add_temp, ecostsave_add_temp, csave_add_temp,
                             ccostsave_add_temp, int(life_ratio_temp),
-                            int(life_meas_temp), num_units)
+                            int(life_meas_temp), num_units, com_timeprefs)
 
         # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
@@ -1049,7 +1062,7 @@ class Measure(object):
 
     def metric_update(self, rate, scost_base, life_base, scostsave_add, esave,
                       ecostsave, csave, ccostsave, life_ratio, life_meas,
-                      num_units):
+                      num_units, com_timeprefs):
         """ Calculate internal rate of return, simple payback, and cost of
         conserved energy/carbon from cash flows and energy/carbon
         savings across the measure lifetime """
@@ -1100,17 +1113,35 @@ class Measure(object):
         # Construct complete energy and carbon cash flows across measure
         # lifetime (normalized by number of captured stock units). First
         # term (reserved for initial investment figure) is zero.
-        cashflows_e = numpy.append(0, [ecostsave] * life_meas) / num_units
-        cashflows_c = numpy.append(0, [ccostsave] * life_meas) / num_units
+        cashflows_e, cashflows_c = [numpy.append(0, [x] * life_meas) /
+                                    num_units for x in [ecostsave, ccostsave]]
 
-        # Calculate Net Present Value and Annualized Net Present Value
-        # using the above cashflows
-        npv_s = numpy.npv(rate, cashflows_s)
-        anpv_s = numpy.pmt(rate, life_meas, npv_s)
-        npv_e = numpy.npv(rate, cashflows_e)
-        anpv_e = numpy.pmt(rate, life_meas, npv_e)
-        npv_c = numpy.npv(rate, cashflows_c)
-        anpv_c = numpy.pmt(rate, life_meas, npv_c)
+        # Calculate Net Present Value (NPVs) using the above cashflows
+        npv_s, npv_e, npv_c = [numpy.npv(rate, x) for x in [
+            cashflows_s, cashflows_e, cashflows_c]]
+
+        # Calculate Annualized Net Present Value (ANPV) using the above
+        # cashflows for later use in measure competition calculations. For
+        # non-commercial sector measures, ANPV is calculated using the
+        # above NPVs, with a general discount rate applied.  For commerical
+        # sector measures, ANPV is calculated using multiple discount rate
+        # levels that reflect various degrees of risk tolerance observed
+        # amongst commercial adopters.  These discount rate levels are imported
+        # from the commercial AEO demand module data. * Note: ignore warning
+        # yielded when discount rate = 0, as ANPV is correctly calculated
+        with numpy.errstate(invalid='ignore'):
+            if self.bldg_type in ["single family home", "multi family home",
+                                  "mobile home"]:
+                anpv_s, anpv_e, anpv_c = [numpy.pmt(rate, life_meas, x)
+                                          for x in [npv_s, npv_e, npv_c]]
+            else:
+                anpv_s, anpv_e, anpv_c = ({} for n in range(3))
+                for ind, tps in enumerate(com_timeprefs["rates"]):
+                    anpv_s["rate " + str(ind + 1)],\
+                        anpv_e["rate " + str(ind + 1)],\
+                        anpv_c["rate " + str(ind + 1)] = \
+                        [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
+                         for x in [cashflows_s, cashflows_e, cashflows_c]]
 
         # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).
@@ -1227,7 +1258,7 @@ class Engine(object):
                     self._measures])
 
     def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
-                          rate, compete_measures):
+                          rate, compete_measures, com_timeprefs):
         """ Run initialization scheme on active measures only """
         for m in self.measures:
             # Find master microsegment and partitions
@@ -1235,9 +1266,10 @@ class Engine(object):
                 mseg_in, base_costperflife_in, adopt_scheme)[0]
             # Update savings outcomes and economic metrics
             # based on master microsegment
-            m.master_savings = m.calc_metric_update(rate, compete_measures)
+            m.master_savings = m.calc_metric_update(rate, compete_measures,
+                                                    com_timeprefs)
 
-    def compete_measures(self):
+    def compete_measures(self, com_timeprefs):
         """ Compete active measures to address overlapping microsegments and
         avoid double counting energy/carbon/cost savings """
         # Establish list of key chains for all microsegments that contribute to
@@ -1266,7 +1298,7 @@ class Engine(object):
             elif len(measures_compete) > 1 and \
                 all(x not in msu for x in (
                     'single family home', 'multi family home', 'mobile home')):
-                self.com_compete(measures_compete, msu)
+                self.com_compete(measures_compete, msu, com_timeprefs)
 
         # For each measure that has been competed against other measures and
         # had its master microsegment updated accordingly, also update the
@@ -1356,7 +1388,7 @@ class Engine(object):
                     [x[yr] + ((y[yr] - z[yr]) * (1 - mkt_fracs[ind][yr])) for
                         x, y, z in zip(base_list, adj_list_tot, adj_list_eff)]
 
-    def com_compete(self, measures_compete):
+    def com_compete(self, measures_compete, com_timeprefs):
         """ Determine market shares captured by competing commercial efficiency
         measures """
         pass
@@ -1476,10 +1508,11 @@ def main():
     a_run = Engine(measures_objlist_fin)
     # Find master microsegment information for each active measure
     a_run.initialize_active(microsegments_input, base_costperflife_info_input,
-                            adopt_scheme, rate, compete_measures)
+                            adopt_scheme, rate, compete_measures,
+                            com_timeprefs)
     # Compete active measures if user has specified this option
     if compete_measures is True:
-        a_run.compete_measures()
+        a_run.compete_measures(com_timeprefs)
 
     # Write selected outputs to a summary CSV file for post-processing
     a_run.write_outputs(csv_output_file)

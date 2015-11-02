@@ -11,7 +11,7 @@ import numpy
 import scipy.stats as ss
 import copy
 
-# Define sample measure for use in all tests below
+# Define sample residential measure for use in tests below
 sample_measure = {"name": "sample measure 1",
                   "active": 1,
                   "market_entry_year": None,
@@ -29,7 +29,7 @@ sample_measure = {"name": "sample measure 1",
                   "structure_type": ["new", "existing"],
                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
-# Define sample measure w/ secondary msegs for use in all tests below
+# Define sample residential measure w/ secondary msegs for use in tests below
 sample_measure2 = {"name": "sample measure 1",
                    "active": 1,
                    "market_entry_year": None,
@@ -45,6 +45,24 @@ sample_measure2 = {"name": "sample measure 1",
                                   "secondary": "general service (LED)"},
                    "structure_type": ["new", "existing"],
                    "bldg_type": "single family home",
+                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+
+# Define sample commercial measure for use in tests below
+sample_measure3 = {"name": "sample measure 3 (commercial)",
+                   "active": 1,
+                   "market_entry_year": None,
+                   "market_exit_year": None,
+                   "end_use": {"primary": ["heating", "cooling"],
+                               "secondary": None},
+                   "fuel_type": {"primary": "electricity (grid)",
+                                 "secondary": None},
+                   "technology_type": {"primary": "supply",
+                                       "secondary": None},
+                   "technology": {"primary": ["boiler (electric)",
+                                  "ASHP", "GSHP", "room AC"],
+                                  "secondary": None},
+                   "bldg_type": "assembly",
+                   "structure_type": ["new", "existing"],
                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
 
 
@@ -3316,9 +3334,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                      "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above point value master microsegment dict input used
-    # with point value measure lifetime input
-    ok_out_point = {
+    # yielded by above point value master microsegment dict input used with
+    # a residential measure instance
+    ok_out_point_res = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
             "cost savings (added)": {"2009": -5, "2010": -5}},
@@ -3359,8 +3377,92 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2009": -0.08, "2010": -0.20}}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above dist1 master microsegment dict input used with point
-    # value measure lifetime input
+    # yielded by above point value master microsegment dict input used with
+    # a commercial measure instance
+    ok_out_point_com = {
+        "stock": {
+            "cost savings (total)": {"2009": -5, "2010": -10},
+            "cost savings (added)": {"2009": -5, "2010": -5}},
+        "energy": {
+            "savings (total)": {"2009": 15, "2010": 20},
+            "savings (added)": {"2009": 15, "2010": 5},
+            "cost savings (total)": {"2009": 10, "2010": 15},
+            "cost savings (added)": {"2009": 10, "2010": 5}},
+        "carbon": {
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (added)": {"2009": 150, "2010": 50},
+            "cost savings (total)": {"2009": 5, "2010": 15},
+            "cost savings (added)": {"2009": 5, "2010": 10}},
+        "metrics": {
+            "anpv": {
+                "stock cost": {
+                    "2009": {
+                        "rate 1": numpy.pmt(10, 2, -0.8181818),
+                        "rate 2": numpy.pmt(1.529, 2, -0.2091736),
+                        "rate 3": numpy.pmt(0.553, 2, 0.28783),
+                        "rate 4": numpy.pmt(0.309, 2, 0.5278839),
+                        "rate 5": numpy.pmt(0.199, 2, 0.6680567),
+                        "rate 6": numpy.pmt(0.136, 2, 0.7605634),
+                        "rate 7": -0.5},
+                    "2010": {
+                        "rate 1": numpy.pmt(10, 2, -0.3636364),
+                        "rate 2": numpy.pmt(1.529, 2, 0.09311981),
+                        "rate 3": numpy.pmt(0.553, 2, 0.4658725),
+                        "rate 4": numpy.pmt(0.309, 2, 0.6459129),
+                        "rate 5": numpy.pmt(0.199, 2, 0.7510425),
+                        "rate 6": numpy.pmt(0.136, 2, 0.8204225),
+                        "rate 7": -0.5}},
+                "energy cost": {
+                    "2009": {
+                        "rate 1": numpy.pmt(10, 2, 0.1983471),
+                        "rate 2": numpy.pmt(1.529, 2, 1.10353),
+                        "rate 3": numpy.pmt(0.553, 2, 2.117083),
+                        "rate 4": numpy.pmt(0.309, 2, 2.695098),
+                        "rate 5": numpy.pmt(0.199, 2, 3.059263),
+                        "rate 6": numpy.pmt(0.136, 2, 3.310355),
+                        "rate 7": -2},
+                    "2010": {
+                        "rate 1": numpy.pmt(10, 2, 0.04958678),
+                        "rate 2": numpy.pmt(1.529, 2, 0.2758824),
+                        "rate 3": numpy.pmt(0.553, 2, 0.5292708),
+                        "rate 4": numpy.pmt(0.309, 2, 0.6737746),
+                        "rate 5": numpy.pmt(0.199, 2, 0.7648158),
+                        "rate 6": numpy.pmt(0.136, 2, 0.8275888),
+                        "rate 7": -0.5}},
+                "carbon cost": {
+                    "2009": {
+                        "rate 1": numpy.pmt(10, 2, 0.09917355),
+                        "rate 2": numpy.pmt(1.529, 2, 0.5517648),
+                        "rate 3": numpy.pmt(0.553, 2, 1.058542),
+                        "rate 4": numpy.pmt(0.309, 2, 1.347549),
+                        "rate 5": numpy.pmt(0.199, 2, 1.529632),
+                        "rate 6": numpy.pmt(0.136, 2, 1.6551789),
+                        "rate 7": -1},
+                    "2010": {
+                        "rate 1": numpy.pmt(10, 2, 0.09917355),
+                        "rate 2": numpy.pmt(1.529, 2, 0.5517648),
+                        "rate 3": numpy.pmt(0.553, 2, 1.058542),
+                        "rate 4": numpy.pmt(0.309, 2, 1.347549),
+                        "rate 5": numpy.pmt(0.199, 2, 1.529632),
+                        "rate 6": numpy.pmt(0.136, 2, 1.655178),
+                        "rate 7": -1}}},
+            "irr (w/ energy $)": {
+                "2009": 3.45, "2010": 3.24},
+            "irr (w/ energy and carbon $)": {
+                "2009": 4.54, "2010": 5.46},
+            "payback (w/ energy $)": {
+                "2009": 0.25, "2010": 0.25},
+            "payback (w/ energy and carbon $)": {
+                "2009": 0.2, "2010": 0.17},
+            "cce": {"2009": -0.16, "2010": -1.00},
+            "cce (w/ carbon $ benefits)": {
+                "2009": -0.49, "2010": -3.00},
+            "ccc": {"2009": -0.02, "2010": -0.10},
+            "ccc (w/ energy $ benefits)": {
+                "2009": -0.08, "2010": -0.20}}}
+
+    # Savings/prioritization metrics dict keys and values that should be
+    # yielded by above dist1 master microsegment dict input
     ok_out_dist1 = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
@@ -3452,8 +3554,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2010": [-0.17, -0.15, -0.22, -0.16, -0.16]}}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above dist2 master microsegment dict input used with point
-    # value measure lifetime input
+    # yielded by above dist2 master microsegment dict input
     ok_out_dist2 = {
         "stock": {
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
@@ -3532,8 +3633,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                  "2010": [-0.15, -0.14, -0.12, -0.15, -0.15]}}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above point value master microsegment dict input used with
-    # array of measure lifetime values input
+    # yielded by above dist3 master microsegment dict input
     ok_out_dist3 = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
@@ -3609,8 +3709,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                  "2010": [0.01, 0.01, -0.20, -0.20, -0.32]}}}
 
     # Savings/prioritization metrics dict keys and values that should be
-    # yielded by above dist2 master microsegment dict input used with
-    # array of measure lifetime values input
+    # yielded by above dist4 master microsegment dict input
     ok_out_dist4 = {
         "stock": {
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
@@ -3688,17 +3787,31 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [-0.03, -0.05, -0.09, -0.09, -0.11],
                  "2010": [0.01, 0.03, -0.12, -0.15, -0.24]}}}
 
-    # Test for correct output from "ok_master_mseg_point"
-    def test_metrics_ok_point(self):
+    # Test for correct output from "ok_master_mseg_point_res"
+    def test_metrics_ok_point_res(self):
         # Create a measure instance to use in the test
-        measure_instance = run.Measure(**sample_measure)
+        measure_instance = run.Measure(**sample_measure)  # Residential
         # Set the master microsegment for the measure instance
         # to the "ok_master_mseg_point" dict defined above
         measure_instance.master_mseg = self.ok_master_mseg_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.compete_measures)
-        dict2 = self.ok_out_point
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
+        dict2 = self.ok_out_point_res
+        # Check calc_metric_update output (master savings dict)
+        self.dict_check(dict1, dict2)
+
+    # Test for correct output from "ok_master_mseg_point_com"
+    def test_metrics_ok_point_com(self):
+        # Create a measure instance to use in the test
+        measure_instance = run.Measure(**sample_measure3)  # Commercial
+        # Set the master microsegment for the measure instance
+        # to the "ok_master_mseg_point" dict defined above
+        measure_instance.master_mseg = self.ok_master_mseg_point
+        # Assert that output dict is correct
+        dict1 = measure_instance.calc_metric_update(
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
+        dict2 = self.ok_out_point_com
         # Check calc_metric_update output (master savings dict)
         self.dict_check(dict1, dict2)
 
@@ -3711,7 +3824,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist1
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.compete_measures)
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
         dict2 = self.ok_out_dist1
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3725,7 +3838,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist2
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.compete_measures)
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
         dict2 = self.ok_out_dist2
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3739,7 +3852,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist3
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.compete_measures)
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
         dict2 = self.ok_out_dist3
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3753,7 +3866,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist4
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.compete_measures)
+            self.ok_rate, self.compete_measures, run.com_timeprefs)
         dict2 = self.ok_out_dist4
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -3806,7 +3919,8 @@ class MetricUpdateTest(unittest.TestCase):
                 self.ok_rate, self.ok_base_scost, self.ok_base_life,
                 self.ok_scostsave, self.ok_esave, self.ok_ecostsave,
                 self.ok_csave, self.ok_ccostsave, int(self.ok_life_ratio),
-                int(self.ok_product_lifetime), self.ok_num_units),
+                int(self.ok_product_lifetime), self.ok_num_units,
+                run.com_timeprefs),
             self.ok_out, decimal=2)
 
 
