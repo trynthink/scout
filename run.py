@@ -45,18 +45,21 @@ ccosts = cost_ss_co2[6]
 # Set a general discount rate for cost calculations
 rate = 0.07
 
-# Placeholder for dict yielding end use-specific discount rates for use in
-# commercial section measure competition
+# Set end use-specific discount rate distributions for use in commercial
+# sector measure competition.  For now, specify this manually using Table
+# E-1 of the commercial demand module documentation.  * Note: in the future,
+# a routine will be added that imports this information from the most recent
+# AEO kprem.txt raw data file
 com_timeprefs = {
-    "rates": [10, 1.529, 0.553, 0.309, 0.199, 0.136, 0],  # *** Placeholder
+    "rates": [10, 1, 0.45, 0.25, 0.15, 0.065, 0],
     "distributions": {
-        "heating": {},
-        "cooling": {},
-        "water heating": {},
-        "ventilation": {},
-        "cooking": {},
-        "lighting": {},
-        "refrigeration": {}}}
+        "heating": [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003],
+        "cooling": [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004],
+        "water heating": [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004],
+        "ventilation": [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003],
+        "cooking": [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004],
+        "lighting": [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027],
+        "refrigeration": [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]}}
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'
