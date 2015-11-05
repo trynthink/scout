@@ -1349,52 +1349,138 @@ class Engine(object):
         # shares to the total market share sum; use normalized market shares to
         # make adjustments to each measure's master microsegment values
         for ind, m in enumerate(measures_compete):
-            # Organize relevant starting master microsegment values into a list
-            base = m.master_mseg
-            base_list = [
-                base["energy"]["efficient"],
-                base["carbon"]["efficient"],
-                base["cost"]["stock"]["efficient"],
-                base["cost"]["energy"]["efficient"],
-                base["cost"]["carbon"]["efficient"]]
-            # Set up lists that will be used to determine the energy, carbon,
-            # and cost savings associated with the competed microsegment that
-            # must be adjusted according to a measure's calculated market share
-            adj = m.mseg_compete["competed mseg keys and values"][mseg_key]
-            adj_list_tot = [
-                adj["energy"]["total"], adj["carbon"]["total"],
-                adj["cost"]["stock"]["total"], adj["cost"]["energy"]["total"],
-                adj["cost"]["carbon"]["total"]]
-            adj_list_eff = [
-                adj["energy"]["efficient"], adj["carbon"]["efficient"],
-                adj["cost"]["stock"]["efficient"],
-                adj["cost"]["energy"]["efficient"],
-                adj["cost"]["carbon"]["efficient"]]
-
+            # Establish the starting master microsegment and contributing
+            # microsegment information necessary to adjust the master
+            # microsegment to reflect the updated measure market fraction
+            base, base_list, adj_list_tot, adj_list_eff = \
+                self.compete_adjustment_dicts(m, mseg_key)
             # Normalize annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
             for yr in m.mseg_save["anpv"]["stock cost"].keys():
                 # Normalize measure market share
                 mkt_fracs[ind][yr] = mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
-                # Adjust the measure's master microsegment values by applying
-                # its normalized market share to the captured stock, energy
-                # savings, carbon savings, and cost savings for the measure
-                # that are attributed to the current competed microsegment
-                base["stock"]["competed (captured)"][yr] = \
-                    base["stock"]["competed (captured)"][yr] * \
-                    mkt_fracs[ind][yr]
-                base["energy"]["efficient"][yr], \
-                    base["carbon"]["efficient"][yr], \
-                    base["cost"]["stock"]["efficient"][yr], \
-                    base["cost"]["energy"]["efficient"][yr], \
-                    base["cost"]["carbon"]["efficient"][yr] = \
-                    [x[yr] + ((y[yr] - z[yr]) * (1 - mkt_fracs[ind][yr])) for
-                        x, y, z in zip(base_list, adj_list_tot, adj_list_eff)]
+                # Make the adjustment to the measure's master microsegment
+                # based on its updated market share
+                self.compete_adjustment(mkt_fracs, base, base_list,
+                                        adj_list_tot, adj_list_eff, ind, yr)
 
-    def com_compete(self, measures_compete, com_timeprefs):
+    def com_compete(self, measures_compete, mseg_key, com_timeprefs):
         """ Determine market shares captured by competing commercial efficiency
         measures """
-        pass
+        # Initialize list of dicts that each store the annual market fractions
+        # captured by competing measures; also initialize a dict that records
+        # the total annualized capital + operating costs for each measure
+        # and discount rate level (used to choose which measure is adopted
+        # under each discount rate level)
+        mkt_fracs = [{} for l in range(0, len(measures_compete))]
+        tot_cost = [{} for l in range(0, len(measures_compete))]
+
+        # Loop through competing measures and calculate market shares for each
+        # based on their annualized capital and operating costs
+        for ind, m in enumerate(measures_compete):
+            # Register that this measure has been competed with others (for
+            # use at the end of the 'compete_measures' function in determining
+            # whether to update the measure's savings/cost metric outputs)
+            m.mseg_compete["already competed"] = True
+            # Loop through all years in modeling time horizon
+            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                # Set measure capital and operating cost inputs. * Note:
+                # operating cost is set to just energy costs (for now), but
+                # could be expanded to include maintenance and carbon costs
+                cap_cost = m.mseg_save["anpv"]["stock cost"][yr]
+                op_cost = m.mseg_save["anpv"]["energy cost"][yr]
+                # Sum capital and operating costs and add to the total cost
+                # dict entry for the given measure
+                tot_cost[ind][yr] = []
+                for dr in sorted(cap_cost.keys()):
+                    tot_cost[ind][yr].append(cap_cost[dr] + op_cost[dr])
+
+        # Loop through competing measures and use total annualized capital
+        # + operating costs to determine the overall share of the market
+        # that is captured by each measure; use market shares to make
+        # adjustments to each measure's master microsegment values
+        for ind, m in enumerate(measures_compete):
+            # Establish the starting master microsegment and contributing
+            # microsegment information necessary to adjust the master
+            # microsegment to reflect the updated measure market fraction
+            base, base_list, adj_list_tot, adj_list_eff = \
+                self.compete_adjustment_dicts(m, mseg_key)
+            # Calculate annual market share fraction for the measure and adjust
+            # measure's master microsegment values accordingly
+            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                # Set the fractions of commericial adopters who fall into each
+                # discount rate category for this particular microsegment
+                mkt_dists = m.mseg_compete[
+                    "competed choice parameters"][str(mseg_key)][
+                    "rate distribution"][yr]
+                # For each discount rate category, find which measure has the
+                # lowest annualized cost and assign that measure the share
+                # of commercial market adopters defined for that category above
+                mkt_fracs[ind][yr] = []
+                for ind2, dr in enumerate(tot_cost[ind][yr]):
+                    # If the measure has the lowest annualized cost, assign it
+                    # the appropriate market share for the current discount
+                    # rate category being looped through; otherwise, set its
+                    # market fraction for that category to zero
+                    if tot_cost[ind][yr][ind2] == \
+                       min([tot_cost[x][yr][ind2] for x in range(
+                            0, len(measures_compete))]):  # * Watch for equals
+                        mkt_fracs[ind][yr].append(mkt_dists[ind2])
+                    else:
+                        mkt_fracs[ind][yr].append(0)
+                mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
+                # Make the adjustment to the measure's master microsegment
+                # based on its updated market share
+                self.compete_adjustment(mkt_fracs, base, base_list,
+                                        adj_list_tot, adj_list_eff, ind, yr)
+
+    def compete_adjustment_dicts(self, m, mseg_key):
+        """ Establish a measure's starting master microsegment and the
+        contributing microsegment information needed to adjust the
+        master microsegment values following measure competition """
+        # Organize relevant starting master microsegment values into a list
+        base = m.master_mseg
+        base_list = [base["energy"]["efficient"], base["carbon"]["efficient"],
+                     base["cost"]["stock"]["efficient"],
+                     base["cost"]["energy"]["efficient"],
+                     base["cost"]["carbon"]["efficient"]]
+        # Set up lists that will be used to determine the energy, carbon,
+        # and cost savings associated with the competed microsegment that
+        # must be adjusted according to a measure's calculated market share
+        adj = m.mseg_compete["competed mseg keys and values"][mseg_key]
+        adj_list_tot = [
+            adj["energy"]["total"], adj["carbon"]["total"],
+            adj["cost"]["stock"]["total"], adj["cost"]["energy"]["total"],
+            adj["cost"]["carbon"]["total"]]
+        adj_list_eff = [
+            adj["energy"]["efficient"], adj["carbon"]["efficient"],
+            adj["cost"]["stock"]["efficient"],
+            adj["cost"]["energy"]["efficient"],
+            adj["cost"]["carbon"]["efficient"]]
+
+        # Return baseline master microsegment and adjustment microsegments
+        return base, base_list, adj_list_tot, adj_list_eff
+
+    def compete_adjustment(self, mkt_fracs, base, base_list, adj_list_tot,
+                           adj_list_eff, ind, yr):
+        """ Adjust the measure's master microsegment values by applying
+        its competed market share to the captured stock, energy savings
+        carbon savings, and cost savings for the measure that are attributed
+        to the current competed microsegment """
+        # Scale down the captured portion of competed stock by the updated
+        # measure market share
+        base["stock"]["competed (captured)"][yr] = \
+            base["stock"]["competed (captured)"][yr] * \
+            mkt_fracs[ind][yr]
+        # Scale down the difference between the total and efficient
+        # contributing microsegment (e.g., savings) by the measure market
+        # share; add the result to the baseline master microsegment
+        base["energy"]["efficient"][yr], base["carbon"]["efficient"][yr], \
+            base["cost"]["stock"]["efficient"][yr], \
+            base["cost"]["energy"]["efficient"][yr], \
+            base["cost"]["carbon"]["efficient"][yr] = \
+            [x[yr] + ((y[yr] - z[yr]) * (1 - mkt_fracs[ind][yr])) for
+                x, y, z in zip(base_list, adj_list_tot, adj_list_eff)]
 
     def write_outputs(self, csv_output_file):
         """ Write selected measure outputs to a summary CSV file """
