@@ -292,6 +292,8 @@ class Measure(object):
                             perf_units = perf_units[mskeys[i]]
                 # If no key match, break the loop
                 else:
+                    if mskeys[i] is not None:
+                        mseg = {}
                     break
 
             # If mseg dict isn't defined to "stock" info. level, go no further
