@@ -170,24 +170,34 @@ def data_import(data_file_path, dtype_list):
 
 
 def str_cleaner(data_array, column_name):
-    """ Fix improperly formatted (extraneously) double-quoted strings
-    with extra leading and/or trailing spaces in the specified column
-    of a numpy array (IMPORTANT! - should only be applied where all
-    entries in the column have extraneous enclosing double quotes) """
+    """ Fix improperly formatted strings with extra leading and/or
+    trailing spaces in the specified column of a numpy structured
+    array and remove any extraneous double quotes, if present """
 
-    # Operate on each row in the specified column of the structured array
-    for row_idx, entry in enumerate(data_array[column_name]):
+    # Check for double quotes in the first entry in the specified column
+    # and, assuming all entries in the column are the same, revise all
+    # of the entries using the appropriate procedure for the formatting
+    if re.search('(?<=\")([^\"]+)', data_array[column_name][0]):
+        # Operate on each row in the specified column of the structured array
+        for row_idx, entry in enumerate(data_array[column_name]):
 
-        # Delete leading and trailing spaces
-        entry = entry.strip()
+            # Delete leading and trailing spaces
+            entry = entry.strip()
 
-        # Delete quotes (assumed to now be first and last characters of string)
-        entry = entry[1:-1]
+            # Delete quotes (should now be first and last characters of string)
+            entry = entry[1:-1]
 
-        # Delete any newly "apparent" (no longer enclosed by the double
-        # quotes) trailing or (unlikely) leading spaces and replace the
-        # original entry
-        data_array[column_name][row_idx] = entry.strip()
+            # Delete any newly "apparent" (no longer enclosed by the double
+            # quotes) trailing or (unlikely) leading spaces and replace the
+            # original entry
+            data_array[column_name][row_idx] = entry.strip()
+
+    else:
+        # Operate on each row in the specified column of the structured array
+        for row_idx, entry in enumerate(data_array[column_name]):
+
+            # Delete any leading and trailing spaces
+            data_array[column_name][row_idx] = entry = entry.strip()
 
     return data_array
 
@@ -196,11 +206,14 @@ def main():
     """ Import input data files and do other things """
 
     # Import EIA AEO 'KSDOUT' service demand file
-    the_dtypes = dtype_array(serv_dmd)
-    data = data_import(serv_dmd, the_dtypes)
-    data = str_cleaner(data, 'Description')
+    serv_dtypes = dtype_array(serv_dmd)
+    serv_data = data_import(serv_dmd, serv_dtypes)
+    serv_data = str_cleaner(serv_data, 'Description')
 
     # Import EIA AEO 'KDBOUT' additional data file
+    catg_dtypes = dtype_array(catg_dmd)
+    catg_data = data_import(catg_dmd, catg_dtypes)
+    catg_data = str_cleaner(catg_data, 'Label')
 
 
 if __name__ == '__main__':
