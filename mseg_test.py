@@ -10,8 +10,10 @@ import unittest
 import re
 import copy
 import numpy
+import os
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
 @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
                  'External File Dependency Unavailable on Travis-CI')
 class ResidentialDataIntegrityTest(unittest.TestCase):
