@@ -1,6 +1,8 @@
 {
 	"new england" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -56,11 +58,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -216,6 +228,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -271,11 +285,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -431,6 +455,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -486,11 +512,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -648,6 +684,8 @@
 	},
 	"mid atlantic" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -703,11 +741,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -863,6 +911,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -918,11 +968,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1078,6 +1138,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -1133,11 +1195,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1295,6 +1367,8 @@
 	},
 	"east north central" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -1350,11 +1424,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1510,6 +1594,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -1565,11 +1651,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1725,6 +1821,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -1780,11 +1878,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -1942,6 +2050,8 @@
 	},
 	"west north central" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -1997,11 +2107,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2157,6 +2277,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -2212,11 +2334,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2372,6 +2504,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -2427,11 +2561,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2589,6 +2733,8 @@
 	},
 	"south atlantic" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -2644,11 +2790,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -2804,6 +2960,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -2859,11 +3017,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3019,6 +3187,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -3074,11 +3244,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3236,6 +3416,8 @@
 	},
 	"east south central" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -3291,11 +3473,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3451,6 +3643,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -3506,11 +3700,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3666,6 +3870,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -3721,11 +3927,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -3883,6 +4099,8 @@
 	},
 	"west south central" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -3938,11 +4156,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4098,6 +4326,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -4153,11 +4383,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4313,6 +4553,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -4368,11 +4610,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4530,6 +4782,8 @@
 	},
 	"mountain" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -4585,11 +4839,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4745,6 +5009,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -4800,11 +5066,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -4960,6 +5236,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -5015,11 +5293,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5177,6 +5465,8 @@
 	},
 	"pacific" : {
 		"single family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -5232,11 +5522,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5392,6 +5692,8 @@
 			}
 		},
 		"multi family home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -5447,11 +5749,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0
@@ -5607,6 +5919,8 @@
 			}
 		},
 		"mobile home" : {
+			"total homes": 0,
+			"new homes": 0,
 			"square footage" : 0,
 			"electricity (grid)" : {
 				"heating" : {
@@ -5662,11 +5976,21 @@
 				"fans & pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
-					"linear fluorescent" : 0,
-					"general service" : 0,
-					"reflector" : 0,
-					"external" : 0
-					},
+               		"linear fluorescent (T-12)": 0,
+               		"linear fluorescent (T-8)": 0,
+               		"linear fluorescent (LED)": 0,
+               		"general service (incandescent)": 0,
+               		"general service (CFL)": 0,
+               		"general service (LED)": 0,
+               		"reflector (incandescent)": 0,
+               		"reflector (CFL)": 0,
+               		"reflector (halogen)": 0,
+               		"reflector (LED)": 0,
+               		"external (incandescent)": 0,
+               		"external (CFL)": 0,
+               		"external (high pressure sodium)": 0,
+               		"external (LED)": 0
+                    },
 				"water heating" : {
 					"electric WH": 0,
 					"solar WH": 0

@@ -10,18 +10,34 @@ import unittest
 import re
 import copy
 import numpy
+import os
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
 class ResidentialDataIntegrityTest(unittest.TestCase):
     """ Tests the imported residential equipment energy use data from
     EIA to confirm that the data are in the expected order and that the
     consumption and equipment stock data have the required names """
 
-    # Open the EIA data file for use by all tests
-    f = open(mseg.EIA_res_file, 'r')
+    def setUp(self):
+        # Open the EIA data file for use by all tests
+        f = open(mseg.EIA_res_file, 'r')
 
-    # Read in header line
-    header = f.readline()
+        # Read in header line
+        self.header = f.readline()
+
+        f.close()  # Close data file
+
+    # The function that parses and assigns the data from the EIA data
+    # to the JSON file expects housing stock data with specific
+    # header; test for the presence of that header
+    def test_for_presence_of_housing_stock_column(self):
+        chk_eqstock = re.search('HOUSEHOLDS', self.header, re.IGNORECASE)
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
+                        search, the HOUSEHOLDS column header was not \
+                        found in the EIA data file.')
 
     # The function that parses and assigns the data from the EIA data
     # to the JSON file expects consumption data with specific header;
@@ -41,6 +57,15 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
                         search, the EQSTOCK column header was not \
                         found in the EIA data file.')
 
+    # The function that parses and assigns the data from the EIA data
+    # to the JSON file expects bulb type data with specific
+    # header; test for the presence of that header
+    def test_for_presence_of_bulb_type_column(self):
+        chk_eqstock = re.search('BULBTYPE', self.header, re.IGNORECASE)
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
+                        search, the BULBTYPE column header was not \
+                        found in the EIA data file.')
+
     # Test for the order of the headers in the EIA data file
     def test_order_of_columns_in_header_line(self):
         # Define a regex for the expected order of the columns of data
@@ -54,7 +79,8 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
                        r'\w*[YR]\w*\s+'
                        r'\w*[ST]\w*\s+'
                        r'\w*[CNS]\w*\s+'
-                       r'\w*[HS]\w*')
+                       r'\w*[HS]\w*\s+'
+                       r'\w*[BL]\w*')
 
         # Check for a match between the defined regex and the header line
         match = re.search(expectregex, self.header, re.IGNORECASE)
@@ -75,120 +101,192 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Define sample structured array with the same form as the
     # EIA data and that includes some of the rows to be removed
     EIA_example = numpy.array([
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
-        (b'SF ', 8, 1, b'EL', b'ELEC_RAD', 2011, 78.0, 0, -1),
-        (b'SF ', 8, 1, b'EL', b'ELEC_HP ', 2011, 6.0, 0, -1),
-        (b'SF ', 8, 1, b'GS', b'NG_FA   ', 2011, 0.0, 0, -1),
-        (b'ST ', 3, 1, b'EL', b'ELEC_RAD', 2011, 0.0, 0, -1),
-        (b'ST ', 3, 1, b'EL', b'ELEC_HP ', 2011, 3569.0, 0, -1),
-        (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, ''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, ''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, ''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, ''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, ''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, ''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, ''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, ''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, ''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, ''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, ''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, ''),
+        (b'SF ', 8, 1, b'EL', b'ELEC_RAD', 2011, 78.0, 0, -1, ''),
+        (b'SF ', 8, 1, b'EL', b'ELEC_HP ', 2011, 6.0, 0, -1, ''),
+        (b'SF ', 8, 1, b'GS', b'NG_FA   ', 2011, 0.0, 0, -1, ''),
+        (b'ST ', 3, 1, b'EL', b'ELEC_RAD', 2011, 0.0, 0, -1, ''),
+        (b'ST ', 3, 1, b'EL', b'ELEC_HP ', 2011, 3569.0, 0, -1, ''),
+        (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1, ''),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, ''),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, ''),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, ''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, '')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8')])
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])
 
     # Define reduced version of EIA data after applying the supply filter
     supply_filtered = numpy.array([
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8')])
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])
 
     # Define reduced version of EIA data after applying the demand filter
     demand_filtered = numpy.array([
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1)],
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8')])
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])
 
     # Define supply_filtered array after having some of the data recorded
     # in separate consumption and equipment stock vectors and then
     # removed from the main/data array
-    supply_reduced = numpy.array([
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371)],
+    supply_reduced = [numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
+        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
+        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8')])
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+        [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
+         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
+         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
+         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])]
 
-    sqft_reduced = numpy.array([
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, -1),
-        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1),
-        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1),
-        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1),
-        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1)],
+    sqft_reduced = [numpy.array([
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+        (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+        (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, b''),
+        (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+        (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8')])
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+        [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
+         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
+         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b'')],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+        [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
+         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2010, 155340.0, 5955503, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2011, 151349.0, 5550354, -1, b''),
+         (b'HT ', 2, 3, b'KS', b'KERO_FA ', 2012, 147470.0, 4490571, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2010, 6423576.0, 9417809, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2011, 6466014.0, 9387396, -1, b''),
+         (b'DW ', 2, 1, b'EL', b'DS_WASH ', 2012, 6513706.0, 9386813, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
+         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
+         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
+         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
+         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
+         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+        dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
+               ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
+               ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])]
 
     # Define filter to select a subset of the sample EIA supply data
-    EIA_supply_filter = '.*DW.+2.+1.+EL.+DS_WASH'
+    EIA_supply_filter = ['.*DW.+2.+1.+EL.+DS_WASH',
+                         '.*HT.+1.+1.+EL.+ELEC_RAD']
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_supply_sample = ({"2010": 9417809, "2011": 9387396, "2012": 9386813},
+    EIA_supply_sample = [({"2010": 9417809, "2011": 9387396, "2012": 9386813},
                          {"2010": 6423576, "2011": 6466014, "2012": 6513706},
-                         supply_reduced)
+                          supply_reduced[0]),
+                         ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
+                         {"2010": 126007.0, "2011": 125784.0,
+                          "2012": 125386.0},
+                          supply_reduced[1])]
 
     # Define filter to select sq. footage subset of sample EIA supply data
-    EIA_sqft_filter = '.*SQ.+7.+3'
+    EIA_sqft_homes_filter = ['.*SQ.+7.+3', '.*HS.+7.+3',
+                             '.*HT.+1.+1.+EL.+ELEC_RAD']
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_sqft_sample = ({"2010": 7301, "2011": 7331, "2012": 7371},
-                       sqft_reduced)
+    EIA_sqft_homes_sample = [({"2010": 7301, "2011": 7331, "2012": 7371},
+                              sqft_reduced[0]),
+                             ({"2012": 3434}, sqft_reduced[1]),
+                             ({"2010": 3, "2011": 4, "2012": 5},
+                              sqft_reduced[2])]
 
     # Define filter to select a subset of the sample EIA demand data
     EIA_demand_filter = '.*HT.+1.+1.+EL.+ELEC_RAD'
@@ -242,27 +340,28 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # using the EIA_Supply option to confirm that both the reported
     # data and the reduced array with the remaining data are correct
     def test_recording_of_EIA_data_with_reduction_supply(self):
-        (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
-                                              self.EIA_supply_filter,
-                                              'EIA_Supply')
-        # Compare equipment stock
-        self.assertEqual(a, self.EIA_supply_sample[0])
-        # Compare consumption
-        self.assertEqual(b, self.EIA_supply_sample[1])
-        # Compare remaining data
-        self.assertCountEqual(c, self.EIA_supply_sample[2])
+        for n in range(0, len(self.EIA_supply_filter)):
+            (a, b, c) = mseg.stock_consume_select(self.supply_filtered,
+                                                  self.EIA_supply_filter[n],
+                                                  'EIA_Supply')
+            # Compare equipment stock
+            self.assertEqual(a, self.EIA_supply_sample[n][0])
+            # Compare consumption
+            self.assertEqual(b, self.EIA_supply_sample[n][1])
+            # Compare remaining data
+            self.assertCountEqual(c, self.EIA_supply_sample[n][2])
 
     # Test restructuring of EIA data into a sq. footage list, confirming
     # that both the reported data and the reduced array with the remaining
     # data are correct
-    def test_recording_of_EIA_data_with_reduction_sqft(self):
-
-        (a, b) = mseg.sqft_select(self.supply_filtered,
-                                  self.EIA_sqft_filter)
-        # Compare sq. footage
-        self.assertEqual(a, self.EIA_sqft_sample[0])
-        # Compare remaining data
-        self.assertCountEqual(b, self.EIA_sqft_sample[1])
+    def test_recording_of_EIA_data_with_reduction_sqft_homes(self):
+        for n in range(0, len(self.EIA_sqft_homes_filter)):
+            (a, b) = mseg.sqft_homes_select(self.supply_filtered,
+                                            self.EIA_sqft_homes_filter[n])
+            # Compare sq. footage
+            self.assertEqual(a, self.EIA_sqft_homes_sample[n][0])
+            # Compare remaining data
+            self.assertCountEqual(b, self.EIA_sqft_homes_sample[n][1])
 
     # Test restructuring of EIA data into stock and consumption lists
     # using an option besides 'EIA_Supply' to confirm that for all
@@ -294,36 +393,43 @@ class DataToListFormatTest(unittest.TestCase):
     aeo_years = 2
 
     # Define a sample set of supply data
-    supply_data = [('HT ', 1, 1, 'EL', 'ELEC_RAD', 2010, 0, 1, -1),
-                   ('HT ', 1, 1, 'EL', 'ELEC_RAD', 2011, 0, 1, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_FA', 2010, 2, 3, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_FA', 2011, 2, 3, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2010, 4, 5, -1),
-                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2011, 4, 5, -1),
-                   ('CL ', 2, 3, 'GS', 'NG_HP', 2010, 6, 7, -1),
-                   ('CL ', 2, 3, 'GS', 'NG_HP', 2011, 6, 7, -1),
-                   ('CL ', 1, 3, 'GS', 'NG_HP', 2010, 8, 9, -1),
-                   ('CL ', 1, 3, 'GS', 'NG_HP', 2011, 8, 9, -1),
-                   ('SH ', 1, 1, 'EL', 'EL', 2010, 10, 11, -1),
-                   ('SH ', 1, 1, 'EL', 'EL', 2011, 10, 11, -1),
-                   ('SH ', 1, 1, 'GS', 'GS', 2010, 12, 13, -1),
-                   ('SH ', 1, 1, 'GS', 'GS', 2011, 12, 13, -1),
+    supply_data = [('HT ', 1, 1, 'EL', 'ELEC_RAD', 2010, 0, 1, 3, ''),
+                   ('HT ', 1, 1, 'EL', 'ELEC_RAD', 2011, 0, 1, 4, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2010, 2, 3, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_FA', 2011, 2, 3, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2010, 4, 5, -1, ''),
+                   ('HT ', 2, 1, 'GS', 'NG_RAD', 2011, 4, 5, -1, ''),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2010, 6, 7, -1, ''),
+                   ('CL ', 2, 3, 'GS', 'NG_HP', 2011, 6, 7, -1, ''),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2010, 8, 9, -1, ''),
+                   ('CL ', 1, 3, 'GS', 'NG_HP', 2011, 8, 9, -1, ''),
+                   ('SH ', 1, 1, 'EL', 'EL', 2010, 10, 11, -1, ''),
+                   ('SH ', 1, 1, 'EL', 'EL', 2011, 10, 11, -1, ''),
+                   ('SH ', 1, 1, 'GS', 'GS', 2010, 12, 13, -1, ''),
+                   ('SH ', 1, 1, 'GS', 'GS', 2011, 12, 13, -1, ''),
                    # ('OA ', 1, 1, 'EL', 'EL', 2010, 14, 15, -1),
                    # ('OA ', 1, 1, 'EL', 'EL', 2011, 14, 15, -1),
-                   ('SH ', 2, 1, 'GS', 'GS', 2010, 16, 17, -1),
-                   ('SH ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1),
-                   ('SH ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1),
-                   ('SH ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1),
-                   ('SH ', 3, 1, 'WD', 'WD', 2010, 20, 21, -1),
-                   ('SH ', 3, 1, 'WD', 'WD', 2011, 20, 21, -1),
-                   ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1),
-                   ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1),
-                   ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1),
-                   ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1),
-                   ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1),
-                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1),
-                   ('SQ', 1, 1, 0, 0, 2009, 99, 100, 101),
-                   ('SQ', 1, 1, 0, 0, 2010, 99, 100, 101)
+                   ('SH ', 2, 1, 'GS', 'GS', 2010, 16, 17, -1, ''),
+                   ('SH ', 2, 1, 'GS', 'GS', 2011, 16, 17, -1, ''),
+                   ('SH ', 3, 1, 'EL', 'EL', 2010, 18, 19, -1, ''),
+                   ('SH ', 3, 1, 'EL', 'EL', 2011, 18, 19, -1, ''),
+                   ('SH ', 3, 1, 'WD', 'WD', 2010, 20, 21, -1, ''),
+                   ('SH ', 3, 1, 'WD', 'WD', 2011, 20, 21, -1, ''),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2010, 22, 23, -1, ''),
+                   ('STB', 1, 1, 'EL', 'TV&R', 2011, 22, 23, -1, ''),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2010, 24, 25, -1, ''),
+                   ('STB', 1, 2, 'EL', 'TV&R', 2011, 24, 25, -1, ''),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2010, 36, 37, -1, ''),
+                   ('BAT', 2, 2, 'EL', 'MEL', 2011, 36, 37, -1, ''),
+                   ('SQ', 1, 1, 0, 0, 2010, 99, 100, 101, ''),
+                   ('SQ', 1, 1, 0, 0, 2011, 99, 100, 101, ''),
+                   ('LT', 1, 1, 'EL', 'GSL', 2010, 102, 103, -1, 'LED'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
+                   ('LT', 1, 2, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'Inc'),
+                   ('LT', 1, 1, 'EL', 'EXT', 2011, 103, 104, -1, 'LED'),
+                   ('HS', 1, 1, 0, 0, 2010, 299, 0, 0, ''),
+                   ('HS', 1, 1, 0, 0, 2011, 299, 0, 0, ''),
                    ]
 
     # Convert supply data into numpy array with column names
@@ -335,7 +441,8 @@ class DataToListFormatTest(unittest.TestCase):
                                                    ('YEAR', 'i8'),
                                                    ('EQSTOCK', 'f8'),
                                                    ('CONSUMPTION', 'i8'),
-                                                   ('HOUSEHOLDS', 'i8')])
+                                                   ('HOUSEHOLDS', 'i8'),
+                                                   ('BULB TYPE', 'S5')])
 
     # Demand array is the same as the supply array at the start of the tests
     demand_array = copy.deepcopy(supply_array)
@@ -395,7 +502,12 @@ class DataToListFormatTest(unittest.TestCase):
                   ['new england', 'single family home', 'square footage'],
                   ['east north central', 'single family home',
                    'other fuel', 'secondary heating', 'supply',
-                   'secondary heating (wood)']
+                   'secondary heating (wood)'],
+                  ['new england', 'single family home',
+                   'electricity (grid)', 'lighting',
+                   'general service (LED)'],
+                  ['new england', 'single family home', 'new homes'],
+                  ['new england', 'single family home', 'total homes']
                   ]
 
     # Define a set of filters that should yield zeros for stock/energy
@@ -433,13 +545,19 @@ class DataToListFormatTest(unittest.TestCase):
                      'water heating', 'solar WH'],
                     ['east north central', 'single family home',
                      'other fuel', 'secondary heating', 'demand',
-                     'secondary heating (wood)']]
+                     'secondary heating (wood)'],
+                    ['pacific', 'multi family home', 'square footage',
+                     'natural gas', 'water heating'],
+                    ['pacific', 'multi family home', 'new homes',
+                     'natural gas', 'water heating'],
+                    ['pacific', 'multi family home', 'total homes',
+                     'natural gas', 'water heating']]
 
     # Define the set of outputs that should be yielded by the "ok_filters"
     # information above
     ok_out = [[{'stock': {"2010": 0, "2011": 0},
                 'energy': {"2010": 1, "2011": 1}},
-               supply_array[2:]],
+               supply_array],
               [{'stock': {"2010": 10, "2011": 10},
                 'energy': {"2010": 11, "2011": 11}},
                numpy.hstack([supply_array[0:10], supply_array[12:]])],
@@ -451,13 +569,13 @@ class DataToListFormatTest(unittest.TestCase):
                numpy.hstack([supply_array[0:16], supply_array[18:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               numpy.hstack([supply_array[:-8], supply_array[-6:]])],
+               numpy.hstack([supply_array[:-15], supply_array[-13:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               numpy.hstack([supply_array[:-6], supply_array[-4:]])],
+               numpy.hstack([supply_array[:-13], supply_array[-11:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               numpy.hstack([supply_array[:-4], supply_array[-2:]])],
+               numpy.hstack([supply_array[:-11], supply_array[-9:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -467,10 +585,16 @@ class DataToListFormatTest(unittest.TestCase):
               [{'stock': 'NA',
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
-              [{"2009": 101, "2010": 101}, supply_array[:-2]],
+              [{"2010": 101, "2011": 101},
+               numpy.hstack([supply_array[0:-9], supply_array[-7:]])],
               [{'stock': {"2010": 20, "2011": 20},
                 'energy': {"2010": 21, "2011": 21}},
-               numpy.hstack([supply_array[0:18], supply_array[20:]])]]
+               numpy.hstack([supply_array[0:18], supply_array[20:]])],
+              [{'stock': {"2010": 102, "2011": 103},
+                'energy': {"2010": 103, "2011": 104}},
+               numpy.hstack([supply_array[0:-7], supply_array[-5:]])],
+              [{"2010": 299, "2011": 299}, supply_array[0:-2]],
+              [{"2010": 3, "2011": 4}, supply_array]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above
@@ -534,21 +658,25 @@ class RegexConstructionTest(unittest.TestCase):
 
     # Identify lists to convert into regex formats using the mseg function
     convert_lists = [[['VGC', 4, 1, 'EL'], ''],
-                     [['LT', 3, 2, 'EL', 'GSL'], ''],
+                     [['LT', 3, 2, 'EL', ('GSL', 'LED')], ''],
                      [[('BAT', 'COF', 'DEH', 'EO', 'MCO', 'OA', 'PHP', 'SEC',
                       'SPA'), 7, 1, 'EL'], ''],
                      [['HT', 1, 2, 'DS'], 'ROOF'],
                      [['HT', 5, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
-                      'WOOD_HT'], '']]
+                      'WOOD_HT'], ''],
+                     [['HT', 5, 3, 'EL', 'ELEC_RAD'], ''],
+                     [['HS', 1, 1], '']]
 
     # Define the desired final regular expressions output using the
     # regex conversion function in mseg
     final_regexes = [('.*VGC.+4.+1.+EL.+', 'NA'),
-                     ('.*LT.+3.+2.+EL.+GSL.+', 'NA'),
+                     ('.*LT.+3.+2.+EL.+GSL.+LED.+', 'NA'),
                      ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA).+7.+1.+EL.+',
                       'NA'),
                      ('.*HT.+1.+2.+DS.+', 'ROOF'),
-                     ('.*HT.+5.+3.+(LG|KS|CL|GE|WD).+WOOD_HT.+', 'NA')]
+                     ('.*HT.+5.+3.+(LG|KS|CL|GE|WD).+WOOD_HT.+', 'NA'),
+                     ('.*HT.+5.+3.+EL.+ELEC_RAD.+', 'NA'),
+                     ('.*HS.+1.+1.+', 'NA')]
 
     # Compare the regular expressions with the conversion function output
     def test_regex_creation_function(self):
@@ -573,7 +701,7 @@ class JSONTranslatorTest(unittest.TestCase):
                   ['west south central', 'mobile home', 'electricity (grid)',
                    'TVs', 'set top box'],
                   ['east north central', 'mobile home', 'electricity (grid)',
-                   'lighting', 'general service'],
+                   'lighting', 'general service (LED)'],
                   ['west north central', 'mobile home', 'other fuel',
                    'heating', 'supply', 'resistance'],
                   ['south atlantic', 'multi family home', 'distillate',
@@ -585,7 +713,9 @@ class JSONTranslatorTest(unittest.TestCase):
                   ['new england', 'single family home', 'square footage'],
                   ['new england', 'single family home', 'other fuel',
                    'secondary heating', 'secondary heating (kerosene)',
-                   'demand', 'windows conduction']]
+                   'demand', 'windows conduction'],
+                  ['new england', 'single family home', 'new homes'],
+                  ['new england', 'single family home', 'total homes']]
 
     # Define nonsense filter examples (combinations of building types,
     # end uses, etc. that are not possible and thus wouldn't appear in
@@ -597,9 +727,9 @@ class JSONTranslatorTest(unittest.TestCase):
                          'room AC'],
                         ['new england', 'single family home',
                          'electricity (grid)', 'refrigeration',
-                         'linear fluorescent'],
+                         'linear fluorescent (T-8)'],
                         ['new england', 'single family home', 'natural gas',
-                         'water heating', 'general service']
+                         'water heating', 'general service (incandescent)']
                         ]
 
     # Define example filters that do not have information in the
@@ -630,7 +760,11 @@ class JSONTranslatorTest(unittest.TestCase):
                      'windows conduction'],
                     ['new england', 'single family home', 'other fuel',
                      'secondary heating', 'demand',
-                     'secondary heating (coal)']
+                     'secondary heating (coal)'],
+                    ['west north central', 'mobile home', 'new homes',
+                     'water heating', 'room AC'],
+                    ['west north central', 'mobile home', 'total homes',
+                     'water heating', 'room AC']
                     ]
     # Define what json_translator should produce for the given filters;
     # this part is critically important, as these tuples and/or lists
@@ -640,7 +774,7 @@ class JSONTranslatorTest(unittest.TestCase):
               [['CL', 1, 3, 'EL'], 'PEOPLE'],
               [['CL', 2, 1, 'EL', 'ROOM_AIR'], ''],
               [['STB', 7, 3, 'EL'], ''],
-              [['LT', 3, 3, 'EL', 'GSL'], ''],
+              [['LT', 3, 3, 'EL', ('GSL', 'LED')], ''],
               [['HT', 4, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
                 'GE2'], ''],
               [['SH', 5, 2, 'DS'], 'WIND_SOL'],
@@ -649,11 +783,13 @@ class JSONTranslatorTest(unittest.TestCase):
               [['HW', 1, 1, 'GS'], ''],
               [['SQ', 1, 1], ''],
               [['SH', 1, 1,
-               ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND']]
+               ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND'],
+              [['HS', 1, 1], ''],
+              [['HT', 1, 1, 'EL', 'ELEC_RAD'], '']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
-                    [['RF', 1, 1, 'EL', 'LFL'], ''],
-                    [['HW', 1, 1, 'GS', 'GSL'], '']]
+                    [['RF', 1, 1, 'EL', ('LFL', 'T-8')], ''],
+                    [['HW', 1, 1, 'GS', ('GSL', 'Inc')], '']]
 
     # Test filters that have expected technology definitions and should match
     def test_ok_filters(self):

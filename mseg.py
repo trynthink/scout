@@ -58,6 +58,8 @@ fueldict = {'electricity (on site)': 'SL',
 
 # End use dict
 endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
+              'new homes': 'HS',
+              'total homes': 'HT',
               'heating': 'HT',
               'secondary heating': 'SH',
               'cooling': 'CL',
@@ -88,15 +90,26 @@ endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
 # Technology types (supply) dict
 technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'electric WH': 'ELEC_WH',
+                         'total homes (tech level)': 'ELEC_RAD',
                          'boiler (electric)': 'ELEC_RAD',
                          'ASHP': 'ELEC_HP',
                          'GSHP': 'GEO_HP',
                          'central AC': 'CENT_AIR',
                          'room AC': 'ROOM_AIR',
-                         'linear fluorescent': 'LFL',
-                         'general service': 'GSL',
-                         'reflector': 'REF',
-                         'external': 'EXT',
+                         'linear fluorescent (T-12)': ('LFL', 'T12'),
+                         'linear fluorescent (T-8)': ('LFL', 'T-8'),
+                         'linear fluorescent (LED)': ('LFL', 'LED'),
+                         'general service (incandescent)': ('GSL', 'Inc'),
+                         'general service (CFL)': ('GSL', 'CFL'),
+                         'general service (LED)': ('GSL', 'LED'),
+                         'reflector (incandescent)': ('REF', 'Inc'),
+                         'reflector (CFL)': ('REF', 'CFL'),
+                         'reflector (halogen)': ('REF', 'HAL'),
+                         'reflector (LED)': ('REF', 'LED'),
+                         'external (incandescent)': ('EXT', 'Inc'),
+                         'external (CFL)': ('EXT', 'CFL'),
+                         'external (high pressure sodium)': ('EXT', 'HPS'),
+                         'external (LED)': ('EXT', 'LED'),
                          'furnace (NG)': 'NG_FA',
                          'boiler (NG)': 'NG_RAD',
                          'NGHP': 'NG_HP',
@@ -137,8 +150,8 @@ res_convert_array = numpy.genfromtxt(res_climate_convert,
 # the microsegment updating routine
 
 # Unused rows in the supply portion of the analysis
-# Exclude: (Housing Stock | Switch From | Switch To | Fuel Pumps)
-unused_supply_re = '^\(b\'(HS|SF|ST |FP).*'
+# Exclude: (Switch From | Switch To | Fuel Pumps)
+unused_supply_re = '^\(b\'(SF|ST |FP).*'
 # Unused rows in the demand portion of the analysis
 # Exclude everything except: (Heating | Cooling | Secondary Heating)
 unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
@@ -163,18 +176,28 @@ def json_translator(dictlist, filterformat):
     # 5) "supply" tech type, 6) "demand" tech type)
     ms_level = 0
 
+    # Restructure the filterformat variable in the case of a "total homes"
+    # update, where "total homes" uses the same filter codes as a heating,
+    # electricity (grid), boiler (electric) microsegment in RESDBOUT,
+    # but with the relevant data in the "HOUSEHOLDS" column
+    if 'total homes' in filterformat and len(filterformat) == 3:
+        filterformat = filterformat[0:2]
+        filterformat.extend(['electricity (grid)', 'total homes',
+                             'total homes (tech level)'])
     # Reduce dictlist as appropriate to filtering information (if not a
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
     # if not a "supply" microsegment", remove "technology_supplydict" from
     # dictlist; if a microsegment with no technology level (i.e. water heating)
     # remove "technology_supplydict" and "technology_demanddict" from dictlist;
-    # if a microsegment square footage update, include only "endusedict",
-    # "cdivdict", and "bldgtypedict".
+    # if a microsegment square footage or a new homes update, include only
+    # "fueldict", "cdivdict", and "bldgtypedict" (square footage and new
+    # homes are included on the fuel type level in the microsegments JSON).
     if 'demand' in filterformat:
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
-    elif 'square footage' in filterformat and len(filterformat) == 3:
+    elif 'square footage' in filterformat and len(filterformat) == 3 or \
+         'new homes' in filterformat and len(filterformat) == 3:
         dictlist_loop = dictlist[:(len(dictlist) - 3)]
     elif len(filterformat) <= 4:
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
@@ -250,8 +273,12 @@ def filter_formatter(txt_filter):
         # the tuple into a single string, put brackets around it for regex
         # comparison
         if isinstance(element, tuple):
-            newelement = '|'.join(element)
-            supply_filter = supply_filter + '(' + newelement + ').+'
+            if endusedict['lighting'] in txt_filter_loop:
+                newelement = element[0] + '.+' + element[1]
+                supply_filter = supply_filter + newelement + '.+'
+            else:
+                newelement = '|'.join(element)
+                supply_filter = supply_filter + '(' + newelement + ').+'
         # If element is a number and not on the "demand" technology level, turn
         # into a string for regex comparison
         elif isinstance(element, int):
@@ -335,8 +362,11 @@ def stock_consume_select(data, comparefrom, file_type):
                 group_energy[str(row['YEAR'])] = row['CONSUMPTION']
 
             # If handling the supply data, to reduce computation time,
-            # record row index to delete later
-            if supply_parse:
+            # record row index to delete later.  * Note: skip this for
+            # a case where electric boilers is being updated, as the
+            # filtering information for electric boilers overlaps that
+            # of total homes
+            if supply_parse and 'ELEC_RAD' not in comparefrom:
                 rows_to_remove.append(idx)
 
     # Remove rows specified by rows_to_remove (an empty list when
@@ -348,16 +378,21 @@ def stock_consume_select(data, comparefrom, file_type):
     return (group_energy, group_stock, data_reduced)
 
 
-def sqft_select(data, comparefrom):
-    """ Select the square footage data for each year for a
-    given census division/building type and combine them into lists for all
-    reported years """
+def sqft_homes_select(data, comparefrom):
+    """ Select the square footage, new homes, or total homes data for each year
+    for a given census division/building type and combine them into lists for
+    all reported years """
 
     # Define initial list of rows to remove from data input
     rows_to_remove = []
 
-    # Define initial sq. footage list
-    group_sqft = {}
+    # Define initial square footage, new homes, or total homes lists
+    if endusedict['square footage'] in comparefrom or \
+       endusedict['new homes'] in comparefrom or \
+       endusedict['total homes'] in comparefrom:
+        group_out = {}
+    else:
+        raise ValueError('Unexpected housing stock filtering information!')
 
     # Loop through the numpy input array rows, match to 'comparefrom' input
     for idx, row in enumerate(data):
@@ -367,17 +402,27 @@ def sqft_select(data, comparefrom):
         # Establish the match
         match = re.search(comparefrom, compareto)
 
-        # If there's a match, append values for the current cdiv/bldg. type
+        # If there is a match, append values for the current cdiv/bldg. type
         if match:
-            # Record square foot info. (in "HOUSEHOLDS" column in .txt)
-            group_sqft[str(row['YEAR'])] = row['HOUSEHOLDS']
-            # To reduce computation time,
-            # record row index to delete later
-            rows_to_remove.append(idx)
+            if endusedict['square footage'] in comparefrom or \
+               endusedict['total homes'] in comparefrom:
+                # Record square foot or total homes info. (in "HOUSEHOLDS"
+                # column in RESDBOUT)
+                group_out[str(row['YEAR'])] = row['HOUSEHOLDS']
+            else:
+                # Record new homes info. (in "STOCK" column in RESDBOUT)
+                group_out[str(row['YEAR'])] = row['EQSTOCK']
+
+            # To reduce computation time, record row index to delete later.
+            # * Note: skip this for a case where total number of homes is
+            # being updated, as the filtering information for total homes
+            # overlaps that of electric boilers
+            if endusedict['total homes'] not in comparefrom:
+                rows_to_remove.append(idx)
 
     # Remove rows specified by rows_to_remove
     data_reduced = numpy.delete(data, rows_to_remove, 0)
-    return (group_sqft, data_reduced)
+    return (group_out, data_reduced)
 
 
 def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
@@ -435,22 +480,23 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         return [{'stock': 'NA', 'energy': group_energy}, ms_supply]
     # Check whether current microsegment is updating "square footage" info.
     # (handled differently)
-    elif 'square footage' in filterdata:
+    elif 'square footage' in filterdata or 'new homes' in filterdata or \
+         'total homes' in filterdata:
         # Given input numpy array and 'compare from' list, return sq. footage
         # projection lists and reduced numpy array (with matched rows removed)
-        [group_sqft, ms_supply] = sqft_select(
+        [group_sqft_homes, ms_supply] = sqft_homes_select(
             ms_supply, comparefrom_base)
 
         # Given the discovered lists of sq. footage values, ensure
         # length is equal to the number of years currently projected
         # by AEO. If not, and the list isn't empty, trigger an error.
-        if len(group_sqft) is not aeo_years:
-            if len(group_sqft) != 0:
+        if len(group_sqft_homes) is not aeo_years:
+            if len(group_sqft_homes) != 0:
                 raise(ValueError('Error in length of discovered list!'))
 
         # Return sq. footage values and updated version of EIA
         # supply data with already matched data removed
-        return [group_sqft, ms_supply]
+        return [group_sqft_homes, ms_supply]
     else:
         # Given input numpy array and 'compare from' list, return energy/stock
         # projection lists and reduced numpy array (with matched rows removed)
