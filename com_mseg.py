@@ -45,8 +45,8 @@ bldgtypedict = {'assembly': 1,
                 }
 
 # End use
-endusedict = {'space heating': 1,
-              'space cooling': 2,
+endusedict = {'heating': 1,
+              'cooling': 2,
               'water heating': 3,
               'ventilation': 4,
               'cooking': 5,
@@ -83,6 +83,21 @@ fueldict = {'electricity': 1,
             }
 # Other fuel includes residual oil (4), steam from coal (6),
 # motor gasoline (7), and kerosene (8)
+
+# Demand components dict
+demand_typedict = {'windows conduction': 'WIND_COND',
+                   'windows solar': 'WIND_SOL',
+                   'wall': 'WALL',
+                   'roof': 'ROOF',
+                   'ground': 'GRND',
+                   'floor': 'FLOOR',
+                   'infiltration': 'INFIL',
+                   'ventilation': 'VENT',
+                   'people gain': 'PEOPLE',
+                   'equipment gain': 'EQUIP',
+                   'lighting gain': 'LIGHTS',
+                   'other heat gain': 'EQUIP_NELEC'
+                   }
 
 
 def dtype_eval(entry):
