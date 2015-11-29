@@ -100,6 +100,73 @@ demand_typedict = {'windows conduction': 'WIND_COND',
                    }
 
 
+def sd_mseg_percent(sd_array, sel):
+    """ Convert technology type, vintage, and construction status/type
+    reported in KSDOUT into percentage energy use each year associated
+    with each technology type. Technology type is determined not using
+    the technology type numbers but rather using a regex search of the
+    'Description' field in the data, since the technology type numbers
+    are sometimes used for multiple technologies (this is especially
+    true with lighting). This function is run for unique combinations
+    of census divisions, building types, end uses, and fuel types. """
+
+    # Assume as input the dict strings converted to numbers in
+    # a list called 'sel'
+
+    # Filter service demand data based on the specified census
+    # division, building type, end use, and fuel type
+    filtered = sd_array[np.all([sd_array['r'] == sel[0],
+                                sd_array['b'] == sel[1],
+                                sd_array['s'] == sel[2],
+                                sd_array['f'] == sel[3]], axis=0)]
+
+    # Identify column names that correspond to years
+    # THIS LIST SHOULD PERHAPS BE PASSED THROUGH TO THIS FUNCTION,
+    # NOT REDONE ALL THE TIME
+    years = [a for a in sd_array.dtype.names if re.search('^2[0-9]{3}$', a)]
+
+    # Replace technology descriptions in the array 'filtered' with
+    # generalized names, removing any text describing the vintage or
+    # efficiency level
+    for idx, row in enumerate(filtered):
+
+        # Identify the technology name using a regex match on the first
+        # part of the technology description
+        filtered['Description'][idx] = re.search(
+            '.+?(?=\s2[0-9]{3})', row['Description']).group(0)
+        # The regex is set up to match any text '.+?' that appears
+        # before the first occurrence of a space followed by a 2 and
+        # three other numbers (i.e., 2009 or 2035)
+
+    # Because different technologies are sometimes coded with the same
+    # technology type number (especially in lighting, where lighting
+    # types are often differentiated by vintage and technology type
+    # numbers), technologies must be identified using the simplified
+    # names now recorded in the 'Description' field
+    technames = list(np.unique(filtered['Description']))
+
+    # Set up numpy array to store restructured data
+    tval = np.zeros((len(technames), len(years)))
+
+    # Combine the data recorded for each unique technology
+    for idx, name in enumerate(technames):
+
+        # Extract entries for a given technology type number
+        entries = filtered[filtered['Description'] == name]
+
+        # Calculate the sum of all year columns and write it to the
+        # appropriate row in the tval array (note that the .view()
+        # function converts the structured array into a standard
+        # numpy array, which allows the use of the .sum() function)
+        tval[idx, ] = np.sum(entries[years].view(('<f8', len(years))), axis=0)
+
+    # Calculate the percentages for each technology type by year
+    # (tval is initially a measure of absolute energy use)
+    tval = tval/np.sum(tval, axis=0)
+
+    return (tval, technames)
+
+
 def dtype_eval(entry):
     """ Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or
