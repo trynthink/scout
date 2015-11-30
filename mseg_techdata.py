@@ -3,6 +3,7 @@ import re
 import numpy
 import json
 import mseg
+import copy
 
 # Set microsegments JSON as the file that provides the structure for
 # the technology performance, cost, and lifetime information output JSON
@@ -178,60 +179,78 @@ tech_eia_lt = {"linear fluorescent (T-12)": ["EIA_LT", ["LFL", "T12"],
 #  "typical" and "best" performance and info. sources,
 #  "typical" and "best" cost and info. sources,
 #   performance units]
-tech_noneia = {"secondary heating (electric)": [[0, 0, "NA"], [0, 0, "NA"],
-                                                [0, 0, "NA"], "COP"],
-               "secondary heating (natural gas)": [[0, 0, "NA"], [0, 0, "NA"],
-                                                   [0, 0, "NA"], "AFUE"],
-               "secondary heating (kerosene)": [[0, 0, "NA"], [0, 0, "NA"],
-                                                [0, 0, "NA"], "AFUE"],
-               "secondary heating (wood)": [[0, 0, "NA"], [0, 0, "NA"],
-                                            [0, 0, "NA"], "AFUE"],
-               "secondary heating (LPG)": [[0, 0, "NA"], [0, 0, "NA"],
-                                           [0, 0, "NA"], "AFUE"],
-               "secondary heating (coal)": [[0, 0, "NA"], [0, 0, "NA"],
-                                            [0, 0, "NA"], "AFUE"],
-               "TV": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "W"],
-               "set top box": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "W"],
-               "DVD": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "W"],
-               "home theater & audio": [[0, 0, "NA"], [0, 0, "NA"],
-                                        [0, 0, "NA"], "W"],
-               "video game consoles": [[0, 0, "NA"], [0, 0, "NA"],
-                                       [0, 0, "NA"], "W"],
-               "desktop PC": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "W"],
-               "laptop PC": [[0, 0, "NA"], [0, 0, "NA"],
-                             [0, 0, "NA"], "W"],
-               "monitors": [[0, 0, "NA"], [0, 0, "NA"],
-                            [0, 0, "NA"], "W"],
-               "network equipment": [[0, 0, "NA"], [0, 0, "NA"],
-                                     [0, 0, "NA"], "W"],
-               "fans & pumps": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"],
-                                "HP/W"],
-               "ceiling fan": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "W"],
-               "resistance": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "NA"],
-               "other MELs": [[0, 0, "NA"], [0, 0, "NA"], [0, 0, "NA"], "NA"],
-               "windows conduction": [[0, 0, "NA"],
-                                      [0, 0, "NREL Efficiency DB"],
-                                      [0, 0, "RS Means"], "R Value"],
-               "windows solar": [[0, 0, "NA"],
-                                 [0, 0, "NREL Efficiency DB"],
-                                 [0, 0, "RS Means"], "SHGC"],
-               "wall": [[0, 0, "NA"], [0, 0, "EnergyStar"],
-                        [0, 0, "RS Means"], "R Value/sq.in."],
-               "roof": [[0, 0, "NA"], [0, 0, "EnergyStar"],
-                        [0, 0, "RS Means"], "R Value/sq.in."],
-               "ground": [[0, 0, "NA"], [0, 0, "EnergyStar"],
-                          [0, 0, "RS Means"], "R Value/sq.in."],
-               "infiltration": [[0, 0, "NA"], [0, 0, "EnergyStar"],
-                                [0, 0, "RS Means"], "ACH"],
-               "people gain": [[0, 0, "NA"], ["NA", "NA", "NA"],
+tech_non_eia = {"secondary heating (electric)": [["NA", "NA", "NA"],
+                                                 ["NA", "NA", "NA"],
+                                                 ["NA", "NA", "NA"], "COP"],
+                "secondary heating (natural gas)": [["NA", "NA", "NA"],
+                                                    ["NA", "NA", "NA"],
+                                                    ["NA", "NA", "NA"],
+                                                    "AFUE"],
+                "secondary heating (kerosene)": [["NA", "NA", "NA"],
+                                                 ["NA", "NA", "NA"],
+                                                 ["NA", "NA", "NA"], "AFUE"],
+                "secondary heating (wood)": [["NA", "NA", "NA"],
+                                             ["NA", "NA", "NA"],
+                                             ["NA", "NA", "NA"], "AFUE"],
+                "secondary heating (LPG)": [["NA", "NA", "NA"],
+                                            ["NA", "NA", "NA"],
+                                            ["NA", "NA", "NA"], "AFUE"],
+                "secondary heating (coal)": [["NA", "NA", "NA"],
+                                             ["NA", "NA", "NA"],
+                                             ["NA", "NA", "NA"], "AFUE"],
+                "TV": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                       ["NA", "NA", "NA"], "W"],
+                "set top box": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                ["NA", "NA", "NA"], "W"],
+                "DVD": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                        ["NA", "NA", "NA"], "W"],
+                "home theater & audio": [["NA", "NA", "NA"],
+                                         ["NA", "NA", "NA"],
+                                         ["NA", "NA", "NA"], "W"],
+                "video game consoles": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                        ["NA", "NA", "NA"], "W"],
+                "desktop PC": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                               ["NA", "NA", "NA"], "W"],
+                "laptop PC": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                              ["NA", "NA", "NA"], "W"],
+                "monitors": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                             ["NA", "NA", "NA"], "W"],
+                "network equipment": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                      ["NA", "NA", "NA"], "W"],
+                "fans & pumps": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                 ["NA", "NA", "NA"], "HP/W"],
+                "ceiling fan": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                ["NA", "NA", "NA"], "W"],
+                "resistance": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
                                ["NA", "NA", "NA"], "NA"],
-               "equipment gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
-                                  ["NA", "NA", "NA"], "NA"]}
+                "other MELs": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                               ["NA", "NA", "NA"], "NA"],
+                "windows conduction": [[30, 30, "Legacy P-Tool"],
+                                       [1.6, 1.6, "Legacy P-Tool"],
+                                       [12, 12, "RS Means"], "R Value"],
+                "windows solar": [[30, 30, "Legacy P-Tool"],
+                                  [0.30, 0.30, "NREL Efficiency DB"],
+                                  [12, 12, "RS Means"], "SHGC"],
+                "wall": [[30, 30, "Legacy P-Tool"],
+                         [11.1, 11.1, "Legacy P-Tool"],
+                         [1.48, 1.48, "Legacy P-Tool"], "R Value"],
+                "roof": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                         ["NA", "NA", "NA"], "R Value"],
+                "ground": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                           ["NA", "NA", "NA"], "R Value"],
+                "infiltration": [[30, 30, "Legacy P-Tool"],
+                                 [13, 1, "Legacy P-Tool, NREL Residential, \
+                                  Efficiency DB"],
+                                 ["NA", "NA", "NA"], "ACH"],
+                "people gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                ["NA", "NA", "NA"], "NA"],
+                "equipment gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
+                                   ["NA", "NA", "NA"], "NA"]}
 
 
-def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice, tech_eia_nonlt,
-                  tech_eia_lt, tech_noneia, json_dict, project_dict,
-                  key_list=[]):
+def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
+                  non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                  tech_non_eia, json_dict, project_dict, key_list=[]):
     """ Proceed recursively through data stored in dict-type structure
     and perform calculations at each leaf/terminal node in the data. In
     this case, the function is running through the input microsegments
@@ -244,8 +263,8 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice, tech_eia_nonlt,
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                          tech_eia_nonlt, tech_eia_lt, tech_noneia, item,
-                          project_dict, key_list + [key])
+                          non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                          tech_non_eia, item, project_dict, key_list + [key])
         # If a leaf node has been reached, finish constructing the key
         # list for the current location and update the data in the dict
         else:
@@ -253,12 +272,14 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice, tech_eia_nonlt,
             # Update data unless the leaf node is describing square footage
             # information, which is not relevant to the mseg_techdata.py
             # routine; in this case, skip the node
-            if leaf_node_keys[-1] != "square footage":
+            if leaf_node_keys[-1] not in [
+               "square footage", "new homes", "total homes"]:
                 data_dict = \
                     list_generator_techdata(eia_nlt_cp, eia_nlt_l,
                                             eia_lt, eia_lt_choice,
+                                            non_eia_env_choice,
                                             tech_eia_nonlt,
-                                            tech_eia_lt, tech_noneia,
+                                            tech_eia_lt, tech_non_eia,
                                             leaf_node_keys, project_dict)
                 # Set dict key to extracted data
                 json_dict[key] = data_dict
@@ -268,8 +289,8 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice, tech_eia_nonlt,
 
 
 def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                            tech_eia_nonlt, tech_eia_lt, tech_noneia,
-                            leaf_node_keys, project_dict):
+                            non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                            tech_non_eia, leaf_node_keys, project_dict):
     """ Given an empty leaf node for a specific technology in the microsegments
     JSON, as well as projected technology costs, performance, and lifetimes
     from EIA and internal BTO analysis, find the appropriate data for the
@@ -293,11 +314,11 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                  "lifetime": None,
                  "consumer choice": {"competed market":
                                      {"model type": "bass diffusion",
-                                      "parameters": {"p": 0, "q": 0},
+                                      "parameters": {"p": "NA", "q": "NA"},
                                       "source": "COBAM"},
                                      "competed market share":
                                      {"model type": "logistic regression",
-                                      "parameters": {"b1": 0, "b2": 0},
+                                      "parameters": {"b1": None, "b2": None},
                                       "source": None}}}
 
     # The census division name to be used in filtering EIA data is the
@@ -331,7 +352,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
     if end_use not in mseg_enduse_translate.keys() and \
        end_use not in \
        ["lighting", "secondary heating", "other (grid electric)"] and \
-       end_use not in tech_noneia:
+       end_use not in tech_non_eia:
         raise KeyError("Invalid end use in microsegment!")
 
     # Identify the technology to be used in filtering EIA data as the last
@@ -356,8 +377,8 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
         tech_dict = tech_eia_nonlt
     elif tech_dict_key in tech_eia_lt.keys():
         tech_dict = tech_eia_lt
-    elif tech_dict_key in tech_noneia.keys():
-        tech_dict = tech_noneia
+    elif tech_dict_key in tech_non_eia.keys():
+        tech_dict = tech_non_eia
     else:
         raise KeyError("Invalid technology in microsegment!")
 
@@ -675,9 +696,9 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
             project_dict.keys(), "NA") for n in range(3)]
 
         # Set lighting technology consumer choice parameters to universal
-        # values specified in input EIA files (* MAY CHANGE IN FUTURE *)
-        b1 = eia_lt_choice["b1"]
-        b2 = eia_lt_choice["b2"]
+        # values specified at bottom of EIA 'rsmlgt.txt' file
+        b1 = copy.deepcopy(eia_lt_choice["b1"])
+        b2 = copy.deepcopy(eia_lt_choice["b2"])
 
         # Set lighting performance units(cost units set later)
         perf_units = filter_info[2]
@@ -687,10 +708,10 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
             ["EIA AEO" for n in range(4)]
 
     # In third case (BTO-defined technology), run through technology info.
-    # directly specified in tech_noneia above
+    # directly specified in tech_non_eia above
     else:
         # Set all performance, cost, and lifetime information to that specified
-        # in "tech_noneia" towards the beginning of this script.  Note that
+        # in "tech_non_eia" towards the beginning of this script.  Note that
         # there are only single values specified for performance, cost, and
         # lifetime here (for now), so the below code extends these values
         # across each year in the modeling time horizon
@@ -704,11 +725,18 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
             filter_info[3], filter_info[1][2], filter_info[2][2],
             filter_info[0][2]]
 
-        # Set BTO-defined technology consumer choice parameters to zero for
-        # now
-        b1, b2 = [0 for n in range(2)]
-        # Set BTO-defined technology consumer choice source to "NA" for now
-        tech_choice_source = "NA"
+        # Set envelope component technology consumer choice parameters to
+        # those typical of residential space heating/cooling technologies
+        # in EIA 'rsmeqp.txt' input file; set choice parameters for all
+        # remaining technologies to zero for now (* WILL CHANGE IN FUTURE *)
+        if 'demand' in leaf_node_keys:
+            b1 = copy.deepcopy(non_eia_env_choice["b1"])
+            b2 = copy.deepcopy(non_eia_env_choice["b2"])
+            tech_choice_source = "EIA space heating/cooling"
+        else:
+            b1, b2 = [
+                dict.fromkeys(project_dict.keys(), "NA") for n in range(2)]
+            tech_choice_source = "NA"
 
     # Set cost units for the given technology based on whether it is a
     # "demand" type or "supply" type technology
@@ -930,12 +958,6 @@ def main():
     eia_lt = numpy.genfromtxt(r_lt_all, names=r_lt_names, dtype=None,
                               skip_header=35, skip_footer=54, comments=None)
 
-    # Import EIA lighting residential consumer choice parameters
-    # * NOTE: HARD CODED IN FOR NOW, IN FUTURE MAKE THIS MORE FLEXIBLE *
-    eia_lt_choice_params = numpy.array(
-        (-0.95, -0.10),
-        dtype=[("EFF_CHOICE_P1", "<f8"), ("EFF_CHOICE_P2", "<f8")])
-
     # Establish the modeling time horizon to be consistent with the "mseg.py"
     # routine
     aeo_min = 2009  # mseg.aeo_years_min
@@ -943,15 +965,25 @@ def main():
     aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
     project_dict = dict.fromkeys(aeo_years)
 
-    # Establish lighting technology consumer choice parameters for each year in
-    # the modeling time horizon (these parameters will later be applied across
-    # all lighting technologies; for non-lighting technologies, EIA breaks them
-    # out by census division and building type in the same .txt file as the
-    # cost/performance information for each technology)
-    eia_lt_choice = {"b1": {k: eia_lt_choice_params["EFF_CHOICE_P1"]
+    # Establish residential lighting technology consumer choice parameters for
+    # each year in the modeling time horizon (these parameters will later be
+    # applied across all residential lighting technologies, and are based on
+    # EIA consumer choice data for the residential lighting end use at the
+    # bottom of 'rsmlgt.txt') (* HARD CODED, MAY CHANGE IN THE FUTURE *)
+    eia_lt_choice = {"b1": {k: -0.95
                             for k in project_dict.keys()},
-                     "b2": {k: eia_lt_choice_params["EFF_CHOICE_P2"]
+                     "b2": {k: -0.10
                             for k in project_dict.keys()}}
+
+    # Establish residential envelope component technology consumer choice
+    # parameters for each year in the modeling time horizon (these parameters
+    # will later be applied across all envelope technologies, and are based on
+    # EIA consumer choice data for the residential heating/cooling end uses in
+    # 'rsmeqp.txt') (* HARD CODED, MAY CHANGE IN THE FUTURE *)
+    non_eia_env_choice = {"b1": {k: -0.003
+                                 for k in project_dict.keys()},
+                          "b2": {k: -0.012
+                                 for k in project_dict.keys()}}
 
     # Import microsegments JSON file as a dictionary structure
     with open(json_in, "r") as jsi:
@@ -960,10 +992,10 @@ def main():
     # Run through microsegment JSON levels, determine technology leaf node
     # info. to mine from the imported data, and update nodes with this info.
     updated_data = walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                                 tech_eia_nonlt, tech_eia_lt, tech_noneia,
+                                 non_eia_env_choice, tech_eia_nonlt,
+                                 tech_eia_lt, tech_non_eia,
                                  msjson, project_dict)
 
-    # Convert the updated data from census division to climate breakdown
     final_data = mseg.clim_converter(updated_data, res_convert_array_rev)
 
     # Write the updated dict of data to a new JSON file

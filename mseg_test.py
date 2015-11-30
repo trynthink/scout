@@ -10,18 +10,25 @@ import unittest
 import re
 import copy
 import numpy
+import os
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
 class ResidentialDataIntegrityTest(unittest.TestCase):
     """ Tests the imported residential equipment energy use data from
     EIA to confirm that the data are in the expected order and that the
     consumption and equipment stock data have the required names """
 
-    # Open the EIA data file for use by all tests
-    f = open(mseg.EIA_res_file, 'r')
+    def setUp(self):
+        # Open the EIA data file for use by all tests
+        f = open(mseg.EIA_res_file, 'r')
 
-    # Read in header line
-    header = f.readline()
+        # Read in header line
+        self.header = f.readline()
+
+        f.close()  # Close data file
 
     # The function that parses and assigns the data from the EIA data
     # to the JSON file expects housing stock data with specific
