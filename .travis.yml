@@ -1,5 +1,9 @@
-# Based on https://gist.github.com/dan-blanchard/7045057 and modifications in
+# Based on:
+# https://gist.github.com/dan-blanchard/7045057
 # https://github.com/Jorge-C/ordination/blob/master/.travis.yml
+# https://github.com/soft-matter/trackpy/blob/master/.travis.yml
+# http://conda.pydata.org/docs/travis.html
+
 # See also: https://github.com/travis-ci/travis-ci/issues/2650
 
 language: python
