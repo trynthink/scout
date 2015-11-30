@@ -315,10 +315,21 @@ class ListGeneratorTest(unittest.TestCase):
     years = [str(i) for i in range(2009, 2013 + 1)]
     project_dict = dict.fromkeys(years)
 
+    # Define sample technology choice parameters for residential lighting
+    # technologies (technology choice information is not included in 'eia_lt'
+    # above)
     eia_lt_choice = {"b1": {k: -0.95
                             for k in project_dict.keys()},
                      "b2": {k: -0.10
                             for k in project_dict.keys()}}
+
+    # Define sample technology choice parameters for residential envelope
+    # component technologies (technology choice information is not included
+    # for envelope component technologies in 'tech_non_eia' above)
+    non_eia_env_choice = {"b1": {k: -0.003
+                                 for k in project_dict.keys()},
+                          "b2": {k: -0.012
+                                 for k in project_dict.keys()}}
 
     # Define a sample list of full dictionary key chains that are defined
     # while running through the microsegments JSON structure and which will
@@ -403,7 +414,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
         "consumer choice": {"competed market":
                             {"model type": "bass diffusion",
-                             "parameters": {"p": 0, "q": 0},
+                             "parameters": {"p": "NA", "q": "NA"},
                              "source": "COBAM"},
                             "competed market share":
                             {"model type": "logistic regression",
@@ -438,7 +449,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -473,7 +484,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -508,7 +519,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -543,7 +554,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -578,7 +589,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -613,7 +624,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -645,11 +656,19 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "Source 1"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
-                              "parameters": {"b1": 0, "b2": 0},
+                              "parameters": {
+                                  "b1": {
+                                      "2009": "NA", "2010": "NA",
+                                      "2011": "NA", "2012": "NA",
+                                      "2013": "NA"},
+                                  "b2": {
+                                      "2009": "NA", "2010": "NA",
+                                      "2011": "NA", "2012": "NA",
+                                      "2013": "NA"}},
                               "source": "NA"}}},
         {"performance": {
             "typical": {"2009": 7, "2010": 7, "2011": 7, "2012": 7, "2013": 7},
@@ -673,12 +692,20 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "RS Means"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
-                              "parameters": {"b1": 0, "b2": 0},
-                              "source": "NA"}}},
+                              "parameters": {
+                                  "b1": {
+                                      "2009": -0.003, "2010": -0.003,
+                                      "2011": -0.003, "2012": -0.003,
+                                      "2013": -0.003},
+                                  "b2": {
+                                      "2009": -0.012, "2010": -0.012,
+                                      "2011": -0.012, "2012": -0.012,
+                                      "2013": -0.012}},
+                              "source": "EIA space heating/cooling"}}},
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -702,7 +729,7 @@ class ListGeneratorTest(unittest.TestCase):
             "source": "EIA AEO"},
          "consumer choice": {"competed market":
                              {"model type": "bass diffusion",
-                              "parameters": {"p": 0, "q": 0},
+                              "parameters": {"p": "NA", "q": "NA"},
                               "source": "COBAM"},
                              "competed market share":
                              {"model type": "logistic regression",
@@ -738,7 +765,7 @@ class ListGeneratorTest(unittest.TestCase):
         for (idx, tk) in enumerate(self.tech_ok_keys):
             dict1 = mseg_techdata.list_generator_techdata(
                 self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                self.eia_lt_choice,
+                self.eia_lt_choice, self.non_eia_env_choice,
                 mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                 self.tech_non_eia, tk, self.project_dict)
             dict2 = self.ok_datadict_out[idx]
@@ -751,14 +778,14 @@ class ListGeneratorTest(unittest.TestCase):
             with self.assertRaises(KeyError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice,
+                    self.eia_lt_choice, self.non_eia_env_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ke, self.project_dict)
         for ve in self.tech_fail_keys_ve:
             with self.assertRaises(ValueError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice,
+                    self.eia_lt_choice, self.non_eia_env_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ve, self.project_dict)
 
