@@ -100,6 +100,47 @@ demand_typedict = {'windows conduction': 'WIND_COND',
                    }
 
 
+def json_interpreter(key_series):
+    """ Change the list of strings acquired from the JSON database into
+    a format that can be used to extract data from the applicable array.
+
+    This function is fairly brittle and assumes that when it is called,
+    the input data are already correctly formatted as a list of strings
+    in the order [census division, building type, end use, fuel type] """
+
+    # Since the JSON database is formatted with fuel type before end
+    # use, switch the order of the end use and fuel type entries in the
+    # key_series list
+    key_series[2], key_series[3] = key_series[3], key_series[2]
+
+    # Set up list of dict names in the order specified above
+    dict_names = [cdivdict, bldgtypedict, endusedict, fueldict]
+
+    # Convert keys from the JSON into a new list using the translation
+    # dicts defined at the top of this file
+    interpreted_values = []
+    for idx, dict_name in enumerate(dict_names):
+        interpreted_values.append(dict_name[key_series[idx]])
+
+    # If the end use is heating or cooling, either demand or supply
+    # will be specified in the 5th position in the list; if demand is
+    # indicated, the demand component should be included in the output
+    if 'demand' in key_series:
+        # Interpret the demand component specified and append to the list
+        interpreted_values.append(demand_typedict[key_series[5]])
+
+    # If the end use is miscellaneous electric loads ('MELs'),
+    # key_series will have one additional entry, which should be
+    # processed against the dict 'mels_techdict'
+    if 'MELs' in key_series:
+        # Interpret the MEL type specified and append to the list
+        interpreted_values.append(mels_techdict[key_series[4]])
+
+    # interpreted_values is a list in the order r,b,s,f with an
+    # additional optional entry for the demand component or MEL type
+    return interpreted_values
+
+
 def sd_mseg_percent(sd_array, sel):
     """ Convert technology type, vintage, and construction status/type
     reported in KSDOUT into percentage energy use each year associated
