@@ -9,8 +9,8 @@ serv_dmd = 'KDBOUT.txt'
 catg_dmd = 'KDBOUT.txt'
 # json_in = 'microsegments.json'
 # json_out = 'microsegments_out.json'
-res_tloads = 'Res_TLoads_Final.txt'
-res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
+# res_tloads = 'Res_TLoads_Final.txt'
+# res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
 com_tloads = 'Com_TLoads_Final.txt'
 com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
 
@@ -178,6 +178,8 @@ def dtype_eval(entry):
 
     if '.' in entry:
         dtype = 'f8'
+    elif 'NA'.lower() in entry.lower():
+        dtype = 'f8'
     elif re.search('[a-zA-Z]+', entry):  # At least one letter somewhere
         dtype = '<U50'  # Assumed to be no more than 50 characters
     else:
@@ -186,7 +188,7 @@ def dtype_eval(entry):
     return dtype
 
 
-def dtype_array(data_file_path):
+def dtype_array(data_file_path, delim_char=','):
     """ Use the csv module to read the first two lines of a text data
     file to determine the column names and data types for each column
     and construct a list of tuples that can be used to define the dtype
@@ -199,9 +201,9 @@ def dtype_array(data_file_path):
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
 
-        # This use of csv.reader assumes that the default settings of
-        # delimiter ',' and quotechar '"' are appropriate
-        filecont = csv.reader(thefile)
+        # This use of csv.reader assumes that the default setting of
+        # quotechar '"' is appropriate
+        filecont = csv.reader(thefile, delimiter=delim_char)
 
         # Extract header (first) row and remove leading and trailing
         # spaces from all entries
@@ -217,7 +219,7 @@ def dtype_array(data_file_path):
         return comb_dtypes
 
 
-def data_import(data_file_path, dtype_list):
+def data_import(data_file_path, dtype_list, delim_char=','):
     """ Read the contents of a data file with a header line and convert
     it into a numpy structured array using the provided dtype definition,
     skipping any non-conforming informational lines at the end of the file """
@@ -229,9 +231,9 @@ def data_import(data_file_path, dtype_list):
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
 
-        # This use of csv.reader assumes that the default settings of
-        # delimiter ',' and quotechar '"' are appropriate
-        filecont = csv.reader(thefile)
+        # This use of csv.reader assumes that the default setting of
+        # quotechar '"' is appropriate
+        filecont = csv.reader(thefile, delimiter=delim_char)
 
         # Create list to be populated with tuples of each row of data
         # from the data file
@@ -245,8 +247,25 @@ def data_import(data_file_path, dtype_list):
             if len(tuple(row)) == len(dtype_list):
                 data.append(tuple(row))
 
-        # Convert data into numpy structured array
-        final_struct = np.array(data, dtype=dtype_list)
+        # Convert data into numpy structured array, using the
+        # try/catch in the case where the data include the string 'NA',
+        # which has to be changed to an 'nan' to be able to be coerced
+        # to a float or integer by np.array
+        try:
+            final_struct = np.array(data, dtype=dtype_list)
+        # Targeted error "ValueError: could not convert string to float: 'NA'"
+        except ValueError:
+            for i, row in enumerate(data):
+                row = list(row)  # Make row mutable
+                for k, entry in enumerate(row):
+                    # Replace 'NA' with 'nan'
+                    if entry == 'NA':
+                        row[k] = 'nan'
+                # Overwrite existing tuple with new tuple
+                data[i] = tuple(row)
+            # With the 'NA' strings replaced, create the numpy array as
+            # originally desired
+            final_struct = np.array(data, dtype=dtype_list)
 
         return final_struct
 
@@ -297,6 +316,13 @@ def main():
     catg_data = data_import(catg_dmd, catg_dtypes)
     catg_data = str_cleaner(catg_data, 'Label')
 
+    # Import thermal loads data
+    load_dtypes = cm.dtype_array(com_tloads, '\t')
+    load_data = cm.data_import(com_tloads, load_dtypes, '\t')
+
+    # Import census division to climate zone conversion data
+    czone_cdiv_conversion = np.genfromtxt(com_climate_convert, names=True,
+                                          delimiter='\t', dtype=None)
 
 if __name__ == '__main__':
     main()
