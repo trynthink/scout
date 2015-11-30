@@ -20,7 +20,7 @@ before_install:
 install: 
   - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy
   - source activate testenv
-  - python setup.py install
+#  - python setup.py install
 
 # Run test(s)
 script: 
