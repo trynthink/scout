@@ -51,7 +51,7 @@ rate = 0.07
 # a routine will be added that imports this information from the most recent
 # AEO kprem.txt raw data file
 com_timeprefs = {
-    "rates": [10, 1, 0.45, 0.25, 0.15, 0.065, 0],
+    "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
     "distributions": {
         "heating": [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003],
         "cooling": [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004],
@@ -1186,19 +1186,18 @@ class Measure(object):
         # amongst commercial adopters.  These discount rate levels are imported
         # from the commercial AEO demand module data. * Note: ignore warning
         # yielded when discount rate = 0, as ANPV is correctly calculated
-        with numpy.errstate(invalid='ignore'):
-            if self.bldg_type in ["single family home", "multi family home",
-                                  "mobile home"]:
-                anpv_s, anpv_e, anpv_c = [numpy.pmt(rate, life_meas, x)
-                                          for x in [npv_s, npv_e, npv_c]]
-            else:
-                anpv_s, anpv_e, anpv_c = ({} for n in range(3))
-                for ind, tps in enumerate(com_timeprefs["rates"]):
-                    anpv_s["rate " + str(ind + 1)],\
-                        anpv_e["rate " + str(ind + 1)],\
-                        anpv_c["rate " + str(ind + 1)] = \
-                        [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
-                         for x in [cashflows_s, cashflows_e, cashflows_c]]
+        if self.bldg_type in ["single family home", "multi family home",
+                              "mobile home"]:
+            anpv_s, anpv_e, anpv_c = [numpy.pmt(rate, life_meas, x)
+                                      for x in [npv_s, npv_e, npv_c]]
+        else:
+            anpv_s, anpv_e, anpv_c = ({} for n in range(3))
+            for ind, tps in enumerate(com_timeprefs["rates"]):
+                anpv_s["rate " + str(ind + 1)],\
+                    anpv_e["rate " + str(ind + 1)],\
+                    anpv_c["rate " + str(ind + 1)] = \
+                    [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
+                     for x in [cashflows_s, cashflows_e, cashflows_c]]
 
         # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).

@@ -3445,16 +3445,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "anpv": {
                 "stock cost": {
                     "2009": {
-                        "rate 1": numpy.pmt(10, 2, -0.8181818),
-                        "rate 2": numpy.pmt(1, 2, 0),
+                        "rate 1": numpy.pmt(10.0, 2, -0.8181818),
+                        "rate 2": numpy.pmt(1.0, 2, 0),
                         "rate 3": numpy.pmt(0.45, 2, 0.3793103),
                         "rate 4": numpy.pmt(0.25, 2, 0.6),
                         "rate 5": numpy.pmt(0.15, 2, 0.7391304),
                         "rate 6": numpy.pmt(0.065, 2, 0.8779343),
                         "rate 7": -0.5},
                     "2010": {
-                        "rate 1": numpy.pmt(10, 2, -0.3636364),
-                        "rate 2": numpy.pmt(1, 2, 0.25),
+                        "rate 1": numpy.pmt(10.0, 2, -0.3636364),
+                        "rate 2": numpy.pmt(1.0, 2, 0.25),
                         "rate 3": numpy.pmt(0.45, 2, 0.5344828),
                         "rate 4": numpy.pmt(0.25, 2, 0.7),
                         "rate 5": numpy.pmt(0.15, 2, 0.8043478),
@@ -3462,16 +3462,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "rate 7": -0.5}},
                 "energy cost": {
                     "2009": {
-                        "rate 1": numpy.pmt(10, 2, 0.1983471),
-                        "rate 2": numpy.pmt(1, 2, 1.5),
+                        "rate 1": numpy.pmt(10.0, 2, 0.1983471),
+                        "rate 2": numpy.pmt(1.0, 2, 1.5),
                         "rate 3": numpy.pmt(0.45, 2, 2.330559),
                         "rate 4": numpy.pmt(0.25, 2, 2.88),
                         "rate 5": numpy.pmt(0.15, 2, 3.251418),
                         "rate 6": numpy.pmt(0.065, 2, 3.641253),
                         "rate 7": -2},
                     "2010": {
-                        "rate 1": numpy.pmt(10, 2, 0.04958678),
-                        "rate 2": numpy.pmt(1, 2, 0.375),
+                        "rate 1": numpy.pmt(10.0, 2, 0.04958678),
+                        "rate 2": numpy.pmt(1.0, 2, 0.375),
                         "rate 3": numpy.pmt(0.45, 2, 0.5826397),
                         "rate 4": numpy.pmt(0.25, 2, 0.72),
                         "rate 5": numpy.pmt(0.15, 2, 0.8128544),
@@ -3479,16 +3479,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "rate 7": -0.5}},
                 "carbon cost": {
                     "2009": {
-                        "rate 1": numpy.pmt(10, 2, 0.09917355),
-                        "rate 2": numpy.pmt(1, 2, 0.75),
+                        "rate 1": numpy.pmt(10.0, 2, 0.09917355),
+                        "rate 2": numpy.pmt(1.0, 2, 0.75),
                         "rate 3": numpy.pmt(0.45, 2, 1.165279),
                         "rate 4": numpy.pmt(0.25, 2, 1.44),
                         "rate 5": numpy.pmt(0.15, 2, 1.625709),
                         "rate 6": numpy.pmt(0.065, 2, 1.820626),
                         "rate 7": -1},
                     "2010": {
-                        "rate 1": numpy.pmt(10, 2, 0.09917355),
-                        "rate 2": numpy.pmt(1, 2, 0.75),
+                        "rate 1": numpy.pmt(10.0, 2, 0.09917355),
+                        "rate 2": numpy.pmt(1.0, 2, 0.75),
                         "rate 3": numpy.pmt(0.45, 2, 1.165279),
                         "rate 4": numpy.pmt(0.25, 2, 1.44),
                         "rate 5": numpy.pmt(0.15, 2, 1.625709),
