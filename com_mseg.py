@@ -190,7 +190,8 @@ def sd_mseg_percent(sd_array, sel):
     # names now recorded in the 'Description' field
     technames = list(np.unique(filtered['Description']))
 
-    # Set up numpy array to store restructured data
+    # Set up numpy array to store restructured data, in which each row
+    # will correspond to a single technology
     tval = np.zeros((len(technames), len(years)))
 
     # Combine the data recorded for each unique technology
@@ -209,6 +210,8 @@ def sd_mseg_percent(sd_array, sel):
     # (tval is initially a measure of absolute energy use)
     tval = tval/np.sum(tval, axis=0)
 
+    # Note that each row in tval corresponds to a single technology and
+    # the rows are in the same order as the technames list
     return (tval, technames)
 
 
@@ -387,8 +390,8 @@ def main():
     catg_data = str_cleaner(catg_data, 'Label')
 
     # Import thermal loads data
-    load_dtypes = cm.dtype_array(com_tloads, '\t')
-    load_data = cm.data_import(com_tloads, load_dtypes, '\t')
+    load_dtypes = dtype_array(com_tloads, '\t')
+    load_data = data_import(com_tloads, load_dtypes, '\t')
 
     # Import census division to climate zone conversion data
     czone_cdiv_conversion = np.genfromtxt(com_climate_convert, names=True,
