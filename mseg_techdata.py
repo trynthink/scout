@@ -743,7 +743,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
     if "demand" in leaf_node_keys:
             cost_units = "2013$/sf"
     else:
-        cost_units = "2013$/unit"
+        cost_units = "2010$/unit"
 
     # Based on above search results, update the dict with performance, cost,
     # lifetime, and consumer choice information for the given technology
