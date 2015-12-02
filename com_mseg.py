@@ -4,6 +4,10 @@ import numpy as np
 import re
 import csv
 
+# Set the pivot year (i.e., the year that should be added to the data
+# reported to convert the values to actual calendar years) for KDBOUT
+pivot_year = 1989
+
 # Identify files to import for conversion
 serv_dmd = 'KDBOUT.txt'
 catg_dmd = 'KDBOUT.txt'
@@ -208,6 +212,31 @@ def sd_mseg_percent(sd_array, sel):
     return (tval, technames)
 
 
+def catg_data_selector(db_array, sel, section_label):
+    """ This function generally extracts a subset of the data available
+    in the array that contains data from the commercial building energy
+    data file ('catg_dmd'). The subset is based on the type of data,
+    indicated in the 'Label' column of the array and specified in the
+    variable 'section_label'. The 'sel' variable specifies the desired
+    census division, building type, end use, and fuel type. """
+
+    # Filter main EIA commercial data array based on the relevant
+    # section label, and then filter further based on the specified
+    # division, building type, end use, and fuel type
+    filtered = db_array[np.all([db_array['Label'] == section_label,
+                                db_array['Division'] == sel[0],
+                                db_array['BldgType'] == sel[1],
+                                db_array['EndUse'] == sel[2],
+                                db_array['Fuel'] == sel[3]], axis=0)]
+
+    # Adjust years reported based on the pivot year
+    filtered['Year'] = filtered['Year'] + pivot_year
+
+    # Return the filtered data with only the two needed columns,
+    # the year and the data
+    return filtered[['Year', 'Amount']]
+
+
 def dtype_eval(entry):
     """ Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or
@@ -364,6 +393,12 @@ def main():
     # Import census division to climate zone conversion data
     czone_cdiv_conversion = np.genfromtxt(com_climate_convert, names=True,
                                           delimiter='\t', dtype=None)
+
+    # Not all end uses are broken down by equipment type and vintage in
+    # KSDOUT; determine which end uses are present so that the service
+    # demand data are not explored unnecessarily when they are not even
+    # available for a particular end use
+    serv_data_end_uses = np.unique(serv_data['s'])
 
 if __name__ == '__main__':
     main()
