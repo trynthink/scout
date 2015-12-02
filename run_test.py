@@ -569,7 +569,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -586,7 +600,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "lights": {
                                 "performance": {
                                     "typical": 0,
@@ -603,7 +631,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": 0,
                                     "range": 0,
                                     "units": "NA",
-                                    "source": "NA"}}}},
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "secondary heating": {
                         "demand": {
                             "windows conduction": {
@@ -622,7 +664,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -639,7 +695,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "lights": {
                                 "performance": {
                                     "typical": 0,
@@ -656,7 +726,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": 0,
                                     "range": 0,
                                     "units": "NA",
-                                    "source": "NA"}}}},
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -675,7 +759,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -692,7 +790,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "lights": {
                                 "performance": {
                                     "typical": 0,
@@ -709,7 +821,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": 0,
                                     "range": 0,
                                     "units": "NA",
-                                    "source": "NA"}}}},
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "lighting": {
                         "commercial light type X": {
                             "performance": {
@@ -727,7 +853,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "average": {"2009": 140, "2010": 140},
                                 "range": {"2009": 14, "2010": 14},
                                 "units": "years",
-                                "source": "EIA AEO"}}}}},
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}}},
             "single family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -748,7 +888,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -765,7 +919,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
                                 "performance": {
@@ -783,7 +951,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 3, "2010": 3},
@@ -800,7 +982,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 30, "2010": 30},
                                     "range": {"2009": 3, "2010": 3},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 4, "2010": 4},
@@ -817,7 +1013,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 40, "2010": 40},
                                     "range": {"2009": 4, "2010": 4},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "secondary heating": {
                         "demand": {
                             "windows conduction": {
@@ -836,7 +1046,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 50, "2010": 50},
                                     "range": {"2009": 5, "2010": 5},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 6, "2010": 6},
@@ -853,7 +1077,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 60, "2010": 60},
                                     "range": {"2009": 6, "2010": 6},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "non-specific": {
                                 "performance": {
@@ -871,7 +1109,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 70, "2010": 70},
                                     "range": {"2009": 7, "2010": 7},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -890,7 +1142,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 80, "2010": 80},
                                     "range": {"2009": 8, "2010": 8},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 9, "2010": 9},
@@ -907,7 +1173,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "central AC": {
                                 "performance": {
@@ -925,7 +1205,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 100, "2010": 100},
                                     "range": {"2009": 10, "2010": 10},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "room AC": {
                                 "performance": {
                                     "typical": {"2009": 11, "2010": 11},
@@ -942,7 +1236,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 110, "2010": 110},
                                     "range": {"2009": 11, "2010": 11},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 12, "2010": 12},
@@ -959,7 +1267,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 120, "2010": 120},
                                     "range": {"2009": 12, "2010": 12},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 13, "2010": 13},
@@ -976,7 +1298,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 130, "2010": 130},
                                     "range": {"2009": 13, "2010": 13},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "lighting": {
                         "linear fluorescent (LED)": {
                                 "performance": {
@@ -994,7 +1330,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 140, "2010": 140},
                                     "range": {"2009": 14, "2010": 14},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "general service (LED)": {
                                 "performance": {
                                     "typical": {"2009": 15, "2010": 15},
@@ -1011,7 +1361,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 150, "2010": 150},
                                     "range": {"2009": 15, "2010": 15},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "reflector (LED)": {
                                 "performance": {
                                     "typical": {"2009": 16, "2010": 16},
@@ -1028,7 +1392,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 160, "2010": 160},
                                     "range": {"2009": 16, "2010": 16},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "external (LED)": {
                                 "performance": {
                                     "typical": {"2009": 17, "2010": 17},
@@ -1045,7 +1423,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 170, "2010": 170},
                                     "range": {"2009": 17, "2010": 17},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                 "natural gas": {
                     "water heating": {
                         "performance": {
@@ -1063,7 +1455,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                             "average": {"2009": 180, "2010": 180},
                             "range": {"2009": 18, "2010": 18},
                             "units": "years",
-                            "source": "EIA AEO"}},
+                            "source": "EIA AEO"},
+                        "consumer choice": {
+                            "competed market share": {
+                                "source": "EIA AEO",
+                                "model type": "logistic regression",
+                                "parameters": {
+                                    "b1": {"2009": None, "2010": None},
+                                    "b2": {"2009": None,
+                                           "2010": None}}},
+                            "competed market": {
+                                "source": "COBAM",
+                                "model type": "bass diffusion",
+                                "parameters": {
+                                    "p": "NA",
+                                    "q": "NA"}}}},
                     "heating": {
                         "demand": {
                             "windows conduction": {
@@ -1082,7 +1488,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -1099,7 +1519,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "secondary heating": {
                         "demand": {
                             "windows conduction": {
@@ -1118,7 +1552,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 50, "2010": 50},
                                     "range": {"2009": 5, "2010": 5},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 6, "2010": 6},
@@ -1135,7 +1583,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 60, "2010": 60},
                                     "range": {"2009": 6, "2010": 6},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -1154,7 +1616,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 80, "2010": 80},
                                     "range": {"2009": 8, "2010": 8},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 9, "2010": 9},
@@ -1171,7 +1647,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}}}},
             "multi family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -1192,7 +1682,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 190, "2010": 190},
                                     "range": {"2009": 19, "2010": 19},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 20, "2010": 20},
@@ -1209,7 +1713,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 200, "2010": 200},
                                     "range": {"2009": 20, "2010": 20},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
                                 "performance": {
@@ -1227,7 +1745,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 210, "2010": 210},
                                     "range": {"2009": 21, "2010": 21},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 22, "2010": 22},
@@ -1244,7 +1776,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 220, "2010": 220},
                                     "range": {"2009": 22, "2010": 22},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 23, "2010": 23},
@@ -1261,7 +1807,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 230, "2010": 230},
                                     "range": {"2009": 23, "2010": 23},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "lighting": {
                         "linear fluorescent (LED)": {
                                 "performance": {
@@ -1279,7 +1839,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 240, "2010": 240},
                                     "range": {"2009": 24, "2010": 24},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "general service (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1296,7 +1870,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "reflector (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1313,7 +1901,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "external (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1330,7 +1932,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}}}},
         "AIA_CZ2": {
             "single family home": {
                 "electricity (grid)": {
@@ -1352,7 +1968,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 10, "2010": 10},
                                     "range": {"2009": 1, "2010": 1},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 2, "2010": 2},
@@ -1369,7 +1999,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
                                 "performance": {
@@ -1387,7 +2031,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 20, "2010": 20},
                                     "range": {"2009": 2, "2010": 2},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 3, "2010": 3},
@@ -1404,7 +2062,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 30, "2010": 30},
                                     "range": {"2009": 3, "2010": 3},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 4, "2010": 4},
@@ -1421,7 +2093,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 40, "2010": 40},
                                     "range": {"2009": 4, "2010": 4},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "secondary heating": {
                         "demand": {
                             "windows conduction": {
@@ -1440,7 +2126,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 50, "2010": 50},
                                     "range": {"2009": 5, "2010": 5},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 6, "2010": 6},
@@ -1457,7 +2157,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 60, "2010": 60},
                                     "range": {"2009": 6, "2010": 6},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "non-specific": {
                                 "performance": {
@@ -1475,7 +2189,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 70, "2010": 70},
                                     "range": {"2009": 7, "2010": 7},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -1494,7 +2222,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 80, "2010": 80},
                                     "range": {"2009": 8, "2010": 8},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 9, "2010": 9},
@@ -1511,7 +2253,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "central AC": {
                                 "performance": {
@@ -1529,7 +2285,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 100, "2010": 100},
                                     "range": {"2009": 10, "2010": 10},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "room AC": {
                                 "performance": {
                                     "typical": {"2009": 11, "2010": 11},
@@ -1546,7 +2316,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 110, "2010": 110},
                                     "range": {"2009": 11, "2010": 11},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 12, "2010": 12},
@@ -1563,7 +2347,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 120, "2010": 120},
                                     "range": {"2009": 12, "2010": 12},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 13, "2010": 13},
@@ -1580,7 +2378,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 130, "2010": 130},
                                     "range": {"2009": 13, "2010": 13},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "lighting": {
                         "linear fluorescent (LED)": {
                                 "performance": {
@@ -1598,7 +2410,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 140, "2010": 140},
                                     "range": {"2009": 14, "2010": 14},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "general service (LED)": {
                                 "performance": {
                                     "typical": {"2009": 15, "2010": 15},
@@ -1615,7 +2441,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 150, "2010": 150},
                                     "range": {"2009": 15, "2010": 15},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "reflector (LED)": {
                                 "performance": {
                                     "typical": {"2009": 16, "2010": 16},
@@ -1632,7 +2472,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 160, "2010": 160},
                                     "range": {"2009": 16, "2010": 16},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "external (LED)": {
                                 "performance": {
                                     "typical": {"2009": 17, "2010": 17},
@@ -1649,7 +2503,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 170, "2010": 170},
                                     "range": {"2009": 17, "2010": 17},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                 "natural gas": {
                     "water heating": {
                             "performance": {
@@ -1667,7 +2535,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "average": {"2009": 180, "2010": 180},
                                 "range": {"2009": 18, "2010": 18},
                                 "units": "years",
-                                "source": "EIA AEO"}}}},
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
             "multi family home": {
                 "electricity (grid)": {
                     "heating": {
@@ -1688,7 +2570,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 190, "2010": 190},
                                     "range": {"2009": 19, "2010": 19},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "windows solar": {
                                 "performance": {
                                     "typical": {"2009": 20, "2010": 20},
@@ -1705,7 +2601,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 200, "2010": 200},
                                     "range": {"2009": 20, "2010": 20},
                                     "units": "years",
-                                    "source": "EIA AEO"}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
                                 "performance": {
@@ -1723,7 +2633,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 210, "2010": 210},
                                     "range": {"2009": 21, "2010": 21},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "ASHP": {
                                 "performance": {
                                     "typical": {"2009": 22, "2010": 22},
@@ -1740,7 +2664,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 220, "2010": 220},
                                     "range": {"2009": 22, "2010": 22},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "GSHP": {
                                 "performance": {
                                     "typical": {"2009": 23, "2010": 23},
@@ -1757,7 +2695,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 230, "2010": 230},
                                     "range": {"2009": 23, "2010": 23},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "lighting": {
                         "linear fluorescent (LED)": {
                                 "performance": {
@@ -1775,7 +2727,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 240, "2010": 240},
                                     "range": {"2009": 24, "2010": 24},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "general service (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1792,7 +2758,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "reflector (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1809,7 +2789,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "external (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1826,7 +2820,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}}}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}}}},
         "AIA_CZ4": {
             "multi family home": {
                 "electricity (grid)": {
@@ -1847,7 +2855,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 240, "2010": 240},
                                     "range": {"2009": 24, "2010": 24},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "general service (LED)": {
                                 "performance": {
                                     "typical": {"2009": 25, "2010": 25},
@@ -1864,7 +2886,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 250, "2010": 250},
                                     "range": {"2009": 25, "2010": 25},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "reflector (LED)": {
                                 "performance": {
                                     "typical": {"2009": 26, "2010": 26},
@@ -1881,7 +2917,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 260, "2010": 260},
                                     "range": {"2009": 26, "2010": 26},
                                     "units": "years",
-                                    "source": "EIA AEO"}},
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                         "external (LED)": {
                                 "performance": {
                                     "typical": {"2009": 27, "2010": 27},
@@ -1898,7 +2948,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "average": {"2009": 270, "2010": 270},
                                     "range": {"2009": 27, "2010": 27},
                                     "units": "years",
-                                    "source": "EIA AEO"}}}}}}}
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}}}}}
 
     # Sample input dict of microsegment stock/energy info. to reference in
     # generating and partitioning master microsegments for a measure
@@ -3024,12 +4088,34 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                "lifetime": {"baseline": {"2009": 200, "2010": 200},
                             "measure": 10}}]
 
-    # Master demand adjustment information that should be generated by
+    # Set the consumer choice dicts that should be generated by the
+    # first two "ok_measures" above using the "sample_msegin" dict.
+    # Consumer choice information is needed to apportion all measures
+    # competing for a baseline microsegment to appropriate market shares
+    compete_choice_val = {
+        "b1": {"2009": None, "2010": None},
+        "b2": {"2009": None, "2010": None}}
+    ok_out_compete_choice = [{
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)')": compete_choice_val,
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP')": compete_choice_val,
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP')": compete_choice_val,
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC')": compete_choice_val,
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP')": compete_choice_val,
+        "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP')": compete_choice_val,
+        "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP')": compete_choice_val},
+        {"('primary', 'AIA_CZ1', 'single family home', 'natural gas', 'water heating', 'supply', '')": compete_choice_val}]
+
+    # Master demand adjustment dicts that should be generated by
     # the first two "ok_measures" above using the "sample_msegin" dict.
     # Demand adjustment information is needed to account for overlaps
     # between measures that access supply-side and demand-side microsegments
     # for the heating and cooling end uses.
-    ok_out_compete = [{
+    ok_out_compete_demand = [{
         "savings": {
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)')": {"2009": 0, "2010": 0},
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP')": {"2009": 0, "2010": 0},
@@ -3135,16 +4221,23 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "Technical potential")[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
-            # Assert that the demand-side adjustment information in the
-            # second output of mseg_find_partition is correct
-            # (limit this check to the first two sample measures only to
-            # reduce computation time)
+            # Assert that the consumer choice paramaters and demand-side
+            # adjustment information in the second output of
+            # mseg_find_partition is correct (limit this check to the first
+            # two sample measures only to reduce computation time)
             if idx < 2:
+                # Consumer choice parameters output check
                 dict3 = measure_instance.mseg_find_partition(
                     self.sample_msegin, self.sample_basein,
-                    "Technical potential")[1]["demand-side adjustment"]
-                dict4 = self.ok_out_compete[idx]
+                    "Technical potential")[1]["competed choice parameters"]
+                dict4 = self.ok_out_compete_choice[idx]
                 self.dict_check(dict3, dict4)
+                # Demand-side adjustment output check
+                dict5 = measure_instance.mseg_find_partition(
+                    self.sample_msegin, self.sample_basein,
+                    "Technical potential")[1]["demand-side adjustment"]
+                dict6 = self.ok_out_compete_demand[idx]
+                self.dict_check(dict5, dict6)
 
     # Test for correct output from "ok_measures_dist" input
     def test_mseg_ok_distrib(self):

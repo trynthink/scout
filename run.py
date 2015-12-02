@@ -495,22 +495,42 @@ class Measure(object):
                     for yr in mseg["energy"].keys():
                         new_bldg_frac[yr] = mseg_sqft_stock["new homes"][yr] / \
                             mseg_sqft_stock["total homes"][yr]
+                    # Update technology choice parameters needed to choose
+                    # between multiple efficient technology options that
+                    # access this baseline microsegment. For the residential
+                    # sector, these parameters are found in the baseline
+                    # technology cost, performance, and lifetime JSON
+                    choice_params = base_costperflife["consumer choice"][
+                        "competed market share"]["parameters"]
                 else:
                     # Update energy cost information
                     cost_energy = ecosts["commercial"][mskeys[3]]
                     # Update new buildings fraction information
                     for yr in mseg["energy"].keys():
                         new_bldg_frac[yr] = 0  # *** Placeholder ***
+                    # Update technology choice parameters needed to choose
+                    # between multiple efficient technology options that
+                    # access this baseline microsegment. For the commercial
+                    # sector, these parameters are specified at the
+                    # beginning of run.py in com_timeprefs (* Note:
+                    # com_timeprefs info. may eventually be integrated into the
+                    # baseline technology cost, performance, and lifetime JSON
+                    # as for residential)
+                    if mskeys[4] in com_timeprefs["distributions"].keys():
+                        choice_params = {"rate distribution": com_timeprefs[
+                            "distributions"][mskeys[4]]}
+                    # For uncovered end uses, default to choice parameters for
+                    # the heating end use
+                    else:
+                        choice_params = {"rate distribution": com_timeprefs[
+                            "distributions"]["heating"]}
 
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microegment that will be captured
                 # by efficient alternatives to the baseline technology
-                diffuse_params = None  # Placeholder for now
-
-                # Update technology choice parameters needed to choose between
-                # multiple efficient technology options that may access
-                # this baseline microsegment
-                choice_params = None  # Placeholder for now
+                # (* BLANK FOR NOW, WILL CHANGE IN FUTURE *)
+                diffuse_params = base_costperflife["consumer choice"][
+                    "competed market"]["parameters"]
 
                 # Update total stock and energy information. Note that
                 # secondary microsegments make no contribution to the stock
