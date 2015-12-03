@@ -240,6 +240,107 @@ def catg_data_selector(db_array, sel, section_label):
     return filtered[['Year', 'Amount']]
 
 
+def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
+    """ At each leaf/terminal node in the microsegments JSON, this
+    function is used to convert data from the source arrays into dicts
+    to be written to the microsegments database at that location. The
+    applicable data is obtained for a given semi-microsegment (i.e.,
+    census division, building type, end use, and fuel type) from the
+    commercial building energy (and other) data ('db_array') and, if
+    applicable, the thermal load factors ('load_array') or technology-
+    specific data ('sd_array'). """
+
+    # Convert the list of keys into a list of numeric indices that can
+    # be used to select the appropriate data
+    index_series = json_interpreter(key_series)
+
+    # Call the appropriate functions depending on the keys associated
+    # with a given leaf node in the JSON database; each of the four
+    # cases in this if/else structure require slightly different
+    # handling due either to differences in the source array or post-
+    # data-subset additional manipulation for the data to be in the
+    # desired final format
+    if 'demand' in key_series:
+        # Get the data from KDBOUT
+        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+
+        # The thermal load data end uses are coded as text strings 'HT'
+        # and 'CL' instead of numbers; the numbers in index_series are
+        # thus converted to the appropriate strings
+        if index_series[2] == 1:
+            index_series[2] = 'HT'
+        elif index_series[2] == 2:
+            index_series[2] = 'CL'
+        else:
+            raise ValueError(
+                'No thermal load data for end use ' + str(index_series[2]))
+
+        # Get the contribution of the particular thermal load component
+        # for the current end use (heating or cooling), census division,
+        # and building type (note that in the case of these thermal
+        # load microsegments, the final field in index_series has the
+        # text to select the correct thermal load component column)
+        tl_multiplier = load_array[np.all([
+            load_array['CDIV'] == index_series[0],
+            load_array['BLDG'] == index_series[1],
+            load_array['ENDUSE'] == index_series[2]],
+                                 axis=0)][index_series[-1]]
+        # N.B. tl_multiplier is a 1x1 numpy array
+
+        # Multiply together the thermal load multiplier and energy use
+        # data and construct the dict with years as keys
+        final_dict = dict(zip(subset['Year'], subset['Amount']*tl_multiplier))
+    elif 'MELs' in key_series:
+        # Miscellaneous Electric Loads (MELs) energy use data are
+        # stored in db_array in a separate section with a different
+        # label 'MiscElConsump' and with the MEL technology number
+        # coded in the 'EndUse' column. Since the MEL end use number
+        # in the 'EndUseConsump' section is 10, but technology specific
+        # in the 'MiscElConsump' section, the MEL-specific number is
+        # written over the 10 in the 'EndUse' position in index_series
+        index_series[2] = index_series[4]
+
+        # Extract the data from KDBOUT
+        subset = catg_data_selector(db_array, index_series, 'MiscElConsump')
+
+        # Convert into dict with years as keys and energy as values
+        final_dict = dict(zip(subset['Year'], subset['Amount']))
+    elif index_series[2] in sd_end_uses:
+        # Extract the relevant data from KDBOUT
+        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+
+        # Get percentage contributions for each equipment type that
+        # appears in the service demand data
+        [tech_pct, tech_names] = sd_mseg_percent(sd_array, index_series)
+
+        # Declare empty list to store dicts generated for each technology
+        tech_dict_list = []
+
+        # For each technology extracted from the service demand data,
+        # multiply the corresponding row of data in tech_pct with the
+        # total consumption for that end use and fuel type reported in
+        # the 'Amount' column in subset, and in the same step, convert
+        # the years and calculated technology-specific energy use data
+        # into a dict
+        for technology in tech_pct:
+            tech_dict_list.append(
+                dict(zip(subset['Year'], technology*subset['Amount'])))
+
+        # The final dict should be {technology: {year: data, ...}, ...}
+        final_dict = dict(zip(tech_names, tech_dict_list))
+    else:
+        # Regular case with no supply/demand separation or service demand data
+
+        # Extract the desired data from the KDBOUT array
+        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+
+        # Convert into dict with years as keys and energy as values
+        final_dict = dict(zip(subset['Year'], subset['Amount']))
+
+    # Return the dict that should end up at the leaf node in the exported JSON
+    return final_dict
+
+
 def dtype_eval(entry):
     """ Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or

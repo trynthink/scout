@@ -185,7 +185,7 @@ class CommercialDataSelectionTest(unittest.TestCase):
     that subset with the years adjusted based on the pivot year """
 
     # Define array with identical data format to EIA data file KDBOUT
-    # but only a fwe years for each entry to reduce the total number
+    # but only a few years for each entry to reduce the total number
     # of rows
     sample_db_array = np.array([
         (9, 10, 1, 2, 30, 1.503, 'EndUseConsump'),
@@ -272,6 +272,379 @@ class CommercialDataSelectionTest(unittest.TestCase):
                                       self.sample_sel[idx],
                                       correct_label_str),
                 self.expected_selection[idx])
+
+
+class DataToFinalDictAtLeafNodeRestructuringTest(unittest.TestCase):
+    """ Test function that handles selection of the appropriate data
+    and any required restructuring or reprocessing to convert it into a
+    dict formatted for insertion into the microsegments JSON """
+
+    # Define a list of the end uses found in the service demand data
+    sd_end_uses = [1, 2, 3, 4, 6, 7]
+
+    # Define array with identical data format to EIA data file KDBOUT
+    # but only a few years for each entry to reduce the total number
+    # of rows
+    sample_db_array = np.array([
+        (9, 10, 1, 2, 30,  1.503, 'EndUseConsump'),
+        (9, 10, 1, 2, 31,  1.499, 'EndUseConsump'),
+        (9, 10, 1, 2, 32,  1.493, 'EndUseConsump'),
+        (1,  5, 2, 1, 30,  0.083, 'EndUseConsump'),
+        (1,  5, 2, 1, 31,  0.081, 'EndUseConsump'),
+        (1,  5, 2, 1, 32,  0.078, 'EndUseConsump'),
+        (2,  1, 2, 1, 30,  2.430, 'EndUseConsump'),
+        (2,  1, 2, 1, 31,  2.399, 'EndUseConsump'),
+        (2,  1, 2, 1, 32,  2.360, 'EndUseConsump'),
+        (4,  6, 3, 1, 30,  0.101, 'MiscElConsump'),
+        (4,  6, 3, 1, 31,  0.103, 'MiscElConsump'),
+        (4,  6, 3, 1, 32,  0.106, 'MiscElConsump'),
+        (5,  4, 7, 1, 30,  1.475, 'MiscElConsump'),
+        (5,  4, 7, 1, 31,  1.484, 'MiscElConsump'),
+        (5,  4, 7, 1, 32,  1.492, 'MiscElConsump'),
+        (8,  2, 3, 2, 30,  9.430, 'EndUseConsump'),
+        (8,  2, 3, 2, 31,  9.373, 'EndUseConsump'),
+        (8,  2, 3, 2, 32,  9.311, 'EndUseConsump'),
+        (3,  7, 9, 1, 30, 11.983, 'EndUseConsump'),
+        (3,  7, 9, 1, 31, 12.165, 'EndUseConsump'),
+        (3,  7, 9, 1, 32, 12.377, 'EndUseConsump'),
+        (7,  4, 5, 2, 30, 24.763, 'EndUseConsump'),
+        (7,  4, 5, 2, 31, 24.724, 'EndUseConsump'),
+        (7,  4, 5, 2, 32, 24.733, 'EndUseConsump')],
+        dtype=[('Division', 'i4'), ('BldgType', 'i4'),
+               ('EndUse', 'i4'), ('Fuel', 'i4'), ('Year', 'i4'),
+               ('Amount', 'f8'), ('Label', '<U50')])
+
+    # Define array with identical data format to EIA service demand
+    # data that provides the relevant supporting data for the cases
+    # being tested that involve service demand data; note that for the
+    # two sample cases tested, not all of the data were captured from
+    # the service demand data in the interest of brevity and test speed
+    sample_sd_array = np.array([
+        (2, 1, 2, 1, 1, 6, 1, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2003 installed base', 2.73),
+        (2, 1, 2, 1, 2, 6, 1, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2003 installed base', 2.73),
+        (2, 1, 2, 1, 3, 6, 1, 0.013, 0.012, 0.011,
+         'rooftop_ASHP-cool 2003 installed base', 2.73),
+        (2, 1, 2, 1, 1, 6, 2, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2012 installed base', 2.99),
+        (2, 1, 2, 1, 2, 6, 2, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2012 installed base', 2.99),
+        (2, 1, 2, 1, 3, 6, 2, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2012 installed base', 2.99),
+        (2, 1, 2, 1, 1, 6, 3, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 current standard/ typ', 3.22),
+        (2, 1, 2, 1, 2, 6, 3, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 current standard/ typ', 3.22),
+        (2, 1, 2, 1, 3, 6, 3, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 current standard/ typ', 3.22),
+        (2, 1, 2, 1, 1, 6, 4, 0.001, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 ENERGY STAR', 3.31),
+        (2, 1, 2, 1, 2, 6, 4, 0.007, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 ENERGY STAR', 3.31),
+        (2, 1, 2, 1, 3, 6, 4, 0.067, 0.069, 0.064,
+         'rooftop_ASHP-cool 2013 ENERGY STAR', 3.31),
+        (2, 1, 2, 1, 1, 6, 5, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 high', 3.52),
+        (2, 1, 2, 1, 2, 6, 5, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 high', 3.52),
+        (2, 1, 2, 1, 3, 6, 5, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2013 high', 3.52),
+        (2, 1, 2, 1, 1, 6, 6, 0.0, 0.001, 0.001,
+         'rooftop_ASHP-cool 2020 typical', 3.22),
+        (2, 1, 2, 1, 2, 6, 6, 0.0, 0.007, 0.007,
+         'rooftop_ASHP-cool 2020 typical', 3.22),
+        (2, 1, 2, 1, 3, 6, 6, 0.0, 0.0, 0.007,
+         'rooftop_ASHP-cool 2020 typical', 3.22),
+        (2, 1, 2, 1, 1, 6, 7, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2020 high', 3.52),
+        (2, 1, 2, 1, 2, 6, 7, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2020 high', 3.52),
+        (2, 1, 2, 1, 3, 6, 7, 0.0, 0.0, 0.0,
+         'rooftop_ASHP-cool 2020 high', 3.52),
+        (2, 1, 2, 1, 1, 7, 1, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2003 installed base', 4.04),
+        (2, 1, 2, 1, 2, 7, 1, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2003 installed base', 4.04),
+        (2, 1, 2, 1, 3, 7, 1, 0.009, 0.009, 0.008,
+         'comm_GSHP-cool 2003 installed base', 4.04),
+        (2, 1, 2, 1, 1, 7, 2, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2012 installed base', 4.1),
+        (2, 1, 2, 1, 2, 7, 2, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2012 installed base', 4.1),
+        (2, 1, 2, 1, 3, 7, 2, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2012 installed base', 4.1),
+        (2, 1, 2, 1, 1, 7, 3, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 typical', 5.01),
+        (2, 1, 2, 1, 2, 7, 3, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 typical', 5.01),
+        (2, 1, 2, 1, 3, 7, 3, 0.002, 0.002, 0.002,
+         'comm_GSHP-cool 2013 typical', 5.01),
+        (2, 1, 2, 1, 1, 7, 4, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid', 5.16),
+        (2, 1, 2, 1, 2, 7, 4, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid', 5.16),
+        (2, 1, 2, 1, 3, 7, 4, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid', 5.16),
+        (2, 1, 2, 1, 1, 7, 5, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high', 6.04),
+        (2, 1, 2, 1, 2, 7, 5, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high', 6.04),
+        (2, 1, 2, 1, 3, 7, 5, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high', 6.04),
+        (2, 1, 2, 1, 1, 7, 6, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 typical', 5.28),
+        (2, 1, 2, 1, 2, 7, 6, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 typical', 5.28),
+        (2, 1, 2, 1, 3, 7, 6, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 typical', 5.28),
+        (2, 1, 2, 1, 1, 7, 7, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 high', 6.45),
+        (2, 1, 2, 1, 2, 7, 7, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 high', 6.45),
+        (2, 1, 2, 1, 3, 7, 7, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2020 high', 6.45),
+        (2, 1, 2, 1, 1, 7, 8, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 typical', 5.86),
+        (2, 1, 2, 1, 2, 7, 8, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 typical', 5.86),
+        (2, 1, 2, 1, 3, 7, 8, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 typical', 5.86),
+        (2, 1, 2, 1, 1, 7, 9, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 high', 7.03),
+        (2, 1, 2, 1, 2, 7, 9, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 high', 7.03),
+        (2, 1, 2, 1, 3, 7, 9, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2030 high', 7.03),
+        (2, 1, 2, 1, 1, 7, 10, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 typ 10% ITC w MACRS', 5.01),
+        (2, 1, 2, 1, 2, 7, 10, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 typ 10% ITC w MACRS', 5.01),
+        (2, 1, 2, 1, 3, 7, 10, 0.003, 0.002, 0.002,
+         'comm_GSHP-cool 2013 typ 10% ITC w MACRS', 5.01),
+        (2, 1, 2, 1, 1, 7, 11, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid 10% ITC w MACRS', 5.16),
+        (2, 1, 2, 1, 2, 7, 11, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid 10% ITC w MACRS', 5.16),
+        (2, 1, 2, 1, 3, 7, 11, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 mid 10% ITC w MACRS', 5.16),
+        (2, 1, 2, 1, 1, 7, 12, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high 10% ITC w MACRS', 6.04),
+        (2, 1, 2, 1, 2, 7, 12, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high 10% ITC w MACRS', 6.04),
+        (2, 1, 2, 1, 3, 7, 12, 0.0, 0.0, 0.0,
+         'comm_GSHP-cool 2013 high 10% ITC w MACRS', 6.04),
+        (2, 1, 2, 1, 1, 54, 1, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2003 installed base', 3.34),
+        (2, 1, 2, 1, 2, 54, 1, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2003 installed base', 3.34),
+        (2, 1, 2, 1, 3, 54, 1, 0.645, 0.595, 0.549,
+         'res_type_central_AC 2003 installed base', 3.34),
+        (2, 1, 2, 1, 1, 54, 2, 0.004, 0.004, 0.004,
+         'res_type_central_AC 2013 current standard', 3.81),
+        (2, 1, 2, 1, 2, 54, 2, 0.082, 0.08, 0.079,
+         'res_type_central_AC 2013 current standard', 3.81),
+        (2, 1, 2, 1, 3, 54, 2, 0.831, 0.847, 0.86,
+         'res_type_central_AC 2013 current standard', 3.81),
+        (2, 1, 2, 1, 1, 54, 3, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 typical', 3.81),
+        (2, 1, 2, 1, 2, 54, 3, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 typical', 3.81),
+        (2, 1, 2, 1, 3, 54, 3, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 typical', 3.81),
+        (2, 1, 2, 1, 1, 54, 4, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 ENERGY STAR', 4.25),
+        (2, 1, 2, 1, 2, 54, 4, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 ENERGY STAR', 4.25),
+        (2, 1, 2, 1, 3, 54, 4, 0.013, 0.012, 0.012,
+         'res_type_central_AC 2013 ENERGY STAR', 4.25),
+        (2, 1, 2, 1, 1, 54, 5, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 high', 7.03),
+        (2, 1, 2, 1, 2, 54, 5, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 high', 7.03),
+        (2, 1, 2, 1, 3, 54, 5, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2013 high', 7.03),
+        (2, 1, 2, 1, 1, 54, 6, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2020 typical', 4.1),
+        (2, 1, 2, 1, 2, 54, 6, 0.011, 0.011, 0.011,
+         'res_type_central_AC 2020 typical', 4.1),
+        (2, 1, 2, 1, 3, 54, 6, 0.105, 0.108, 0.11,
+         'res_type_central_AC 2020 typical', 4.1),
+        (2, 1, 2, 1, 1, 54, 7, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2020 high', 7.03),
+        (2, 1, 2, 1, 2, 54, 7, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2020 high', 7.03),
+        (2, 1, 2, 1, 3, 54, 7, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2020 high', 7.03),
+        (2, 1, 2, 1, 1, 54, 8, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2030 typical', 4.1),
+        (2, 1, 2, 1, 2, 54, 8, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2030 typical', 4.1),
+        (2, 1, 2, 1, 3, 54, 8, 0.0, 0.0, 0.0,
+         'res_type_central_AC 2030 typical', 4.1),
+        (8, 2, 3, 2, 1, 22, 1, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2003 installed base', 0.76),
+        (8, 2, 3, 2, 2, 22, 1, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2003 installed base', 0.76),
+        (8, 2, 3, 2, 3, 22, 1, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2003 installed base', 0.76),
+        (8, 2, 3, 2, 1, 22, 2, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2012 installed base', 0.78),
+        (8, 2, 3, 2, 2, 22, 2, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2012 installed base', 0.78),
+        (8, 2, 3, 2, 3, 22, 2, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2012 installed base', 0.78),
+        (8, 2, 3, 2, 1, 22, 3, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 current standard', 0.8),
+        (8, 2, 3, 2, 2, 22, 3, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 current standard', 0.8),
+        (8, 2, 3, 2, 3, 22, 3, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 current standard', 0.8),
+        (8, 2, 3, 2, 1, 22, 4, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 typical', 0.89),
+        (8, 2, 3, 2, 2, 22, 4, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 typical', 0.89),
+        (8, 2, 3, 2, 3, 22, 4, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 typical', 0.89),
+        (8, 2, 3, 2, 1, 22, 5, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 high', 0.97),
+        (8, 2, 3, 2, 2, 22, 5, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 high', 0.97),
+        (8, 2, 3, 2, 3, 22, 5, 0.0, 0.0, 0.0,
+         'gas_instantaneous_WH 2013 high', 0.97),
+        (8, 2, 3, 2, 1, 57, 1, 0.0, 0.0, 0.0,
+         'gas_water_heater 2003 installed base', 0.77),
+        (8, 2, 3, 2, 2, 57, 1, 0.0, 0.0, 0.0,
+         'gas_water_heater 2003 installed base', 0.77),
+        (8, 2, 3, 2, 3, 57, 1, 0.624, 0.57, 0.521,
+         'gas_water_heater 2003 installed base', 0.77),
+        (8, 2, 3, 2, 1, 57, 2, 0.038, 0.037, 0.035,
+         'gas_water_heater 2013 current standard/ typi', 0.8),
+        (8, 2, 3, 2, 2, 57, 2, 0.151, 0.153, 0.155,
+         'gas_water_heater 2013 current standard/ typi', 0.8),
+        (8, 2, 3, 2, 3, 57, 2, 2.046, 2.043, 2.04,
+         'gas_water_heater 2013 current standard/ typi', 0.8),
+        (8, 2, 3, 2, 1, 57, 3, 0.036, 0.035, 0.034,
+         'gas_water_heater 2013 high', 0.99),
+        (8, 2, 3, 2, 2, 57, 3, 0.144, 0.146, 0.147,
+         'gas_water_heater 2013 high', 0.99),
+        (8, 2, 3, 2, 3, 57, 3, 0.806, 0.905, 0.995,
+         'gas_water_heater 2013 high', 0.99),
+        (8, 2, 3, 2, 1, 57, 4, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 typical', 0.8),
+        (8, 2, 3, 2, 2, 57, 4, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 typical', 0.8),
+        (8, 2, 3, 2, 3, 57, 4, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 typical', 0.8),
+        (8, 2, 3, 2, 1, 57, 5, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 high', 0.99),
+        (8, 2, 3, 2, 2, 57, 5, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 high', 0.99),
+        (8, 2, 3, 2, 3, 57, 5, 0.0, 0.0, 0.0,
+         'gas_water_heater 2020 high', 0.99)],
+        dtype=[('r', '<i4'), ('b', '<i4'), ('s', '<i4'), ('f', '<i4'),
+               ('d', '<i4'), ('t', '<i4'), ('v', '<i4'),
+               ('2019', '<f8'), ('2020', '<f8'), ('2021', '<f8'),
+               ('Description', '<U50'), ('Eff', '<f8')])
+
+    # Define array similar to the thermal loads data, but with only the
+    # data required to test the sample cases explored here (plus an
+    # extra that can be added later, if desired)
+    sample_tl_array = np.array([
+        ('HT', 9, 10, -0.2964, -0.069, 1.0994),
+        ('CL', 1, 5, 0.1338, 0.084, 0.0),
+        ('CL', 2, 1, 0.448, 0.0956, -0.0427)],
+        dtype=[('ENDUSE', '<U50'), ('CDIV', '<i4'), ('BLDG', '<i4'),
+               ('WIND_SOL', '<f8'), ('PEOPLE', '<f8'), ('GRND', '<f8')])
+
+    # Set up a list of lists that would be recursively generated by the
+    # walk function from the JSON database
+    sample_keys = [['pacific', 'warehouse', 'natural gas',
+                    'heating', 'demand', 'ground'],
+                   ['new england', 'health care', 'electricity',
+                    'cooling', 'demand', 'people gain'],
+                   ['west north central', 'lodging', 'electricity',
+                    'MELs', 'elevators'],
+                   ['south atlantic', 'food service', 'electricity',
+                    'MELs', 'kitchen ventilation'],
+                   ['mid atlantic', 'assembly', 'electricity',
+                    'cooling', 'supply'],
+                   ['mountain', 'education', 'natural gas',
+                    'water heating'],
+                   ['east north central', 'large office', 'electricity',
+                    'non-PC office equipment'],
+                   ['west south central', 'food sales', 'natural gas',
+                    'cooking']]
+
+    # For reference: keys converted to numbers
+    # [9, 10, 1, 2, 'GRND'] - DEMAND
+    # [1, 5, 2, 1, 'PEOPLE'] - DEMAND
+    # [4, 6, 10, 1, 3] - MEL
+    # [5, 4, 10, 1, 7] - MEL
+    # [2, 1, 2, 1] - SD
+    # [8, 2, 3, 2] - SD
+    # [3, 7, 9, 1]
+    # [7, 4, 5, 2]
+
+    # Final dicts in the form that should be produced by the function
+    # under test, in the same order as the sample_keys list
+    dict_list = [
+        {'2019': 1.6523982, '2020': 1.6480006, '2021': 1.6414042},
+        {'2019': 0.006972, '2020': 0.006804, '2021': 0.006552},
+        {'2019': 0.101, '2020': 0.103, '2021': 0.106},
+        {'2019': 1.475, '2020': 1.484, '2021': 1.492},
+        {'rooftop_ASHP-cool':
+            {'2019': 0.1192638, '2020': 0.12138204, '2021': 0.12298784},
+         'comm_GSHP-cool':
+            {'2019': 0.01897379, '2020': 0.01772996, '2021': 0.01639838},
+         'res_type_central_AC':
+            {'2019': 2.29176241, '2020': 2.259888, '2021': 2.22061378}},
+        {'gas_instantaneous_WH': {'2019': 0, '2020': 0, '2021': 0},
+         'gas_water_heater': {'2019': 9.430, '2020': 9.373, '2021': 9.311}},
+        {'2019': 11.983, '2020': 12.165, '2021': 12.377},
+        {'2019': 24.763, '2020': 24.724, '2021': 24.733}]
+
+    # Test each if/else data condition in the energy_select function separately
+    def test_restructuring_cases_with_thermal_loads(self):
+        for i in [0, 1]:
+            # Obtain the output from the function to be tested
+            func = cm.energy_select(self.sample_db_array,
+                                    self.sample_sd_array,
+                                    self.sample_tl_array,
+                                    self.sample_keys[i],
+                                    self.sd_end_uses)
+            # Compare the pre-calculated dict with that obtained from
+            # the function under test using assertAlmostEqual to
+            # accommodate floating point issues when recording numeric
+            # data from a numpy array into a dict
+            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+
+    def test_restructuring_cases_with_miscellaneous_electric_loads(self):
+        for i in [2, 3]:
+            func = cm.energy_select(self.sample_db_array,
+                                    self.sample_sd_array,
+                                    self.sample_tl_array,
+                                    self.sample_keys[i],
+                                    self.sd_end_uses)
+            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+
+    def test_restructuring_cases_with_service_demand_data(self):
+        for i in [4, 5]:
+            func = cm.energy_select(self.sample_db_array,
+                                    self.sample_sd_array,
+                                    self.sample_tl_array,
+                                    self.sample_keys[i],
+                                    self.sd_end_uses)
+            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+
+    def test_restructuring_all_other_cases(self):
+        for i in [6, 7]:
+            func = cm.energy_select(self.sample_db_array,
+                                    self.sample_sd_array,
+                                    self.sample_tl_array,
+                                    self.sample_keys[i],
+                                    self.sd_end_uses)
+            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
 
 
 class StructuredArrayStringProcessingTest(unittest.TestCase):
