@@ -241,7 +241,7 @@ tech_non_eia = {"secondary heating (electric)": [["NA", "NA", "NA"],
                 "infiltration": [[30, 30, "Legacy P-Tool"],
                                  [13, 1, "Legacy P-Tool, NREL Residential, \
                                   Efficiency DB"],
-                                 ["NA", "NA", "NA"], "ACH"],
+                                 [0, 0, "Legacy P-Tool"], "ACH"],
                 "people gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
                                 ["NA", "NA", "NA"], "NA"],
                 "equipment gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
