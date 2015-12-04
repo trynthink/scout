@@ -384,17 +384,20 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
             walk(db_array, sd_array, load_array,
                  sd_end_uses, item, key_list + [key])
 
-        # If a leaf node has been reached, finish constructing the key
-        # list for the current location and update the data in the dict
+        # If a leaf node has been reached, check if the second entry in
+        # the key list is one of the recognized building types, and if
+        # so, finish constructing the key list for the current location
+        # and obtain the data to update the dict
         else:
-            leaf_node_keys = key_list + [key]
+            if key_list[1] in bldgtypedict.keys():
+                leaf_node_keys = key_list + [key]
 
-            # Extract data from original data sources
-            data_dict = energy_select(db_array, sd_array, load_array,
-                                      leaf_node_keys, sd_end_uses)
+                # Extract data from original data sources
+                data_dict = energy_select(db_array, sd_array, load_array,
+                                          leaf_node_keys, sd_end_uses)
 
-            # Set dict key to extracted data
-            json_db[key] = data_dict
+                # Set dict key to extracted data
+                json_db[key] = data_dict
 
     # Return filled database structure
     return json_db
