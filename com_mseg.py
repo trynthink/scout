@@ -226,9 +226,14 @@ def sd_mseg_percent(sd_array, sel):
         # numpy array, which allows the use of the .sum() function)
         tval[idx, ] = np.sum(entries[years].view(('<f8', len(years))), axis=0)
 
-    # Calculate the percentages for each technology type by year
-    # (tval is initially a measure of absolute energy use)
-    tval = tval/np.sum(tval, axis=0)
+    # If at least one entry in tval is non-zero (tval.any() == True),
+    # suppress any divide by zero warnings and calculate the percentage
+    # contribution of each technology by year (since tval is initially
+    # a measure of absolute energy use)
+    if tval.any():
+        with np.errstate(divide='ignore', invalid='ignore'):
+            tval = tval/np.sum(tval, axis=0)
+            tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
 
     # Note that each row in tval corresponds to a single technology and
     # the rows are in the same order as the technames list
@@ -340,21 +345,30 @@ def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
         # appears in the service demand data
         [tech_pct, tech_names] = sd_mseg_percent(sd_array, index_series)
 
-        # Declare empty list to store dicts generated for each technology
-        tech_dict_list = []
+        # If there's only non-zero data in tech_pct, final_dict should
+        # be constructed from subset alone; otherwise proceed with the
+        # calculation as planned
+        if not tech_pct.any():
+            # Convert subset into dict with years as keys and energy
+            # as values because no technology-specific data were found
+            # for index_series
+            final_dict = dict(zip(subset['Year'], subset['Amount']))
+        else:
+            # Declare empty list to store dicts generated for each technology
+            tech_dict_list = []
 
-        # For each technology extracted from the service demand data,
-        # multiply the corresponding row of data in tech_pct with the
-        # total consumption for that end use and fuel type reported in
-        # the 'Amount' column in subset, and in the same step, convert
-        # the years and calculated technology-specific energy use data
-        # into a dict
-        for technology in tech_pct:
-            tech_dict_list.append(
-                dict(zip(subset['Year'], technology*subset['Amount'])))
+            # For each technology extracted from the service demand data,
+            # multiply the corresponding row of data in tech_pct with the
+            # total consumption for that end use and fuel type reported in
+            # the 'Amount' column in subset, and in the same step, convert
+            # the years and calculated technology-specific energy use data
+            # into a dict
+            for technology in tech_pct:
+                tech_dict_list.append(
+                    dict(zip(subset['Year'], technology*subset['Amount'])))
 
-        # The final dict should be {technology: {year: data, ...}, ...}
-        final_dict = dict(zip(tech_names, tech_dict_list))
+            # The final dict should be {technology: {year: data, ...}, ...}
+            final_dict = dict(zip(tech_names, tech_dict_list))
     else:
         # Regular case with no supply/demand separation or service demand data
 
