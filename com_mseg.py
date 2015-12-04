@@ -3,16 +3,17 @@
 import numpy as np
 import re
 import csv
+import json
 
 # Set the pivot year (i.e., the year that should be added to the data
 # reported to convert the values to actual calendar years) for KDBOUT
 pivot_year = 1989
 
 # Identify files to import for conversion
-serv_dmd = 'KDBOUT.txt'
+serv_dmd = 'KSDOUT.txt'
 catg_dmd = 'KDBOUT.txt'
-# json_in = 'microsegments.json'
-# json_out = 'microsegments_out.json'
+json_in = 'microsegments.json'
+json_out = 'microsegments_out.json'
 # res_tloads = 'Res_TLoads_Final.txt'
 # res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
 com_tloads = 'Com_TLoads_Final.txt'
@@ -98,7 +99,7 @@ demand_typedict = {'windows conduction': 'WIND_COND',
                    'infiltration': 'INFIL',
                    'ventilation': 'VENT',
                    'people gain': 'PEOPLE',
-                   'equipment gain': 'EQUIP',
+                   'equipment gain': 'EQUIP_ELEC',
                    'lighting gain': 'LIGHTS',
                    'other heat gain': 'EQUIP_NELEC'
                    }
@@ -170,18 +171,37 @@ def sd_mseg_percent(sd_array, sel):
     # NOT REDONE ALL THE TIME
     years = [a for a in sd_array.dtype.names if re.search('^2[0-9]{3}$', a)]
 
+    # Initialize list of rows to remove from 'filtered' based on a
+    # regex search of the 'Description' text
+    rows_to_remove = []
+
     # Replace technology descriptions in the array 'filtered' with
     # generalized names, removing any text describing the vintage or
-    # efficiency level
+    # efficiency level and preparing to delete placeholder rows
+    # (placeholder rows are in the data as imported)
     for idx, row in enumerate(filtered):
 
-        # Identify the technology name using a regex match on the first
-        # part of the technology description
-        filtered['Description'][idx] = re.search(
-            '.+?(?=\s2[0-9]{3})', row['Description']).group(0)
-        # The regex is set up to match any text '.+?' that appears
-        # before the first occurrence of a space followed by a 2 and
-        # three other numbers (i.e., 2009 or 2035)
+        # Identify the technology name from the 'Description' column in
+        # the data using a regex set up to match any text '.+?' that
+        # appears before the first occurrence of a space followed by a
+        # 2 and three other numbers (i.e., 2009 or 2035)
+        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['Description'])
+
+        # If the regex matched, overwrite the original description with
+        # the matching text, which describes the technology without
+        # scenario-specific text like '2003 installed base'
+        if tech_name:
+            filtered['Description'][idx] = tech_name.group(0)
+        # Else check to see if the description indicates a placeholder
+        # row, which should be deleted before the technologies are
+        # summarized and returned from this function
+        elif re.search('placeholder', row['Description']):
+            rows_to_remove.append(idx)
+        # Implicitly, if the text does not match either regex, it
+        # is assumed that it does not need to be edited or removed
+
+    # Delete the placeholder rows from the filtered array
+    filtered = np.delete(filtered, rows_to_remove, 0)
 
     # Because different technologies are sometimes coded with the same
     # technology type number (especially in lighting, where lighting
@@ -235,9 +255,16 @@ def catg_data_selector(db_array, sel, section_label):
     # Adjust years reported based on the pivot year
     filtered['Year'] = filtered['Year'] + pivot_year
 
-    # Return the filtered data with only the two needed columns,
+    # From the filtered data, select only the two needed columns,
     # the year and the data
-    return filtered[['Year', 'Amount']]
+    desired_cols = filtered[['Year', 'Amount']]
+
+    # Recast the year column as string type instead of integer, since
+    # the years will become keys in the dicts output to the JSON, and
+    # valid JSON cannot have integers are keys
+    desired_cols = desired_cols.astype([('Year', 'U4'), ('Amount', '<f8')])
+
+    return desired_cols
 
 
 def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
@@ -339,6 +366,38 @@ def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
 
     # Return the dict that should end up at the leaf node in the exported JSON
     return final_dict
+
+
+def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
+    """ Proceed recursively through the microsegment data structure
+    (formatted as a nested dict) to each leaf/terminal node in the
+    structure, constructing a list of the applicable keys that define
+    the location of the terminal node and then call the appropriate
+    functions to process the imported data. """
+
+    # Explore data structure from current level
+    for key, item in json_db.items():
+
+        # If there are additional levels in the dict, call the function
+        # again to advance another level deeper into the data structure
+        if isinstance(item, dict):
+            walk(db_array, sd_array, load_array,
+                 sd_end_uses, item, key_list + [key])
+
+        # If a leaf node has been reached, finish constructing the key
+        # list for the current location and update the data in the dict
+        else:
+            leaf_node_keys = key_list + [key]
+
+            # Extract data from original data sources
+            data_dict = energy_select(db_array, sd_array, load_array,
+                                      leaf_node_keys, sd_end_uses)
+
+            # Set dict key to extracted data
+            json_db[key] = data_dict
+
+    # Return filled database structure
+    return json_db
 
 
 def dtype_eval(entry):
@@ -503,6 +562,18 @@ def main():
     # demand data are not explored unnecessarily when they are not even
     # available for a particular end use
     serv_data_end_uses = np.unique(serv_data['s'])
+
+    # Import empty microsegments JSON file and traverse database structure
+    with open(json_in, 'r') as jsi:
+        msjson = json.load(jsi)
+
+        # Proceed recursively through database structure
+        result = walk(catg_data, serv_data, load_data,
+                      serv_data_end_uses, msjson)
+
+    # Write the updated dict of data to a new JSON file
+    with open(json_out, 'w') as jso:
+        json.dump(result, jso, indent=2)
 
 if __name__ == '__main__':
     main()
