@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import re
 import numpy
 import json
@@ -8,28 +9,28 @@ import copy
 # Set microsegments JSON as the file that provides the structure for
 # the technology performance, cost, and lifetime information output JSON
 json_in = "microsegments.json"
+
 # Set technology performance, cost, and lifetime information output JSON
 # file name
 json_out = "base_costperflife.json"
 
-# Import the residential census to climate conversion factors needed to
-# roll the performance/cost/lifetime data available for each census division
-# into properly weighted figures for each AIA climate zone.
+# Identify the file with the appropriate residential census division to
+# climate zone conversion - note that the '_Rev_' version of the
+# conversion matrix has weights scaled such that the columns (climate
+# zones) sum to 1, which is required to calculate the weighted average
+# of technology performance, lifetime, etc. across the census divisions.
+# (Conversely, the other census division to climate zone conversion file
+# is structured such that the census divisions sum to 1, since the energy
+# data are originally recorded by census division, and all of the energy
+# use reported must be accounted for when switching to climate zones.)
 res_climate_convert_rev = "Res_Cdiv_Czone_ConvertTable_Rev_Final.txt"
-res_convert_array_rev = numpy.genfromtxt(res_climate_convert_rev,
-                                         names=True, delimiter="\t",
-                                         dtype=None)
 
 # Set the file names for the EIA information on the performance,
 # cost, and lifetime of non-lighting and lighting technologies in the
 # residential sector
-
-# EIA non-lighting cost and performance information
-r_nlt_costperf = "rsmeqp.txt"
-# EIA non-lighting lifetime information
-r_nlt_life = "rsclass.txt"
-# EIA lighting cost, performance, and lifetime information
-r_lt_all = "rsmlgt.txt"
+r_nlt_costperf = "rsmeqp.txt"  # EIA non-lighting cost and performance info
+r_nlt_life = "rsclass.txt"  # EIA non-lighting lifetime info
+r_lt_all = "rsmlgt.txt"  # EIA lighting cost, performance, and lifetime info
 
 # Pre-specify the numpy field names to be used in importing the EIA
 # information on the cost performance, and lifetime of of non-lighting and
@@ -268,21 +269,25 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
         # If a leaf node has been reached, finish constructing the key
         # list for the current location and update the data in the dict
         else:
-            leaf_node_keys = key_list + [key]
-            # Update data unless the leaf node is describing square footage
-            # information, which is not relevant to the mseg_techdata.py
-            # routine; in this case, skip the node
-            if leaf_node_keys[-1] not in [
-               "square footage", "new homes", "total homes"]:
-                data_dict = \
-                    list_generator_techdata(eia_nlt_cp, eia_nlt_l,
-                                            eia_lt, eia_lt_choice,
-                                            non_eia_env_choice,
-                                            tech_eia_nonlt,
-                                            tech_eia_lt, tech_non_eia,
-                                            leaf_node_keys, project_dict)
-                # Set dict key to extracted data
-                json_dict[key] = data_dict
+            # Confirm that the building type is one of the residential
+            # building types in mseg.bldgtypedict before attempting to
+            # proceed with processing the input data
+            if key_list[1] in mseg.bldgtypedict.keys():
+                leaf_node_keys = key_list + [key]
+                # Update data unless the leaf node is describing square
+                # footage information, which is not relevant to the
+                # mseg_techdata.py routine; in this case, skip the node
+                if leaf_node_keys[-1] not in [
+                   "square footage", "new homes", "total homes"]:
+                    data_dict = \
+                        list_generator_techdata(eia_nlt_cp, eia_nlt_l,
+                                                eia_lt, eia_lt_choice,
+                                                non_eia_env_choice,
+                                                tech_eia_nonlt,
+                                                tech_eia_lt, tech_non_eia,
+                                                leaf_node_keys, project_dict)
+                    # Set dict key to extracted data
+                    json_dict[key] = data_dict
 
     # Return updated dict
     return json_dict
@@ -984,6 +989,13 @@ def main():
                                  for k in project_dict.keys()},
                           "b2": {k: -0.012
                                  for k in project_dict.keys()}}
+
+    # Import the residential census to climate conversion factors needed
+    # to roll the performance/cost/lifetime data available for each census
+    # division into properly weighted figures for each AIA climate zone
+    res_convert_array_rev = numpy.genfromtxt(res_climate_convert_rev,
+                                             names=True, delimiter="\t",
+                                             dtype=None)
 
     # Import microsegments JSON file as a dictionary structure
     with open(json_in, "r") as jsi:
