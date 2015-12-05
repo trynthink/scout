@@ -140,11 +140,6 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
                 technology_supplydict, technology_demanddict]
 
-# Import the residential census division to climate zone conversion array
-res_convert_array = numpy.genfromtxt(res_climate_convert,
-                                     names=True, delimiter='\t',
-                                     dtype=None)
-
 # Define a series of regex comparison inputs that determines what we don't need
 # in the imported RESDBOUT.txt file for the "supply" and "demand" portions of
 # the microsegment updating routine
@@ -526,15 +521,18 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
         if isinstance(item, dict):
             walk(supply, demand, loads, item, key_list + [key])
 
-        # If a leaf node has been reached, finish constructing the key
-        # list for the current location and update the data in the dict
+        # If a leaf node has been reached, check if the second entry in
+        # the key list is one of the recognized building types, and if
+        # so, finish constructing the key list for the current location
+        # and obtain the data to update the dict
         else:
-            leaf_node_keys = key_list + [key]
-            # Extract data from original data sources
-            [data_dict, supply] = list_generator(supply, demand, loads,
-                                                 leaf_node_keys, aeo_years)
-            # Set dict key to extracted data
-            json_dict[key] = data_dict
+            if key_list[1] in bldgtypedict.keys():
+                leaf_node_keys = key_list + [key]
+                # Extract data from original data sources
+                [data_dict, supply] = list_generator(supply, demand, loads,
+                                                     leaf_node_keys, aeo_years)
+                # Set dict key to extracted data
+                json_dict[key] = data_dict
 
     # Return final file
     return json_dict
@@ -651,6 +649,10 @@ def main():
     # Set thermal loads .txt file (*currently residential)
     loads = numpy.genfromtxt(res_tloads, names=True,
                              delimiter='\t', dtype=None)
+
+    # Import the residential census division to climate zone conversion array
+    res_convert_array = numpy.genfromtxt(res_climate_convert, names=True,
+                                         delimiter='\t', dtype=None)
 
     # Import JSON file and run through updating scheme
     with open(json_in, 'r') as jsi:
