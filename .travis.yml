@@ -1,11 +1,31 @@
+# Based on:
+# https://gist.github.com/dan-blanchard/7045057
+# https://github.com/Jorge-C/ordination/blob/master/.travis.yml
+# https://github.com/soft-matter/trackpy/blob/master/.travis.yml
+# http://conda.pydata.org/docs/travis.html
+
+# See also: https://github.com/travis-ci/travis-ci/issues/2650
+
 language: python
 python:
-  - "3.2"
-  - "3.3"
   - "3.4"
   - "3.5"
-# command to install dependencies
-install: "pip3 install -r requirements.txt"
-# command to run tests
+
+# Download and set up anaconda
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  # Update conda itself
+  - conda update --yes conda
+
+# Install packages
+install: 
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - source activate testenv
+#  - python setup.py install
+
+# Run test(s)
 script: 
   - python3 -m unittest discover -p '*_test.py'

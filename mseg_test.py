@@ -940,6 +940,15 @@ class ClimConverterTest(unittest.TestCase):
                                               "2011": 0}}}}}}
                    }
 
+    # Array that provides the weights for converting the data from
+    # a census division to climate zone basis
+    cdiv_cz_array = numpy.array([
+        (1, 0.2196, 0.7273, 0.0532, 0, 0),
+        (2, 0.0599, 0.3407, 0.5994, 0, 0),
+        (3, 0.1554, 0.6739, 0.1707, 0, 0)],
+        dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
+               ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
         for (k, i), (k2, i2) in zip(sorted(dict1.items()),
@@ -952,14 +961,14 @@ class ClimConverterTest(unittest.TestCase):
 
     # Implement dict check routine
     def test_convert_match(self):
-        dict1 = mseg.clim_converter(self.test_input, mseg.res_convert_array)
+        dict1 = mseg.clim_converter(self.test_input, self.cdiv_cz_array)
         dict2 = self.test_output
         self.dict_check(dict1, dict2)
 
     # Implement dict fail check routine
     def test_convert_fail(self):
         with self.assertRaises(KeyError):
-            mseg.clim_converter(self.test_fail_input, mseg.res_convert_array)
+            mseg.clim_converter(self.test_fail_input, self.cdiv_cz_array)
 
 
 # Offer external code execution (include all lines below this point in all
