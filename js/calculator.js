@@ -68,8 +68,8 @@ $(document).ready(function(){
 	var res_end_use = ['Heating', 'Secondary Heating', 'Cooling', 'Fans and Pumps', 'Ceiling Fans', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Clothes Drying', 'Home Entertainment', 'Computers', 'Other'];
 	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)'];
 
-	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration'];
-	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration'];
+	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration', 'Equipment Heat Gain'];
+	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration', 'equipment gain'];
 
 	var fuel_type = ['Electricity', 'Natural Gas', 'Distillate', 'Solar', 'Other', 'Propane/LPG'];
 	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'solar', 'other fuel', 'other fuel'];
