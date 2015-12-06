@@ -11,9 +11,6 @@ measures_file = "measures_test.json"
 microsegments_file = "microsegments_out.json"
 mseg_base_costperflife_info = "base_costperflife.json"
 
-# Define a summary CSV file
-csv_output_file = "output_summary.csv"
-
 # Define and import site-source conversions and CO2 emissions data
 cost_sitesource_co2 = "Cost_S-S_CO2.txt"
 cost_ss_co2 = numpy.genfromtxt(cost_sitesource_co2,
@@ -63,7 +60,14 @@ com_timeprefs = {
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'
-compete_measures = False
+compete_measures = True
+
+# Define a summary CSV file. For now, yield separate output files for a
+# competed and non-competed case to help organize test plotting efforts
+if compete_measures is True:
+    csv_output_file = "output_summary_competed.csv"
+else:
+    csv_output_file = "output_summary_noncompeted.csv"
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -636,8 +640,8 @@ class Measure(object):
                 reduce_factor = key_chain_ct / (len(ms_lists[0]) *
                                                 len(ms_lists[1]))
                 mseg_master = self.reduce_sqft(mseg_master, reduce_factor)
-                mseg_compete = self.reduce_sqft(
-                    copy.deepcopy(
+                mseg_compete["competed mseg keys and values"] = \
+                    self.reduce_sqft(copy.deepcopy(
                         mseg_compete["competed mseg keys and values"]),
                     reduce_factor)
             else:
@@ -982,10 +986,17 @@ class Measure(object):
 
                 # Calculate economic metrics using "metric_update" function
 
+                # Check whether number of adopted units for a measure is zero,
+                # in which case all economic outputs are set to 999
+                if num_units == 0:
+                    stock_anpv[yr], energy_anpv[yr], carbon_anpv[yr], irr_e[yr], \
+                        irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
+                        cce_bens[yr], ccc[yr], ccc_bens[yr] = [
+                            999 for n in range(11)]
                 # Check whether any "metric_update" inputs that can be arrays
                 # are in fact arrays
-                if any(type(x) == numpy.ndarray for x in
-                        [scostsave_add_temp, esave_add_temp, life_meas_temp]):
+                elif any(type(x) == numpy.ndarray for x in
+                         [scostsave_add_temp, esave_add_temp, life_meas_temp]):
 
                     # Ensure consistency in length of all "metric_update"
                     # inputs that can be arrays
@@ -1022,12 +1033,19 @@ class Measure(object):
                             life_ratio_temp, length_array)
 
                     # Initialize numpy arrays for economic metric outputs
-                    stock_anpv[yr], energy_anpv[yr], \
-                        carbon_anpv[yr], irr_e[yr], irr_ec[yr], \
-                        payback_e[yr], payback_ec[yr], \
+
+                    # First three arrays will be populated by dicts
+                    # containing residential and commercial Annualized
+                    # Net Present Values (ANPVs)
+                    stock_anpv[yr], energy_anpv[yr], carbon_anpv[yr] = \
+                        (numpy.repeat({}, len(scostsave_add_temp))
+                            for v in range(3))
+                    # Remaining eight arrays will be populated by floating
+                    # point values
+                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        (numpy.zeros(len(scostsave_add_temp)) for v in
-                         range(11))
+                        (numpy.zeros(len(scostsave_add_temp))
+                            for v in range(8))
 
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield economic
@@ -1199,25 +1217,53 @@ class Measure(object):
 
         # Calculate Annualized Net Present Value (ANPV) using the above
         # cashflows for later use in measure competition calculations. For
-        # non-commercial sector measures, ANPV is calculated using the
+        # residential sector measures, ANPV is calculated using the
         # above NPVs, with a general discount rate applied.  For commerical
         # sector measures, ANPV is calculated using multiple discount rate
         # levels that reflect various degrees of risk tolerance observed
         # amongst commercial adopters.  These discount rate levels are imported
-        # from the commercial AEO demand module data. * Note: ignore warning
-        # yielded when discount rate = 0, as ANPV is correctly calculated
-        if self.bldg_type in ["single family home", "multi family home",
-                              "mobile home"]:
-            anpv_s, anpv_e, anpv_c = [numpy.pmt(rate, life_meas, x)
-                                      for x in [npv_s, npv_e, npv_c]]
+        # from the commercial AEO demand module data.
+
+        # Populate ANPVs for residential sector
+        # Check whether measure applies to residential sector
+        if (type(self.bldg_type) == list and
+            any([x in self.bldg_type for x in [
+                "single family home", "multi family home", "mobile home"]])) or \
+            (type(self.bldg_type) != list and self.bldg_type in [
+             "single family home", "multi family home", "mobile home"]):
+            # Set ANPV values under general discount rate
+            res_anpv_s, res_anpv_e, res_anpv_c = [
+                numpy.pmt(rate, life_meas, x) for x in [npv_s, npv_e, npv_c]]
+        # If measure does not apply to residential sector, set residential
+        # ANPVs to 'None'
         else:
-            anpv_s, anpv_e, anpv_c = ({} for n in range(3))
+            res_anpv_s, res_anpv_e, res_anpv_c = (None for n in range(3))
+
+        # Populate ANPVs for commercial sector
+        # Check whether measure applies to commercial sector
+        if (type(self.bldg_type) == list and
+            any([x not in self.bldg_type for x in [
+                "single family home", "multi family home", "mobile home"]])) or \
+            (type(self.bldg_type) != list and self.bldg_type not in [
+             "single family home", "multi family home", "mobile home"]):
+            com_anpv_s, com_anpv_e, com_anpv_c = ({} for n in range(3))
+            # Set ANPV values under 7 discount rate categories
             for ind, tps in enumerate(com_timeprefs["rates"]):
-                anpv_s["rate " + str(ind + 1)],\
-                    anpv_e["rate " + str(ind + 1)],\
-                    anpv_c["rate " + str(ind + 1)] = \
+                com_anpv_s["rate " + str(ind + 1)],\
+                    com_anpv_e["rate " + str(ind + 1)],\
+                    com_anpv_c["rate " + str(ind + 1)] = \
                     [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
                      for x in [cashflows_s, cashflows_e, cashflows_c]]
+        # If measure does not apply to commercial sector, set commercial
+        # ANPVs to 'None'
+        else:
+            com_anpv_s, com_anpv_e, com_anpv_c = (None for n in range(3))
+
+        # Set overall ANPV dicts based on above updating of residential
+        # and commercial sector ANPV values
+        anpv_s = {"residential": res_anpv_s, "commercial": com_anpv_s}
+        anpv_e = {"residential": res_anpv_e, "commercial": com_anpv_e}
+        anpv_c = {"residential": res_anpv_c, "commercial": com_anpv_c}
 
         # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).
@@ -1325,12 +1371,12 @@ class Engine(object):
 
     @property
     def energy_savings_sum(self):
-        return sum([x.mseg_save["energy"]["savings (total)"] for x in
+        return sum([x.master_savings["energy"]["savings (total)"] for x in
                     self._measures])
 
     @property
     def carbon_savings_sum(self):
-        return sum([x.mseg_save["carbon"]["savings (total)"] for x in
+        return sum([x.master_savings["carbon"]["savings (total)"] for x in
                     self._measures])
 
     def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
@@ -1351,11 +1397,14 @@ class Engine(object):
         avoid double counting energy/carbon/cost savings """
         # Establish list of key chains for all microsegments that contribute to
         # measure master microsegments, across all active measures
-        msegs_init = numpy.unique([
-            x.mseg_compete["competed mseg keys and values"].keys()
-            for x in self.measures])
+        mseg_keys = []
+        for x in self.measures:
+            mseg_keys.extend(
+                x.mseg_compete["competed mseg keys and values"].keys())
+        # Establish list of unique key chains in mseg_keys list above
+        msegs_init = numpy.unique(mseg_keys)
         # Reorder list of key chains such that the master microsegments for
-        # measures that affect heating/cooling demand are updated first;
+        # measures that affect heating/cooling demand are updated first;s
         # updates to these microsegments will affect 'supply' microsegments
         # (e.g., reduced heating demand via highly insulating windows also
         # reduces the heating savings possible from more efficient HVAC
@@ -1369,8 +1418,9 @@ class Engine(object):
         for msu in msegs:
             # Determine the subset of measures that compete for the given
             # microsegment
-            measures_compete = [x for x in self.measures if any(
-                x.mseg_compete["competed mseg keys and values"].keys()) == msu]
+            measures_compete = [
+                x for x in self.measures if msu in x.mseg_compete[
+                    "competed mseg keys and values"].keys()]
             # For a demand-side microsegment update, find all supply-side
             # measures/microsegments that would be affected by changes
             # to the demand-side microsegment
@@ -1420,7 +1470,8 @@ class Engine(object):
         # savings outcomes and economic metrics for that measure
         for m in self.measures:
             if m.mseg_compete["already competed"] is True:
-                m.master_savings = m.calc_metric_update(rate, compete_measures)
+                m.master_savings = m.calc_metric_update(
+                    rate, compete_measures, com_timeprefs)
 
     def res_compete(self, measures_compete, measures_secondary, mseg_key):
         """ Determine the shares of a given market microsegment that are
@@ -1445,12 +1496,15 @@ class Engine(object):
                 # metric outputs)
                 m.mseg_compete["already competed"] = True
                 # Loop through all years in modeling time horizon
-                for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                for yr in m.master_savings[
+                        "metrics"]["anpv"]["stock cost"].keys():
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
-                    cap_cost = m.mseg_save["anpv"]["stock cost"][yr]
-                    op_cost = m.mseg_save["anpv"]["energy cost"][yr]
+                    cap_cost = m.master_savings["metrics"]["anpv"][
+                        "stock cost"][yr]["residential"]
+                    op_cost = m.master_savings["metrics"]["anpv"][
+                        "energy cost"][yr]["residential"]
                     # Calculate measure market fraction using log-linear
                     # regression equation that takes capital/operating costs as
                     # inputs
@@ -1473,7 +1527,7 @@ class Engine(object):
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
-            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+            for yr in m.master_savings["metrics"]["anpv"]["stock cost"].keys():
                 # Normalize measure market share if more than one measure is
                 # competing; otherwise, market share remains 1
                 if len(measures_compete) > 1:
@@ -1511,12 +1565,15 @@ class Engine(object):
                 # metric outputs)
                 m.mseg_compete["already competed"] = True
                 # Loop through all years in modeling time horizon
-                for yr in m.mseg_save["anpv"]["stock cost"].keys():
+                for yr in m.master_savings["metrics"]["anpv"][
+                        "stock cost"].keys():
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
-                    cap_cost = m.mseg_save["anpv"]["stock cost"][yr]
-                    op_cost = m.mseg_save["anpv"]["energy cost"][yr]
+                    cap_cost = m.master_savings["metrics"]["anpv"][
+                        "stock cost"][yr]["commercial"]
+                    op_cost = m.master_savings["metrics"]["anpv"][
+                        "energy cost"][yr]["commercial"]
                     # Sum capital and operating costs and add to the total cost
                     # dict entry for the given measure
                     tot_cost[ind][yr] = []
@@ -1535,7 +1592,7 @@ class Engine(object):
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
-            for yr in m.mseg_save["anpv"]["stock cost"].keys():
+            for yr in m.master_savings["metrics"]["anpv"]["stock cost"].keys():
                 # Update market share based on annualized measure cost if more
                 # than one measure is competing; otherwise, market share
                 # remains 1
