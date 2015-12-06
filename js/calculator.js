@@ -97,8 +97,8 @@ $(document).ready(function(){
 	var cooling_equip_el = [0, 1, 2, 3];
 	var cooling_equip_ng = [4];
 
-	var lighting = ['General Service Lamp', 'Linear Fluorescent', 'Reflector', 'External/Outdoor Lighting'];
-	var lighting_values = ['general service', 'linear fluorescent', 'reflector', 'external'];
+	var lighting = ['General Service Lamp (Incandescent)', 'General Service Lamp (CFL)', 'General Service Lamp (LED)', 'Linear Fluorescent (T-12)', 'Linear Fluorescent (T-8)', 'Linear Fluorescent (LED)', 'Reflector (Incandescent)', 'Reflector (CFL)', 'Reflector (Halogen)', 'Reflector (LED)', 'External (Incandescent)', 'External (CFL)', 'External (High-pressure Sodium)', 'External (LED)'];
+	var lighting_values = ['general service (incandescent)', 'general service (CFL)', 'general service (LED)', 'linear fluorescent (T-12)', 'linear fluorescent (T-8)', 'linear fluorescent (LED)', 'reflector (incandescent)', 'reflector (CFL)', 'reflector (halogen)', 'reflector (LED)', 'external (incandescent)', 'external (CFL)', 'external (high pressure sodium)', 'external (LED)'];
 
 	var entertainment = ['TVs', 'Set-top Boxes', 'DVD Players', 'Home Theater Systems', 'Video Game Systems'];
 	var entertainment_values = ['TV', 'set top box', 'DVD', 'home theater & audio', 'video game consoles'];
