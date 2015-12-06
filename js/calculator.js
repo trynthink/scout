@@ -383,7 +383,7 @@ $(document).ready(function(){
 		$('#update').attr('disabled', true);
 
 		// Sum the totals for the selected data
-		$.getJSON('microsegments_out.json', function(data){
+		$.getJSON('data/res2015_microsegments_out.json', function(data){
 			
 			// Enable update button inside "success handler" on query completion
 			$('#update').attr('disabled', false);
