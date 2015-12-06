@@ -431,7 +431,7 @@ $(document).ready(function(){
 					for (var a = 0; a < climate_zone.length; a++) {
 						// For demand, loop over all possible fuel types
 						for (var k = 0; k < ft_select_f.length; k++) {
-							var energy_conv = primaryEnergyConversion(ft_select_f[k], proj_year);
+							var energy_conv = primaryEnergyConversion(fuel_type_values[ft_select_f[k]], proj_year);
 							var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
 							// Loop over all building types selected
 							for (var i = 0; i < resBuildings.length; i++) {
