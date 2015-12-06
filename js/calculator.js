@@ -57,8 +57,13 @@ $(document).ready(function(){
 
 	// Initialize variables with lists to be converted to selections
 	// as needed in the market definition form
-	var com_end_use = ['Heating', 'Ventilation', 'Cooling', 'Water Heating', 'Lighting', 'Cooking', 'Refrigeration', 'Computers', 'Electronics', 'Other'];
-	var com_end_use_values;
+	var res_bldg_types = ['Single-family Homes', 'Multi-family Homes', 'Mobile Homes']
+	var res_bldg_types_values = ['single family home', 'multi family home', 'mobile home']
+	var com_bldg_types = ['Assembly', 'Education', 'Food Sales', 'Food Service', 'Health Care', 'Lodging', 'Mercantile/Service', 'Small Office', 'Large Office', 'Warehouse', 'Other']
+	var com_bldg_types_values = ['assembly', 'education', 'food sales', 'food service', 'health care', 'lodging', 'mercantile/service', 'small office', 'large office', 'warehouse', 'other']
+
+	var com_end_use = ['Heating', 'Cooling', 'Water Heating', 'Ventilation', 'Cooking', 'Lighting', 'Refrigeration', 'Computers', 'Office Electronics', 'Other Electric Loads'];
+	var com_end_use_values = ['heating', 'cooling', 'water heating', 'ventilation', 'cooking', 'lighting', 'refrigeration', 'PCs', 'non-PC office equipment', 'MELs'];
 	// Freezers, Dishwashers, Clothes Washers
 	var res_end_use = ['Heating', 'Secondary Heating', 'Cooling', 'Fans and Pumps', 'Ceiling Fans', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Clothes Drying', 'Home Entertainment', 'Computers', 'Other'];
 	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)'];
@@ -121,14 +126,41 @@ $(document).ready(function(){
 		$.each($('input:checkbox:checked', '#climate-zone'), function(){climate_zone.push($(this).val());});
 	});
 
+
+	// Detect selected radio button (residential/commercial buildings)
+	// and respond accordingly
+	$(document).on('change', '#building-radio', function(){
+		// Identify element of radio button selected
+		var radio_selection = $('input[name=bldg-class]:checked').val();
+
+		if (radio_selection === 'residential') {
+			// Clear the contents of the selection list
+			$('#bldg-types').empty();
+
+			// Add residential building types to the selection list
+			populateDropdown('bldg-types', null, res_bldg_types, res_bldg_types_values);
+		}
+		else {
+			// Clear the contents of the selection list
+			$('#bldg-types').empty();
+
+			// Add commercial building types to the selection list
+			populateDropdown('bldg-types', null, com_bldg_types, com_bldg_types_values);
+		}
+	});
+
 	// Define variable to record status of selection (selection = 1)
 	var bldgs_selected = 0;
 
 	// Building type selection actions
-	$('#residential-bldgs').on('click', function (){
+	$('#bldg-types').on('click', function (){
 		
-		// Put the selected residential building types into a list
-		resBuildings = $('#residential-bldgs').val();
+		// Choose appropriate action depending on whether residential or
+		// commercial buildings were selected
+		if ($('input[name=bldg-class]:checked').val() === 'residential') {
+			// Put the selected residential building types into a list
+			resBuildings = $('#bldg-types').val();
+		} // SHOULD BE AN ELSE HERE FOR COMMERCIAL BUILDINGS EVENTUALLY
 
 		// Clear end use drop down when no residential buildings are selected
 		if (resBuildings === null) {
@@ -165,7 +197,7 @@ $(document).ready(function(){
 		// Identify selected end use
 		selected_end_use = $('#end-use').val();
 
-		// CLEAR OUT ANY ADDED DROPDOWN OR SELECTION MENUS - anything with ID subtype
+		// CLEAR OUT ANY ADDED DROPDOWN OR SELECTION MENUS - anything with the subtype class
 		$('.subtype').remove();
 
 		// Generate appropriate selections (if any) for the selected end use
@@ -285,7 +317,7 @@ $(document).ready(function(){
 			}
 		}
 		else {
-			if (HVAC_FT === 'electricity (grid)') {var eq_select = cooling_equip_ell;}
+			if (HVAC_FT === 'electricity (grid)') {var eq_select = cooling_equip_el;}
 			else {var eq_select = cooling_equip_ng;}
 
 			// Add cooling equipment type buttons to HTML DOM
