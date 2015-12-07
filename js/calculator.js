@@ -51,10 +51,6 @@ $(document).ready(function(){
 
 
 
-	// Initialize empty variables
-	var resBuildings;
-	var comBuildings;
-
 	// Initialize variables with lists to be converted to selections
 	// as needed in the market definition form
 	var res_bldg_types = ['Single-family Homes', 'Multi-family Homes', 'Mobile Homes']
@@ -68,8 +64,8 @@ $(document).ready(function(){
 	var res_end_use = ['Heating', 'Secondary Heating', 'Cooling', 'Fans and Pumps', 'Ceiling Fans', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Clothes Drying', 'Home Entertainment', 'Computers', 'Other'];
 	var res_end_use_values = ['heating', 'secondary heating', 'cooling', 'fans & pumps', 'ceiling fan', 'lighting', 'water heating', 'refrigeration', 'cooking', 'drying', 'TVs', 'computers', 'other (grid electric)'];
 
-	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration', 'Equipment Heat Gain'];
-	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration', 'equipment gain'];
+	var envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Infiltration', 'Equipment Heat Gain']; //, 'People Heat Gain'];
+	var envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'infiltration', 'equipment gain']; //, 'people gain'];
 
 	var fuel_type = ['Electricity', 'Natural Gas', 'Distillate', 'Solar', 'Other', 'Propane/LPG'];
 	var fuel_type_values = ['electricity (grid)', 'natural gas', 'distillate', 'solar', 'other fuel', 'other fuel'];
@@ -109,6 +105,46 @@ $(document).ready(function(){
 	var other = ['Clothes Washing', 'Dishwashers', 'Freezers', 'Other Electric Loads'];
 	var other_values = ['clothes washing', 'dishwasher', 'freezers', 'other MELs'];
 
+	// More predefined vectors for commercial buildings
+	var com_envelope = ['Windows (Conduction)', 'Windows (Radiation)', 'Walls', 'Roof', 'Ground', 'Floor', 'Infiltration', 'Ventilation', 'Equipment Heat Gain', 'Lighting Heat Gain'];
+	var com_envelope_values = ['windows conduction', 'windows solar', 'wall', 'roof', 'ground', 'floor', 'infiltration', 'ventilation', 'equipment gain', 'lighting gain'];
+
+	var com_fuel_type = ['Electricity', 'Natural Gas', 'Distillate'];
+	var com_fuel_type_values = ['electricity', 'natural gas', 'distillate'];
+	// N.B. Heating and water heating have data reported for all three fuel types
+	var com_cooling_FT = [0, 1];
+	var com_cooking_FT = [0, 1];
+
+	var com_mels_type = ['Distribution Transformers', 'Security Systems', 'Elevators', 'Escalators', 'Non-road Electric Vehicles', 'Coffee Brewers', 'Kitchen Ventilation', 'Laundry Equipment', 'Laboratory Refrigeration', 'Fume Hoods', 'Medical Imaging Systems', 'Video Displays', 'Large Video Displays'];
+	var com_mels_type_values = ['distribution transformers', 'security systems', 'elevators', 'escalators', 'non-road electric vehicles', 'coffee brewers', 'kitchen ventilation', 'laundry', 'lab fridges and freezers', 'fume hoods', 'medical imaging', 'video displays', 'large video displays'];
+
+	var com_heating_equip = ['Boiler', 'Resistance Heating', 'Ground-Source Heat Pump', 'Air-Source Heat Pump', 'Boiler', 'Furnace', 'Engine-driven Heat Pump', 'Residential-type Heat Pump', 'Boiler', 'Furnace'];
+	var com_heating_equip_values = ['elec_boiler', 'electric_res-heat', 'comm_GSHP-heat', 'rooftop_ASHP-heat', 'gas_boiler', 'gas_furnace', 'gas_eng-driven_RTHP-heat', 'res_type_gasHP-heat', 'oil_boiler', 'oil_furnace'];
+	var com_heating_equip_el = [0, 1, 2, 3];
+	var com_heating_equip_ng = [4, 5, 6, 7];
+	var com_heating_equip_ds = [8, 9];
+
+	var com_cooling_equip = ['Centrifugal Chiller', 'Reciprocating Chiller', 'Screw Chiller', 'Scroll Chiller', 'Ground-Source Heat Pump', 'Air-Source Heat Pump', 'Residential-type Central AC', 'Rooftop AC', 'Wall/Window Room AC', 'Chiller', 'Engine-driven AC', 'Engine-driven Heat Pump', 'Residential-type Heat Pump'];
+	var com_cooling_equip_values = ['centrifugal_chiller', 'reciprocating_chiller', 'screw_chiller', 'scroll_chiller', 'comm_GSHP-cool', 'rooftop_ASHP-cool', 'res_type_central_AC', 'rooftop_AC', 'wall-window_room_AC', 'gas_chiller', 'gas_eng-driven_RTAC', 'gas_eng-driven_RTHP-cool', 'res_type_gasHP-cool'];
+	var com_cooling_equip_el = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+	var com_cooling_equip_ng = [9, 10, 11, 12];
+
+	var com_water_heating_equip = ['Storage Water Heater', 'Heat Pump Water Heater', 'Solar Water Heater', 'Booster Water Heater', 'Storage Water Heater', 'Booster Water Heater', 'Instant Water Heater', 'Storage Water Heater'];
+	var com_water_heating_equip_values = ['elec_water_heater', 'HP water heater', 'Solar water heater', 'elec_booster_water_heater', 'gas_water_heater', 'gas_booster_WH', 'gas_instantaneous_WH', 'oil_water_heater'];
+	var com_water_heating_equip_el = [0, 1, 2, 3];
+	var com_water_heating_equip_ng = [4, 5, 6];
+	var com_water_heating_equip_ds = [7];
+
+	var com_lighting = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS &amp; SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
+	var com_lighting_values = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS &amp; SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
+
+	var com_ventilation_equip = ['Constant Air Volume Systems', 'Variable Air Volume Systems'];
+	var com_ventilation_equip_values = ['CAV_Vent', 'VAV_Vent'];
+
+	var com_refrigeration_equip = ['Supermarket Display Case', 'Supermarket Condenser', 'Supermarket Compressor Rack', 'Reach-in Refrigerator', 'Reach-in Freezer', 'Walk-in Refrigerator', 'Walk-in Freezer', 'Beverage Merchandiser', 'Vending Machine', 'Ice Machine'];
+	var com_refrigeration_equip_values = ['Supermkt_display_case', 'Supermkt_condenser', 'Supermkt_compressor_rack', 'Reach-in_refrig', 'Reach-in_freezer', 'Walk-In_refrig', 'Walk-In_freezer', 'Bevrg_Mchndsr', 'Vend_Machine', 'Ice_machine'];
+
+
 
 	// Get selection for projection year (capturing initial selection also)
 	var proj_year = $('#proj-year').val();
@@ -126,16 +162,34 @@ $(document).ready(function(){
 		$.each($('input:checkbox:checked', '#climate-zone'), function(){climate_zone.push($(this).val());});
 	});
 
+	// Initialize variable for the list of selected building types
+	// var resBuildings;
+	var selected_buildings;
+
+	// Define variable to record status of selection (selection = 1)
+	var buildings_selection_status = 0;
 
 	// Detect selected radio button (residential/commercial buildings)
 	// and respond accordingly
 	$(document).on('change', '#building-radio', function(){
 		// Identify element of radio button selected
-		var radio_selection = $('input[name=bldg-class]:checked').val();
+		var bldg_class_radio_selected = $('input[name=bldg-class]:checked').val();
 
-		if (radio_selection === 'residential') {
+		// Clear drop down menu
+		$('#end-use').empty();
+
+		// Clear all subsequent/child content
+		$('.subtype').remove();
+
+		// Update the status variable
+		buildings_selection_status = 0;
+
+		if (bldg_class_radio_selected === 'residential') {
 			// Clear the contents of the selection list
 			$('#bldg-types').empty();
+
+			// // Clear the contents of the selected_buildings list
+			// selected_buildings = null;
 
 			// Add residential building types to the selection list
 			populateDropdown('bldg-types', null, res_bldg_types, res_bldg_types_values);
@@ -144,26 +198,22 @@ $(document).ready(function(){
 			// Clear the contents of the selection list
 			$('#bldg-types').empty();
 
+			// // Clear the contents of the selected_buildings list
+			// selected_buildings = null;
+
 			// Add commercial building types to the selection list
 			populateDropdown('bldg-types', null, com_bldg_types, com_bldg_types_values);
 		}
 	});
 
-	// Define variable to record status of selection (selection = 1)
-	var bldgs_selected = 0;
-
 	// Building type selection actions
 	$('#bldg-types').on('click', function (){
 		
-		// Choose appropriate action depending on whether residential or
-		// commercial buildings were selected
-		if ($('input[name=bldg-class]:checked').val() === 'residential') {
-			// Put the selected residential building types into a list
-			resBuildings = $('#bldg-types').val();
-		} // SHOULD BE AN ELSE HERE FOR COMMERCIAL BUILDINGS EVENTUALLY
+		// Put the selected building types into a list
+		selected_buildings = $('#bldg-types').val();
 
-		// Clear end use drop down when no residential buildings are selected
-		if (resBuildings === null) {
+		// Clear end use drop down when no building types are selected
+		if (selected_buildings === null) {
 			// Clear drop down menu
 			$('#end-use').empty();
 
@@ -171,21 +221,27 @@ $(document).ready(function(){
 			$('.subtype').remove();
 
 			// Update the status variable
-			bldgs_selected = 0;
+			buildings_selection_status = 0;
 		}
 
-		// If at least one residential building type is selected and none were
-		// selected before, update the list of end use categories
-		if (resBuildings !== null && resBuildings !== undefined) {
-			if (bldgs_selected === 0) {
+		// If at least one building type is selected and none were selected 
+		// before, update the list of end use categories
+		if (selected_buildings !== null && selected_buildings !== undefined) {
+			if (buildings_selection_status === 0) {
 				// Initialize drop down menu contents
 				var end_use_dropdown = '<option disabled selected> -- Select an End Use -- </option>';
 
 				// Update the status variable
-				bldgs_selected = 1;
+				buildings_selection_status = 1;
 
 				// Populate the selected drop down menu in the DOM with choices
-				populateDropdown('end-use', end_use_dropdown, res_end_use, res_end_use_values);
+				// appropriate for the building class selected
+				if ($('input[name=bldg-class]:checked').val() === 'residential'){
+					populateDropdown('end-use', end_use_dropdown, res_end_use, res_end_use_values);
+				}
+				else {
+					populateDropdown('end-use', end_use_dropdown, com_end_use, com_end_use_values);
+				}
 			}
 		}		
 	});
@@ -200,55 +256,105 @@ $(document).ready(function(){
 		// CLEAR OUT ANY ADDED DROPDOWN OR SELECTION MENUS - anything with the subtype class
 		$('.subtype').remove();
 
-		// Generate appropriate selections (if any) for the selected end use
-		if (selected_end_use === 'heating' || selected_end_use === 'secondary heating' || selected_end_use === 'cooling') {
-			
-			// Specify HTML for equipment/envelope radio button
-			eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
-							+ "<div class='col-md-12'>"
-							+ "<div class='btn-group' data-toggle='buttons'>"
-							+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
-							+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
-							+ "</div>"
-							+ "</div>"
-							+ "</div>";
+		// Define next set of actions based on whether residential or
+		// commercial buildings are selected
+		if ($('input[name=bldg-class]:checked').val() === 'residential') {
+			// Generate appropriate selections (if any) for the selected end use
+			if (selected_end_use === 'heating' || selected_end_use === 'secondary heating' || selected_end_use === 'cooling') {
+				
+				// Specify HTML for equipment/envelope radio button
+				eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
+								+ "<div class='col-md-12'>"
+								+ "<div class='btn-group' data-toggle='buttons'>"
+								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
+								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
+								+ "</div>"
+								+ "</div>"
+								+ "</div>";
 
-			// Insert radio button in appropriate location
-			$('#end-use-row').after(eqEnvRadioBtn);
-		}
-		else if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
-			// Identify the appropriate fuel types to display for the selected end use
-			// Need to create new variable for the ID for each possible dropdown
-			// since some selected_end_use values have spaces, which aren't
-			// allowed in IDs
-			if (selected_end_use === 'water heating') {var ft_select = water_heating_FT;}
-			else if (selected_end_use === 'cooking') {var ft_select = cooking_FT;}
-			else {var ft_select = drying_FT;}
+				// Insert radio button in appropriate location
+				$('#end-use-row').after(eqEnvRadioBtn);
+			}
+			else if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
+				// Identify the appropriate fuel types to display for the selected end use
+				// Need to create new variable for the ID for each possible dropdown
+				// since some selected_end_use values have spaces, which aren't
+				// allowed in IDs
+				if (selected_end_use === 'water heating') {var ft_select = water_heating_FT;}
+				else if (selected_end_use === 'cooking') {var ft_select = cooking_FT;}
+				else {var ft_select = drying_FT;}
 
-			// (Re)define variable to hold choices in dropdown
-			var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
+				// (Re)define variable to hold choices in dropdown
+				var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
 
-			// Populate the selected drop down menu in the DOM with choices
-			generateDropdown('last', '#end-use-row', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+				// Populate the selected drop down menu in the DOM with choices
+				generateDropdown('last', '#end-use-row', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+			}
+			else if (selected_end_use === 'lighting') {
+				// Add lighting technology type buttons to HTML DOM
+				generateButtonGroup('last-tt', '#end-use-row', lighting, lighting_values);
+			}
+			else if (selected_end_use === 'TVs') {
+				// Add entertainment technology type buttons to HTML DOM
+				generateButtonGroup('last-tt', '#end-use-row', entertainment, entertainment_values);
+			}
+			else if (selected_end_use === 'computers') {
+				// Add computers technology type buttons to HTML DOM
+				generateButtonGroup('last-tt', '#end-use-row', computers, computers_values);
+			}
+			else if (selected_end_use === 'other (grid electric)') {
+				// Add other technology type buttons to HTML DOM
+				generateButtonGroup('last-tt', '#end-use-row', other, other_values);
+			}
+			// else terminal categories (fans & pumps, ceiling fan, 
+			// refrigeration), no action required
 		}
-		else if (selected_end_use === 'lighting') {
-			// Add lighting technology type buttons to HTML DOM
-			generateButtonGroup('last-tt', '#end-use-row', lighting, lighting_values);
+		else {
+			// Generate appropriate selections (if any) for the selected end use
+			if (selected_end_use === 'heating' || selected_end_use === 'cooling') {
+				
+				// Specify HTML for equipment/envelope radio button
+				eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
+								+ "<div class='col-md-12'>"
+								+ "<div class='btn-group' data-toggle='buttons'>"
+								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
+								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
+								+ "</div>"
+								+ "</div>"
+								+ "</div>";
+
+				// Insert radio button in appropriate location
+				$('#end-use-row').after(eqEnvRadioBtn);
+			}
+			else if (selected_end_use === 'water heating') {
+				// (Re)define drop down text and generate appropriate drop down in the DOM
+				var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
+				generateDropdown('fuel-type', '#end-use-row', ft_dropdown, com_fuel_type, com_fuel_type_values);
+			}
+			else if (selected_end_use === 'cooking') {
+				// (Re)define drop down text and generate appropriate drop down in the DOM
+				var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
+				generateDropdown('last', '#end-use-row', ft_dropdown, com_fuel_type, com_fuel_type_values, com_cooking_FT);
+			}
+			else if (selected_end_use === 'ventilation') {
+				// Add ventilation equipment type buttons to the DOM
+				generateButtonGroup('last-tt', '#end-use-row', com_ventilation_equip, com_ventilation_equip_values);
+			}
+			else if (selected_end_use === 'lighting') {
+				// Add lighting bulb/fixture type buttons to the DOM
+				generateButtonGroup('last-tt', '#end-use-row', com_lighting, com_lighting_values);
+			}
+			else if (selected_end_use === 'refrigeration') {
+				// Add refrigeration equipment type buttons to the DOM
+				generateButtonGroup('last-tt', '#end-use-row', com_refrigeration_equip, com_refrigeration_equip_values);
+			}
+			else if (selected_end_use === 'MELs') {
+				// Add drop down of miscellaneous electric loads to the DOM
+				var init_dropdown_text = '<option disabled selected> -- Select an Equipment Type -- </option>';
+				generateDropdown('last', '#end-use-row', init_dropdown_text, com_mels_type, com_mels_type_values);
+			}
+			// else terminal categories (PCs, office equipment), no action required		
 		}
-		else if (selected_end_use === 'TVs') {
-			// Add entertainment technology type buttons to HTML DOM
-			generateButtonGroup('last-tt', '#end-use-row', entertainment, entertainment_values);
-		}
-		else if (selected_end_use === 'computers') {
-			// Add computers technology type buttons to HTML DOM
-			generateButtonGroup('last-tt', '#end-use-row', computers, computers_values);
-		}
-		else if (selected_end_use === 'other (grid electric)') {
-			// Add other technology type buttons to HTML DOM
-			generateButtonGroup('last-tt', '#end-use-row', other, other_values);
-		}
-		// else terminal categories (fans & pumps, ceiling fan, 
-		// refrigeration), no action required
 	});
 
 	// Detect selected radio button (equipment/envelope) 
@@ -261,8 +367,14 @@ $(document).ready(function(){
 			// Remove any equipment content
 			$('.row.subtype.supply').remove();
 
-			// Add envelope buttons to HTML DOM
-			generateButtonGroup('env-buttons', '#eq-env-radio', envelope, envelope_values);
+			// Add envelope buttons to HTML DOM, with the buttons determined
+			// by the building class
+			if ($('input[name=bldg-class]:checked').val() === 'residential') {
+				generateButtonGroup('env-buttons', '#eq-env-radio', envelope, envelope_values);
+			}
+			else {
+				generateButtonGroup('env-buttons', '#eq-env-radio', com_envelope, com_envelope_values);
+			}			
 
 			// Add 'envelope' class to button group just added so that it
 			// will be removed automatically if the radio button selection
@@ -273,16 +385,30 @@ $(document).ready(function(){
 			// Remove any envelope content
 			$('.row.subtype.demand').remove();
 
-			// Identify the appropriate fuel types to display for the selected end use
-			if (selected_end_use === 'heating') {var ft_select = heating_FT;}
-			else if (selected_end_use === 'secondary heating') {var ft_select = sec_heating_FT;}
-			else {var ft_select = cooling_FT;}
-
 			// (Re)define variable to hold choices in dropdown
 			var ft_dropdown = '<option disabled selected> -- Select a Fuel Type -- </option>';
 
-			// Populate the selected drop down menu in the DOM with choices
-			generateDropdown('fuel-type', '#eq-env-radio', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+			// Generate dropdown menu for fuel types based on the building class
+			// (residential/commercial) and the selected end use
+			if ($('input[name=bldg-class]:checked').val() === 'residential') {
+				// Identify the appropriate fuel types to display for the selected end use
+				if (selected_end_use === 'heating') {var ft_select = heating_FT;}
+				else if (selected_end_use === 'secondary heating') {var ft_select = sec_heating_FT;}
+				else {var ft_select = cooling_FT;}
+
+				// Populate the selected drop down menu in the DOM with choices
+				generateDropdown('fuel-type', '#eq-env-radio', ft_dropdown, fuel_type, fuel_type_values, ft_select);
+			}
+			else {
+				// For commercial buildings, populate the selected drop down
+				// menu in the DOM based on the selected end use
+				if (selected_end_use === 'heating') {
+					generateDropdown('fuel-type', '#eq-env-radio', ft_dropdown, com_fuel_type, com_fuel_type_values);
+				}
+				else {
+					generateDropdown('fuel-type', '#eq-env-radio', ft_dropdown, com_fuel_type, com_fuel_type_values, com_cooling_FT);
+				}
+			}
 
 			// Add 'equipment' class to dropdown just added so that it
 			// will be removed automatically if the radio button selection
@@ -291,37 +417,58 @@ $(document).ready(function(){
 		}
 	});
 
-	// Detect selected fuel type (for HVAC end uses) and display the
-	// appropriate technology types
+	// Detect selected fuel type (for HVAC end uses and water heating in
+	// commercial buildings) and display the appropriate technology types
 	$(document).on('change', '#fuel-type', function(){
 		// Determine what fuel type was selected
-		var HVAC_FT = $('option:selected', '#fuel-type').val();
+		var the_fuel = $('option:selected', '#fuel-type').val();
 		
 		// Clear any existing equipment type buttons
 		$('#eq-buttons').remove();
 
 		// Add the appropriate buttons to the appropriate HTML DOM element
-		if (selected_end_use === 'heating') {
-			if (HVAC_FT === 'electricity (grid)') {var eq_select = heating_equip_el;}
-			else if (HVAC_FT === 'natural gas') {var eq_select = heating_equip_ng;}
-			else if (HVAC_FT === 'distillate') {var eq_select = heating_equip_ds;}
-			else {var eq_select = heating_equip_ot;}
+		// based on the building class, end use, and fuel type selection
+		if ($('input[name=bldg-class]:checked').val() === 'residential') {
+			if (selected_end_use === 'heating') {
+				if (the_fuel === 'electricity (grid)') {var eq_select = heating_equip_el;}
+				else if (the_fuel === 'natural gas') {var eq_select = heating_equip_ng;}
+				else if (the_fuel === 'distillate') {var eq_select = heating_equip_ds;}
+				else {var eq_select = heating_equip_ot;}
 
-			// Add heating equipment type buttons to HTML DOM
-			generateButtonGroup('eq-buttons', '#fuel-type', heating_equip, heating_equip_values, eq_select);
-		}
-		else if (selected_end_use === 'secondary heating') {
-			if (HVAC_FT === 'other fuel') {
-				// Add secondary heating equipment type buttons to HTML DOM
-				generateButtonGroup('eq-buttons', '#fuel-type', sec_heating_equip, sec_heating_equip_values);
+				// Add heating equipment type buttons to HTML DOM
+				generateButtonGroup('eq-buttons', '#fuel-type', heating_equip, heating_equip_values, eq_select);
+			}
+			else if (selected_end_use === 'secondary heating') {
+				if (the_fuel === 'other fuel') {
+					// Add secondary heating equipment type buttons to HTML DOM
+					generateButtonGroup('eq-buttons', '#fuel-type', sec_heating_equip, sec_heating_equip_values);
+				}
+			}
+			else {
+				if (the_fuel === 'electricity (grid)') {var eq_select = cooling_equip_el;}
+				else {var eq_select = cooling_equip_ng;}
+
+				// Add cooling equipment type buttons to HTML DOM
+				generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, eq_select);
 			}
 		}
 		else {
-			if (HVAC_FT === 'electricity (grid)') {var eq_select = cooling_equip_el;}
-			else {var eq_select = cooling_equip_ng;}
-
-			// Add cooling equipment type buttons to HTML DOM
-			generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, eq_select);
+			if (selected_end_use === 'heating') {
+				// Depending on the fuel type, add the appropriate group of
+				// buttons to the DOM using the generateButtonGroup function
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_el);}
+				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_ng);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_ds);}
+			}
+			else if (selected_end_use === 'cooling') {
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, com_cooling_equip_el);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, com_cooling_equip_ng);}
+			}
+			else { // water heating
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_el);}
+				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_ng);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_ds);}
+			}
 		}
 
 		// Add 'equipment' class to button group just added so that it will be
@@ -382,7 +529,7 @@ $(document).ready(function(){
 		// Disable update button while request is pending
 		$('#update').attr('disabled', true);
 
-		// Sum the totals for the selected data
+		// Sum the totals for the selected residential data
 		$.getJSON('data/res2015_microsegments_out.json', function(data){
 			
 			// Enable update button inside "success handler" on query completion
@@ -411,10 +558,10 @@ $(document).ready(function(){
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
-						for (var i = 0; i < resBuildings.length; i++) {
+						for (var i = 0; i < selected_buildings.length; i++) {
 							// Loop over all tech types selected
 							for (var j = 0; j < hvac_tt.length; j++) {
-								amtToAdd = data[climate_zone[a]][resBuildings[i]][HVAC_FT][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]][HVAC_FT][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
 								total_energy += amtToAdd;
 								total_co2 += amtToAdd/1e9 * co2_conv;
 							}
@@ -434,10 +581,10 @@ $(document).ready(function(){
 							var energy_conv = primaryEnergyConversion(fuel_type_values[ft_select_f[k]], proj_year);
 							var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
 							// Loop over all building types selected
-							for (var i = 0; i < resBuildings.length; i++) {
+							for (var i = 0; i < selected_buildings.length; i++) {
 								// Loop over all tech types selected
 								for (var j = 0; j < hvac_tt.length; j++) {
-									amtToAdd = data[climate_zone[a]][resBuildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+									amtToAdd = data[climate_zone[a]][selected_buildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
 									total_energy += amtToAdd;
 									total_co2 += amtToAdd/1e9 * co2_conv;
 								}
@@ -455,8 +602,8 @@ $(document).ready(function(){
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
-						for (var i = 0; i < resBuildings.length; i++) {
-							amtToAdd = data[climate_zone[a]][resBuildings[i]][ft_only_sel][selected_end_use]['electric WH']['energy'][proj_year] * energy_conv;
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['electric WH']['energy'][proj_year] * energy_conv;
 							total_energy += amtToAdd;
 							total_co2 += amtToAdd/1e9 * co2_conv;
 						}
@@ -466,8 +613,8 @@ $(document).ready(function(){
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
-						for (var i = 0; i < resBuildings.length; i++) {
-							amtToAdd = data[climate_zone[a]][resBuildings[i]]['electricity (grid)'][selected_end_use]['solar WH']['energy'][proj_year] * energy_conv;
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['solar WH']['energy'][proj_year] * energy_conv;
 							total_energy += amtToAdd;
 							total_co2 += amtToAdd/1e9 * co2_conv;
 						}
@@ -477,8 +624,8 @@ $(document).ready(function(){
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
-						for (var i = 0; i < resBuildings.length; i++) {
-							amtToAdd = data[climate_zone[a]][resBuildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
 							total_energy += amtToAdd;
 							total_co2 += amtToAdd/1e9 * co2_conv;
 						}
@@ -493,8 +640,8 @@ $(document).ready(function(){
 				// Loop over all climate zones selected
 				for (var a = 0; a < climate_zone.length; a++) {
 					// Loop over all building types selected
-					for (var i = 0; i < resBuildings.length; i++) {
-						amtToAdd = data[climate_zone[a]][resBuildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
+					for (var i = 0; i < selected_buildings.length; i++) {
+						amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
 						total_energy += amtToAdd;
 						total_co2 += amtToAdd/1e9 * co2_conv;
 					}
@@ -506,10 +653,10 @@ $(document).ready(function(){
 				// Loop over all climate zones selected
 				for (var a = 0; a < climate_zone.length; a++) {
 					// Loop over all building types selected
-					for (var i = 0; i < resBuildings.length; i++) {
+					for (var i = 0; i < selected_buildings.length; i++) {
 						// Loop over all tech types selected
 						for (var j = 0; j < other_tt.length; j++) {
-							amtToAdd = data[climate_zone[a]][resBuildings[i]]['electricity (grid)'][selected_end_use][other_tt[j]]['energy'][proj_year] * ss_el[proj_year];
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use][other_tt[j]]['energy'][proj_year] * ss_el[proj_year];
 							total_energy += amtToAdd;
 							total_co2 += amtToAdd/1e9 * co2_el[proj_year];
 						}
@@ -522,8 +669,8 @@ $(document).ready(function(){
 				// Loop over all climate zones selected
 				for (var a = 0; a < climate_zone.length; a++) {
 					// Loop over all building types selected
-					for (var i = 0; i < resBuildings.length; i++) {
-						amtToAdd = data[climate_zone[a]][resBuildings[i]]['electricity (grid)'][selected_end_use]['energy'][proj_year] * ss_el[proj_year];
+					for (var i = 0; i < selected_buildings.length; i++) {
+						amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['energy'][proj_year] * ss_el[proj_year];
 						total_energy += amtToAdd;
 						total_co2 += amtToAdd/1e9 * co2_el[proj_year];
 					}
