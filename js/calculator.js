@@ -529,98 +529,118 @@ $(document).ready(function(){
 		// Disable update button while request is pending
 		$('#update').attr('disabled', true);
 
-		// Sum the totals for the selected residential data
-		$.getJSON('data/res2015_microsegments_out.json', function(data){
-			
-			// Enable update button inside "success handler" on query completion
-			$('#update').attr('disabled', false);
+		if ($('input[name=bldg-class]:checked').val() === 'residential') {
+			// Sum the totals for the selected residential data
+			$.getJSON('data/res2015_microsegments_out.json', function(data){
+				
+				// Enable update button inside "success handler" on query completion
+				$('#update').attr('disabled', false);
 
-			// Define intermediate quantity variable to store each quantity to
-			// be added to the total
-			var amtToAdd = 0;
+				// TEMPORARY - DON'T KNOW WHY THIS SEEMS TO BE NECESSARY
+				var selected_buildings = $('#bldg-types').val();
 
-			// Identify appropriate query based on the end use
-			if (selected_end_use === 'heating' || selected_end_use === 'secondary heating' || selected_end_use === 'cooling') {
-				// [climate zone][building type][fuel type][end use][supply/demand][tech type]['energy'][year]
+				// Define intermediate quantity variable to store each quantity to
+				// be added to the total
+				var amtToAdd = 0;
 
-				// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
-				var HVAC_FT = $('option:selected', '#fuel-type').val(); 
-				var radio_selection = $('input[name=eq-env]:checked').val();
+				// Identify appropriate query based on the end use
+				if (selected_end_use === 'heating' || selected_end_use === 'secondary heating' || selected_end_use === 'cooling') {
+					// [climate zone][building type][fuel type][end use][supply/demand][tech type]['energy'][year]
 
-				// Define function call based on radio_selection (supply or demand)
-				if (radio_selection === 'supply') {
-					// For all fuel types except 'other fuel', the tech type is 'non-specific' (secondary heating, equipment/demand only)
-					if (HVAC_FT !== 'other fuel' && selected_end_use === 'secondary heating') {
-						hvac_tt = ['non-specific'];
-					}
-					var energy_conv = primaryEnergyConversion(HVAC_FT, proj_year);
-					var co2_conv = CO2Conversion(HVAC_FT, proj_year);
-					// Loop over all climate zones selected
-					for (var a = 0; a < climate_zone.length; a++) {
-						// Loop over all building types selected
-						for (var i = 0; i < selected_buildings.length; i++) {
-							// Loop over all tech types selected
-							for (var j = 0; j < hvac_tt.length; j++) {
-								amtToAdd = data[climate_zone[a]][selected_buildings[i]][HVAC_FT][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
-								total_energy += amtToAdd;
-								total_co2 += amtToAdd/1e9 * co2_conv;
-							}
+					// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
+					var HVAC_FT = $('option:selected', '#fuel-type').val(); 
+					var radio_selection = $('input[name=eq-env]:checked').val();
+
+					// Define function call based on radio_selection (supply or demand)
+					if (radio_selection === 'supply') {
+						// For all fuel types except 'other fuel', the tech type is 'non-specific' (secondary heating, equipment/demand only)
+						if (HVAC_FT !== 'other fuel' && selected_end_use === 'secondary heating') {
+							hvac_tt = ['non-specific'];
 						}
-					}
-				}
-				else {
-					// Identify the applicable fuel types
-					if (selected_end_use === 'heating') {var ft_select_f = heating_FT;}
-					else if (selected_end_use === 'secondary heating') {var ft_select_f = sec_heating_FT;}
-					else {var ft_select_f = cooling_FT;}
-
-					// Loop over all climate zones selected
-					for (var a = 0; a < climate_zone.length; a++) {
-						// For demand, loop over all possible fuel types
-						for (var k = 0; k < ft_select_f.length; k++) {
-							var energy_conv = primaryEnergyConversion(fuel_type_values[ft_select_f[k]], proj_year);
-							var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
+						var energy_conv = primaryEnergyConversion(HVAC_FT, proj_year);
+						var co2_conv = CO2Conversion(HVAC_FT, proj_year);
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
 							// Loop over all building types selected
 							for (var i = 0; i < selected_buildings.length; i++) {
 								// Loop over all tech types selected
 								for (var j = 0; j < hvac_tt.length; j++) {
-									amtToAdd = data[climate_zone[a]][selected_buildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+									amtToAdd = data[climate_zone[a]][selected_buildings[i]][HVAC_FT][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
 									total_energy += amtToAdd;
 									total_co2 += amtToAdd/1e9 * co2_conv;
 								}
 							}
 						}
 					}
-				}
-			}
-			else if (selected_end_use === 'water heating') {
-				var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
-				var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+					else {
+						// Identify the applicable fuel types
+						if (selected_end_use === 'heating') {var ft_select_f = heating_FT;}
+						else if (selected_end_use === 'secondary heating') {var ft_select_f = sec_heating_FT;}
+						else {var ft_select_f = cooling_FT;}
 
-				// Define function call based on the fuel type
-				if (ft_only_sel === 'electricity (grid)') {
-					// Loop over all climate zones selected
-					for (var a = 0; a < climate_zone.length; a++) {
-						// Loop over all building types selected
-						for (var i = 0; i < selected_buildings.length; i++) {
-							amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['electric WH']['energy'][proj_year] * energy_conv;
-							total_energy += amtToAdd;
-							total_co2 += amtToAdd/1e9 * co2_conv;
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// For demand, loop over all possible fuel types
+							for (var k = 0; k < ft_select_f.length; k++) {
+								var energy_conv = primaryEnergyConversion(fuel_type_values[ft_select_f[k]], proj_year);
+								var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
+								// Loop over all building types selected
+								for (var i = 0; i < selected_buildings.length; i++) {
+									// Loop over all tech types selected
+									for (var j = 0; j < hvac_tt.length; j++) {
+										amtToAdd = data[climate_zone[a]][selected_buildings[i]][fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]]['energy'][proj_year] * energy_conv;
+										total_energy += amtToAdd;
+										total_co2 += amtToAdd/1e9 * co2_conv;
+									}
+								}
+							}
 						}
 					}
 				}
-				else if (ft_only_sel === 'solar') {
-					// Loop over all climate zones selected
-					for (var a = 0; a < climate_zone.length; a++) {
-						// Loop over all building types selected
-						for (var i = 0; i < selected_buildings.length; i++) {
-							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['solar WH']['energy'][proj_year] * energy_conv;
-							total_energy += amtToAdd;
-							total_co2 += amtToAdd/1e9 * co2_conv;
+				else if (selected_end_use === 'water heating') {
+					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+
+					// Define function call based on the fuel type
+					if (ft_only_sel === 'electricity (grid)') {
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// Loop over all building types selected
+							for (var i = 0; i < selected_buildings.length; i++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['electric WH']['energy'][proj_year] * energy_conv;
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e9 * co2_conv;
+							}
+						}
+					}
+					else if (ft_only_sel === 'solar') {
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// Loop over all building types selected
+							for (var i = 0; i < selected_buildings.length; i++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['solar WH']['energy'][proj_year] * energy_conv;
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e9 * co2_conv;
+							}
+						}
+					}
+					else {
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// Loop over all building types selected
+							for (var i = 0; i < selected_buildings.length; i++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e9 * co2_conv;
+							}
 						}
 					}
 				}
-				else {
+				else if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
+					// [climate zone][building type][fuel type][end use]['energy'][year]
+
+					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
@@ -631,60 +651,199 @@ $(document).ready(function(){
 						}
 					}
 				}
-			}
-			else if (selected_end_use === 'water heating' || selected_end_use === 'cooking' || selected_end_use === 'drying') {
-				// [climate zone][building type][fuel type][end use]['energy'][year]
+				else if (selected_end_use === 'lighting' || selected_end_use === 'computers' || selected_end_use === 'TVs' || selected_end_use === 'other (grid electric)') {
+					// [climate zone][building type]['electricity (grid)'][end use][tech type]['energy'][year]
 
-				var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
-				var co2_conv = CO2Conversion(ft_only_sel, proj_year);
-				// Loop over all climate zones selected
-				for (var a = 0; a < climate_zone.length; a++) {
-					// Loop over all building types selected
-					for (var i = 0; i < selected_buildings.length; i++) {
-						amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use]['energy'][proj_year] * energy_conv;
-						total_energy += amtToAdd;
-						total_co2 += amtToAdd/1e9 * co2_conv;
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							// Loop over all tech types selected
+							for (var j = 0; j < other_tt.length; j++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use][other_tt[j]]['energy'][proj_year] * ss_el[proj_year];
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e9 * co2_el[proj_year];
+							}
+						}
 					}
 				}
-			}
-			else if (selected_end_use === 'lighting' || selected_end_use === 'computers' || selected_end_use === 'TVs' || selected_end_use === 'other (grid electric)') {
-				// [climate zone][building type]['electricity (grid)'][end use][tech type]['energy'][year]
-
-				// Loop over all climate zones selected
-				for (var a = 0; a < climate_zone.length; a++) {
-					// Loop over all building types selected
-					for (var i = 0; i < selected_buildings.length; i++) {
-						// Loop over all tech types selected
-						for (var j = 0; j < other_tt.length; j++) {
-							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use][other_tt[j]]['energy'][proj_year] * ss_el[proj_year];
+				else {
+					// [climate zone][building type]['electricity (grid)'][end use]['energy'][year]
+					console.log("here");
+					console.log(selected_buildings);
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['energy'][proj_year] * ss_el[proj_year];
 							total_energy += amtToAdd;
 							total_co2 += amtToAdd/1e9 * co2_el[proj_year];
 						}
 					}
 				}
-			}
-			else {
-				// [climate zone][building type]['electricity (grid)'][end use]['energy'][year]
 
-				// Loop over all climate zones selected
-				for (var a = 0; a < climate_zone.length; a++) {
-					// Loop over all building types selected
-					for (var i = 0; i < selected_buildings.length; i++) {
-						amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity (grid)'][selected_end_use]['energy'][proj_year] * ss_el[proj_year];
-						total_energy += amtToAdd;
-						total_co2 += amtToAdd/1e9 * co2_el[proj_year];
+				// Update total energy number displayed
+				// NOTE CONVERSION FROM MMBTU TO QUADS
+				// AND ROUNDING TO MAXIMUM OF 3 SIG FIGS
+				$('#energy-num').text(Math.round(total_energy/1e6)/1e3);
+
+				// Update total CO2 number displayed
+				$('#carbon-num').text(Math.round(total_co2*1e3)/1e3);
+			});
+		}
+		else {
+			// Sum the totals for the selected residential data
+			$.getJSON('data/com2015_microsegments_out.json', function(data){
+				
+				// Enable update button inside "success handler" on query completion
+				$('#update').attr('disabled', false);
+
+				// TEMPORARY - DON'T KNOW WHY THIS SEEMS TO BE NECESSARY
+				var selected_buildings = $('#bldg-types').val();
+
+				// Define intermediate quantity variable to store each quantity to
+				// be added to the total
+				var amtToAdd = 0;
+
+				// Identify appropriate query based on the end use
+				if (selected_end_use === 'heating' || selected_end_use === 'cooling') {
+					// [climate zone][building type][fuel type][end use][supply/demand][tech type][year]
+
+					// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
+					var the_fuel = $('option:selected', '#fuel-type').val(); 
+					var radio_selection = $('input[name=eq-env]:checked').val();
+
+					// Define function call based on radio_selection (supply or demand)
+					if (radio_selection === 'supply') {
+
+						var energy_conv = primaryEnergyConversion(the_fuel, proj_year);
+						var co2_conv = CO2Conversion(the_fuel, proj_year);
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// Loop over all building types selected
+							for (var i = 0; i < selected_buildings.length; i++) {
+								// Loop over all tech types selected
+								for (var j = 0; j < hvac_tt.length; j++) {
+									amtToAdd = data[climate_zone[a]][selected_buildings[i]][the_fuel][selected_end_use][radio_selection][hvac_tt[j]][proj_year] * energy_conv;
+									total_energy += amtToAdd;
+									total_co2 += amtToAdd/1e3 * co2_conv;
+								}
+							}
+						}
+					}
+					else { // Demand
+						// Identify the applicable fuel types
+						if (selected_end_use === 'heating') {var ft_select_f = [0, 1, 2];}
+						else {var ft_select_f = cooling_FT;}
+
+						// Loop over all climate zones selected
+						for (var a = 0; a < climate_zone.length; a++) {
+							// For demand, loop over all possible fuel types
+							for (var k = 0; k < ft_select_f.length; k++) {
+								var energy_conv = primaryEnergyConversion(com_fuel_type_values[ft_select_f[k]], proj_year);
+								var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
+								// Loop over all building types selected
+								for (var i = 0; i < selected_buildings.length; i++) {
+									// Loop over all tech types selected
+									for (var j = 0; j < hvac_tt.length; j++) {
+										amtToAdd = data[climate_zone[a]][selected_buildings[i]][com_fuel_type_values[ft_select_f[k]]][selected_end_use][radio_selection][hvac_tt[j]][proj_year] * energy_conv;
+										total_energy += amtToAdd;
+										total_co2 += amtToAdd/1e3 * co2_conv;
+									}
+								}
+							}
+						}
 					}
 				}
-			}
+				else if (selected_end_use === 'water heating') {
+					// [climate zone][building type][fuel type][end use][tech type][year]
 
-			// Update total energy number displayed
-			// NOTE CONVERSION FROM MMBTU TO QUADS
-			// AND ROUNDING TO MAXIMUM OF 3 SIG FIGS
-			$('#energy-num').text(Math.round(total_energy/1e6)/1e3);
+					// Identify the selected fuel type
+					var the_fuel = $('option:selected', '#fuel-type').val();
 
-			// Update total CO2 number displayed
-			$('#carbon-num').text(Math.round(total_co2*1e3)/1e3);
-		});
+					var energy_conv = primaryEnergyConversion(the_fuel, proj_year);
+					var co2_conv = CO2Conversion(the_fuel, proj_year);
+
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							// Loop over all tech types selected
+							for (var j = 0; j < hvac_tt.length; j++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]][the_fuel][selected_end_use][hvac_tt[j]][proj_year] * energy_conv;
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e3 * co2_conv;
+							}
+						}
+					}
+				}
+				else if (selected_end_use === 'cooking') {
+					// [climate zone][building type][fuel type][end use][year]
+
+					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]][ft_only_sel][selected_end_use][proj_year] * energy_conv;
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e3 * co2_conv;
+						}
+					}
+				}
+				else if (selected_end_use === 'ventilation' || selected_end_use === 'lighting' || selected_end_use === 'refrigeration') {
+					// [climate zone][building type]['electricity'][end use][tech type][year]
+
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							// Loop over all tech types selected
+							for (var j = 0; j < other_tt.length; j++) {
+								amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][other_tt[j]][proj_year] * ss_el[proj_year];
+								total_energy += amtToAdd;
+								total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+							}
+						}
+					}
+				}
+				else if (selected_end_use === 'MELs') {
+					// [climate zone][building type]['electricity']['MELs'][MEL type][year]
+
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][ft_only_sel][proj_year] * ss_el[proj_year];
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+						}
+					}
+				}
+				else { // PCs and Non-PC Office Equipment
+					// [climate zone][building type]['electricity'][end use][year]
+
+					// Loop over all climate zones selected
+					for (var a = 0; a < climate_zone.length; a++) {
+						// Loop over all building types selected
+						for (var i = 0; i < selected_buildings.length; i++) {
+							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][proj_year] * ss_el[proj_year];
+							total_energy += amtToAdd;
+							total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+						}
+					}
+				}
+
+				// Update total energy number displayed
+				// NOTE CONVERSION FROM TBTU TO QUADS
+				// AND ROUNDING TO MAXIMUM OF 3 SIG FIGS
+				$('#energy-num').text(Math.round(total_energy)/1e3);
+
+				// Update total CO2 number displayed
+				$('#carbon-num').text(Math.round(total_co2*1e3)/1e3);
+			});
+		}
 	});
 
 	
@@ -701,7 +860,7 @@ $(document).ready(function(){
 	function primaryEnergyConversion(fuel_type, year) {
 		// Look up the appropriate data based on the user's inputs and return the
 		// reported primary energy conversion factor
-		if (fuel_type === 'electricity (grid)') { return ss_el[year]; }
+		if (fuel_type === 'electricity (grid)' || fuel_type === 'electricity') { return ss_el[year]; }
 		else { return 1; }
 	}
 
@@ -711,7 +870,7 @@ $(document).ready(function(){
 	function CO2Conversion(fuel_type, year) {
 		// Look up the appropriate data based on the user's inputs and return the
 		// reported CO2 emissions intensity factor
-		if (fuel_type === 'electricity (grid)') { return co2_el[year]; }
+		if (fuel_type === 'electricity (grid)' || fuel_type === 'electricity') { return co2_el[year]; }
 		else if (fuel_type === 'natural gas') { return co2_ng[year]; }
 		else { return co2_ot[year]; }
 	}
