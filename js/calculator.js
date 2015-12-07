@@ -115,8 +115,8 @@ $(document).ready(function(){
 	var com_cooling_FT = [0, 1];
 	var com_cooking_FT = [0, 1];
 
-	var com_mels_type = ['Distribution Transformers', 'Security Systems', 'Elevators', 'Escalators', 'Non-road Electric Vehicles', 'Coffee Brewers', 'Kitchen Ventilation', 'Laundry Equipment', 'Laboratory Refrigeration', 'Fume Hoods', 'Medical Imaging Systems', 'Video Displays', 'Large Video Displays'];
-	var com_mels_type_values = ['distribution transformers', 'security systems', 'elevators', 'escalators', 'non-road electric vehicles', 'coffee brewers', 'kitchen ventilation', 'laundry', 'lab fridges and freezers', 'fume hoods', 'medical imaging', 'video displays', 'large video displays'];
+	var com_mels_type = ['Security Systems', 'Elevators', 'Escalators', 'Non-road Electric Vehicles', 'Coffee Brewers', 'Kitchen Ventilation', 'Laundry Equipment', 'Laboratory Refrigeration', 'Fume Hoods', 'Medical Imaging Systems', 'Video Displays', 'Large Video Displays'];
+	var com_mels_type_values = ['security systems', 'elevators', 'escalators', 'non-road electric vehicles', 'coffee brewers', 'kitchen ventilation', 'laundry', 'lab fridges and freezers', 'fume hoods', 'medical imaging', 'video displays', 'large video displays'];
 
 	var com_heating_equip = ['Boiler', 'Resistance Heating', 'Ground-Source Heat Pump', 'Air-Source Heat Pump', 'Boiler', 'Furnace', 'Engine-driven Heat Pump', 'Residential-type Heat Pump', 'Boiler', 'Furnace'];
 	var com_heating_equip_values = ['elec_boiler', 'electric_res-heat', 'comm_GSHP-heat', 'rooftop_ASHP-heat', 'gas_boiler', 'gas_furnace', 'gas_eng-driven_RTHP-heat', 'res_type_gasHP-heat', 'oil_boiler', 'oil_furnace'];
