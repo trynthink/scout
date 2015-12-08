@@ -93,7 +93,7 @@ $(document).ready(function(){
 	var cooling_equip_el = [0, 1, 2, 3];
 	var cooling_equip_ng = [4];
 
-	var lighting = ['General Service Lamp (Incandescent)', 'General Service Lamp (CFL)', 'General Service Lamp (LED)', 'Linear Fluorescent (T-12)', 'Linear Fluorescent (T-8)', 'Linear Fluorescent (LED)', 'Reflector (Incandescent)', 'Reflector (CFL)', 'Reflector (Halogen)', 'Reflector (LED)', 'External (Incandescent)', 'External (CFL)', 'External (High-pressure Sodium)', 'External (LED)'];
+	var lighting = ['General Service Lamp (Incandescent)', 'General Service Lamp (CFL)', 'General Service Lamp (LED)', 'Linear Fluorescent (T-12)', 'Linear Fluorescent (T-8)', 'Linear Fluorescent (LED Drop-in)', 'Reflector (Incandescent)', 'Reflector (CFL)', 'Reflector (Halogen)', 'Reflector (LED)', 'External (Incandescent)', 'External (CFL)', 'External (High-pressure Sodium)', 'External (LED)'];
 	var lighting_values = ['general service (incandescent)', 'general service (CFL)', 'general service (LED)', 'linear fluorescent (T-12)', 'linear fluorescent (T-8)', 'linear fluorescent (LED)', 'reflector (incandescent)', 'reflector (CFL)', 'reflector (halogen)', 'reflector (LED)', 'external (incandescent)', 'external (CFL)', 'external (high pressure sodium)', 'external (LED)'];
 
 	var entertainment = ['TVs', 'Set-top Boxes', 'DVD Players', 'Home Theater Systems', 'Video Game Systems'];
@@ -135,9 +135,13 @@ $(document).ready(function(){
 	var com_water_heating_equip_ng = [4, 5, 6];
 	var com_water_heating_equip_ds = [7];
 
-	var com_lighting = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS & SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
-	var com_lighting_values = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS_SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
-
+	// var com_lighting = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS & SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
+	// var com_lighting_values = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS_SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
+	var com_lighting = ['General Service Lamp (Incandescent)', 'General Service Lamp (CFL)', 'Edison-style Lamp', 'Linear Fluorescent (T-5)', 'Linear Fluorescent (T-8)', 'Linear Fluorescent (T-12)', 'Linear Fluorescent (LED Drop-in)', 'Low Bay Lamp', 'Low Bay Lamp (LED)', 'High Bay Lamp', 'High Bay Lamp (LED)'];
+	var com_lighting_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+	var com_lighting_indices = [[5,0,7,4], [1,2], [6,27], [8], [9,10,11,12,13,18,19,36], [14,16,17], [28], [21,22,24,31,34,3], [25,30], [15,20,32,33,35,23], [26,29]];
+	var com_lighting_items = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS_SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
+	
 	var com_ventilation_equip = ['Constant Air Volume Systems', 'Variable Air Volume Systems'];
 	var com_ventilation_equip_values = ['CAV_Vent', 'VAV_Vent'];
 
@@ -669,8 +673,7 @@ $(document).ready(function(){
 				}
 				else {
 					// [climate zone][building type]['electricity (grid)'][end use]['energy'][year]
-					console.log("here");
-					console.log(selected_buildings);
+
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
@@ -792,7 +795,25 @@ $(document).ready(function(){
 						}
 					}
 				}
-				else if (selected_end_use === 'ventilation' || selected_end_use === 'lighting' || selected_end_use === 'refrigeration') {
+				else if (selected_end_use === 'lighting') {
+					// [climate zone][building type]['electricity'][end use][tech type][year]
+
+          // Loop over all climate zones selected
+          for (var a = 0; a < climate_zone.length; a++) {
+            // Loop over all building types selected
+            for (var i = 0; i < selected_buildings.length; i++) {
+              // Select lighting subtype lists by group
+              for (var j = 0; j < other_tt.length; j++) {
+                for (var q = 0; q < com_lighting_indices[other_tt[j]].length; q++) {
+                  amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][com_lighting_items[com_lighting_indices[other_tt[j]][q]]][proj_year] * ss_el[proj_year];
+                  total_energy += amtToAdd;
+                  total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+                }
+              }
+            }
+          }
+				}
+				else if (selected_end_use === 'ventilation' || selected_end_use === 'refrigeration') {
 					// [climate zone][building type]['electricity'][end use][tech type][year]
 
 					// Loop over all climate zones selected
