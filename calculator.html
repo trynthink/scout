@@ -11,9 +11,9 @@
 		<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
 
 		<!-- Bootstrap CSS and JavaScript (minified) (using CDN) -->
-		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
-		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>
-		<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+		<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css'>
+		<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 
 		<!-- Font Awesome CSS (minified) (using CDN) -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
@@ -22,8 +22,13 @@
 		<link rel='stylesheet' type='text/css' href='css/styles.css'>
 
 		<!-- JavaScript --> 
-		<!-- <script type='text/javascript' src='js/actions.js'></script> --> <!-- TEMPORARY -->
-		<script type='text/javascript' src='js/calculator.js'></script> <!-- TEMPORARY -->
+		<script type='text/javascript' src='js/calculator.js'></script>
+<!-- 		<script type="text/javascript">
+			if (document.images) {
+				img1 = new Image();
+				img1.src = "resources/climatezone-lg.jpg";
+			}
+		</script> -->
 	</head>
 
 	<body>
@@ -38,17 +43,18 @@
 						<span class='icon-bar'></span>
 						<span class='icon-bar'></span>
 					</button>
-					<a class='navbar-brand' href='index.html' id='temp-align'><strong>scout</strong></a>
+					<a class='navbar-brand' id='temp-align'><strong>scout</strong></a>
+					<!-- <a class='navbar-brand' href='index.html' id='temp-align'><strong>scout</strong></a> -->
 				</div>
 				<div id='navbar' class='navbar-collapse collapse' aria-expanded='false'>
-					<ul class='nav navbar-nav'>
+					<!-- <ul class='nav navbar-nav'>
 						<li><a href='dashboard.html'>Dashboard</a></li>
 						<li><a href='measures.html'>Measure Database</a></li>
 						<li class='active'><a href='calculator.html'>Market Calculator</a></li>
 					</ul>
 					<ul class='nav navbar-nav navbar-right'>
 						<li><a href='https://www.github.com/trynthink/scout/wiki'>Wiki/Docs</a></li>
-					</ul>
+					</ul> -->
 				</div>
 
 			</div>
@@ -67,8 +73,6 @@
 				<div class='col-md-9'> <!-- LH column -->
 					<div class='row'> <!-- introductory text -->
 						<div class='col-md-12'>
-							<p id='disclaimer'><em>This is currently an incomplete product. The content shown here is intended to demonstrate appearance and provides no functionality. Any apparent outputs or results should be considered inaccurate.</em></p> <!-- TEMPORARY -->
-
 							<p>The Market Calculator yields the estimated energy use and CO<sub>2</sub> emissions associated with losses through the building envelope and appliances and devices within homes and businesses in the United States. The energy use and CO<sub>2</sub> emissions can be divided by building type, climate zone, technology type, and other factors indicated below. CO<sub>2</sub> emissions reported here do not include direct emissions associated with losses of working fluids from heating, cooling, water heating, and refrigeration systems.</p>
 
 							<p>To obtain an estimate for a market or markets of interest, the appropriate definitions must be selected below. In each category shown, at least one selection must be made to yield a complete market definition. In some categories, multiple selections are permitted. Categories where multiple selectons are allowed are indicated as such. Selections for the relevant groups are made by simply clicking the appropriate terms. Selected terms are highlighted, and clicking them again will remove them from the chosen market segment. Follow the numbered steps below, making the desired selections at each step. Once selections have been made in each category, click the 'Update' button in the Market Size box on the right side of the screen to get the energy use in the selected market and the associated CO<sub>2</sub> emissions.</p>
@@ -91,7 +95,7 @@
 					<div class='row'> <!-- climate zone -->
 						<div class='col-md-8'>
 							<!-- <h4>2. Select the relevant <a href='http://www.eia.gov/consumption/residential/maps.cfm'>AIA climate zone(s) <i class="fa fa-external-link"></i></a></h4> -->
-							<h4>2. Select the relevant <a id='AIA-CZ-popover' tabindex='0' rel='popover' data-trigger='focus' title='' data-content=''>AIA climate zone(s)</a></h4>
+							<h4>2. Select all relevant <a id='AIA-CZ-popover' tabindex='0' rel='popover' data-trigger='focus' title='' data-content=''>AIA climate zone(s)</a></h4>
 						</div>
 						<div class='col-md-4'>
 							<!-- SHOW THIS AS A MAP? -->
@@ -119,7 +123,7 @@
 
 					<div class='row'> <!-- building type -->
 						<div class='col-md-8'>
-							<h4>4. Select all of the applicable building types 
+							<h4>4. Select all applicable building types 
 							<br><small>Hold down ctrl (Windows) or command (Mac) while clicking to select multiple types</small></h4>
 						</div>
 						<div class='col-md-4'>
@@ -142,18 +146,18 @@
 				</div> <!-- /LH column -->
 
 				<div class='col-md-3'> <!-- RH column -->
-					<div data-spy='affix' id='calc-panel'><!--  data-offset-top='250' data-offset-bottom='10'> -->
+					<div data-spy='affix' id='calc-panel'>
 						<div class='panel panel-default'>
 							<div class='panel-heading'>
 								<h3 class='panel-title' style='display: inline;'>Market Size</h3><button type='button' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
 							</div>
 							<div class='panel-body'>
 								<h2 id='energy-num'>0</h2>
-								<h3 id='units'><small><span data-toggle='tooltip' title='Quadrillion British Thermal Units'>Quads</span> (primary energy)</small></h3>
+								<h3 id='units'><small><span data-toggle='tooltip' title='Trillion British Thermal Units'>TBTU</span> (primary energy)</small></h3>
 								<h2 id='carbon-num'>0</h2>
 								<h3 id='units'><small><span data-toggle='tooltip' title='Million Metric Tons'>MMT</span> CO<sub>2</sub></small></h3>
-								<button type='button' class='btn btn-default disabled'>Recall</button>
-								<button type='button' class='btn btn-primary disabled'>Save</button>
+								<!-- <button type='button' class='btn btn-default disabled'>Recall</button> -->
+								<!-- <button type='button' class='btn btn-primary disabled'>Save</button> -->
 							</div>
 						</div>
 					</div>

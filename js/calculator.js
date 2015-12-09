@@ -1,5 +1,12 @@
 $(document).ready(function(){
-	
+
+	// Preload climate zone map image so that the popover appears in the
+	// correct location when clicked
+	if (document.images) {
+		cz_map_image = new Image();
+		cz_map_image.src = "resources/climatezone-lg.jpg";
+	}
+
 	// Define upper and lower bounds for movement of affixed panel
 	$('#calc-panel').affix({
 		offset: {
@@ -14,7 +21,7 @@ $(document).ready(function(){
 	});
 
 	// Enable specific popover (for AIA climate zone image)
-	var AIA_CZ_image_HTML = '<img width="100%" src="http://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg">';
+	var AIA_CZ_image_HTML = '<img width="100%" src="../resources/climatezone-lg.jpg">';
 	$('#AIA-CZ-popover').popover({placement: 'right', content: AIA_CZ_image_HTML, html: true, container: 'body'});
 
 	// Store needed data about site-to-source conversions and CO2 emissions
@@ -135,8 +142,6 @@ $(document).ready(function(){
 	var com_water_heating_equip_ng = [4, 5, 6];
 	var com_water_heating_equip_ds = [7];
 
-	// var com_lighting = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS & SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
-	// var com_lighting_values = ['100W incand', '23W CFL', '26W CFL', '2L F54T5HO LB', '70W HIR PAR-38', '72W incand', '90W Halogen Edison', '90W Halogen PAR-38', 'F28T5', 'F28T8 HE', 'F28T8 HE w/ OS', 'F28T8 HE w/ OS_SR', 'F28T8 HE w/ SR', 'F32T8', 'F34T12', 'F54T5 HO_HB', 'F96T12 ES mag', 'F96T12 mag', 'F96T8', 'F96T8 HE', 'F96T8 HO_HB', 'F96T8 HO_LB', 'HPS 100_LB', 'HPS 150_HB', 'HPS 70_LB', 'LED 100 HPS_LB', 'LED 150 HPS_HB', 'LED Edison', 'LED T8', 'LED_HB', 'LED_LB', 'MH 175_LB', 'MH 250_HB', 'MH 400_HB', 'MV 175_LB', 'MV 400_HB', 'T8 F32 EEMag (e)'];
 	var com_lighting = ['General Service Lamp (Incandescent)', 'General Service Lamp (CFL)', 'Edison-style Lamp', 'Linear Fluorescent (T-5)', 'Linear Fluorescent (T-8)', 'Linear Fluorescent (T-12)', 'Linear Fluorescent (LED Drop-in)', 'Low Bay Lamp', 'Low Bay Lamp (LED)', 'High Bay Lamp', 'High Bay Lamp (LED)'];
 	var com_lighting_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	var com_lighting_indices = [[5,0,7,4], [1,2], [6,27], [8], [9,10,11,12,13,18,19,36], [14,16,17], [28], [21,22,24,31,34,3], [25,30], [15,20,32,33,35,23], [26,29]];
@@ -167,7 +172,6 @@ $(document).ready(function(){
 	});
 
 	// Initialize variable for the list of selected building types
-	// var resBuildings;
 	var selected_buildings;
 
 	// Define variable to record status of selection (selection = 1)
@@ -540,7 +544,8 @@ $(document).ready(function(){
 				// Enable update button inside "success handler" on query completion
 				$('#update').attr('disabled', false);
 
-				// TEMPORARY - DON'T KNOW WHY THIS SEEMS TO BE NECESSARY
+				// Redeclaration of this variable to ensure that the list is correct
+				// and complete - otherwise the list is often incomplete
 				var selected_buildings = $('#bldg-types').val();
 
 				// Define intermediate quantity variable to store each quantity to
@@ -551,7 +556,8 @@ $(document).ready(function(){
 				if (selected_end_use === 'heating' || selected_end_use === 'secondary heating' || selected_end_use === 'cooling') {
 					// [climate zone][building type][fuel type][end use][supply/demand][tech type]['energy'][year]
 
-					// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
+					// Redeclaring these variables since they did not retain their
+					// values from the global scope
 					var HVAC_FT = $('option:selected', '#fuel-type').val(); 
 					var radio_selection = $('input[name=eq-env]:checked').val();
 
@@ -685,12 +691,11 @@ $(document).ready(function(){
 					}
 				}
 
-				// Update total energy number displayed
-				// NOTE CONVERSION FROM MMBTU TO QUADS
-				// AND ROUNDING TO MAXIMUM OF 3 SIG FIGS
-				$('#energy-num').text(Math.round(total_energy/1e6)/1e3);
+				// Update total energy number displayed - rounded to 1 decimal place
+				// Also, note conversion from MBTU to TBTU
+				$('#energy-num').text(Math.round(total_energy/1e5)/10);
 
-				// Update total CO2 number displayed
+				// Update total CO2 number displayed - rounded to 1 decimal place
 				$('#carbon-num').text(Math.round(total_co2*1e3)/1e3);
 			});
 		}
@@ -701,7 +706,8 @@ $(document).ready(function(){
 				// Enable update button inside "success handler" on query completion
 				$('#update').attr('disabled', false);
 
-				// TEMPORARY - DON'T KNOW WHY THIS SEEMS TO BE NECESSARY
+				// Redeclaration of this variable to ensure that the list is correct
+				// and complete - otherwise the list is often incomplete
 				var selected_buildings = $('#bldg-types').val();
 
 				// Define intermediate quantity variable to store each quantity to
@@ -712,7 +718,8 @@ $(document).ready(function(){
 				if (selected_end_use === 'heating' || selected_end_use === 'cooling') {
 					// [climate zone][building type][fuel type][end use][supply/demand][tech type][year]
 
-					// SINCE GLOBAL SCOPING THESE VARIABLES DIDN'T MAKE THEM VISIBLE HERE
+					// Redeclaring these variables since they did not retain their
+					// values from the global scope
 					var the_fuel = $('option:selected', '#fuel-type').val(); 
 					var radio_selection = $('input[name=eq-env]:checked').val();
 
@@ -856,13 +863,11 @@ $(document).ready(function(){
 					}
 				}
 
-				// Update total energy number displayed
-				// NOTE CONVERSION FROM TBTU TO QUADS
-				// AND ROUNDING TO MAXIMUM OF 3 SIG FIGS
-				$('#energy-num').text(Math.round(total_energy)/1e3);
+				// Update total energy number displayed - rounding to 1 decimal place
+				$('#energy-num').text(Math.round(total_energy*10)/10);
 
-				// Update total CO2 number displayed
-				$('#carbon-num').text(Math.round(total_co2*1e3)/1e3);
+				// Update total CO2 number displayed - rounding to 1 decimal place
+				$('#carbon-num').text(Math.round(total_co2*10)/10);
 			});
 		}
 	});

@@ -1,13 +1,13 @@
 .affix {
   top: 80px; /* IS THERE A WAY TO DEFINE THIS WITH VARIABLES? */
   width: 212.5px;
-  height: 217px; /*189px; /* IS THERE A WAY TO DEFINE THIS WITH VARIABLES? NEED TO BE ABLE TO UPDATE WITH CHANGES IN CONTENT INSIDE PANEL. */
+  height: 183px; /* 217px; /*189px; /* IS THERE A WAY TO DEFINE THIS WITH VARIABLES? NEED TO BE ABLE TO UPDATE WITH CHANGES IN CONTENT INSIDE PANEL. */
 }
 
 .affix-bottom {
   position: absolute;
   width: 212.5px;
-  height: 217px; /* 189px; /* without CO2 number */ 
+  height: 183px; /* 217px; /* 189px; /* without CO2 number */ 
 }
 
 .affix-top {
@@ -67,7 +67,7 @@ that the bottom of the button is even with the bottom of the text */
 }
 
 .popover {
-  max-width: 50%; /* resize image to 50% of bounding box (HTML <body>) */
+  max-width: 40%; /* resize image to n% of bounding box (HTML <body>) */
 }
 
 /* Provide vertical padding on end use drop down menus and button groups
