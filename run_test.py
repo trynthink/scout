@@ -5960,6 +5960,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     a_run = run.Engine(measures_all)
     # Define a list of competing demand-side measures
     measures_compete1 = measures_all[0:2]
+    # Define a list of measures that require demand-side adjustments
+    supply_demand_adjust1 = []
     # Define the list of supply-side measures and associated contributing
     # microsegment keys that overlap with the above demand-side measures
     measures_secondary1 = {
@@ -5972,6 +5974,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                        'cooling', 'supply', 'ASHP'])]]}
     # Define a list of competing supply-side measures
     measures_compete2 = measures_all[2:5]
+    # Define a list of measures that require demand-side adjustments
+    supply_demand_adjust2 = measures_all[2:5]
     # No secondary effects for supply-side measures
     measures_secondary2 = {"measures": [], "keys": []}
 
@@ -6134,12 +6138,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         # Run the measure competition routine on all sample demand-side
         # measures first, given their cumulative affect on supply-side measures
         self.a_run.res_compete(self.measures_compete1,
-                               self.measures_secondary1, self.overlap_key1)
+                               self.measures_secondary1, self.overlap_key1,
+                               self.supply_demand_adjust1)
         # Run the measure competition routine on sample supply-side
         # measures second, taking into consideration any secondary effects
         # from the demand-side measure competition run above
         self.a_run.res_compete(self.measures_compete2,
-                               self.measures_secondary2, self.overlap_key2)
+                               self.measures_secondary2, self.overlap_key2,
+                               self.supply_demand_adjust2)
         # Check outputs for each sample measure after all have been competed
         for ind, d in enumerate(self.a_run.measures):
             # Check updated measure master microsegment
@@ -6613,6 +6619,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     # and an engine object that uses these measures as its input
     measures_compete = [run.Measure(**x) for x in [
         compete_meas1, compete_meas2, compete_meas3]]
+    # Define a list of measures that require demand-side adjustments
+    supply_demand_adjust = []
     a_run = run.Engine(measures_compete)
     # No secondary effects for supply-side measures
     measures_secondary = {"measures": [], "keys": []}
@@ -6719,7 +6727,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     def test_compete_com(self):
         # Run the measure competition routine on sample measures
         self.a_run.com_compete(self.measures_compete, self.measures_secondary,
-                               self.overlap_key, run.com_timeprefs)
+                               self.overlap_key, run.com_timeprefs,
+                               self.supply_demand_adjust)
         # Check outputs for each sample measure after competition
         for ind, d in enumerate(self.a_run.measures):
             # Check updated measure master microsegment

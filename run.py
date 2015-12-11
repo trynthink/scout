@@ -1421,6 +1421,12 @@ class Engine(object):
             measures_compete = [
                 x for x in self.measures if msu in x.mseg_compete[
                     "competed mseg keys and values"].keys()]
+            # Determine the subset of measures that need demand-side
+            # adjustments for the given microsegment
+            supply_demand_adj = [
+                x for x in self.measures if msu in x.mseg_compete[
+                    "demand-side adjustment"]["savings"].keys()]
+
             # For a demand-side microsegment update, find all supply-side
             # measures/microsegments that would be affected by changes
             # to the demand-side microsegment
@@ -1436,8 +1442,8 @@ class Engine(object):
                 for m in self.measures:
                     # Register the matching key chains
                     keys = [x for x in m.mseg_compete[
-                        "competed mseg keys and values"].keys() if
-                        msu_split == x[:-2]]
+                            "competed mseg keys and values"].keys() if
+                            msu_split in x and 'supply' in x]
                     # Record the matched key chains and associated supply-side
                     # measures in a 'measures_secondary' dict to be used
                     # further in the residential and commercial measure
@@ -1453,17 +1459,18 @@ class Engine(object):
             # Also use these routines to adjust for any secondary effects a
             # demand-side measure microsegment has on a supply-side measure
             # microsegment (or microsegments)
-            if (len(measures_compete) > 1 or
-                len(measures_secondary["measures"]) > 1) and \
+            if (len(measures_compete) > 1 or len(supply_demand_adj) > 0 or
+                len(measures_secondary["measures"]) > 0) and \
                 any(x in msu for x in (
                     'single family home', 'multi family home', 'mobile home')):
-                self.res_compete(measures_compete, measures_secondary, msu)
-            elif (len(measures_compete) > 1 or
-                  len(measures_secondary["measures"]) > 1) and \
+                self.res_compete(measures_compete, measures_secondary, msu,
+                                 supply_demand_adj)
+            elif (len(measures_compete) > 1 or len(supply_demand_adj) > 0 or
+                  len(measures_secondary["measures"]) > 0) and \
                 all(x not in msu for x in (
                     'single family home', 'multi family home', 'mobile home')):
                 self.com_compete(measures_compete, msu, measures_secondary,
-                                 com_timeprefs)
+                                 supply_demand_adj)
 
         # For each measure that has been competed against other measures and
         # had its master microsegment updated accordingly, also update the
@@ -1473,7 +1480,8 @@ class Engine(object):
                 m.master_savings = m.calc_metric_update(
                     rate, compete_measures, com_timeprefs)
 
-    def res_compete(self, measures_compete, measures_secondary, mseg_key):
+    def res_compete(self, measures_compete, measures_secondary, mseg_key,
+                    supply_demand_adj):
         """ Determine the shares of a given market microsegment that are
         captured by a series of residential efficiency measures that compete
         for this market microsegment; account for the secondary effects that
@@ -1543,7 +1551,7 @@ class Engine(object):
                     adj_list_eff, ind, yr, mseg_key, measures_secondary, m)
 
     def com_compete(self, measures_compete, measures_secondary, mseg_key,
-                    com_timeprefs):
+                    com_timeprefs, supply_demand_adj):
         """ Determine market shares captured by competing commercial efficiency
         measures; account for the secondary effects that any demand-side
         measures have on supply-side measures """
@@ -1717,7 +1725,7 @@ class Engine(object):
         # supply-side measures, register any captured demand-side savings for
         # later use in adjusting the supply-side measures' energy, carbon,
         # and associated cost savings
-        if 'demand' in mseg_key and len(measures_secondary["measures"]) > 1:
+        if 'demand' in mseg_key and len(measures_secondary["measures"]) > 0:
             # For each of the affected supply-side measures, establish
             # the affected contributing microsegments and record the
             # demand-side savings adjustment that must be made for each
