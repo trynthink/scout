@@ -215,7 +215,7 @@ $(document).ready(function(){
 	});
 
 	// Building type selection actions
-	$('#bldg-types').on('click', function (){
+	$('#bldg-types').on('change', function (){
 		
 		// Put the selected building types into a list
 		selected_buildings = $('#bldg-types').val();
