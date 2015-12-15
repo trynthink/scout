@@ -4,7 +4,7 @@ $(document).ready(function(){
 	// correct location when clicked
 	if (document.images) {
 		cz_map_image = new Image();
-		cz_map_image.src = "resources/climatezone-lg.jpg";
+		cz_map_image.src = "../resources/climatezone-lg.jpg";
 	}
 
 	// Define upper and lower bounds for movement of affixed panel

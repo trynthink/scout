@@ -67,7 +67,7 @@ that the bottom of the button is even with the bottom of the text */
 }
 
 .popover {
-  max-width: 40%; /* resize image to n% of bounding box (HTML <body>) */
+  max-width: 50%; /* resize image to n% of bounding box (HTML <body>) */
 }
 
 /* Provide vertical padding on end use drop down menus and button groups
