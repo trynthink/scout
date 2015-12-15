@@ -4,7 +4,7 @@ $(document).ready(function(){
 	// correct location when clicked
 	if (document.images) {
 		cz_map_image = new Image();
-		cz_map_image.src = "../resources/climatezone-lg.jpg";
+		cz_map_image.src = "resources/climatezone-lg.jpg";
 	}
 
 	// Define upper and lower bounds for movement of affixed panel
@@ -21,7 +21,7 @@ $(document).ready(function(){
 	});
 
 	// Enable specific popover (for AIA climate zone image)
-	var AIA_CZ_image_HTML = '<img width="100%" src="../resources/climatezone-lg.jpg">';
+	var AIA_CZ_image_HTML = '<img width="100%" src="resources/climatezone-lg.jpg">';
 	$('#AIA-CZ-popover').popover({placement: 'right', content: AIA_CZ_image_HTML, html: true, container: 'body'});
 
 	// Store needed data about site-to-source conversions and CO2 emissions
