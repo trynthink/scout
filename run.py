@@ -107,19 +107,27 @@ class Measure(object):
 
         # Initialize master microsegment stock, energy, carbon, cost, and
         # lifetime information dict
-        mseg_master = {"stock": {"total": None, "competed": None,
-                                 "competed (captured)": None},
-                       "energy": {"total": None, "competed": None,
-                                  "efficient": None},
-                       "carbon": {"total": None, "competed": None,
-                                  "efficient": None},
-                       "cost": {"stock": {"total": None, "competed": None,
-                                          "efficient": None},
-                                "energy": {"total": None, "competed": None,
-                                           "efficient": None},
-                                "carbon": {"total": None, "competed": None,
-                                           "efficient": None}},
-                       "lifetime": {"baseline": None, "measure": None}}
+        mseg_master = {
+            "stock": {
+                "total": {"all": None, "measure": None},
+                "competed": {"all": None, "measure": None}},
+            "energy": {
+                "total": {"baseline": None, "efficient": None},
+                "competed": {"baseline": None, "efficient": None}},
+            "carbon": {
+                "total": {"baseline": None, "efficient": None},
+                "competed": {"baseline": None, "efficient": None}},
+            "cost": {
+                "stock": {
+                    "total": {"baseline": None, "efficient": None},
+                    "competed": {"baseline": None, "efficient": None}},
+                "energy": {
+                    "total": {"baseline": None, "efficient": None},
+                    "competed": {"baseline": None, "efficient": None}},
+                "carbon": {
+                    "total": {"baseline": None, "efficient": None},
+                    "competed": {"baseline": None, "efficient": None}}},
+            "lifetime": {"baseline": None, "measure": None}}
 
         # Initialize a dict that registers all microsegments that contribute
         # to the current measure's master microsegment, the consumer choice
@@ -551,13 +559,17 @@ class Measure(object):
 
                 # Update total, competed, and efficient stock, energy, CO2
                 # and baseline/measure cost info. based on adoption scheme
-                [add_stock, add_energy, add_carb, add_stock_compete,
-                 add_compete_energy, add_compete_carb, add_stock_compete_capt,
-                 add_energy_eff, add_carb_eff, add_stock_total_cost,
-                 add_energy_total_cost, add_carb_total_cost,
-                 add_stock_compete_cost, add_energy_compete_cost,
-                 add_carb_compete_cost, add_stock_eff_cost,
-                 add_energy_eff_cost, add_carb_eff_cost] = \
+                [add_stock, add_energy, add_carb,
+                 add_stock_total_meas, add_energy_total_eff, add_carb_total_eff,
+                 add_stock_compete, add_energy_compete, add_carb_compete,
+                 add_stock_compete_meas, add_energy_compete_eff,
+                 add_carb_compete_eff,
+                 add_stock_cost, add_energy_cost, add_carb_cost,
+                 add_stock_cost_meas, add_energy_cost_eff, add_carb_cost_eff,
+                 add_stock_cost_compete, add_energy_cost_compete,
+                 add_carb_cost_compete,
+                 add_stock_cost_compete_meas, add_energy_cost_compete_eff,
+                 add_carb_cost_compete_eff] = \
                     self.partition_microsegment(add_stock, add_energy_site,
                                                 rel_perf, cost_base,
                                                 cost_meas, cost_energy,
@@ -568,31 +580,52 @@ class Measure(object):
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
-                add_dict = {"stock": {"total": add_stock,
-                                      "competed": add_stock_compete,
-                                      "competed (captured)":
-                                          add_stock_compete_capt},
-                            "energy": {"total": add_energy,
-                                       "competed": add_compete_energy,
-                                       "efficient": add_energy_eff},
-                            "carbon": {"total": add_carb,
-                                       "competed": add_compete_carb,
-                                       "efficient": add_carb_eff},
-                            "cost": {
-                                "stock": {
-                                    "total": add_stock_total_cost,
-                                    "competed": add_stock_compete_cost,
-                                    "efficient": add_stock_eff_cost},
-                                "energy": {
-                                    "total": add_energy_total_cost,
-                                    "competed": add_energy_compete_cost,
-                                    "efficient": add_energy_eff_cost},
-                                "carbon": {
-                                    "total": add_carb_total_cost,
-                                    "competed": add_carb_compete_cost,
-                                    "efficient": add_carb_eff_cost}},
-                            "lifetime": {"baseline": life_base,
-                                         "measure": life_meas}}
+                add_dict = {
+                    "stock": {
+                        "total": {
+                            "all": add_stock,
+                            "measure": add_stock_total_meas},
+                        "competed": {
+                            "all": add_stock_compete,
+                            "measure": add_stock_compete_meas}},
+                    "energy": {
+                        "total": {
+                            "baseline": add_energy,
+                            "efficient": add_energy_total_eff},
+                        "competed": {
+                            "baseline": add_energy_compete,
+                            "efficient": add_energy_compete_eff}},
+                    "carbon": {
+                        "total": {
+                            "baseline": add_carb,
+                            "efficient": add_carb_total_eff},
+                        "competed": {
+                            "baseline": add_carb_compete,
+                            "efficient": add_carb_compete_eff}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": add_stock_cost,
+                                "efficient": add_stock_cost_meas},
+                            "competed": {
+                                "baseline": add_stock_cost_compete,
+                                "efficient": add_stock_cost_compete_meas}},
+                        "energy": {
+                            "total": {
+                                "baseline": add_energy_cost,
+                                "efficient": add_energy_cost_eff},
+                            "competed": {
+                                "baseline": add_energy_cost_compete,
+                                "efficient": add_energy_cost_compete_eff}},
+                        "carbon": {
+                            "total": {
+                                "baseline": add_carb_cost,
+                                "efficient": add_carb_cost_eff},
+                            "competed": {
+                                "baseline": add_carb_cost_compete,
+                                "efficient": add_carb_cost_compete_eff}}},
+                    "lifetime": {
+                        "baseline": life_base, "measure": life_meas}}
 
                 # Register contributing microsegment for later use
                 # in determining savings overlaps for measures that apply
@@ -724,11 +757,14 @@ class Measure(object):
 
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total, stock_total_cost, energy_total, energy_total_cost, \
-            carb_total, carb_total_cost, stock_compete, stock_compete_cost, \
-            stock_eff_cost, energy_compete, energy_compete_cost, carb_compete, \
-            carb_compete_cost, stock_compete_capt, energy_eff, energy_eff_cost, \
-            carb_eff, carb_eff_cost = ({} for n in range(18))
+        stock_total, energy_total, carb_total, stock_total_meas, energy_total_eff, \
+            carb_total_eff, stock_compete, energy_compete, carb_compete, \
+            stock_compete_meas, energy_compete_eff, carb_compete_eff, \
+            stock_total_cost, energy_total_cost, carb_total_cost, \
+            stock_total_cost_eff, energy_total_eff_cost, carb_total_eff_cost, \
+            stock_compete_cost, energy_compete_cost, carb_compete_cost, \
+            stock_compete_cost_eff, energy_compete_cost_eff, \
+            carb_compete_cost_eff = ({} for n in range(24))
 
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
@@ -832,60 +868,80 @@ class Measure(object):
                 site_source_conv[yr]
             carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
 
-            # Update the captured portion of the competed stock as initially
-            # being equal to the competed stock. * Note: captured stock numbers
-            # are used in the cost_metric_update function below to normalize
-            # measure cost metrics to a per unit basis.  The captured stock
-            # will be less than the competed stock in cases where the measure
-            # captures less than 100% of the competed market share (determined
-            # in the compete_measures function below).
-            stock_compete_capt[yr] = stock_compete[yr]
+            # Update the number of total and competed stock units captured by
+            # the measure as initially being equal to the total and competed
+            # baseline stock (e.g., all units are assumed to be captured by the
+            # measure). * Note: captured competed stock numbers are used in
+            # the cost_metric_update function below to normalize measure cost
+            # metrics to a per unit basis.  The captured stock will be less
+            # than the competed stock in cases where the measure captures less
+            # than 100% of the competed market share (determined in the
+            # compete_measures function below).
+            stock_total_meas[yr] = stock_total[yr]
+            stock_compete_meas[yr] = stock_compete[yr]
 
-            # Update efficient energy and carbon, where efficient is
-            # comprised of the portion of competed energy/carbon remaining
-            # after measure implementation plus non-competed energy/carbon.
-            # * Note: Efficient energy and carbon is dependent upon whether the
-            # measure is on the market for the given year (if not, use total
-            # energy and carbon)
+            # Update total-efficient and competed-efficient energy and
+            # carbon, where "efficient" signifies the portion of total and
+            # competed energy/carbon remaining after measure implementation
+            # plus non-competed energy/carbon. * Note: Efficient energy and
+            # carbon is dependent upon whether the measure is on the market
+            # for the given year (if not, use total-baseline energy and carbon)
             if (self.market_entry_year is None or int(yr) >= self.market_entry_year) \
                and (self.market_exit_year is None or
                     int(yr) < self.market_exit_year):
-                energy_eff[yr] = (energy_compete[yr] * rel_perf[yr]) + \
+                energy_compete_eff[yr] = energy_compete[yr] * rel_perf[yr]
+                energy_total_eff[yr] = energy_compete_eff[yr] + \
                     (energy_total[yr] - energy_compete[yr])
-                carb_eff[yr] = (carb_compete[yr] * rel_perf[yr]) + \
+                carb_compete_eff[yr] = carb_compete[yr] * rel_perf[yr]
+                carb_total_eff[yr] = carb_compete_eff[yr] + \
                     (carb_total[yr] - carb_compete[yr])
             else:
-                energy_eff[yr] = energy_total[yr]
-                carb_eff[yr] = carb_total[yr]
+                energy_compete_eff[yr] = energy_compete[yr]
+                energy_total_eff[yr] = energy_total[yr]
+                carb_compete_eff[yr] = carb_compete[yr]
+                carb_total_eff[yr] = carb_total[yr]
 
-            # Update total, competed, and efficient stock, energy, and carbon
-            # costs. * Note: efficient stock cost for the measure is dependent
-            # upon whether that measure is on the market for the given year (if
-            # not, use baseline technology cost)
+            # Update total and competed stock, energy, and carbon
+            # costs. * Note: total-efficient and competed-efficient stock
+            # cost for the measure are dependent upon whether that measure is
+            # on the market for the given year (if not, use total-baseline
+            # technology cost)
+
+            # Update stock costs
             stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
             if (self.market_entry_year is None or
                 int(yr) >= self.market_entry_year) and \
                (self.market_exit_year is None or
                int(yr) < self.market_exit_year):
-                stock_eff_cost[yr] = stock_compete[yr] * cost_meas + \
-                    (stock_total[yr] - stock_compete[yr]) * cost_base[yr]
+                stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
+                stock_total_cost_eff[yr] = stock_compete_cost_eff[yr] + \
+                    (stock_total_cost[yr] - stock_compete_cost[yr])
             else:
-                stock_eff_cost[yr] = stock_total_cost[yr]
+                stock_compete_cost_eff[yr] = stock_compete_cost[yr]
+                stock_total_cost_eff[yr] = stock_total_cost[yr]
+            # Update energy costs
             energy_total_cost[yr] = energy_total[yr] * cost_energy[yr]
+            energy_total_eff_cost[yr] = energy_total_eff[yr] * cost_energy[yr]
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
-            energy_eff_cost[yr] = energy_eff[yr] * cost_energy[yr]
+            energy_compete_cost_eff[yr] = energy_compete_eff[yr] * \
+                cost_energy[yr]
+            # Update carbon costs
             carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]
+            carb_total_eff_cost[yr] = carb_total_eff[yr] * cost_carb[yr]
             carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
-            carb_eff_cost[yr] = carb_eff[yr] * cost_carb[yr]
+            carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
 
         # Return partitioned stock, energy, and cost mseg information
-        return [stock_total, energy_total, carb_total,
-                stock_compete, energy_compete, carb_compete,
-                stock_compete_capt, energy_eff, carb_eff, stock_total_cost,
-                energy_total_cost, carb_total_cost, stock_compete_cost,
-                energy_compete_cost, carb_compete_cost,
-                stock_eff_cost, energy_eff_cost, carb_eff_cost]
+        return [
+            stock_total, energy_total, carb_total, stock_total_meas,
+            energy_total_eff, carb_total_eff, stock_compete, energy_compete,
+            carb_compete, stock_compete_meas, energy_compete_eff,
+            carb_compete_eff, stock_total_cost, energy_total_cost,
+            carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
+            carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
+            carb_compete_cost, stock_compete_cost_eff,
+            energy_compete_cost_eff, carb_compete_cost_eff]
 
     def calc_metric_update(self, rate, compete_measures, com_timeprefs):
         """ Given information on a measure's master microsegment for
@@ -906,56 +962,57 @@ class Measure(object):
         # energy/carbon cost savings for each projection year
         for ind, yr in enumerate(
                 sorted(self.master_mseg["stock"][
-                    "competed (captured)"].keys())):
+                    "total"]["measure"].keys())):
 
-            # Set the number captured stock units for the given year,
-            # which is used for normalizing stock, energy and carbon cash
-            # flows to a per unit basis in the "metric_update" function below
-            num_units = self.master_mseg["stock"]["competed (captured)"][yr]
-            # Set the capital cost of the baseline technology for comparison
-            # with measure capital cost
-            scost_base = self.master_mseg["cost"]["stock"]["total"][yr]
+            # Set the number of competed stock units that are captured by the
+            # measure for the given year; this number is used for normalizing
+            # stock, energy and carbon cash flows to a per unit basis in the
+            # "metric_update" function below
+            num_units = self.master_mseg["stock"]["competed"]["measure"][yr]
+            # Set the total (not unit) capital cost of the baseline
+            # technology for comparison with measure capital cost
+            scost_base = self.master_mseg[
+                "cost"]["stock"]["total"]["baseline"][yr]
 
             # Calculate total annual energy/carbon and stock/energy/carbon cost
             # savings for the measure vs. baseline. Total savings reflect the
             # impact of all measure adoptions simulated up until and including
             # the current year of the modeling time horizon.
             esave_tot[yr] = \
-                self.master_mseg["energy"]["total"][yr] - \
-                self.master_mseg["energy"]["efficient"][yr]
+                self.master_mseg["energy"]["total"]["baseline"][yr] - \
+                self.master_mseg["energy"]["total"]["efficient"][yr]
             csave_tot[yr] = \
-                self.master_mseg["carbon"]["total"][yr] - \
-                self.master_mseg["carbon"]["efficient"][yr]
+                self.master_mseg["carbon"]["total"]["baseline"][yr] - \
+                self.master_mseg["carbon"]["total"]["efficient"][yr]
             scostsave_tot[yr] = \
                 scost_base - \
-                self.master_mseg["cost"]["stock"]["efficient"][yr]
+                self.master_mseg["cost"]["stock"]["total"]["efficient"][yr]
             ecostsave_tot[yr] = \
-                self.master_mseg["cost"]["energy"]["total"][yr] - \
-                self.master_mseg["cost"]["energy"]["efficient"][yr]
+                self.master_mseg["cost"]["energy"]["total"]["baseline"][yr] - \
+                self.master_mseg["cost"]["energy"]["total"]["efficient"][yr]
             ccostsave_tot[yr] = \
-                self.master_mseg["cost"]["carbon"]["total"][yr] - \
-                self.master_mseg["cost"]["carbon"]["efficient"][yr]
+                self.master_mseg["cost"]["carbon"]["total"]["baseline"][yr] - \
+                self.master_mseg["cost"]["carbon"]["total"]["efficient"][yr]
 
             # Calculate the added annual energy/carbon and stock/energy/carbon
             # cost savings for the measure vs. baseline.  Added savings reflect
             # the impact of only the measure adoptions simulated in the current
             # year of the modeling time horizon.
-            if ind != 0:
-                esave_add[yr] = esave_tot[yr] - esave_tot[(str(int(yr) - 1))]
-                csave_add[yr] = csave_tot[yr] - csave_tot[(str(int(yr) - 1))]
-                scostsave_add[yr] = scostsave_tot[yr] - \
-                    scostsave_tot[(str(int(yr) - 1))]
-                ecostsave_add[yr] = ecostsave_tot[yr] - \
-                    ecostsave_tot[(str(int(yr) - 1))]
-                ccostsave_add[yr] = ccostsave_tot[yr] - \
-                    ccostsave_tot[(str(int(yr) - 1))]
-
-            else:
-                esave_add[yr] = esave_tot[yr]
-                csave_add[yr] = csave_tot[yr]
-                scostsave_add[yr] = scostsave_tot[yr]
-                ecostsave_add[yr] = ecostsave_tot[yr]
-                ccostsave_add[yr] = ccostsave_tot[yr]
+            esave_add[yr] = \
+                self.master_mseg["energy"]["competed"]["baseline"][yr] - \
+                self.master_mseg["energy"]["competed"]["efficient"][yr]
+            csave_add[yr] = \
+                self.master_mseg["carbon"]["competed"]["baseline"][yr] - \
+                self.master_mseg["carbon"]["competed"]["efficient"][yr]
+            scostsave_add[yr] = \
+                self.master_mseg["cost"]["stock"]["competed"]["baseline"][yr] - \
+                self.master_mseg["cost"]["stock"]["competed"]["efficient"][yr]
+            ecostsave_add[yr] = \
+                self.master_mseg["cost"]["energy"]["competed"]["baseline"][yr] - \
+                self.master_mseg["cost"]["energy"]["competed"]["efficient"][yr]
+            ccostsave_add[yr] = \
+                self.master_mseg["cost"]["carbon"]["competed"]["baseline"][yr] - \
+                self.master_mseg["cost"]["carbon"]["competed"]["efficient"][yr]
 
             # Only run remaining economic calculations if measure is being
             # competed, in which case these calculations will be necessary
@@ -1492,7 +1549,7 @@ class Engine(object):
         # the measure market fractions such that they all sum to 1)
         mkt_fracs = [{} for l in range(0, len(measures_compete))]
         mkt_fracs_tot = dict.fromkeys(
-            measures_compete[0].master_mseg["stock"]["total"].keys(), 0)
+            measures_compete[0].master_mseg["stock"]["total"]["all"].keys(), 0)
 
         # Loop through competing measures and calculate market shares for each
         # based on their annualized capital and operating costs.
@@ -1531,7 +1588,7 @@ class Engine(object):
             # Establish the starting master microsegment and contributing
             # microsegment information necessary to adjust the master
             # microsegment to reflect the updated measure market fraction
-            base, base_list, adj, adj_list_tot, adj_list_eff = \
+            base, base_list_tot, base_list_comp, adj, adj_list_base, adj_list_eff = \
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
@@ -1547,8 +1604,9 @@ class Engine(object):
                 # also account for any secondary effects of demand-side
                 # measures on the measure master microsegment
                 self.compete_adjustment(
-                    mkt_fracs, base, base_list, adj, adj_list_tot,
-                    adj_list_eff, ind, yr, mseg_key, measures_secondary, m)
+                    mkt_fracs, base, base_list_tot, base_list_comp, adj,
+                    adj_list_base, adj_list_eff, ind, yr, mseg_key,
+                    measures_secondary, m)
 
     def com_compete(self, measures_compete, measures_secondary, mseg_key,
                     com_timeprefs, supply_demand_adj):
@@ -1596,7 +1654,7 @@ class Engine(object):
             # Establish the starting master microsegment and contributing
             # microsegment information necessary to adjust the master
             # microsegment to reflect the updated measure market fraction
-            base, base_list, adj, adj_list_tot, adj_list_eff = \
+            base, base_list_tot, base_list_comp, adj, adj_list_base, adj_list_eff = \
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
@@ -1636,8 +1694,9 @@ class Engine(object):
                 # also account for any secondary effects of demand-side
                 # measures on the measure master microsegment
                 self.compete_adjustment(
-                    mkt_fracs, base, base_list, adj, adj_list_tot,
-                    adj_list_eff, ind, yr, mseg_key, measures_secondary, m)
+                    mkt_fracs, base, base_list_tot, base_list_comp, adj,
+                    adj_list_base, adj_list_eff, ind, yr, mseg_key,
+                    measures_secondary, m)
 
     def compete_adjustment_dicts(self, m, mseg_key):
         """ Establish a measure's starting master microsegment and the
@@ -1645,31 +1704,46 @@ class Engine(object):
         master microsegment values following measure competition """
         # Organize relevant starting master microsegment values into a list
         base = m.master_mseg
-        base_list = [base["energy"]["efficient"], base["carbon"]["efficient"],
-                     base["cost"]["energy"]["efficient"],
-                     base["cost"]["carbon"]["efficient"]]
+        # Set total-efficient master microsegment values to be updated in the
+        # compete_adjustment function below
+        base_list_tot = [base["energy"]["total"]["efficient"],
+                         base["carbon"]["total"]["efficient"],
+                         base["cost"]["energy"]["total"]["efficient"],
+                         base["cost"]["carbon"]["total"]["efficient"]]
+        # Set competed-efficient master microsegment values to be updated in
+        # the compete_adjustment function below
+        base_list_comp = [base["energy"]["competed"]["efficient"],
+                          base["carbon"]["competed"]["efficient"],
+                          base["cost"]["energy"]["competed"]["efficient"],
+                          base["cost"]["carbon"]["competed"]["efficient"]]
         # Set up lists that will be used to determine the energy, carbon,
         # and cost savings associated with the competed microsegment that
         # must be adjusted according to a measure's calculated market share
         adj = m.mseg_compete["competed mseg keys and values"][mseg_key]
 
-        # Total energy, carbon, and cost for contributing microsegment
-        adj_list_tot = [
-            adj["energy"]["total"], adj["carbon"]["total"],
-            adj["cost"]["energy"]["total"], adj["cost"]["carbon"]["total"]]
-        # Energy, carbon, and cost for contributing microsegment under
+        # Competed baseline energy, carbon, and cost for contributing
+        # microsegment
+        adj_list_base = [
+            adj["energy"]["competed"]["baseline"],
+            adj["carbon"]["competed"]["baseline"],
+            adj["cost"]["energy"]["competed"]["baseline"],
+            adj["cost"]["carbon"]["competed"]["baseline"]]
+        # Competed energy, carbon, and cost for contributing microsegment under
         # full efficient measure adoption
         adj_list_eff = [
-            adj["energy"]["efficient"], adj["carbon"]["efficient"],
-            adj["cost"]["energy"]["efficient"],
-            adj["cost"]["carbon"]["efficient"]]
+            adj["energy"]["competed"]["efficient"],
+            adj["carbon"]["competed"]["efficient"],
+            adj["cost"]["energy"]["competed"]["efficient"],
+            adj["cost"]["carbon"]["competed"]["efficient"]]
 
         # Return baseline master microsegment and adjustment microsegments
-        return base, base_list, adj, adj_list_tot, adj_list_eff
+        return base, base_list_tot, base_list_comp, adj, adj_list_base, \
+            adj_list_eff
 
-    def compete_adjustment(self, mkt_fracs, base, base_list, adj, adj_list_tot,
-                           adj_list_eff, ind, yr, mseg_key, measures_secondary,
-                           measure):
+    def compete_adjustment(
+        self, mkt_fracs, base, base_list_tot, base_list_comp, adj,
+        adj_list_base, adj_list_eff, ind, yr, mseg_key, measures_secondary,
+            measure):
         """ Adjust the measure's master microsegment values by applying
         its competed market share and demand-side adjustment (if applicable)
         to the measure's captured stock and energy, carbon, and associated cost
@@ -1692,34 +1766,53 @@ class Engine(object):
         else:
             dem_adj_frac = 1
 
-        # Scale down the captured portion of competed stock by the updated
+        # Scale down the competed stock captured by the measure by the updated
         # measure market share
-        base["stock"]["competed (captured)"][yr] = \
-            base["stock"]["competed (captured)"][yr] * \
+        base["stock"]["competed"]["measure"][yr] = \
+            base["stock"]["competed"]["measure"][yr] * \
             mkt_fracs[ind][yr]
+        # Adjust the total stock captured by the measure to reflect the above
+        # adjustment to the captured competed stock
+        base["stock"]["total"]["measure"][yr] = \
+            base["stock"]["total"]["measure"][yr] - \
+            (base["stock"]["competed"]["all"][yr] -
+             base["stock"]["competed"]["measure"][yr])
 
-        # Adjust the measure vs. baseline stock cost difference for the
-        # contributing microsegment by the updated measure market share;
-        # add the updated difference to the measure's starting 'efficient'
-        # master microsegment values
-        base["cost"]["stock"]["efficient"][yr] = \
-            base["cost"]["stock"]["efficient"][yr] + (
-                (adj["cost"]["stock"]["total"][yr] -
-                 adj["cost"]["stock"]["efficient"][yr]) *
+        # Adjust the total and competed efficient vs. baseline stock cost
+        # difference for the contributing microsegment by the updated measure
+        # market share; add the updated difference to the measure's starting
+        # 'efficient' master microsegment values
+        base["cost"]["stock"]["total"]["efficient"][yr] = \
+            base["cost"]["stock"]["total"]["efficient"][yr] + (
+                (adj["cost"]["stock"]["competed"]["baseline"][yr] -
+                 adj["cost"]["stock"]["competed"]["efficient"][yr]) *
+                (1 - mkt_fracs[ind][yr]))
+        base["cost"]["stock"]["competed"]["efficient"][yr] = \
+            base["cost"]["stock"]["competed"]["efficient"][yr] + (
+                (adj["cost"]["stock"]["competed"]["baseline"][yr] -
+                 adj["cost"]["stock"]["competed"]["efficient"][yr]) *
                 (1 - mkt_fracs[ind][yr]))
 
-        # Adjust the energy, carbon, and associated cost savings for the
-        # contributing microsegment by the updated measure market share
-        # and - if a supply-side measure - by any savings already captured
-        # on the demand-side, to arrive at an uncaptured savings value; add
-        # the uncaptured savings to the measure's starting 'efficient' master
-        # microsegment values
-        base["energy"]["efficient"][yr], base["carbon"]["efficient"][yr], \
-            base["cost"]["energy"]["efficient"][yr], \
-            base["cost"]["carbon"]["efficient"][yr], = [
+        # Adjust the total and competed energy, carbon, and associated cost
+        # savings for the contributing microsegment by the updated measure
+        # market share and - if a supply-side measure - by any savings already
+        # captured on the demand-side, to arrive at an uncaptured savings
+        # value; add the uncaptured savings to the measure's starting
+        # 'efficient' master microsegment values
+        base["energy"]["total"]["efficient"][yr],\
+            base["carbon"]["total"]["efficient"][yr], \
+            base["cost"]["energy"]["total"]["efficient"][yr], \
+            base["cost"]["carbon"]["total"]["efficient"][yr], = [
                 x[yr] + ((y[yr] - z[yr]) * (
                     1 - (mkt_fracs[ind][yr] * dem_adj_frac))) for x, y, z in
-                zip(base_list, adj_list_tot, adj_list_eff)]
+                zip(base_list_tot, adj_list_base, adj_list_eff)]
+        base["energy"]["competed"]["efficient"][yr],\
+            base["carbon"]["competed"]["efficient"][yr], \
+            base["cost"]["energy"]["competed"]["efficient"][yr], \
+            base["cost"]["carbon"]["competed"]["efficient"][yr], = [
+                x[yr] + ((y[yr] - z[yr]) * (
+                    1 - (mkt_fracs[ind][yr] * dem_adj_frac))) for x, y, z in
+                zip(base_list_comp, adj_list_base, adj_list_eff)]
 
         # If updating a demand-side measure that has secondary effects on
         # supply-side measures, register any captured demand-side savings for
@@ -1735,7 +1828,7 @@ class Engine(object):
                 # microsegments
                 keys = measures_secondary["keys"][ind2]
                 for k in keys:
-                    dem_save = (adj_list_tot[0][yr] - adj_list_eff[0][yr]) * \
+                    dem_save = (adj_list_base[0][yr] - adj_list_eff[0][yr]) * \
                         mkt_fracs[ind][yr]
                     ms.mseg_compete["demand-side adjustment"][
                         "savings"][k][yr] += dem_save
@@ -1749,13 +1842,13 @@ class Engine(object):
         # Loop through all measures and append a dict of summary outputs to
         # the measure summary list above
         for m in self.measures:
-            for yr in m.master_mseg["stock"]["total"].keys():
+            for yr in m.master_mseg["stock"]["total"]["all"].keys():
                 # Create list of output variables
                 summary_mat = [
-                    m.master_mseg["energy"]["efficient"][yr],
+                    m.master_mseg["energy"]["total"]["efficient"][yr],
                     m.master_savings["energy"]["savings (total)"][yr],
                     m.master_savings["energy"]["cost savings (total)"][yr],
-                    m.master_mseg["carbon"]["efficient"][yr],
+                    m.master_mseg["carbon"]["total"]["efficient"][yr],
                     m.master_savings["carbon"]["savings (total)"][yr],
                     m.master_savings["carbon"]["cost savings (total)"][yr]]
 
@@ -1764,7 +1857,7 @@ class Engine(object):
                 # are arrays of values.  If so, find the average and 5th/95th
                 # percentile values of each output array and report out.
                 # Otherwise, report the point values for each output
-                if type(m.master_mseg["energy"]["efficient"][yr]) == \
+                if type(m.master_mseg["energy"]["total"]["efficient"][yr]) == \
                    numpy.ndarray:
                     # Average values for outputs
                     energy_eff_avg, energy_save_avg, energy_costsave_avg, \
@@ -1791,8 +1884,10 @@ class Engine(object):
                 # current measure
                 measure_summary_dict_yr = {
                     "year": yr, "measure name": m.name,
-                    "total energy": m.master_mseg["energy"]["total"][yr],
-                    "competed energy": m.master_mseg["energy"]["competed"][yr],
+                    "total energy": m.master_mseg[
+                        "energy"]["total"]["baseline"][yr],
+                    "competed energy": m.master_mseg[
+                        "energy"]["competed"]["baseline"][yr],
                     "efficient energy": energy_eff_avg,
                     "efficient energy (low)": energy_eff_low,
                     "efficient energy (high)": energy_eff_high,
@@ -1802,10 +1897,11 @@ class Engine(object):
                     "energy cost savings": energy_costsave_avg,
                     "energy cost savings (low)": energy_costsave_low,
                     "energy cost savings (high)": energy_costsave_high,
-                    "total carbon": m.master_mseg["carbon"]["total"][yr],
-                    "competed carbon": m.master_mseg["carbon"]["competed"][yr],
-                    "efficient carbon":
-                        m.master_mseg["carbon"]["total"][yr],
+                    "total carbon": m.master_mseg[
+                        "carbon"]["total"]["baseline"][yr],
+                    "competed carbon": m.master_mseg[
+                        "carbon"]["competed"]["baseline"][yr],
+                    "efficient carbon": carb_eff_avg,
                     "efficient carbon (low)": carb_eff_low,
                     "efficient carbon (high)": carb_eff_high,
                     "carbon savings": carb_save_avg,
