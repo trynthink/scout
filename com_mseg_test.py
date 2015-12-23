@@ -8,6 +8,112 @@ import com_mseg as cm
 # Import needed packages
 import unittest
 import numpy as np
+import itertools
+import os
+import csv
+import re
+
+
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
+class EIADataFileIntegrityTest(unittest.TestCase):
+    """ Test for the presence of the anticipated column headings in
+    both the EIA general commercial buildings database and the EIA
+    service demand database and report when any required columns are
+    missing. Also test whether all of the years for which data are
+    reported in both data files are the same. """
+
+    def setUp(self):
+        # Open each EIA data file, extract the header row, and reformat
+        # the text in each entry for easier handling, producing a list
+        # of strings for the column titles
+        with open(cm.serv_dmd, 'r') as sd:
+            sd_fl = csv.reader(sd)
+            self.sd_head = [entry.strip() for entry in next(sd_fl)]
+
+        with open(cm.catg_dmd, 'r') as db:
+            db_fl = csv.reader(db)
+            self.db_head = [entry.strip() for entry in next(db_fl)]
+
+    # The function catg_data_selector expects certain columns to be
+    # present in the commercial building data - this test checks for
+    # the presence of those columns; column order does not matter but
+    # the test is case-sensitive since the way the column headers are
+    # used in the main code is case-sensitive
+    def test_integrity_of_main_commercial_database(self):
+
+        # Anticipated column headings in the commercial database
+        col_heads = ['Division', 'BldgType', 'EndUse', 'Fuel', 'Year',
+                     'Amount', 'Label']
+
+        # Test for the presence of all of the anticipated column headings
+        for head in col_heads:
+            self.assertTrue(head in self.db_head, msg=head +
+                            ' column not found.')
+
+    # Check whether the years reported in the two EIA data files match
+    # (This also tests, in a confounded way, whether the pivot year
+    # applied to the commercial data years is still correct.)
+    def test_years_in_both_commercial_energy_data_files(self):
+
+        # Create a list of column names in the service demand data
+        # that correspond to years (converting the years to integers)
+        sd_yrs = [int(a) for a in self.sd_head if re.search('^2[0-9]{3}$', a)]
+
+        # Determine which column has the year data
+        loc = self.db_head.index('Year')
+
+        years = []  # Initialize list for reported years
+
+        # Read the first 100 data lines to (subsequently) create a
+        # unique list of year numbers in the data
+        with open(cm.catg_dmd, 'r') as db:
+            db_fl = csv.reader(db)
+            next(db_fl)  # Skip first line
+            for row in itertools.islice(db_fl, 100):
+                years.append(int(row[loc]))
+
+        # Delete any entries that equal 0
+        db_yrs = [a for a in years if a != 0]
+
+        # Create a list of the unique years reported out of the first
+        # 100 lines of the main commercial data file and adjust the
+        # list based on the expected pivot year of 1989
+        db_yrs = np.unique(db_yrs) + cm.pivot_year
+
+        # Compare the contents of the two lists, where if the lists are
+        # exactly the same, the list comprehension will be empty. Each
+        # list comprehension only checks one list against the other, so
+        # the comparison must be conducted both ways (as below).
+        # N.B. db_yrs is a numpy array and sd_yrs is a list.
+        cmpr = set(sd_yrs)
+        diff_yrs1 = [a for a in db_yrs if a not in cmpr]
+
+        cmpr = set(db_yrs)
+        diff_yrs2 = [a for a in sd_yrs if a not in cmpr]
+
+        diff_yrs = diff_yrs1 + diff_yrs2  # Combine the two lists together
+
+        # Set up test that will fail if diff_yrs has any entries
+        self.assertFalse(diff_yrs, msg=('The lists of years in the EIA '
+                                        'general commercial data file '
+                                        'and the service demand data '
+                                        'file do not match.'))
+
+    # The function sd_mseg_percent expects that the service demand data
+    # will have certain columns that can be used to select the correct
+    # data for further processing - this test checks for the presence
+    # of those columns
+    def test_integrity_of_commercial_service_demand_database(self):
+
+        # Anticipated (non-year) columns in the service demand data
+        col_heads = ['r', 'b', 's', 'f', 'd', 't', 'v', 'Description', 'Eff']
+
+        # Check for the presence of each of the anticipated column headings
+        for head in col_heads:
+            self.assertTrue(head in self.sd_head, msg='Column ' + head +
+                            (' is missing from the service demand data file.'))
 
 
 class JSONInterpretationTest(unittest.TestCase):
