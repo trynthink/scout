@@ -59,15 +59,20 @@ com_timeprefs = {
         "refrigeration": [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]}}
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
-adopt_scheme = 'Technical potential'
+adopt_scheme = 'Max adoption potential'
 compete_measures = True
 
 # Define a summary CSV file. For now, yield separate output files for a
-# competed and non-competed case to help organize test plotting efforts
-if compete_measures is True:
+# competed and non-competed case and technical potential and non-technical
+# potential case to help organize test plotting efforts
+if adopt_scheme is 'Technical potential' and compete_measures is True:
     csv_output_file = "output_summary_competed.csv"
-else:
+elif adopt_scheme is 'Technical potential' and compete_measures is False:
     csv_output_file = "output_summary_noncompeted.csv"
+elif adopt_scheme is not'Technical potential' and compete_measures is True:
+    csv_output_file = "output_summary_competed_nontp.csv"
+else:
+    csv_output_file = "output_summary_noncompeted_nontp.csv"
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -560,10 +565,10 @@ class Measure(object):
                 # Update total, competed, and efficient stock, energy, CO2
                 # and baseline/measure cost info. based on adoption scheme
                 [add_stock, add_energy, add_carb,
-                 add_stock_total_meas, add_energy_total_eff, add_carb_total_eff,
-                 add_stock_compete, add_energy_compete, add_carb_compete,
-                 add_stock_compete_meas, add_energy_compete_eff,
-                 add_carb_compete_eff,
+                 add_stock_total_meas, add_energy_total_eff,
+                 add_carb_total_eff, add_stock_compete, add_energy_compete,
+                 add_carb_compete, add_stock_compete_meas,
+                 add_energy_compete_eff, add_carb_compete_eff,
                  add_stock_cost, add_energy_cost, add_carb_cost,
                  add_stock_cost_meas, add_energy_cost_eff, add_carb_cost_eff,
                  add_stock_cost_compete, add_energy_cost_compete,
@@ -576,7 +581,8 @@ class Measure(object):
                                                 ccosts, site_source_conv,
                                                 intensity_carb,
                                                 new_bldg_frac, diffuse_params,
-                                                adopt_scheme)
+                                                adopt_scheme, life_base,
+                                                life_meas, mskeys)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -749,7 +755,8 @@ class Measure(object):
     def partition_microsegment(self, mseg_stock, mseg_energy_site,
                                rel_perf, cost_base, cost_meas, cost_energy,
                                cost_carb, site_source_conv, intensity_carb,
-                               new_bldg_frac, diffuse_params, adopt_scheme):
+                               new_bldg_frac, diffuse_params, adopt_scheme,
+                               life_base, life_meas, mskeys):
         """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
         consumption under the measure).  Also find the cost of the baseline
@@ -766,95 +773,145 @@ class Measure(object):
             stock_compete_cost_eff, energy_compete_cost_eff, \
             carb_compete_cost_eff = ({} for n in range(24))
 
+        # Initialize the portion of existing stock that has adopted the
+        # efficient measure as 0, and the portion baseline stock as 1
+        exist_eff_frac = 0
+        exist_base_frac = 1
+
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
-        for yr in mseg_stock.keys():
+        for yr in sorted(mseg_stock.keys()):
 
-            # Calculate the fractions of new and existing buildings
-            # in the stock for the given year
+            # Calculate the portions of new and existing buildings
+            # in the stock for the given year, based on AEO data
+            # * NOTE: NEW_BLDG_FRAC STILL NEEDED FOR COMMERCIAL
             new_frac = new_bldg_frac[yr]
             exist_frac = 1 - new_frac
 
-            # Calculate the fractions of existing buildings that have
-            # baseline (e.g., conventional) and efficient technologies
-            # installed * PLACEHOLDER
-            exist_base_frac = 1
-            exist_eff_frac = 1 - exist_base_frac
+            # Calculate the diffusion fraction for the efficient measure
+            # (CURRENTLY PLACEDHOLDER OF 1) and replacement fractions for the
+            # baseline and efficient stock. * NOTE: THIS PART OF THE ROUTINE
+            # CURRENTLY ONLY APPLIES TO 'PRIMARY' MICROSEGMENTS; 'SECONDARY'
+            # MICROSEGMENTS REQUIRE SPECIAL HANDLING, TO BE FILLED OUT IN A
+            # FUTURE COMMIT
+            if mskeys[0] == "primary":
 
-            # Calculate the fractions of baseline and efficient technologies
-            # in existing buildings that are up for replacement or survive
-            # * PLACEHOLDER
-            exist_base_replace_frac = 1
-            exist_eff_replace_frac = 1
-            exist_base_survive_frac = 1 - exist_base_replace_frac
-            exist_eff_survive_frac = 1 - exist_eff_replace_frac
+                # For the adjusted adoption potential case, determine the
+                # portion of "competed" (new/replacement) technologies
+                # that remain with the baseline technology or change to the
+                # efficient alternative technology; otherwise, for all other
+                # scenarios, set both fractions to 1
+                if adopt_scheme == "Adjusted adoption potential":
+                    # PLACEHOLDER
+                    diffuse_eff_frac = 999
+                else:
+                    diffuse_eff_frac = 1
 
-            # For the adjusted adoption potential case, calculate the
-            # fractions of "competed" (new/replacement) technologies
-            # that remain with the baseline technology or change to the
-            # efficient alternative technology; otherwise, for all other
-            # scenarios, set both fractions to 1
-            if adopt_scheme == "Adjusted adoption potential":
-                # PLACEHOLDER
-                diffuse_base_frac = 1
-                diffuse_eff_frac = 1 - diffuse_base_frac
-            else:
-                diffuse_base_frac = 0
-                diffuse_eff_frac = 1
+                # Calculate the portions of existing baseline and efficient
+                # stock that are up for replacement
 
-            # Construct all possible mseg partitions from the above fractions
+                # Set base lifetimes less than 1 year to 1 year to avoid
+                # replacement fractions > 1
+                if life_base[yr] < 1:
+                    life_base[yr] = 1
 
-            # New stock/energy, baseline and efficient partitions
-            new_base = new_frac * diffuse_base_frac
-            new_eff = new_frac * diffuse_eff_frac
+                # Calculate base replacement fraction. * Note: base
+                # replacement fraction depends upon how much baseline
+                # stock has already been replaced with efficient stock;
+                # once all the baseline stock has been replaced, the
+                # replacement fraction must be zero
+                if (1 / life_base[yr] <= exist_base_frac):
+                    exist_base_replace_frac = 1 / life_base[yr]
+                else:
+                    exist_base_replace_frac = exist_base_frac
 
-            # Replacement stock/energy, baseline, and efficient partitions
-            replace_b2b = exist_frac * exist_base_frac * \
-                exist_base_replace_frac * diffuse_base_frac
-            replace_b2e = exist_frac * exist_base_frac * \
-                exist_base_replace_frac * diffuse_eff_frac
-            replace_e2e = exist_frac * exist_eff_frac * \
-                exist_eff_replace_frac
+                # Determine the portion of existing efficient stock that
+                # is up for replacement in the given year
 
-            # Surviving stock/energy, baseline and efficient partitions
-            survive_base = exist_frac * exist_base_frac * \
-                exist_base_survive_frac
-            survive_eff = exist_frac * exist_eff_frac * \
-                exist_eff_survive_frac
+                # If no efficient stock has been adopted yet, set the portion
+                # up for replacement to zero
+                if exist_eff_frac == 0:
+                    exist_eff_replace_frac = 0
+                else:
+                    # Determine how many years have passed since the efficient
+                    # measure first entered the market
+                    if self.market_entry_year is None:
+                        eff_turnover_track = \
+                            int(yr) - int(list(sorted(mseg_stock.keys()))[0])
+                    else:
+                        eff_turnover_track = int(yr) - self.market_entry_year
 
-            # Wrap the above partitions up into total and competed
-            # stock/energy partitions for given technology adoption scenario
+                    # Determine whether the current year is past the point in
+                    # time to begin replacement of efficient stock (e.g.,
+                    # more than one lifetime of the measure has elapsed since
+                    # its market introduction). If so, calculate efficient
+                    # replacement fraction. If not, set efficient replacement
+                    # fraction to zero
+
+                    # Handle case where measure lifetime is a list of values
+                    if type(life_meas) == numpy.ndarray:
+                        # Initialize list of replacement fractions
+                        exist_eff_replace_frac = numpy.zeros(len(life_meas))
+                        # Loop through lifetime list and calculate replacement
+                        # fraction for each lifetime value
+                        for ind, l in enumerate(life_meas):
+                            # Set measure lifetimes less than 1 year to 1 year
+                            # to avoid replacement fractions > 1
+                            if l < 1:
+                                l == 1
+                            # Calculate efficient replacement fraction. * Note:
+                            # efficient replacement fraction depends upon how
+                            # much efficient stock has already diffused into
+                            # the market (if fully diffused = 1 / life_meas)
+                            if (l - eff_turnover_track) <= 0:
+                                exist_eff_replace_frac[ind] = \
+                                    (1 / l) * exist_eff_frac
+                            else:
+                                exist_eff_replace_frac[ind] = 0
+                    # Handle case where measure lifetime is a point value
+                    elif (life_meas - eff_turnover_track) <= 0:
+                        # Set measure lifetimes less than 1 year to 1 year
+                        # to avoid replacement fractions > 1
+                        if life_meas < 1:
+                            life_meas = 1
+                        # Calculate efficient replacement fraction
+                        exist_eff_replace_frac = (1 / life_meas) * \
+                            exist_eff_frac
+                    else:
+                        exist_eff_replace_frac = 0
+            else:  # PLACEHOLDER FOR HANDLING SECONDARY MICROSEGMENTS
+                diffuse_eff_frac, exist_base_replace_frac = \
+                    (1 for n in range(2))
+                exist_eff_replace_frac = 0
+
+            # Determine total and competed stock, energy, and carbon
+            # fractions for given technology adoption scenario
 
             # Check if measure only applies to new or existing buildings
             if type(self.structure_type) != list:
                 # Measure only applies to new buildings
                 if self.structure_type == "new":
                     # Calculate total and competed stock fractions
-                    total_frac = new_base + new_eff
-                    if adopt_scheme == "Technical potential":
-                        compete_frac = total_frac
-                    else:
-                        compete_frac = total_frac - new_base
+                    total_frac = new_frac
+                    compete_frac = 1
                 # Measure only applies to existing buildings
                 else:
                     # Calculate total and competed stock fractions
-                    total_frac = replace_b2b + replace_b2e + \
-                        replace_e2e
+                    total_frac = exist_frac
                     if adopt_scheme == "Technical potential":
-                        compete_frac = total_frac
+                        compete_frac = 1
                     else:
-                        compete_frac = total_frac - replace_b2b
+                        compete_frac = \
+                            exist_base_replace_frac + exist_eff_replace_frac
             # Otherwise, measure applies to all buildings
             else:
-                # Calculate total and competed stock fractions
                 total_frac = 1
+                # Calculate total and competed stock fractions
                 if adopt_scheme == "Technical potential":
-                    compete_frac = total_frac
+                    compete_frac = 1
                 else:
-                    compete_frac = total_frac - new_base - replace_b2b
-
-            # Apply total and competed partition fractions to input stock
-            # and energy data to arrive at final partitioned mseg outputs
+                    compete_frac = new_frac + exist_frac * (
+                        exist_base_replace_frac + exist_eff_replace_frac)
 
             # Update total stock, energy, and carbon
             stock_total[yr] = mseg_stock[yr] * total_frac
@@ -863,38 +920,68 @@ class Measure(object):
             carb_total[yr] = energy_total[yr] * intensity_carb[yr]
 
             # Update competed stock, energy, and carbon
-            stock_compete[yr] = mseg_stock[yr] * compete_frac
-            energy_compete[yr] = mseg_energy_site[yr] * compete_frac * \
-                site_source_conv[yr]
+            stock_compete[yr] = stock_total[yr] * compete_frac
+            energy_compete[yr] = energy_total[yr] * compete_frac
             carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
 
-            # Update the number of total and competed stock units captured by
-            # the measure as initially being equal to the total and competed
-            # baseline stock (e.g., all units are assumed to be captured by the
-            # measure). * Note: captured competed stock numbers are used in
-            # the cost_metric_update function below to normalize measure cost
+            # Determine the competed stock that is captured by the measure
+            stock_compete_meas[yr] = stock_compete[yr] * diffuse_eff_frac
+
+            # Determine the portion of existing stock that has already
+            # been captured by the measure up until the current year;
+            # subsequently, update the number of total and competed stock units
+            # captured by the measure to reflect additions from the current
+            # year. * Note: captured competed stock numbers are used in the
+            # cost_metric_update function below to normalize measure cost
             # metrics to a per unit basis.  The captured stock will be less
             # than the competed stock in cases where the measure captures less
             # than 100% of the competed market share (determined in the
             # compete_measures function below).
-            stock_total_meas[yr] = stock_total[yr]
-            stock_compete_meas[yr] = stock_compete[yr]
+
+            # First year in the modeling time horizon OR tech. potential case
+            if yr == list(sorted(mseg_stock.keys()))[0] or \
+               adopt_scheme == "Technical potential":
+                # Update total number of stock units captured by the measure
+                # (for first year of modeling time horizon or a technical
+                # potential case, stock captured in previous years is N/A)
+                stock_total_meas[yr] = stock_compete[yr]
+            # Subsequent year in modeling time horizon
+            else:
+                # Update total number of stock units captured by the measure
+                # (reflects all previously captured stock + captured competed
+                # stock from the current year)
+                stock_total_meas[yr] = stock_total_meas[str(int(yr) - 1)] + \
+                    stock_compete_meas[yr]
+                # Ensure stock captured by measure never exceeds total stock
+                if stock_total_meas[yr] > stock_total[yr]:
+                    stock_total_meas[yr] = stock_total[yr]
 
             # Update total-efficient and competed-efficient energy and
-            # carbon, where "efficient" signifies the portion of total and
-            # competed energy/carbon remaining after measure implementation
-            # plus non-competed energy/carbon. * Note: Efficient energy and
+            # carbon, where "efficient" signifies the total and competed
+            # energy/carbon remaining after measure implementation plus
+            # non-competed energy/carbon. * Note: Efficient energy and
             # carbon is dependent upon whether the measure is on the market
-            # for the given year (if not, use total-baseline energy and carbon)
-            if (self.market_entry_year is None or int(yr) >= self.market_entry_year) \
-               and (self.market_exit_year is None or
-                    int(yr) < self.market_exit_year):
-                energy_compete_eff[yr] = energy_compete[yr] * rel_perf[yr]
+            # for the given year (if not, use baseline energy and carbon)
+            if (self.market_entry_year is None or int(yr) >=
+                self.market_entry_year) and (self.market_exit_year is None or
+               int(yr) < self.market_exit_year):
+                # Competed-efficient energy
+                energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
+                    rel_perf[yr]
+                # Total-efficient energy
                 energy_total_eff[yr] = energy_compete_eff[yr] + \
-                    (energy_total[yr] - energy_compete[yr])
-                carb_compete_eff[yr] = carb_compete[yr] * rel_perf[yr]
+                    (energy_total[yr] - energy_compete[yr]) * \
+                    exist_eff_frac * rel_perf[yr] + \
+                    (energy_total[yr] - energy_compete[yr]) * \
+                    (1 - exist_eff_frac)
+                # Competed-efficient carbon
+                carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
+                    rel_perf[yr]
+                # Total-efficient carbon
                 carb_total_eff[yr] = carb_compete_eff[yr] + \
-                    (carb_total[yr] - carb_compete[yr])
+                    (carb_total[yr] - carb_compete[yr]) * \
+                    exist_eff_frac * rel_perf[yr] + \
+                    (carb_total[yr] - carb_compete[yr]) * (1 - exist_eff_frac)
             else:
                 energy_compete_eff[yr] = energy_compete[yr]
                 energy_total_eff[yr] = energy_total[yr]
@@ -904,33 +991,60 @@ class Measure(object):
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
             # cost for the measure are dependent upon whether that measure is
-            # on the market for the given year (if not, use total-baseline
-            # technology cost)
+            # on the market for the given year (if not, use baseline technology
+            # cost)
 
-            # Update stock costs
+            # Baseline cost of the total stock
             stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
+            # Baseline cost of the competed stock
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
+            # Cost of the stock under efficient measure adoption
             if (self.market_entry_year is None or
                 int(yr) >= self.market_entry_year) and \
                (self.market_exit_year is None or
                int(yr) < self.market_exit_year):
+                # Competed-efficient stock cost
                 stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
-                stock_total_cost_eff[yr] = stock_compete_cost_eff[yr] + \
-                    (stock_total_cost[yr] - stock_compete_cost[yr])
+                # Total-efficient stock cost
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
+                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
             else:
                 stock_compete_cost_eff[yr] = stock_compete_cost[yr]
                 stock_total_cost_eff[yr] = stock_total_cost[yr]
-            # Update energy costs
+
+            # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy[yr]
+            # Total energy-efficient cost
             energy_total_eff_cost[yr] = energy_total_eff[yr] * cost_energy[yr]
+            # Competed baseline energy cost
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
+            # Competed energy-efficient cost
             energy_compete_cost_eff[yr] = energy_compete_eff[yr] * \
                 cost_energy[yr]
-            # Update carbon costs
+
+            # Total baseline carbon cost
             carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]
+            # Total carbon-efficient cost
             carb_total_eff_cost[yr] = carb_total_eff[yr] * cost_carb[yr]
+            # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
+            # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
+
+            # Update portion of existing stock already captured by efficient
+            # measure to reflect additions from the current modeling year. If
+            # this portion is already 1, keep at 1; if the total stock for
+            # the year is 0 or we are updating a secondary microsegment, set
+            # efficient stock portion to 0.
+            if stock_total[yr] != 0 and exist_eff_frac != 1 and \
+               mskeys[0] == "primary":
+                exist_eff_frac = stock_total_meas[yr] / stock_total[yr]
+            elif stock_total[yr] == 0:
+                exist_eff_frac = 0
+
+            # Update portion of existing stock remaining with the baseline
+            # technology
+            exist_base_frac = 1 - exist_eff_frac
 
         # Return partitioned stock, energy, and cost mseg information
         return [
@@ -1588,7 +1702,8 @@ class Engine(object):
             # Establish the starting master microsegment and contributing
             # microsegment information necessary to adjust the master
             # microsegment to reflect the updated measure market fraction
-            base, base_list_tot, base_list_comp, adj, adj_list_base, adj_list_eff = \
+            base, base_list_tot, base_list_comp, adj, adj_list_base, \
+                adj_list_base_comp, adj_list_eff, adj_list_eff_comp = \
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
@@ -1605,8 +1720,9 @@ class Engine(object):
                 # measures on the measure master microsegment
                 self.compete_adjustment(
                     mkt_fracs, base, base_list_tot, base_list_comp, adj,
-                    adj_list_base, adj_list_eff, ind, yr, mseg_key,
-                    measures_secondary, m)
+                    adj_list_base, adj_list_base_comp, adj_list_eff,
+                    adj_list_eff_comp, ind, yr, mseg_key, measures_secondary,
+                    m)
 
     def com_compete(self, measures_compete, measures_secondary, mseg_key,
                     com_timeprefs, supply_demand_adj):
@@ -1654,7 +1770,8 @@ class Engine(object):
             # Establish the starting master microsegment and contributing
             # microsegment information necessary to adjust the master
             # microsegment to reflect the updated measure market fraction
-            base, base_list_tot, base_list_comp, adj, adj_list_base, adj_list_eff = \
+            base, base_list_tot, base_list_comp, adj, adj_list_base, \
+                adj_list_base_comp, adj_list_eff, adj_list_eff_comp = \
                 self.compete_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and adjust
             # measure's master microsegment values accordingly
@@ -1695,8 +1812,9 @@ class Engine(object):
                 # measures on the measure master microsegment
                 self.compete_adjustment(
                     mkt_fracs, base, base_list_tot, base_list_comp, adj,
-                    adj_list_base, adj_list_eff, ind, yr, mseg_key,
-                    measures_secondary, m)
+                    adj_list_base, adj_list_base_comp, adj_list_eff,
+                    adj_list_eff_comp, ind, yr, mseg_key, measures_secondary,
+                    m)
 
     def compete_adjustment_dicts(self, m, mseg_key):
         """ Establish a measure's starting master microsegment and the
@@ -1721,16 +1839,30 @@ class Engine(object):
         # must be adjusted according to a measure's calculated market share
         adj = m.mseg_compete["competed mseg keys and values"][mseg_key]
 
-        # Competed baseline energy, carbon, and cost for contributing
+        # Total baseline energy, carbon, and cost for contributing
         # microsegment
         adj_list_base = [
+            adj["energy"]["total"]["baseline"],
+            adj["carbon"]["total"]["baseline"],
+            adj["cost"]["energy"]["total"]["baseline"],
+            adj["cost"]["carbon"]["total"]["baseline"]]
+        # Competed baseline energy, carbon, and cost for contributing
+        # microsegment
+        adj_list_base_comp = [
             adj["energy"]["competed"]["baseline"],
             adj["carbon"]["competed"]["baseline"],
             adj["cost"]["energy"]["competed"]["baseline"],
             adj["cost"]["carbon"]["competed"]["baseline"]]
-        # Competed energy, carbon, and cost for contributing microsegment under
+        # Total energy, carbon, and cost for contributing microsegment under
         # full efficient measure adoption
         adj_list_eff = [
+            adj["energy"]["total"]["efficient"],
+            adj["carbon"]["total"]["efficient"],
+            adj["cost"]["energy"]["total"]["efficient"],
+            adj["cost"]["carbon"]["total"]["efficient"]]
+        # Competed energy, carbon, and cost for contributing microsegment under
+        # full efficient measure adoption
+        adj_list_eff_comp = [
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"],
             adj["cost"]["energy"]["competed"]["efficient"],
@@ -1738,12 +1870,12 @@ class Engine(object):
 
         # Return baseline master microsegment and adjustment microsegments
         return base, base_list_tot, base_list_comp, adj, adj_list_base, \
-            adj_list_eff
+            adj_list_base_comp, adj_list_eff, adj_list_eff_comp
 
     def compete_adjustment(
         self, mkt_fracs, base, base_list_tot, base_list_comp, adj,
-        adj_list_base, adj_list_eff, ind, yr, mseg_key, measures_secondary,
-            measure):
+        adj_list_base, adj_list_base_comp, adj_list_eff, adj_list_eff_comp,
+            ind, yr, mseg_key, measures_secondary, measure):
         """ Adjust the measure's master microsegment values by applying
         its competed market share and demand-side adjustment (if applicable)
         to the measure's captured stock and energy, carbon, and associated cost
@@ -1812,7 +1944,7 @@ class Engine(object):
             base["cost"]["carbon"]["competed"]["efficient"][yr], = [
                 x[yr] + ((y[yr] - z[yr]) * (
                     1 - (mkt_fracs[ind][yr] * dem_adj_frac))) for x, y, z in
-                zip(base_list_comp, adj_list_base, adj_list_eff)]
+                zip(base_list_comp, adj_list_base_comp, adj_list_eff_comp)]
 
         # If updating a demand-side measure that has secondary effects on
         # supply-side measures, register any captured demand-side savings for
