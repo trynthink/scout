@@ -726,47 +726,52 @@ class DataToFinalDictAtLeafNodeRestructuringTest(unittest.TestCase):
         {'2019': 11.983, '2020': 12.165, '2021': 12.377},
         {'2019': 24.763, '2020': 24.724, '2021': 24.733}]
 
+    # Create a routine for checking equality of a dict with point values
+    def dict_check(self, dict1, dict2, msg=None):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
     # Test each if/else data condition in the energy_select function separately
     def test_restructuring_cases_with_thermal_loads(self):
         for i in [0, 1]:
-            # Obtain the output from the function to be tested
-            func = cm.energy_select(self.sample_db_array,
-                                    self.sample_sd_array,
-                                    self.sample_tl_array,
-                                    self.sample_keys[i],
-                                    self.sd_end_uses)
-            # Compare the pre-calculated dict with that obtained from
-            # the function under test using assertAlmostEqual to
-            # accommodate floating point issues when recording numeric
-            # data from a numpy array into a dict
-            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+            self.dict_check(cm.energy_select(self.sample_db_array,
+                                             self.sample_sd_array,
+                                             self.sample_tl_array,
+                                             self.sample_keys[i],
+                                             self.sd_end_uses),
+                            self.dict_list[i])
 
     def test_restructuring_cases_with_miscellaneous_electric_loads(self):
         for i in [2, 3]:
-            func = cm.energy_select(self.sample_db_array,
-                                    self.sample_sd_array,
-                                    self.sample_tl_array,
-                                    self.sample_keys[i],
-                                    self.sd_end_uses)
-            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+            self.dict_check(cm.energy_select(self.sample_db_array,
+                                             self.sample_sd_array,
+                                             self.sample_tl_array,
+                                             self.sample_keys[i],
+                                             self.sd_end_uses),
+                            self.dict_list[i])
 
     def test_restructuring_cases_with_service_demand_data(self):
         for i in [4, 5]:
-            func = cm.energy_select(self.sample_db_array,
-                                    self.sample_sd_array,
-                                    self.sample_tl_array,
-                                    self.sample_keys[i],
-                                    self.sd_end_uses)
-            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+            self.dict_check(cm.energy_select(self.sample_db_array,
+                                             self.sample_sd_array,
+                                             self.sample_tl_array,
+                                             self.sample_keys[i],
+                                             self.sd_end_uses),
+                            self.dict_list[i])
 
     def test_restructuring_all_other_cases(self):
         for i in [6, 7]:
-            func = cm.energy_select(self.sample_db_array,
-                                    self.sample_sd_array,
-                                    self.sample_tl_array,
-                                    self.sample_keys[i],
-                                    self.sd_end_uses)
-            map(lambda a, b: assertAlmostEqual(a, b), func, self.dict_list[i])
+            self.dict_check(cm.energy_select(self.sample_db_array,
+                                             self.sample_sd_array,
+                                             self.sample_tl_array,
+                                             self.sample_keys[i],
+                                             self.sd_end_uses),
+                            self.dict_list[i])
 
 
 class StructuredArrayStringProcessingTest(unittest.TestCase):
