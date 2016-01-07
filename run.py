@@ -1403,12 +1403,12 @@ class Measure(object):
             (type(self.bldg_type) != list and self.bldg_type in [
              "single family home", "multi family home", "mobile home"]):
             # Set ANPV values under general discount rate
-            res_anpv_s, res_anpv_e, res_anpv_c = [
+            res_anpv_s_in, res_anpv_e_in, res_anpv_c = [
                 numpy.pmt(rate, life_meas, x) for x in [npv_s, npv_e, npv_c]]
         # If measure does not apply to residential sector, set residential
         # ANPVs to 'None'
         else:
-            res_anpv_s, res_anpv_e, res_anpv_c = (None for n in range(3))
+            res_anpv_s_in, res_anpv_e_in, res_anpv_c = (None for n in range(3))
 
         # Populate ANPVs for commercial sector
         # Check whether measure applies to commercial sector
@@ -1417,23 +1417,23 @@ class Measure(object):
                 "single family home", "multi family home", "mobile home"]])) or \
             (type(self.bldg_type) != list and self.bldg_type not in [
              "single family home", "multi family home", "mobile home"]):
-            com_anpv_s, com_anpv_e, com_anpv_c = ({} for n in range(3))
+            com_anpv_s_in, com_anpv_e_in, com_anpv_c = ({} for n in range(3))
             # Set ANPV values under 7 discount rate categories
             for ind, tps in enumerate(com_timeprefs["rates"]):
-                com_anpv_s["rate " + str(ind + 1)],\
-                    com_anpv_e["rate " + str(ind + 1)],\
+                com_anpv_s_in["rate " + str(ind + 1)],\
+                    com_anpv_e_in["rate " + str(ind + 1)],\
                     com_anpv_c["rate " + str(ind + 1)] = \
                     [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
                      for x in [cashflows_s, cashflows_e, cashflows_c]]
         # If measure does not apply to commercial sector, set commercial
         # ANPVs to 'None'
         else:
-            com_anpv_s, com_anpv_e, com_anpv_c = (None for n in range(3))
+            com_anpv_s_in, com_anpv_e_in, com_anpv_c = (None for n in range(3))
 
         # Set overall ANPV dicts based on above updating of residential
         # and commercial sector ANPV values
-        anpv_s = {"residential": res_anpv_s, "commercial": com_anpv_s}
-        anpv_e = {"residential": res_anpv_e, "commercial": com_anpv_e}
+        anpv_s_in = {"residential": res_anpv_s_in, "commercial": com_anpv_s_in}
+        anpv_e_in = {"residential": res_anpv_e_in, "commercial": com_anpv_e_in}
         anpv_c = {"residential": res_anpv_c, "commercial": com_anpv_c}
 
         # Develop arrays of energy and carbon savings across measure
@@ -1487,7 +1487,7 @@ class Measure(object):
             ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
         # Return all updated economic metrics
-        return anpv_s, anpv_e, anpv_c, irr_e, irr_ec, payback_e, \
+        return anpv_s_in, anpv_e_in, anpv_c, irr_e, irr_ec, payback_e, \
             payback_ec, cce, cce_bens, ccc, ccc_bens
 
     def payback(self, cashflows):
@@ -1737,30 +1737,91 @@ class Engine(object):
         mkt_fracs = [{} for l in range(0, len(measures_compete))]
         tot_cost = [{} for l in range(0, len(measures_compete))]
 
-        # Loop through competing measures and calculate market shares for each
-        # based on their annualized capital and operating costs
+        # If more than one measure is competing, calculate the total annualized
+        # cost (capital + operating) needed to determine market shares below
         if len(measures_compete) > 1:
+            # Initialize a flag that indicates whether any competing measures
+            # have lists of annualized capital and/or operating costs rather
+            # than point values (resultant of distributions on measure inputs)
+            length_list = 0
+            # Set abbreviated names for the dictionaries containing measure
+            # capital and operating cost values, accessed further below
+
+            # Annualized capital cost dictionary
+            anpv_s_in = [m.master_savings["metrics"]["anpv"]["stock cost"] for
+                         m in measures_compete]
+            # Annualized operating cost dictionary
+            anpv_e_in = [m.master_savings["metrics"]["anpv"]["energy cost"] for
+                         m in measures_compete]
+
+            # Loop through competing measures and calculate market shares for
+            # each based on their annualized capital and operating costs
             for ind, m in enumerate(measures_compete):
                 # Register that this measure has been competed with others (for
-                # use at the end of the 'compete_measures' function in
-                # determining whether to update the measure's savings/cost
-                # metric outputs)
+                # use at the end of 'compete_measures' function in determining
+                # whether to update the measure's savings/cost metric outputs)
                 m.mseg_compete["already competed"] = True
+
                 # Loop through all years in modeling time horizon
-                for yr in m.master_savings["metrics"]["anpv"][
-                        "stock cost"].keys():
+                for yr in anpv_s_in[ind].keys():
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
-                    cap_cost = m.master_savings["metrics"]["anpv"][
-                        "stock cost"][yr]["commercial"]
-                    op_cost = m.master_savings["metrics"]["anpv"][
-                        "energy cost"][yr]["commercial"]
-                    # Sum capital and operating costs and add to the total cost
-                    # dict entry for the given measure
-                    tot_cost[ind][yr] = []
-                    for dr in sorted(cap_cost.keys()):
-                        tot_cost[ind][yr].append(cap_cost[dr] + op_cost[dr])
+
+                    # Determine whether any of the competing measures have
+                    # lists of annualized capital and/or operating costs; if
+                    # so, find the list length. * Note: all list lengths
+                    # should be equal to the 'nsamples' variable defined above
+                    if length_list > 0 or \
+                        any([type(x[yr]) == list or type(y[yr]) == list for
+                            x, y in zip(anpv_s_in, anpv_e_in)]) is True:
+                        length_list = next(
+                            (len(x[yr]) or len(y[yr]) for x, y in
+                             zip(anpv_s_in, anpv_e_in) if type(x[yr]) == list
+                             or type(y[yr]) == list), length_list)
+
+                    # Handle cases where capital and/or operating cost inputs
+                    # are specified as lists for at least one of the competing
+                    # measures. In this case, the capital and operating costs
+                    # for all measures must be formatted consistently as lists
+                    # of the same length
+                    if length_list > 0:
+                        cap_cost, op_cost = ([
+                            {} for n in range(length_list)] for n in range(2))
+                        for i in range(length_list):
+                            # Set capital cost input list
+                            if type(anpv_s_in[ind][yr]) == list:
+                                cap_cost[i] = anpv_s_in[ind][yr][i][
+                                    "commercial"]
+                            else:
+                                cap_cost[i] = anpv_s_in[ind][yr]["commercial"]
+                            # Set operating cost input list
+                            if type(anpv_e_in[ind][yr]) == list:
+                                op_cost[i] = anpv_e_in[ind][yr][i][
+                                    "commercial"]
+                            else:
+                                op_cost[i] = anpv_e_in[ind][yr]["commercial"]
+                        # Sum capital and operating cost lists and add to the
+                        # total cost dict entry for the given measure
+                        tot_cost[ind][yr] = [
+                            [] for n in range(length_list)]
+                        for l in range(0, len(tot_cost[ind][yr])):
+                            for dr in sorted(cap_cost[l].keys()):
+                                tot_cost[ind][yr][l].append(
+                                    cap_cost[l][dr] + op_cost[l][dr])
+                    # Handle cases where capital and/or operating cost inputs
+                    # are specified as point values for all competing measures
+                    else:
+                        # Set capital cost point value
+                        cap_cost = anpv_s_in[ind][yr]["commercial"]
+                        # Set operating cost point value
+                        op_cost = anpv_e_in[ind][yr]["commercial"]
+                        # Sum capital and opearting cost point values and add
+                        # to the total cost dict entry for the given measure
+                        tot_cost[ind][yr] = []
+                        for dr in sorted(cap_cost.keys()):
+                            tot_cost[ind][yr].append(
+                                cap_cost[dr] + op_cost[dr])
 
         # Loop through competing measures and use total annualized capital
         # + operating costs to determine the overall share of the market
@@ -1790,22 +1851,46 @@ class Engine(object):
                     # the lowest annualized cost and assign that measure the
                     # share of commercial market adopters defined for that
                     # category above
-                    mkt_fracs[ind][yr] = []
-                    for ind2, dr in enumerate(tot_cost[ind][yr]):
-                        # If the measure has the lowest annualized cost, assign
-                        # it the appropriate market share for the current
-                        # discount rate category being looped through;
-                        # otherwise, set its market fraction for that category
-                        # to zero
-                        if tot_cost[ind][yr][ind2] == \
-                           min([tot_cost[x][yr][ind2] for x in range(
-                                0, len(measures_compete))]):  # * Equals ? *
-                            mkt_fracs[ind][yr].append(mkt_dists[ind2])
-                        else:
-                            mkt_fracs[ind][yr].append(0)
-                    mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
+
+                    # Handle cases where capital and/or operating cost inputs
+                    # are specified as lists for at least one of the competing
+                    # measures.
+                    if length_list > 0:
+                        mkt_fracs[ind][yr] = [
+                            [] for n in range(length_list)]
+                        for l in range(length_list):
+                            for ind2, dr in enumerate(tot_cost[ind][yr][l]):
+                                # If the measure has the lowest annualized
+                                # cost, assign it the appropriate market share
+                                # for the current discount rate category being
+                                # looped through; otherwise, set its market
+                                # fraction for that category to zero
+                                if tot_cost[ind][yr][l][ind2] == \
+                                   min([tot_cost[x][yr][l][ind2] for x in
+                                        range(0, len(measures_compete))]):
+                                    mkt_fracs[ind][yr][l].append(
+                                        mkt_dists[ind2])  # * EQUALS? *
+                                else:
+                                    mkt_fracs[ind][yr][l].append(0)
+                            mkt_fracs[ind][yr][l] = sum(mkt_fracs[ind][yr][l])
+                        # Convert market fractions list to numpy array for
+                        # use in compete_adjustment function below
+                        mkt_fracs[ind][yr] = numpy.array(mkt_fracs[ind][yr])
+                    # Handle cases where capital and/or operating cost inputs
+                    # are specified as point values for all competing measures
+                    else:
+                        mkt_fracs[ind][yr] = []
+                        for ind2, dr in enumerate(tot_cost[ind][yr]):
+                            if tot_cost[ind][yr][ind2] == \
+                               min([tot_cost[x][yr][ind2] for x in range(
+                                    0, len(measures_compete))]):
+                                mkt_fracs[ind][yr].append(mkt_dists[ind2])
+                            else:
+                                mkt_fracs[ind][yr].append(0)
+                        mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
                 else:
                     mkt_fracs[ind][yr] = 1
+
                 # Make the adjustment to the measure's master microsegment
                 # based on its updated market share; if a supply-side measure,
                 # also account for any secondary effects of demand-side

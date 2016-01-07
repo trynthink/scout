@@ -7205,6 +7205,190 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "rate 6": -160,
                                 "rate 7": -170}}}}}}}
 
+    # Create an alternate version of sample measure 1 above that
+    # includes a list of capital cost input values instead of
+    # point values
+    compete_meas1_dist = {
+        "name": "sample compete measure c1 dist",
+        "master_mseg": {
+            "stock": {
+                "total": {
+                    "all": {"2009": 10, "2010": 10},
+                    "measure": {"2009": 10, "2010": 10}},
+                "competed": {
+                    "all": {"2009": 5, "2010": 5},
+                    "measure": {"2009": 5, "2010": 5}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 15, "2010": 15}},
+                "competed": {
+                    "baseline": {"2009": 10, "2010": 10},
+                    "efficient": {"2009": 5, "2010": 5}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 20, "2010": 20}},
+                "competed": {
+                    "baseline": {"2009": 15, "2010": 15},
+                    "efficient": {"2009": 5, "2010": 5}}},
+            "cost": {
+                "stock": {
+                    "total": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": numpy.array([5, 6, 7]),
+                                      "2010": numpy.array([5, 6, 7])}},
+                    "competed": {
+                        "baseline": {"2009": 5, "2010": 5},
+                        "efficient": {"2009": numpy.array([0, 1, 2]),
+                                      "2010": numpy.array([0, 1, 2])}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 15, "2010": 15}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 5, "2010": 5}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 20, "2010": 20}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 5, "2010": 5}}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": {"2009": 1, "2010": 1}}},
+        "mseg_compete": {
+            "competed mseg keys and values": {
+                overlap_key: {
+                    "stock": {
+                        "total": {
+                            "all": {"2009": 10, "2010": 10},
+                            "measure": {"2009": 10, "2010": 10}},
+                        "competed": {
+                            "all": {"2009": 5, "2010": 5},
+                            "measure": {"2009": 5, "2010": 5}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 20, "2010": 20}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": numpy.array([5, 6, 7]),
+                                              "2010": numpy.array([5, 6, 7])}},
+                            "competed": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "efficient": {"2009": numpy.array([0, 1, 2]),
+                                              "2010": numpy.array([
+                                                  0, 1, 2])}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 15, "2010": 15}},
+                            "competed": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "baseline": {"2009": 15, "2010": 15},
+                                "efficient": {"2009": 5, "2010": 5}}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}}},
+            "competed choice parameters": {
+                overlap_key: {
+                    "rate distribution": {
+                        "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
+                        "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
+            "demand-side adjustment": {
+                "savings": {},
+                "total": {}},
+            "already competed": False},
+        "master_savings": {
+            "metrics": {
+                "anpv": {
+                    "stock cost": {
+                        "2009":
+                            [{"residential": None,
+                              "commercial": {
+                                  "rate 1": 85, "rate 2": 90, "rate 3": 95,
+                                  "rate 4": 100, "rate 5": 105,
+                                  "rate 6": 110, "rate 7": 115}},
+                             {"residential": None,
+                              "commercial": {
+                                  "rate 1": 205, "rate 2": 100, "rate 3": 105,
+                                  "rate 4": 110, "rate 5": 115,
+                                  "rate 6": 120, "rate 7": 125}},
+                             {"residential": None,
+                              "commercial": {
+                                  "rate 1": 105, "rate 2": 110, "rate 3": 115,
+                                  "rate 4": 120, "rate 5": 125,
+                                  "rate 6": 10, "rate 7": 135}}],
+                        "2010":
+                            [{"residential": None,
+                              "commercial": {
+                                  "rate 1": 85, "rate 2": 90, "rate 3": 95,
+                                  "rate 4": 100, "rate 5": 105,
+                                  "rate 6": 110, "rate 7": 115}},
+                             {"residential": None,
+                              "commercial": {
+                                  "rate 1": 205, "rate 2": 100, "rate 3": 105,
+                                  "rate 4": 110, "rate 5": 115,
+                                  "rate 6": 120, "rate 7": 125}},
+                             {"residential": None,
+                              "commercial": {
+                                  "rate 1": 105, "rate 2": 110, "rate 3": 115,
+                                  "rate 4": 120, "rate 5": 125,
+                                  "rate 6": 10, "rate 7": 135}}]},
+                    "energy cost": {
+                        "2009": {
+                            "residential": None,
+                            "commercial": {
+                                "rate 1": -435, "rate 2": -440,
+                                "rate 3": -145,
+                                "rate 4": -150, "rate 5": -155,
+                                "rate 6": -160,
+                                "rate 7": -370}},
+                        "2010": {
+                            "residential": None,
+                            "commercial": {
+                                "rate 1": -435, "rate 2": -440,
+                                "rate 3": -145,
+                                "rate 4": -150, "rate 5": -155,
+                                "rate 6": -160,
+                                "rate 7": -370}}},
+                    "carbon cost": {
+                        "2009": {
+                            "residential": None,
+                            "commercial": {
+                                "rate 1": -135, "rate 2": -140,
+                                "rate 3": -145,
+                                "rate 4": -150, "rate 5": -155,
+                                "rate 6": -160,
+                                "rate 7": -170}},
+                        "2010": {
+                            "residential": None,
+                            "commercial": {
+                                "rate 1": -135, "rate 2": -140,
+                                "rate 3": -145,
+                                "rate 4": -150, "rate 5": -155,
+                                "rate 6": -160,
+                                "rate 7": -170}}}}}}}
+
     compete_meas2 = {
         "name": "sample compete measure c2",
         "master_mseg": {
@@ -7657,18 +7841,31 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "rate 7": -120}}}}}}}
 
     # Instantiate the three competing sample supply-side measure objects
-    # and an engine object that uses these measures as its input
+    # and an engine object that uses these measures as its input. Use
+    # two versions of the first sample measure: one with all point
+    # values for inputs, and one with a list input for capital cost
+
+    # Version with point value inputs for all sample measures
     measures_compete = [run.Measure(**x) for x in [
         compete_meas1, compete_meas2, compete_meas3]]
-    # Define a list of measures that require demand-side adjustments
-    supply_demand_adjust = []
     a_run = run.Engine(measures_compete)
+    # Version with a list input for sample measure 1
+    measures_compete_dist = [run.Measure(**x) for x in [
+        compete_meas1_dist, copy.deepcopy(compete_meas2),
+        copy.deepcopy(compete_meas3)]]
+    a_run_dist = run.Engine(measures_compete_dist)
+    # Define a list of measures that require demand-side adjustments
+    # (empty in this case since no demand-side measures are competed)
+    supply_demand_adjust = []
     # No secondary effects for supply-side measures
     measures_secondary = {"measures": [], "keys": []}
 
     # Define the correct master microsegment output for each sample measure
     # after running its competition with the other sample measures to
     # determine market shares
+
+    # Correct master microsegment output for runs with point value inputs
+    # for all sample measures
     measures_master_msegs = [{
         "stock": {
             "total": {
@@ -7808,6 +8005,219 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": {"2009": 1, "2010": 1}}}]
 
+    # Correct master microsegment output for runs with a list
+    # input for sample measure 1 capital cost
+    measures_master_msegs_dist = [{
+        "stock": {
+            "total": {
+                "all": {"2009": 10, "2010": 10},
+                "measure": {
+                    "2009": numpy.array([8, 7.5, 6.5]),
+                    "2010": numpy.array([8, 7.5, 6.5])}},
+            "competed": {
+                "all": {"2009": 5, "2010": 5},
+                "measure": {
+                    "2009": numpy.array([3.0, 2.5, 1.5]),
+                    "2010": numpy.array([3.0, 2.5, 1.5])}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 20, "2010": 20},
+                "efficient": {
+                    "2009": numpy.array([17.0, 17.5, 18.5]),
+                    "2010": numpy.array([17.0, 17.5, 18.5])}},
+            "competed": {
+                "baseline": {"2009": 10, "2010": 10},
+                "efficient": {
+                    "2009": numpy.array([7.0, 7.5, 8.5]),
+                    "2010": numpy.array([7.0, 7.5, 8.5])}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 30, "2010": 30},
+                "efficient": {
+                    "2009": numpy.array([24, 25, 27]),
+                    "2010": numpy.array([24, 25, 27])}},
+            "competed": {
+                "baseline": {"2009": 15, "2010": 15},
+                "efficient": {
+                    "2009": numpy.array([9, 10, 12]),
+                    "2010": numpy.array([9, 10, 12])}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 10, "2010": 10},
+                    "efficient": {
+                        "2009": numpy.array([7, 8, 9.1]),
+                        "2010": numpy.array([7, 8, 9.1])}},
+                "competed": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "efficient": {
+                        "2009": numpy.array([2, 3, 4.1]),
+                        "2010": numpy.array([2, 3, 4.1])}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {
+                        "2009": numpy.array([17, 17.5, 18.5]),
+                        "2010": numpy.array([17, 17.5, 18.5])}},
+                "competed": {
+                    "baseline": {"2009": 10, "2010": 10},
+                    "efficient": {
+                        "2009": numpy.array([7, 7.5, 8.5]),
+                        "2010": numpy.array([7, 7.5, 8.5])}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {
+                        "2009": numpy.array([24, 25, 27]),
+                        "2010": numpy.array([24, 25, 27])}},
+                "competed": {
+                    "baseline": {"2009": 15, "2010": 15},
+                    "efficient": {
+                        "2009": numpy.array([9, 10, 12]),
+                        "2010": numpy.array([9, 10, 12])}}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": {"2009": 1, "2010": 1}}},
+        {
+        "stock": {
+            "total": {
+                "all": {"2009": 20, "2010": 20},
+                "measure": {
+                    "2009": numpy.array([12, 13, 16]),
+                    "2010": numpy.array([12, 13, 16])}},
+            "competed": {
+                "all": {"2009": 10, "2010": 10},
+                "measure": {
+                    "2009": numpy.array([2, 3, 6]),
+                    "2010": numpy.array([2, 3, 6])}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 40, "2010": 40},
+                "efficient": {
+                    "2009": numpy.array([34, 33.5, 32]),
+                    "2010": numpy.array([34, 33.5, 32])}},
+            "competed": {
+                "baseline": {"2009": 20, "2010": 20},
+                "efficient": {
+                    "2009": numpy.array([14, 13.5, 12]),
+                    "2010": numpy.array([14, 13.5, 12])}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 60, "2010": 60},
+                "efficient": {
+                    "2009": numpy.array([48, 47, 44]),
+                    "2010": numpy.array([48, 47, 44])}},
+            "competed": {
+                "baseline": {"2009": 30, "2010": 30},
+                "efficient": {
+                    "2009": numpy.array([18, 17, 14]),
+                    "2010": numpy.array([18, 17, 14])}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {
+                        "2009": numpy.array([14, 13.5, 12]),
+                        "2010": numpy.array([14, 13.5, 12])}},
+                "competed": {
+                    "baseline": {"2009": 10, "2010": 10},
+                    "efficient": {
+                        "2009": numpy.array([4, 3.5, 2]),
+                        "2010": numpy.array([4, 3.5, 2])}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {
+                        "2009": numpy.array([34, 33.5, 32]),
+                        "2010": numpy.array([34, 33.5, 32])}},
+                "competed": {
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {
+                        "2009": numpy.array([14, 13.5, 12]),
+                        "2010": numpy.array([14, 13.5, 12])}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {
+                        "2009": numpy.array([48, 47, 44]),
+                        "2010": numpy.array([48, 47, 44])}},
+                "competed": {
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {
+                        "2009": numpy.array([18, 17, 14]),
+                        "2010": numpy.array([18, 17, 14])}}}},
+        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                     "measure": {"2009": 1, "2010": 1}}},
+        {
+        "stock": {
+            "total": {
+                "all": {"2009": 30, "2010": 30},
+                "measure": {
+                    "2009": numpy.array([18, 18, 16.5]),
+                    "2010": numpy.array([18, 18, 16.5])}},
+            "competed": {
+                "all": {"2009": 15, "2010": 15},
+                "measure": {
+                    "2009": numpy.array([3, 3, 1.5]),
+                    "2010": numpy.array([3, 3, 1.5])}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 60, "2010": 60},
+                "efficient": {
+                    "2009": numpy.array([49, 49, 49.5]),
+                    "2010": numpy.array([49, 49, 49.5])}},
+            "competed": {
+                "baseline": {"2009": 30, "2010": 30},
+                "efficient": {
+                    "2009": numpy.array([19, 19, 19.5]),
+                    "2010": numpy.array([19, 19, 19.5])}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 90, "2010": 90},
+                "efficient": {
+                    "2009": numpy.array([68, 68, 69]),
+                    "2010": numpy.array([68, 68, 69])}},
+            "competed": {
+                "baseline": {"2009": 45, "2010": 45},
+                "efficient": {
+                    "2009": numpy.array([23, 23, 24]),
+                    "2010": numpy.array([23, 23, 24])}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {
+                        "2009": numpy.array([19, 19, 19.5]),
+                        "2010": numpy.array([19, 19, 19.5])}},
+                "competed": {
+                    "baseline": {"2009": 15, "2010": 15},
+                    "efficient": {
+                        "2009": numpy.array([4, 4, 4.5]),
+                        "2010": numpy.array([4, 4, 4.5])}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {
+                        "2009": numpy.array([49, 49, 49.5]),
+                        "2010": numpy.array([49, 49, 49.5])}},
+                "competed": {
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {
+                        "2009": numpy.array([19, 19, 19.5]),
+                        "2010": numpy.array([19, 19, 19.5])}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 90, "2010": 90},
+                    "efficient": {
+                        "2009": numpy.array([68, 68, 69]),
+                        "2010": numpy.array([68, 68, 69])}},
+                "competed": {
+                    "baseline": {"2009": 45, "2010": 45},
+                    "efficient": {
+                        "2009": numpy.array([23, 23, 24]),
+                        "2010": numpy.array([23, 23, 24])}}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": {"2009": 1, "2010": 1}}}]
+
     # Define the correct outputs for the competition state of each
     # sample measure after having been competed against the other
     # sample measures (this attribute is used in the 'compete_measures'
@@ -7819,6 +8229,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     # above sample measures on the specified overlapping microsegment
     # key chain and verifying that the resultant updated measure master
     # microsegment and competition state is correct for each sample measure
+
+    # Test outcomes given sample measures with all point value inputs
     def test_compete_com(self):
         # Run the measure competition routine on sample measures
         self.a_run.com_compete(self.measures_compete, self.measures_secondary,
@@ -7834,6 +8246,24 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             self.assertEqual(
                 self.measures_compete_state[ind],
                 self.a_run.measures[ind].mseg_compete["already competed"])
+
+    # Test outcomes given a list input for sample measure 1 capital cost
+    def test_compete_com_dist(self):
+        # Run the measure competition routine on sample measures
+        self.a_run_dist.com_compete(
+            self.measures_compete_dist, self.measures_secondary,
+            self.overlap_key, run.com_timeprefs,
+            self.supply_demand_adjust)
+        # Check outputs for each sample measure after competition
+        for ind, d in enumerate(self.a_run_dist.measures):
+            # Check updated measure master microsegment
+            self.dict_check_list(
+                self.measures_master_msegs_dist[ind],
+                self.a_run_dist.measures[ind].master_mseg)
+            # Check updated measure competition state
+            self.assertEqual(
+                self.measures_compete_state[ind],
+                self.a_run_dist.measures[ind].mseg_compete["already competed"])
 
 
 # Offer external code execution (include all lines below this point in all
