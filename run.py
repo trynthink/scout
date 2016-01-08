@@ -1668,32 +1668,58 @@ class Engine(object):
         # Loop through competing measures and calculate market shares for each
         # based on their annualized capital and operating costs.
         if len(measures_compete) > 1:
+            # Set abbreviated names for the dictionaries containing measure
+            # capital and operating cost values, accessed further below
+
+            # Annualized capital cost dictionary
+            anpv_s_in = [m.master_savings["metrics"]["anpv"]["stock cost"] for
+                         m in measures_compete]
+            # Annualized operating cost dictionary
+            anpv_e_in = [m.master_savings["metrics"]["anpv"]["energy cost"] for
+                         m in measures_compete]
+
+            # Loop through competing measures and calculate market shares for
+            # each based on their annualized capital and operating costs
             for ind, m in enumerate(measures_compete):
                 # Register that this measure has been competed with others (for
-                # use at the end of the 'compete_measures' function in
-                # determining whether to update the measure's savings/cost
-                # metric outputs)
+                # use at the end of 'compete_measures' function in determining
+                # whether to update the measure's savings/cost metric outputs)
                 m.mseg_compete["already competed"] = True
+
                 # Loop through all years in modeling time horizon
-                for yr in m.master_savings[
-                        "metrics"]["anpv"]["stock cost"].keys():
+                for yr in anpv_s_in[ind].keys():
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
-                    cap_cost = m.master_savings["metrics"]["anpv"][
-                        "stock cost"][yr]["residential"]
-                    op_cost = m.master_savings["metrics"]["anpv"][
-                        "energy cost"][yr]["residential"]
+
+                    # Set capital cost (handle as list or point value)
+                    if type(anpv_s_in[ind][yr]) == list:
+                        cap_cost = numpy.zeros(len(anpv_s_in[ind][yr]))
+                        for i in range(0, len(anpv_s_in[ind][yr])):
+                            cap_cost[i] = anpv_s_in[ind][yr][i][
+                                "residential"]
+                    else:
+                        cap_cost = anpv_s_in[ind][yr]["residential"]
+                    # Set operating cost (handle as list or point value)
+                    if type(anpv_e_in[ind][yr]) == list:
+                        op_cost = numpy.zeros(len(anpv_e_in[ind][yr]))
+                        for i in range(0, len(anpv_e_in[ind][yr])):
+                            op_cost[i] = anpv_e_in[ind][yr][i][
+                                "residential"]
+                    else:
+                        op_cost = anpv_e_in[ind][yr]["residential"]
+
                     # Calculate measure market fraction using log-linear
-                    # regression equation that takes capital/operating costs as
-                    # inputs
-                    mkt_fracs[ind][yr] = numpy.exp(cap_cost * m.mseg_compete[
-                        "competed choice parameters"][str(mseg_key)]["b1"][yr]
-                        + op_cost *
+                    # regression equation that takes capital/operating
+                    # costs as inputs
+                    mkt_fracs[ind][yr] = numpy.exp(
+                        cap_cost * m.mseg_compete[
+                            "competed choice parameters"][
+                                str(mseg_key)]["b1"][yr] + op_cost *
                         m.mseg_compete["competed choice parameters"][
-                        str(mseg_key)]["b2"][yr])
-                    # Add calculated market fraction to market fractions sum
-                    mkt_fracs_tot[yr] += mkt_fracs[ind][yr]
+                            str(mseg_key)]["b2"][yr])
+                    # Add calculated market fraction to mkt fraction sum
+                    mkt_fracs_tot[yr] = mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
 
         # Loop through competing measures to normalize their calculated market
         # shares to the total market share sum; use normalized market shares to
@@ -1986,8 +2012,9 @@ class Engine(object):
         # Scale down the competed stock captured by the measure by the updated
         # measure market share
         base["stock"]["competed"]["measure"][yr] = \
-            base["stock"]["competed"]["measure"][yr] * \
-            mkt_fracs[ind][yr]
+            base["stock"]["competed"]["measure"][yr] - \
+            adj["stock"]["competed"]["measure"][yr] * \
+            (1 - mkt_fracs[ind][yr])
         # Adjust the total stock captured by the measure to reflect the above
         # adjustment to the captured competed stock
         base["stock"]["total"]["measure"][yr] = \
