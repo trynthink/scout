@@ -72,7 +72,10 @@
 
 							<p>To obtain an estimate for a market or markets of interest, the appropriate definitions must be selected below. In each category shown, at least one selection must be made to yield a complete market definition. In some categories, multiple selections are permitted. Categories where multiple selections are allowed are indicated as such. Selections for the relevant groups are made by simply clicking the appropriate terms. Selected terms are highlighted, and clicking them again will remove them from the chosen market segment. Follow the numbered steps below, making the desired selections at each step. Once selections have been made in each category, click the 'Update' button in the Market Size box on the right side of the screen to get the energy use in the selected market and the associated CO<sub>2</sub> emissions.</p>
 
-							<p> The underlying data for this calculator are from the 2015 <a href='http://www.eia.gov/forecasts/aeo/'>Annual Energy Outlook (AEO) <i class="fa fa-external-link"></i></a> released by the <a href='http://www.eia.gov/'>U.S. Energy Information Administration (EIA) <i class="fa fa-external-link"></i></a>.</p>
+							<p> The underlying data for this calculator are from the 2015 <a href='http://www.eia.gov/forecasts/aeo/'>Annual Energy Outlook (AEO) <i class="fa fa-external-link"></i></a> released by the <a href='http://www.eia.gov/'>U.S. Energy Information Administration (EIA). <i class="fa fa-external-link"></i></a></p>
+
+							<!-- added for accessibility -->
+							<span class='sr-only'>If you are using this page with a screen reader and aural output, the content may be easier to understand if you change your screen reader settings so that numbers are read as words and not individual numerals.</span>
 						</div>
 					</div> <!-- /row introductory text -->
 
@@ -81,6 +84,7 @@
 							<h4>1. Choose a projection year</h4>
 						</div>
 						<div class='col-md-4'>
+							<label class='sr-only'>select a projection year from this dropdown list</label> <!-- added for accessibility -->
 							<select class='form-control' id='proj-year'>
 								<!-- populated using JavaScript -->
 							</select>
@@ -90,16 +94,17 @@
 					<div class='row'> <!-- climate zone -->
 						<div class='col-md-8'>
 							<!-- <h4>2. Select the relevant <a href='http://www.eia.gov/consumption/residential/maps.cfm'>AIA climate zone(s) <i class="fa fa-external-link"></i></a></h4> -->
-							<h4>2. Select all relevant <a id='AIA-CZ-popover' tabindex='0' rel='popover' data-trigger='focus' title='' data-content=''>AIA climate zone(s)</a></h4>
+							<h4>2. Select all relevant <a id='AIA-CZ-popover' tabindex='0' rel='popover' data-trigger='focus' title='' data-content=''>AIA climate zones</a></h4>
 						</div>
 						<div class='col-md-4'>
 							<!-- SHOW THIS AS A MAP? -->
+							<label class='sr-only'>select the buttons for at least one AIA climate zone</label> <!-- added for accessibility -->
 							<div class='btn-group pull-right' data-toggle='buttons' id='climate-zone'>
-								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ1'>1</label>
-								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ2'>2</label>
-								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ3'>3</label>
-								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ4'>4</label>
-								<label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ5'>5</label>
+								<span class='sr-only'>AIA climate zone 1 includes areas of the US with less than 2000 cooling degree days and greater than 7000 heating degree days</span><!-- added for accessibility --><label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ1'>1</label>
+								<span class='sr-only'>AIA climate zone 2 includes areas of the US with less than 2000 cooling degree days and between 5500 and 7000 heating degree days</span><!-- added for accessibility --><label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ2'>2</label>
+								<span class='sr-only'>AIA climate zone 3 includes areas of the US with less than 2000 cooling degree days and between 4500 and 5499 heating degree days</span><!-- added for accessibility --><label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ3'>3</label>
+								<span class='sr-only'>AIA climate zone 4 includes areas of the US with less than 2000 cooling degree days and less than 4000 heating degree days</span><!-- added for accessibility --><label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ4'>4</label>
+								<span class='sr-only'>AIA climate zone 5 includes areas of the US with at least 2000 cooling degree days and less than 4000 heating degree days</span><!-- added for accessibility --><label class='btn btn-default btn-sm'><input type='checkbox' autocomplete='off' name='CZ' value='AIA_CZ5'>5</label>
 							</div>
 						</div>
 					</div> <!-- /row climate zone -->
@@ -109,6 +114,7 @@
 							<h4>3. Choose residential or commercial buildings</h4>
 						</div>
 						<div class='col-md-4'>
+							<label class='sr-only'>choose the button for either residential or commercial building types</label> <!-- added for accessibility -->
 							<div class='btn-group pull-right' data-toggle='buttons' id='building-radio'>
 								<label class='btn btn-default btn-sm'><input type='radio' autocomplete='off' name='bldg-class' value='residential'>Residential</label>
 								<label class='btn btn-default btn-sm'><input type='radio' autocomplete='off' name='bldg-class' value='commercial'>Commercial</label>
@@ -122,6 +128,7 @@
 							<br><small>Hold down ctrl (Windows) or command (Mac) while clicking to select multiple types</small></h4>
 						</div>
 						<div class='col-md-4'>
+							<label class='sr-only'>select one or more building types from the list</label> <!-- added for accessibility -->
 							<select multiple class='form-control' id='bldg-types'>
 							</select>
 						</div>
@@ -144,13 +151,13 @@
 					<div data-spy='affix' id='calc-panel'>
 						<div class='panel panel-default'>
 							<div class='panel-heading'>
-								<h3 class='panel-title' style='display: inline;'>Market Size</h3><button type='button' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
+								<h3 class='panel-title' style='display: inline;'>Market Size</h3><label class='sr-only'>clicking the update button will update the energy and CO2 emissions numbers reported in the subsequent fields</label><!-- added for accessibility --><button type='submit' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
 							</div>
 							<div class='panel-body'>
-								<h2 id='energy-num'>0</h2>
-								<h3 id='units'><small><span data-toggle='tooltip' title='Trillion British Thermal Units'>TBTU</span> (primary energy)</small></h3>
-								<h2 id='carbon-num'>0</h2>
-								<h3 id='units'><small><span data-toggle='tooltip' title='Million Metric Tons'>MMT</span> CO<sub>2</sub></small></h3>
+								<h2 id='energy-num'>0</h2><span class='sr-only'>trillion BTU in the selected market</span> <!-- added for accessibility -->
+								<h3 id='units' aria-hidden='true'><small><span data-toggle='tooltip' title='Trillion British Thermal Units'>TBTU</span> (primary energy)</small></h3>
+								<h2 id='carbon-num'>0</h2><span class='sr-only'>million metric tons of CO2 in the selected market</span> <!-- added for accessibility -->
+								<h3 id='units' aria-hidden='true'><small><span data-toggle='tooltip' title='Million Metric Tons'>MMT</span> CO<sub>2</sub></small></h3>
 								<!-- <button type='button' class='btn btn-default disabled'>Recall</button> -->
 								<!-- <button type='button' class='btn btn-primary disabled'>Save</button> -->
 							</div>

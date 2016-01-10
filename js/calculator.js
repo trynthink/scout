@@ -273,6 +273,7 @@ $(document).ready(function(){
 				// Specify HTML for equipment/envelope radio button
 				eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
 								+ "<div class='col-md-12'>"
+								+ "<label class='sr-only'>select the appropriate button to reveal a list of either " + selected_end_use + " equipment or building envelope components</label>" // added for accessibility
 								+ "<div class='btn-group' data-toggle='buttons'>"
 								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
 								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
@@ -300,19 +301,19 @@ $(document).ready(function(){
 			}
 			else if (selected_end_use === 'lighting') {
 				// Add lighting technology type buttons to HTML DOM
-				generateButtonGroup('last-tt', '#end-use-row', lighting, lighting_values);
+				generateButtonGroup('last-tt', '#end-use-row', lighting, lighting_values, selected_end_use);
 			}
 			else if (selected_end_use === 'TVs') {
 				// Add entertainment technology type buttons to HTML DOM
-				generateButtonGroup('last-tt', '#end-use-row', entertainment, entertainment_values);
+				generateButtonGroup('last-tt', '#end-use-row', entertainment, entertainment_values, selected_end_use);
 			}
 			else if (selected_end_use === 'computers') {
 				// Add computers technology type buttons to HTML DOM
-				generateButtonGroup('last-tt', '#end-use-row', computers, computers_values);
+				generateButtonGroup('last-tt', '#end-use-row', computers, computers_values, selected_end_use);
 			}
 			else if (selected_end_use === 'other (grid electric)') {
 				// Add other technology type buttons to HTML DOM
-				generateButtonGroup('last-tt', '#end-use-row', other, other_values);
+				generateButtonGroup('last-tt', '#end-use-row', other, other_values, selected_end_use);
 			}
 			// else terminal categories (fans & pumps, ceiling fan, 
 			// refrigeration), no action required
@@ -324,6 +325,7 @@ $(document).ready(function(){
 				// Specify HTML for equipment/envelope radio button
 				eqEnvRadioBtn = "<div class='row row-end-use subtype' id='eq-env-radio'>"
 								+ "<div class='col-md-12'>"
+								+ "<label class='sr-only'>select the appropriate button to reveal a list of either " + selected_end_use + " equipment or building envelope components</label>"
 								+ "<div class='btn-group' data-toggle='buttons'>"
 								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='supply'>Equipment</label>"
 								+ "<label class='btn btn-default'><input type='radio' autocomplete='off' name='eq-env' value='demand'>Envelope</label>"
@@ -346,15 +348,15 @@ $(document).ready(function(){
 			}
 			else if (selected_end_use === 'ventilation') {
 				// Add ventilation equipment type buttons to the DOM
-				generateButtonGroup('last-tt', '#end-use-row', com_ventilation_equip, com_ventilation_equip_values);
+				generateButtonGroup('last-tt', '#end-use-row', com_ventilation_equip, com_ventilation_equip_values, selected_end_use);
 			}
 			else if (selected_end_use === 'lighting') {
 				// Add lighting bulb/fixture type buttons to the DOM
-				generateButtonGroup('last-tt', '#end-use-row', com_lighting, com_lighting_values);
+				generateButtonGroup('last-tt', '#end-use-row', com_lighting, com_lighting_values, selected_end_use);
 			}
 			else if (selected_end_use === 'refrigeration') {
 				// Add refrigeration equipment type buttons to the DOM
-				generateButtonGroup('last-tt', '#end-use-row', com_refrigeration_equip, com_refrigeration_equip_values);
+				generateButtonGroup('last-tt', '#end-use-row', com_refrigeration_equip, com_refrigeration_equip_values, selected_end_use);
 			}
 			else if (selected_end_use === 'MELs') {
 				// Add drop down of miscellaneous electric loads to the DOM
@@ -378,10 +380,10 @@ $(document).ready(function(){
 			// Add envelope buttons to HTML DOM, with the buttons determined
 			// by the building class
 			if ($('input[name=bldg-class]:checked').val() === 'residential') {
-				generateButtonGroup('env-buttons', '#eq-env-radio', envelope, envelope_values);
+				generateButtonGroup('env-buttons', '#eq-env-radio', envelope, envelope_values, 'envelope component');
 			}
 			else {
-				generateButtonGroup('env-buttons', '#eq-env-radio', com_envelope, com_envelope_values);
+				generateButtonGroup('env-buttons', '#eq-env-radio', com_envelope, com_envelope_values, 'envelope component');
 			}			
 
 			// Add 'envelope' class to button group just added so that it
@@ -444,12 +446,12 @@ $(document).ready(function(){
 				else {var eq_select = heating_equip_ot;}
 
 				// Add heating equipment type buttons to HTML DOM
-				generateButtonGroup('eq-buttons', '#fuel-type', heating_equip, heating_equip_values, eq_select);
+				generateButtonGroup('eq-buttons', '#fuel-type', heating_equip, heating_equip_values, selected_end_use, eq_select);
 			}
 			else if (selected_end_use === 'secondary heating') {
 				if (the_fuel === 'other fuel') {
 					// Add secondary heating equipment type buttons to HTML DOM
-					generateButtonGroup('eq-buttons', '#fuel-type', sec_heating_equip, sec_heating_equip_values);
+					generateButtonGroup('eq-buttons', '#fuel-type', sec_heating_equip, sec_heating_equip_values, selected_end_use);
 				}
 			}
 			else {
@@ -457,25 +459,25 @@ $(document).ready(function(){
 				else {var eq_select = cooling_equip_ng;}
 
 				// Add cooling equipment type buttons to HTML DOM
-				generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, eq_select);
+				generateButtonGroup('eq-buttons', '#fuel-type', cooling_equip, cooling_equip_values, selected_end_use, eq_select);
 			}
 		}
 		else {
 			if (selected_end_use === 'heating') {
 				// Depending on the fuel type, add the appropriate group of
 				// buttons to the DOM using the generateButtonGroup function
-				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_el);}
-				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_ng);}
-				else {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, com_heating_equip_ds);}
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, selected_end_use, com_heating_equip_el);}
+				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, selected_end_use, com_heating_equip_ng);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_heating_equip, com_heating_equip_values, selected_end_use, com_heating_equip_ds);}
 			}
 			else if (selected_end_use === 'cooling') {
-				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, com_cooling_equip_el);}
-				else {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, com_cooling_equip_ng);}
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, selected_end_use, com_cooling_equip_el);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_cooling_equip, com_cooling_equip_values, selected_end_use, com_cooling_equip_ng);}
 			}
 			else { // water heating
-				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_el);}
-				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_ng);}
-				else {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, com_water_heating_equip_ds);}
+				if (the_fuel === 'electricity') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, selected_end_use, com_water_heating_equip_el);}
+				else if (the_fuel === 'natural gas') {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, selected_end_use, com_water_heating_equip_ng);}
+				else {generateButtonGroup('eq-buttons', '#fuel-type', com_water_heating_equip, com_water_heating_equip_values, selected_end_use, com_water_heating_equip_ds);}
 			}
 		}
 
@@ -918,11 +920,12 @@ $(document).ready(function(){
 
 	// Insert a formatted 'row' div for a set of buttons into the HTML DOM 
 	// with specified id tags for the row and content
-	function insertNextButtonGroup(rowID, contentID, placementID) {
+	function insertNextButtonGroup(rowID, contentID, placementID, end_use, num_of_buttons) {
 		// Generate HTML content for a new row with given ids for the row div
 		// and the btn-group div
 		insertionText = "<div class='row row-end-use subtype' id='" + rowID +"'>"
 						+ "<div class='col-md-12'>"
+						+ "<label class='sr-only'>select one or more of the " + num_of_buttons + " " + end_use + " buttons</label>" // added for accessibility
 						+ "<div class='btn-group-vertical' data-toggle='buttons' id='" + contentID + "'>"
 						+ "</div>"
 						+ "</div>"
@@ -997,12 +1000,19 @@ $(document).ready(function(){
 		$('#' + contentID).removeAttr('id');
 	}
 
-	function generateButtonGroup(rowID, placementID, names, values, index) {
+	function generateButtonGroup(rowID, placementID, names, values, endusename, index) {
 		// index is an optional argument
+		// endusename is an optional argument
+
+		// If index is defined, use it to define the number of buttons available
+		// Else use names, which is not an optional argument
+		// This variable is used to provide information for screen readers (accessibility)
+		if (typeof index === 'undefined') { var num_names = names.length; }
+		else {var num_names = index.length; }
 
 		// Define temporary ID solely for use by the insert and populate functions
 		var contentID = 'temporary-id';
-		insertNextButtonGroup(rowID, contentID, placementID);
+		insertNextButtonGroup(rowID, contentID, placementID, endusename, num_names);
 		populateButtonGroup(contentID, names, values, index);
 
 		// Remove the temporary ID from the DOM
