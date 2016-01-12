@@ -151,6 +151,13 @@ class Measure(object):
                 "total": {}},
             "already competed": False}
 
+        # If multiple runs are required to handle probability distributions on
+        # measure inputs, set a number to seed each random draw of cost,
+        # performance, and or lifetime with for consistency across all
+        # microsegments that contribute to the measure's master microsegment
+        if nsamples is not None:
+            rnd_sd = numpy.random.randint(10000)
+
         # Initialize a counter of valid key chains
         key_chain_ct = 0
 
@@ -381,6 +388,16 @@ class Measure(object):
                 if mskeys[0] == "primary":
                     key_chain_ct += 1
 
+                # Seed the random number generator such that performance, cost,
+                # and lifetime draws are consistent across all microsegments
+                # that contribute to a measure's master microsegment (e.g, if
+                # measure performance, cost, and/or lifetime distributions
+                # are identical relative to two contributing baseline
+                # microsegments, the numpy arrays yielded by the random number
+                # generator for these measure parameters and microsegments
+                # will also be identical)
+                numpy.random.seed(rnd_sd)
+
                 # If the measure performance/cost variable is list with
                 # distribution information, sample values from distribution
                 if isinstance(perf_meas, list) and isinstance(perf_meas[0],
@@ -424,7 +441,8 @@ class Measure(object):
                         # relative savings are directly user-specified in the
                         # measure definition, calculate relative performance
                         # based on the relative savings value
-                        if perf_meas == "Missing (secondary lighting)":
+                        if type(perf_meas) != numpy.ndarray and \
+                           perf_meas == "Missing (secondary lighting)":
                             # If relevant secondary lighting performance
                             # information doesn't exist, throw an error
                             if type(lighting_secondary) == dict:
@@ -1159,7 +1177,8 @@ class Measure(object):
 
                 # Check whether number of adopted units for a measure is zero,
                 # in which case all economic outputs are set to 999
-                if num_units == 0:
+                if type(num_units) != numpy.ndarray and num_units == 0 or \
+                   type(num_units) == numpy.ndarray and all(num_units) == 0:
                     stock_anpv[yr], energy_anpv[yr], carbon_anpv[yr], irr_e[yr], \
                         irr_ec[yr], payback_e[yr], payback_ec[yr], cce[yr],\
                         cce_bens[yr], ccc[yr], ccc_bens[yr] = [
@@ -1202,6 +1221,9 @@ class Measure(object):
                             life_meas_temp, length_array)
                         life_ratio_temp = numpy.repeat(
                             life_ratio_temp, length_array)
+                    # Check number of units captured by the measure
+                    if type(num_units) != numpy.ndarray:
+                        num_units = numpy.repeat(num_units, length_array)
 
                     # Initialize numpy arrays for economic metric outputs
 
@@ -1225,17 +1247,29 @@ class Measure(object):
                     # element one-by-one and append it to the appropriate
                     # output list.
                     for x in range(0, len(scostsave_add_temp)):
-                        stock_anpv[yr][x], energy_anpv[yr][x],\
-                            carbon_anpv[yr][x], irr_e[yr][x], irr_ec[yr][x],\
-                            payback_e[yr][x], payback_ec[yr][x], cce[yr][x], \
-                            cce_bens[yr][x], ccc[yr][x], ccc_bens[yr][x] = \
-                            self.metric_update(
-                                rate, scost_base, life_base,
-                                scostsave_add_temp[x], esave_add_temp[x],
-                                ecostsave_add_temp[x], csave_add_temp[x],
-                                ccostsave_add_temp[x], int(life_ratio_temp[x]),
-                                int(life_meas_temp[x]), num_units,
-                                com_timeprefs)
+                        # Check whether number of adopted units for a measure
+                        # is zero, in which case all economic outputs are set
+                        # to 999
+                        if num_units[x] == 0:
+                            stock_anpv[yr][x], energy_anpv[yr][x],\
+                                carbon_anpv[yr][x], irr_e[yr][x], \
+                                irr_ec[yr][x], payback_e[yr][x], \
+                                payback_ec[yr][x], cce[yr][x], cce_bens[yr][x], \
+                                ccc[yr][x], ccc_bens[yr][x] = [
+                                    999 for n in range(11)]
+                        else:
+                            stock_anpv[yr][x], energy_anpv[yr][x],\
+                                carbon_anpv[yr][x], irr_e[yr][x], irr_ec[yr][x],\
+                                payback_e[yr][x], payback_ec[yr][x], cce[yr][x], \
+                                cce_bens[yr][x], ccc[yr][x], ccc_bens[yr][x] = \
+                                self.metric_update(
+                                    rate, scost_base, life_base,
+                                    scostsave_add_temp[x], esave_add_temp[x],
+                                    ecostsave_add_temp[x], csave_add_temp[x],
+                                    ccostsave_add_temp[x],
+                                    int(life_ratio_temp[x]),
+                                    int(life_meas_temp[x]), num_units[x],
+                                    com_timeprefs)
                 else:
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield economic
@@ -1692,16 +1726,16 @@ class Engine(object):
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
 
-                    # Set capital cost (handle as list or point value)
-                    if type(anpv_s_in[ind][yr]) == list:
+                    # Set capital cost (handle as numpy array or point value)
+                    if type(anpv_s_in[ind][yr]) == numpy.ndarray:
                         cap_cost = numpy.zeros(len(anpv_s_in[ind][yr]))
                         for i in range(0, len(anpv_s_in[ind][yr])):
                             cap_cost[i] = anpv_s_in[ind][yr][i][
                                 "residential"]
                     else:
                         cap_cost = anpv_s_in[ind][yr]["residential"]
-                    # Set operating cost (handle as list or point value)
-                    if type(anpv_e_in[ind][yr]) == list:
+                    # Set operating cost (handle as numpy array or point value)
+                    if type(anpv_e_in[ind][yr]) == numpy.ndarray:
                         op_cost = numpy.zeros(len(anpv_e_in[ind][yr]))
                         for i in range(0, len(anpv_e_in[ind][yr])):
                             op_cost[i] = anpv_e_in[ind][yr][i][
@@ -1767,9 +1801,9 @@ class Engine(object):
         # cost (capital + operating) needed to determine market shares below
         if len(measures_compete) > 1:
             # Initialize a flag that indicates whether any competing measures
-            # have lists of annualized capital and/or operating costs rather
+            # have arrays of annualized capital and/or operating costs rather
             # than point values (resultant of distributions on measure inputs)
-            length_list = 0
+            length_array = 0
             # Set abbreviated names for the dictionaries containing measure
             # capital and operating cost values, accessed further below
 
@@ -1795,42 +1829,44 @@ class Engine(object):
                     # could be expanded to include maintenance and carbon costs
 
                     # Determine whether any of the competing measures have
-                    # lists of annualized capital and/or operating costs; if
-                    # so, find the list length. * Note: all list lengths
+                    # arrays of annualized capital and/or operating costs; if
+                    # so, find the array length. * Note: all array lengths
                     # should be equal to the 'nsamples' variable defined above
-                    if length_list > 0 or \
-                        any([type(x[yr]) == list or type(y[yr]) == list for
+                    if length_array > 0 or \
+                        any([type(x[yr]) == numpy.ndarray or
+                             type(y[yr]) == numpy.ndarray for
                             x, y in zip(anpv_s_in, anpv_e_in)]) is True:
-                        length_list = next(
+                        length_array = next(
                             (len(x[yr]) or len(y[yr]) for x, y in
-                             zip(anpv_s_in, anpv_e_in) if type(x[yr]) == list
-                             or type(y[yr]) == list), length_list)
+                             zip(anpv_s_in, anpv_e_in) if type(x[yr]) ==
+                             numpy.ndarray or type(y[yr]) == numpy.ndarray),
+                            length_array)
 
                     # Handle cases where capital and/or operating cost inputs
-                    # are specified as lists for at least one of the competing
+                    # are specified as arrays for at least one of the competing
                     # measures. In this case, the capital and operating costs
-                    # for all measures must be formatted consistently as lists
+                    # for all measures must be formatted consistently as arrays
                     # of the same length
-                    if length_list > 0:
+                    if length_array > 0:
                         cap_cost, op_cost = ([
-                            {} for n in range(length_list)] for n in range(2))
-                        for i in range(length_list):
-                            # Set capital cost input list
-                            if type(anpv_s_in[ind][yr]) == list:
+                            {} for n in range(length_array)] for n in range(2))
+                        for i in range(length_array):
+                            # Set capital cost input array
+                            if type(anpv_s_in[ind][yr]) == numpy.ndarray:
                                 cap_cost[i] = anpv_s_in[ind][yr][i][
                                     "commercial"]
                             else:
                                 cap_cost[i] = anpv_s_in[ind][yr]["commercial"]
-                            # Set operating cost input list
-                            if type(anpv_e_in[ind][yr]) == list:
+                            # Set operating cost input array
+                            if type(anpv_e_in[ind][yr]) == numpy.ndarray:
                                 op_cost[i] = anpv_e_in[ind][yr][i][
                                     "commercial"]
                             else:
                                 op_cost[i] = anpv_e_in[ind][yr]["commercial"]
-                        # Sum capital and operating cost lists and add to the
+                        # Sum capital and operating cost arrays and add to the
                         # total cost dict entry for the given measure
                         tot_cost[ind][yr] = [
-                            [] for n in range(length_list)]
+                            [] for n in range(length_array)]
                         for l in range(0, len(tot_cost[ind][yr])):
                             for dr in sorted(cap_cost[l].keys()):
                                 tot_cost[ind][yr][l].append(
@@ -1881,10 +1917,10 @@ class Engine(object):
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as lists for at least one of the competing
                     # measures.
-                    if length_list > 0:
+                    if length_array > 0:
                         mkt_fracs[ind][yr] = [
-                            [] for n in range(length_list)]
-                        for l in range(length_list):
+                            [] for n in range(length_array)]
+                        for l in range(length_array):
                             for ind2, dr in enumerate(tot_cost[ind][yr][l]):
                                 # If the measure has the lowest annualized
                                 # cost, assign it the appropriate market share
