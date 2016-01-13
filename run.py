@@ -402,13 +402,28 @@ class Measure(object):
                 # distribution information, sample values from distribution
                 if isinstance(perf_meas, list) and isinstance(perf_meas[0],
                                                               str):
+                    # Sample measure performance values
                     perf_meas = self.rand_list_gen(perf_meas, nsamples)
+                    # Set any measure performance values less than zero to
+                    # zero, for cases where performance isn't relative
+                    if perf_units != 'relative savings' and any(
+                       perf_meas < 0) is True:
+                        perf_meas[numpy.where(perf_meas < 0)] == 0
+
                 if isinstance(cost_meas, list) and isinstance(cost_meas[0],
                                                               str):
+                    # Sample measure cost values
                     cost_meas = self.rand_list_gen(cost_meas, nsamples)
+                    # Set any measure cost values less than zero to zero
+                    if any(cost_meas < 0) is True:
+                        cost_meas[numpy.where(cost_meas < 0)] == 0
                 if isinstance(life_meas, list) and isinstance(life_meas[0],
                                                               str):
+                    # Sample measure lifetime values
                     life_meas = self.rand_list_gen(life_meas, nsamples)
+                    # Set any measure lifetime values less than zero to zero
+                    if any(life_meas < 0) is True:
+                        life_meas[numpy.where(life_meas < 0)] == 0
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -792,8 +807,15 @@ class Measure(object):
             carb_compete_cost_eff = ({} for n in range(24))
 
         # Initialize the portion of existing stock that has adopted the
-        # efficient measure as 0, and the portion baseline stock as 1
-        exist_eff_frac = 0
+        # efficient measure as 0, and the portion baseline stock as 1.
+        # For non-technical potential cases where measure lifetime is a
+        # distribution of values, initialize the existing measure portion
+        # as a numpy array of zeros
+        if type(life_meas) == numpy.ndarray and \
+           adopt_scheme != "Technical potential":
+            exist_eff_frac = numpy.zeros(len(life_meas))
+        else:
+            exist_eff_frac = 0
         exist_base_frac = 1
 
         # Loop through and update stock, energy, and carbon mseg partitions for
@@ -806,13 +828,14 @@ class Measure(object):
             new_frac = new_bldg_frac[yr]
             exist_frac = 1 - new_frac
 
-            # Calculate the diffusion fraction for the efficient measure
-            # (CURRENTLY PLACEDHOLDER OF 1) and replacement fractions for the
-            # baseline and efficient stock. * NOTE: THIS PART OF THE ROUTINE
-            # CURRENTLY ONLY APPLIES TO 'PRIMARY' MICROSEGMENTS; 'SECONDARY'
-            # MICROSEGMENTS REQUIRE SPECIAL HANDLING, TO BE FILLED OUT IN A
-            # FUTURE COMMIT
-            if mskeys[0] == "primary":
+            # For non-technical potential scenarios, calculate the diffusion
+            # fraction for the efficient measure (CURRENTLY PLACEDHOLDER OF 1)
+            # and replacement fractions for the baseline and efficient stock.
+            # * NOTE: THIS PART OF THE ROUTINE CURRENTLY ONLY APPLIES TO
+            # 'PRIMARY' MICROSEGMENTS; 'SECONDARY' MICROSEGMENTS REQUIRE
+            # SPECIAL HANDLING, TO BE FILLED OUT IN A FUTURE COMMIT
+            if adopt_scheme != "Technical potential" and \
+               mskeys[0] == "primary":
 
                 # For the adjusted adoption potential case, determine the
                 # portion of "competed" (new/replacement) technologies
@@ -837,19 +860,37 @@ class Measure(object):
                 # replacement fraction depends upon how much baseline
                 # stock has already been replaced with efficient stock;
                 # once all the baseline stock has been replaced, the
-                # replacement fraction must be zero
-                if (1 / life_base[yr] <= exist_base_frac):
-                    exist_base_replace_frac = 1 / life_base[yr]
+                # replacement fraction must be zero.
+
+                # Handle case where the base stock fraction is a numpy array
+                if type(exist_base_frac) == numpy.ndarray:
+                    exist_base_replace_frac = numpy.zeros(len(exist_base_frac))
+                    for i in range(0, len(exist_base_frac)):
+                        if (1 / life_base[yr]) <= exist_base_frac[i]:
+                            exist_base_replace_frac[i] = 1 / life_base[yr]
+                        else:
+                            exist_base_replace_frac[i] = exist_base_frac[i]
+                # Handle case where the base stock fraction is a point value
                 else:
-                    exist_base_replace_frac = exist_base_frac
+                    if (1 / life_base[yr]) <= exist_base_frac:
+                        exist_base_replace_frac = 1 / life_base[yr]
+                    else:
+                        exist_base_replace_frac = exist_base_frac
 
                 # Determine the portion of existing efficient stock that
                 # is up for replacement in the given year
 
-                # If no efficient stock has been adopted yet, set the portion
-                # up for replacement to zero
-                if exist_eff_frac == 0:
+                # Handle case where existing efficient stock fraction is a
+                # numpy array of zeros (no efficient replacement)
+                if type(exist_eff_frac) == numpy.ndarray and \
+                        all(exist_eff_frac) == 0:
+                    exist_eff_replace_frac = numpy.zeros(len(exist_eff_frac))
+                # Handle case where existing efficient stock fraction is a
+                # point value equal to zero (no efficient replacement)
+                elif type(exist_eff_frac) != numpy.ndarray and \
+                        exist_eff_frac == 0:
                     exist_eff_replace_frac = 0
+                # Handle all other cases
                 else:
                     # Determine how many years have passed since the efficient
                     # measure first entered the market
@@ -883,7 +924,7 @@ class Measure(object):
                             # the market (if fully diffused = 1 / life_meas)
                             if (l - eff_turnover_track) <= 0:
                                 exist_eff_replace_frac[ind] = \
-                                    (1 / l) * exist_eff_frac
+                                    (1 / l) * exist_eff_frac[ind]
                             else:
                                 exist_eff_replace_frac[ind] = 0
                     # Handle case where measure lifetime is a point value
@@ -970,8 +1011,18 @@ class Measure(object):
                 # stock from the current year)
                 stock_total_meas[yr] = stock_total_meas[str(int(yr) - 1)] + \
                     stock_compete_meas[yr]
+
                 # Ensure stock captured by measure never exceeds total stock
-                if stock_total_meas[yr] > stock_total[yr]:
+
+                # Handle case where stock captured by measure is a numpy array
+                if type(stock_total_meas[yr]) == numpy.ndarray and \
+                   any(stock_total_meas[yr] > stock_total[yr]) is True:
+                    stock_total_meas[yr][
+                        numpy.where(stock_total_meas[yr] > stock_total[yr])] = \
+                        stock_total[yr]
+                # Handle case where stock captured by measure is a point value
+                elif type(stock_total_meas[yr]) != numpy.ndarray and \
+                        stock_total_meas[yr] > stock_total[yr]:
                     stock_total_meas[yr] = stock_total[yr]
 
             # Update total-efficient and competed-efficient energy and
@@ -1054,11 +1105,23 @@ class Measure(object):
             # this portion is already 1, keep at 1; if the total stock for
             # the year is 0 or we are updating a secondary microsegment, set
             # efficient stock portion to 0.
-            if stock_total[yr] != 0 and exist_eff_frac != 1 and \
-               mskeys[0] == "primary":
-                exist_eff_frac = stock_total_meas[yr] / stock_total[yr]
-            elif stock_total[yr] == 0:
-                exist_eff_frac = 0
+
+            # Handle case where stock captured by measure is a numpy array
+            if type(stock_total_meas[yr]) == numpy.ndarray:
+                for i in range(0, len(stock_total_meas[yr])):
+                    if stock_total[yr] != 0 and exist_eff_frac[i] != 1 and \
+                            mskeys[0] == "primary":
+                        exist_eff_frac[i] = stock_total_meas[yr][i] / \
+                            stock_total[yr]
+                    else:
+                        exist_eff_frac[i] = 0
+            # Handle case where stock captured by measure is a point value
+            else:
+                if stock_total[yr] != 0 and exist_eff_frac != 1 and \
+                   mskeys[0] == "primary":
+                    exist_eff_frac = stock_total_meas[yr] / stock_total[yr]
+                elif stock_total[yr] == 0:
+                    exist_eff_frac = 0
 
             # Update portion of existing stock remaining with the baseline
             # technology
