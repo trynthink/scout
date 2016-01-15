@@ -16,7 +16,7 @@
 		<script type='text/javascript' src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 
 		<!-- Font Awesome CSS (minified) (using CDN) -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
 		<!-- CSS -->
 		<link rel='stylesheet' type='text/css' href='css/styles.css'>
@@ -79,6 +79,12 @@
 						</div>
 					</div> <!-- /row introductory text -->
 
+					<div class='row'> <!-- error messages (if any) -->
+						<div class='col-md-12' id='error-area' tabindex='-1'>
+							<!-- populated using JavaScript -->
+						</div>
+					</div>
+
 					<div class='row'> <!-- market entry year -->
 						<div class='col-md-8'>
 							<h4>1. Choose a projection year</h4>
@@ -125,7 +131,7 @@
 					<div class='row'> <!-- building type -->
 						<div class='col-md-8'>
 							<h4>4. Select all applicable building types 
-							<br><small>Hold down ctrl (Windows) or command (Mac) while clicking to select multiple types</small></h4>
+							<br><small>Hold down ctrl (Windows) or command (Mac) while clicking to select multiple types<span class='sr-only'>or use the up and/or down arrow keys while holding the shift key</span><!-- added for accessibility --></small></h4>
 						</div>
 						<div class='col-md-4'>
 							<label class='sr-only'>select one or more building types from the list</label> <!-- added for accessibility -->

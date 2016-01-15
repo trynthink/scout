@@ -539,6 +539,89 @@ $(document).ready(function(){
 		// Disable update button while request is pending
 		$('#update').attr('disabled', true);
 
+		// FORM ERROR CHECKING AND HANDLING ----------------------------------
+		$('.error-text').remove(); // First, clear error area
+		var cz_selected_flag = 0; // Set climate zone selection incomplete flag
+
+		// Check for common fields at the top of the page - climate zone, 
+		// building class, building type, and end use
+		if (climate_zone === undefined || climate_zone.length === 0) {
+			cz_selected_flag = 1;
+		}
+
+		if ($('input[name=bldg-class]:checked').val() === undefined) {
+			errorHandler('either residential or commercial buildings', cz_selected_flag)
+		}
+		else if ($('#bldg-types').val() === undefined || $('#bldg-types').val() === null) {
+			errorHandler('at least one building type', cz_selected_flag)
+		}
+		else if ($('#end-use').val() === undefined || $('#end-use').val() === null) {
+			errorHandler('an end use', cz_selected_flag)
+		}
+
+		// In this case, the minimum required categories are complete, but
+		// additional checks are needed for some end uses. Other end uses require
+		// no further checking: 
+		// residential - fans & pumps, ceiling fan, and refrigeration
+		// commercial - PCs, non-PCs
+		else {
+			if (/^(heating|cooling|secondary heating)$/.test($('#end-use').val())) {
+				// check for supply/demand, then either fuel type and tech type or envelope type (recorded as tech type)
+				if ($('input[name=eq-env]:checked').val() === undefined) { // supply/demand selection
+					errorHandler('either building equipment or envelope components', cz_selected_flag)
+				}
+				else if ($('input[name=eq-env]:checked').val() === 'demand') {
+					// demand/envelope measures use the hvac_tt variable to record selected envelope components
+					if (hvac_tt === undefined || $('input:checkbox:checked', '#env-buttons').length === 0) { // technology type
+						errorHandler('at least one building envelope component', cz_selected_flag)
+					}
+				}
+				else if ($('input[name=eq-env]:checked').val() === 'supply') {
+					if ($('option:selected', '#fuel-type').val() === "-- Select a Fuel Type --") { // fuel type
+						errorHandler('FT', cz_selected_flag)
+					}
+					else if (!(/^(electricity \(grid\)|natural gas|distillate)$/.test($('option:selected', '#fuel-type').val()) && $('#end-use').val() === 'secondary heating')) {
+						// check all cases of heating and cooling, but secondary heating only if fuel type is 'other fuel'
+						if (hvac_tt === undefined || $('input:checkbox:checked', '#eq-buttons').length === 0) { // technology type
+							errorHandler('TT', cz_selected_flag)
+						}
+					}
+				}
+			}
+			else if ($('#end-use').val() === 'water heating' && $('input[name=bldg-class]:checked').val() === 'commercial') {
+				// check for selections of a fuel type and technology type
+				if ($('option:selected', '#fuel-type').val() === "-- Select a Fuel Type --") { // fuel type
+					errorHandler('FT', cz_selected_flag)
+				}
+				else if (hvac_tt === undefined || $('input:checkbox:checked', '#eq-buttons').length === 0) { // technology type
+					errorHandler('TT', cz_selected_flag)
+				}
+			}
+			else if (/^(water heating|cooking|drying)$/.test($('#end-use').val())) {
+				// (note that the previous else if catches commercial water heating)
+				if (ft_only_sel === undefined || $('option:selected', '#last').val() === "-- Select a Fuel Type --") { // check for selections of only a fuel type
+					errorHandler('FT', cz_selected_flag)
+				}
+			}
+			else if ($('#end-use').val() === 'MELs') {
+				// commercial MELs use the fuel type variable as the selection variable
+				if (ft_only_sel === undefined || $('option:selected', '#last').val() === "-- Select an Equipment Type --") { // check for selections of only a "fuel type"
+					errorHandler('the MEL equipment type of interest', cz_selected_flag)
+				}
+			} 
+			else if ($('#end-use').val() === 'refrigeration' && $('input[name=bldg-class]:checked').val() === 'commercial') {
+				if (other_tt === undefined || $('input:checkbox:checked', '#last-tt').length === 0) { // check for selections of only a technology type
+					errorHandler('TT', cz_selected_flag)
+				}
+			}
+			else if (/^(lighting|ventilation|computers|TVs|other \(grid electric\))$/.test($('#end-use').val())) {
+				if (other_tt === undefined || $('input:checkbox:checked', '#last-tt').length === 0) { // check for selections of only a technology type
+					errorHandler('TT', cz_selected_flag)
+				}
+			}
+		}
+		// END, FORM ERROR CHECKING AND HANDLING -----------------------------
+
 		if ($('input[name=bldg-class]:checked').val() === 'residential') {
 			// Sum the totals for the selected residential data
 			$.getJSON('data/res2015_microsegments_out.json', function(data){
@@ -549,6 +632,11 @@ $(document).ready(function(){
 				// Redeclaration of this variable to ensure that the list is correct
 				// and complete - otherwise the list is often incomplete
 				var selected_buildings = $('#bldg-types').val();
+
+				// Redetermination of the selected fuel type to ensure that
+				// fuel types are not inadvertently carried over from an earlier
+				// selection
+				var ft_only_sel = $('option:selected', '#last').val();
 
 				// Define intermediate quantity variable to store each quantity to
 				// be added to the total
@@ -882,6 +970,26 @@ $(document).ready(function(){
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Functions
+
+  // Prepare and insert explanatory error text into the DOM when calculator 
+  // entries are incomplete
+  function errorHandler(txt, cz_flag) {
+    document.getElementById('error-area').focus();
+    var error_markup = '<p class="error-text"><i class="fa fa-exclamation-triangle"></i> <strong>Required fields in the calculator are incomplete.</strong><br>';
+    
+    // Use cz_flag to determine whether to flag an incomplete climate zone entry
+    if (cz_flag === 1) {error_markup += 'Please select at least one climate zone.<br>';}
+
+    // Depending on txt, add one of the preset warnings or the contents of txt
+    if (txt === 'TT') {error_markup += 'Please select at least one technology type.</p>';}
+    else if (txt === 'FT') {error_markup += 'Please select a fuel type.</p>';}
+    else {error_markup += 'Please select ' + txt + '.</p>';}
+    $('#error-area').append(error_markup);
+
+    // Zero out energy and carbon numbers if an error is present
+    $('#energy-num').text(0);
+    $('#carbon-num').text(0);
+  }
 
 	// Extract site to source energy conversion parameter based on fuel type and
 	// the projection year selected by the user

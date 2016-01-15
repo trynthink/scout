@@ -42,6 +42,10 @@ that the bottom of the button is even with the bottom of the text */
   color: #F00;
 }
 
+.error-text {
+  color: #F00;
+}
+
 .frontpage {
   background-image: url('../resources/26382.jpg');
   height: 530px;
