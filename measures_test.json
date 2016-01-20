@@ -367,8 +367,8 @@
 {
 	"name": "R: IECC 2012 & EStar 2015 Window SHGC",
 	"active": 1,
-	"component_cost": 0,
-	"installed_cost": 0,
+	"component_cost": 12,
+	"installed_cost": 12,
 	"cost_units": "2013$/sf",
 	"component_cost_source": "NA",
 	"component_cost_source_quality": "NA",
@@ -418,8 +418,8 @@
 {
 	"name": "R: R-5 Windows",
 	"active": 1,
-	"component_cost": 3.70,
-	"installed_cost": 3.70,
+	"component_cost": 15.70,
+	"installed_cost": 15.70,
 	"cost_units": "2013$/sf",
 	"component_cost_source": "NA",
 	"component_cost_source_quality": "NA",
