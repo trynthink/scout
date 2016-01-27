@@ -287,7 +287,7 @@ class Measure(object):
             base_costperflife = base_costperflife_in
             mseg = mseg_in
             mseg_sqft_stock = mseg_in
-            new_bldg_frac = {}
+            new_bldg_frac = {"added": {}, "total": {}}
 
             # Initialize a dict for relative performance (broken out by year in
             # modeling time horizon)
@@ -297,11 +297,12 @@ class Measure(object):
             for i in range(0, len(mskeys)):
                 # Check for key in dict level
                 if mskeys[i] in base_costperflife.keys() or mskeys[i] in \
-                   ["primary", "secondary"]:
-
+                   ["primary", "secondary", "new", "retrofit", None]:
                     # Skip over "primary" or "secondary" key in updating
                     # cost and lifetime information (not relevant)
-                    if mskeys[i] not in ["primary", "secondary"]:
+                    if mskeys[i] not in [
+                            "primary", "secondary", "new", "retrofit", None]:
+
                         # Restrict base cost/performance/lifetime dict to key
                         # chain info.
                         base_costperflife = base_costperflife[mskeys[i]]
@@ -313,24 +314,23 @@ class Measure(object):
                         if i < 3:  # Note: sq.ft. broken out 2 levels
                             mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
 
-                        # Restrict any measure cost/performance/lifetime info.
-                        # that is a dict type to key chain info.
-                        if isinstance(cost_meas, dict) and mskeys[i] in \
-                           cost_meas.keys():
-                            cost_meas = cost_meas[mskeys[i]]
-                        if isinstance(cost_units, dict) and mskeys[i] in \
-                           cost_units.keys():
-                            cost_units = cost_units[mskeys[i]]
-                        if isinstance(life_meas, dict) and mskeys[i] in \
-                           life_meas.keys():
-                            life_meas = life_meas[mskeys[i]]
-
+                    # Restrict any measure cost/performance/lifetime info.
+                    # that is a dict type to key chain info.
                     if isinstance(perf_meas, dict) and mskeys[i] in \
                        perf_meas.keys():
                             perf_meas = perf_meas[mskeys[i]]
                     if isinstance(perf_units, dict) and mskeys[i] in \
                        perf_units.keys():
                             perf_units = perf_units[mskeys[i]]
+                    if isinstance(cost_meas, dict) and mskeys[i] in \
+                       cost_meas.keys():
+                        cost_meas = cost_meas[mskeys[i]]
+                    if isinstance(cost_units, dict) and mskeys[i] in \
+                       cost_units.keys():
+                        cost_units = cost_units[mskeys[i]]
+                    if isinstance(life_meas, dict) and mskeys[i] in \
+                       life_meas.keys():
+                        life_meas = life_meas[mskeys[i]]
 
                     # If updating heating/cooling measure microsegment,
                     # record the total amount of overlapping supply and
@@ -479,21 +479,11 @@ class Measure(object):
                             for yr in perf_base.keys():
                                 rel_perf[yr] = 1 - perf_meas
                     elif perf_units not in inverted_relperf_list:
-                        if isinstance(perf_meas, list):  # Perf. distrib. case
-                            for yr in perf_base.keys():
-                                rel_perf[yr] = [(x ** -1 * perf_base[yr])
-                                                for x in perf_meas]
-                        else:
-                            for yr in perf_base.keys():
-                                rel_perf[yr] = (perf_base[yr] / perf_meas)
+                        for yr in perf_base.keys():
+                            rel_perf[yr] = (perf_base[yr] / perf_meas)
                     else:
-                        if isinstance(perf_meas, list):  # Perf. distrib. case
-                            for yr in perf_base.keys():
-                                rel_perf[yr] = [
-                                    (x / perf_base) for x in perf_meas]
-                        else:
-                            for yr in perf_base.keys():
-                                rel_perf[yr] = (perf_meas / perf_base[yr])
+                        for yr in perf_base.keys():
+                            rel_perf[yr] = (perf_meas / perf_base[yr])
 
                     # If looping through a commercial lighting microsegment
                     # where secondary end use effects (heating/cooling) are not
@@ -545,9 +535,29 @@ class Measure(object):
                     # Update energy cost information
                     cost_energy = ecosts["residential"][mskeys[3]]
                     # Update new buildings fraction information
-                    for yr in mseg["energy"].keys():
-                        new_bldg_frac[yr] = mseg_sqft_stock["new homes"][yr] / \
+                    for yr in sorted(mseg["energy"].keys()):
+                        # Find fraction of total buildings that are
+                        # newly constructed in the current year
+                        new_bldg_frac["added"][yr] = \
+                            mseg_sqft_stock["new homes"][yr] / \
                             mseg_sqft_stock["total homes"][yr]
+
+                        # Find fraction of total buildings that are newly
+                        # constructed in all years up through the current
+                        # modeling year. These data are used to determine total
+                        # cumulative new structure markets for a measure
+                        if yr == list(sorted(mseg["energy"].keys()))[0]:
+                            new_bldg_frac["total"][yr] = \
+                                new_bldg_frac["added"][yr]
+                        else:
+                            new_bldg_frac["total"][yr] = \
+                                new_bldg_frac["added"][yr] + new_bldg_frac[
+                                "total"][str(int(yr) - 1)]
+
+                        # Ensure that cumulative new building fraction is <= 1
+                        if new_bldg_frac["total"][yr] > 1:
+                            new_bldg_frac["total"][yr] = 1
+
                     # Update technology choice parameters needed to choose
                     # between multiple efficient technology options that
                     # access this baseline microsegment. For the residential
@@ -560,7 +570,9 @@ class Measure(object):
                     cost_energy = ecosts["commercial"][mskeys[3]]
                     # Update new buildings fraction information
                     for yr in mseg["energy"].keys():
-                        new_bldg_frac[yr] = 0  # *** Placeholder ***
+                        # *** Placeholders for new commercial information ***
+                        new_bldg_frac["added"][yr] = 0
+                        new_bldg_frac["total"][yr] = 0
                     # Update technology choice parameters needed to choose
                     # between multiple efficient technology options that
                     # access this baseline microsegment. For the commercial
@@ -578,6 +590,17 @@ class Measure(object):
                         choice_params = {"rate distribution": com_timeprefs[
                             "distributions"]["heating"]}
 
+                # Determine the fraction to use in scaling down the stock,
+                # energy, and carbon microsegments to the applicable structure
+                # type indicated in the microsegment key chain (e.g., new
+                # structures or retrofit structures)
+                if mskeys[-1] == "new":
+                    new_retrofit_frac = {key: val for key, val in
+                                         new_bldg_frac["total"].items()}
+                else:
+                    new_retrofit_frac = {key: (1 - val) for key, val in
+                                         new_bldg_frac["total"].items()}
+
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microegment that will be captured
                 # by efficient alternatives to the baseline technology
@@ -585,40 +608,48 @@ class Measure(object):
                 diffuse_params = base_costperflife["consumer choice"][
                     "competed market"]["parameters"]
 
-                # Update total stock and energy information. Note that
-                # secondary microsegments make no contribution to the stock
-                # calculation, as they only affect energy/carbon and associated
-                # costs.
+                # Update total stock, energy use, and carbon emissions for the
+                # current contributing microsegment. Note that secondary
+                # microsegments make no contribution to the stock calculation,
+                # as they only affect energy/carbon and associated costs.
+
+                # Total stock
                 if mskeys[0] == 'secondary':
                     add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
-                    add_stock = mseg_sqft_stock["square footage"]
+                    add_stock = {
+                        key: val * new_retrofit_frac[key] for key, val in
+                        mseg_sqft_stock["square footage"].items()}
                 else:
-                    add_stock = mseg["stock"]
-                add_energy_site = mseg["energy"]  # Site energy information
+                    add_stock = {
+                        key: val * new_retrofit_frac[key] for key, val in
+                        mseg["stock"].items()}
+                # Total energy use (primary)
+                add_energy = {
+                    key: val * site_source_conv[key] * new_retrofit_frac[key]
+                    for key, val in mseg["energy"].items()}
+                # Total carbon emissions
+                add_carb = {key: val * intensity_carb[key]
+                            for key, val in add_energy.items()}
 
-                # Update total, competed, and efficient stock, energy, CO2
+                # Update total, competed, and efficient stock, energy, carbon
                 # and baseline/measure cost info. based on adoption scheme
-                [add_stock, add_energy, add_carb,
-                 add_stock_total_meas, add_energy_total_eff,
+                [add_stock_total_meas, add_energy_total_eff,
                  add_carb_total_eff, add_stock_compete, add_energy_compete,
                  add_carb_compete, add_stock_compete_meas,
                  add_energy_compete_eff, add_carb_compete_eff,
                  add_stock_cost, add_energy_cost, add_carb_cost,
                  add_stock_cost_meas, add_energy_cost_eff, add_carb_cost_eff,
                  add_stock_cost_compete, add_energy_cost_compete,
-                 add_carb_cost_compete,
-                 add_stock_cost_compete_meas, add_energy_cost_compete_eff,
-                 add_carb_cost_compete_eff] = \
-                    self.partition_microsegment(add_stock, add_energy_site,
-                                                rel_perf, cost_base,
+                 add_carb_cost_compete, add_stock_cost_compete_meas,
+                 add_energy_cost_compete_eff, add_carb_cost_compete_eff] = \
+                    self.partition_microsegment(add_stock, add_energy,
+                                                add_carb, rel_perf, cost_base,
                                                 cost_meas, cost_energy,
-                                                ccosts, site_source_conv,
-                                                intensity_carb,
-                                                new_bldg_frac, diffuse_params,
-                                                adopt_scheme, life_base,
-                                                life_meas, mskeys)
+                                                ccosts, new_bldg_frac,
+                                                diffuse_params, adopt_scheme,
+                                                life_base, life_meas, mskeys)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -703,17 +734,23 @@ class Measure(object):
             # of stock in the master microsegment even though there are two
             # contributing microsegments in this case (heating and cooling).
             # This is remedied by dividing summed square footage values by (#
-            # valid key chains / (# czones * # bldg types)), where the
-            # numerator refers to the number of full dict key chains that
-            # contributed to the mseg stock, energy, and cost calcs, and the
-            # denominator reflects the breakdown of square footage by climate
-            # zone and building type. Note that cost information is based
-            # on competed stock and must be divided in the same manner (see
-            # reduce_sqft_stock function).
+            # valid key chains / (# czones * # bldg types * # structure
+            # types)), where the numerator refers to the number of full dict
+            # key chains that contributed to the mseg stock, energy, and cost
+            # calcs, and the denominator reflects the breakdown of square
+            # footage by climate zone, building type, and the structure type
+            # that the measure applies to.
             if sqft_subst == 1:
+                # Determine number of structure types the measure applies to
+                # (could be just new, just retrofit, or both)
+                if isinstance(self.structure_type, list):
+                    structure_types = 2
+                else:
+                    structure_types = 1
                 # Create a factor for reduction of msegs with sq.ft. stock
                 reduce_factor = key_chain_ct / (len(ms_lists[0]) *
-                                                len(ms_lists[1]))
+                                                len(ms_lists[1]) *
+                                                structure_types)
                 # Adjust master microsegment by above factor
                 mseg_master = self.reduce_sqft(mseg_master, reduce_factor)
                 # Adjust all recorded microsegments that contributed to the
@@ -764,12 +801,29 @@ class Measure(object):
                 ms_lists[x] = [ms_lists[x]]
 
         # Find all possible microsegment key chains
-        ms_iterable = list(itertools.product(*ms_lists))
+        ms_iterable_init = list(itertools.product(*ms_lists))
 
-        # Add "primary" or "secondary" microsegment type
-        # indicator to beginning of each key chain
-        for i in range(0, len(ms_iterable)):
-            ms_iterable[i] = (mseg_type,) + ms_iterable[i]
+        # Add primary or secondary microsegment type indicator to beginning
+        # of each key chain and the applicable structure type (new or retrofit)
+        # to the end of each key chain
+
+        # Case where measure applies to both new and retrofit structures
+        # (final ms_iterable list length is double that of ms_iterable_init)
+        if isinstance(self.structure_type, list):
+            ms_iterable1, ms_iterable2 = ([] for n in range(2))
+            for i in range(0, len(ms_iterable_init)):
+                ms_iterable1.append((mseg_type,) + ms_iterable_init[i] +
+                                    (self.structure_type[0], ))
+                ms_iterable2.append((mseg_type,) + ms_iterable_init[i] +
+                                    (self.structure_type[1], ))
+            ms_iterable = ms_iterable1 + ms_iterable2
+        # Case where measure applies to only new or retrofit structures
+        # (final ms_iterable list length is same as that of ms_iterable_init)
+        else:
+            ms_iterable = []
+            for i in range(0, len(ms_iterable_init)):
+                ms_iterable.append(((mseg_type, ) + ms_iterable_init[i] +
+                                    (self.structure_type, )))
 
         # Output list of key chains
         return ms_iterable, ms_lists
@@ -791,11 +845,10 @@ class Measure(object):
                 raise KeyError('Add dict keys do not match!')
         return dict1
 
-    def partition_microsegment(self, mseg_stock, mseg_energy_site,
+    def partition_microsegment(self, stock_total, energy_total, carb_total,
                                rel_perf, cost_base, cost_meas, cost_energy,
-                               cost_carb, site_source_conv, intensity_carb,
-                               new_bldg_frac, diffuse_params, adopt_scheme,
-                               life_base, life_meas, mskeys):
+                               cost_carb, new_bldg_frac, diffuse_params,
+                               adopt_scheme, life_base, life_meas, mskeys):
         """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
         consumption under the measure).  Also find the cost of the baseline
@@ -803,36 +856,25 @@ class Measure(object):
 
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total, energy_total, carb_total, stock_total_meas, energy_total_eff, \
-            carb_total_eff, stock_compete, energy_compete, carb_compete, \
-            stock_compete_meas, energy_compete_eff, carb_compete_eff, \
-            stock_total_cost, energy_total_cost, carb_total_cost, \
+        stock_total_meas, energy_total_eff, carb_total_eff, stock_compete, \
+            energy_compete, carb_compete, stock_compete_meas, energy_compete_eff, \
+            carb_compete_eff, stock_total_cost, energy_total_cost, carb_total_cost, \
             stock_total_cost_eff, energy_total_eff_cost, carb_total_eff_cost, \
             stock_compete_cost, energy_compete_cost, carb_compete_cost, \
             stock_compete_cost_eff, energy_compete_cost_eff, \
-            carb_compete_cost_eff = ({} for n in range(24))
+            carb_compete_cost_eff = ({} for n in range(21))
 
-        # Initialize the portion of existing stock that has adopted the
+        # Initialize the portion of microsegment already captured by the
         # efficient measure as 0, and the portion baseline stock as 1.
         # For non-technical potential cases where measure lifetime is a
         # distribution of values, initialize the existing measure portion
         # as a numpy array of zeros
-        if type(life_meas) == numpy.ndarray and \
-           adopt_scheme != "Technical potential":
-            exist_eff_frac = numpy.zeros(len(life_meas))
-        else:
-            exist_eff_frac = 0
-        exist_base_frac = 1
+        captured_eff_frac = 0
+        captured_base_frac = 1
 
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
-        for yr in sorted(mseg_stock.keys()):
-
-            # Calculate the portions of new and existing buildings
-            # in the stock for the given year, based on AEO data
-            # * NOTE: NEW_BLDG_FRAC STILL NEEDED FOR COMMERCIAL
-            new_frac = new_bldg_frac[yr]
-            exist_frac = 1 - new_frac
+        for yr in sorted(stock_total.keys()):
 
             # For non-technical potential scenarios, calculate the diffusion
             # fraction for the efficient measure (CURRENTLY PLACEDHOLDER OF 1)
@@ -857,137 +899,115 @@ class Measure(object):
                 # Calculate the portions of existing baseline and efficient
                 # stock that are up for replacement
 
+                # Update base replacement fraction
+
                 # Set base lifetimes less than 1 year to 1 year to avoid
                 # replacement fractions > 1
                 if life_base[yr] < 1:
                     life_base[yr] = 1
+                # For a case where the current microsegment applies to new
+                # structures, determine whether enough years have passed
+                # since the baseline technology was first adopted in new
+                # homes in year 1 of the modeling time horizon to begin
+                # replacing that baseline stock; if so, the baseline
+                # replacement fraction equals the fraction of stock in new
+                # homes already captured by baseline technology multiplied
+                # by (1 / baseline lifetime); if not, the baseline replacement
+                # fraction is 0
+                if mskeys[-1] == "new":
+                    turnover_base = life_base[yr] - (
+                        int(yr) - int(list(sorted(stock_total.keys()))[0]))
+                    if turnover_base <= 0:
+                        captured_base_replace_frac = captured_base_frac * \
+                            (1 / life_base[yr])
+                    else:
+                        captured_base_replace_frac = 0
+                # For a case where the current microsegment applies to
+                # retrofit structures, the baseline replacement fraction
+                # is the lesser of (1 / baseline lifetime) and the fraction
+                # of retrofit stock from previous years that has already been
+                # captured by the baseline technology
+                else:
+                    if (1 / life_base[yr]) <= captured_base_frac:
+                        captured_base_replace_frac = (1 / life_base[yr])
+                    else:
+                        captured_base_replace_frac = captured_base_frac
 
-                # Calculate base replacement fraction. * Note: base
-                # replacement fraction depends upon how much baseline
-                # stock has already been replaced with efficient stock;
-                # once all the baseline stock has been replaced, the
-                # replacement fraction must be zero.
+                # Update efficient replacement fraction
 
-                # Handle case where the base stock fraction is a numpy array
-                if type(exist_base_frac) == numpy.ndarray:
-                    exist_base_replace_frac = numpy.zeros(len(exist_base_frac))
-                    for i in range(0, len(exist_base_frac)):
-                        if (1 / life_base[yr]) <= exist_base_frac[i]:
-                            exist_base_replace_frac[i] = 1 / life_base[yr]
+                # Determine whether enough years have passed since the
+                # efficient measure was first adopted in new homes in its
+                # market entry year to begin replacing that efficient stock;
+                # if so, the efficient replacement fraction is the fraction of
+                # stock in new homes already captured by the efficient
+                # technology multiplied by (1 / efficient lifetime); if not,
+                # the efficient replacement fraction is 0
+                if self.market_entry_year is None:
+                    turnover_meas = life_meas - (
+                        int(yr) - int(list(sorted(stock_total.keys()))[0]))
+                else:
+                    turnover_meas = life_meas - (
+                        int(yr) - self.market_entry_year)
+                # Handle case where efficient measure lifetime is a numpy array
+                if type(life_meas) == numpy.ndarray:
+                    for ind, l in enumerate(life_meas):
+                        if l < 1:
+                            l = 1
+                        if turnover_meas[ind] <= 0:
+                            captured_eff_replace_frac = \
+                                captured_eff_frac * (1 / l)
                         else:
-                            exist_base_replace_frac[i] = exist_base_frac[i]
-                # Handle case where the base stock fraction is a point value
+                            captured_eff_replace_frac = 0
+                # Handle case where efficient measure lifetime is a point value
                 else:
-                    if (1 / life_base[yr]) <= exist_base_frac:
-                        exist_base_replace_frac = 1 / life_base[yr]
+                    if life_meas < 1:
+                        life_meas = 1
+                    if turnover_meas <= 0:
+                        captured_eff_replace_frac = captured_eff_frac * \
+                            (1 / life_meas)
                     else:
-                        exist_base_replace_frac = exist_base_frac
-
-                # Determine the portion of existing efficient stock that
-                # is up for replacement in the given year
-
-                # Handle case where existing efficient stock fraction is a
-                # numpy array of zeros (no efficient replacement)
-                if type(exist_eff_frac) == numpy.ndarray and \
-                        all(exist_eff_frac) == 0:
-                    exist_eff_replace_frac = numpy.zeros(len(exist_eff_frac))
-                # Handle case where existing efficient stock fraction is a
-                # point value equal to zero (no efficient replacement)
-                elif type(exist_eff_frac) != numpy.ndarray and \
-                        exist_eff_frac == 0:
-                    exist_eff_replace_frac = 0
-                # Handle all other cases
-                else:
-                    # Determine how many years have passed since the efficient
-                    # measure first entered the market
-                    if self.market_entry_year is None:
-                        eff_turnover_track = \
-                            int(yr) - int(list(sorted(mseg_stock.keys()))[0])
-                    else:
-                        eff_turnover_track = int(yr) - self.market_entry_year
-
-                    # Determine whether the current year is past the point in
-                    # time to begin replacement of efficient stock (e.g.,
-                    # more than one lifetime of the measure has elapsed since
-                    # its market introduction). If so, calculate efficient
-                    # replacement fraction. If not, set efficient replacement
-                    # fraction to zero
-
-                    # Handle case where measure lifetime is a list of values
-                    if type(life_meas) == numpy.ndarray:
-                        # Initialize list of replacement fractions
-                        exist_eff_replace_frac = numpy.zeros(len(life_meas))
-                        # Loop through lifetime list and calculate replacement
-                        # fraction for each lifetime value
-                        for ind, l in enumerate(life_meas):
-                            # Set measure lifetimes less than 1 year to 1 year
-                            # to avoid replacement fractions > 1
-                            if l < 1:
-                                l == 1
-                            # Calculate efficient replacement fraction. * Note:
-                            # efficient replacement fraction depends upon how
-                            # much efficient stock has already diffused into
-                            # the market (if fully diffused = 1 / life_meas)
-                            if (l - eff_turnover_track) <= 0:
-                                exist_eff_replace_frac[ind] = \
-                                    (1 / l) * exist_eff_frac[ind]
-                            else:
-                                exist_eff_replace_frac[ind] = 0
-                    # Handle case where measure lifetime is a point value
-                    elif (life_meas - eff_turnover_track) <= 0:
-                        # Set measure lifetimes less than 1 year to 1 year
-                        # to avoid replacement fractions > 1
-                        if life_meas < 1:
-                            life_meas = 1
-                        # Calculate efficient replacement fraction
-                        exist_eff_replace_frac = (1 / life_meas) * \
-                            exist_eff_frac
-                    else:
-                        exist_eff_replace_frac = 0
+                        captured_eff_replace_frac = 0
             else:  # PLACEHOLDER FOR HANDLING SECONDARY MICROSEGMENTS
-                diffuse_eff_frac, exist_base_replace_frac = \
+                diffuse_eff_frac, captured_base_replace_frac = \
                     (1 for n in range(2))
-                exist_eff_replace_frac = 0
+                captured_eff_replace_frac = 0
 
-            # Determine total and competed stock, energy, and carbon
-            # fractions for given technology adoption scenario
+            # Determine the fraction of total stock, energy, and carbon
+            # in a given year that the measure will compete for under the
+            # given technology adoption scenario
 
-            # Check if measure only applies to new or existing buildings
-            if type(self.structure_type) != list:
-                # Measure only applies to new buildings
-                if self.structure_type == "new":
-                    # Calculate total and competed stock fractions
-                    total_frac = new_frac
-                    compete_frac = 1
-                # Measure only applies to existing buildings
-                else:
-                    # Calculate total and competed stock fractions
-                    total_frac = exist_frac
+            # Calculate the competed fraction for a year where the measure is
+            # on the market
+            if (self.market_entry_year is None or int(yr) >=
+                self.market_entry_year) and (self.market_exit_year is None or
+               int(yr) < self.market_exit_year):
+                # Current microsegment applies to new structure type
+                if mskeys[-1] == "new":
                     if adopt_scheme == "Technical potential":
-                        compete_frac = 1
+                        competed_frac = 1
                     else:
-                        compete_frac = \
-                            exist_base_replace_frac + exist_eff_replace_frac
-            # Otherwise, measure applies to all buildings
-            else:
-                total_frac = 1
-                # Calculate total and competed stock fractions
-                if adopt_scheme == "Technical potential":
-                    compete_frac = 1
+                        new_bldg_add_frac = new_bldg_frac["added"][yr] / \
+                            new_bldg_frac["total"][yr]
+                        competed_frac = new_bldg_add_frac + \
+                            (1 - new_bldg_add_frac) * \
+                            (captured_eff_replace_frac +
+                             captured_base_replace_frac)
+                # Current microsegment applies to retrofit structure type
                 else:
-                    compete_frac = new_frac + exist_frac * (
-                        exist_base_replace_frac + exist_eff_replace_frac)
-
-            # Update total stock, energy, and carbon
-            stock_total[yr] = mseg_stock[yr] * total_frac
-            energy_total[yr] = mseg_energy_site[yr] * total_frac * \
-                site_source_conv[yr]
-            carb_total[yr] = energy_total[yr] * intensity_carb[yr]
+                    if adopt_scheme == "Technical potential":
+                        competed_frac = 1
+                    else:
+                        competed_frac = captured_base_replace_frac + \
+                            captured_eff_replace_frac
+            # The competed fraction for year where measure is not on market is
+            # zero
+            else:
+                competed_frac = 0
 
             # Update competed stock, energy, and carbon
-            stock_compete[yr] = stock_total[yr] * compete_frac
-            energy_compete[yr] = energy_total[yr] * compete_frac
-            carb_compete[yr] = energy_compete[yr] * intensity_carb[yr]
+            stock_compete[yr] = stock_total[yr] * competed_frac
+            energy_compete[yr] = energy_total[yr] * competed_frac
+            carb_compete[yr] = carb_total[yr] * competed_frac
 
             # Determine the competed stock that is captured by the measure
             stock_compete_meas[yr] = stock_compete[yr] * diffuse_eff_frac
@@ -1003,13 +1023,9 @@ class Measure(object):
             # than 100% of the competed market share (determined in the
             # adjust_savings function below).
 
-            # First year in the modeling time horizon OR tech. potential case
-            if yr == list(sorted(mseg_stock.keys()))[0] or \
-               adopt_scheme == "Technical potential":
-                # Update total number of stock units captured by the measure
-                # (for first year of modeling time horizon or a technical
-                # potential case, stock captured in previous years is N/A)
-                stock_total_meas[yr] = stock_compete[yr]
+            # First year in the modeling time horizon
+            if yr == list(sorted(stock_total.keys()))[0]:
+                stock_total_meas[yr] = stock_compete_meas[yr]
             # Subsequent year in modeling time horizon
             else:
                 # Update total number of stock units captured by the measure
@@ -1022,9 +1038,11 @@ class Measure(object):
 
                 # Handle case where stock captured by measure is a numpy array
                 if type(stock_total_meas[yr]) == numpy.ndarray and \
-                   any(stock_total_meas[yr] > stock_total[yr]) is True:
+                   any(stock_total_meas[yr] > stock_total[yr]) \
+                        is True:
                     stock_total_meas[yr][
-                        numpy.where(stock_total_meas[yr] > stock_total[yr])] = \
+                        numpy.where(
+                            stock_total_meas[yr] > stock_total[yr])] = \
                         stock_total[yr]
                 # Handle case where stock captured by measure is a point value
                 elif type(stock_total_meas[yr]) != numpy.ndarray and \
@@ -1037,31 +1055,24 @@ class Measure(object):
             # non-competed energy/carbon. * Note: Efficient energy and
             # carbon is dependent upon whether the measure is on the market
             # for the given year (if not, use baseline energy and carbon)
-            if (self.market_entry_year is None or int(yr) >=
-                self.market_entry_year) and (self.market_exit_year is None or
-               int(yr) < self.market_exit_year):
-                # Competed-efficient energy
-                energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
-                    rel_perf[yr]
-                # Total-efficient energy
-                energy_total_eff[yr] = energy_compete_eff[yr] + \
-                    (energy_total[yr] - energy_compete[yr]) * \
-                    exist_eff_frac * rel_perf[yr] + \
-                    (energy_total[yr] - energy_compete[yr]) * \
-                    (1 - exist_eff_frac)
-                # Competed-efficient carbon
-                carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
-                    rel_perf[yr]
-                # Total-efficient carbon
-                carb_total_eff[yr] = carb_compete_eff[yr] + \
-                    (carb_total[yr] - carb_compete[yr]) * \
-                    exist_eff_frac * rel_perf[yr] + \
-                    (carb_total[yr] - carb_compete[yr]) * (1 - exist_eff_frac)
-            else:
-                energy_compete_eff[yr] = energy_compete[yr]
-                energy_total_eff[yr] = energy_total[yr]
-                carb_compete_eff[yr] = carb_compete[yr]
-                carb_total_eff[yr] = carb_total[yr]
+
+            # Competed-efficient energy
+            energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
+                rel_perf[yr]
+            # Total-efficient energy
+            energy_total_eff[yr] = energy_compete_eff[yr] + \
+                (energy_total[yr] - energy_compete[yr]) * \
+                captured_eff_frac * rel_perf[yr] + \
+                (energy_total[yr] - energy_compete[yr]) * \
+                (1 - captured_eff_frac)
+            # Competed-efficient carbon
+            carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
+                rel_perf[yr]
+            # Total-efficient carbon
+            carb_total_eff[yr] = carb_compete_eff[yr] + \
+                (carb_total[yr] - carb_compete[yr]) * \
+                captured_eff_frac * rel_perf[yr] + \
+                (carb_total[yr] - carb_compete[yr]) * (1 - captured_eff_frac)
 
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
@@ -1073,19 +1084,11 @@ class Measure(object):
             stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
             # Baseline cost of the competed stock
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
-            # Cost of the stock under efficient measure adoption
-            if (self.market_entry_year is None or
-                int(yr) >= self.market_entry_year) and \
-               (self.market_exit_year is None or
-               int(yr) < self.market_exit_year):
-                # Competed-efficient stock cost
-                stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
-                # Total-efficient stock cost
-                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
-                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
-            else:
-                stock_compete_cost_eff[yr] = stock_compete_cost[yr]
-                stock_total_cost_eff[yr] = stock_total_cost[yr]
+            # Competed-efficient stock cost
+            stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
+            # Total-efficient stock cost
+            stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
+                + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
 
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy[yr]
@@ -1106,43 +1109,47 @@ class Measure(object):
             # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
 
-            # Update portion of existing stock already captured by efficient
+            # Update portion of microsegment already captured by efficient
             # measure to reflect additions from the current modeling year. If
-            # this portion is already 1, keep at 1; if the total stock for
-            # the year is 0 or we are updating a secondary microsegment, set
-            # efficient stock portion to 0.
+            # this portion is already 1, keep at 1; if we are updating a
+            # secondary microsegment, set efficient stock portion to 1
+            # (* FOR NOW *); if the total stock for the year is 0, set
+            # efficient stock portion to 0
 
             # Handle case where stock captured by measure is a numpy array
             if type(stock_total_meas[yr]) == numpy.ndarray:
                 for i in range(0, len(stock_total_meas[yr])):
-                    if stock_total[yr] != 0 and exist_eff_frac[i] != 1 and \
+                    if stock_total[yr] != 0 and captured_eff_frac[i] != 1 and \
                             mskeys[0] == "primary":
-                        exist_eff_frac[i] = stock_total_meas[yr][i] / \
+                        captured_eff_frac[i] = stock_total_meas[yr][i] / \
                             stock_total[yr]
-                    else:
-                        exist_eff_frac[i] = 0
+                    elif mskeys[0] == "secondary":
+                        captured_eff_frac[i] = 1
+                    elif stock_total[yr] == 0:
+                        captured_eff_frac[i] = 0
             # Handle case where stock captured by measure is a point value
             else:
-                if stock_total[yr] != 0 and exist_eff_frac != 1 and \
+                if stock_total[yr] != 0 and captured_eff_frac != 1 and \
                    mskeys[0] == "primary":
-                    exist_eff_frac = stock_total_meas[yr] / stock_total[yr]
+                    captured_eff_frac = stock_total_meas[yr] / stock_total[yr]
+                elif mskeys[0] == "secondary":
+                    captured_eff_frac = 1
                 elif stock_total[yr] == 0:
-                    exist_eff_frac = 0
+                    captured_eff_frac = 0
 
             # Update portion of existing stock remaining with the baseline
             # technology
-            exist_base_frac = 1 - exist_eff_frac
+            captured_base_frac = 1 - captured_eff_frac
 
         # Return partitioned stock, energy, and cost mseg information
-        return [
-            stock_total, energy_total, carb_total, stock_total_meas,
-            energy_total_eff, carb_total_eff, stock_compete, energy_compete,
-            carb_compete, stock_compete_meas, energy_compete_eff,
-            carb_compete_eff, stock_total_cost, energy_total_cost,
-            carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
-            carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
-            carb_compete_cost, stock_compete_cost_eff,
-            energy_compete_cost_eff, carb_compete_cost_eff]
+        return [stock_total_meas, energy_total_eff, carb_total_eff,
+                stock_compete, energy_compete,
+                carb_compete, stock_compete_meas, energy_compete_eff,
+                carb_compete_eff, stock_total_cost, energy_total_cost,
+                carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
+                carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
+                carb_compete_cost, stock_compete_cost_eff,
+                energy_compete_cost_eff, carb_compete_cost_eff]
 
     def calc_metric_update(self, rate, adjust_savings, com_timeprefs):
         """ Given information on a measure's master microsegment for
@@ -2150,7 +2157,7 @@ class Engine(object):
                                 adj["energy"]["total"]["efficient"][yr])
 
     def overlap_adjustment(self, measures_overlap_adj):
-        """ For heating/cooling measures, remove any measure savings that 
+        """ For heating/cooling measures, remove any measure savings that
         have been determined to overlap with the savings of other heating/
         cooling measures across the supply-side and demand-side """
         # Loop through all heating/cooling measures with savings overlaps
