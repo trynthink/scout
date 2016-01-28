@@ -212,7 +212,7 @@ class Measure(object):
                     # Set secondary energy efficiency units to "relative
                     # savings"
                     self.energy_efficiency_units["secondary"] = \
-                        "relative savings"
+                        "relative savings (constant)"
                     # Set secondary fuel type to include all heating/cooling
                     # fuels
                     self.fuel_type["secondary"] = ["electricity (grid)",
@@ -409,8 +409,9 @@ class Measure(object):
                     perf_meas = self.rand_list_gen(perf_meas, nsamples)
                     # Set any measure performance values less than zero to
                     # zero, for cases where performance isn't relative
-                    if perf_units != 'relative savings' and any(
-                       perf_meas < 0) is True:
+                    if perf_units != 'relative savings (constant)' and \
+                        type(perf_units) is not list and any(
+                            perf_meas < 0) is True:
                         perf_meas[numpy.where(perf_meas < 0)] == 0
 
                 if isinstance(cost_meas, list) and isinstance(cost_meas[0],
@@ -433,7 +434,9 @@ class Measure(object):
                 # make an exception for cases where performance is specified
                 # in 'relative savings' units (no explicit check
                 # of baseline units needed in this case)
-                if perf_units == 'relative savings' or \
+                if perf_units == 'relative savings (constant)' or \
+                   (isinstance(perf_units, list) and
+                    perf_units[0] == 'relative savings (dynamic)') or \
                     (base_costperflife["performance"]["units"] == perf_units
                      and base_costperflife["installed cost"]["units"] ==
                      cost_units):
@@ -449,7 +452,9 @@ class Measure(object):
                     # but 1 ACH50 is higher rel. performance than 13 ACH50).
                     # Note that relative performance values are stored in a
                     # dict with keys for each year in the modeling time horizon
-                    if perf_units == "relative savings":
+                    if perf_units == 'relative savings (constant)' or \
+                       (isinstance(perf_units, list) and perf_units[0] ==
+                            'relative savings (dynamic)'):
                         # In a commercial lighting case where the relative
                         # savings impact of the lighting change on a secondary
                         # end use (heating/cooling) has not been user-
@@ -476,7 +481,38 @@ class Measure(object):
                                                  secondary lighting end use \
                                                  effect calculation!")
                         else:
+                            # Set the original measure relative savings value
+                            # (potentially adjusted via re-baselining)
+                            perf_meas_orig = copy.deepcopy(perf_meas)
+                            # Loop through all years in modeling time horizon
+                            # and calculate relative measure performance
                             for yr in perf_base.keys():
+                                # If relative savings must be adjusted to
+                                # account for changes in baseline performance,
+                                # scale the relative savings value by the
+                                # ratio of current year baseline to that of
+                                # an anchor year specified with the measure
+                                # performance units
+                                if isinstance(perf_units, list):
+                                    if base_costperflife["performance"]["units"] \
+                                            not in inverted_relperf_list:
+                                        perf_meas = perf_meas_orig * (
+                                            perf_base[str(perf_units[1])] /
+                                            perf_base[yr])
+                                    else:
+                                        perf_meas = perf_meas_orig * (
+                                            perf_base[yr] /
+                                            perf_base[str(perf_units[1])])
+                                    # Ensure that none of the adjusted relative
+                                    # savings fractions exceed 1
+                                    if type(perf_meas) == numpy.array and \
+                                            any(perf_meas > 0):
+                                        perf_meas[
+                                            numpy.where(perf_meas > 1)] = 1
+                                    elif type(perf_meas) != numpy.array and \
+                                            perf_meas > 1:
+                                        perf_meas = 1
+                                # Calculate relative performance
                                 rel_perf[yr] = 1 - perf_meas
                     elif perf_units not in inverted_relperf_list:
                         for yr in perf_base.keys():

@@ -1239,6 +1239,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
@@ -1397,6 +1428,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}},
                         "supply": {
                             "non-specific": {
@@ -1478,6 +1540,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "lifetime": {
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
                                     "units": "years",
                                     "source": "EIA AEO"},
                                 "consumer choice": {
@@ -1839,6 +1932,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}}},
                     "secondary heating": {
                         "demand": {
@@ -1903,6 +2027,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}}},
                     "cooling": {
                         "demand": {
@@ -1952,6 +2107,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "lifetime": {
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
                                     "units": "years",
                                     "source": "EIA AEO"},
                                 "consumer choice": {
@@ -2319,6 +2505,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}},
                         "supply": {
                             "boiler (electric)": {
@@ -2477,6 +2694,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}},
                         "supply": {
                             "non-specific": {
@@ -2558,6 +2806,37 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "lifetime": {
                                     "average": {"2009": 90, "2010": 90},
                                     "range": {"2009": 9, "2010": 9},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "infiltration": {
+                                "performance": {
+                                    "typical": {"2009": 2, "2010": 3},
+                                    "best": {"2009": 2, "2010": 3},
+                                    "units": "ACH50",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 2, "2010": 2},
+                                    "best": {"2009": 2, "2010": 2},
+                                    "units": "2014$/sf",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 20, "2010": 20},
+                                    "range": {"2009": 2, "2010": 2},
                                     "units": "years",
                                     "source": "EIA AEO"},
                                 "consumer choice": {
@@ -3319,7 +3598,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                            "energy": {"2009": 0, "2010": 0}},
                                            "windows solar": {
                                            "stock": "NA",
-                                           "energy": {"2009": 1, "2010": 1}}},
+                                           "energy": {"2009": 1, "2010": 1}},
+                                           "infiltration": {
+                                           "stock": "NA",
+                                           "energy": {
+                                               "2009": 10, "2010": 10}}},
                                 "supply": {"boiler (electric)": {
                                            "stock": {"2009": 2, "2010": 2},
                                            "energy": {"2009": 2, "2010": 2}},
@@ -3336,14 +3619,23 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "windows solar": {
                                                      "stock": "NA",
                                                      "energy": {"2009": 6,
-                                                                "2010": 6}}},
+                                                                "2010": 6}},
+                                                     "infiltration": {
+                                                     "stock": "NA",
+                                                     "energy": {
+                                                         "2009": 10,
+                                                         "2010": 10}}},
                                           "supply": {"non-specific": 7}},
                     "cooling": {"demand": {"windows conduction": {
                                            "stock": "NA",
                                            "energy": {"2009": 5, "2010": 5}},
                                            "windows solar": {
                                            "stock": "NA",
-                                           "energy": {"2009": 6, "2010": 6}}},
+                                           "energy": {"2009": 6, "2010": 6}},
+                                           "infiltration": {
+                                               "stock": "NA",
+                                               "energy": {
+                                                   "2009": 10, "2010": 10}}},
                                 "supply": {"central AC": {
                                            "stock": {"2009": 7, "2010": 7},
                                            "energy": {"2009": 7, "2010": 7}},
@@ -3382,7 +3674,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                             "windows solar": {
                                 "stock": "NA",
                                 "energy": {"2009": 1,
-                                           "2010": 1}}}},
+                                           "2010": 1}},
+                            "infiltration": {
+                                "stock": "NA",
+                                "energy": {
+                                    "2009": 10, "2010": 10}}}},
                     "secondary heating": {
                         "demand": {
                             "windows conduction": {
@@ -3392,7 +3688,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                             "windows solar": {
                                 "stock": "NA",
                                 "energy": {"2009": 6,
-                                           "2010": 6}}}},
+                                           "2010": 6}},
+                            "infiltration": {
+                                "stock": "NA",
+                                "energy": {
+                                    "2009": 10, "2010": 10}}}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -3400,7 +3700,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 5, "2010": 5}},
                             "windows solar": {
                                 "stock": "NA",
-                                "energy": {"2009": 6, "2010": 6}}}}}},
+                                "energy": {"2009": 6, "2010": 6}},
+                            "infiltration": {
+                                "stock": "NA",
+                                "energy": {
+                                    "2009": 10, "2010": 10}}}}}},
             "multi family home": {
                 "square footage": {"2009": 300, "2010": 400},
                 "total homes": {"2009": 1000, "2010": 1000},
@@ -3443,7 +3747,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                            "energy": {"2009": 0, "2010": 0}},
                                            "windows solar": {
                                            "stock": "NA",
-                                           "energy": {"2009": 1, "2010": 1}}},
+                                           "energy": {"2009": 1, "2010": 1}},
+                                           "infiltration": {
+                                           "stock": "NA",
+                                           "energy": {
+                                               "2009": 10, "2010": 10}}},
                                 "supply": {"boiler (electric)": {
                                            "stock": {"2009": 2, "2010": 2},
                                            "energy": {"2009": 2, "2010": 2}},
@@ -3460,14 +3768,24 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "windows solar": {
                                                      "stock": "NA",
                                                      "energy": {"2009": 6,
-                                                                "2010": 6}}},
+                                                                "2010": 6}},
+                                                     "infiltration": {
+                                                     "stock": "NA",
+                                                     "energy": {
+                                                         "2009": 10,
+                                                         "2010": 10}}},
                                           "supply": {"non-specific": 7}},
                     "cooling": {"demand": {"windows conduction": {
                                            "stock": "NA",
                                            "energy": {"2009": 5, "2010": 5}},
                                            "windows solar": {
                                            "stock": "NA",
-                                           "energy": {"2009": 6, "2010": 6}}},
+                                           "energy": {"2009": 6, "2010": 6}},
+                                           "infiltration": {
+                                               "stock": "NA",
+                                               "energy": {
+                                                   "2009": 10,
+                                                   "2010": 10}}},
                                 "supply": {"central AC": {
                                            "stock": {"2009": 7, "2010": 7},
                                            "energy": {"2009": 7, "2010": 7}},
@@ -3606,7 +3924,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                               "cooling": -0.4}},
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary":
-                                                "relative savings"},
+                                                "relative savings (constant)"},
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 10,
@@ -3713,7 +4031,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                           "secondary": None},
                     "energy_efficiency_units": {"primary":
                                                 {"windows conduction":
-                                                 "relative savings",
+                                                 "relative savings (constant)",
                                                  "windows solar": "SHGC"},
                                                 "secondary": None},
                     "market_entry_year": None,
@@ -3807,7 +4125,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                               "cooling": -0.4}},
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary":
-                                                "relative savings"},
+                                                "relative savings (constant)"},
                     "market_entry_year": 2010,
                     "market_exit_year": None,
                     "product_lifetime": 10,
@@ -3840,7 +4158,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                               "cooling": -0.4}},
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary":
-                                                "relative savings"},
+                                                "relative savings (constant)"},
                     "market_entry_year": None,
                     "market_exit_year": 2010,
                     "product_lifetime": 10,
@@ -3862,7 +4180,42 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                     "external (LED)"],
                                    "secondary":
                                    ["windows conduction",
-                                    "windows solar"]}}]
+                                    "windows solar"]}},
+                   {"name": "sample measure 13",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": {
+                                              "heating": 0.4,
+                                              "secondary heating": 0.4,
+                                              "cooling": -0.4}},
+                    "energy_efficiency_units": {"primary": "lm/W",
+                                                "secondary":
+                                                ["relative savings (dynamic)",
+                                                 2009]},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "product_lifetime": 10,
+                    "structure_type": ["new", "retrofit"],
+                    "bldg_type": ["single family home",
+                                  "multi family home"],
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": "electricity (grid)",
+                                  "secondary": ["electricity (grid)",
+                                                "natural gas"]},
+                    "end_use": {"primary": "lighting",
+                                "secondary": ["heating", "secondary heating",
+                                              "cooling"]},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": "demand"},
+                    "technology": {"primary":
+                                   ["linear fluorescent (LED)",
+                                    "general service (LED)",
+                                    "external (LED)"],
+                                   "secondary":
+                                   ["windows conduction",
+                                    "windows solar",
+                                    "infiltration"]}}]
 
     # List of selected "ok" measures above with certain inputs now specified
     # as probability distributions
@@ -4658,6 +5011,52 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "competed": {
                     "baseline": {"2009": 1216244.58, "2010": 0},
                     "efficient": {"2009": 1031653.83, "2010": 0}}}},
+        "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                     "measure": 10}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 148, "2010": 148},
+                "measure": {"2009": 148, "2010": 148}},
+            "competed": {
+                "all": {"2009": 148, "2010": 148},
+                "measure": {"2009": 148, "2010": 148}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 870.17, "2010": 872.73},
+                "efficient": {"2009": 742.209, "2010": 729.562}},
+            "competed": {
+                "baseline": {"2009": 870.17, "2010": 872.73},
+                "efficient": {"2009": 742.209, "2010": 729.562}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 49448.84, "2010": 48952.76},
+                "efficient": {"2009": 42176.13, "2010": 40919.35}},
+            "competed": {
+                "baseline": {"2009": 49448.84, "2010": 48952.76},
+                "efficient": {"2009": 42176.13, "2010": 40919.35}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 2972, "2010": 2972},
+                    "efficient": {"2009": 3700, "2010": 3700}},
+                "competed": {
+                    "baseline": {"2009": 2972, "2010": 2972},
+                    "efficient": {"2009": 3700, "2010": 3700}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 8884.55, "2010": 8498.72},
+                    "efficient": {"2009": 7581.96, "2010": 7107.11}},
+                "competed": {
+                    "baseline": {"2009": 8884.55, "2010": 8498.72},
+                    "efficient": {"2009": 7581.96, "2010": 7107.11}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 1631811.885, "2010": 1615440.956},
+                    "efficient": {"2009": 1391812.161, "2010": 1350338.441}},
+                "competed": {
+                    "baseline": {"2009": 1631811.885, "2010": 1615440.956},
+                    "efficient": {"2009": 1391812.161, "2010": 1350338.441}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
                      "measure": 10}}]
 
