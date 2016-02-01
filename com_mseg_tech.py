@@ -5,6 +5,7 @@
 import com_mseg as cm
 
 import numpy as np
+import re
 
 
 def tech_data_selector(tech_data, sel):
@@ -32,28 +33,125 @@ def tech_data_selector(tech_data, sel):
     return filtered
 
 
-def cost_extractor(tech_array, years):
+def sd_data_selector(sd_data, sel, years):
+    """ From the full structured array of service demand data from the
+    AEO, extract just the service demand data corresponding to the
+    census division, building type, end use, and fuel type specified by
+    each leaf node in the input microsegments JSON. Each group of data
+    are converted into two outputs, 1) a numpy array of service demand
+    summed across the three specified markets (column named 'd'), with
+    rows for each technology and performance level combination and
+    columns for each year, and 2) a list of technology names for
+    each row of the service demand numpy array (the other output). """
+
+    # Filter service demand data based on the specified census
+    # division, building type, end use, and fuel type
+    filtered = sd_data[np.all([sd_data['r'] == sel[0],
+                               sd_data['b'] == sel[1],
+                               sd_data['s'] == sel[2],
+                               sd_data['f'] == sel[3]], axis=0)]
+
+    # Identify each technology and performance level using the text
+    # in the description field since the technology type and vintage
+    # numeric codes are not well-matched to individual technology and
+    # performance levels
+    technames = list(np.unique(filtered['Description']))
+
+    # Set up numpy array to store restructured data, in which each row
+    # will correspond to a single technology
+    sd = np.zeros((len(technames), len(years)))
+
+    # Combine the service demand for the three markets ['d'] in the data
+    for idx, name in enumerate(technames):
+
+        # Extract entries for a given technology name
+        entries = filtered[filtered['Description'] == name]
+
+        # Calculate the sum of all year columns and write it to the
+        # appropriate row in the sd array (note that the .view()
+        # function converts the structured array into a standard
+        # numpy array, which allows the use of the .sum() function)
+        sd[idx, ] = np.sum(
+            entries[list(map(str, years))].view(('<f8', len(years))), axis=0)
+
+    # Note that each row in sd corresponds to a single performance
+    # level for a single technology and the rows are in the same order
+    # as the technames list
+    return sd, technames
+
+
+def single_tech_selector(tech_array, specific_name):
+    """ Each microsegment is comprised of multiple technologies. Cost,
+    performance, and lifetime data are needed for each technology in a
+    microsegment. This function separates out those data for a specific
+    technology from all of the technologies in the microsegment so that
+    they can be processed and further restructured for later output. """
+
+    # Initialize a list of rows to remove from the numpy array
+    # that do not correspond to the specified technology
+    rows_to_remove = []
+
+    for idx, row in enumerate(tech_array):
+        # Identify the technology name from the 'technology name' column
+        # in the data using a regex set up to match any text '.+?' that
+        # appears before the first occurrence of a space followed by a
+        # 2 and three other numbers (i.e., 2009 or 2035)
+        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
+
+        # If the regex returned a match, and the first group of the
+        # match (i.e., the part before the numeric year) is not the
+        # the same as the name passed to the function, remove the row
+        if tech_name:
+            if tech_name.group(0) != specific_name:
+                rows_to_remove.append(idx)
+        # If there's no match, the technology might not have a year
+        # included as part of its name, but it nonetheless should be
+        # checked to see if it matches the name passed to the function
+        # and removed if there is not a match
+        elif tech_name != specific_name:
+            rows_to_remove.append(idx)
+        # Else check to see if the description indicates a placeholder
+        # row, which should be deleted before the technologies are
+        # summarized and returned from this function
+        elif re.search('placeholder', row['technology name']):
+            rows_to_remove.append(idx)
+        # Implicitly, if the text does not match any regex, it is
+        # assumed that it does not need to be edited or removed
+
+    # Delete the placeholder rows
+    result = np.delete(tech_array, rows_to_remove, 0)
+
+    return result
+
+
+# Rename tech array to something else like tech_reduced
+def cost_extractor(single_tech_array, sd_array, sd_names, years):
     """ From a numpy structured array of data for a single technology
     with several rows corresponding to different performance levels,
     this function converts the reported capital costs for all of the
     different performance levels into a mean (called 'typical' in the
     output dict) and a maximum ('best') for this technology class.
+    Service demand data for each of the performance levels is used to
+    calculate a service demand-weighted cost for the 'typical' case.
     A unique value is calculated and reported for each year in the
     years vector, which specifies the range of years over which the
     final data are to be output to the cost/performance/lifetime JSON. """
 
-    # Store the number of rows (different technologies) in tech_array
-    # and the number of years in the desired range for the final data
-    n_entries = np.shape(tech_array)[0]
+    # Store the number of rows (different performance levels) in
+    # single_tech_array and the number of years in the desired
+    # range for the final data
+    n_entries = np.shape(single_tech_array)[0]
     n_years = len(years)
 
-    # Create a temporary array in which the cost data will be stored
-    tmp = np.zeros([n_entries, n_years])
+    # Preallocate arrays for the cost and service demand data
+    cost = np.zeros([n_entries, n_years])
+    select_sd = np.zeros([n_entries, n_years])
 
-    for idx, row in enumerate(tech_array):
+    for idx, row in enumerate(single_tech_array):
         # Determine the starting and ending column indices for the
         # capital cost of the technology for this row
         idx_st = row['y1'] - min(years)
+
         # Calculate end index using the smaller of either the last year
         # of 'years' or the final year of availability for that technology
         idx_en = min(max(years), row['y2']) - min(years) + 1
@@ -63,17 +161,40 @@ def cost_extractor(tech_array, years):
         if idx_en > 0:
             if idx_st < 0:
                 idx_st = 0
-            tmp[idx, idx_st:idx_en] = row['c1']
+            cost[idx, idx_st:idx_en] = row['c1']
 
-    # Calculate the mean cost for each column, excluding 0 values
-    cost = np.apply_along_axis(lambda v: np.mean(v[np.nonzero(v)]), 0, tmp)
+        # Find the matching row in service demand data by comparing
+        # the row technology name to sd_names and use that index to
+        # extract the service demand data and insert them into the
+        # service demand array in the same row as the corresponding
+        # cost data
+        select_sd[idx, ] = sd_array[sd_names.index(row['technology name']), ]
 
-    # Calculate the maximum cost in each column
-    cost_max = np.amax(tmp, 0)
+    # Normalize the service demand data to simplify the calculation of
+    # the service demand-weighted arithmetic mean cost (but perform the
+    # calculation only if there is at least one non-zero entry in select_sd)
+    if select_sd.any():
+        # Suppress any divide by zero warnings
+        with np.errstate(divide='ignore', invalid='ignore'):
+            # Calculate the normalized service demand
+            select_sd = select_sd/np.sum(select_sd, 0)
+            select_sd = np.nan_to_num(select_sd)  # Replace nan from 0/0 with 0
+
+    # Using the normalized service demand as the weights, calculate the
+    # weighted arithmetic mean cost for each year (each column)
+    cost_mean = np.sum(np.transpose(select_sd)*single_tech_array['c1'], 1)
+
+    # Calculate the maximum cost for each year (each column of the cost
+    # array), adjusting for differences in the calculation method (the
+    # arithmetic mean calculation does not take into account market
+    # entry and exit years, using the service demand weights to zero
+    # out technologies that are not available in a given year) that
+    # can occasionally lead to the mean being higher than the maximum
+    cost_max = np.fmax(np.amax(cost, 0), cost_mean)
 
     # Build complete structured dict with 'typical' and 'best' data
     # converted into dicts themselves, indexed by year
-    final_dict = {'typical': dict(zip(map(str, years), cost)),
+    final_dict = {'typical': dict(zip(map(str, years), cost_mean)),
                   'best': dict(zip(map(str, years), cost_max))}
 
     return final_dict
