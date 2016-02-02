@@ -9,6 +9,32 @@ import re
 import warnings
 
 
+def units_id(sel, flag):
+    """ docstring """
+
+    # For readability, assign the end use number to a clearly named variable
+    enduse = sel[2]
+
+    # Determine units depending on whether this function was called
+    # for cost or performance units
+    if flag == 'cost':
+        if enduse == 4:  # ventilation
+            theunits = '$2013/1000 cfm'
+        elif enduse == 6:  # lighting
+            theunits = '$2013/1000 lm'
+        else:
+            theunits = '$2013/kBTU out-hr'
+    elif flag == 'performance':
+        if enduse == 4:  # ventilation
+            theunits = 'cfm-hr/BTU'  # BTU in
+        elif enduse == 6:  # lighting
+            theunits = 'lm/W'
+        else:
+            theunits = 'BTU out/BTU in'
+
+    return theunits
+
+
 def tech_data_selector(tech_data, sel):
     """ From the full structured array of cost, performance, and
     lifetime data from the AEO, extract a group of data using numeric

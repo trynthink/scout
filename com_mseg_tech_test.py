@@ -869,6 +869,11 @@ class CommonUnitTest(unittest.TestCase):
     # Note that the conversion from the category text to numbers isn't
     # tested here since the existing function is already tested separately
 
+    # Define lists of strings for the cost and performance units of
+    # each of the technologies in the data_to_select list
+    cost_units = ['$2013/kBTU out-hr', '$2013/1000 cfm', '$2013/1000 lm']
+    perf_units = ['BTU out/BTU in', 'cfm-hr/BTU', 'lm/W']
+
     # Define a list of numpy arrays that represent the data selected
     # from the tech_data array based on the data_to_select lists
     selected_tech_data = [
@@ -1331,6 +1336,22 @@ class CommonUnitTest(unittest.TestCase):
                 self.dict_check(i, i2)
             else:
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
+
+
+class EngineeringUnitsIdentificationTest(CommonUnitTest):
+    """ Test the function that returns a text string for the units of
+    technologies based on the end use number and a text string
+    specifying whether cost or performance units are needed """
+
+    def test_indicated_cost_units(self):
+        for idx, selected in enumerate(self.data_to_select):
+            self.assertEqual(cmt.units_id(selected, 'cost'),
+                             self.cost_units[idx])
+
+    def test_indicated_performance_units(self):
+        for idx, selected in enumerate(self.data_to_select):
+            self.assertEqual(cmt.units_id(selected, 'performance'),
+                             self.perf_units[idx])
 
 
 class TechnologyDataSelectionTest(CommonUnitTest):
