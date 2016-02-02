@@ -125,17 +125,26 @@ def single_tech_selector(tech_array, specific_name):
     return result
 
 
-def cost_extractor(single_tech_array, sd_array, sd_names, years):
+def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     """ From a numpy structured array of data for a single technology
     with several rows corresponding to different performance levels,
-    this function converts the reported capital costs for all of the
-    different performance levels into a mean (called 'typical' in the
-    output dict) and a maximum ('best') for this technology class.
-    Service demand data for each of the performance levels is used to
-    calculate a service demand-weighted cost for the 'typical' case.
+    this function converts the reported capital costs or efficiencies
+    for all of the different performance levels into a mean (called
+    'typical' in the output dict) and a maximum ('best' in the output
+    dict) for this technology class. Service demand data for each of
+    the performance levels is used to calculate a service demand-
+    weighted cost or efficiency for the 'typical' or mean case.
     A unique value is calculated and reported for each year in the
     years vector, which specifies the range of years over which the
     final data are to be output to the cost/performance/lifetime JSON. """
+
+    # Using the string in the 'flag' argument, set a variable
+    # for the column that contains the desired data to obtain
+    # from single_tech_array
+    if flag == 'cost':
+        col = 'c1'
+    elif flag == 'performance':
+        col = 'eff'
 
     # Store the number of rows (different performance levels) in
     # single_tech_array and the number of years in the desired
@@ -143,25 +152,27 @@ def cost_extractor(single_tech_array, sd_array, sd_names, years):
     n_entries = np.shape(single_tech_array)[0]
     n_years = len(years)
 
-    # Preallocate arrays for the cost and service demand data
-    cost = np.zeros([n_entries, n_years])
+    # Preallocate arrays for the technology cost or performance
+    # and service demand data
+    val = np.zeros([n_entries, n_years])
     select_sd = np.zeros([n_entries, n_years])
 
     for idx, row in enumerate(single_tech_array):
         # Determine the starting and ending column indices for the
-        # capital cost of the technology for this row
+        # desired data (cost or performance) related to the
+        # technology associated with this row
         idx_st = row['y1'] - min(years)
 
         # Calculate end index using the smaller of either the last year
         # of 'years' or the final year of availability for that technology
         idx_en = min(max(years), row['y2']) - min(years) + 1
 
-        # If the indices calculated above are in range, record the
-        # capital cost in the calculated location(s)
+        # If the indices calculated above are in range, record the data
+        # (cost or performance) in the calculated location(s)
         if idx_en > 0:
             if idx_st < 0:
                 idx_st = 0
-            cost[idx, idx_st:idx_en] = row['c1']
+            val[idx, idx_st:idx_en] = row[col]
 
         # Find the matching row in service demand data by comparing
         # the row technology name to sd_names and use that index to
@@ -171,8 +182,9 @@ def cost_extractor(single_tech_array, sd_array, sd_names, years):
         select_sd[idx, ] = sd_array[sd_names.index(row['technology name']), ]
 
     # Normalize the service demand data to simplify the calculation of
-    # the service demand-weighted arithmetic mean cost (but perform the
-    # calculation only if there is at least one non-zero entry in select_sd)
+    # the service demand-weighted arithmetic mean of the desired data
+    # (but perform the calculation only if there is at least one
+    # non-zero entry in select_sd)
     if select_sd.any():
         # Suppress any divide by zero warnings
         with np.errstate(divide='ignore', invalid='ignore'):
@@ -181,21 +193,22 @@ def cost_extractor(single_tech_array, sd_array, sd_names, years):
             select_sd = np.nan_to_num(select_sd)  # Replace nan from 0/0 with 0
 
     # Using the normalized service demand as the weights, calculate the
-    # weighted arithmetic mean cost for each year (each column)
-    cost_mean = np.sum(np.transpose(select_sd)*single_tech_array['c1'], 1)
+    # weighted arithmetic mean for each year (each column)
+    val_mean = np.sum(np.transpose(select_sd)*single_tech_array[col], 1)
 
-    # Calculate the maximum cost for each year (each column of the cost
-    # array), adjusting for differences in the calculation method (the
-    # arithmetic mean calculation does not take into account market
-    # entry and exit years, using the service demand weights to zero
-    # out technologies that are not available in a given year) that
-    # can occasionally lead to the mean being higher than the maximum
-    cost_max = np.fmax(np.amax(cost, 0), cost_mean)
+    # Calculate the maximum cost or performance for each year (each
+    # column of the technology data array), adjusting for differences
+    # in the calculation method (the arithmetic mean calculation does
+    # not take into account market entry and exit years, relying on the
+    # service demand weights to zero out technologies that are not
+    # available in a given year) that can occasionally lead to the
+    # mean being greater than than the maximum
+    val_max = np.fmax(np.amax(val, 0), val_mean)
 
     # Build complete structured dict with 'typical' and 'best' data
     # converted into dicts themselves, indexed by year
-    final_dict = {'typical': dict(zip(map(str, years), cost_mean)),
-                  'best': dict(zip(map(str, years), cost_max))}
+    final_dict = {'typical': dict(zip(map(str, years), val_mean)),
+                  'best': dict(zip(map(str, years), val_max))}
 
     return final_dict
 

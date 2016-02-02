@@ -1256,7 +1256,37 @@ class CommonUnitTest(unittest.TestCase):
 
     # Define a list of the dicts of performance levels for each
     # technology in the desired form to be output to a JSON database
-    result_perf = 0
+    result_perf = [
+        {'typical':
+            {'2009': 3.4411, '2010': 3.4462, '2011': 3.4519,
+             '2012': 3.4562, '2013': 3.4618, '2014': 3.4656,
+             '2015': 3.4704, '2016': 3.4745, '2017': 3.4792,
+             '2018': 3.4831, '2019': 3.4873, '2020': 3.4978},
+         'best':
+            {'2009': 4.0, '2010': 4.0, '2011': 4.0,
+             '2012': 4.0, '2013': 4.0, '2014': 4.0,
+             '2015': 4.0, '2016': 4.0, '2017': 4.0,
+             '2018': 4.0, '2019': 4.0, '2020': 4.2}},
+        {'typical':
+            {'2009': 1.1890, '2010': 1.1940, '2011': 1.2047,
+             '2012': 1.2146, '2013': 1.2236, '2014': 1.2297,
+             '2015': 1.2357, '2016': 1.2417, '2017': 1.2468,
+             '2018': 1.2523, '2019': 1.2572, '2020': 1.2763},
+         'best':
+            {'2009': 1.26, '2010': 1.26, '2011': 1.5,
+             '2012': 1.5, '2013': 1.5, '2014': 1.5,
+             '2015': 1.5, '2016': 1.5, '2017': 1.5,
+             '2018': 1.5, '2019': 1.5, '2020': 1.82}},
+        {'typical':
+            {'2009': 151.1, '2010': 151.1, '2011': 151.1,
+             '2012': 151.1, '2013': 151.1, '2014': 151.1,
+             '2015': 151.1, '2016': 151.1, '2017': 151.1,
+             '2018': 151.1, '2019': 151.1, '2020': 153.726},
+         'best':
+            {'2009': 151.1, '2010': 151.1, '2011': 151.1,
+             '2012': 151.1, '2013': 151.1, '2014': 151.1,
+             '2015': 151.1, '2016': 151.1, '2017': 151.1,
+             '2018': 151.1, '2019': 151.1, '2020': 162.5}}]
 
     # Define a list of dicts with the mean and range of equipment
     # lifetimes (in years) for each of the technologies tested
@@ -1357,24 +1387,34 @@ class SingleTechnologySelectionTest(CommonUnitTest):
                 self.reduced_tech_data[idx])
 
 
-class CostDataExtractionTest(CommonUnitTest):
-    """ Test the function that extracts the technology cost data from
-    the source data arrays and converts them into the desired form to
-    be output to the cost/performance/lifetime JSON """
+class CostAndPerformanceDataExtractionTest(CommonUnitTest):
+    """ Test the function that extracts the cost or performance
+    data from the source data array specific to a single technology
+    and converts them into the desired form to be output to the
+    cost/performance/lifetime JSON """
 
     # Test equality of the dicts of cost data generated for each technology
     def test_cost_selection_and_conversion(self):
         for idx, input_array in enumerate(self.reduced_tech_data):
-            self.dict_check(cmt.cost_extractor(input_array,
-                                               self.selected_sd_data[idx],
-                                               self.selected_sd_names[idx],
-                                               self.tmp_yrs),
-                            self.result_cost[idx])
+            self.dict_check(
+                cmt.cost_perf_extractor(input_array,
+                                        self.selected_sd_data[idx],
+                                        self.selected_sd_names[idx],
+                                        self.tmp_yrs,
+                                        'cost'),
+                self.result_cost[idx])
 
-
-class PerformanceDataExtractionTest(CommonUnitTest):
-    """ docstring """
-    pass
+    # Test equality of the dicts of performance (i.e., energy efficiency)
+    # data generated for each technology
+    def test_performance_selection_and_conversion(self):
+        for idx, input_array in enumerate(self.reduced_tech_data):
+            self.dict_check(
+                cmt.cost_perf_extractor(input_array,
+                                        self.selected_sd_data[idx],
+                                        self.selected_sd_names[idx],
+                                        self.tmp_yrs,
+                                        'performance'),
+                self.result_perf[idx])
 
 
 class LifetimeDataExtractionTest(CommonUnitTest):
