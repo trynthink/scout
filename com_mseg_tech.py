@@ -6,6 +6,7 @@ import com_mseg as cm
 
 import numpy as np
 import re
+import warnings
 
 
 def tech_data_selector(tech_data, sel):
@@ -124,7 +125,6 @@ def single_tech_selector(tech_array, specific_name):
     return result
 
 
-# Rename tech array to something else like tech_reduced
 def cost_extractor(single_tech_array, sd_array, sd_names, years):
     """ From a numpy structured array of data for a single technology
     with several rows corresponding to different performance levels,
@@ -196,6 +196,82 @@ def cost_extractor(single_tech_array, sd_array, sd_names, years):
     # converted into dicts themselves, indexed by year
     final_dict = {'typical': dict(zip(map(str, years), cost_mean)),
                   'best': dict(zip(map(str, years), cost_max))}
+
+    return final_dict
+
+
+def life_extractor(single_tech_array, years):
+    """ From a numpy structured array with the cost, performance, and
+    lifetime data for a specific technology, calculate the arithmetic
+    mean lifetime and 'range', which is calculated for the residential
+    data as the difference between the maximum and the mean for each
+    year. This function accounts for cases where the performance levels
+    for a given technology exit the market before another level enters
+    with the assumption that the previous lifetime should persist until
+    the next performance level enters the market. """
+
+    # Store the number of rows (different performance levels) in
+    # single_tech_array and the number of years in the desired
+    # range for the final data
+    n_entries = np.shape(single_tech_array)[0]
+    n_years = len(years)
+
+    # Preallocate arrays for the lifetime data
+    life = np.zeros([n_entries, n_years])
+
+    for idx, row in enumerate(single_tech_array):
+        # Determine the starting and ending column indices for the
+        # lifetime of the technology performance level in this row
+        idx_st = row['y1'] - min(years)
+
+        # Calculate end index using the smaller of either the last year
+        # of 'years' or the final year of availability for that technology
+        idx_en = min(max(years), row['y2']) - min(years) + 1
+
+        # If the indices calculated above are in range, record the
+        # lifetime in the calculated location(s)
+        if idx_en > 0:
+            if idx_st < 0:
+                idx_st = 0
+            life[idx, idx_st:idx_en] = row['Life']
+
+    # Calculate the mean lifetime for each column, excluding 0 values
+    with warnings.catch_warnings():
+        # In cases where a particular technology does not have a
+        # performance level defined as available for a given year,
+        # excluding 0 values leaves nothing on which to calculate a
+        # mean, which triggers a RuntimeWarning that is suppressed
+        # here using the warnings package
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        life_mean = np.apply_along_axis(
+            lambda v: np.mean(v[np.nonzero(v)]), 0, life)
+
+    # In the special case where there were years with no performance
+    # level indicated in the 'life' array, the mean will be 'nan'; it
+    # is assumed that the previous technology's lifetime persists until
+    # the next performance level enters the market
+    if np.any(np.isnan(life_mean)):
+        # First, identify the numeric values reported
+        numbers = life_mean[~np.isnan(life_mean)]
+
+        # Then, generate a vector that, for each entry in the final
+        # life_mean vector, has the index for the appropriate number
+        # to be pulled from the 'numbers' vector
+        indices = np.cumsum(~np.isnan(life_mean)) - 1
+
+        # Use the indices and the numbers to adjust life_mean
+        life_mean = numbers[indices]
+
+    # Calculate the lifetime range in each column using the same method
+    # as mseg_techdata.py (note that this quantity is not related to
+    # any statistical definitions of range) and account for any cases
+    # where life_mean was just adjusted to be non-zero in some years
+    life_range = np.fmax(np.amax(life, 0), life_mean) - life_mean
+
+    # Build complete structured dict with 'average' and 'range' data
+    # converted into dicts that are indexed by year
+    final_dict = {'average': dict(zip(map(str, years), life_mean)),
+                  'range': dict(zip(map(str, years), life_range))}
 
     return final_dict
 

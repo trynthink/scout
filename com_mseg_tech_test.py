@@ -10,7 +10,9 @@ import numpy as np
 
 class CommonUnitTest(unittest.TestCase):
     """ Top level test class that contains common variables with data so
-    that all tests are easily set up to use a consistent body of data """
+    that all tests are easily set up to use a consistent body of data.
+    This class also includes custom testing functions used in multiple
+    child test classes. """
 
     # Define an array taking the form of the EIA cost, performance, and
     # lifetime data, but with a reduced set of columns incorporating
@@ -1151,10 +1153,6 @@ class CommonUnitTest(unittest.TestCase):
          'LED Edison 2020 typical', 'LED Edison 2030 typical',
          'T8 F32 EEMag (e)']]
 
-    # Define a list of the dicts of performance levels for each
-    # technology in the desired form to be output to a JSON database
-    result_perf = 0
-
     # Define a list of years for which the data should be output
     tmp_yrs = list(range(2009, 2021))  # 2009 - 2020
 
@@ -1256,9 +1254,53 @@ class CommonUnitTest(unittest.TestCase):
              '2015': 24.68, '2016': 24.68, '2017': 24.68,
              '2018': 24.68, '2019': 24.68, '2020': 24.542}}]
 
+    # Define a list of the dicts of performance levels for each
+    # technology in the desired form to be output to a JSON database
+    result_perf = 0
+
     # Define a list of dicts with the mean and range of equipment
     # lifetimes (in years) for each of the technologies tested
-    result_life = 0
+    result_life = [
+        {'average':
+            {'2009': 25, '2010': 25, '2011': 25,
+             '2012': 25, '2013': 25, '2014': 25,
+             '2015': 25, '2016': 25, '2017': 25,
+             '2018': 25, '2019': 25, '2020': 25},
+         'range':
+            {'2009': 0, '2010': 0, '2011': 0,
+             '2012': 0, '2013': 0, '2014': 0,
+             '2015': 0, '2016': 0, '2017': 0,
+             '2018': 0, '2019': 0, '2020': 0}},
+        {'average':
+            {'2009': 20, '2010': 20, '2011': 20,
+             '2012': 20, '2013': 20, '2014': 20,
+             '2015': 20, '2016': 20, '2017': 20,
+             '2018': 20, '2019': 20, '2020': 20},
+         'range':
+            {'2009': 0, '2010': 0, '2011': 0,
+             '2012': 0, '2013': 0, '2014': 0,
+             '2015': 0, '2016': 0, '2017': 0,
+             '2018': 0, '2019': 0, '2020': 0}},
+        {'average':
+            {'2009': 15, '2010': 15, '2011': 15,
+             '2012': 15, '2013': 15, '2014': 15,
+             '2015': 15, '2016': 15, '2017': 15,
+             '2018': 15, '2019': 15, '2020': 15},
+         'range':
+            {'2009': 0, '2010': 0, '2011': 0,
+             '2012': 0, '2013': 0, '2014': 0,
+             '2015': 0, '2016': 0, '2017': 0,
+             '2018': 0, '2019': 0, '2020': 0}}]
+
+    # Create a function for checking equality of a dict with point values
+    def dict_check(self, dict1, dict2):
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if isinstance(i, dict):
+                self.assertCountEqual(i, i2)
+                self.dict_check(i, i2)
+            else:
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
 
 class TechnologyDataSelectionTest(CommonUnitTest):
@@ -1315,25 +1357,10 @@ class SingleTechnologySelectionTest(CommonUnitTest):
                 self.reduced_tech_data[idx])
 
 
-class PerformanceDataExtractionTest(CommonUnitTest):
-    """ docstring """
-    pass
-
-
 class CostDataExtractionTest(CommonUnitTest):
     """ Test the function that extracts the technology cost data from
     the source data arrays and converts them into the desired form to
     be output to the cost/performance/lifetime JSON """
-
-    # Create a function for checking equality of a dict with point values
-    def dict_check(self, dict1, dict2):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check(i, i2)
-            else:
-                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
     # Test equality of the dicts of cost data generated for each technology
     def test_cost_selection_and_conversion(self):
@@ -1345,9 +1372,23 @@ class CostDataExtractionTest(CommonUnitTest):
                             self.result_cost[idx])
 
 
-class LifetimeDataExtractionTest(CommonUnitTest):
+class PerformanceDataExtractionTest(CommonUnitTest):
     """ docstring """
     pass
+
+
+class LifetimeDataExtractionTest(CommonUnitTest):
+    """ Test the function that extracts the technology lifetime data
+    from a data array for a single technology and converts them into the
+    desired form to be output to the cost/performance/lifetime JSON """
+
+    # Test equality of the dicts of lifetime data generated for
+    # each technology
+    def test_lifetime_selection_and_conversion(self):
+        for idx, input_array in enumerate(self.reduced_tech_data):
+            self.dict_check(cmt.life_extractor(input_array,
+                                               self.tmp_yrs),
+                            self.result_life[idx])
 
 
 class ChoiceModelParametersExtractionTest(CommonUnitTest):
