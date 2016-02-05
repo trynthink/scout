@@ -871,8 +871,8 @@ class CommonUnitTest(unittest.TestCase):
 
     # Define lists of strings for the cost and performance units of
     # each of the technologies in the data_to_select list
-    cost_units = ['$2013/kBTU out-hr', '$2013/1000 cfm', '$2013/1000 lm']
-    perf_units = ['BTU out/BTU in', 'cfm-hr/BTU', 'lm/W']
+    cost_units = ['2013$/kBTU out/hr', '2013$/1000 cfm', '2013$/1000 lm']
+    perf_units = ['BTU out/BTU in', 'cfm-hr/BTU in', 'lm/W']
 
     # Define a list of numpy arrays that represent the data selected
     # from the tech_data array based on the data_to_select lists

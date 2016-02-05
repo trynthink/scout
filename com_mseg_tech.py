@@ -19,14 +19,14 @@ def units_id(sel, flag):
     # for cost or performance units
     if flag == 'cost':
         if enduse == 4:  # ventilation
-            theunits = '$2013/1000 cfm'
+            theunits = '2013$/1000 cfm'
         elif enduse == 6:  # lighting
-            theunits = '$2013/1000 lm'
+            theunits = '2013$/1000 lm'
         else:
-            theunits = '$2013/kBTU out-hr'
+            theunits = '2013$/kBTU out/hr'
     elif flag == 'performance':
         if enduse == 4:  # ventilation
-            theunits = 'cfm-hr/BTU'  # BTU in
+            theunits = 'cfm-hr/BTU in'
         elif enduse == 6:  # lighting
             theunits = 'lm/W'
         else:
