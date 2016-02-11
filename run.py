@@ -274,8 +274,19 @@ class Measure(object):
             # Set appropriate site-source conversion factor, energy cost, and
             # CO2 intensity for given key chain
             if mskeys[3] in ss_conv.keys():
-                site_source_conv = ss_conv[mskeys[3]]
-                intensity_carb = carb_int[mskeys[3]]
+                # Set baseline and measure site-source conversions and
+                # CO2 intensities, accounting for any fuel switching from
+                # baseline technology to measure technology
+                if self.fuel_switch_to is None:
+                    site_source_conv_base, site_source_conv_meas = (
+                        ss_conv[mskeys[3]] for n in range(2))
+                    intensity_carb_base, intensity_carb_meas = (
+                        carb_int[mskeys[3]] for n in range(2))
+                else:
+                    site_source_conv_base = ss_conv[mskeys[3]]
+                    site_source_conv_meas = ss_conv[self.fuel_switch_to]
+                    intensity_carb_base = carb_int[mskeys[3]]
+                    intensity_carb_meas = carb_int[self.fuel_switch_to]
 
             # Initialize dicts of microsegment information specific to this run
             # of for loop; also initialize dict for mining sq.ft. information
@@ -365,8 +376,8 @@ class Measure(object):
                         # record as part of the 'mseg_adjust' measure
                         # attribute
                         mseg_adjust["supply-demand adjustment"]["total"][
-                            str(mskeys)] = {key: val * site_source_conv[key]
-                                            for key, val in adj_vals.items()}
+                            str(mskeys)] = {key: val * site_source_conv_base[
+                                key] for key, val in adj_vals.items()}
                         # Set overlapping energy savings values to zero in
                         # 'mseg_adjust' for now (updated as necessary in the
                         # 'adjust_savings' function below)
@@ -437,9 +448,9 @@ class Measure(object):
                 if perf_units == 'relative savings (constant)' or \
                    (isinstance(perf_units, list) and
                     perf_units[0] == 'relative savings (dynamic)') or \
-                    (base_costperflife["performance"]["units"] == perf_units
-                     and base_costperflife["installed cost"]["units"] ==
-                     cost_units):
+                    (base_costperflife["performance"]["units"] ==
+                        perf_units and base_costperflife[
+                        "installed cost"]["units"] == cost_units):
 
                     # Set base performance dict
                     perf_base = base_costperflife["performance"]["typical"]
@@ -494,7 +505,8 @@ class Measure(object):
                                 # an anchor year specified with the measure
                                 # performance units
                                 if isinstance(perf_units, list):
-                                    if base_costperflife["performance"]["units"] \
+                                    if base_costperflife[
+                                        "performance"]["units"] \
                                             not in inverted_relperf_list:
                                         perf_meas = perf_meas_orig * (
                                             perf_base[str(perf_units[1])] /
@@ -568,8 +580,17 @@ class Measure(object):
                 # entering into "partition_microsegment"
                 if mskeys[2] in ["single family home", "mobile home",
                                  "multi family home"]:
-                    # Update energy cost information
-                    cost_energy = ecosts["residential"][mskeys[3]]
+                    # Update residential baseline and measure energy cost
+                    # information, accounting for any fuel switching from
+                    # baseline technology to measure technology
+                    if self.fuel_switch_to is None:
+                        cost_energy_base, cost_energy_meas = (
+                            ecosts["residential"][mskeys[3]] for n in range(2))
+                    else:
+                        cost_energy_base = ecosts["residential"][mskeys[3]]
+                        cost_energy_meas = ecosts["residential"][
+                            self.fuel_switch_to]
+
                     # Update new buildings fraction information
                     for yr in sorted(mseg["energy"].keys()):
                         # Find fraction of total buildings that are
@@ -602,8 +623,17 @@ class Measure(object):
                     choice_params = base_costperflife["consumer choice"][
                         "competed market share"]["parameters"]
                 else:
-                    # Update energy cost information
-                    cost_energy = ecosts["commercial"][mskeys[3]]
+                    # Update commercial baseline and measure energy cost
+                    # information, accounting for any fuel switching from
+                    # baseline technology to measure technology
+                    if self.fuel_switch_to is None:
+                        cost_energy_base, cost_energy_meas = (
+                            ecosts["commercial"][mskeys[3]] for n in range(2))
+                    else:
+                        cost_energy_base = ecosts["commercial"][mskeys[3]]
+                        cost_energy_meas = ecosts["commercial"][
+                            self.fuel_switch_to]
+
                     # Update new buildings fraction information
                     for yr in mseg["energy"].keys():
                         # *** Placeholders for new commercial information ***
@@ -663,10 +693,11 @@ class Measure(object):
                         mseg["stock"].items()}
                 # Total energy use (primary)
                 add_energy = {
-                    key: val * site_source_conv[key] * new_retrofit_frac[key]
+                    key: val * site_source_conv_base[key] *
+                    new_retrofit_frac[key]
                     for key, val in mseg["energy"].items()}
                 # Total carbon emissions
-                add_carb = {key: val * intensity_carb[key]
+                add_carb = {key: val * intensity_carb_base[key]
                             for key, val in add_energy.items()}
 
                 # Update total, competed, and efficient stock, energy, carbon
@@ -682,10 +713,15 @@ class Measure(object):
                  add_energy_cost_compete_eff, add_carb_cost_compete_eff] = \
                     self.partition_microsegment(add_stock, add_energy,
                                                 add_carb, rel_perf, cost_base,
-                                                cost_meas, cost_energy,
-                                                ccosts, new_bldg_frac,
-                                                diffuse_params, adopt_scheme,
-                                                life_base, life_meas, mskeys)
+                                                cost_meas, cost_energy_base,
+                                                cost_energy_meas,
+                                                ccosts, site_source_conv_base,
+                                                site_source_conv_meas,
+                                                intensity_carb_base,
+                                                intensity_carb_meas,
+                                                new_bldg_frac, diffuse_params,
+                                                adopt_scheme, life_base,
+                                                life_meas, mskeys)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -882,8 +918,11 @@ class Measure(object):
         return dict1
 
     def partition_microsegment(self, stock_total, energy_total, carb_total,
-                               rel_perf, cost_base, cost_meas, cost_energy,
-                               cost_carb, new_bldg_frac, diffuse_params,
+                               rel_perf, cost_base, cost_meas,
+                               cost_energy_base, cost_energy_meas, cost_carb,
+                               site_source_conv_base, site_source_conv_meas,
+                               intensity_carb_base, intensity_carb_meas,
+                               new_bldg_frac, diffuse_params,
                                adopt_scheme, life_base, life_meas, mskeys):
         """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
@@ -937,10 +976,6 @@ class Measure(object):
 
                 # Update base replacement fraction
 
-                # Set base lifetimes less than 1 year to 1 year to avoid
-                # replacement fractions > 1
-                if life_base[yr] < 1:
-                    life_base[yr] = 1
                 # For a case where the current microsegment applies to new
                 # structures, determine whether enough years have passed
                 # since the baseline technology was first adopted in new
@@ -1106,20 +1141,26 @@ class Measure(object):
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
-                rel_perf_competed
+                rel_perf_competed * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr])
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                captured_eff_frac * rel_perf_captured + \
+                captured_eff_frac * rel_perf_captured * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
                 (energy_total[yr] - energy_compete[yr]) * \
                 (1 - captured_eff_frac)
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
-                rel_perf_competed
+                rel_perf_competed * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                (intensity_carb_meas[yr] / intensity_carb_base[yr])
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 (carb_total[yr] - carb_compete[yr]) * \
-                captured_eff_frac * rel_perf_captured + \
+                captured_eff_frac * rel_perf_captured * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
                 (carb_total[yr] - carb_compete[yr]) * (1 - captured_eff_frac)
 
             # Update total and competed stock, energy, and carbon
@@ -1139,14 +1180,15 @@ class Measure(object):
                 + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
 
             # Total baseline energy cost
-            energy_total_cost[yr] = energy_total[yr] * cost_energy[yr]
+            energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
             # Total energy-efficient cost
-            energy_total_eff_cost[yr] = energy_total_eff[yr] * cost_energy[yr]
+            energy_total_eff_cost[yr] = energy_total_eff[yr] * \
+                cost_energy_meas[yr]
             # Competed baseline energy cost
-            energy_compete_cost[yr] = energy_compete[yr] * cost_energy[yr]
+            energy_compete_cost[yr] = energy_compete[yr] * cost_energy_base[yr]
             # Competed energy-efficient cost
             energy_compete_cost_eff[yr] = energy_compete_eff[yr] * \
-                cost_energy[yr]
+                cost_energy_meas[yr]
 
             # Total baseline carbon cost
             carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]

@@ -16,54 +16,57 @@ sample_measure = {"name": "sample measure 1",
                   "active": 1,
                   "market_entry_year": None,
                   "market_exit_year": None,
-                  "end_use": {"primary": ["heating", "cooling"],
-                              "secondary": None},
+                  "structure_type": ["new", "retrofit"],
+                  "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                  "bldg_type": "single family home",
                   "fuel_type": {"primary": "electricity (grid)",
                                 "secondary": None},
+                  "fuel_switch_to": None,
+                  "end_use": {"primary": ["heating", "cooling"],
+                              "secondary": None},
                   "technology_type": {"primary": "supply",
                                       "secondary": None},
                   "technology": {"primary": ["boiler (electric)",
                                  "ASHP", "GSHP", "room AC"],
-                                 "secondary": None},
-                  "bldg_type": "single family home",
-                  "structure_type": ["new", "retrofit"],
-                  "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+                                 "secondary": None}}
 
 # Define sample residential measure w/ secondary msegs for use in tests below
 sample_measure2 = {"name": "sample measure 1",
                    "active": 1,
                    "market_entry_year": None,
                    "market_exit_year": None,
-                   "end_use": {"primary": ["heating", "cooling"],
-                               "secondary": "lighting"},
+                   "structure_type": ["new", "retrofit"],
+                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                   "bldg_type": "single family home",
                    "fuel_type": {"primary": "electricity (grid)",
                                  "secondary": "electricity (grid)"},
+                   "fuel_switch_to": None,
+                   "end_use": {"primary": ["heating", "cooling"],
+                               "secondary": "lighting"},
                    "technology_type": {"primary": "supply",
                                        "secondary": "supply"},
                    "technology": {"primary": ["boiler (electric)",
                                   "ASHP", "GSHP", "room AC"],
-                                  "secondary": "general service (LED)"},
-                   "structure_type": ["new", "retrofit"],
-                   "bldg_type": "single family home",
-                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+                                  "secondary": "general service (LED)"}}
 
 # Define sample commercial measure for use in tests below
 sample_measure3 = {"name": "sample measure 3 (commercial)",
                    "active": 1,
                    "market_entry_year": None,
                    "market_exit_year": None,
-                   "end_use": {"primary": ["heating", "cooling"],
-                               "secondary": None},
+                   "structure_type": ["new", "retrofit"],
+                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                   "bldg_type": "assembly",
                    "fuel_type": {"primary": "electricity (grid)",
                                  "secondary": None},
+                   "fuel_switch_to": None,
+                   "end_use": {"primary": ["heating", "cooling"],
+                               "secondary": None},
                    "technology_type": {"primary": "supply",
                                        "secondary": None},
                    "technology": {"primary": ["boiler (electric)",
                                   "ASHP", "GSHP", "room AC"],
-                                  "secondary": None},
-                   "bldg_type": "assembly",
-                   "structure_type": ["new", "retrofit"],
-                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"]}
+                                  "secondary": None}}
 
 
 class CommonMethods(object):
@@ -488,19 +491,42 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                       {"2020": 30, "2021": 30, "2022": 30}]
     test_cost_meas = [20, 30, 40]
 
-    # Set sample energy and carbon costs to use in the testing
-    cost_energy = numpy.array((b'Test', 1, 2, 2, 2, 2, 2, 2, 2, 2),
-                              dtype=[('Category', 'S11'), ('2009', '<f8'),
-                                     ('2010', '<f8'), ('2011', '<f8'),
-                                     ('2020', '<f8'), ('2021', '<f8'),
-                                     ('2022', '<f8'), ('2025', '<f8'),
-                                     ('2026', '<f8'), ('2027', '<f8')])
+    # Set sample energy costs for baseline and measure fuel
+    cost_energy_base, cost_energy_meas = \
+        (numpy.array((b'Test', 1, 2, 2, 2, 2, 2, 2, 2, 2),
+                     dtype=[('Category', 'S11'), ('2009', '<f8'),
+                            ('2010', '<f8'), ('2011', '<f8'),
+                            ('2020', '<f8'), ('2021', '<f8'),
+                            ('2022', '<f8'), ('2025', '<f8'),
+                            ('2026', '<f8'), ('2027', '<f8')])
+         for n in range(2))
+    # Set sample carbon costs
     cost_carbon = numpy.array((b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3),
                               dtype=[('Category', 'S11'), ('2009', '<f8'),
                                      ('2010', '<f8'), ('2011', '<f8'),
                                      ('2020', '<f8'), ('2021', '<f8'),
                                      ('2022', '<f8'), ('2025', '<f8'),
                                      ('2026', '<f8'), ('2027', '<f8')])
+
+    # Set sample site to source conversions for baseline and measure fuel
+    site_source_conv_base, site_source_conv_meas = \
+        (numpy.array((b'Test', 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                     dtype=[('Category', 'S11'), ('2009', '<f8'),
+                            ('2010', '<f8'), ('2011', '<f8'),
+                            ('2020', '<f8'), ('2021', '<f8'),
+                            ('2022', '<f8'), ('2025', '<f8'),
+                            ('2026', '<f8'), ('2027', '<f8')])
+         for n in range(2))
+
+    # Set sample carbon intensities for baseline and measure fuel
+    intensity_carb_base, intensity_carb_meas = \
+        (numpy.array((b'Test', 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                     dtype=[('Category', 'S11'), ('2009', '<f8'),
+                            ('2010', '<f8'), ('2011', '<f8'),
+                            ('2020', '<f8'), ('2021', '<f8'),
+                            ('2022', '<f8'), ('2025', '<f8'),
+                            ('2026', '<f8'), ('2027', '<f8')])
+         for n in range(2))
 
     # Set both 'Technical potential' and 'Max adoption potential' test
     # scenarios
@@ -831,8 +857,13 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.ok_relperf[elem],
                         self.test_base_cost[elem],
                         self.test_cost_meas[elem],
-                        self.cost_energy,
+                        self.cost_energy_base,
+                        self.cost_energy_meas,
                         self.cost_carbon,
+                        self.site_source_conv_base,
+                        self.site_source_conv_meas,
+                        self.intensity_carb_base,
+                        self.intensity_carb_meas,
                         self.new_bldg_frac[elem],
                         self.diffuse_params,
                         self.test_schemes[scn],
@@ -3885,6 +3916,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "cooling"],
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
@@ -3908,6 +3940,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": "AIA_CZ1",
                     "fuel_type": {"primary": "natural gas",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "water heating",
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
@@ -3935,6 +3968,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "lighting",
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
@@ -3968,6 +4002,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "heating",
                                 "secondary": None},
                     "technology_type": {"primary": "demand",
@@ -3989,6 +4024,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "heating",
                                 "secondary": None},
                     "technology_type": {"primary": "demand",
@@ -4014,6 +4050,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "secondary heating",
                                             "cooling"],
                                 "secondary": None},
@@ -4042,6 +4079,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "secondary heating",
                                             "cooling"],
                                 "secondary": None},
@@ -4064,6 +4102,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "lighting",
                                 "secondary": None},
                     "market_entry_year": None,
@@ -4086,6 +4125,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": "AIA_CZ1",
                     "fuel_type": {"primary": "natural gas",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "water heating",
                                 "secondary": None},
                     "market_entry_year": None,
@@ -4109,6 +4149,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "climate_zone": "AIA_CZ1",
                     "fuel_type": {"primary": "natural gas",
                                   "secondary": None},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "water heating",
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
@@ -4136,6 +4177,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "lighting",
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
@@ -4169,6 +4211,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "lighting",
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
@@ -4203,6 +4246,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "fuel_type": {"primary": "electricity (grid)",
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
+                    "fuel_switch_to": None,
                     "end_use": {"primary": "lighting",
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
@@ -4215,7 +4259,30 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                    "secondary":
                                    ["windows conduction",
                                     "windows solar",
-                                    "infiltration"]}}]
+                                    "infiltration"]}},
+                   {"name": "sample measure 14",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {
+                        "primary": {"new": 25, "retrofit": 25},
+                        "secondary": None},
+                    "energy_efficiency_units": {"primary": "EF",
+                                                "secondary": None},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "product_lifetime": 10,
+                    "structure_type": ["new", "retrofit"],
+                    "bldg_type": "single family home",
+                    "climate_zone": "AIA_CZ1",
+                    "fuel_type": {"primary": "natural gas",
+                                  "secondary": None},
+                    "fuel_switch_to": "electricity (grid)",
+                    "end_use": {"primary": "water heating",
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": None,
+                                   "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
     # as probability distributions
@@ -4242,6 +4309,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
                                        "secondary": None},
+                         "fuel_switch_to": None,
                          "end_use": {"primary": ["heating", "cooling"],
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
@@ -4264,6 +4332,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "climate_zone": "AIA_CZ1",
                          "fuel_type": {"primary": "natural gas",
                                        "secondary": None},
+                         "fuel_switch_to": None,
                          "end_use": {"primary": "water heating",
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
@@ -4292,6 +4361,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
                                        "secondary": None},
+                         "fuel_switch_to": None,
                          "end_use": {"primary": ["heating",
                                                  "secondary heating",
                                                  "cooling"],
@@ -4322,6 +4392,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
                                        "secondary": None},
+                         "fuel_switch_to": None,
                          "end_use": {"primary": "cooling",
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
@@ -4344,6 +4415,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": "electricity (grid)",
                                        "secondary": None},
+                         "fuel_switch_to": None,
                          "end_use": {"primary": ["heating", "cooling"],
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
@@ -4371,6 +4443,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": "electricity (grid)",
                                      "secondary": None},
+                       "fuel_switch_to": None,
                        "end_use": {"primary": "cooling",
                                    "secondary": None},
                        "technology_type": {"primary": "supply",
@@ -4396,6 +4469,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": "electricity (grid)",
                                      "secondary": None},
+                       "fuel_switch_to": None,
                        "end_use": {"primary": ["heating", "cooling"],
                                    "secondary": None},
                        "technology_type": {"primary": "supply",
@@ -4418,6 +4492,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": "natural gas",
                                      "secondary": None},
+                       "fuel_switch_to": None,
                        "end_use": {"primary": "lighting",
                                    "secondary": ["heating",
                                                  "secondary heating",
@@ -4445,6 +4520,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "climate_zone": "AIA_CZ1",
                        "fuel_type": {"primary": "solar",
                                      "secondary": None},
+                       "fuel_switch_to": None,
                        "end_use": {"primary": "lighting",
                                    "secondary": ["heating",
                                                  "secondary heating",
@@ -5058,6 +5134,52 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1631811.885, "2010": 1615440.956},
                     "efficient": {"2009": 1391812.161, "2010": 1350338.441}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                     "measure": 10}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 15, "2010": 15},
+                "measure": {"2009": 15, "2010": 15}},
+            "competed": {
+                "all": {"2009": 15, "2010": 15},
+                "measure": {"2009": 15, "2010": 15}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 15.15, "2010": 15.15},
+                "efficient": {"2009": 34.452, "2010": 34.56}},
+            "competed": {
+                "baseline": {"2009": 15.15, "2010": 15.15},
+                "efficient": {"2009": 34.452, "2010": 34.56}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 856.2139, "2010": 832.0021},
+                "efficient": {"2009": 1958.494, "2010": 1941.174}},
+            "competed": {
+                "baseline": {"2009": 856.2139, "2010": 832.0021},
+                "efficient": {"2009": 1958.494, "2010": 1941.174}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 270, "2010": 270},
+                    "efficient": {"2009": 375, "2010": 375}},
+                "competed": {
+                    "baseline": {"2009": 270, "2010": 270},
+                    "efficient": {"2009": 375, "2010": 375}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 170.892, "2010": 163.317},
+                    "efficient": {"2009": 349.3433, "2010": 334.1952}},
+                "competed": {
+                    "baseline": {"2009": 170.892, "2010": 163.317},
+                    "efficient": {"2009": 349.3433, "2010": 334.1952}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 28255.06, "2010": 27456.07},
+                    "efficient": {"2009": 64630.29, "2010": 64058.75}},
+                "competed": {
+                    "baseline": {"2009": 28255.06, "2010": 27456.07},
+                    "efficient": {"2009": 64630.29, "2010": 64058.75}}}},
+        "lifetime": {"baseline": {"2009": 180, "2010": 180},
                      "measure": 10}}]
 
     # Set the consumer choice dicts that should be generated by the
