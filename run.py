@@ -6,6 +6,7 @@ import numpy
 import copy
 import re
 from numpy.linalg import LinAlgError
+from collections import OrderedDict
 
 # Define measures/microsegments files
 measures_file = "measures_test.json"
@@ -2301,7 +2302,7 @@ class Engine(object):
         # Loop through all measures and append a dict of summary outputs to
         # the measure summary list above
         for m in self.measures:
-            for yr in m.master_mseg["stock"]["total"]["all"].keys():
+            for yr in sorted(m.master_mseg["stock"]["total"]["all"].keys()):
                 # Create list of output variables
                 summary_mat = [
                     m.master_mseg["energy"]["total"]["efficient"][yr],
@@ -2363,60 +2364,94 @@ class Engine(object):
                         cce_high, cce_c_high, ccc_high, ccc_e_high = \
                         [x for x in summary_mat] * 3
 
+                # Set up subscript translator for CO2 variable strings
+                sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+
                 # Define a dict of summary output keys and values for the
                 # current measure
-                measure_summary_dict_yr = {
-                    "year": yr, "measure name": m.name,
-                    "total energy": m.master_mseg[
-                        "energy"]["total"]["baseline"][yr],
-                    "competed energy": m.master_mseg[
-                        "energy"]["competed"]["baseline"][yr],
-                    "efficient energy": energy_eff_avg,
-                    "efficient energy (low)": energy_eff_low,
-                    "efficient energy (high)": energy_eff_high,
-                    "energy savings": energy_save_avg,
-                    "energy savings (low)": energy_save_low,
-                    "energy savings (high)": energy_save_high,
-                    "energy cost savings": energy_costsave_avg,
-                    "energy cost savings (low)": energy_costsave_low,
-                    "energy cost savings (high)": energy_costsave_high,
-                    "total carbon": m.master_mseg[
-                        "carbon"]["total"]["baseline"][yr],
-                    "competed carbon": m.master_mseg[
-                        "carbon"]["competed"]["baseline"][yr],
-                    "efficient carbon": carb_eff_avg,
-                    "efficient carbon (low)": carb_eff_low,
-                    "efficient carbon (high)": carb_eff_high,
-                    "carbon savings": carb_save_avg,
-                    "carbon savings (low)": carb_save_low,
-                    "carbon savings (high)": carb_save_high,
-                    "carbon cost savings": carb_costsave_avg,
-                    "carbon cost savings (low)": carb_costsave_low,
-                    "carbon cost savings (high)": carb_costsave_high,
-                    "irr (w/ energy $)": irr_e_avg,
-                    "irr (w/ energy $) (low)": irr_e_low,
-                    "irr (w/ energy $) (high)": irr_e_high,
-                    "irr (w/ energy and carbon $)": irr_ec_avg,
-                    "irr (w/ energy and carbon $) (low)": irr_ec_low,
-                    "irr (w/ energy and carbon $) (high)": irr_ec_high,
-                    "payback (w/ energy $)": payback_e_avg,
-                    "payback (w/ energy $) (low)": payback_e_low,
-                    "payback (w/ energy $) (high)": payback_e_high,
-                    "payback (w/ energy and carbon $)": payback_ec_avg,
-                    "payback (w/ energy and carbon $) (low)": payback_ec_low,
-                    "payback (w/ energy and carbon $) (high)": payback_ec_high,
-                    "cce": cce_avg,
-                    "cce (low)": cce_low,
-                    "cce (high)": cce_high,
-                    "cce (w/ carbon $ benefits)": cce_c_avg,
-                    "cce (w/ carbon $ benefits) (low)": cce_c_low,
-                    "cce  (w/ carbon $ benefits) (high)": cce_c_high,
-                    "ccc": ccc_avg,
-                    "ccc (low)": ccc_low,
-                    "ccc (high)": ccc_high,
-                    "ccc (w/ carbon $ benefits)": ccc_e_avg,
-                    "ccc (w/ carbon $ benefits) (low)": ccc_e_low,
-                    "ccc (w/ carbon $ benefits) (high)": ccc_e_high}
+                measure_summary_dict_yr = OrderedDict([
+                    ("Year", yr), ("Measure Name", m.name),
+                    ("Measure End Use", m.end_use["primary"]),
+                    ("Baseline Energy Use (MMBtu)", m.master_mseg[
+                        "energy"]["total"]["baseline"][yr]),
+                    ("Competed Energy Use (MMBtu)", m.master_mseg[
+                        "energy"]["competed"]["baseline"][yr]),
+                    ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                    ("Efficient Energy Use (low) (MMBtu)", energy_eff_low),
+                    ("Efficient Energy Use (high) (MMBtu)", energy_eff_high),
+                    ("Energy Savings", energy_save_avg),
+                    ("Energy Savings (low) (MMBtu)", energy_save_low),
+                    ("Energy Savings (high) (MMBtu)", energy_save_high),
+                    ("Energy Cost Savings (USD)", energy_costsave_avg),
+                    ("Energy Cost Savings (low) (USD)", energy_costsave_low),
+                    ("Energy Cost Savings (high) (USD)", energy_costsave_high),
+                    ("Baseline CO2 Emissions  (MMTons)".translate(sub),
+                        m.master_mseg["carbon"]["total"]["baseline"][yr]),
+                    ("Competed CO2 Emissions (MMTons)".translate(sub),
+                        m.master_mseg[
+                        "carbon"]["competed"]["baseline"][yr]),
+                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                        carb_eff_avg),
+                    ("Efficient CO2 Emissions (low) (MMTons)".translate(sub),
+                        carb_eff_low),
+                    ("Efficient CO2 Emissions (high) (MMTons)".translate(sub),
+                        carb_eff_high),
+                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
+                        carb_save_avg),
+                    ("Avoided CO2 Emissions (low) (MMTons)".translate(sub),
+                        carb_save_low),
+                    ("Avoided CO2 Emissions (high) (MMTons)".translate(sub),
+                        carb_save_high),
+                    ("CO2 Cost Savings (USD)".translate(sub),
+                        carb_costsave_avg),
+                    ("CO2 Cost Savings (low) (USD)".translate(sub),
+                        carb_costsave_low),
+                    ("CO2 Cost Savings (high) (USD)".translate(sub),
+                        carb_costsave_high),
+                    ("IRR (%)", irr_e_avg * 100),
+                    ("IRR (low) (%)", irr_e_low * 100),
+                    ("IRR (high) (%)", irr_e_high * 100),
+                    ("IRR (w/ CO2 cost savings) (%)".translate(sub),
+                        irr_ec_avg * 100),
+                    ("IRR (w/ CO2 cost savings) (low) (%)".translate(sub),
+                        irr_ec_low * 100),
+                    ("IRR (w/ CO2 cost savings) (high) (%)".translate(sub),
+                        irr_ec_high * 100),
+                    ("Payback (years)", payback_e_avg),
+                    ("Payback (low) (years)", payback_e_low),
+                    ("Payback (high) (years)", payback_e_high),
+                    ("Payback (w/ CO2 cost savings) (years)".translate(sub),
+                        payback_ec_avg),
+                    (("Payback (w/ CO2 cost savings) "
+                      "(low) (years)").translate(sub), payback_ec_low),
+                    (("Payback (w/ CO2 cost savings) "
+                      "(high) (years)").translate(sub), payback_ec_high),
+                    ("Cost of Conserved Energy ($/MMBtu saved)", cce_avg),
+                    ("Cost of Conserved Energy (low) ($/MMBtu saved)",
+                        cce_low),
+                    ("Cost of Conserved Energy (high) ($/MMBtu saved)",
+                        cce_high),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
+                      "($/MMBtu saved)").translate(sub), cce_c_avg),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
+                      "(low) ($/MMBtu saved)").translate(sub), cce_c_low),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
+                      "(high) ($/MMBtu saved)").translate(sub), cce_c_high),
+                    (("Cost of Conserved CO2 "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_avg),
+                    (("Cost of Conserved CO2 (low) "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_low),
+                    (("Cost of Conserved CO2 (high) "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_high),
+                    (("Cost of Conserved CO2 "
+                      "(w/ energy cost savings benefit) "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_e_avg),
+                    (("Cost of Conserved CO2 (low) "
+                      "(w/ energy cost savings benefit) "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_e_low),
+                    (("Cost of Conserved CO2 (high) "
+                      "(w/ energy cost savings benefit) "
+                      "($/MMTon CO2 avoided)").translate(sub), ccc_e_high)])
 
                 # Append the dict of summary outputs for the current measure to
                 # the summary list of outputs across all active measures
