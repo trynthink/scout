@@ -845,12 +845,21 @@ class Measure(object):
         """ Given input microsegment information, create a list of keys that
         represents associated branch on the microsegment tree """
 
-        # Determine end use case, first ensuring end use is input as a list
+        # Flag a heating/cooling end use case; here, an extra 'supply' or
+        # 'demand' key is required in the key chain, which flags the
+        # supply-side and demand-side variants of heating/cooling technologies
+        # (e.g., ASHP for the former, envelope air sealing for the latter).
+
+        # Case where there is only one end use listed for the measure
         if isinstance(self.end_use[mseg_type], list) is False:
-            self.end_use[mseg_type] = [self.end_use[mseg_type]]
-        for eu in self.end_use[mseg_type]:
-            if eu == "heating" or eu == "secondary heating" or eu == "cooling":
-                htcl_enduse_ct += 1
+            if self.end_use[mseg_type] in [
+                    "heating", "secondary heating", "cooling"]:
+                htcl_enduse_ct = 1
+        # Case where there is more than one end use listed for the measure
+        else:
+            for eu in self.end_use[mseg_type]:
+                if eu in ["heating", "secondary heating", "cooling"]:
+                    htcl_enduse_ct += 1
 
         # Create a list of lists where each list has key information for
         # one of the microsegment levels. Use list to find all possible
@@ -2371,6 +2380,10 @@ class Engine(object):
                 # current measure
                 measure_summary_dict_yr = OrderedDict([
                     ("Year", yr), ("Measure Name", m.name),
+                    ("Measure Climate Zone", m.climate_zone),
+                    ("Measure Building Type", m.bldg_type),
+                    ("Measure Structure Type", m.structure_type),
+                    ("Measure Fuel Type", m.fuel_type["primary"]),
                     ("Measure End Use", m.end_use["primary"]),
                     ("Baseline Energy Use (MMBtu)", m.master_mseg[
                         "energy"]["total"]["baseline"][yr]),
