@@ -12,61 +12,683 @@ import scipy.stats as ss
 import copy
 
 # Define sample residential measure for use in tests below
-sample_measure = {"name": "sample measure 1",
-                  "active": 1,
-                  "market_entry_year": None,
-                  "market_exit_year": None,
-                  "structure_type": ["new", "retrofit"],
-                  "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                  "bldg_type": "single family home",
-                  "fuel_type": {"primary": "electricity (grid)",
-                                "secondary": None},
-                  "fuel_switch_to": None,
-                  "end_use": {"primary": ["heating", "cooling"],
-                              "secondary": None},
-                  "technology_type": {"primary": "supply",
-                                      "secondary": None},
-                  "technology": {"primary": ["boiler (electric)",
-                                 "ASHP", "GSHP", "room AC"],
-                                 "secondary": None}}
+sample_measure = {
+    "name": "sample measure 1",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new", "retrofit"],
+    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+    "bldg_type": ["single family home"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["heating", "cooling"],
+                "secondary": None},
+    "technology_type": {"primary": "supply",
+                        "secondary": None},
+    "technology": {"primary": ["boiler (electric)",
+                   "ASHP", "GSHP", "room AC"],
+                   "secondary": None}}
 
 # Define sample residential measure w/ secondary msegs for use in tests below
-sample_measure2 = {"name": "sample measure 1",
-                   "active": 1,
-                   "market_entry_year": None,
-                   "market_exit_year": None,
-                   "structure_type": ["new", "retrofit"],
-                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                   "bldg_type": "single family home",
-                   "fuel_type": {"primary": "electricity (grid)",
-                                 "secondary": "electricity (grid)"},
-                   "fuel_switch_to": None,
-                   "end_use": {"primary": ["heating", "cooling"],
-                               "secondary": "lighting"},
-                   "technology_type": {"primary": "supply",
-                                       "secondary": "supply"},
-                   "technology": {"primary": ["boiler (electric)",
-                                  "ASHP", "GSHP", "room AC"],
-                                  "secondary": "general service (LED)"}}
+sample_measure2 = {
+    "name": "sample measure 2",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new", "retrofit"],
+    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+    "bldg_type": ["single family home"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": ["electricity (grid)"]},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["heating", "cooling"],
+                "secondary": ["lighting"]},
+    "technology_type": {"primary": "supply",
+                        "secondary": "supply"},
+    "technology": {"primary": ["boiler (electric)",
+                   "ASHP", "GSHP", "room AC"],
+                   "secondary": ["general service (LED)"]}}
 
 # Define sample commercial measure for use in tests below
-sample_measure3 = {"name": "sample measure 3 (commercial)",
-                   "active": 1,
-                   "market_entry_year": None,
-                   "market_exit_year": None,
-                   "structure_type": ["new", "retrofit"],
-                   "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                   "bldg_type": "assembly",
-                   "fuel_type": {"primary": "electricity (grid)",
-                                 "secondary": None},
-                   "fuel_switch_to": None,
-                   "end_use": {"primary": ["heating", "cooling"],
-                               "secondary": None},
-                   "technology_type": {"primary": "supply",
-                                       "secondary": None},
-                   "technology": {"primary": ["boiler (electric)",
-                                  "ASHP", "GSHP", "room AC"],
-                                  "secondary": None}}
+sample_measure3 = {
+    "name": "sample measure 3 (commercial)",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new", "retrofit"],
+    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+    "bldg_type": ["assembly"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["heating", "cooling"],
+                "secondary": None},
+    "technology_type": {"primary": "supply",
+                        "secondary": None},
+    "technology": {"primary": ["boiler (electric)",
+                   "ASHP", "GSHP", "room AC"],
+                   "secondary": None}}
+
+# Define sample residential water heating measure for use in tests of
+# measure packaging routine below
+sample_measure4 = {
+    "name": "sample measure 4",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new", "retrofit"],
+    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+    "bldg_type": ["single family home"],
+    "fuel_type": {"primary": ["natural gas"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["water heating"],
+                "secondary": None},
+    "technology_type": {"primary": "supply",
+                        "secondary": None},
+    "technology": {"primary": None,
+                   "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}}},
+        "competed choice parameters": {
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}}
+
+# Define sample residential lighting measure for use in tests of
+# measure packaging routine below
+sample_measure5 = {
+    "name": "sample measure 5",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["retrofit"],
+    "climate_zone": ["AIA_CZ1"],
+    "bldg_type": ["single family home"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["lighting"],
+                "secondary": None},
+    "technology_type": {"primary": "supply",
+                        "secondary": None},
+    "technology": {"primary": [
+        "reflector (incandescent)",
+        "reflector (halogen)"], "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 100, "2010": 100},
+                        "measure": {"2009": 60, "2010": 60}},
+                    "competed": {
+                        "all": {"2009": 50, "2010": 50},
+                        "measure": {"2009": 10, "2010": 10}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 200, "2010": 200},
+                        "efficient": {"2009": 120, "2010": 120}},
+                    "competed": {
+                        "baseline": {"2009": 100, "2010": 100},
+                        "efficient": {"2009": 20, "2010": 20}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 300, "2010": 300},
+                        "efficient": {"2009": 180, "2010": 180}},
+                    "competed": {
+                        "baseline": {"2009": 150, "2010": 150},
+                        "efficient": {"2009": 30, "2010": 30}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 1, "2010": 1},
+                    "measure": 20}},
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 100, "2010": 100},
+                        "measure": {"2009": 60, "2010": 60}},
+                    "competed": {
+                        "all": {"2009": 50, "2010": 50},
+                        "measure": {"2009": 10, "2010": 10}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 200, "2010": 200},
+                        "efficient": {"2009": 120, "2010": 120}},
+                    "competed": {
+                        "baseline": {"2009": 100, "2010": 100},
+                        "efficient": {"2009": 20, "2010": 20}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 300, "2010": 300},
+                        "efficient": {"2009": 180, "2010": 180}},
+                    "competed": {
+                        "baseline": {"2009": 150, "2010": 150},
+                        "efficient": {"2009": 30, "2010": 30}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 2, "2010": 2},
+                    "measure": 15}}},
+        "competed choice parameters": {
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+                "b1": {"2009": 0.25, "2010": 0.25},
+                "b2": {"2009": 0.25, "2010": 0.25}},
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+                "b1": {"2009": 0.25, "2010": 0.25},
+                "b2": {"2009": 0.25, "2010": 0.25}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}}
+
+# Define sample residential cooling measure for use in tests of
+# measure packaging routine below
+sample_measure6 = {
+    "name": "sample measure 6",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new"],
+    "climate_zone": ["AIA_CZ5"],
+    "bldg_type": ["multi family home"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["cooling"],
+                "secondary": None},
+    "technology_type": {"primary": "supply",
+                        "secondary": None},
+    "technology": {"primary": ["ASHP"],
+                   "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 1000, "2010": 1000},
+                        "measure": {"2009": 600, "2010": 600}},
+                    "competed": {
+                        "all": {"2009": 500, "2010": 500},
+                        "measure": {"2009": 100, "2010": 100}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2000, "2010": 2000},
+                        "efficient": {"2009": 1200, "2010": 1200}},
+                    "competed": {
+                        "baseline": {"2009": 1000, "2010": 1000},
+                        "efficient": {"2009": 200, "2010": 200}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 3000, "2010": 3000},
+                        "efficient": {"2009": 1800, "2010": 1800}},
+                    "competed": {
+                        "baseline": {"2009": 1500, "2010": 1500},
+                        "efficient": {"2009": 300, "2010": 300}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 18, "2010": 18},
+                    "measure": 18}}},
+        "competed choice parameters": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "b1": {"2009": 0.75, "2010": 0.75},
+                "b2": {"2009": 0.75, "2010": 0.75}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False},
+    "master_mseg": {
+        "stock": {
+            "total": {
+                "all": {"2009": 1000, "2010": 1000},
+                "measure": {"2009": 600, "2010": 600}},
+            "competed": {
+                "all": {"2009": 500, "2010": 500},
+                "measure": {"2009": 100, "2010": 100}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 2000, "2010": 2000},
+                "efficient": {"2009": 1200, "2010": 1200}},
+            "competed": {
+                "baseline": {"2009": 1000, "2010": 1000},
+                "efficient": {"2009": 200, "2010": 200}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 3000, "2010": 3000},
+                "efficient": {"2009": 1800, "2010": 1800}},
+            "competed": {
+                "baseline": {"2009": 1500, "2010": 1500},
+                "efficient": {"2009": 300, "2010": 300}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 180, "2010": 180}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 180, "2010": 180}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 120, "2010": 120}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 20, "2010": 20}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 300, "2010": 300},
+                    "efficient": {"2009": 180, "2010": 180}},
+                "competed": {
+                    "baseline": {"2009": 150, "2010": 150},
+                    "efficient": {"2009": 30, "2010": 30}}}},
+        "lifetime": {
+            "baseline": {"2009": 18, "2010": 18},
+            "measure": 18}}}
+
+# Define sample residential cooling measure for use in tests of
+# measure packaging routine below
+sample_measure7 = {
+    "name": "sample measure 7",
+    "active": 1,
+    "market_entry_year": None,
+    "market_exit_year": None,
+    "structure_type": ["new"],
+    "climate_zone": ["AIA_CZ5"],
+    "bldg_type": ["multi family home"],
+    "fuel_type": {"primary": ["electricity (grid)"],
+                  "secondary": None},
+    "fuel_switch_to": None,
+    "end_use": {"primary": ["cooling"],
+                "secondary": None},
+    "technology_type": {"primary": ["supply"],
+                        "secondary": None},
+    "technology": {"primary": ["ASHP"],
+                   "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 1000, "2010": 1000},
+                        "measure": {"2009": 600, "2010": 600}},
+                    "competed": {
+                        "all": {"2009": 500, "2010": 500},
+                        "measure": {"2009": 100, "2010": 100}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2000, "2010": 2000},
+                        "efficient": {"2009": 1200, "2010": 1200}},
+                    "competed": {
+                        "baseline": {"2009": 1000, "2010": 1000},
+                        "efficient": {"2009": 200, "2010": 200}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 3000, "2010": 3000},
+                        "efficient": {"2009": 1800, "2010": 1800}},
+                    "competed": {
+                        "baseline": {"2009": 1500, "2010": 1500},
+                        "efficient": {"2009": 300, "2010": 300}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 18, "2010": 18},
+                    "measure": 18}}},
+        "competed choice parameters": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "b1": {"2009": 0.75, "2010": 0.75},
+                "b2": {"2009": 0.75, "2010": 0.75}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False},
+    "master_mseg": {
+        "stock": {
+            "total": {
+                "all": {"2009": 1000, "2010": 1000},
+                "measure": {"2009": 600, "2010": 600}},
+            "competed": {
+                "all": {"2009": 500, "2010": 500},
+                "measure": {"2009": 100, "2010": 100}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 2000, "2010": 2000},
+                "efficient": {"2009": 1200, "2010": 1200}},
+            "competed": {
+                "baseline": {"2009": 1000, "2010": 1000},
+                "efficient": {"2009": 200, "2010": 200}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 3000, "2010": 3000},
+                "efficient": {"2009": 1800, "2010": 1800}},
+            "competed": {
+                "baseline": {"2009": 1500, "2010": 1500},
+                "efficient": {"2009": 300, "2010": 300}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 180, "2010": 180}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 180, "2010": 180}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 120, "2010": 120}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 20, "2010": 20}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 300, "2010": 300},
+                    "efficient": {"2009": 180, "2010": 180}},
+                "competed": {
+                    "baseline": {"2009": 150, "2010": 150},
+                    "efficient": {"2009": 30, "2010": 30}}}},
+        "lifetime": {
+            "baseline": {"2009": 18, "2010": 18},
+            "measure": 18}}}
 
 
 class CommonMethods(object):
@@ -3912,9 +4534,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
+                    "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "cooling"],
@@ -3936,12 +4558,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
-                    "climate_zone": "AIA_CZ1",
-                    "fuel_type": {"primary": "natural gas",
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["natural gas"],
                                   "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "water heating",
+                    "end_use": {"primary": ["water heating"],
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
@@ -3965,11 +4587,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "lighting",
+                    "end_use": {"primary": ["lighting"],
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
                     "technology_type": {"primary": "supply",
@@ -4000,10 +4622,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "heating",
+                    "end_use": {"primary": ["heating"],
                                 "secondary": None},
                     "technology_type": {"primary": "demand",
                                         "secondary": None},
@@ -4020,16 +4642,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
+                    "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "heating",
+                    "end_use": {"primary": ["heating"],
                                 "secondary": None},
                     "technology_type": {"primary": "demand",
                                         "secondary": None},
-                    "technology": {"primary": "windows solar",
+                    "technology": {"primary": ["windows solar"],
                                    "secondary": None}},
                    {"name": "sample measure 6",
                     "installed_cost": 10,
@@ -4046,9 +4668,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
+                    "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "secondary heating",
@@ -4075,9 +4697,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
+                    "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {"primary": ["heating", "secondary heating",
@@ -4097,20 +4719,20 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "assembly",
-                    "climate_zone": "AIA_CZ1",
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "bldg_type": ["assembly"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "lighting",
+                    "end_use": {"primary": ["lighting"],
                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
                     "technology": {"primary":
-                                   "commercial light type X",
+                                   ["commercial light type X"],
                                    "secondary": None}},
                    {"name": "sample measure 9",
                     "installed_cost": 25,
@@ -4120,13 +4742,13 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "product_lifetime": 10,
-                    "structure_type": "new",
-                    "bldg_type": "single family home",
-                    "climate_zone": "AIA_CZ1",
-                    "fuel_type": {"primary": "natural gas",
+                    "structure_type": ["new"],
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["natural gas"],
                                   "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "water heating",
+                    "end_use": {"primary": ["water heating"],
                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
@@ -4144,13 +4766,13 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 10,
-                    "structure_type": "retrofit",
-                    "bldg_type": "single family home",
-                    "climate_zone": "AIA_CZ1",
-                    "fuel_type": {"primary": "natural gas",
+                    "structure_type": ["retrofit"],
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["natural gas"],
                                   "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "water heating",
+                    "end_use": {"primary": ["water heating"],
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
@@ -4174,11 +4796,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "lighting",
+                    "end_use": {"primary": ["lighting"],
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
                     "technology_type": {"primary": "supply",
@@ -4208,11 +4830,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "lighting",
+                    "end_use": {"primary": ["lighting"],
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
                     "technology_type": {"primary": "supply",
@@ -4243,11 +4865,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                    "fuel_type": {"primary": "electricity (grid)",
+                    "fuel_type": {"primary": ["electricity (grid)"],
                                   "secondary": ["electricity (grid)",
                                                 "natural gas"]},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": "lighting",
+                    "end_use": {"primary": ["lighting"],
                                 "secondary": ["heating", "secondary heating",
                                               "cooling"]},
                     "technology_type": {"primary": "supply",
@@ -4272,12 +4894,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_exit_year": None,
                     "product_lifetime": 10,
                     "structure_type": ["new", "retrofit"],
-                    "bldg_type": "single family home",
-                    "climate_zone": "AIA_CZ1",
-                    "fuel_type": {"primary": "natural gas",
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["natural gas"],
                                   "secondary": None},
                     "fuel_switch_to": "electricity (grid)",
-                    "end_use": {"primary": "water heating",
+                    "end_use": {"primary": ["water heating"],
                                 "secondary": None},
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
@@ -4305,9 +4927,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_exit_year": None,
                          "product_lifetime": 10,
                          "structure_type": ["new", "retrofit"],
-                         "bldg_type": "single family home",
+                         "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                         "fuel_type": {"primary": "electricity (grid)",
+                         "fuel_type": {"primary": ["electricity (grid)"],
                                        "secondary": None},
                          "fuel_switch_to": None,
                          "end_use": {"primary": ["heating", "cooling"],
@@ -4328,12 +4950,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_exit_year": None,
                          "product_lifetime": ["normal", 10, 1],
                          "structure_type": ["new", "retrofit"],
-                         "bldg_type": "single family home",
-                         "climate_zone": "AIA_CZ1",
-                         "fuel_type": {"primary": "natural gas",
+                         "bldg_type": ["single family home"],
+                         "climate_zone": ["AIA_CZ1"],
+                         "fuel_type": {"primary": ["natural gas"],
                                        "secondary": None},
                          "fuel_switch_to": None,
-                         "end_use": {"primary": "water heating",
+                         "end_use": {"primary": ["water heating"],
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
                                              "secondary": None},
@@ -4357,9 +4979,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_exit_year": None,
                          "product_lifetime": 10,
                          "structure_type": ["new", "retrofit"],
-                         "bldg_type": "single family home",
+                         "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                         "fuel_type": {"primary": "electricity (grid)",
+                         "fuel_type": {"primary": ["electricity (grid)"],
                                        "secondary": None},
                          "fuel_switch_to": None,
                          "end_use": {"primary": ["heating",
@@ -4388,12 +5010,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "bldg_type": "single family home",
+                         "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                         "fuel_type": {"primary": "electricity (grid)",
+                         "fuel_type": {"primary": ["electricity (grid)"],
                                        "secondary": None},
                          "fuel_switch_to": None,
-                         "end_use": {"primary": "cooling",
+                         "end_use": {"primary": ["cooling"],
                                      "secondary": None},
                          "technology_type": {"primary": "supply",
                                              "secondary": None},
@@ -4411,9 +5033,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "structure_type": ["new", "retrofit"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
-                         "bldg_type": "single family home",
+                         "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                         "fuel_type": {"primary": "electricity (grid)",
+                         "fuel_type": {"primary": ["electricity (grid)"],
                                        "secondary": None},
                          "fuel_switch_to": None,
                          "end_use": {"primary": ["heating", "cooling"],
@@ -4439,16 +5061,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_exit_year": None,
                        "product_lifetime": 10,
                        "structure_type": ["new", "retrofit"],
-                       "bldg_type": "single family home",
+                       "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                       "fuel_type": {"primary": "electricity (grid)",
+                       "fuel_type": {"primary": ["electricity (grid)"],
                                      "secondary": None},
                        "fuel_switch_to": None,
-                       "end_use": {"primary": "cooling",
+                       "end_use": {"primary": ["cooling"],
                                    "secondary": None},
                        "technology_type": {"primary": "supply",
                                            "secondary": None},
-                       "technology": {"primary": "boiler (electric)",
+                       "technology": {"primary": ["boiler (electric)"],
                                       "secondary": None}},
                       {"name": "blank measure 2",
                        "installed_cost": 10,
@@ -4465,9 +5087,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_exit_year": None,
                        "product_lifetime": 10,
                        "structure_type": ["new", "retrofit"],
-                       "bldg_type": "single family home",
+                       "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                       "fuel_type": {"primary": "electricity (grid)",
+                       "fuel_type": {"primary": ["electricity (grid)"],
                                      "secondary": None},
                        "fuel_switch_to": None,
                        "end_use": {"primary": ["heating", "cooling"],
@@ -4488,12 +5110,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                    "secondary": None},
                        "market_entry_year": None,
                        "market_exit_year": None,
-                       "bldg_type": "single family home",
+                       "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-                       "fuel_type": {"primary": "natural gas",
+                       "fuel_type": {"primary": ["natural gas"],
                                      "secondary": None},
                        "fuel_switch_to": None,
-                       "end_use": {"primary": "lighting",
+                       "end_use": {"primary": ["lighting"],
                                    "secondary": ["heating",
                                                  "secondary heating",
                                                  "cooling"]},
@@ -4516,12 +5138,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                    "secondary": None},
                        "market_entry_year": None,
                        "market_exit_year": None,
-                       "bldg_type": "single family home",
+                       "bldg_type": ["single family home"],
                        "climate_zone": "AIA_CZ1",
-                       "fuel_type": {"primary": "solar",
+                       "fuel_type": {"primary": ["solar"],
                                      "secondary": None},
                        "fuel_switch_to": None,
-                       "end_use": {"primary": "lighting",
+                       "end_use": {"primary": ["lighting"],
                                    "secondary": ["heating",
                                                  "secondary heating",
                                                  "cooling"]},
@@ -6698,9 +7320,11 @@ class PaybackTest(unittest.TestCase):
 
 
 class ResCompeteTest(unittest.TestCase, CommonMethods):
-    """ Test the operation of the res_compete function to verify that
-    it correctly calculates market shares and updates master microsegments
-    for a series of competing residential measures"""
+    """ Test the operation of the res_compete and overlap_adjustment functions
+    to verify that the former correctly calculates market shares and updates
+    master microsegments for a series of competing residential measures, and
+    the latter properly accounts for any supply-side and demand-side savings
+    overlaps for HVAC measures """
 
     # Define sample strings for the competed demand-side and supply-side
     # microsegment key chains being tested
@@ -9785,6 +10409,739 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             self.assertEqual(
                 self.measures_adjust_state[ind],
                 self.a_run_dist.measures[ind].mseg_adjust["savings updated"])
+
+
+class PackageMergeTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the package_merge function to verify that
+    it correctly calculates building energy use shares and updates master
+    microsegments for a series of individual measures to be packaged """
+
+    # Initialize package input measures list
+    sample_measure_list_package = [run.Measure(**x) for x in [
+        sample_measure6, sample_measure7]]
+    # Set package measure name
+    p = "HVAC"
+    # Instantiate package measure object
+    packaged_measure = run.Measure_Package(
+        sample_measure_list_package, p)
+    # Set the measures that contribute to the package measure
+    # object that have overlapping baseline microsegments (in this sample
+    # case, the two contributing measures overlap)
+    overlap_measures = packaged_measure.measures_to_package
+    # Set the key name for the overlapping baseline microsegment
+    overlap_key = ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+                   "'cooling', 'supply', 'ASHP', 'new')")
+
+    # Set the sample contributing microsegment information that should be
+    # generated for each measure to be packaged after accounting for
+    # measure overlaps. The contributing microsegment information is
+    # needed in 'run.py' to determine measure competition outcomes
+    ok_mseg_adjust = [{
+        "contributing mseg keys and values": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 1000, "2010": 1000},
+                        "measure": {"2009": 300, "2010": 300}},
+                    "competed": {
+                        "all": {"2009": 500, "2010": 500},
+                        "measure": {"2009": 50, "2010": 50}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2000, "2010": 2000},
+                        "efficient": {"2009": 1600, "2010": 1600}},
+                    "competed": {
+                        "baseline": {"2009": 1000, "2010": 1000},
+                        "efficient": {"2009": 600, "2010": 600}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 3000, "2010": 3000},
+                        "efficient": {"2009": 2400, "2010": 2400}},
+                    "competed": {
+                        "baseline": {"2009": 1500, "2010": 1500},
+                        "efficient": {"2009": 900, "2010": 900}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 140, "2010": 140}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 140, "2010": 140}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 160, "2010": 160}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 60, "2010": 60}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 240, "2010": 240}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 90, "2010": 90}}}},
+                "lifetime": {
+                    "baseline": {"2009": 18, "2010": 18},
+                    "measure": 18}}},
+        "competed choice parameters": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "b1": {"2009": 0.75, "2010": 0.75},
+                "b2": {"2009": 0.75, "2010": 0.75}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": True},
+        {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 1000, "2010": 1000},
+                        "measure": {"2009": 300, "2010": 300}},
+                    "competed": {
+                        "all": {"2009": 500, "2010": 500},
+                        "measure": {"2009": 50, "2010": 50}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2000, "2010": 2000},
+                        "efficient": {"2009": 1600, "2010": 1600}},
+                    "competed": {
+                        "baseline": {"2009": 1000, "2010": 1000},
+                        "efficient": {"2009": 600, "2010": 600}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 3000, "2010": 3000},
+                        "efficient": {"2009": 2400, "2010": 2400}},
+                    "competed": {
+                        "baseline": {"2009": 1500, "2010": 1500},
+                        "efficient": {"2009": 900, "2010": 900}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 140, "2010": 140}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 140, "2010": 140}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 160, "2010": 160}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 60, "2010": 60}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 240, "2010": 240}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 90, "2010": 90}}}},
+                "lifetime": {
+                    "baseline": {"2009": 18, "2010": 18},
+                    "measure": 18}}},
+        "competed choice parameters": {
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "b1": {"2009": 0.75, "2010": 0.75},
+                "b2": {"2009": 0.75, "2010": 0.75}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": True}]
+
+    # Set the sample master microsegments that should be generated for
+    # each measure to be packaged after accounting for measure overlaps
+    ok_master_mseg = [{
+        "stock": {
+            "total": {
+                "all": {"2009": 1000, "2010": 1000},
+                "measure": {"2009": 300, "2010": 300}},
+            "competed": {
+                "all": {"2009": 500, "2010": 500},
+                "measure": {"2009": 50, "2010": 50}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 2000, "2010": 2000},
+                "efficient": {"2009": 1600, "2010": 1600}},
+            "competed": {
+                "baseline": {"2009": 1000, "2010": 1000},
+                "efficient": {"2009": 600, "2010": 600}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 3000, "2010": 3000},
+                "efficient": {"2009": 2400, "2010": 2400}},
+            "competed": {
+                "baseline": {"2009": 1500, "2010": 1500},
+                "efficient": {"2009": 900, "2010": 900}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 140, "2010": 140}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 140, "2010": 140}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 160, "2010": 160}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 60, "2010": 60}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 300, "2010": 300},
+                    "efficient": {"2009": 240, "2010": 240}},
+                "competed": {
+                    "baseline": {"2009": 150, "2010": 150},
+                    "efficient": {"2009": 90, "2010": 90}}}},
+        "lifetime": {
+            "baseline": {"2009": 18, "2010": 18},
+            "measure": 18}},
+        {
+        "stock": {
+            "total": {
+                "all": {"2009": 1000, "2010": 1000},
+                "measure": {"2009": 300, "2010": 300}},
+            "competed": {
+                "all": {"2009": 500, "2010": 500},
+                "measure": {"2009": 50, "2010": 50}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 2000, "2010": 2000},
+                "efficient": {"2009": 1600, "2010": 1600}},
+            "competed": {
+                "baseline": {"2009": 1000, "2010": 1000},
+                "efficient": {"2009": 600, "2010": 600}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 3000, "2010": 3000},
+                "efficient": {"2009": 2400, "2010": 2400}},
+            "competed": {
+                "baseline": {"2009": 1500, "2010": 1500},
+                "efficient": {"2009": 900, "2010": 900}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 140, "2010": 140}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 140, "2010": 140}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 160, "2010": 160}},
+                "competed": {
+                    "baseline": {"2009": 100, "2010": 100},
+                    "efficient": {"2009": 60, "2010": 60}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 300, "2010": 300},
+                    "efficient": {"2009": 240, "2010": 240}},
+                "competed": {
+                    "baseline": {"2009": 150, "2010": 150},
+                    "efficient": {"2009": 90, "2010": 90}}}},
+        "lifetime": {
+            "baseline": {"2009": 18, "2010": 18},
+            "measure": 18}}]
+
+    # Test outcomes of the package_merge function, given sample measure
+    # inputs and overlapping microsegment information defined above
+    def test_package_merge(self):
+        # Run the package_merge routine to remove overlapping market
+        # microsegments across the sample measures to be packaged
+        self.packaged_measure.package_merge(
+            self.overlap_measures, self.overlap_key)
+        # Check for correctly updated mseg_adjust and master_mseg
+        # attributes for the sample measures to be packaged, following
+        # the package_merge run
+        for m in range(0, len(self.overlap_measures)):
+            # Contributing microsegment dictionary output
+            self.dict_check(self.packaged_measure.measures_to_package[
+                m].mseg_adjust, self.ok_mseg_adjust[m])
+            # Master microsegment dictionary output
+            self.dict_check(self.packaged_measure.measures_to_package[
+                m].master_mseg, self.ok_master_mseg[m])
+
+
+class MergeMeasuresTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the merge_measures function to verify that
+    it correctly assembles a series of input measures into a package measure"""
+
+    # Initialize package input measures list
+    sample_measure_list_package = [run.Measure(**x) for x in [
+        sample_measure4, sample_measure5, sample_measure6]]
+    # Set package measure name
+    p = "CAC + CFLs + NGWH"
+    # Instantiate package measure object
+    packaged_measure = run.Measure_Package(
+        sample_measure_list_package, p)
+
+    # Set the name, climate zone, building type, structure type,
+    # fuel type, and end use attributes that should be generated
+    # for the packaged measure
+    ok_general_attributes = [
+        'Package: CAC + CFLs + NGWH',
+        ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ5'],
+        ['single family home', 'multi family home'],
+        ['new', 'retrofit'],
+        ['electricity (grid)', 'natural gas'],
+        ['water heating', 'lighting', 'cooling']]
+
+    # Set the sample contributing microsegment information that should be
+    # generated for the packaged measure. Contributing microsegment info.
+    # is needed in 'run.py' to determine measure competition outcomes
+    ok_mseg_adjust = {
+        "contributing mseg keys and values": {
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 10, "2010": 10},
+                        "measure": {"2009": 6, "2010": 6}},
+                    "competed": {
+                        "all": {"2009": 5, "2010": 5},
+                        "measure": {"2009": 1, "2010": 1}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 12, "2010": 12}},
+                    "competed": {
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {"2009": 2, "2010": 2}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 18, "2010": 18}},
+                    "competed": {
+                        "baseline": {"2009": 15, "2010": 15},
+                        "efficient": {"2009": 3, "2010": 3}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 18, "2010": 18}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 12, "2010": 12}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 2, "2010": 2}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 18, "2010": 18}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 3, "2010": 3}}}},
+                "lifetime": {
+                    "baseline": {"2009": 5, "2010": 5},
+                    "measure": 10}},
+
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 100, "2010": 100},
+                        "measure": {"2009": 60, "2010": 60}},
+                    "competed": {
+                        "all": {"2009": 50, "2010": 50},
+                        "measure": {"2009": 10, "2010": 10}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 200, "2010": 200},
+                        "efficient": {"2009": 120, "2010": 120}},
+                    "competed": {
+                        "baseline": {"2009": 100, "2010": 100},
+                        "efficient": {"2009": 20, "2010": 20}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 300, "2010": 300},
+                        "efficient": {"2009": 180, "2010": 180}},
+                    "competed": {
+                        "baseline": {"2009": 150, "2010": 150},
+                        "efficient": {"2009": 30, "2010": 30}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 1, "2010": 1},
+                    "measure": 20}},
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 100, "2010": 100},
+                        "measure": {"2009": 60, "2010": 60}},
+                    "competed": {
+                        "all": {"2009": 50, "2010": 50},
+                        "measure": {"2009": 10, "2010": 10}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 200, "2010": 200},
+                        "efficient": {"2009": 120, "2010": 120}},
+                    "competed": {
+                        "baseline": {"2009": 100, "2010": 100},
+                        "efficient": {"2009": 20, "2010": 20}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 300, "2010": 300},
+                        "efficient": {"2009": 180, "2010": 180}},
+                    "competed": {
+                        "baseline": {"2009": 150, "2010": 150},
+                        "efficient": {"2009": 30, "2010": 30}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 2, "2010": 2},
+                    "measure": 15}},
+
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "stock": {
+                    "total": {
+                        "all": {"2009": 1000, "2010": 1000},
+                        "measure": {"2009": 600, "2010": 600}},
+                    "competed": {
+                        "all": {"2009": 500, "2010": 500},
+                        "measure": {"2009": 100, "2010": 100}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2000, "2010": 2000},
+                        "efficient": {"2009": 1200, "2010": 1200}},
+                    "competed": {
+                        "baseline": {"2009": 1000, "2010": 1000},
+                        "efficient": {"2009": 200, "2010": 200}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 3000, "2010": 3000},
+                        "efficient": {"2009": 1800, "2010": 1800}},
+                    "competed": {
+                        "baseline": {"2009": 1500, "2010": 1500},
+                        "efficient": {"2009": 300, "2010": 300}}},
+                "cost": {
+                    "stock": {
+                        "total": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 180, "2010": 180}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 200, "2010": 200},
+                            "efficient": {"2009": 120, "2010": 120}},
+                        "competed": {
+                            "baseline": {"2009": 100, "2010": 100},
+                            "efficient": {"2009": 20, "2010": 20}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 300, "2010": 300},
+                            "efficient": {"2009": 180, "2010": 180}},
+                        "competed": {
+                            "baseline": {"2009": 150, "2010": 150},
+                            "efficient": {"2009": 30, "2010": 30}}}},
+                "lifetime": {
+                    "baseline": {"2009": 18, "2010": 18},
+                    "measure": 18}}},
+        "competed choice parameters": {
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ1', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'new')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ2', 'single family home', 'natural gas',"
+             "'water heating', None, 'retrofit')"): {
+                "b1": {"2009": 0.5, "2010": 0.5},
+                "b2": {"2009": 0.5, "2010": 0.5}},
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+                "b1": {"2009": 0.25, "2010": 0.25},
+                "b2": {"2009": 0.25, "2010": 0.25}},
+            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+                "b1": {"2009": 0.25, "2010": 0.25},
+                "b2": {"2009": 0.25, "2010": 0.25}},
+            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+             "'cooling', 'supply', 'ASHP', 'new')"): {
+                "b1": {"2009": 0.75, "2010": 0.75},
+                "b2": {"2009": 0.75, "2010": 0.75}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}
+
+    # Set the sample master microsegment that should be generated for
+    # the packaged measure
+    ok_master_mseg = {
+        "stock": {
+            "total": {
+                "all": {'2010': 1240, '2009': 1240},
+                "measure": {'2010': 744, '2009': 744}},
+            "competed": {
+                "all": {'2010': 620, '2009': 620},
+                "measure": {'2010': 124, '2009': 124}}},
+        "energy": {
+            "total": {
+                "baseline": {'2010': 2480, '2009': 2480},
+                "efficient": {'2010': 1488, '2009': 1488}},
+            "competed": {
+                "baseline": {'2010': 1240, '2009': 1240},
+                "efficient": {'2010': 248, '2009': 248}}},
+        "carbon": {
+            "total": {
+                "baseline": {'2010': 3720, '2009': 3720},
+                "efficient": {'2010': 2232, '2009': 2232}},
+            "competed": {
+                "baseline": {'2010': 1860, '2009': 1860},
+                "efficient": {'2010': 372, '2009': 372}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {'2010': 340, '2009': 340},
+                    "efficient": {'2010': 612, '2009': 612}},
+                "competed": {
+                    "baseline": {'2010': 340, '2009': 340},
+                    "efficient": {'2010': 612, '2009': 612}}},
+            "energy": {
+                "total": {
+                    "baseline": {'2010': 680, '2009': 680},
+                    "efficient": {'2010': 408, '2009': 408}},
+                "competed": {
+                    "baseline": {'2010': 340, '2009': 340},
+                    "efficient": {'2010': 68, '2009': 68}}},
+            "carbon": {
+                "total": {
+                    "baseline": {'2010': 1020, '2009': 1020},
+                    "efficient": {'2010': 612, '2009': 612}},
+                "competed": {
+                    "baseline": {'2010': 510, '2009': 510},
+                    "efficient": {'2010': 102, '2009': 102}}}},
+        "lifetime": {
+            "baseline": {'2010': 5.86, '2009': 5.86},
+            "measure": 13.29}}
+
+    # Test outcomes of the merge_measures function, given sample packaged
+    # measure object defined above
+    def test_package_measure(self):
+        # Run the merge measures routine
+        self.packaged_measure.merge_measures()
+        # Check for correct package measure name, climate zone, building
+        # type, structure type, fuel type, and end use outputs
+        output_lists = [
+            self.packaged_measure.name, self.packaged_measure.climate_zone,
+            self.packaged_measure.bldg_type,
+            self.packaged_measure.structure_type,
+            self.packaged_measure.fuel_type["primary"],
+            self.packaged_measure.end_use["primary"]]
+        for ind in range(0, len(output_lists)):
+            self.assertEqual(
+                sorted(self.ok_general_attributes[ind]),
+                sorted(output_lists[ind]))
+        # Check for correct package measure mseg_adjust and master_mseg outputs
+        self.dict_check(self.packaged_measure.mseg_adjust, self.ok_mseg_adjust)
+        self.dict_check(self.packaged_measure.master_mseg, self.ok_master_mseg)
 
 
 # Offer external code execution (include all lines below this point in all
