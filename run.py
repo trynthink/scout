@@ -413,8 +413,8 @@ class Measure(object):
                 # will also be identical)
                 numpy.random.seed(rnd_sd)
 
-                # If the measure performance/cost variable is list with
-                # distribution information, sample values from distribution
+                # If the measure performance/cost/lifetime variable is list
+                # with distribution information, sample values accordingly
                 if isinstance(perf_meas, list) and isinstance(perf_meas[0],
                                                               str):
                     # Sample measure performance values
@@ -437,9 +437,16 @@ class Measure(object):
                                                               str):
                     # Sample measure lifetime values
                     life_meas = self.rand_list_gen(life_meas, nsamples)
-                    # Set any measure lifetime values less than zero to zero
+                    # Set any measure lifetime values in list less than zero
+                    # to 1
                     if any(life_meas < 0) is True:
-                        life_meas[numpy.where(life_meas < 0)] == 0
+                        life_meas[numpy.where(life_meas < 0)] == 1
+                elif isinstance(life_meas, float) or \
+                        isinstance(life_meas, int) and mskeys[0] == "primary":
+                    # Set measure lifetime point values less than zero to 1
+                    # (minimum lifetime)
+                    if life_meas < 1:
+                        life_meas = 1
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -575,6 +582,11 @@ class Measure(object):
                     life_base = dict.fromkeys(mseg["energy"].keys(), 0)
                 else:
                     life_base = base_costperflife["lifetime"]["average"]
+                    # Set any base lifetime values less than 1 to 1
+                    # (minimum lifetime)
+                    for yr in life_base.keys():
+                        if life_base[yr] < 1:
+                            life_base[yr] = 1
 
                 # Reduce energy costs and stock turnover info. to appropriate
                 # building type and - for energy costs - fuel, before
@@ -1032,8 +1044,6 @@ class Measure(object):
                 # Handle case where efficient measure lifetime is a numpy array
                 if type(life_meas) == numpy.ndarray:
                     for ind, l in enumerate(life_meas):
-                        if l < 1:
-                            l = 1
                         if turnover_meas[ind] <= 0:
                             captured_eff_replace_frac = \
                                 captured_eff_frac * (1 / l)
@@ -1041,8 +1051,6 @@ class Measure(object):
                             captured_eff_replace_frac = 0
                 # Handle case where efficient measure lifetime is a point value
                 else:
-                    if life_meas < 1:
-                        life_meas = 1
                     if turnover_meas <= 0:
                         captured_eff_replace_frac = captured_eff_frac * \
                             (1 / life_meas)
@@ -1088,14 +1096,23 @@ class Measure(object):
             else:
                 competed_frac = 0
 
-            # Set the relative performance level of the competed stock under
-            # full measure adoption
-            rel_perf_competed = rel_perf[yr]
+            # Set the relative performance levels of the competed stock and
+            # stock that has already been captured by the measure
+
             # If first year in the modeling time horizon, initialize the
             # relative performance level of previously captured stock as
-            # identical to that of the competed stock
+            # identical to that of the competed stock (e.g., initialize
+            # to the the relative performance from baseline -> measure
+            # for that year only)
             if yr == sorted(stock_total.keys())[0]:
-                rel_perf_captured = rel_perf_competed
+                rel_perf_captured = rel_perf[yr]
+            # Set the relative performance level of the competed stock
+            if adopt_scheme == 'Technical potential' and \
+                    mskeys[0] == "primary":
+                rel_perf_competed = (1 / life_meas) * rel_perf[yr] + \
+                    (1 - (1 / life_meas)) * rel_perf_captured
+            else:
+                rel_perf_competed = rel_perf[yr]
 
             # Update competed stock, energy, and carbon
             stock_compete[yr] = stock_total[yr] * competed_frac
@@ -1241,12 +1258,12 @@ class Measure(object):
             # technology
             captured_base_frac = 1 - captured_eff_frac
 
-            # Update relative performance level of the captured stock
+            # Update relative performance level of the captured stock by
+            # adding the weighted relative performance of the competed
+            # stock for the current year
             if stock_total_meas[yr] != 0:
-                rel_perf_captured = rel_perf_competed * (
-                    stock_compete_meas[yr] / stock_total_meas[yr]) + \
-                    rel_perf_captured * (
-                        1 - stock_compete_meas[yr] / stock_total_meas[yr])
+                rel_perf_captured = rel_perf_competed * competed_frac + \
+                    rel_perf_captured * (1 - competed_frac)
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total_meas, energy_total_eff, carb_total_eff,
