@@ -117,7 +117,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
 
         with self.assertRaises(KeyError):
             import_eplus.find_vintage_weights(
-                self.sample_sf, self.eplus_vintages_fail)
+                self.sample_sf, eplus_vintages_fail)
 
 
 # Offer external code execution (include all lines below this point in all
