@@ -32,16 +32,6 @@ class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
     """ Test 'CBECS_vintage_sf' function to ensure building vintage
      square footages are read in properly from a CBECS data file """
 
-    # Define ok sample CBECS square footage file
-    CBECS_in_test_ok = "CBECS_test_ok.xlsx"
-    CBECS_ok = xlrd.open_workbook(CBECS_in_test_ok)
-    CBECS_sh_ok = CBECS_ok.sheet_by_index(0)
-
-    # Define fail sample CBECS square footage file
-    CBECS_in_test_fail = "CBECS_test_fail.xlsx"
-    CBECS_fail = xlrd.open_workbook(CBECS_in_test_fail)
-    CBECS_sh_fail = CBECS_fail.sheet_by_index(0)
-
     # Output dictionary that should be generated given the above
     # 'CBECS_sh_ok' input sheet
     ok_out = {
@@ -54,15 +44,25 @@ class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
     # Test for correct determination of CBECS square footages by
     # building vintage
     def test_vintageweights(self):
+        # Define ok sample CBECS square footage file
+        CBECS_in_test_ok = "CBECS_test_ok.xlsx"
+        CBECS_ok = xlrd.open_workbook(CBECS_in_test_ok)
+        CBECS_sh_ok = CBECS_ok.sheet_by_index(0)
+
         self.dict_check(import_eplus.CBECS_vintage_sf(
-            self.CBECS_sh_ok), self.ok_out)
+            CBECS_sh_ok), self.ok_out)
 
     # Test that an error is raised when none of the CBECS XLSX
     # rows are read in
     def test_vintageweights_fail(self):
+        # Define fail sample CBECS square footage file
+        CBECS_in_test_fail = "CBECS_test_fail.xlsx"
+        CBECS_fail = xlrd.open_workbook(CBECS_in_test_fail)
+        CBECS_sh_fail = CBECS_fail.sheet_by_index(0)
+
         with self.assertRaises(ValueError):
             import_eplus.CBECS_vintage_sf(
-                self.CBECS_sh_fail)
+                CBECS_sh_fail)
 
 
 # Skip this test if running on Travis-CI and print the given skip statement
@@ -73,26 +73,6 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
     derived for mapping EnergyPlus building vintages to Scout's 'new' and
     'retrofit' building structure types """
 
-    # Define ok sample EnergyPlus data file
-    EPlus_perf_in_test_ok = "EPlus_test_ok.xlsx"
-    EPlus_perf_ok = xlrd.open_workbook(EPlus_perf_in_test_ok)
-    EPlus_perf_sh_ok = EPlus_perf_ok.sheet_by_index(2)
-    # Determine EnergyPlus vintage names from the above
-    EPlus_vintages_ok = []
-    for x in range(1, EPlus_perf_sh_ok.nrows):
-        EPlus_vintages_ok.append(EPlus_perf_sh_ok.cell(x, 2).value)
-    EPlus_vintages_ok = numpy.unique(EPlus_vintages_ok)
-
-    # Define fail sample EnergyPlus data file
-    EPlus_perf_in_test_fail = "EPlus_test_fail.xlsx"
-    EPlus_perf_fail = xlrd.open_workbook(EPlus_perf_in_test_fail)
-    EPlus_perf_sh_fail = EPlus_perf_fail.sheet_by_index(2)
-    # Determine EnergyPlus vintage names from the above
-    EPlus_vintages_fail = []
-    for x in range(1, EPlus_perf_sh_fail.nrows):
-        EPlus_vintages_fail.append(EPlus_perf_sh_fail.cell(x, 2).value)
-    EPlus_vintages_fail = numpy.unique(EPlus_vintages_fail)
-
     # Sample set of CBECS square footage data to map to EnergyPlus vintages
     sample_sf = {
         '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
@@ -102,7 +82,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
         '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
 
     # Output dictionary that should be generated given the above sample square
-    # footage data and 'EPlus_vintages_ok' input sheet
+    # footage data and 'eplus_vintages_ok' input sheet
     ok_out = {
         'DOE Ref 1980-2004': 0.42, '90.1-2004': 0.07,
         '90.1-2007': 0.0, '90.1-2010': 0.07,
@@ -110,14 +90,34 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
 
     # Test for correct determination of vintage weights
     def test_vintageweights(self):
-        self.dict_check(import_eplus.find_vintage_weights(
-            self.sample_sf, self.EPlus_vintages_ok), self.ok_out)
+        # Define ok sample EnergyPlus data file
+        eplus_perf_in_test_ok = "eplus_test_ok.xlsx"
+        eplus_perf_ok = xlrd.open_workbook(eplus_perf_in_test_ok)
+        eplus_perf_sh_ok = eplus_perf_ok.sheet_by_index(2)
+        # Determine EnergyPlus vintage names from the above
+        eplus_vintages_ok = []
+        for x in range(1, eplus_perf_sh_ok.nrows):
+            eplus_vintages_ok.append(eplus_perf_sh_ok.cell(x, 2).value)
+        eplus_vintages_ok = numpy.unique(eplus_vintages_ok)
 
-    # Test that an error is raised when unexpected EPlus vintages are present
+        self.dict_check(import_eplus.find_vintage_weights(
+            self.sample_sf, eplus_vintages_ok), self.ok_out)
+
+    # Test that an error is raised when unexpected eplus vintages are present
     def test_vintageweights_fail(self):
+        # Define fail sample EnergyPlus data file
+        eplus_perf_in_test_fail = "eplus_test_fail.xlsx"
+        eplus_perf_fail = xlrd.open_workbook(eplus_perf_in_test_fail)
+        eplus_perf_sh_fail = eplus_perf_fail.sheet_by_index(2)
+        # Determine EnergyPlus vintage names from the above
+        eplus_vintages_fail = []
+        for x in range(1, eplus_perf_sh_fail.nrows):
+            eplus_vintages_fail.append(eplus_perf_sh_fail.cell(x, 2).value)
+        eplus_vintages_fail = numpy.unique(eplus_vintages_fail)
+
         with self.assertRaises(KeyError):
             import_eplus.find_vintage_weights(
-                self.sample_sf, self.EPlus_vintages_fail)
+                self.sample_sf, self.eplus_vintages_fail)
 
 
 # Offer external code execution (include all lines below this point in all
