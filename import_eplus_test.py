@@ -52,6 +52,9 @@ class CommonMethods(object):
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
 class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
     """ Test 'CBECS_vintage_sf' function to ensure building vintage
      square footages are read in properly from a CBECS data file """
@@ -79,6 +82,9 @@ class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
                 CBECS_sh_fail)
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
 class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
     """ Test 'find_vintage_weights' function to ensure the proper weights are
     derived for mapping EnergyPlus building vintages to Scout's 'new' and
