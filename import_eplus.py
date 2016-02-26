@@ -135,6 +135,27 @@ def find_vintage_weights(vintage_sf, EPlus_vintages):
     return eplus_vintage_weights
 
 
+def convert_to_array(EPlus_perf_sh):
+    """ Convert a sheet from an XLSX file to a structured array """
+
+    # Set the XLSX sheet headers
+    headers = [str(cell.value) for cell in EPlus_perf_sh.row(0)]
+    # Initialize list to be converted to structured array
+    arr = []
+
+    # Loop through all the rows in the Excel file and append to the
+    # list to be converted to the structured array
+    for r in range(EPlus_perf_sh.nrows)[1:]:
+        arr.append([cell.value for cell in EPlus_perf_sh.row(r)])
+
+    # Convert the list to the structured array, using column headers
+    # as the variable names
+    EPlus_perf_array = numpy.rec.fromrecords(arr, names=headers)
+
+    # Return the resultant structured array
+    return EPlus_perf_array
+
+
 def main():
 
     # Import CBECS XLSX
@@ -148,10 +169,13 @@ def main():
     EPlus_perf_sh = EPlus_perf.sheet_by_index(2)
     # Determine appropriate weights for mapping EnergyPlus vintages to the
     # 'new' and 'retrofit' building structure types of Scout
-    EPlus_vintages = [EPlus_perf_sh.cell(x, 2).value for
-                      x in range(1, EPlus_perf_sh.nrows)]
-    EPlus_vintages = numpy.unique(EPlus_vintages)
+    EPlus_vintages = numpy.unique([EPlus_perf_sh.cell(x, 2).value for
+                                  x in range(1, EPlus_perf_sh.nrows)])
     EPlus_vintage_weights = find_vintage_weights(vintage_sf, EPlus_vintages)
+
+    # Convert Excel sheet data into structured array
+    EPlus_perf_array = convert_to_array(EPlus_perf_sh)
+
 
 if __name__ == "__main__":
     main()

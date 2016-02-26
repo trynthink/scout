@@ -120,6 +120,76 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
                 self.sample_sf, eplus_vintages_fail)
 
 
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
+class ConverttoArrayTest(unittest.TestCase, CommonMethods):
+    """ Test 'convert_to_array' function to ensure it properly converts an
+    input XLSX sheet to a structured array """
+
+    # Define the structured array that should be yielded by using
+    # 'convert_to_array' on a sample XLSX file with three rows
+    # (imported in the function below)
+    ok_out = numpy.array([
+        ('BA-MixedHumid', 'QuickServiceRestaurant', 'DOE Ref 1980-2004',
+         'Success', 0, 0.08826151, 0.08826151, 0.229505682, 0, -0.281087563,
+         -0.281087563, 0, 0, 0, 0, 0, 0.087895769, 0, 0.371092043, 0.00295858,
+         0, 0, 0, 0.005208793, 0, 0, 0, 0.277025257, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0, 0, 0),
+        ('BA-HotDry', 'SecondarySchool', 'DOE Ref Pre-1980', 'Success', 0,
+         0.113925619, 0.113925619, 0.217474038, 0, -0.367260722, -0.367260722,
+         0, 0, 0, 0, 0, 0.157089402, 0, 0.386383436, 0.005714286, 0, 0, 0,
+         0.004321521, 0, 0, 0, 0.250674034, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0)],
+        dtype=[('Climate Zone', '<U13'), ('Building Type', '<U22'),
+               ('Template', '<U17'), ('Status', 'U7'), ('Floor Area', '<f8'),
+               ('Total Site Electricity', '<f8'),
+               ('Net Site Electricity', '<f8'),
+               ('Total Gas', '<f8'), ('Total Other Fuel', '<f8'),
+               ('Total Water', '<f8'), ('Net Water', '<f8'),
+               ('Interior Lighting Electricity', '<f8'),
+               ('Exterior Lighting Electricity', '<f8'),
+               ('Interior Equipment Electricity', '<f8'),
+               ('Exterior Equipment Electricity', '<f8'),
+               ('Heating Electricity', '<f8'),
+               ('Cooling Electricity', '<f8'),
+               ('Service Water Heating Electricity', '<f8'),
+               ('Fan Electricity', '<f8'),
+               ('Pump Electricity', '<f8'),
+               ('Heat Recovery Electricity', '<f8'),
+               ('Heat Rejection Electricity', '<f8'),
+               ('Humidification Electricity', '<f8'),
+               ('Refrigeration Electricity', '<f8'),
+               ('Generated Electricity', '<f8'),
+               ('Interior Equipment Gas', '<f8'),
+               ('Exterior Equipment Gas', '<f8'),
+               ('Heating Gas', '<f8'),
+               ('Service Water Heating Gas', '<f8'),
+               ('Interior Equipment Other Fuel', '<f8'),
+               ('Exterior Equipment Other Fuel', '<f8'),
+               ('Heating Other Fuel', '<f8'),
+               ('Service Water Heating Other Fuel', '<f8'),
+               ('District Hot Water Heating', '<f8'),
+               ('District Hot Water Service Hot Water', '<f8'),
+               ('District Chilled Water', '<f8'),
+               ('Interior Equipment Water', '<f8'),
+               ('Exterior Equipment Water', '<f8'),
+               ('Service Water', '<f8'), ('Cooling Water', '<f8'),
+               ('Heating Water', '<f8'), ('Humidifcation Water', '<f8'),
+               ('Collected Water', '<f8')])
+
+    # Test for correct conversion of an input Excel sheet to structured array
+    def test_array_conversion(self):
+        # Define reduced EnergyPlus data file (three rows including header)
+        eplus_perf_in_test_ok = "eplus_test_ok_abbrev.xlsx"
+        eplus_perf_ok = xlrd.open_workbook(eplus_perf_in_test_ok)
+        eplus_perf_sh_ok = eplus_perf_ok.sheet_by_index(2)
+
+        # Test for correct structured array output
+        numpy.array_equal(import_eplus.convert_to_array(eplus_perf_sh_ok),
+                          self.ok_out)
+
+
 # Offer external code execution (include all lines below this point in all
 # test files)
 def main():
