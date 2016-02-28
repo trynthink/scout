@@ -73,6 +73,8 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
     derived for mapping EnergyPlus building vintages to Scout's 'new' and
     'retrofit' building structure types """
 
+    expected_eplus_new_vintage = '90.1-2013'
+
     # Sample set of CBECS square footage data to map to EnergyPlus vintages
     sample_sf = {
         '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
@@ -101,7 +103,8 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
         eplus_vintages_ok = numpy.unique(eplus_vintages_ok)
 
         self.dict_check(import_eplus.find_vintage_weights(
-            self.sample_sf, eplus_vintages_ok), self.ok_out)
+            self.sample_sf, eplus_vintages_ok,
+            self.expected_eplus_new_vintage), self.ok_out)
 
     # Test that an error is raised when unexpected eplus vintages are present
     def test_vintageweights_fail(self):
@@ -117,7 +120,8 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
 
         with self.assertRaises(KeyError):
             import_eplus.find_vintage_weights(
-                self.sample_sf, eplus_vintages_fail)
+                self.sample_sf, self.expected_eplus_new_vintage,
+                eplus_vintages_fail)
 
 
 # Skip this test if running on Travis-CI and print the given skip statement
@@ -188,6 +192,106 @@ class ConverttoArrayTest(unittest.TestCase, CommonMethods):
         # Test for correct structured array output
         numpy.array_equal(import_eplus.convert_to_array(eplus_perf_sh_ok),
                           self.ok_out)
+
+
+class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
+    """ Test 'create_perf_dict' function to ensure it properly creates a
+    dictionary to later be filled with Energy Plus measure performance data """
+
+    # Define a sample measure to initialize a performance dictionary for
+    sample_eplus_measure = {
+        "name": "EPlus sample measure 1",
+        "installed_cost": 25,
+        "cost_units": "2014$/unit",
+        "energy_efficiency": {
+            "Energy Plus file": "sample Energy Plus file name"},
+        "energy_efficiency_units": {
+            "primary": "relative savings (constant)",
+            "secondary":
+                "relative savings (constant)"},
+        "market_entry_year": None,
+        "market_exit_year": None,
+        "product_lifetime": 10,
+        "structure_type": ["new", "retrofit"],
+        "bldg_type": ["assembly", "education"],
+        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+        "fuel_type": {
+            "primary": ["electricity (grid)"],
+            "secondary": ["electricity (grid)", "natural gas"]},
+        "fuel_switch_to": None,
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": ["heating", "secondary heating", "cooling"]},
+        "technology_type": {
+            "primary": "supply",
+            "secondary": "demand"},
+        "technology": {
+            "primary": ["linear fluorescent (LED)", "general service (LED)",
+                        "external (LED)"],
+            "secondary": ["windows conduction", "windows solar"]}}
+
+    # Define correct performance dictionary output for sample measure
+    ok_out = {
+        "primary": {
+            'AIA_CZ2': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}},
+                'assembly': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}},
+            'AIA_CZ1': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}},
+                'assembly': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}}},
+        "secondary": {
+            'AIA_CZ2': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                    'natural gas': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}}},
+                'assembly': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                    'natural gas': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}}}},
+            'AIA_CZ1': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                    'natural gas': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}}},
+                'assembly': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                    'natural gas': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0},
+                        'secondary heating': {'retrofit': 0, 'new': 0}}}}}}
+
+    # Test for correct generation of measure performance dictionary
+    def test_dict_creation(self):
+        self.dict_check(
+            import_eplus.create_perf_dict(self.sample_eplus_measure),
+            self.ok_out)
 
 
 # Offer external code execution (include all lines below this point in all
