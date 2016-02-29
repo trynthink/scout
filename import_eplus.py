@@ -12,10 +12,11 @@ measures_in = "measures.json"
 # Define CBECS square footage file
 CBECS_in = "b34.xlsx"
 # Define Energy Plus measure performance output file directory
-eplus_dir = '/Users/jtlangevin/Desktop/scout'
-# Define Energy Plus data file name list
-EPlus_perf_files = [
-    f for f in listdir(eplus_dir) if isfile(join(eplus_dir, f))]
+# eplus_dir = '/Users/jtlangevin/Desktop/scout'
+# # Define Energy Plus data file name list
+# EPlus_perf_files = [
+#     f for f in listdir(eplus_dir) if isfile(join(eplus_dir, f))]
+EPlus_perf_files = []
 # Set the expected Energy Plus building vintage year that will correspond
 # to a 'new' (as opposed to 'retrofit') building structure type in Scout
 expected_EPlus_new = '90.1-2013'
