@@ -73,7 +73,16 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
     derived for mapping EnergyPlus building vintages to Scout's 'new' and
     'retrofit' building structure types """
 
-    expected_eplus_new_vintage = '90.1-2013'
+    # Sample dict mapping EnergyPlus vintage names to Scout 'new' and
+    # 'retrofit' structure types
+    structure_type = {
+        "new": '90.1-2013',
+        "retrofit": {
+            '90.1-2004': [2004, 2006],
+            '90.1-2007': [2007, 2009],
+            '90.1-2010': [2010, 2012],
+            'DOE Ref 1980-2004': [1980, 2003],
+            'DOE Ref Pre-1980': [0, 1979]}}
 
     # Sample set of CBECS square footage data to map to EnergyPlus vintages
     sample_sf = {
@@ -84,7 +93,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
         '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
 
     # Output dictionary that should be generated given the above sample square
-    # footage data and 'eplus_vintages_ok' input sheet
+    # footage data and 'eplus_vintages_ok' input sheet (see below)
     ok_out = {
         'DOE Ref 1980-2004': 0.42, '90.1-2004': 0.07,
         '90.1-2007': 0.0, '90.1-2010': 0.07,
@@ -104,7 +113,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
 
         self.dict_check(import_eplus.find_vintage_weights(
             self.sample_sf, eplus_vintages_ok,
-            self.expected_eplus_new_vintage), self.ok_out)
+            self.structure_type), self.ok_out)
 
     # Test that an error is raised when unexpected eplus vintages are present
     def test_vintageweights_fail(self):
@@ -120,8 +129,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
 
         with self.assertRaises(KeyError):
             import_eplus.find_vintage_weights(
-                self.sample_sf, self.expected_eplus_new_vintage,
-                eplus_vintages_fail)
+                self.sample_sf, eplus_vintages_fail, self.structure_type)
 
 
 # Skip this test if running on Travis-CI and print the given skip statement
@@ -196,7 +204,7 @@ class ConverttoArrayTest(unittest.TestCase, CommonMethods):
 
 class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     """ Test 'create_perf_dict' function to ensure it properly creates a
-    dictionary to later be filled with Energy Plus measure performance data """
+    dictionary to later be filled with EnergyPlus measure performance data """
 
     # Define a sample measure to initialize a performance dictionary for
     sample_eplus_measure = {
@@ -204,7 +212,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
         "installed_cost": 25,
         "cost_units": "2014$/unit",
         "energy_efficiency": {
-            "Energy Plus file": "sample Energy Plus file name"},
+            "EnergyPlus file": "sample EnergyPlus file name"},
         "energy_efficiency_units": {
             "primary": "relative savings (constant)",
             "secondary":
@@ -221,7 +229,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
         "fuel_switch_to": None,
         "end_use": {
             "primary": ["lighting"],
-            "secondary": ["heating", "secondary heating", "cooling"]},
+            "secondary": ["heating", "cooling"]},
         "technology_type": {
             "primary": "supply",
             "secondary": "demand"},
@@ -252,46 +260,279 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                 'education': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                        'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}}},
+                        'cooling': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                        'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}}}},
+                        'cooling': {'retrofit': 0, 'new': 0}}}},
             'AIA_CZ1': {
                 'education': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                        'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}}},
+                        'cooling': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}},
+                        'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
-                        'cooling': {'retrofit': 0, 'new': 0},
-                        'secondary heating': {'retrofit': 0, 'new': 0}}}}}}
+                        'cooling': {'retrofit': 0, 'new': 0}}}}}}
 
     # Test for correct generation of measure performance dictionary
     def test_dict_creation(self):
         self.dict_check(
             import_eplus.create_perf_dict(self.sample_eplus_measure),
             self.ok_out)
+
+
+class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
+    """ Test 'fill_perf_dict' function to ensure it properly updates a
+    dictionary with EnergyPlus measure performance data """
+
+    # Define a valid zeroed-out measure performance dict input
+    ok_perf_dict_empty = {
+        "primary": {
+            'hot dry': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}}},
+        "secondary": {
+            'hot dry': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0}}}}}}
+
+    # Define invalid zeroed-out measure performance dict input (includes an
+    # invalid climate zone key)
+    fail_perf_dict_empty = {
+        "primary": {
+            'blazing hot': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0, 'new': 0}}}}},
+        "secondary": {
+            'hot dry': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': 0, 'new': 0},
+                        'cooling': {'retrofit': 0, 'new': 0}}}}}}
+
+    # Define valid EnergyPlus performance data array
+    ok_EPlus_perf_array = numpy.array([
+        ('BA-MixedHumid', 'PrimarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'PrimarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'PrimarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'PrimarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'PrimarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'PrimarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-MixedHumid', 'SecondarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-SubArctic', 'PrimarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SmallOffice', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2)],
+        dtype=[('Climate Zone', '<U13'), ('Building Type', '<U22'),
+               ('Template', '<U17'), ('Status', 'U7'), ('Floor Area', '<f8'),
+               ('Total Site Electricity', '<f8'),
+               ('Net Site Electricity', '<f8'),
+               ('Total Gas', '<f8'), ('Total Other Fuel', '<f8'),
+               ('Total Water', '<f8'), ('Net Water', '<f8'),
+               ('Interior Lighting Electricity', '<f8'),
+               ('Interior Equipment Electricity', '<f8'),
+               ('Heating Electricity', '<f8'),
+               ('Cooling Electricity', '<f8'),
+               ('Heating Gas', '<f8'),
+               ('Heat Recovery Electricity', '<f8')])
+
+    # Define invalid EnergyPlus performance data array (missing mixed/humid
+    # climate zone for 'PrimarySchool' building type)
+    fail_EPlus_perf_array = numpy.array([
+        ('BA-MixedHumid', 'SecondarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'PrimarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', 'DOE Ref 1980-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2004', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2007', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2010', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', 'DOE Ref Pre-1980', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
+        ('BA-HotDry', 'SecondarySchool', '90.1-2013', 'Success',
+         0, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2)],
+        dtype=[('Climate Zone', '<U13'), ('Building Type', '<U22'),
+               ('Template', '<U17'), ('Status', 'U7'), ('Floor Area', '<f8'),
+               ('Total Site Electricity', '<f8'),
+               ('Net Site Electricity', '<f8'),
+               ('Total Gas', '<f8'), ('Total Other Fuel', '<f8'),
+               ('Total Water', '<f8'), ('Net Water', '<f8'),
+               ('Interior Lighting Electricity', '<f8'),
+               ('Interior Equipment Electricity', '<f8'),
+               ('Heating Electricity', '<f8'),
+               ('Cooling Electricity', '<f8'),
+               ('Heating Gas', '<f8'),
+               ('Heat Recovery Electricity', '<f8')])
+
+    # Define valid initial building type weighting of 1
+    ok_EPlus_bldg_type_weight = 1
+
+    # Define valid building vintage weights
+    ok_EPlus_bldg_vintage_weights = {
+        'DOE Ref 1980-2004': 0.42, '90.1-2004': 0.07,
+        '90.1-2007': 0.0, '90.1-2010': 0.07,
+        'DOE Ref Pre-1980': 0.44, '90.1-2013': 1}
+
+    # Define output dictionary that should be generated by the function
+    # given the 'ok' inputs defined above
+    ok_perf_dict_filled = {
+        "primary": {
+            'hot dry': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0.75, 'new': 0.75}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'lighting': {'retrofit': 0.75, 'new': 0.75}}}}},
+        "secondary": {
+            'hot dry': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': -0.3, 'new': -0.3},
+                        'cooling': {'retrofit': -0.1, 'new': -0.1}}}},
+            'mixed humid': {
+                'education': {
+                    'electricity (grid)': {
+                        'heating': {'retrofit': -0.3, 'new': -0.3},
+                        'cooling': {'retrofit': -0.1, 'new': -0.1}}}}}}
+
+    # Test for correct updating of measure performance dictionary,
+    # given 'ok' inputs defined above
+    def test_dict_fill(self):
+        self.dict_check(
+            import_eplus.fill_perf_dict(
+                self.ok_perf_dict_empty,
+                self.ok_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
+                self.ok_EPlus_bldg_vintage_weights),
+            self.ok_perf_dict_filled)
+
+    # Test for error generation, given 'fail' inputs defined above
+    def test_dict_fill_fail(self):
+        # Ensure that an empty performance dict input with improper key
+        # generates a KeyError
+        with self.assertRaises(KeyError):
+            import_eplus.fill_perf_dict(
+                self.fail_perf_dict_empty,
+                self.ok_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
+                self.ok_EPlus_bldg_vintage_weights)
+        # Ensure that an EnergyPlus array that is missing climate zone
+        # information generates a ValueError
+        with self.assertRaises(ValueError):
+            import_eplus.fill_perf_dict(
+                self.ok_perf_dict_empty,
+                self.fail_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
+                self.ok_EPlus_bldg_vintage_weights)
 
 
 # Offer external code execution (include all lines below this point in all
