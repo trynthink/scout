@@ -6,7 +6,12 @@ import itertools
 import json
 from os import listdir
 from os.path import isfile, join
+import copy
 
+# Define input file containing valid baseline microsegment information
+# (to check against in developing key chains for a measure
+# performance dictionary that will store EnergyPlus-generated data)
+mseg_in = "microsegments_out_eplus_sample.json"
 # Define measures input file
 measures_in = "measures_eplus_sample.json"
 # Define CBECS square footage file
@@ -255,7 +260,7 @@ def convert_to_array(EPlus_perf_sh):
     return EPlus_perf_array
 
 
-def create_perf_dict(measure):
+def create_perf_dict(measure, mseg_in):
     """ Given a measure's applicable climate zone, building type,
     structure type, fuel type, and end use, create a dict of zeros
     with a hierarchy that is defined by these measure properties """
@@ -269,23 +274,29 @@ def create_perf_dict(measure):
     fuel_list_secondary = measure["fuel_type"]["secondary"]
     enduse_list_primary = measure["end_use"]["primary"]
     enduse_list_secondary = measure["end_use"]["secondary"]
+    tech_type_primary = measure["technology_type"]["primary"]
+    tech_type_secondary = measure["technology_type"]["secondary"]
+    tech_primary = measure["technology"]["primary"]
+    tech_secondary = measure["technology"]["secondary"]
     # Create primary dict structure from baseline market properties
     perf_dict_empty["primary"] = create_dict(
-        czone_list, bldg_list, structure_type_list,
-        fuel_list_primary, enduse_list_primary)
+        czone_list, bldg_list, structure_type_list, fuel_list_primary,
+        enduse_list_primary, tech_type_primary, tech_primary, mseg_in)
 
     # Create secondary dict structure from baseline market properties
     # (if needed)
     if len(fuel_list_secondary) > 0 and len(enduse_list_secondary) > 0:
         perf_dict_empty["secondary"] = create_dict(
-            czone_list, bldg_list, structure_type_list,
-            fuel_list_secondary, enduse_list_secondary)
+            czone_list, bldg_list, structure_type_list, fuel_list_secondary,
+            enduse_list_secondary, tech_type_secondary, tech_secondary,
+            mseg_in)
 
     # Return resultant dict, to be filled with EnergyPlus performance data
     return perf_dict_empty
 
 
-def create_dict(czone, bldg, structure_type, fuel, enduse):
+def create_dict(
+        czone, bldg, structure_type, fuel, enduse, tech_type, tech, msegs):
     """ Create a nested dictionary with a structure that is defined by a
     measure's applicable baseline market, with end leaf node values set
     to zero """
@@ -293,14 +304,55 @@ def create_dict(czone, bldg, structure_type, fuel, enduse):
     output_dict = {}
     # Establish levels of the dictionary key hierarchy from measure's
     # applicable baseline market information
-    key_levels = [czone, bldg, fuel, enduse, structure_type]
+    keylevels = [czone, bldg, fuel, enduse, structure_type]
     # Find all possible dictionary key chains from the above key level info.
-    dict_keys = list(itertools.product(*key_levels))
+    dict_keys = list(itertools.product(*keylevels))
 
-    # Loop through each of the possible key chains and create an
+    # Use an input dictionary with valid baseline microsegment information to
+    # check that each of the microsegment key chains generated above is valid
+    # for the current measure; if not, remove each invalid key chain from
+    # further operations
+
+    # Initialize a list of valid baseline microsegment key chains for the
+    # measure
+    dict_keys_fin = []
+    # Loop through the initial set of candidate key chains generated above
+    for kc in dict_keys:
+        # Copy the input dictionary containing valid key chains
+        dict_check = copy.deepcopy(msegs)
+        # Loop through all keys in the candidate key chain and move down
+        # successive levels of the input dict until either the
+        # end of the key chain is reached or a key is not found in the
+        # list of valid keys for the current input dict level. In the
+        # former case, the resultant dict will point to all technologies
+        # associated with the current key chain (e.g., ASHP, LFL, etc.)
+        # If none of these technologies are found in the list of technologies
+        # covered by the measure, the key chain is deemed invalid
+        for ind, key in enumerate(kc):
+            # If key is found in the list of valid keys for the current
+            # input microsegment dict level, move on to next level in the dict;
+            # otherwise, break the current loop
+            if key in dict_check.keys():
+                dict_check = dict_check[key]
+                # In the case of heating or cooling end uses, an additional
+                # 'technology type' key must be accounted for ('supply' or
+                # 'demand')
+                if key in ['heating', 'cooling']:
+                    dict_check = dict_check[tech_type]
+            else:
+                break
+
+        # If any of the technology types listed in the measure definition
+        # are found in the keys of the dictionary yielded by the above loop,
+        # add the key chain to the list that is used to define the final
+        # nested dictionary output (e.g., the key chain is valid)
+        if any([x in tech for x in dict_check.keys()]):
+            dict_keys_fin.append(kc)
+
+    # Loop through each of the valid key chains and create an
     # associated path in the dictionary, terminating with a zero value
     # to be updated in a subsequent routine with EnergyPlus output data
-    for kc in dict_keys:
+    for kc in dict_keys_fin:
         current_level = output_dict
         for ind, elem in enumerate(kc):
             if elem not in current_level and (ind + 1) != len(kc):
@@ -448,6 +500,10 @@ def main():
     # building type
     EPlus_bldg_type_weight = 1
 
+    # Import baseline microsegments JSON
+    with open(mseg_in, 'r') as msi:
+        msegs = json.load(msi)
+
     # Import measures JSON
     with open(measures_in, 'r') as mjs:
         measures = json.load(mjs)
@@ -467,7 +523,7 @@ def main():
         if len(EPlus_perf_in) == 1:
             # Create a measure performance dictionary, zeroed out, to
             # be updated with information from EnergyPlus outputs
-            perf_dict_empty = create_perf_dict(m)
+            perf_dict_empty = create_perf_dict(m, msegs)
             # Import EnergyPlus measure performance XLSX
             EPlus_perf = xlrd.open_workbook(EPlus_perf_in)
             EPlus_perf_sh = EPlus_perf.sheet_by_index(2)

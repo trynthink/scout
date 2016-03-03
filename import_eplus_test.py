@@ -204,7 +204,139 @@ class ConverttoArrayTest(unittest.TestCase, CommonMethods):
 
 class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     """ Test 'create_perf_dict' function to ensure it properly creates a
-    dictionary to later be filled with EnergyPlus measure performance data """
+    nested dictionary to later be filled with EnergyPlus measure performance
+    data """
+
+    # Define a sample input dictionary containing baseline microsegment
+    # information that will be used to check validity of candidate key chains
+    # for the nested dictionary branches
+    sample_input_mseg = {
+        'hot dry': {
+            'education': {
+                'electricity (grid)': {
+                    'lighting': {
+                        "linear fluorescent (LED)": 0,
+                        "general service (LED)": 0,
+                        "external (LED)": 0},
+                    'heating': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}},
+                'natural gas': {
+                    'heating': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}}},
+            'assembly': {
+                'electricity (grid)': {
+                    'lighting': {
+                        "linear fluorescent (LED)": 0,
+                        "general service (LED)": 0,
+                        "external (LED)": 0},
+                    'heating': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}},
+                'natural gas': {
+                    'heating': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}}}},
+        'mixed humid': {
+            'education': {
+                'electricity (grid)': {
+                    'lighting': {
+                        "linear fluorescent (LED)": 0,
+                        "general service (LED)": 0,
+                        "external (LED)": 0},
+                    'heating': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}},
+                'natural gas': {
+                    'heating': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}}},
+            'assembly': {
+                'electricity (grid)': {
+                    'lighting': {
+                        "linear fluorescent (LED)": 0,
+                        "general service (LED)": 0,
+                        "external (LED)": 0},
+                    'heating': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'ASHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}},
+                'natural gas': {
+                    'heating': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}},
+                    'cooling': {
+                        'supply': {
+                            'NGHP': 0},
+                        'demand': {
+                            'windows conduction': 0,
+                            'windows solar': 0}}}}}}
 
     # Define a sample measure to initialize a performance dictionary for
     sample_eplus_measure = {
@@ -222,10 +354,11 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
         "product_lifetime": 10,
         "structure_type": ["new", "retrofit"],
         "bldg_type": ["assembly", "education"],
-        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+        "climate_zone": ["hot dry", "mixed humid"],
         "fuel_type": {
             "primary": ["electricity (grid)"],
-            "secondary": ["electricity (grid)", "natural gas"]},
+            "secondary": [
+                "electricity (grid)", "natural gas", "other fuel"]},
         "fuel_switch_to": None,
         "end_use": {
             "primary": ["lighting"],
@@ -241,14 +374,14 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     # Define correct performance dictionary output for sample measure
     ok_out = {
         "primary": {
-            'AIA_CZ2': {
+            'hot dry': {
                 'education': {
                     'electricity (grid)': {
                         'lighting': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
                     'electricity (grid)': {
                         'lighting': {'retrofit': 0, 'new': 0}}}},
-            'AIA_CZ1': {
+            'mixed humid': {
                 'education': {
                     'electricity (grid)': {
                         'lighting': {'retrofit': 0, 'new': 0}}},
@@ -256,7 +389,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                     'electricity (grid)': {
                         'lighting': {'retrofit': 0, 'new': 0}}}}},
         "secondary": {
-            'AIA_CZ2': {
+            'hot dry': {
                 'education': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
@@ -271,7 +404,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}}},
-            'AIA_CZ1': {
+            'mixed humid': {
                 'education': {
                     'electricity (grid)': {
                         'heating': {'retrofit': 0, 'new': 0},
@@ -290,7 +423,8 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     # Test for correct generation of measure performance dictionary
     def test_dict_creation(self):
         self.dict_check(
-            import_eplus.create_perf_dict(self.sample_eplus_measure),
+            import_eplus.create_perf_dict(
+                self.sample_eplus_measure, self.sample_input_mseg),
             self.ok_out)
 
 
