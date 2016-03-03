@@ -154,7 +154,7 @@ class ConverttoArrayTest(unittest.TestCase, CommonMethods):
          0.004321521, 0, 0, 0, 0.250674034, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
          0, 0, 0, 0)],
         dtype=[('Climate Zone', '<U13'), ('Building Type', '<U22'),
-               ('Template', '<U17'), ('Status', 'U7'), ('Floor Area', '<f8'),
+               ('Template', '<U17'), ('Status', 'U22'), ('Floor Area', '<f8'),
                ('Total Site Electricity', '<f8'),
                ('Net Site Electricity', '<f8'),
                ('Total Gas', '<f8'), ('Total Other Fuel', '<f8'),

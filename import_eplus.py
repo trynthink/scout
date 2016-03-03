@@ -7,6 +7,7 @@ import json
 from os import listdir
 from os.path import isfile, join
 import copy
+import sys
 
 # Define input file containing valid baseline microsegment information
 # (to check against in developing key chains for a measure
@@ -16,12 +17,6 @@ mseg_in = "microsegments_out_eplus_sample.json"
 measures_in = "measures_eplus_sample.json"
 # Define CBECS square footage file
 CBECS_in = "b34.xlsx"
-# Define EnergyPlus measure performance output file directory
-# eplus_dir = '/Users/jtlangevin/Desktop/scout'
-# # Define EnergyPlus data file name list
-# EPlus_perf_files = [
-#     f for f in listdir(eplus_dir) if isfile(join(eplus_dir, f))]
-EPlus_perf_files = []
 # Set up a series of dictionaries used to map EnergyPlus climate zone,
 # building type, fuel type, and end use names to the names for these
 # variables in Scout
@@ -256,6 +251,10 @@ def convert_to_array(EPlus_perf_sh):
     # as the variable names
     EPlus_perf_array = numpy.rec.fromrecords(arr, names=headers)
 
+    # Remove any rows in array that measure does not apply to
+    EPlus_perf_array = EPlus_perf_array[numpy.where(
+        EPlus_perf_array['Status'] != 'Measure Not Applicable')].copy()
+
     # Return the resultant structured array
     return EPlus_perf_array
 
@@ -285,7 +284,8 @@ def create_perf_dict(measure, mseg_in):
 
     # Create secondary dict structure from baseline market properties
     # (if needed)
-    if len(fuel_list_secondary) > 0 and len(enduse_list_secondary) > 0:
+    if all([x is not None for x in [fuel_list_secondary, enduse_list_secondary,
+                                    tech_type_secondary, tech_secondary]]):
         perf_dict_empty["secondary"] = create_dict(
             czone_list, bldg_list, structure_type_list, fuel_list_secondary,
             enduse_list_secondary, tech_type_secondary, tech_secondary,
@@ -391,21 +391,18 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
                 # currently being updated in the performance dictionary
                 updated_perf_array = EPlus_perf_array[numpy.where(
                     EPlus_perf_array[
-                        'Climate Zone'] == czone[key])]
+                        'Climate Zone'] == czone[key])].copy()
                 if len(updated_perf_array) == 0:
                     raise ValueError('EPlus climate zone name not found!')
             # Building type level
             elif key in bldgtype.keys():
                 # Reduce EnergyPlus array to only rows with building type
                 # currently being updated in the performance dictionary
-                if all([x in EPlus_perf_array[
-                        'Building Type'] for x in bldgtype[key]]):
-                    EPlus_bldg_type_weight = 1 / len(bldgtype[key])
-                else:
-                    raise ValueError('EPlus building type name not found!')
                 updated_perf_array = EPlus_perf_array[numpy.in1d(
                     EPlus_perf_array[
-                        'Building Type'], bldgtype[key])]
+                        'Building Type'], bldgtype[key])].copy()
+                if len(updated_perf_array) == 0:
+                    raise ValueError('EPlus building type name not found!')
             # Fuel type level
             elif key in fuel.keys():
                 # Reduce EnergyPlus array to only columns with fuel type
@@ -415,7 +412,7 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
                     x for x in EPlus_header if fuel[key] in x])
                 if len(colnames) == 3:
                     raise ValueError('EPlus fuel type name not found!')
-                updated_perf_array = EPlus_perf_array[colnames]
+                updated_perf_array = EPlus_perf_array[colnames].copy()
             # End use level
             elif key in enduse.keys():
                 # Reduce EnergyPlus array to only columns with end use
@@ -425,7 +422,7 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
                     x for x in EPlus_header if x in enduse[key]])
                 if len(colnames) == 3:
                     raise ValueError('EPlus end use name not found!')
-                updated_perf_array = EPlus_perf_array[colnames]
+                updated_perf_array = EPlus_perf_array[colnames].copy()
             else:
                 raise KeyError('Invalid measure performance dictionary key!')
 
@@ -443,14 +440,19 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
                 if key == "new":
                     updated_perf_array = EPlus_perf_array[numpy.where(
                         EPlus_perf_array['Template'] ==
-                        structure_type['new'])]
+                        structure_type['new'])].copy()
                 # A 'retrofit' structure type will match multiple EnergyPlus
                 # building vintage names
                 else:
                     updated_perf_array = EPlus_perf_array[numpy.in1d(
                         EPlus_perf_array['Template'],
-                        list(structure_type['retrofit'].keys()))]
-                if len(updated_perf_array) == 0:
+                        list(structure_type['retrofit'].keys()))].copy()
+                if len(updated_perf_array) == 0 or \
+                   (key == "new" and
+                    len(numpy.unique(updated_perf_array['Template'])) != 1 or
+                    key == "retrofit" and
+                    len(numpy.unique(updated_perf_array['Template'])) !=
+                        len(structure_type["retrofit"].keys())):
                     raise ValueError(
                         'EPlus vintage name not found in data file!')
             else:
@@ -460,6 +462,12 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
             # measure performance dictionary branch as 0
             end_key_val = 0
 
+            # Update building type weight to account for cases where
+            # multiple EPlus building types map to one Scout building type
+            # (for now, weight each EPlus type evenly)
+            EPlus_bldg_type_weight = 1 / \
+                len(numpy.unique(updated_perf_array['Building Type']))
+
             # Weight and combine the relative savings values left in the
             # EnergyPlus array to arrive at the final measure relative
             # savings value for the current dictionary branch
@@ -468,7 +476,7 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
                     if r[n].dtype.char != 'S' and r[n].dtype.char != 'U':
                         r[n] = r[n] * EPlus_bldg_type_weight * \
                             EPlus_bldg_vintage_weights[
-                            r['Template']]
+                            r['Template'].copy()]
                         end_key_val += r[n]
 
             # Update the current dictionary branch value to the final
@@ -479,7 +487,7 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
     return perf_dict
 
 
-def main():
+def main(argv):
 
     # Import CBECS XLSX
     CBECS = xlrd.open_workbook(CBECS_in)
@@ -487,8 +495,14 @@ def main():
     # Pull out building vintage square footage data
     vintage_sf = CBECS_vintage_sf(CBECS_sh)
 
+    # Set local directory for EnergyPlus measure performance files
+    eplus_dir = argv
+    # Set EnergyPlus data file name list, given local directory
+    EPlus_perf_files = [
+        f for f in listdir(eplus_dir) if isfile(join(eplus_dir, f))]
+
     # Import EnergyPlus measure performance XLSX
-    EPlus_file = xlrd.open_workbook(EPlus_perf_files[0])
+    EPlus_file = xlrd.open_workbook(eplus_dir + '/' + EPlus_perf_files[0])
     EPlus_file_sh = EPlus_file.sheet_by_index(2)
     # Determine appropriate weights for mapping EnergyPlus vintages to the
     # 'new' and 'retrofit' building structure types of Scout
@@ -508,36 +522,51 @@ def main():
     with open(measures_in, 'r') as mjs:
         measures = json.load(mjs)
 
-    # Determine subset of measures where an EnergyPlus simulation output file
-    # is required to determine the measure performance input
-    measures_eplus = [
-        m for m in measures if m['energy efficiency'] == 'EnergyPlus file']
+    # Loop through all measures and updated with EPlus performance data
+    # (where applicable)
+    for m in measures:
+        if 'EnergyPlus file' in m['energy_efficiency'].keys():
+            # Determine the appropriate EnergyPlus input XLSX file name
+            EPlus_perf_in = [x for x in EPlus_perf_files if
+                             m['energy_efficiency']['EnergyPlus file'] in x]
+            # Import EnergyPlus input XLSX and translate to structured array
+            # for future operations
+            if len(EPlus_perf_in) == 1:
+                # Create a measure performance dictionary, zeroed out, to
+                # be updated with information from EnergyPlus outputs
+                perf_dict_empty = create_perf_dict(m, msegs)
+                # Import EnergyPlus measure performance XLSX
+                EPlus_perf = xlrd.open_workbook(
+                    eplus_dir + '/' + EPlus_perf_in[0])
+                EPlus_perf_sh = EPlus_perf.sheet_by_index(2)
+                # Convert Excel sheet data into numpy array
+                EPlus_perf_array = convert_to_array(EPlus_perf_sh)
 
-    # Loop through all measures in need of performance data from EnergyPlus
-    for m in measures_eplus:
-        # Determine the appropriate EnergyPlus input XLSX file name
-        EPlus_perf_in = [x for x in EPlus_perf_files if
-                         m['energy_efficiency']['EnergyPlus file'] in x]
-        # Import EnergyPlus input XLSX and translate to structured array for
-        # future operations
-        if len(EPlus_perf_in) == 1:
-            # Create a measure performance dictionary, zeroed out, to
-            # be updated with information from EnergyPlus outputs
-            perf_dict_empty = create_perf_dict(m, msegs)
-            # Import EnergyPlus measure performance XLSX
-            EPlus_perf = xlrd.open_workbook(EPlus_perf_in)
-            EPlus_perf_sh = EPlus_perf.sheet_by_index(2)
-            # Convert Excel sheet data into numpy array
-            EPlus_perf_array = convert_to_array(EPlus_perf_sh)
+                # Update measure performance based on EnergyPlus data
+                # (* Note: only update efficiency information for
+                # secondary microsegments if applicable)
+                if perf_dict_empty['secondary'] is not None:
+                    m['energy_efficiency'] = fill_perf_dict(
+                        perf_dict_empty, EPlus_perf_array,
+                        EPlus_bldg_type_weight, EPlus_vintage_weights)
+                else:
+                    m['energy_efficiency'] = fill_perf_dict(
+                        perf_dict_empty['primary'], EPlus_perf_array,
+                        EPlus_bldg_type_weight, EPlus_vintage_weights)
+                # Set the energy efficiency source for the measure to
+                # EnergyPlus and set to highest quality rating
+                m['energy_efficiency_source'] = 'EnergyPlus/OpenStudio'
+                m['energy_efficiency_source_quality'] = 5
+            elif len(EPlus_perf_in) > 1:
+                raise ValueError('> 1 applicable EPlus file for measure!')
+            else:
+                raise ValueError(
+                    'Failure to match measure name to EPlus files!')
 
-            # Update measure performance based on EnergyPlus data
-            m['energy_efficiency'] = fill_perf_dict(
-                perf_dict_empty, EPlus_perf_array, EPlus_bldg_type_weight,
-                EPlus_vintage_weights)
-        elif len(EPlus_perf_in) > 1:
-            raise ValueError('> 1 applicable EPlus file for measure!')
-        else:
-            raise ValueError('Failure to match measure name to EPlus files!')
+    # Write the updated dict of measure performance data over the existing
+    # measures JSON file
+    with open(measures_in, "w") as jso:
+        json.dump(measures, jso, indent=4)
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1])
