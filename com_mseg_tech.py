@@ -10,7 +10,26 @@ import warnings
 
 
 def units_id(sel, flag):
-    """ docstring """
+    """ Provides a units text string for a specified microsegment.
+
+    Depending on the end use number given in the sel list, which
+    specifies the entire microsegment, this function returns the
+    string that best describes the units for that end use. Using
+    this function ensures that the units are consistent throughout
+    the output data. The unit definitions are based on the preamble
+    text in the EIA AEO commercial buildings technology data file.
+
+    Args:
+        sel (list): A list of four integers that, together, define a
+            microsegment, and correspond to the climate zone, building
+            type, end use, and fuel type, in that order.
+        flag (str): Indicates the type of units to be returned, either
+            'cost' or 'performance'.
+
+    Returns:
+        A text string of the appropriate units for the input arguments
+        to the function.
+    """
 
     # For readability, assign the end use number to a clearly named variable
     enduse = sel[2]
@@ -205,7 +224,11 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
         # extract the service demand data and insert them into the
         # service demand array in the same row as the corresponding
         # cost data
-        select_sd[idx, ] = sd_array[sd_names.index(row['technology name']), ]
+        select_sd[idx, ] = sd_array[
+            sd_names.index(row['technology name'][:44]), ]
+        # Truncate technology name string from technology data to 44
+        # characters since all string descriptors in the service demand
+        # data are limited to that length
 
     # Normalize the service demand data to simplify the calculation of
     # the service demand-weighted arithmetic mean of the desired data

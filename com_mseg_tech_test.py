@@ -864,6 +864,7 @@ class CommonUnitTest(unittest.TestCase):
     # underlying empty JSON database that define what data should be
     # selected from the tech_data and sd_data arrays
     data_to_select = [[4, 6, 1, 1],
+                      [4, 6, 1, 1],
                       [2, 8, 4, 1],
                       [9, 10, 6, 1]]
     # Note that the conversion from the category text to numbers isn't
@@ -871,12 +872,61 @@ class CommonUnitTest(unittest.TestCase):
 
     # Define lists of strings for the cost and performance units of
     # each of the technologies in the data_to_select list
-    cost_units = ['2013$/kBTU out/hr', '2013$/1000 cfm', '2013$/1000 lm']
-    perf_units = ['BTU out/BTU in', 'cfm-hr/BTU in', 'lm/W']
+    cost_units = ['2013$/kBTU out/hr',
+                  '2013$/kBTU out/hr',
+                  '2013$/1000 cfm',
+                  '2013$/1000 lm']
+    perf_units = ['BTU out/BTU in',
+                  'BTU out/BTU in',
+                  'cfm-hr/BTU in',
+                  'lm/W']
 
     # Define a list of numpy arrays that represent the data selected
     # from the tech_data array based on the data_to_select lists
     selected_tech_data = [
+        np.array([
+            (1, 1, 4, 1, 1, 0.015, 3.1, 67.78, 1.47, 15, 2003, 2009,
+             'rooftop_ASHP-heat 2003 installed base'),
+            (1, 2, 4, 1, 1, 0.0, 3.25, 81.39, 1.47, 15, 2003, 2009,
+             'rooftop_ASHP-heat 2012 installed base'),
+            (1, 3, 4, 1, 1, 0.0, 3.3, 81.39, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 current standard/ typical'),
+            (1, 4, 4, 1, 1, 0.0, 3.35, 83.61, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 ENERGY STAR'),
+            (1, 5, 4, 1, 1, 0.0, 3.4, 102.78, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 high'),
+            (1, 6, 4, 1, 1, 0.0, 3.3, 81.39, 1.47, 15, 2020, 2052,
+             'rooftop_ASHP-heat 2020 typical'),
+            (1, 7, 4, 1, 1, 0.0, 3.4, 102.78, 1.47, 15, 2020, 2052,
+             'rooftop_ASHP-heat 2020 high'),
+            (2, 1, 4, 1, 1, 0.0173, 3.4, 545.83, 3.13, 25, 2003, 2052,
+             'comm_GSHP-heat 2003 installed base'),
+            (2, 2, 4, 1, 1, 0.0, 3.5, 545.83, 3.13, 25, 2003, 2052,
+             'comm_GSHP-heat 2012 installed base'),
+            (2, 3, 4, 1, 1, 0.0, 3.6, 514.58, 3.13, 25, 2003, 2052,
+             'comm_GSHP-heat 2013 typical'),
+            (2, 4, 4, 1, 1, 0.0, 3.7, 530.21, 3.13, 25, 2003, 2052,
+             'comm_GSHP-heat 2013 mid'),
+            (2, 5, 4, 1, 1, 0.0, 4.0, 571.88, 3.13, 25, 2003, 2052,
+             'comm_GSHP-heat 2013 high'),
+            (2, 6, 4, 1, 1, 0.0, 3.8, 514.58, 3.13, 25, 2020, 2052,
+             'comm_GSHP-heat 2020 typical'),
+            (2, 7, 4, 1, 1, 0.0, 4.2, 571.88, 3.13, 25, 2020, 2052,
+             'comm_GSHP-heat 2020 high'),
+            (2, 10, 4, 1, 1, 0.0, 3.6, 514.58, 3.13, 25, 2008, 2016,
+             'comm_GSHP-heat 2013 typ 10% ITC w MACRS'),
+            (2, 11, 4, 1, 1, 0.0, 3.7, 530.21, 3.13, 25, 2008, 2016,
+             'comm_GSHP-heat 2013 mid 10% ITC w MACRS'),
+            (2, 12, 4, 1, 1, 0.0, 4.0, 571.88, 3.13, 25, 2008, 2016,
+             'comm_GSHP-heat 2013 high 10% ITC w MACRS'),
+            (46, 1, 4, 1, 1, 0.0809, 0.94, 16.68, 0.26, 15, 2003, 2052,
+             'elec_boiler 2003 installed base'),
+            (46, 2, 4, 1, 1, 0.0, 0.94, 21.13, 0.26, 15, 2012, 2052,
+             'elec_boiler 2012 installed base')],
+            dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
+                   ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
+                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('technology name', '<U50')]),
         np.array([
             (1, 1, 4, 1, 1, 0.015, 3.1, 67.78, 1.47, 15, 2003, 2009,
              'rooftop_ASHP-heat 2003 installed base'),
@@ -1044,6 +1094,45 @@ class CommonUnitTest(unittest.TestCase):
              [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
               0.000, 0.000, 0.000, 0.000, 0.000, 0.000]]),
         np.array(
+            [[0.239, 0.226, 0.214, 0.202, 0.190, 0.180,
+              0.169, 0.160, 0.151, 0.142, 0.134, 0.127],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.023, 0.031, 0.040, 0.046, 0.054, 0.059,
+              0.064, 0.069, 0.066, 0.062, 0.059, 0.055],
+             [0.039, 0.037, 0.035, 0.033, 0.031, 0.029,
+              0.028, 0.026, 0.033, 0.039, 0.045, 0.043],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.008],
+             [1.648, 1.680, 1.707, 1.722, 1.748, 1.773,
+              1.799, 1.824, 1.849, 1.879, 1.904, 1.929],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000],
+             [0.000, 0.000, 0.000, 0.000, 0.000, 0.000,
+              0.000, 0.000, 0.000, 0.000, 0.000, 0.000]]),
+        np.array(
             [[0.717, 0.673, 0.631, 0.591, 0.554, 0.520,
               0.487, 0.457, 0.428, 0.402, 0.377, 0.353],
              [0.355, 0.395, 0.370, 0.347, 0.325, 0.305,
@@ -1137,6 +1226,20 @@ class CommonUnitTest(unittest.TestCase):
          'rooftop_ASHP-heat 2013 current standard/ typ',
          'rooftop_ASHP-heat 2013 high', 'rooftop_ASHP-heat 2020 high',
          'rooftop_ASHP-heat 2020 typical'],
+        ['comm_GSHP-heat 2003 installed base',
+         'comm_GSHP-heat 2012 installed base', 'comm_GSHP-heat 2013 high',
+         'comm_GSHP-heat 2013 high 10% ITC w MACRS', 'comm_GSHP-heat 2013 mid',
+         'comm_GSHP-heat 2013 mid 10% ITC w MACRS',
+         'comm_GSHP-heat 2013 typ 10% ITC w MACRS',
+         'comm_GSHP-heat 2013 typical', 'comm_GSHP-heat 2020 high',
+         'comm_GSHP-heat 2020 typical', 'elec_boiler 2003 installed base',
+         'elec_boiler 2012 installed base',
+         'rooftop_ASHP-heat 2003 installed base',
+         'rooftop_ASHP-heat 2012 installed base',
+         'rooftop_ASHP-heat 2013 ENERGY STAR',
+         'rooftop_ASHP-heat 2013 current standard/ typ',
+         'rooftop_ASHP-heat 2013 high', 'rooftop_ASHP-heat 2020 high',
+         'rooftop_ASHP-heat 2020 typical'],
         ['CAV_Vent 2003 installed base', 'CAV_Vent 2007 installed base',
          'CAV_Vent 2011 high', 'CAV_Vent 2011 minimum',
          'CAV_Vent 2011 typical', 'CAV_Vent 2020 high',
@@ -1164,7 +1267,8 @@ class CommonUnitTest(unittest.TestCase):
     # Define a list of names of specific technologies to have their
     # cost, performance, and lifetime data converted into the desired
     # form for the output JSON database
-    tmp_names = ['comm_GSHP-heat', 'VAV_Vent', 'F28T8 HE w/ OS']
+    tmp_names = ['comm_GSHP-heat', 'rooftop_ASHP-heat',
+                 'VAV_Vent', 'F28T8 HE w/ OS']
 
     # Set up a list of numpy arrays containing the cost, performance,
     # and lifetime data for the specific technologies in tmp_names
@@ -1190,6 +1294,25 @@ class CommonUnitTest(unittest.TestCase):
              'comm_GSHP-heat 2013 mid 10% ITC w MACRS'),
             (2, 12, 4, 1, 1, 0.0, 4.0, 571.88, 3.13, 25, 2008, 2016,
              'comm_GSHP-heat 2013 high 10% ITC w MACRS')],
+            dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
+                   ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
+                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('technology name', '<U50')]),
+        np.array([
+            (1, 1, 4, 1, 1, 0.015, 3.1, 67.78, 1.47, 15, 2003, 2009,
+             'rooftop_ASHP-heat 2003 installed base'),
+            (1, 2, 4, 1, 1, 0.0, 3.25, 81.39, 1.47, 15, 2003, 2009,
+             'rooftop_ASHP-heat 2012 installed base'),
+            (1, 3, 4, 1, 1, 0.0, 3.3, 81.39, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 current standard/ typical'),
+            (1, 4, 4, 1, 1, 0.0, 3.35, 83.61, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 ENERGY STAR'),
+            (1, 5, 4, 1, 1, 0.0, 3.4, 102.78, 1.47, 15, 2003, 2052,
+             'rooftop_ASHP-heat 2013 high'),
+            (1, 6, 4, 1, 1, 0.0, 3.3, 81.39, 1.47, 15, 2020, 2052,
+             'rooftop_ASHP-heat 2020 typical'),
+            (1, 7, 4, 1, 1, 0.0, 3.4, 102.78, 1.47, 15, 2020, 2052,
+             'rooftop_ASHP-heat 2020 high')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
                    ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
@@ -1239,6 +1362,16 @@ class CommonUnitTest(unittest.TestCase):
              '2015': 571.88, '2016': 571.88, '2017': 571.88,
              '2018': 571.88, '2019': 571.88, '2020': 571.88}},
         {'typical':
+            {'2009': 0.0, '2010': 0.0, '2011': 0.0,
+             '2012': 0.0, '2013': 0.0, '2014': 0.0,
+             '2015': 0.0, '2016': 0.0, '2017': 0.0,
+             '2018': 0.0, '2019': 0.0, '2020': 0.0},
+         'best':
+            {'2009': 102.78, '2010': 102.78, '2011': 102.78,
+             '2012': 102.78, '2013': 102.78, '2014': 102.78,
+             '2015': 102.78, '2016': 102.78, '2017': 102.78,
+             '2018': 102.78, '2019': 102.78, '2020': 102.78}},
+        {'typical':
             {'2009': 6266.69, '2010': 6266.69, '2011': 6266.69,
              '2012': 6266.69, '2013': 6266.69, '2014': 6266.69,
              '2015': 6266.69, '2016': 6266.69, '2017': 6266.69,
@@ -1272,6 +1405,16 @@ class CommonUnitTest(unittest.TestCase):
              '2012': 4.0, '2013': 4.0, '2014': 4.0,
              '2015': 4.0, '2016': 4.0, '2017': 4.0,
              '2018': 4.0, '2019': 4.0, '2020': 4.2}},
+        {'typical':
+            {'2009': 0.0, '2010': 0.0, '2011': 0.0,
+             '2012': 0.0, '2013': 0.0, '2014': 0.0,
+             '2015': 0.0, '2016': 0.0, '2017': 0.0,
+             '2018': 0.0, '2019': 0.0, '2020': 0.0},
+         'best':
+            {'2009': 3.4, '2010': 3.4, '2011': 3.4,
+             '2012': 3.4, '2013': 3.4, '2014': 3.4,
+             '2015': 3.4, '2016': 3.4, '2017': 3.4,
+             '2018': 3.4, '2019': 3.4, '2020': 3.4}},
         {'typical':
             {'2009': 1.1890, '2010': 1.1940, '2011': 1.2047,
              '2012': 1.2146, '2013': 1.2236, '2014': 1.2297,
@@ -1307,6 +1450,16 @@ class CommonUnitTest(unittest.TestCase):
              '2015': 0, '2016': 0, '2017': 0,
              '2018': 0, '2019': 0, '2020': 0}},
         {'average':
+            {'2009': 15, '2010': 15, '2011': 15,
+             '2012': 15, '2013': 15, '2014': 15,
+             '2015': 15, '2016': 15, '2017': 15,
+             '2018': 15, '2019': 15, '2020': 15},
+         'range':
+            {'2009': 0, '2010': 0, '2011': 0,
+             '2012': 0, '2013': 0, '2014': 0,
+             '2015': 0, '2016': 0, '2017': 0,
+             '2018': 0, '2019': 0, '2020': 0}},
+        {'average':
             {'2009': 20, '2010': 20, '2011': 20,
              '2012': 20, '2013': 20, '2014': 20,
              '2015': 20, '2016': 20, '2017': 20,
@@ -1326,6 +1479,14 @@ class CommonUnitTest(unittest.TestCase):
              '2012': 0, '2013': 0, '2014': 0,
              '2015': 0, '2016': 0, '2017': 0,
              '2018': 0, '2019': 0, '2020': 0}}]
+
+    # Define lists of technology names for each of the microsegments tested
+    tech_names = [
+        ['comm_GSHP-heat', 'elec_boiler', 'rooftop_ASHP-heat'],
+        ['comm_GSHP-heat', 'elec_boiler', 'rooftop_ASHP-heat'],
+        ['CAV_Vent', 'VAV_Vent'],
+        ['23W CFL', '70W HIR PAR-38', '90W Halogen PAR-38',
+         'F28T8 HE w/ OS', 'F34T12', 'LED Edison', 'T8 F32 EEMag (e)']]
 
     # Create a function for checking equality of a dict with point values
     def dict_check(self, dict1, dict2):
