@@ -2489,6 +2489,100 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "model type": "bass diffusion",
                                         "parameters": {
                                             "p": "NA",
+                                            "q": "NA"}}}}},
+                    "refrigeration": {
+                        "performance": {
+                            "typical": {"2009": 550, "2010": 550},
+                            "best": {"2009": 450, "2010": 450},
+                            "units": "kWh/yr",
+                            "source":
+                            "EIA AEO"},
+                        "installed cost": {
+                            "typical": {"2009": 300, "2010": 300},
+                            "best": {"2009": 600, "2010": 600},
+                            "units": "2010$/unit",
+                            "source": "EIA AEO"},
+                        "lifetime": {
+                            "average": {"2009": 17, "2010": 17},
+                            "range": {"2009": 6, "2010": 6},
+                            "units": "years",
+                            "source": "EIA AEO"},
+                        "consumer choice": {
+                            "competed market share": {
+                                "source": "EIA AEO",
+                                "model type": "logistic regression",
+                                "parameters": {
+                                    "b1": {"2009": None, "2010": None},
+                                    "b2": {"2009": None,
+                                           "2010": None}}},
+                            "competed market": {
+                                "source": "COBAM",
+                                "model type": "bass diffusion",
+                                "parameters": {
+                                    "p": "NA",
+                                    "q": "NA"}}}},
+                    "other (grid electric)": {
+                        "freezers": {
+                                "performance": {
+                                    "typical": {"2009": 550, "2010": 550},
+                                    "best": {"2009": 450, "2010": 450},
+                                    "units": "kWh/yr",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 100, "2010": 100},
+                                    "best": {"2009": 200, "2010": 200},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 15, "2010": 15},
+                                    "range": {"2009": 3, "2010": 3},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                        "other MELs": {
+                                "performance": {
+                                    "typical": {"2009": 550, "2010": 550},
+                                    "best": {"2009": 450, "2010": 450},
+                                    "units": "kWh/yr",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 100, "2010": 100},
+                                    "best": {"2009": 200, "2010": 200},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 15, "2010": 15},
+                                    "range": {"2009": 3, "2010": 3},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type": "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None, "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
                                             "q": "NA"}}}}}},
                 "natural gas": {
                     "water heating": {
@@ -4313,7 +4407,17 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                  "energy": {"2009": 13, "2010": 13}},
                                  "external (LED)": {
                                  "stock": {"2009": 14, "2010": 14},
-                                 "energy": {"2009": 14, "2010": 14}}}},
+                                 "energy": {"2009": 14, "2010": 14}}},
+                    "refrigeration": {
+                        "stock": {"2009": 111, "2010": 111},
+                        "energy": {"2009": 111, "2010": 111}},
+                    "other (grid electric)": {
+                        "freezers": {
+                            "stock": {"2009": 222, "2010": 222},
+                            "energy": {"2009": 222, "2010": 222}},
+                        "other MELs": {
+                            "stock": {"2009": 333, "2010": 333},
+                            "energy": {"2009": 333, "2010": 333}}}},
                 "natural gas": {
                     "water heating": {
                         "stock": {"2009": 15, "2010": 15},
@@ -4904,6 +5008,31 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
                     "technology": {"primary": None,
+                                   "secondary": None}},
+                   {"name": "sample measure 15",
+                    "installed_cost": 500,
+                    "cost_units": "2010$/unit",
+                    "energy_efficiency": {
+                        "primary": 0.1,
+                        "secondary": None},
+                    "energy_efficiency_units": {
+                        "primary": "relative savings (constant)",
+                        "secondary": None},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "product_lifetime": 17,
+                    "structure_type": ["new", "retrofit"],
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["electricity (grid)"],
+                                  "secondary": None},
+                    "fuel_switch_to": None,
+                    "end_use": {
+                        "primary": ["refrigeration", "other (grid electric)"],
+                        "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": [None, "freezers"],
                                    "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
@@ -5802,7 +5931,53 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 28255.06, "2010": 27456.07},
                     "efficient": {"2009": 64630.29, "2010": 64058.75}}}},
         "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                     "measure": 10}}]
+                     "measure": 10}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 333, "2010": 333},
+                "measure": {"2009": 333, "2010": 333}},
+            "competed": {
+                "all": {"2009": 333, "2010": 333},
+                "measure": {"2009": 333, "2010": 333}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 1062.27, "2010": 1065.6},
+                "efficient": {"2009": 956.043, "2010": 959.04}},
+            "competed": {
+                "baseline": {"2009": 1062.27, "2010": 1065.6},
+                "efficient": {"2009": 956.043, "2010": 959.04}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 60386.89, "2010": 59852.87},
+                "efficient": {"2009": 54348.2, "2010": 53867.58}},
+            "competed": {
+                "baseline": {"2009": 60386.89, "2010": 59852.87},
+                "efficient": {"2009": 54348.2, "2010": 53867.58}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 55500, "2010": 55500},
+                    "efficient": {"2009": 166500, "2010": 166500}},
+                "competed": {
+                    "baseline": {"2009": 55500, "2010": 55500},
+                    "efficient": {"2009": 166500, "2010": 166500}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 10771.42, "2010": 10304.35},
+                    "efficient": {"2009": 9694.276, "2010": 9273.917}},
+                "competed": {
+                    "baseline": {"2009": 10771.42, "2010": 10304.35},
+                    "efficient": {"2009": 9694.276, "2010": 9273.917}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 1992767.41, "2010": 1975144.64},
+                    "efficient": {"2009": 1793490.67, "2010": 1777630.18}},
+                "competed": {
+                    "baseline": {"2009": 1992767.41, "2010": 1975144.64},
+                    "efficient": {"2009": 1793490.67, "2010": 1777630.18}}}},
+        "lifetime": {"baseline": {"2009": 16, "2010": 16},
+                     "measure": 17}}]
 
     # Set the consumer choice dicts that should be generated by the
     # first two "ok_measures" above using the "sample_msegin" dict.
