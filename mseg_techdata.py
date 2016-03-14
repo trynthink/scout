@@ -855,6 +855,9 @@ def fill_years_lt(match_list, project_dict):
     lighting technologies into a list of dicts containing information for each
     projection year used for microsegments in "mseg.py" """
 
+    # Filter out any rows where 9999 is found in lighting life column (invalid)
+    match_list = match_list[numpy.where(match_list["LIFE_HRS"] != 9999)]
+
     # Update performance information for projection years
     perf = stitch(match_list, project_dict, "BASE_EFF")
     # Update cost information for projection years
