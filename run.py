@@ -954,18 +954,27 @@ class Measure(object):
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
         stock_total_meas, energy_total_eff, carb_total_eff, stock_compete, \
-            energy_compete, carb_compete, stock_compete_meas, energy_compete_eff, \
-            carb_compete_eff, stock_total_cost, energy_total_cost, carb_total_cost, \
-            stock_total_cost_eff, energy_total_eff_cost, carb_total_eff_cost, \
+            energy_compete, carb_compete, stock_compete_meas, \
+            energy_compete_eff, carb_compete_eff, stock_total_cost, \
+            energy_total_cost, carb_total_cost, stock_total_cost_eff, \
+            energy_total_eff_cost, carb_total_eff_cost, \
             stock_compete_cost, energy_compete_cost, carb_compete_cost, \
             stock_compete_cost_eff, energy_compete_cost_eff, \
             carb_compete_cost_eff = ({} for n in range(21))
 
+        # Set measure market entry year
+        if self.market_entry_year is None:
+            mkt_entry_yr = int(list(sorted(stock_total.keys()))[0])
+        else:
+            mkt_entry_yr = self.market_entry_year
+        # Set measure market exit year
+        if self.market_exit_year is None:
+            mkt_exit_yr = int(list(sorted(stock_total.keys()))[-1]) + 1
+        else:
+            mkt_exit_yr = self.market_exit_year
+
         # Initialize the portion of microsegment already captured by the
         # efficient measure as 0, and the portion baseline stock as 1.
-        # For non-technical potential cases where measure lifetime is a
-        # distribution of values, initialize the existing measure portion
-        # as a numpy array of zeros
         captured_eff_frac = 0
         captured_base_frac = 1
 
@@ -973,14 +982,13 @@ class Measure(object):
         # each year in the modeling time horizon
         for yr in sorted(stock_total.keys()):
 
-            # For non-technical potential scenarios, calculate the diffusion
-            # fraction for the efficient measure (CURRENTLY PLACEDHOLDER OF 1)
-            # and replacement fractions for the baseline and efficient stock.
-            # * NOTE: THIS PART OF THE ROUTINE CURRENTLY ONLY APPLIES TO
-            # 'PRIMARY' MICROSEGMENTS; 'SECONDARY' MICROSEGMENTS REQUIRE
-            # SPECIAL HANDLING, TO BE FILLED OUT IN A FUTURE COMMIT
-            if adopt_scheme != "Technical potential" and \
-               mskeys[0] == "primary":
+            # Calculate the diffusion fraction for the efficient measure
+            # and replacement fractions for the baseline and efficient stock
+            # * NOTE: CURRENTLY NO ADJUSTED ADOPTION POTENTIAL. THIS PART OF
+            # THE ROUTINE CURRENTLY ONLY APPLIES TO 'PRIMARY' MICROSEGMENTS;
+            # 'SECONDARY' MICROSEGMENTS REQUIRE SPECIAL HANDLING, TO BE FILLED
+            # OUT IN A FUTURE COMMIT
+            if mskeys[0] == "primary":
 
                 # For the adjusted adoption potential case, determine the
                 # portion of "competed" (new/replacement) technologies
@@ -1067,52 +1075,32 @@ class Measure(object):
 
             # Calculate the competed fraction for a year where the measure is
             # on the market
-            if (self.market_entry_year is None or int(yr) >=
-                self.market_entry_year) and (self.market_exit_year is None or
-               int(yr) < self.market_exit_year):
-                # Current microsegment applies to new structure type
-                if mskeys[-1] == "new":
-                    if adopt_scheme == "Technical potential":
-                        competed_frac = 1
+            if (int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
+                # First year technical potential (all stock competed/captured)
+                if int(yr) == mkt_entry_yr and \
+                        adopt_scheme == "Technical potential":
+                    competed_frac = 1
+                # Non first year technical potential where current microsegment
+                # applies to new structure type
+                elif mskeys[-1] == "new":
+                    if new_bldg_frac["total"][yr] != 0:
+                        new_bldg_add_frac = new_bldg_frac["added"][yr] / \
+                            new_bldg_frac["total"][yr]
+                        competed_frac = new_bldg_add_frac + \
+                            (1 - new_bldg_add_frac) * \
+                            (captured_eff_replace_frac +
+                             captured_base_replace_frac)
                     else:
-                        if new_bldg_frac["total"][yr] != 0:
-                            new_bldg_add_frac = new_bldg_frac["added"][yr] / \
-                                new_bldg_frac["total"][yr]
-                            competed_frac = new_bldg_add_frac + \
-                                (1 - new_bldg_add_frac) * \
-                                (captured_eff_replace_frac +
-                                 captured_base_replace_frac)
-                        else:
-                            competed_frac = 0
-                # Current microsegment applies to retrofit structure type
+                        competed_frac = 0
+                # Non first year technical potential where current microsegment
+                # applies to retrofit structure type
                 else:
-                    if adopt_scheme == "Technical potential":
-                        competed_frac = 1
-                    else:
-                        competed_frac = captured_base_replace_frac + \
-                            captured_eff_replace_frac
+                    competed_frac = captured_base_replace_frac + \
+                        captured_eff_replace_frac
             # The competed fraction for year where measure is not on market is
             # zero
             else:
                 competed_frac = 0
-
-            # Set the relative performance levels of the competed stock and
-            # stock that has already been captured by the measure
-
-            # If first year in the modeling time horizon, initialize the
-            # relative performance level of previously captured stock as
-            # identical to that of the competed stock (e.g., initialize
-            # to the the relative performance from baseline -> measure
-            # for that year only)
-            if yr == sorted(stock_total.keys())[0]:
-                rel_perf_captured = rel_perf[yr]
-            # Set the relative performance level of the competed stock
-            if adopt_scheme == 'Technical potential' and \
-                    mskeys[0] == "primary":
-                rel_perf_competed = (1 / life_meas) * rel_perf[yr] + \
-                    (1 - (1 / life_meas)) * rel_perf_captured
-            else:
-                rel_perf_competed = rel_perf[yr]
 
             # Update competed stock, energy, and carbon
             stock_compete[yr] = stock_total[yr] * competed_frac
@@ -1122,42 +1110,78 @@ class Measure(object):
             # Determine the competed stock that is captured by the measure
             stock_compete_meas[yr] = stock_compete[yr] * diffuse_eff_frac
 
-            # Determine the portion of existing stock that has already
+            # Determine the amount of existing stock that has already
             # been captured by the measure up until the current year;
             # subsequently, update the number of total and competed stock units
             # captured by the measure to reflect additions from the current
-            # year. * Note: captured competed stock numbers are used in the
+            # year. * Note: captured stock numbers are used in the
             # cost_metric_update function below to normalize measure cost
-            # metrics to a per unit basis.  The captured stock will be less
-            # than the competed stock in cases where the measure captures less
-            # than 100% of the competed market share (determined in the
-            # adjust_savings function below).
+            # metrics to a per unit basis.
 
             # First year in the modeling time horizon
             if yr == list(sorted(stock_total.keys()))[0]:
                 stock_total_meas[yr] = stock_compete_meas[yr]
             # Subsequent year in modeling time horizon
             else:
-                # Update total number of stock units captured by the measure
-                # (reflects all previously captured stock + captured competed
-                # stock from the current year)
-                stock_total_meas[yr] = stock_total_meas[str(int(yr) - 1)] + \
-                    stock_compete_meas[yr]
-
-                # Ensure stock captured by measure never exceeds total stock
-
-                # Handle case where stock captured by measure is a numpy array
-                if type(stock_total_meas[yr]) == numpy.ndarray and \
-                   any(stock_total_meas[yr] > stock_total[yr]) \
-                        is True:
-                    stock_total_meas[yr][
-                        numpy.where(
-                            stock_total_meas[yr] > stock_total[yr])] = \
-                        stock_total[yr]
-                # Handle case where stock captured by measure is a point value
-                elif type(stock_total_meas[yr]) != numpy.ndarray and \
-                        stock_total_meas[yr] > stock_total[yr]:
+                # Technical potential case where the measure is on the
+                # market: the stock captured by the measure should equal the
+                # total stock (measure captures all stock)
+                if adopt_scheme == "Technical potential" and \
+                        (int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
                     stock_total_meas[yr] = stock_total[yr]
+                # All other cases
+                else:
+                    # Update total number of stock units captured by the
+                    # measure (reflects all previously captured stock +
+                    # captured competed stock from the current year)
+                    stock_total_meas[yr] = \
+                        stock_total_meas[str(int(yr) - 1)] + \
+                        stock_compete_meas[yr]
+
+                    # Ensure captured stock never exceeds total stock
+
+                    # Handle case where stock captured by measure is an array
+                    if type(stock_total_meas[yr]) == numpy.ndarray and \
+                       any(stock_total_meas[yr] > stock_total[yr]) \
+                            is True:
+                        stock_total_meas[yr][
+                            numpy.where(
+                                stock_total_meas[yr] > stock_total[yr])] = \
+                            stock_total[yr]
+                    # Handle case where stock captured by measure is point val
+                    elif type(stock_total_meas[yr]) != numpy.ndarray and \
+                            stock_total_meas[yr] > stock_total[yr]:
+                        stock_total_meas[yr] = stock_total[yr]
+
+            # Set a relative performance level for all stock captured by the
+            # measure by weighting the relative performance of competed
+            # stock captured by the measure in the current year and the
+            # relative performance of all stock captured by the measure in
+            # previous years
+
+            # Set the relative performance of the current year's competed stock
+            rel_perf_competed = rel_perf[yr]
+
+            # If first year in the modeling time horizon, initialize the
+            # weighted relative performance level as identical to that of the
+            # competed stock (e.g., initialize to the the relative performance
+            # from baseline -> measure for that year only)
+            if yr == sorted(stock_total.keys())[0]:
+                rel_perf_weighted = rel_perf[yr]
+            # For a subsequent year in the modeling time horizon, calculate
+            # a weighted sum of the relative performances of the competed stock
+            # captured in the current year and the stock captured in all
+            # previous years
+            else:
+                total_capture = \
+                    competed_frac * diffuse_eff_frac + \
+                    (1 - competed_frac) * captured_eff_frac
+                if total_capture != 0:
+                    rel_perf_weighted = (
+                        rel_perf_competed * competed_frac * diffuse_eff_frac +
+                        rel_perf_weighted * (
+                            total_capture - competed_frac *
+                            diffuse_eff_frac)) / total_capture
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -1168,24 +1192,24 @@ class Measure(object):
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
-                rel_perf_competed * \
+                rel_perf_weighted * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr])
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                captured_eff_frac * rel_perf_captured * \
+                captured_eff_frac * rel_perf_weighted * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
                 (energy_total[yr] - energy_compete[yr]) * \
                 (1 - captured_eff_frac)
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
-                rel_perf_competed * \
+                rel_perf_weighted * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr])
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 (carb_total[yr] - carb_compete[yr]) * \
-                captured_eff_frac * rel_perf_captured * \
+                captured_eff_frac * rel_perf_weighted * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
                 (carb_total[yr] - carb_compete[yr]) * (1 - captured_eff_frac)
@@ -1226,44 +1250,32 @@ class Measure(object):
             # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
 
-            # Update portion of microsegment already captured by efficient
-            # measure to reflect additions from the current modeling year. If
-            # this portion is already 1, keep at 1; if we are updating a
-            # secondary microsegment, set efficient stock portion to 1
-            # (* FOR NOW *); if the total stock for the year is 0, set
-            # efficient stock portion to 0
-
-            # Handle case where stock captured by measure is a numpy array
+            # Update portion of stock captured by efficient measure in
+            # previous years to reflect gains from the current modeling year.
+            # If this portion is already 1 or the total stock for the year is
+            # 0, do not update the captured portion from the previous year;
+            # if updating a secondary microsegment, set efficient stock portion
+            # to 1 (* FOR NOW *)
             if type(stock_total_meas[yr]) == numpy.ndarray:
                 for i in range(0, len(stock_total_meas[yr])):
-                    if stock_total[yr] != 0 and captured_eff_frac[i] != 1 and \
-                            mskeys[0] == "primary":
+                    if stock_total[yr] != 0 and captured_eff_frac[i] != 1 \
+                            and mskeys[0] == "primary":
                         captured_eff_frac[i] = stock_total_meas[yr][i] / \
                             stock_total[yr]
                     elif mskeys[0] == "secondary":
                         captured_eff_frac[i] = 1
-                    elif stock_total[yr] == 0:
-                        captured_eff_frac[i] = 0
             # Handle case where stock captured by measure is a point value
             else:
                 if stock_total[yr] != 0 and captured_eff_frac != 1 and \
                    mskeys[0] == "primary":
-                    captured_eff_frac = stock_total_meas[yr] / stock_total[yr]
+                    captured_eff_frac = \
+                        stock_total_meas[yr] / stock_total[yr]
                 elif mskeys[0] == "secondary":
                     captured_eff_frac = 1
-                elif stock_total[yr] == 0:
-                    captured_eff_frac = 0
 
             # Update portion of existing stock remaining with the baseline
             # technology
             captured_base_frac = 1 - captured_eff_frac
-
-            # Update relative performance level of the captured stock by
-            # adding the weighted relative performance of the competed
-            # stock for the current year
-            if stock_total_meas[yr] != 0:
-                rel_perf_captured = rel_perf_competed * competed_frac + \
-                    rel_perf_captured * (1 - competed_frac)
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total_meas, energy_total_eff, carb_total_eff,
@@ -1275,7 +1287,8 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff]
 
-    def calc_metric_update(self, rate, adjust_savings, com_timeprefs):
+    def calc_metric_update(
+            self, rate, adjust_savings, com_timeprefs, adopt_scheme):
         """ Given information on a measure's master microsegment for
         each projection year and a discount rate, determine capital ("stock"),
         energy, and carbon cost savings; energy and carbon savings; and the
@@ -1284,11 +1297,11 @@ class Measure(object):
 
         # Initialize capital cost, energy/energy cost savings, carbon/carbon
         # cost savings, and economic metrics as dicts with years as keys
-        scostsave_tot, scostsave_add, esave_tot, esave_add, ecostsave_tot, \
-            ecostsave_add, csave_tot, csave_add, ccostsave_tot, ccostsave_add, \
-            stock_anpv, energy_anpv, carbon_anpv, irr_e, irr_ec, \
-            payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
-            ({} for d in range(21))
+        scostsave_tot, scostsave_annual, esave_tot, esave_annual, \
+            ecostsave_tot, ecostsave_annual, csave_tot, csave_annual, \
+            ccostsave_tot, ccostsave_annual, stock_anpv, energy_anpv, \
+            carbon_anpv, irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, \
+            ccc, ccc_bens = ({} for d in range(21))
 
         # Calculate capital cost savings, energy/carbon savings, and
         # energy/carbon cost savings for each projection year
@@ -1299,12 +1312,19 @@ class Measure(object):
             # Set the number of competed stock units that are captured by the
             # measure for the given year; this number is used for normalizing
             # stock, energy and carbon cash flows to a per unit basis in the
-            # "metric_update" function below
-            num_units = self.master_mseg["stock"]["competed"]["measure"][yr]
+            # "metric_update" function below. * Note: for a technical
+            # potential scenario, all stock units are captured in each year
+            if adopt_scheme != "Technical potential":
+                num_units = self.master_mseg[
+                    "stock"]["competed"]["measure"][yr]
+            else:
+                num_units = self.master_mseg["stock"]["total"]["measure"][yr]
             # Set the total (not unit) capital cost of the baseline
             # technology for comparison with measure capital cost
-            scost_base = self.master_mseg[
+            scost_base_tot = self.master_mseg[
                 "cost"]["stock"]["total"]["baseline"][yr]
+            scost_base_add = self.master_mseg[
+                "cost"]["stock"]["competed"]["baseline"][yr]
 
             # Calculate total annual energy/carbon and stock/energy/carbon cost
             # savings for the measure vs. baseline. Total savings reflect the
@@ -1317,7 +1337,7 @@ class Measure(object):
                 self.master_mseg["carbon"]["total"]["baseline"][yr] - \
                 self.master_mseg["carbon"]["total"]["efficient"][yr]
             scostsave_tot[yr] = \
-                scost_base - \
+                scost_base_tot - \
                 self.master_mseg["cost"]["stock"]["total"]["efficient"][yr]
             ecostsave_tot[yr] = \
                 self.master_mseg["cost"]["energy"]["total"]["baseline"][yr] - \
@@ -1326,31 +1346,64 @@ class Measure(object):
                 self.master_mseg["cost"]["carbon"]["total"]["baseline"][yr] - \
                 self.master_mseg["cost"]["carbon"]["total"]["efficient"][yr]
 
-            # Calculate the added annual energy/carbon and stock/energy/carbon
-            # cost savings for the measure vs. baseline.  Added savings reflect
-            # the impact of only the measure adoptions simulated in the current
-            # year of the modeling time horizon.
-            esave_add[yr] = \
-                self.master_mseg["energy"]["competed"]["baseline"][yr] - \
-                self.master_mseg["energy"]["competed"]["efficient"][yr]
-            csave_add[yr] = \
-                self.master_mseg["carbon"]["competed"]["baseline"][yr] - \
-                self.master_mseg["carbon"]["competed"]["efficient"][yr]
-            scostsave_add[yr] = \
-                self.master_mseg["cost"]["stock"]["competed"]["baseline"][yr] - \
-                self.master_mseg["cost"]["stock"]["competed"]["efficient"][yr]
-            ecostsave_add[yr] = \
-                self.master_mseg["cost"]["energy"]["competed"]["baseline"][yr] - \
-                self.master_mseg["cost"]["energy"]["competed"]["efficient"][yr]
-            ccostsave_add[yr] = \
-                self.master_mseg["cost"]["carbon"]["competed"]["baseline"][yr] - \
-                self.master_mseg["cost"]["carbon"]["competed"]["efficient"][yr]
+            # Calculate the annual energy/carbon and stock/energy/carbon
+            # cost savings for the measure vs. baseline. Annual savings
+            # will later be used in measure competition routines. In non-
+            # technical potential scenarios, annual savings reflect the impact
+            # of only the measure adoptions that are new in the current year of
+            # the modeling time horizon. In a technical potential scenario,
+            # where we are simulating an 'overnight' adoption of the measure
+            # across the entire applicable stock in each year, annual savings
+            # are set to the total savings from all current/previous adoptions
+            # of the measure
+            if adopt_scheme != "Technical potential":
+                esave_annual[yr] = \
+                    self.master_mseg["energy"][
+                    "competed"]["baseline"][yr] - \
+                    self.master_mseg["energy"][
+                    "competed"]["efficient"][yr]
+                csave_annual[yr] = \
+                    self.master_mseg["carbon"][
+                    "competed"]["baseline"][yr] - \
+                    self.master_mseg["carbon"][
+                    "competed"]["efficient"][yr]
+                scostsave_annual[yr] = \
+                    scost_base_add - \
+                    self.master_mseg["cost"]["stock"][
+                    "competed"]["efficient"][yr]
+                ecostsave_annual[yr] = \
+                    self.master_mseg["cost"]["energy"][
+                    "competed"]["baseline"][yr] - \
+                    self.master_mseg["cost"]["energy"][
+                    "competed"]["efficient"][yr]
+                ccostsave_annual[yr] = \
+                    self.master_mseg["cost"]["carbon"][
+                    "competed"]["baseline"][yr] - \
+                    self.master_mseg["cost"]["carbon"][
+                    "competed"]["efficient"][yr]
+            else:
+                esave_annual[yr], csave_annual[yr], scostsave_annual[yr], \
+                    ecostsave_annual[yr], ccostsave_annual[yr] = [
+                    esave_tot[yr], csave_tot[yr], scostsave_tot[yr],
+                    ecostsave_tot[yr], ccostsave_tot[yr]]
 
             # Set the lifetime of the baseline technology for comparison
             # with measure lifetime
             life_base = self.master_mseg["lifetime"]["baseline"][yr]
-            # Set life of the measure
+            # Ensure that baseline lifetime is at least 1 year
+            if type(life_base) == numpy.ndarray and any(life_base) < 1:
+                life_base[numpy.where(life_base) < 1] = 1
+            elif type(life_base) != numpy.ndarray and life_base < 1:
+                life_base = 1
+
+            # Set lifetime of the measure
             life_meas = self.master_mseg["lifetime"]["measure"]
+            # Ensure that measure lifetime is at least 1 year
+            if type(life_meas) == numpy.ndarray and any(life_meas) < 1:
+                life_meas[numpy.where(life_meas) < 1] = 1
+            elif type(life_meas) != numpy.ndarray and life_meas < 1:
+                life_meas = 1
+
             # Define ratio of measure lifetime to baseline lifetime.  This
             # will be used below in determining capital cashflows over the
             # measure lifetime
@@ -1359,11 +1412,11 @@ class Measure(object):
             # Make copies of the above stock, energy, carbon, and cost
             # variables for possible further manipulation below before
             # as inputs to the "metric update" function
-            scostsave_add_temp = scostsave_add[yr]
-            esave_add_temp = esave_add[yr]
-            ecostsave_add_temp = ecostsave_add[yr]
-            csave_add_temp = csave_add[yr]
-            ccostsave_add_temp = ccostsave_add[yr]
+            scostsave_annual_temp = scostsave_annual[yr]
+            esave_annual_temp = esave_annual[yr]
+            ecostsave_annual_temp = ecostsave_annual[yr]
+            csave_annual_temp = csave_annual[yr]
+            ccostsave_annual_temp = ccostsave_annual[yr]
             life_meas_temp = life_meas
             life_ratio_temp = life_ratio
 
@@ -1382,7 +1435,8 @@ class Measure(object):
             # Check whether any "metric_update" inputs that can be arrays
             # are in fact arrays
             elif any(type(x) == numpy.ndarray for x in
-                     [scostsave_add_temp, esave_add_temp, life_meas_temp]):
+                     [scostsave_annual_temp, esave_annual_temp,
+                      life_meas_temp]):
 
                 # Ensure consistency in length of all "metric_update"
                 # inputs that can be arrays
@@ -1390,27 +1444,27 @@ class Measure(object):
                 # Determine the length that any array inputs to
                 # "metric_update" should consistently have
                 length_array = next(
-                    (len(item) for item in [scostsave_add[yr],
-                     esave_add[yr], life_ratio] if type(item) ==
+                    (len(item) for item in [scostsave_annual[yr],
+                     esave_annual[yr], life_ratio] if type(item) ==
                      numpy.ndarray), None)
 
                 # Ensure all array inputs to "metric_update" are of the
                 # above length
 
                 # Check incremental capital cost input
-                if type(scostsave_add_temp) != numpy.ndarray:
-                    scostsave_add_temp = numpy.repeat(
-                        scostsave_add_temp, length_array)
+                if type(scostsave_annual_temp) != numpy.ndarray:
+                    scostsave_annual_temp = numpy.repeat(
+                        scostsave_annual_temp, length_array)
                 # Check energy/energy cost and carbon/cost savings inputs
-                if type(esave_add_temp) != numpy.ndarray:
-                    esave_add_temp = numpy.repeat(
-                        esave_add_temp, length_array)
-                    ecostsave_add_temp = numpy.repeat(
-                        ecostsave_add_temp, length_array)
-                    csave_add_temp = numpy.repeat(
-                        csave_add_temp, length_array)
-                    ccostsave_add_temp = numpy.repeat(
-                        ccostsave_add_temp, length_array)
+                if type(esave_annual_temp) != numpy.ndarray:
+                    esave_annual_temp = numpy.repeat(
+                        esave_annual_temp, length_array)
+                    ecostsave_annual_temp = numpy.repeat(
+                        ecostsave_annual_temp, length_array)
+                    csave_annual_temp = numpy.repeat(
+                        csave_annual_temp, length_array)
+                    ccostsave_annual_temp = numpy.repeat(
+                        ccostsave_annual_temp, length_array)
                 # Check measure lifetime and lifetime ratio inputs
                 if type(life_meas_temp) != numpy.ndarray:
                     life_meas_temp = numpy.repeat(
@@ -1427,13 +1481,13 @@ class Measure(object):
                 # containing residential and commercial Annualized
                 # Net Present Values (ANPVs)
                 stock_anpv[yr], energy_anpv[yr], carbon_anpv[yr] = \
-                    (numpy.repeat({}, len(scostsave_add_temp))
+                    (numpy.repeat({}, len(scostsave_annual_temp))
                         for v in range(3))
                 # Remaining eight arrays will be populated by floating
                 # point values
                 irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                     cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                    (numpy.zeros(len(scostsave_add_temp))
+                    (numpy.zeros(len(scostsave_annual_temp))
                         for v in range(8))
 
                 # Run measure energy/carbon/cost savings and lifetime
@@ -1442,7 +1496,7 @@ class Measure(object):
                 # for loop to generate an output for each input array
                 # element one-by-one and append it to the appropriate
                 # output list.
-                for x in range(0, len(scostsave_add_temp)):
+                for x in range(0, len(scostsave_annual_temp)):
                     # Check whether number of adopted units for a measure
                     # is zero, in which case all economic outputs are set
                     # to 999
@@ -1462,10 +1516,10 @@ class Measure(object):
                             payback_e[yr][x], payback_ec[yr][x], cce[yr][x], \
                             cce_bens[yr][x], ccc[yr][x], ccc_bens[yr][x] = \
                             self.metric_update(
-                                rate, scost_base, life_base,
-                                scostsave_add_temp[x], esave_add_temp[x],
-                                ecostsave_add_temp[x], csave_add_temp[x],
-                                ccostsave_add_temp[x],
+                                rate, scost_base_add, life_base,
+                                scostsave_annual_temp[x], esave_annual_temp[x],
+                                ecostsave_annual_temp[x], csave_annual_temp[x],
+                                ccostsave_annual_temp[x],
                                 int(life_ratio_temp[x]),
                                 int(life_meas_temp[x]), num_units[x],
                                 com_timeprefs)
@@ -1478,23 +1532,24 @@ class Measure(object):
                     payback_e[yr], payback_ec[yr], cce[yr],\
                     cce_bens[yr], ccc[yr], ccc_bens[yr] = \
                     self.metric_update(
-                        rate, scost_base, life_base, scostsave_add_temp,
-                        esave_add_temp, ecostsave_add_temp, csave_add_temp,
-                        ccostsave_add_temp, int(life_ratio_temp),
-                        int(life_meas_temp), num_units, com_timeprefs)
+                        rate, scost_base_add, life_base, scostsave_annual_temp,
+                        esave_annual_temp, ecostsave_annual_temp,
+                        csave_annual_temp, ccostsave_annual_temp,
+                        int(life_ratio_temp), int(life_meas_temp),
+                        num_units, com_timeprefs)
 
         # Record final measure savings figures and economic metrics
         # in a dict that is returned by the function
         mseg_save = {"stock": {"cost savings (total)": scostsave_tot,
-                               "cost savings (added)": scostsave_add},
+                               "cost savings (annual)": scostsave_annual},
                      "energy": {"savings (total)": esave_tot,
-                                "savings (added)": esave_add,
+                                "savings (annual)": esave_annual,
                                 "cost savings (total)": ecostsave_tot,
-                                "cost savings (added)": ecostsave_add},
+                                "cost savings (annual)": ecostsave_annual},
                      "carbon": {"savings (total)": csave_tot,
-                                "savings (added)": csave_add,
+                                "savings (annual)": csave_annual,
                                 "cost savings (total)": ccostsave_tot,
-                                "cost savings (added)": ccostsave_add},
+                                "cost savings (annual)": ccostsave_annual},
                      "metrics": {"anpv": {
                                  "stock cost": stock_anpv,
                                  "energy cost": energy_anpv,
@@ -1559,7 +1614,7 @@ class Measure(object):
         # Return the randomly sampled list of values
         return rand_list
 
-    def metric_update(self, rate, scost_base, life_base, scostsave_add, esave,
+    def metric_update(self, rate, scost_base_add, life_base, scostsave_annual, esave,
                       ecostsave, csave, ccostsave, life_ratio, life_meas,
                       num_units, com_timeprefs):
         """ Calculate internal rate of return, simple payback, and cost of
@@ -1593,13 +1648,13 @@ class Measure(object):
         # (normalized by number of captured stock units)
 
         # Initialize stock cash flows with incremental capital cost
-        cashflows_s = numpy.array(scostsave_add)
+        cashflows_s = numpy.array(scostsave_annual)
 
         for life_yr in range(0, life_meas):
             # Check whether an avoided cost of the baseline technology should
             # be added for given year; if not, set this term to zero
             if life_yr in added_stockcost_gain_yrs:
-                scost_life = scost_base
+                scost_life = scost_base_add
             else:
                 scost_life = 0
 
@@ -1789,8 +1844,8 @@ class Engine(object):
                 mseg_in, base_costperflife_in, adopt_scheme)
             # Update savings outcomes and economic metrics
             # based on master microsegment
-            m.master_savings = m.calc_metric_update(rate, adjust_savings,
-                                                    com_timeprefs)
+            m.master_savings = m.calc_metric_update(
+                rate, adjust_savings, com_timeprefs, adopt_scheme)
 
         # If packaged measures are present, merge the individual measures that
         # contribute to the package and append to the overall measures list
@@ -1817,8 +1872,8 @@ class Engine(object):
                 # Update the savings outcomes and economic metrics for the
                 # new packaged measure
                 packaged_measure.master_savings = \
-                    packaged_measure.calc_metric_update(rate, adjust_savings,
-                                                        com_timeprefs)
+                    packaged_measure.calc_metric_update(
+                        rate, adjust_savings, com_timeprefs, adopt_scheme)
                 # Add the new packaged measure to the measure list for
                 # further evaluation like any other regular measure
                 self.measures.append(packaged_measure)
@@ -1932,7 +1987,7 @@ class Engine(object):
                 "savings updated"] is True]
             for m in measures_recalc:
                 m.master_savings = m.calc_metric_update(
-                    rate, adjust_savings, com_timeprefs)
+                    rate, adjust_savings, com_timeprefs, adopt_scheme)
 
     def res_compete(self, measures_adj, mseg_key):
         """ Determine the shares of a given market microsegment that are
@@ -2004,7 +2059,8 @@ class Engine(object):
                             str(mseg_key)]["b2"][yr])
 
                     # Add calculated market fraction to mkt fraction sum
-                    mkt_fracs_tot[yr] = mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
+                    mkt_fracs_tot[yr] = \
+                        mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
 
         # Loop through competing measures to normalize their calculated
         # market shares to the total market share sum; use normalized
@@ -2017,8 +2073,8 @@ class Engine(object):
                 self.savings_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
-            for yr in m.master_savings[
-                    "metrics"]["anpv"]["stock cost"].keys():
+            for yr in sorted(m.master_savings[
+                    "metrics"]["anpv"]["stock cost"].keys()):
                 # Ensure measure has captured stock to adjust in given year
                 if (type(m.master_mseg["stock"]["competed"][
                     "measure"][yr]) == numpy.ndarray and all(
@@ -2026,12 +2082,13 @@ class Engine(object):
                     or (type(m.master_mseg["stock"]["competed"][
                         "measure"][yr]) != numpy.ndarray and m.master_mseg[
                         "stock"]["competed"]["measure"][yr] != 0):
-                    mkt_fracs[ind][yr] = mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                    mkt_fracs[ind][yr] = \
+                        mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
                     # Make the adjustment to the measure's master microsegment
                     # based on its updated market share
                     self.compete_adjustment(
-                        mkt_fracs[ind], base, adj, base_list_eff, adj_list_eff,
-                        adj_list_base, yr, mseg_key, m)
+                        mkt_fracs[ind], base, adj, base_list_eff,
+                        adj_list_eff, adj_list_base, yr, mseg_key, m)
 
     def com_compete(self, measures_adj, mseg_key):
         """ Determine market shares captured by competing commercial efficiency
@@ -2186,10 +2243,12 @@ class Engine(object):
                                         mkt_dists[ind2])  # * EQUALS? *
                                 else:
                                     mkt_fracs[ind][yr][l].append(0)
-                            mkt_fracs[ind][yr][l] = sum(mkt_fracs[ind][yr][l])
+                            mkt_fracs[ind][yr][l] = sum(
+                                mkt_fracs[ind][yr][l])
                         # Convert market fractions list to numpy array for
                         # use in compete_adjustment function below
-                        mkt_fracs[ind][yr] = numpy.array(mkt_fracs[ind][yr])
+                        mkt_fracs[ind][yr] = numpy.array(
+                            mkt_fracs[ind][yr])
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as point values for all competing measures
                     else:
@@ -2206,8 +2265,8 @@ class Engine(object):
                     # Make the adjustment to the measure's master microsegment
                     # based on its updated market share
                     self.compete_adjustment(
-                        mkt_fracs[ind], base, adj, base_list_eff, adj_list_eff,
-                        adj_list_base, yr, mseg_key, m)
+                        mkt_fracs[ind], base, adj, base_list_eff,
+                        adj_list_eff, adj_list_base, yr, mseg_key, m)
 
     def package_merge(self, measures_adj, mseg_key):
         # Initialize list of dicts that each store the share of an adopting
@@ -2246,13 +2305,13 @@ class Engine(object):
         # functions below
         base_list_eff = [
             base["cost"]["stock"]["total"]["efficient"],
-            base["cost"]["stock"]["competed"]["efficient"],
             base["cost"]["energy"]["total"]["efficient"],
             base["cost"]["carbon"]["total"]["efficient"],
-            base["cost"]["energy"]["competed"]["efficient"],
-            base["cost"]["carbon"]["competed"]["efficient"],
             base["energy"]["total"]["efficient"],
             base["carbon"]["total"]["efficient"],
+            base["cost"]["stock"]["competed"]["efficient"],
+            base["cost"]["energy"]["competed"]["efficient"],
+            base["cost"]["carbon"]["competed"]["efficient"],
             base["energy"]["competed"]["efficient"],
             base["carbon"]["competed"]["efficient"]]
         # Set up lists that will be used to determine the energy, carbon,
@@ -2264,26 +2323,26 @@ class Engine(object):
         # microsegment
         adj_list_base = [
             adj["cost"]["stock"]["total"]["baseline"],
-            adj["cost"]["stock"]["competed"]["baseline"],
             adj["cost"]["energy"]["total"]["baseline"],
             adj["cost"]["carbon"]["total"]["baseline"],
-            adj["cost"]["energy"]["competed"]["baseline"],
-            adj["cost"]["carbon"]["competed"]["baseline"],
             adj["energy"]["total"]["baseline"],
             adj["carbon"]["total"]["baseline"],
+            adj["cost"]["stock"]["competed"]["baseline"],
+            adj["cost"]["energy"]["competed"]["baseline"],
+            adj["cost"]["carbon"]["competed"]["baseline"],
             adj["energy"]["competed"]["baseline"],
             adj["carbon"]["competed"]["baseline"]]
         # Total and competed energy, carbon, and cost for contributing
         # microsegment under full efficient measure adoption
         adj_list_eff = [
             adj["cost"]["stock"]["total"]["efficient"],
-            adj["cost"]["stock"]["competed"]["efficient"],
             adj["cost"]["energy"]["total"]["efficient"],
             adj["cost"]["carbon"]["total"]["efficient"],
-            adj["cost"]["energy"]["competed"]["efficient"],
-            adj["cost"]["carbon"]["competed"]["efficient"],
             adj["energy"]["total"]["efficient"],
             adj["carbon"]["total"]["efficient"],
+            adj["cost"]["stock"]["competed"]["efficient"],
+            adj["cost"]["energy"]["competed"]["efficient"],
+            adj["cost"]["carbon"]["competed"]["efficient"],
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
 
@@ -2297,49 +2356,90 @@ class Engine(object):
         its competed market share to the measure's captured stock and energy,
         carbon, and associated cost savings that are attributed to the current
         contributing microsegment that is being competed """
+
+        # Combine the competed market share adjustment for the stock
+        # captured by the measure in the current year with that of the stock
+        # captured by the measure in all previous years, yielding a weighted
+        # market share adjustment
+
+        # Determine the subset of all years leading up to the current
+        # year in the modeling time horizon
+        weighting_yrs = sorted([
+            x for x in adj_fracs.keys() if int(x) <= int(yr)])
+        # Loop through the above set of years, successively updating
+        # the weighted market share based on the captured stock in each year
+        for ind, wyr in enumerate(weighting_yrs):
+            # First year in time horizon; weighted market share equals market
+            # share for the captured stock in current year only
+            if ind == 0:
+                adj_frac_wt = copy.deepcopy(adj_fracs[yr])
+            # Subsequent year; weighted market share combines market share
+            # for captured stock in current year and all previous years
+            else:
+                # Only update weighted market share if measure captures
+                # stock in the current year
+                if type(adj["stock"]["total"]["measure"][wyr]) == \
+                    numpy.ndarray and all(
+                        adj["stock"]["total"]["measure"][wyr]) != 0 or \
+                   type(adj["stock"]["total"]["measure"][wyr]) != \
+                    numpy.ndarray and \
+                        adj["stock"]["total"]["measure"][wyr] != 0:
+                    # Develop the split between captured stock in the
+                    # current year and all previously captured stock
+                    wt_comp = adj["stock"]["competed"]["measure"][wyr] / \
+                        adj["stock"]["total"]["measure"][wyr]
+                    # Calculate weighted combination of market shares for
+                    # current and previously captured stock
+                    adj_frac_wt = \
+                        adj_fracs[wyr] * wt_comp + adj_frac_wt * (1 - wt_comp)
+
         # Adjust the total and competed stock captured by the measure by
-        # the updated measure market share for the master microsegment and
+        # the appropriate measure market share for the master microsegment and
         # current contributing microsegment
-        base["stock"]["total"]["measure"][yr], \
-            base["stock"]["competed"]["measure"][yr] = [
-            x[yr] - y[yr] * (1 - adj_fracs[yr]) for x, y in
-            zip([base["stock"]["total"]["measure"], base["stock"]["competed"][
-                "measure"]], [adj["stock"]["total"]["measure"], adj["stock"][
-                    "competed"]["measure"]])]
-        adj["stock"]["total"]["measure"][yr], \
-            adj["stock"]["competed"]["measure"][yr] = [
-            x[yr] - y[yr] * (1 - adj_fracs[yr]) for x, y in
-            zip([adj["stock"]["total"]["measure"], adj["stock"]["competed"][
-                "measure"]], [adj["stock"]["total"]["measure"], adj["stock"][
-                    "competed"]["measure"]])]
+        base["stock"]["total"]["measure"][yr] = \
+            base["stock"]["total"]["measure"][yr] - \
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_wt)
+        base["stock"]["competed"]["measure"][yr] = \
+            base["stock"]["competed"]["measure"][yr] - \
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_fracs[yr])
+        adj["stock"]["total"]["measure"][yr] = \
+            adj["stock"]["total"]["measure"][yr] - \
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_wt)
+        adj["stock"]["competed"]["measure"][yr] = \
+            adj["stock"]["competed"]["measure"][yr] - \
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_fracs[yr])
 
         # Adjust the total and competed energy, carbon, and associated cost
-        # savings by the updated measure market share for the master
+        # savings by the appropriate measure market share for the master
         # microsegment and current contributing microsegment
         base["cost"]["stock"]["total"]["efficient"][yr], \
-            base["cost"]["stock"]["competed"]["efficient"][yr], \
             base["cost"]["energy"]["total"]["efficient"][yr], \
             base["cost"]["carbon"]["total"]["efficient"][yr], \
+            base["energy"]["total"]["efficient"][yr], \
+            base["carbon"]["total"]["efficient"][yr] = [
+                x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_wt)) for x, y, z in
+                zip(base_list_eff[0:5], adj_list_eff[0:5], adj_list_base[0:5])]
+        base["cost"]["stock"]["competed"]["efficient"][yr], \
             base["cost"]["energy"]["competed"]["efficient"][yr], \
             base["cost"]["carbon"]["competed"]["efficient"][yr], \
-            base["energy"]["total"]["efficient"][yr], \
-            base["carbon"]["total"]["efficient"][yr], \
             base["energy"]["competed"]["efficient"][yr], \
             base["carbon"]["competed"]["efficient"][yr] = [
                 x[yr] + ((z[yr] - y[yr]) * (1 - adj_fracs[yr])) for x, y, z in
-                zip(base_list_eff, adj_list_eff, adj_list_base)]
+                zip(base_list_eff[5:], adj_list_eff[5:], adj_list_base[5:])]
         adj["cost"]["stock"]["total"]["efficient"][yr], \
-            adj["cost"]["stock"]["competed"]["efficient"][yr], \
             adj["cost"]["energy"]["total"]["efficient"][yr], \
             adj["cost"]["carbon"]["total"]["efficient"][yr], \
+            adj["energy"]["total"]["efficient"][yr], \
+            adj["carbon"]["total"]["efficient"][yr] = [
+                x[yr] + ((y[yr] - x[yr]) * (1 - adj_frac_wt)) for x, y in
+                zip(adj_list_eff[0:5], adj_list_base[0:5])]
+        adj["cost"]["stock"]["competed"]["efficient"][yr], \
             adj["cost"]["energy"]["competed"]["efficient"][yr], \
             adj["cost"]["carbon"]["competed"]["efficient"][yr], \
-            adj["energy"]["total"]["efficient"][yr], \
-            adj["carbon"]["total"]["efficient"][yr],\
             adj["energy"]["competed"]["efficient"][yr], \
             adj["carbon"]["competed"]["efficient"][yr] = [
                 x[yr] + ((y[yr] - x[yr]) * (1 - adj_fracs[yr])) for x, y in
-                zip(adj_list_eff, adj_list_base)]
+                zip(adj_list_eff[5:], adj_list_base[5:])]
 
         # Register the measure's savings adjustments if not already registered
         if measure.mseg_adjust["savings updated"] is not True:
@@ -2397,22 +2497,27 @@ class Engine(object):
                         overlap_adj_frac = 0
                     else:
                         overlap_adj_frac = m.mseg_adjust[
-                            "supply-demand adjustment"]["savings"][mseg][yr] / \
-                            m.mseg_adjust["supply-demand adjustment"][
-                            "total"][mseg][yr]
-                    # Adjust savings by supply-demand adjustment fraction
+                            "supply-demand adjustment"]["savings"][
+                            mseg][yr] / m.mseg_adjust[
+                            "supply-demand adjustment"]["total"][mseg][yr]
+                    # Adjust total and competed savings by supply-demand
+                    # adjustment fraction
                     base["cost"]["energy"]["total"]["efficient"][yr], \
                         base["cost"]["carbon"]["total"]["efficient"][yr], \
-                        base["cost"]["energy"]["competed"]["efficient"][yr], \
-                        base["cost"]["carbon"]["competed"]["efficient"][yr], \
                         base["energy"]["total"]["efficient"][yr],\
-                        base["carbon"]["total"]["efficient"][yr], \
+                        base["carbon"]["total"]["efficient"][yr] = \
+                            [x[yr] + ((z[yr] - y[yr]) * overlap_adj_frac)
+                             for x, y, z in zip(
+                                base_list_eff[1:5], adj_list_eff[1:5],
+                                adj_list_base[1:5])]
+                    base["cost"]["energy"]["competed"]["efficient"][yr], \
+                        base["cost"]["carbon"]["competed"]["efficient"][yr], \
                         base["energy"]["competed"]["efficient"][yr],\
                         base["carbon"]["competed"]["efficient"][yr] = \
                             [x[yr] + ((z[yr] - y[yr]) * overlap_adj_frac)
                              for x, y, z in zip(
-                                base_list_eff[2:], adj_list_eff[2:],
-                                adj_list_base[2:])]
+                                base_list_eff[6:], adj_list_eff[6:],
+                                adj_list_base[6:])]
                     # Register the measure's savings adjustments if not already
                     # registered
                     if m.mseg_adjust["savings updated"] is not True:

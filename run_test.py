@@ -1174,8 +1174,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     diffuse_params = None
 
     # Set the lifetime of the sample measure to be tested and the
-    # comparable baseline technology (for stock and flow calculations in the
-    # 'Max adoption potential' scenario)
+    # comparable baseline technology (for stock and flow calculations)
     life_meas = 10
     life_base = {"2009": 10, "2010": 10, "2011": 10,
                  "2020": 10, "2021": 10, "2022": 10,
@@ -1200,46 +1199,46 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 100, "2010": 200, "2011": 300},
             {"2009": 3, "2010": 6, "2011": 9},
             {"2009": 9, "2010": 18, "2011": 27},
-            {"2009": 100, "2010": 200, "2011": 300},
-            {"2009": 10, "2010": 20, "2011": 30},
-            {"2009": 30, "2010": 60, "2011": 90},
-            {"2009": 100, "2010": 200, "2011": 300},
-            {"2009": 3, "2010": 6, "2011": 9},
-            {"2009": 9, "2010": 18, "2011": 27},
+            {"2009": 100, "2010": 66.67, "2011": 120},
+            {"2009": 10, "2010": 6.67, "2011": 12},
+            {"2009": 30, "2010": 20, "2011": 36},
+            {"2009": 100, "2010": 66.67, "2011": 120},
+            {"2009": 3, "2010": 2, "2011": 3.6},
+            {"2009": 9, "2010": 6, "2011": 10.8},
             {"2009": 1000, "2010": 2000, "2011": 3000},
             {"2009": 10, "2010": 40, "2011": 60},
             {"2009": 30, "2010": 240, "2011": 90},
             {"2009": 2000, "2010": 4000, "2011": 6000},
             {"2009": 3, "2010": 12, "2011": 18},
             {"2009": 9, "2010": 72, "2011": 27},
-            {"2009": 1000, "2010": 2000, "2011": 3000},
-            {"2009": 10, "2010": 40, "2011": 60},
-            {"2009": 30, "2010": 240, "2011": 90},
-            {"2009": 2000, "2010": 4000, "2011": 6000},
-            {"2009": 3, "2010": 12, "2011": 18},
-            {"2009": 9, "2010": 72, "2011": 27}],
+            {"2009": 1000, "2010": 666.67, "2011": 1200},
+            {"2009": 10, "2010": 13.33, "2011": 24},
+            {"2009": 30, "2010": 80, "2011": 36},
+            {"2009": 2000, "2010": 1333.33, "2011": 2400},
+            {"2009": 3, "2010": 4, "2011": 7.2},
+            {"2009": 9, "2010": 24, "2011": 10.8}],
             [
             {"2009": 100, "2010": 200, "2011": 300},
             {"2009": 3, "2010": 6, "2011": 9},
             {"2009": 9, "2010": 18, "2011": 27},
-            {"2009": 100, "2010": 200, "2011": 300},
-            {"2009": 10, "2010": 20, "2011": 30},
-            {"2009": 30, "2010": 60, "2011": 90},
-            {"2009": 100, "2010": 200, "2011": 300},
-            {"2009": 3, "2010": 6, "2011": 9},
-            {"2009": 9, "2010": 18, "2011": 27},
+            {"2009": 100, "2010": 0, "2011": 0},
+            {"2009": 10, "2010": 0, "2011": 0},
+            {"2009": 30, "2010": 0, "2011": 0},
+            {"2009": 100, "2010": 0, "2011": 0},
+            {"2009": 3, "2010": 0, "2011": 0},
+            {"2009": 9, "2010": 0, "2011": 0},
             {"2009": 1000, "2010": 2000, "2011": 3000},
             {"2009": 10, "2010": 40, "2011": 60},
             {"2009": 30, "2010": 240, "2011": 90},
             {"2009": 2000, "2010": 4000, "2011": 6000},
             {"2009": 3, "2010": 12, "2011": 18},
             {"2009": 9, "2010": 72, "2011": 27},
-            {"2009": 1000, "2010": 2000, "2011": 3000},
-            {"2009": 10, "2010": 40, "2011": 60},
-            {"2009": 30, "2010": 240, "2011": 90},
-            {"2009": 2000, "2010": 4000, "2011": 6000},
-            {"2009": 3, "2010": 12, "2011": 18},
-            {"2009": 9, "2010": 72, "2011": 27}]],
+            {"2009": 1000, "2010": 0, "2011": 0},
+            {"2009": 10, "2010": 0, "2011": 0},
+            {"2009": 30, "2010": 0, "2011": 0},
+            {"2009": 2000, "2010": 0, "2011": 0},
+            {"2009": 3, "2010": 0, "2011": 0},
+            {"2009": 9, "2010": 0, "2011": 0}]],
          [[
              {"2009": 100, "2010": 166.67, "2011": 286.67},
              {"2009": 3, "2010": 6, "2011": 9},
@@ -1288,46 +1287,46 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
             {"2025": 18, "2026": 22.5, "2027": 27},
-            {"2025": 400, "2026": 500, "2027": 600},
-            {"2025": 40, "2026": 50, "2027": 60},
-            {"2025": 120, "2026": 150, "2027": 180},
-            {"2025": 400, "2026": 500, "2027": 600},
-            {"2025": 6, "2026": 7.5, "2027": 9},
-            {"2025": 18, "2026": 22.5, "2027": 27},
+            {"2025": 400, "2026": 166.67, "2027": 240},
+            {"2025": 40, "2026": 16.67, "2027": 24},
+            {"2025": 120, "2026": 50, "2027": 72},
+            {"2025": 400, "2026": 166.67, "2027": 240},
+            {"2025": 6, "2026": 2.5, "2027": 3.6},
+            {"2025": 18, "2026": 7.5, "2027": 10.8},
             {"2025": 8000, "2026": 10000, "2027": 12000},
             {"2025": 80, "2026": 100, "2027": 120},
             {"2025": 120, "2026": 150, "2027": 540},
             {"2025": 12000, "2026": 15000, "2027": 18000},
             {"2025": 12, "2026": 15, "2027": 18},
             {"2025": 18, "2026": 22.5, "2027": 81},
-            {"2025": 8000, "2026": 10000, "2027": 12000},
-            {"2025": 80, "2026": 100, "2027": 120},
-            {"2025": 120, "2026": 150, "2027": 540},
-            {"2025": 12000, "2026": 15000, "2027": 18000},
-            {"2025": 12, "2026": 15, "2027": 18},
-            {"2025": 18, "2026": 22.5, "2027": 81}],
+            {"2025": 8000, "2026": 3333.33, "2027": 4800},
+            {"2025": 80, "2026": 33.33, "2027": 48},
+            {"2025": 120, "2026": 50, "2027": 216},
+            {"2025": 12000, "2026": 5000, "2027": 7200},
+            {"2025": 12, "2026": 5, "2027": 7.2},
+            {"2025": 18, "2026": 7.5, "2027": 32.4}],
             [
             {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
             {"2025": 18, "2026": 22.5, "2027": 27},
-            {"2025": 400, "2026": 500, "2027": 600},
-            {"2025": 40, "2026": 50, "2027": 60},
-            {"2025": 120, "2026": 150, "2027": 180},
-            {"2025": 400, "2026": 500, "2027": 600},
-            {"2025": 6, "2026": 7.5, "2027": 9},
-            {"2025": 18, "2026": 22.5, "2027": 27},
+            {"2025": 400, "2026": 0, "2027": 0},
+            {"2025": 40, "2026": 0, "2027": 0},
+            {"2025": 120, "2026": 0, "2027": 0},
+            {"2025": 400, "2026": 0, "2027": 0},
+            {"2025": 6, "2026": 0, "2027": 0},
+            {"2025": 18, "2026": 0, "2027": 0},
             {"2025": 8000, "2026": 10000, "2027": 12000},
             {"2025": 80, "2026": 100, "2027": 120},
             {"2025": 120, "2026": 150, "2027": 540},
             {"2025": 12000, "2026": 15000, "2027": 18000},
             {"2025": 12, "2026": 15, "2027": 18},
             {"2025": 18, "2026": 22.5, "2027": 81},
-            {"2025": 8000, "2026": 10000, "2027": 12000},
-            {"2025": 80, "2026": 100, "2027": 120},
-            {"2025": 120, "2026": 150, "2027": 540},
-            {"2025": 12000, "2026": 15000, "2027": 18000},
-            {"2025": 12, "2026": 15, "2027": 18},
-            {"2025": 18, "2026": 22.5, "2027": 81}]],
+            {"2025": 8000, "2026": 0, "2027": 0},
+            {"2025": 80, "2026": 0, "2027": 0},
+            {"2025": 120, "2026": 0, "2027": 0},
+            {"2025": 12000, "2026": 0, "2027": 0},
+            {"2025": 12, "2026": 0, "2027": 0},
+            {"2025": 18, "2026": 0, "2027": 0}]],
          [[
              {"2025": 400, "2026": 500, "2027": 600},
              {"2025": 6, "2026": 7.5, "2027": 9},
@@ -1375,47 +1374,47 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         [[[
             {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
-            {"2020": 157.5, "2021": 180, "2022": 202.5},
-            {"2020": 700, "2021": 800, "2022": 900},
-            {"2020": 70, "2021": 80, "2022": 90},
-            {"2020": 210, "2021": 240, "2022": 270},
-            {"2020": 700, "2021": 800, "2022": 900},
-            {"2020": 52.5, "2021": 60, "2022": 67.5},
-            {"2020": 157.5, "2021": 180, "2022": 202.5},
+            {"2020": 157.5, "2021": 180.0, "2022": 202.5},
+            {"2020": 700, "2021": 760, "2022": 90},
+            {"2020": 70, "2021": 76, "2022": 9},
+            {"2020": 210, "2021": 228, "2022": 27},
+            {"2020": 700, "2021": 760, "2022": 90},
+            {"2020": 52.50, "2021": 57.00, "2022": 6.75},
+            {"2020": 157.50, "2021": 171.0, "2022": 20.25},
             {"2020": 21000, "2021": 24000, "2022": 27000},
             {"2020": 140, "2021": 160, "2022": 180},
             {"2020": 210, "2021": 240, "2022": 270},
             {"2020": 28000, "2021": 32000, "2022": 36000},
             {"2020": 105, "2021": 120, "2022": 135},
-            {"2020": 157.5, "2021": 180, "2022": 202.5},
-            {"2020": 21000, "2021": 24000, "2022": 27000},
-            {"2020": 140, "2021": 160, "2022": 180},
-            {"2020": 210, "2021": 240, "2022": 270},
-            {"2020": 28000, "2021": 32000, "2022": 36000},
-            {"2020": 105, "2021": 120, "2022": 135},
-            {"2020": 157.5, "2021": 180, "2022": 202.5}],
+            {"2020": 157.5, "2021": 180.0, "2022": 202.5},
+            {"2020": 21000, "2021": 22800, "2022": 2700},
+            {"2020": 140, "2021": 152, "2022": 18.0},
+            {"2020": 210, "2021": 228, "2022": 27.0},
+            {"2020": 28000, "2021": 30400, "2022": 3600},
+            {"2020": 105.0, "2021": 114.0, "2022": 13.5},
+            {"2020": 157.50, "2021": 171.00, "2022": 20.25}],
             [
             {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
             {"2020": 157.5, "2021": 180, "2022": 202.5},
-            {"2020": 700, "2021": 800, "2022": 900},
-            {"2020": 70, "2021": 80, "2022": 90},
-            {"2020": 210, "2021": 240, "2022": 270},
-            {"2020": 700, "2021": 800, "2022": 900},
-            {"2020": 52.5, "2021": 60, "2022": 67.5},
-            {"2020": 157.5, "2021": 180, "2022": 202.5},
+            {"2020": 700, "2021": 0, "2022": 0},
+            {"2020": 70, "2021": 0, "2022": 0},
+            {"2020": 210, "2021": 0, "2022": 0},
+            {"2020": 700, "2021": 0, "2022": 0},
+            {"2020": 52.5, "2021": 0, "2022": 0},
+            {"2020": 157.5, "2021": 0, "2022": 0},
             {"2020": 21000, "2021": 24000, "2022": 27000},
             {"2020": 140, "2021": 160, "2022": 180},
             {"2020": 210, "2021": 240, "2022": 270},
             {"2020": 28000, "2021": 32000, "2022": 36000},
             {"2020": 105, "2021": 120, "2022": 135},
             {"2020": 157.5, "2021": 180, "2022": 202.5},
-            {"2020": 21000, "2021": 24000, "2022": 27000},
-            {"2020": 140, "2021": 160, "2022": 180},
-            {"2020": 210, "2021": 240, "2022": 270},
-            {"2020": 28000, "2021": 32000, "2022": 36000},
-            {"2020": 105, "2021": 120, "2022": 135},
-            {"2020": 157.5, "2021": 180, "2022": 202.5}]],
+            {"2020": 21000, "2021": 0, "2022": 0},
+            {"2020": 140, "2021": 0, "2022": 0},
+            {"2020": 210, "2021": 0, "2022": 0},
+            {"2020": 28000, "2021": 0, "2022": 0},
+            {"2020": 105, "2021": 0, "2022": 0},
+            {"2020": 157.5, "2021": 0, "2022": 0}]],
          [[
              {"2020": 700, "2021": 800, "2022": 890},
              {"2020": 52.5, "2021": 60, "2022": 67.5},
@@ -4636,7 +4635,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -4660,7 +4659,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -4686,7 +4685,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "relative savings (constant)"},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
@@ -4721,7 +4720,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
@@ -4744,7 +4743,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -4770,7 +4769,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -4799,7 +4798,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -4821,7 +4820,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                           "secondary": None},
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary": None},
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["assembly"],
                     "climate_zone": ["AIA_CZ1"],
@@ -4845,7 +4844,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                           "secondary": None},
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -4869,7 +4868,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -4895,7 +4894,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "relative savings (constant)"},
                     "market_entry_year": 2010,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
@@ -4929,7 +4928,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "relative savings (constant)"},
                     "market_entry_year": None,
                     "market_exit_year": 2010,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
@@ -4964,7 +4963,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                  2009]},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
@@ -4996,7 +4995,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 10,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -5020,7 +5019,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                         "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
-                    "product_lifetime": 17,
+                    "product_lifetime": 1,
                     "structure_type": ["new", "retrofit"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -5054,7 +5053,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "product_lifetime": 10,
+                         "product_lifetime": 1,
                          "structure_type": ["new", "retrofit"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5077,7 +5076,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                      "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "product_lifetime": ["normal", 10, 1],
+                         "product_lifetime": ["normal", 1, 1],
                          "structure_type": ["new", "retrofit"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1"],
@@ -5106,7 +5105,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                              "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "product_lifetime": 10,
+                         "product_lifetime": 1,
                          "structure_type": ["new", "retrofit"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5133,7 +5132,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "cost_units": "2014$/unit",
                          "energy_efficiency": {"primary": 25,
                                                "secondary": None},
-                         "product_lifetime": 10,
+                         "product_lifetime": 1,
                          "structure_type": ["new", "retrofit"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
@@ -5158,7 +5157,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                "secondary": None},
                          "market_entry_year": None,
                          "market_exit_year": None,
-                         "product_lifetime": 10,
+                         "product_lifetime": 1,
                          "structure_type": ["new", "retrofit"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
@@ -5188,7 +5187,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                    "secondary": None},
                        "market_entry_year": None,
                        "market_exit_year": None,
-                       "product_lifetime": 10,
+                       "product_lifetime": 1,
                        "structure_type": ["new", "retrofit"],
                        "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5214,7 +5213,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                                    "secondary": None},
                        "market_entry_year": None,
                        "market_exit_year": None,
-                       "product_lifetime": 10,
+                       "product_lifetime": 1,
                        "structure_type": ["new", "retrofit"],
                        "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5233,7 +5232,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
-                       "product_lifetime": 10,
+                       "product_lifetime": 1,
                        "structure_type": ["new", "retrofit"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
@@ -5261,7 +5260,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "installed_cost": 25,
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
-                       "product_lifetime": 10,
+                       "product_lifetime": 1,
                        "structure_type": ["new", "retrofit"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
@@ -5333,7 +5332,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 430868.63, "2010": 427058.3},
                     "efficient": {"2009": 219663.21, "2010": 217720.65}}}},
         "lifetime": {"baseline": {"2009": 75, "2010": 75},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5379,7 +5378,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 28255.06, "2010": 27456.07},
                     "efficient": {"2009": 20343.64, "2010": 19768.37}}}},
         "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5425,7 +5424,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1216244.58, "2010": 1204646.90},
                     "efficient": {"2009": 1031653.83, "2010": 1021703.20}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5471,7 +5470,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 23937.15, "2010": 23725.46},
                     "efficient": {"2009": 6582.715, "2010": 6524.502}}}},
         "lifetime": {"baseline": {"2009": 105, "2010": 105},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5517,7 +5516,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 11968.57, "2010": 11862.73},
                     "efficient": {"2009": 5984.287, "2010": 5931.365}}}},
         "lifetime": {"baseline": {"2009": 20, "2010": 20},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5563,7 +5562,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 275277.18, "2010": 272842.8},
                     "efficient": {"2009": 103727.63, "2010": 102810.33}}}},
         "lifetime": {"baseline": {"2009": 51.67, "2010": 51.67},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5609,7 +5608,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 275277.18, "2010": 272842.8},
                     "efficient": {"2009": 97743.35, "2010": 96878.97}}}},
         "lifetime": {"baseline": {"2009": 51.67, "2010": 51.67},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5655,7 +5654,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 143622.88, "2010": 142352.77},
                     "efficient": {"2009": 117292.02, "2010": 116254.76}}}},
         "lifetime": {"baseline": {"2009": 140, "2010": 140},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5701,7 +5700,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 2825.506, "2010": 4118.409},
                     "efficient": {"2009": 2034.364, "2010": 2965.256}}}},
         "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5747,7 +5746,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 25429.55, "2010": 23337.66},
                     "efficient": {"2009": 18309.28, "2010": 16803.11}}}},
         "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5793,7 +5792,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 0, "2010": 1204646.90},
                     "efficient": {"2009": 0, "2010": 1021703.20}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5839,7 +5838,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1216244.58, "2010": 0},
                     "efficient": {"2009": 1031653.83, "2010": 0}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5885,7 +5884,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1631811.885, "2010": 1615440.956},
                     "efficient": {"2009": 1391812.161, "2010": 1350338.441}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5931,7 +5930,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 28255.06, "2010": 27456.07},
                     "efficient": {"2009": 64630.29, "2010": 64058.75}}}},
         "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                     "measure": 10}},
+                     "measure": 1}},
               {
         "stock": {
             "total": {
@@ -5977,7 +5976,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1992767.41, "2010": 1975144.64},
                     "efficient": {"2009": 1793490.67, "2010": 1777630.18}}}},
         "lifetime": {"baseline": {"2009": 16, "2010": 16},
-                     "measure": 17}}]
+                     "measure": 1}}]
 
     # Set the consumer choice dicts that should be generated by the
     # first two "ok_measures" above using the "sample_msegin" dict.
@@ -6103,9 +6102,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Means and sampling Ns for energy, cost, and lifetime that should be
     # generated by "ok_measures_dist" above using the "sample_msegin" dict
-    ok_out_dist = [[121.74, 50, 1844.58, 50, 10, 1],
-                   [11.61, 50, 379.91, 50, 10.03, 50],
-                   [57.20, 50, 6017.91, 50, 10, 1]]
+    ok_out_dist = [[121.74, 50, 1844.58, 50, 1, 1],
+                   [11.61, 50, 379.91, 50, 1.03, 50],
+                   [57.20, 50, 6017.91, 50, 1, 1]]
 
     # Master stock, energy, and cost information that should be generated by
     # "partial_measures" above using the "sample_msegin" dict
@@ -6154,7 +6153,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 107717.16, "2010": 106764.58},
                     "efficient": {"2009": 51704.24, "2010": 51247}}}},
         "lifetime": {"baseline": {"2009": 120, "2010": 120},
-                     "measure": 10}},
+                     "measure": 1}},
         {
         "stock": {
             "total": {
@@ -6200,7 +6199,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 311182.9, "2010": 308431},
                     "efficient": {"2009": 125909.39, "2010": 124795.93}}}},
         "lifetime": {"baseline": {"2009": 80, "2010": 80},
-                     "measure": 10}}]
+                     "measure": 1}}]
 
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
@@ -6289,6 +6288,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     """ Test the operation of the calc_metric_update function to
     verify measure master microsegment inputs yield expected savings
     and prioritization metrics outputs """
+
+    # Set adoption scheme to use in the test
+    ok_adopt_scheme = 'Max adoption potential'
 
     # Set compete measures to True to ensure the full range of measure
     # outputs are calculated
@@ -6586,17 +6588,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     ok_out_point_res = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
-            "cost savings (added)": {"2009": -5, "2010": -10}},
+            "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
-            "savings (added)": {"2009": 10, "2010": 10},
+            "savings (annual)": {"2009": 10, "2010": 10},
             "cost savings (total)": {"2009": 10, "2010": 15},
-            "cost savings (added)": {"2009": 10, "2010": 15}},
+            "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
             "savings (total)": {"2009": 150, "2010": 200},
-            "savings (added)": {"2009": 50, "2010": 50},
+            "savings (annual)": {"2009": 50, "2010": 50},
             "cost savings (total)": {"2009": 5, "2010": 15},
-            "cost savings (added)": {"2009": 5, "2010": 15}},
+            "cost savings (annual)": {"2009": 5, "2010": 15}},
         "metrics": {
             "anpv": {
                 "stock cost": {
@@ -6641,17 +6643,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     ok_out_point_com = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
-            "cost savings (added)": {"2009": -5, "2010": -10}},
+            "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
-            "savings (added)": {"2009": 10, "2010": 10},
+            "savings (annual)": {"2009": 10, "2010": 10},
             "cost savings (total)": {"2009": 10, "2010": 15},
-            "cost savings (added)": {"2009": 10, "2010": 15}},
+            "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
             "savings (total)": {"2009": 150, "2010": 200},
-            "savings (added)": {"2009": 50, "2010": 50},
+            "savings (annual)": {"2009": 50, "2010": 50},
             "cost savings (total)": {"2009": 5, "2010": 15},
-            "cost savings (added)": {"2009": 5, "2010": 15}},
+            "cost savings (annual)": {"2009": 5, "2010": 15}},
         "metrics": {
             "anpv": {
                 "stock cost": {
@@ -6737,31 +6739,31 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     ok_out_dist1 = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
-            "cost savings (added)": {"2009": -5, "2010": -10}},
+            "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
             "savings (total)": {
                 "2009": [18.4, 17.3, 16.9, 14.0, 14.9],
                 "2010": [19.4, 20.5, 21.9, 19.0, 17.6]},
-            "savings (added)": {
+            "savings (annual)": {
                 "2009": [9.4, 9.3, 9.9, 8.4, 9.9],
                 "2010": [11.4, 10.5, 8.9, 10.0, 9.6]},
             "cost savings (total)": {
                 "2009": [10.9, 11.3, 12.3, 8.8, 7.5],
                 "2010": [14.9, 16.3, 13.3, 13.8, 12.5]},
-            "cost savings (added)": {
+            "cost savings (annual)": {
                 "2009": [10.9, 11.3, 12.3, 8.8, 7.5],
                 "2010": [14.9, 16.3, 13.3, 13.8, 12.5]}},
         "carbon": {
             "savings (total)": {
                 "2009": [149.4, 142.3, 141.9, 150.0, 148.9],
                 "2010": [199.4, 191.3, 194.9, 195.0, 193.9]},
-            "savings (added)": {
+            "savings (annual)": {
                 "2009": [49.4, 42.3, 41.9, 50.0, 48.9],
                 "2010": [49.4, 41.3, 44.9, 45.0, 43.9]},
             "cost savings (total)": {
                 "2009": [4.9, 5.3, 6.3, -1.2, 11.5],
                 "2010": [19.9, 21.3, 18.3, 18.8, 17.5]},
-            "cost savings (added)": {
+            "cost savings (annual)": {
                 "2009": [4.9, 5.3, 6.3, -1.2, 11.5],
                 "2010": [19.9, 21.3, 18.3, 18.8, 17.5]}},
         "metrics": {
@@ -6896,18 +6898,18 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         "stock": {
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]},
-            "cost savings (added)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
+            "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
-            "savings (added)": {"2009": 10, "2010": 10},
+            "savings (annual)": {"2009": 10, "2010": 10},
             "cost savings (total)": {"2009": 10, "2010": 15},
-            "cost savings (added)": {"2009": 10, "2010": 15}},
+            "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
             "savings (total)": {"2009": 150, "2010": 200},
-            "savings (added)": {"2009": 50, "2010": 50},
+            "savings (annual)": {"2009": 50, "2010": 50},
             "cost savings (total)": {"2009": 5, "2010": 15},
-            "cost savings (added)": {"2009": 5, "2010": 15}},
+            "cost savings (annual)": {"2009": 5, "2010": 15}},
         "metrics": {
             "anpv": {
                 "stock cost": {
@@ -7039,17 +7041,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     ok_out_dist3 = {
         "stock": {
             "cost savings (total)": {"2009": -5, "2010": -10},
-            "cost savings (added)": {"2009": -5, "2010": -10}},
+            "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
-            "savings (added)": {"2009": 10, "2010": 10},
+            "savings (annual)": {"2009": 10, "2010": 10},
             "cost savings (total)": {"2009": 10, "2010": 15},
-            "cost savings (added)": {"2009": 10, "2010": 15}},
+            "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
             "savings (total)": {"2009": 150, "2010": 200},
-            "savings (added)": {"2009": 50, "2010": 50},
+            "savings (annual)": {"2009": 50, "2010": 50},
             "cost savings (total)": {"2009": 5, "2010": 15},
-            "cost savings (added)": {"2009": 5, "2010": 15}},
+            "cost savings (annual)": {"2009": 5, "2010": 15}},
         "metrics": {
             "anpv": {
                 "stock cost": {
@@ -7182,18 +7184,18 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         "stock": {
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]},
-            "cost savings (added)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
+            "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
-            "savings (added)": {"2009": 10, "2010": 10},
+            "savings (annual)": {"2009": 10, "2010": 10},
             "cost savings (total)": {"2009": 10, "2010": 15},
-            "cost savings (added)": {"2009": 10, "2010": 15}},
+            "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
             "savings (total)": {"2009": 150, "2010": 200},
-            "savings (added)": {"2009": 50, "2010": 50},
+            "savings (annual)": {"2009": 50, "2010": 50},
             "cost savings (total)": {"2009": 5, "2010": 15},
-            "cost savings (added)": {"2009": 5, "2010": 15}},
+            "cost savings (annual)": {"2009": 5, "2010": 15}},
         "metrics": {
             "anpv": {
                 "stock cost": {
@@ -7329,7 +7331,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_point_res
         # Check calc_metric_update output (master savings dict)
         self.dict_check(dict1, dict2)
@@ -7343,7 +7346,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_point
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_point_com
         # Check calc_metric_update output (master savings dict)
         self.dict_check(dict1, dict2)
@@ -7357,7 +7361,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist1
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_dist1
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -7371,7 +7376,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist2
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_dist2
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -7385,7 +7391,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist3
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_dist3
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
@@ -7399,7 +7406,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         measure_instance.master_mseg = self.ok_master_mseg_dist4
         # Assert that output dict is correct
         dict1 = measure_instance.calc_metric_update(
-            self.ok_rate, self.adjust_savings, run.com_timeprefs)
+            self.ok_rate, self.adjust_savings, run.com_timeprefs,
+            self.ok_adopt_scheme)
         dict2 = self.ok_out_dist4
         # Check calc_metric_update output (master savings dict)
         self.dict_check_list(dict1, dict2)
