@@ -187,7 +187,9 @@ def single_tech_selector(tech_array, specific_name):
 
 
 def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
-    """ From a numpy structured array of data for a single technology
+    """Produces a dict of cost or performance data for a single technology.
+
+    From a numpy structured array of data for a single technology
     with several rows corresponding to different performance levels,
     this function converts the reported capital costs or efficiencies
     for all of the different performance levels into a mean (called
@@ -197,7 +199,28 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     weighted cost or efficiency for the 'typical' or mean case.
     A unique value is calculated and reported for each year in the
     years vector, which specifies the range of years over which the
-    final data are to be output to the cost/performance/lifetime JSON. """
+    final data are to be output to the cost/performance/lifetime JSON.
+
+    Args:
+        single_tech_array (numpy.ndarray): Structured array of EIA
+            technology characteristics data reduced to the various
+            performance levels (if applicable) for a single technology
+            (e.g., 'VAV_Vent' or 'comm_GSHP-heat')
+        sd_array (numpy.ndarray): EIA service demand data for the entire
+            microsegment associated with the specific technology that
+            appears in single_tech_array
+        sd_names (list): Strings describing the service demand data, with
+            each entry in the list corresponding to that row in sd_array
+        years (list): The range of years of interest, each as YYYY
+        flag (str): String that should be either 'cost' or 'performance'
+            to indicate the type of data the function is processing and
+            will return
+
+    Returns:
+        A top-level dict with keys for the 'typical' and 'maximum' cost
+        or performance cases, and child dicts for each case with values
+        reported for each year in years.
+    """
 
     # Using the string in the 'flag' argument, set a variable
     # for the column that contains the desired data to obtain
@@ -235,16 +258,21 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
                 idx_st = 0
             val[idx, idx_st:idx_en] = row[col]
 
-        # Find the matching row in service demand data by comparing
-        # the row technology name to sd_names and use that index to
-        # extract the service demand data and insert them into the
-        # service demand array in the same row as the corresponding
-        # cost data
-        select_sd[idx, ] = sd_array[
-            sd_names.index(row['technology name'][:44]), ]
-        # Truncate technology name string from technology data to 44
-        # characters since all string descriptors in the service demand
-        # data are limited to that length
+        # If the final year of availability (market exit year) for the
+        # particular technology performance level corresponding to 'row'
+        # is before the first year in years, do not update the service
+        # demand data array used later to calculate val_mean and val_max
+        if idx_en > 0:
+            # Find the matching row in service demand data by comparing
+            # the row technology name to sd_names and use that index to
+            # extract the service demand data and insert them into the
+            # service demand array in the same row as the corresponding
+            # cost data
+            select_sd[idx, ] = sd_array[
+                sd_names.index(row['technology name'][:44]), ]
+            # Truncate technology name string from technology data to 44
+            # characters since all string descriptors in the service
+            # demand data are limited to that length
 
     # Normalize the service demand data to simplify the calculation of
     # the service demand-weighted arithmetic mean of the desired data
@@ -279,14 +307,29 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
 
 
 def life_extractor(single_tech_array, years):
-    """ From a numpy structured array with the cost, performance, and
+    """Produces a nested dict of lifetime data for a single technology.
+
+    From a numpy structured array with the cost, performance, and
     lifetime data for a specific technology, calculate the arithmetic
     mean lifetime and 'range', which is calculated for the residential
     data as the difference between the maximum and the mean for each
     year. This function accounts for cases where the performance levels
     for a given technology exit the market before another level enters
     with the assumption that the previous lifetime should persist until
-    the next performance level enters the market. """
+    the next performance level enters the market.
+
+    Args:
+        single_tech_array (numpy.ndarray): Structured array of EIA
+            technology characteristics data reduced to the various
+            performance levels (if applicable) for a single technology
+            (e.g., 'VAV_Vent' or 'comm_GSHP-heat')
+        years (list): The range of years of interest, each as YYYY
+
+    Returns:
+        A top-level dict with keys for the 'typical' and 'maximum'
+        lifetime cases, and child dicts for each case with values
+        reported for each year in years.
+    """
 
     # Store the number of rows (different performance levels) in
     # single_tech_array and the number of years in the desired
@@ -324,11 +367,18 @@ def life_extractor(single_tech_array, years):
         life_mean = np.apply_along_axis(
             lambda v: np.mean(v[np.nonzero(v)]), 0, life)
 
+    # In the special case where no performance level is given because
+    # the product exits the market before the first year in the 'years'
+    # vector, make the entire reported mean lifetime equal to 0 in each
+    # year using the life array, which should still be populated with
+    # only zeros
+    if np.all(np.isnan(life_mean)):
+        life_mean = np.mean(life, 0)
     # In the special case where there were years with no performance
     # level indicated in the 'life' array, the mean will be 'nan'; it
     # is assumed that the previous technology's lifetime persists until
     # the next performance level enters the market
-    if np.any(np.isnan(life_mean)):
+    elif np.any(np.isnan(life_mean)):
         # First, identify the numeric values reported
         numbers = life_mean[~np.isnan(life_mean)]
 
