@@ -127,11 +127,27 @@ def sd_data_selector(sd_data, sel, years):
 
 
 def single_tech_selector(tech_array, specific_name):
-    """ Each microsegment is comprised of multiple technologies. Cost,
+    """Extracts a single technoogy from tech data for an entire microsegment.
+
+    Each microsegment is comprised of multiple technologies. Cost,
     performance, and lifetime data are needed for each technology in a
     microsegment. This function separates out those data for a specific
     technology from all of the technologies in the microsegment so that
-    they can be processed and further restructured for later output. """
+    they can be processed and further restructured for later output.
+
+    Args:
+        tech_array (numpy.ndarray): EIA technology characteristics
+            data available for a single microsegment, including cost,
+            performance, and lifetime data for (typically multiple)
+            performance scenarios for each technology applicable to
+            that microsegment.
+        specific_name (type): The name of the technology to be extracted.
+
+    Returns:
+        A numpy structured array with the same columns as other tech
+        data, but with only the rows corresponding to the technology
+        indicated by specific_name.
+    """
 
     # Initialize a list of rows to remove from the numpy array
     # that do not correspond to the specified technology
@@ -154,7 +170,7 @@ def single_tech_selector(tech_array, specific_name):
         # included as part of its name, but it nonetheless should be
         # checked to see if it matches the name passed to the function
         # and removed if there is not a match
-        elif tech_name != specific_name:
+        elif row['technology name'] != specific_name:
             rows_to_remove.append(idx)
         # Else check to see if the description indicates a placeholder
         # row, which should be deleted before the technologies are
