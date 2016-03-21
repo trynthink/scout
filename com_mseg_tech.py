@@ -451,5 +451,104 @@ def tech_names_extractor(tech_array):
 
     return technames
 
+
+def mseg_technology_handler(tech_data, sd_data, sel, years):
+    """Reformats cost, performance, and lifetime data into a dict.
+
+    Using external functions that process and reformat specific
+    categories of data from the EIA source data arrays, this function
+    converts the cost, performance, and lifetime data for each
+    technology within a particular microsegment to a dict format that
+    is consistent with the residential technology data. Those data for
+    each technology are then added to a master dict that ultimately
+    includes all of the technologies in the microsegment.
+
+    This function is called for each terminal, or leaf, node in the
+    microsegments JSON database that governs the structure of the major
+    project input files that are based on EIA Annual Energy Outlook
+    data. Each of those leaf nodes corresponds to a single, unique
+    microsegment. The dict returned by this function to be placed at
+    the leaf node includes the data for all of the technologies
+    applicable to that microsegment.
+
+    This function is relevant to all microsegments with a numeric end
+    use code <= 7 (i.e., all end uses except for PCs, non-PC office
+    electronics, and "other").
+
+    Args:
+        tech_data (numpy.ndarray): Imported EIA technology characteristics
+            data, with multiple efficiency levels for each technology,
+            including technology cost, performance, and service lifetime.
+        sd_data (numpy.ndarray): Imported EIA service demand data specified
+            over the same efficiency levels for each technology.
+        sel (list): A list of integers indicating the microsegment.
+        years (list): A list of integers representing the range of years
+            in the data, precalculated for speed.
+
+    Returns:
+        A dict that specifies the cost, performance, and lifetime on
+        a technology-specific basis for all of the technologies in the
+        microsegment indicated by the 'sel' argument.
+    """
+
+    # Instantiate a master dict for this microsegment
+    complete_mseg_tech_data = {}
+
+    # From the imported EIA data, extract the technology and service
+    # demand data for the microsegment identified by 'sel'
+    filtered_tech_data = tech_data_selector(tech_data, sel)
+    (filtered_sd_data, sd_names_list) = sd_data_selector(sd_data, sel, years)
+
+    # Use the 'units_id' function to extract the cost and performance
+    # units for the microsegment specified by 'sel'
+    the_cost_units = units_id(sel, 'cost')
+    the_performance_units = units_id(sel, 'performance')
+
+    # Identify the names (as strings) of all of the technologies
+    # included in this microsegment
+    tech_names_list = tech_names_extractor(filtered_tech_data)
+
+    # Extract the cost, performance, and lifetime data for each
+    # technology in this microsegment, insert those data into a dict
+    # with the correct structure, and append that dict to the master
+    # dict for this microsegment
+    for tech in tech_names_list:
+        # Extract the cost, performance, and lifetime data specific
+        # to a single technology, given by 'tech'
+        single_tech_data = single_tech_selector(filtered_tech_data, tech)
+
+        # Extract the cost data, restructure into the appropriate dict
+        # format, and append the units and data source
+        the_cost = cost_perf_extractor(single_tech_data, filtered_sd_data,
+                                       sd_names_list, years, 'cost')
+        the_cost['units'] = the_cost_units
+        the_cost['source'] = 'EIA AEO'
+
+        # Extract the performance data, restructure into the appropriate
+        # dict format, and append the units and data source
+        the_perf = cost_perf_extractor(single_tech_data, filtered_sd_data,
+                                       sd_names_list, years, 'performance')
+        the_perf['units'] = the_performance_units
+        the_perf['source'] = 'EIA AEO'
+
+        # Extract the lifetime data, restructure into the appropriate
+        # dict format, and append the units and data source
+        the_life = life_extractor(single_tech_data, years)
+        the_life['units'] = 'years'
+        the_life['source'] = 'EIA AEO'
+
+        # Following the format used for the residential data, combine
+        # the cost, performance, and lifetime data for the technology
+        # identified by the variable 'tech' into a single dict
+        tech_data_dict = {'installed cost': the_cost,
+                          'performance': the_perf,
+                          'lifetime': the_life}
+
+        # Add the data for this technology to the master dict for the
+        # entire microsegment
+        complete_mseg_tech_data[tech] = tech_data_dict
+
+    return complete_mseg_tech_data
+
 if __name__ == '__main__':
     main()
