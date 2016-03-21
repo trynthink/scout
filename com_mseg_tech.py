@@ -403,5 +403,53 @@ def life_extractor(single_tech_array, years):
 
     return final_dict
 
+
+def tech_names_extractor(tech_array):
+    """Creates a list of unique technology "names" for a microsegment.
+
+    Text strings are used to identify which cost, performance, and
+    lifetime data are associated with what technologies. This function
+    identifies appropriate text strings to use for each of the
+    technologies in a single microsegment.
+
+    Args:
+        tech_array (numpy.ndarray): EIA technology characteristics
+            data available for a single microsegment, including cost,
+            performance, and lifetime data for (typically multiple)
+            performance scenarios for each technology applicable to
+            that microsegment.
+
+    Returns:
+        A list of strings, where each string represents a technology
+        "name" or descriptor that does not include scenario-specific
+        details like "2020 high" or "2009 installed base".
+    """
+
+    # Create empty list to be populated with technology names
+    technames = []
+
+    for row in tech_array:
+        # Identify the technology name from the 'technology name' column
+        # in the data using a regex set up to match any text '.+?' that
+        # appears before the first occurrence of a space followed by a
+        # 2 and three other numbers (e.g., 2009 or 2035)
+        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
+
+        # If the regex matched, add the matching text, which describes
+        # the technology without scenario-specific text like '2003
+        # installed base', to the technames list
+        if tech_name:
+            technames.append(tech_name.group(0))
+        # Else, if the technology name is not from a placeholder row,
+        # add the entire name text to the technames list
+        else:
+            if not re.search('placeholder', row['technology name']):
+                technames.append(row['technology name'])
+
+    # Reduce the list to only the unique entries
+    technames = list(np.unique(technames))
+
+    return technames
+
 if __name__ == '__main__':
     main()

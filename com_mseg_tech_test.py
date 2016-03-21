@@ -1760,6 +1760,18 @@ class LifetimeDataExtractionTest(CommonUnitTest):
                             self.result_life[idx])
 
 
+class TechnologyNameListExtractorTest(CommonUnitTest):
+    """ Test the function that uses the technology data for a specific
+    microsegment to generate a list of the unique technology names for
+    that microsegment """
+
+    def test_selection_of_single_technology(self):
+        for idx, tech_array in enumerate(self.selected_tech_data):
+            self.assertCountEqual(
+                cmt.tech_names_extractor(tech_array),
+                self.tech_names[idx])
+
+
 class ChoiceModelParametersExtractionTest(CommonUnitTest):
     """ docstring """
     pass
