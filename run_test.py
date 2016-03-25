@@ -304,7 +304,103 @@ sample_measure4 = {
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
-        "savings updated": False}}
+        "savings updated": False},
+    "mseg_out_break": {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {},
+                'Water Heating': {"2009": 0.5, "2010": 0.5},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {},
+                'Water Heating': {"2009": 0.5, "2010": 0.5},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {},
+                'Lighting': {}, 'Refrigeration': {}, 'Other': {},
+                'Water Heating': {}, 'Computers and Electronics': {},
+                'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
+    "master_mseg": {
+        "stock": {
+            "total": {
+                "all": {"2009": 40, "2010": 40},
+                "measure": {"2009": 24, "2010": 24}},
+            "competed": {
+                "all": {"2009": 20, "2010": 20},
+                "measure": {"2009": 4, "2010": 4}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 80, "2010": 80},
+                "efficient": {"2009": 48, "2010": 48}},
+            "competed": {
+                "baseline": {"2009": 40, "2010": 40},
+                "efficient": {"2009": 8, "2010": 8}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 120, "2010": 120},
+                "efficient": {"2009": 72, "2010": 72}},
+            "competed": {
+                "baseline": {"2009": 60, "2010": 60},
+                "efficient": {"2009": 12, "2010": 12}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 72, "2010": 72}},
+                "competed": {
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 72, "2010": 72}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 80, "2010": 80},
+                    "efficient": {"2009": 48, "2010": 48}},
+                "competed": {
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 8, "2010": 8}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 120, "2010": 120},
+                    "efficient": {"2009": 72, "2010": 72}},
+                "competed": {
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {"2009": 12, "2010": 12}}}},
+        "lifetime": {
+            "baseline": {"2009": 5, "2010": 5},
+            "measure": 10}}}
 
 # Define sample residential lighting measure for use in tests of
 # measure packaging routine below
@@ -436,7 +532,102 @@ sample_measure5 = {
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
-        "savings updated": False}}
+        "savings updated": False},
+    "mseg_out_break": {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {},
+                'Lighting': {"2009": 1, "2010": 1},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {},
+                'Lighting': {}, 'Refrigeration': {}, 'Other': {},
+                'Water Heating': {}, 'Computers and Electronics': {},
+                'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
+    "master_mseg": {
+        "stock": {
+            "total": {
+                "all": {"2009": 200, "2010": 200},
+                "measure": {"2009": 120, "2010": 120}},
+            "competed": {
+                "all": {"2009": 100, "2010": 100},
+                "measure": {"2009": 20, "2010": 20}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 400, "2010": 400},
+                "efficient": {"2009": 240, "2010": 240}},
+            "competed": {
+                "baseline": {"2009": 200, "2010": 200},
+                "efficient": {"2009": 40, "2010": 40}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 600, "2010": 600},
+                "efficient": {"2009": 360, "2010": 360}},
+            "competed": {
+                "baseline": {"2009": 300, "2010": 300},
+                "efficient": {"2009": 60, "2010": 60}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 360, "2010": 360}},
+                "competed": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 360, "2010": 360}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 400, "2010": 400},
+                    "efficient": {"2009": 240, "2010": 240}},
+                "competed": {
+                    "baseline": {"2009": 200, "2010": 200},
+                    "efficient": {"2009": 40, "2010": 40}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 600, "2010": 600},
+                    "efficient": {"2009": 360, "2010": 360}},
+                "competed": {
+                    "baseline": {"2009": 300, "2010": 300},
+                    "efficient": {"2009": 60, "2010": 60}}}},
+        "lifetime": {
+            "baseline": {"2009": 1, "2010": 1},
+            "measure": 20}}}
 
 # Define sample residential cooling measure for use in tests of
 # measure packaging routine below
@@ -516,6 +707,53 @@ sample_measure6 = {
             "savings": {},
             "total": {}},
         "savings updated": False},
+    "mseg_out_break": {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {"2009": 1, "2010": 1}, 'Ventilation': {},
+                'Lighting': {}, 'Refrigeration': {}, 'Other': {},
+                'Water Heating': {}, 'Computers and Electronics': {},
+                'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
     "master_mseg": {
         "stock": {
             "total": {
@@ -642,6 +880,53 @@ sample_measure7 = {
             "savings": {},
             "total": {}},
         "savings updated": False},
+    "mseg_out_break": {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {"2009": 1, "2010": 1}, 'Ventilation': {},
+                'Lighting': {}, 'Refrigeration': {}, 'Other': {},
+                'Water Heating': {}, 'Computers and Electronics': {},
+                'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
     "master_mseg": {
         "stock": {
             "total": {
@@ -689,6 +974,57 @@ sample_measure7 = {
         "lifetime": {
             "baseline": {"2009": 18, "2010": 18},
             "measure": 18}}}
+
+
+# Initialize a dictionary that will store energy and carbon
+# market/savings output breakouts for sample measures in the
+# tests below
+ok_out_break_in = {
+    'AIA CZ1': {
+        'Residential': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}},
+        'Commercial': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}}},
+    'AIA CZ2': {
+        'Residential': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}},
+        'Commercial': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}}},
+    'AIA CZ3': {
+        'Residential': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}},
+        'Commercial': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}}},
+    'AIA CZ4': {
+        'Residential': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}},
+        'Commercial': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}}},
+    'AIA CZ5': {
+        'Residential': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}},
+        'Commercial': {
+            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+            'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+            'Computers and Electronics': {}, 'Heating': {}}}}
 
 
 class CommonMethods(object):
@@ -894,6 +1230,116 @@ class ReduceSqftStockCostTest(unittest.TestCase, CommonMethods):
     def test_ok_add(self):
         dict1 = self.measure_instance.reduce_sqft(self.base_dict,
                                                   self.test_factor)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
+
+
+class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the out_break_norm function to verify
+    that it properly normalizes dict key values """
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # Set dict with normalizing factors
+    ok_reduce_factor = {"2009": 100, "2010": 100}
+
+    # Set input dict with values to be normalized by above factors
+    ok_in = {
+        "AIA CZ1": {
+            "Residential": {
+                "Heating": {"2009": 10, "2010": 10},
+                "Cooling": {"2009": 15, "2010": 15}},
+            "Commercial": {
+                "Heating": {"2009": 20, "2010": 20},
+                "Cooling": {"2009": 25, "2010": 25}}},
+        "AIA CZ2": {
+            "Residential": {
+                "Heating": {"2009": 30, "2010": 30},
+                "Cooling": {"2009": 35, "2010": 35}},
+            "Commercial": {
+                "Heating": {"2009": 40, "2010": 40},
+                "Cooling": {"2009": 45, "2010": 45}}}}
+
+    # Set the correct output of the function given the input dict
+    # and reduction factors above
+    ok_out = {
+        "AIA CZ1": {
+            "Residential": {
+                "Heating": {"2009": .10, "2010": .10},
+                "Cooling": {"2009": .15, "2010": .15}},
+            "Commercial": {
+                "Heating": {"2009": .20, "2010": .20},
+                "Cooling": {"2009": .25, "2010": .25}}},
+        "AIA CZ2": {
+            "Residential": {
+                "Heating": {"2009": .30, "2010": .30},
+                "Cooling": {"2009": .35, "2010": .35}},
+            "Commercial": {
+                "Heating": {"2009": .40, "2010": .40},
+                "Cooling": {"2009": .45, "2010": .45}}}}
+
+    # Test for the correct function output
+    def test_ok(self):
+        dict1 = self.measure_instance.out_break_norm(
+            self.ok_in, self.ok_reduce_factor)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
+
+
+class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the out_break_walk function to verify
+    that it properly applies a climate zone/building type/end use
+    partition to a total energy or carbon market/savings value  """
+
+    # Instantiate a sample measure to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+    # Instantiate an engine object with the above measure as input
+    a_run = run.Engine(measure_instance)
+
+    # Set a dict with total values to be partitioned
+    ok_total = {"2009": 100, "2010": 100}
+
+    # Set a dict with sample climate zone/building type/end use
+    # partition fractions to apply to the total values above
+    ok_partitions = {
+        "AIA CZ1": {
+            "Residential": {
+                "Heating": {"2009": .10, "2010": .10},
+                "Cooling": {"2009": .15, "2010": .15}},
+            "Commercial": {
+                "Heating": {"2009": .20, "2010": .20},
+                "Cooling": {"2009": .25, "2010": .25}}},
+        "AIA CZ2": {
+            "Residential": {
+                "Heating": {"2009": .30, "2010": .30},
+                "Cooling": {"2009": .35, "2010": .35}},
+            "Commercial": {
+                "Heating": {"2009": .40, "2010": .40},
+                "Cooling": {"2009": .45, "2010": .45}}}}
+
+    # Set the correct output of the function given the total
+    # values and partitioning fractions above
+    ok_out = {
+        "AIA CZ1": {
+            "Residential": {
+                "Heating": {"2009": 10, "2010": 10},
+                "Cooling": {"2009": 15, "2010": 15}},
+            "Commercial": {
+                "Heating": {"2009": 20, "2010": 20},
+                "Cooling": {"2009": 25, "2010": 25}}},
+        "AIA CZ2": {
+            "Residential": {
+                "Heating": {"2009": 30, "2010": 30},
+                "Cooling": {"2009": 35, "2010": 35}},
+            "Commercial": {
+                "Heating": {"2009": 40, "2010": 40},
+                "Cooling": {"2009": 45, "2010": 45}}}}
+
+    # Test for the correct function output
+    def test_ok(self):
+        dict1 = self.a_run.out_break_walk(
+            self.ok_partitions, self.ok_total)
         dict2 = self.ok_out
         self.dict_check(dict1, dict2)
 
@@ -6026,7 +6472,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
         'cooling', 'supply', 'room AC', 'retrofit')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'heating', 'supply', 
+        'heating', 'supply',
         'boiler (electric)', 'retrofit')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
         'heating', 'supply', 'ASHP', 'retrofit')""": compete_choice_val,
@@ -6099,6 +6545,154 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'retrofit')": {"2009": 108.46, "2010": 108.8}}},
         {"savings": {},
          "total": {}}]
+
+    # Set the dictionary of output partition fractions that should be
+    # yielded by the function for the sample measures defined above
+    ok_out_break = [{
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {"2009": 0.375, "2010": 0.374},
+                'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {},
+                'Heating': {"2009": 0.125, "2010": 0.124}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {"2009": 0.375, "2010": 0.374},
+                'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {},
+                'Heating': {"2009": 0.125, "2010": 0.124}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
+        {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {},
+                'Water Heating': {"2009": 1, "2010": 1},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}},
+        {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {"2009": 1, "2010": 1},
+                'Other': {},
+                'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}}]
 
     # Means and sampling Ns for energy, cost, and lifetime that should be
     # generated by "ok_measures_dist" above using the "sample_msegin" dict
@@ -6213,12 +6807,12 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # microsegment information) is correct
             dict_base = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")
+                "Technical potential", ok_out_break_in)
             dict1 = dict_base[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
 
-            # Assert that the consumer choice paramaters and supply-demand
+            # Check that the consumer choice parameters and supply-demand
             # adjustment information in the second output of
             # mseg_find_partition is correct (limit this check to the first
             # two sample measures only to reduce computation time)
@@ -6232,6 +6826,20 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 dict6 = self.ok_out_compete_demand[idx]
                 self.dict_check(dict5, dict6)
 
+            # Check that the output breakout information in the third
+            # output of mseg_find_partition is correct (limit this check to
+            # the first two sample measures and the refrigerator/freezer
+            # sample measure only to reduce computation time)
+            if idx < 2 or idx == 14:
+                dict7 = dict_base[2]
+                # Check the refrigerator/freezer sample measure
+                if idx == 14:
+                    dict8 = self.ok_out_break[2]
+                # Check the first two sample measures
+                else:
+                    dict8 = self.ok_out_break[idx]
+                self.dict_check(dict7, dict8)
+
     # Test for correct output from "ok_measures_dist" input
     def test_mseg_ok_distrib(self):
         # Seed random number generator to yield repeatable results
@@ -6242,7 +6850,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Generate lists of energy and cost output values
             test_outputs = measure_instance.mseg_find_partition(
                 self.sample_msegin, self.sample_basein,
-                "Technical potential")[0]
+                "Technical potential", ok_out_break_in)[0]
             test_e = test_outputs["energy"]["total"]["efficient"]["2009"]
             test_c = test_outputs[
                 "cost"]["stock"]["total"]["efficient"]["2009"]
@@ -6267,7 +6875,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             dict1 = measure_instance.mseg_find_partition(
                 self.sample_msegin,
                 self.sample_basein,
-                "Technical potential")[0]
+                "Technical potential", ok_out_break_in)[0]
             dict2 = self.partial_out[idx]
             self.dict_check(dict1, dict2)
 
@@ -6281,7 +6889,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 measure_instance.mseg_find_partition(
                     self.sample_msegin,
                     self.sample_basein,
-                    "Technical potential")
+                    "Technical potential", ok_out_break_in)
 
 
 class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
@@ -10606,7 +11214,7 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
     p = "HVAC"
     # Instantiate package measure object
     packaged_measure = run.Measure_Package(
-        sample_measure_list_package, p)
+        sample_measure_list_package, p, ok_out_break_in)
     # Set the measures that contribute to the package measure
     # object that have overlapping baseline microsegments (in this sample
     # case, the two contributing measures overlap)
@@ -10865,7 +11473,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
     p = "CAC + CFLs + NGWH"
     # Instantiate package measure object
     packaged_measure = run.Measure_Package(
-        sample_measure_list_package, p)
+        sample_measure_list_package, p, ok_out_break_in)
 
     # Set the name, climate zone, building type, structure type,
     # fuel type, and end use attributes that should be generated
@@ -11255,6 +11863,59 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             "total": {}},
         "savings updated": False}
 
+    # Set the dictionary of output partition fractions that should be
+    # yielded by the function for the sample packaged measure
+    ok_out_break = {
+        'AIA CZ1': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {},
+                'Lighting': {"2009": 0.161, "2010": 0.161},
+                'Refrigeration': {}, 'Other': {},
+                'Water Heating': {"2009": 0.016, "2010": 0.016},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ2': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {},
+                'Water Heating': {"2009": 0.016, "2010": 0.016},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ3': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ4': {
+            'Residential': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}},
+        'AIA CZ5': {
+            'Residential': {
+                'Cooling': {"2009": 0.806, "2010": 0.806},
+                'Ventilation': {}, 'Lighting': {}, 'Refrigeration': {},
+                'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}},
+            'Commercial': {
+                'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                'Computers and Electronics': {}, 'Heating': {}}}}
+
     # Set the sample master microsegment that should be generated for
     # the packaged measure
     ok_master_mseg = {
@@ -11324,6 +11985,8 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 sorted(output_lists[ind]))
         # Check for correct package measure mseg_adjust and master_mseg outputs
         self.dict_check(self.packaged_measure.mseg_adjust, self.ok_mseg_adjust)
+        self.dict_check(
+            self.packaged_measure.mseg_out_break, self.ok_out_break)
         self.dict_check(self.packaged_measure.master_mseg, self.ok_master_mseg)
 
 

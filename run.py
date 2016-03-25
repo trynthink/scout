@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import csv
 import itertools
 import numpy
 import copy
@@ -14,33 +13,33 @@ microsegments_file = "microsegments_out.json"
 mseg_base_costperflife_info = "base_costperflife.json"
 measure_packages_file = 'measure_packages_test.json'
 
-# Define and import site-source conversions and CO2 emissions data
-cost_sitesource_co2 = "Cost_S-S_CO2.txt"
-cost_ss_co2 = numpy.genfromtxt(cost_sitesource_co2,
-                               names=True, delimiter='\t',
-                               dtype=None)
+# Define and import site-source conversions and carbon emissions data
+cost_sitesource_carb = "Cost_S-S_CO2.txt"
+cost_ss_carb = numpy.genfromtxt(cost_sitesource_carb,
+                                names=True, delimiter='\t',
+                                dtype=None)
 
 # Set fuel type site-source conversion factors dict
-ss_conv = {"electricity (grid)": cost_ss_co2[7],
-           "natural gas": cost_ss_co2[8],
-           "distillate": cost_ss_co2[9], "other fuel": cost_ss_co2[9]}
+ss_conv = {"electricity (grid)": cost_ss_carb[7],
+           "natural gas": cost_ss_carb[8],
+           "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
 
 # Set fuel type carbon intensity dict
-carb_int = {"electricity (grid)": cost_ss_co2[10],
-            "natural gas": cost_ss_co2[11],
-            "distillate": cost_ss_co2[12], "other fuel": cost_ss_co2[12]}
+carb_int = {"electricity (grid)": cost_ss_carb[10],
+            "natural gas": cost_ss_carb[11],
+            "distillate": cost_ss_carb[12], "other fuel": cost_ss_carb[12]}
 
 # Set energy costs dict
-ecosts = {"residential": {"electricity (grid)": cost_ss_co2[0],
-                          "natural gas": cost_ss_co2[1],
-                          "distillate": cost_ss_co2[2],
-                          "other fuel": cost_ss_co2[2]},
-          "commercial": {"electricity (grid)": cost_ss_co2[3],
-                         "natural gas": cost_ss_co2[4],
-                         "distillate": cost_ss_co2[5],
-                         "other fuel": cost_ss_co2[5]}}
+ecosts = {"residential": {"electricity (grid)": cost_ss_carb[0],
+                          "natural gas": cost_ss_carb[1],
+                          "distillate": cost_ss_carb[2],
+                          "other fuel": cost_ss_carb[2]},
+          "commercial": {"electricity (grid)": cost_ss_carb[3],
+                         "natural gas": cost_ss_carb[4],
+                         "distillate": cost_ss_carb[5],
+                         "other fuel": cost_ss_carb[5]}}
 # Set carbon costs dict
-ccosts = cost_ss_co2[6]
+ccosts = cost_ss_carb[6]
 
 # Set a general discount rate for cost calculations
 rate = 0.07
@@ -65,17 +64,17 @@ com_timeprefs = {
 adopt_scheme = 'Max adoption potential'
 adjust_savings = True
 
-# Define a summary CSV file. For now, yield separate output files for a
+# Define a summary JSON file. For now, yield separate output files for a
 # competed and non-competed case and technical potential and non-technical
 # potential case to help organize test plotting efforts
 if adopt_scheme is 'Technical potential' and adjust_savings is True:
-    csv_output_file = "output_summary_competed.csv"
+    json_output_file = "output_summary_competed.json"
 elif adopt_scheme is 'Technical potential' and adjust_savings is False:
-    csv_output_file = "output_summary_noncompeted.csv"
+    json_output_file = "output_summary_noncompeted.json"
 elif adopt_scheme is not'Technical potential' and adjust_savings is True:
-    csv_output_file = "output_summary_competed_nontp.csv"
+    json_output_file = "output_summary_competed_nontp.json"
 else:
-    csv_output_file = "output_summary_noncompeted_nontp.csv"
+    json_output_file = "output_summary_noncompeted_nontp.json"
 
 # Set default number of input samples for Monte Carlo runs
 nsamples = 50
@@ -85,28 +84,76 @@ nsamples = 50
 inverted_relperf_list = ["ACH50", "CFM/sf", "kWh/yr", "kWh/day", "SHGC",
                          "HP/CFM"]
 
+# Initialize a dictionary that will store energy and carbon market/savings
+# output breakouts for each measure. Breakouts are by climate zone,
+# building type ('Residential' or 'Commercial'), and end use
+
+# First, establish a series of dicts that map the climate zone, building
+# type, and end use breakouts used in measure microsegment definitions to
+# the higher-level breakouts desired for measure outputs
+
+# Climate zone breakout mapping
+out_break_czones = OrderedDict([
+    ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
+    ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
+    ('AIA CZ5', 'AIA_CZ5')])
+# Building type breakout mapping
+out_break_bldgtypes = OrderedDict([
+    ('Residential', [
+        'single family home', 'multi family home', 'mobile home']),
+    ('Commercial', [
+        'assembly', 'education', 'food sales', 'food service',
+        'health care', 'mercantile/service', 'lodging', 'large office',
+        'small office', 'warehouse', 'other'])])
+# End use breakout mapping
+out_break_enduses = OrderedDict([
+    ('Heating', ["heating", "secondary heating"]),
+    ('Cooling', ["cooling"]),
+    ('Ventilation', ["ventilation"]),
+    ('Lighting', ["lighting"]),
+    ('Water Heating', ["water heating"]),
+    ('Refrigeration', ["refrigeration", "other (grid electric)"]),
+    ('Computers and Electronics', [
+        "PCs", "non-PC office equipment",
+        "TVs", "computers"]),
+    ('Other', ["cooking", "drying", "MELs", "other (grid electric)"])])
+
+# Use the above output categories to establish a dictionary with blank
+# values at terminal leaf nodes; this dict will eventually store
+# partitioning fractions needed to breakout the measure results
+
+# Determine all possible outcome category combinations
+out_levels = [out_break_czones.keys(), out_break_bldgtypes.keys(),
+              out_break_enduses.keys()]
+out_levels_keys = list(itertools.product(*out_levels))
+# Create dictionary using outcome category combinations as key chains
+out_break_in = OrderedDict()
+for kc in out_levels_keys:
+    current_level = out_break_in
+    for ind, elem in enumerate(kc):
+        if elem not in current_level:
+            current_level[elem] = OrderedDict()
+        current_level = current_level[elem]
+
 
 # Define class for measure objects
 class Measure(object):
 
     def __init__(self, **kwargs):
-        # Initialize master microsegment and savings attributes
-        self.master_mseg = None
-        self.master_savings = None
-
-        # Initialize other mseg-related attributes
-        self.total_energy_norm = {}  # Energy/stock (whole mseg)
-        self.compete_energy_norm = {}  # Energy/stock (competed mseg)
-        self.efficient_energy_norm = {}  # Energy/stock (efficient)
-        self.total_carb_norm = {}  # Carbon/stock (whole mseg)
-        self.compete_carb_norm = {}  # Carbon/stock (competed mseg)
-        self.efficient_carb_norm = {}  # Carbon/stock (efficient)
+        # Initialize master market microsegment, master savings,
+        # contributing microsegment information, and market/savings
+        # breakout attributes as dicts
+        self.master_mseg = {}
+        self.master_savings = {}
+        self.mseg_adjust = {}
+        self.mseg_out_break = {}
 
         # Initialize attributes from JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme):
+    def mseg_find_partition(
+            self, mseg_in, base_costperflife_in, adopt_scheme, out_break_in):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
         energy consumption information, find: 1) total and competed stock,
@@ -154,6 +201,11 @@ class Measure(object):
                 "savings": {},
                 "total": {}},
             "savings updated": False}
+
+        # Initialize a dict that stores the partitioning fractions used to
+        # breakout all measure energy and carbon market/savings outputs by
+        # climate zone, building type, and end use
+        mseg_out_break = copy.deepcopy(out_break_in)
 
         # If multiple runs are required to handle probability distributions on
         # measure inputs, set a number to seed each random draw of cost,
@@ -273,10 +325,10 @@ class Measure(object):
                         life_meas = self.product_lifetime
 
             # Set appropriate site-source conversion factor, energy cost, and
-            # CO2 intensity for given key chain
+            # carbon intensity for given key chain
             if mskeys[3] in ss_conv.keys():
                 # Set baseline and measure site-source conversions and
-                # CO2 intensities, accounting for any fuel switching from
+                # carbon intensities, accounting for any fuel switching from
                 # baseline technology to measure technology
                 if self.fuel_switch_to is None:
                     site_source_conv_base, site_source_conv_meas = (
@@ -785,10 +837,71 @@ class Measure(object):
                     "lifetime": {
                         "baseline": life_base, "measure": life_meas}}
 
+                # Using the key chain for the current microsegment, determine
+                # the output climate zone, building type, and end use breakout
+                # categories to which the current microsegment applies
+
+                # Establish applicable climate zone breakout
+                for cz in out_break_czones.items():
+                    if mskeys[1] in cz[1]:
+                        out_cz = cz[0]
+                # Establish applicable building type breakout
+                for bldg in out_break_bldgtypes.items():
+                    if mskeys[2] in bldg[1]:
+                        out_bldg = bldg[0]
+                # Establish applicable end use breakout
+                for eu in out_break_enduses.items():
+                    # * Note: The 'other (grid electric)' microsegment end
+                    # use may map to either the 'Refrigeration' output
+                    # breakout or the 'Other' output breakout, depending on
+                    # the technology type specified in the measure definition
+                    if mskeys[4] == "other (grid electric)":
+                        if mskeys[5] == "freezers":
+                            out_eu = "Refrigeration"
+                        else:
+                            out_eu = "Other"
+                    elif mskeys[4] in eu[1]:
+                        out_eu = eu[0]
+
+                # Given the contributing microsegment's applicable climate
+                # zone, building type, and end use categories, add the
+                # microsegment's baseline energy use value to the appropriate
+                # leaf node of the dictionary used to store measure output
+                # breakout information. * Note: the values in this dictionary
+                # will eventually be normalized by the measure's total baseline
+                # energy use to yield the fractions of measure energy and
+                # carbon markets/savings that are attributable to each climate
+                # zone, building type, and end use the measure applies to
+                if out_cz and out_bldg and out_eu:
+                    # If this is the first time the output breakout dictionary
+                    # is being updated, replace appropriate terminal leaf node
+                    # value with the baseline energy use values of the current
+                    # contributing microsegment
+                    if len(mseg_out_break[out_cz][
+                            out_bldg][out_eu].keys()) == 0:
+                        mseg_out_break[out_cz][out_bldg][out_eu] = \
+                            OrderedDict(sorted(add_energy.items()))
+
+                    # If the output breakout dictionary has already been
+                    # updated for a previous microsegment, add the baseline
+                    # energy values of the current contributing microsegment
+                    # to the dictionary's existing terminal leaf node values
+                    else:
+                        for yr in mseg_out_break[out_cz][
+                                out_bldg][out_eu].keys():
+                            mseg_out_break[out_cz][out_bldg][
+                                out_eu][yr] += add_energy[yr]
+                # Yield error if current contributing microsegment cannot be
+                # mapped to an output breakout category
+                else:
+                    raise ValueError(
+                        'Microsegment not found in output categories!')
+
                 # Register contributing microsegment for later use
                 # in determining savings overlaps for measures that apply
                 # to this microsegment
-                mseg_adjust["contributing mseg keys and values"][str(mskeys)] = \
+                mseg_adjust[
+                    "contributing mseg keys and values"][str(mskeys)] = \
                     add_dict
 
                 # Register choice parameters associated with contributing
@@ -846,12 +959,23 @@ class Measure(object):
                     reduce_factor)
             else:
                 reduce_factor = 1
+
+            # Normalize baseline energy use values for each category in the
+            # measure's output breakout dictionary by the total baseline
+            # energy use for the measure across all contributing
+            # microsegments; this yields partitioning fractions that will
+            # eventually be used to breakout measure energy and carbon
+            # markets/savings by climate zone, building type, and end use
+            mseg_out_break = self.out_break_norm(
+                mseg_out_break, mseg_master['energy']['total']['baseline'])
+
         else:
                 raise KeyError('No valid key chains discovered for lifetime \
                                 and stock and cost division operations!')
 
-        # Return the final master microsegment
-        return [mseg_master, mseg_adjust]
+        # Return the final master microsegment as well as contributing
+        # microsegment and markets/savings output breakout information
+        return [mseg_master, mseg_adjust, mseg_out_break]
 
     def create_keychain(self, mseg_type, htcl_enduse_ct=0):
         """ Given input microsegment information, create a list of keys that
@@ -1573,12 +1697,27 @@ class Measure(object):
         for (k, i) in dict1.items():
             # Do not divide any energy, carbon, or lifetime information
             if (k == "energy" or k == "carbon" or k == "lifetime"):
-                    continue
+                continue
             else:
-                    if isinstance(i, dict):
-                        self.reduce_sqft(i, reduce_factor)
-                    else:
-                        dict1[k] = dict1[k] / reduce_factor
+                if isinstance(i, dict):
+                    self.reduce_sqft(i, reduce_factor)
+                else:
+                    dict1[k] = dict1[k] / reduce_factor
+        return dict1
+
+    def out_break_norm(self, dict1, reduce_factor):
+        """ Divide a measure's climate, building, and end use-specific baseline
+        energy use by its total baseline energy use, yielding climate,
+        building, and end use partitioning fractions used in output plot
+        breakdowns """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.out_break_norm(i, reduce_factor)
+            else:
+                if reduce_factor[k] != 0:  # Handle total energy use of zero
+                    dict1[k] = dict1[k] / reduce_factor[k]
+                else:
+                    dict1[k] = 0
         return dict1
 
     def rand_list_gen(self, distrib_info, nsamples):
@@ -1835,13 +1974,14 @@ class Engine(object):
 
     def initialize_active(self, mseg_in, base_costperflife_in, adopt_scheme,
                           rate, adjust_savings, com_timeprefs,
-                          measure_packages):
+                          measure_packages, out_break_in):
         """ Run initialization scheme on active measures only """
         for m in self.measures:
             # Find master microsegment and partitions, as well as measure
-            # savings overlap information
-            m.master_mseg, m.mseg_adjust = m.mseg_find_partition(
-                mseg_in, base_costperflife_in, adopt_scheme)
+            # savings overlaps and markets/savings output breakout information
+            m.master_mseg, m.mseg_adjust, m.mseg_out_break = \
+                m.mseg_find_partition(
+                    mseg_in, base_costperflife_in, adopt_scheme, out_break_in)
             # Update savings outcomes and economic metrics
             # based on master microsegment
             m.master_savings = m.calc_metric_update(
@@ -1862,7 +2002,8 @@ class Engine(object):
                                         if x.name in package_measures]
                 # Instantiate measure package object based on packaged measure
                 # subset above
-                packaged_measure = Measure_Package(measure_list_package, p)
+                packaged_measure = Measure_Package(
+                    measure_list_package, p, out_break_in)
                 # Remove overlapping markets/savings between individual
                 # measures in the package object
                 packaged_measure.adjust_savings(
@@ -2523,113 +2664,123 @@ class Engine(object):
                     if m.mseg_adjust["savings updated"] is not True:
                         m.mseg_adjust["savings updated"] = True
 
-    def write_outputs(self, csv_output_file):
-        """ Write selected measure outputs to a summary CSV file """
+    def write_outputs(self, json_output_file):
+        """ Write selected measure outputs to a summary JSON file """
 
-        # Initialize a list to be populated with measure summary outputs
-        measure_summary_list = []
+        # Initialize a dictionary to be populated with measure summary outputs
+        measure_output_dict = {}
 
-        # Loop through all measures and append a dict of summary outputs to
-        # the measure summary list above
+        # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
-            for yr in sorted(m.master_mseg["stock"]["total"]["all"].keys()):
-                # Create list of output variables
-                summary_mat = [
-                    m.master_mseg["energy"]["total"]["efficient"][yr],
-                    m.master_savings["energy"]["savings (total)"][yr],
-                    m.master_savings["energy"]["cost savings (total)"][yr],
-                    m.master_mseg["carbon"]["total"]["efficient"][yr],
-                    m.master_savings["carbon"]["savings (total)"][yr],
-                    m.master_savings["carbon"]["cost savings (total)"][yr],
-                    m.master_savings["metrics"]["irr (w/ energy $)"][yr],
-                    m.master_savings["metrics"][
-                        "irr (w/ energy and carbon $)"][yr],
-                    m.master_savings["metrics"]["payback (w/ energy $)"][yr],
-                    m.master_savings["metrics"][
-                        "payback (w/ energy and carbon $)"][yr],
-                    m.master_savings["metrics"]["cce"][yr],
-                    m.master_savings["metrics"][
-                        "cce (w/ carbon $ benefits)"][yr],
-                    m.master_savings["metrics"]["ccc"][yr],
-                    m.master_savings["metrics"][
-                        "ccc (w/ energy $ benefits)"][yr]]
+            # Create list of efficient energy and carbon markets/savings
+            eff_summary = [
+                m.master_mseg["energy"]["total"]["efficient"],
+                m.master_savings["energy"]["savings (total)"],
+                m.master_savings["energy"]["cost savings (total)"],
+                m.master_mseg["carbon"]["total"]["efficient"],
+                m.master_savings["carbon"]["savings (total)"],
+                m.master_savings["carbon"]["cost savings (total)"],
+                m.master_savings["metrics"]["irr (w/ energy $)"],
+                m.master_savings["metrics"][
+                    "irr (w/ energy and carbon $)"],
+                m.master_savings["metrics"]["payback (w/ energy $)"],
+                m.master_savings["metrics"][
+                    "payback (w/ energy and carbon $)"],
+                m.master_savings["metrics"]["cce"],
+                m.master_savings["metrics"][
+                    "cce (w/ carbon $ benefits)"],
+                m.master_savings["metrics"]["ccc"],
+                m.master_savings["metrics"][
+                    "ccc (w/ energy $ benefits)"]]
+            # Order the year entries of in the above markets/savings outputs
+            eff_summary = [
+                OrderedDict(sorted(x.items())) for x in eff_summary]
 
-                # Check if the current measure's efficent energy/carbon
-                # markets, energy/carbon savings, and associated cost outputs
-                # are arrays of values.  If so, find the average and 5th/95th
-                # percentile values of each output array and report out.
-                # Otherwise, report the point values for each output
-                if type(m.master_mseg["energy"]["total"]["efficient"][yr]) == \
-                   numpy.ndarray:
-                    # Average values for outputs
-                    energy_eff_avg, energy_save_avg, energy_costsave_avg, \
-                        carb_eff_avg, carb_save_avg, carb_costsave_avg, \
-                        irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg, \
-                        cce_avg, cce_c_avg, ccc_avg, ccc_e_avg = \
-                        [numpy.mean(x) for x in summary_mat]
-                    # 5th percentile values for outputs
+            # Check if the current measure's efficent energy/carbon
+            # markets, energy/carbon savings, and associated cost outputs
+            # are arrays of values.  If so, find the average and 5th/95th
+            # percentile values of each output array and report out.
+            # Otherwise, report the point values for each output
+            if any([type(x) == numpy.ndarray for x in
+                    m.master_mseg["energy"]["total"]["efficient"].values()]):
+                # Average values for outputs
+                energy_eff_avg, energy_save_avg, energy_costsave_avg, \
+                    carb_eff_avg, carb_save_avg, carb_costsave_avg, \
+                    irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg, \
+                    cce_avg, cce_c_avg, ccc_avg, ccc_e_avg = \
+                    [{k: numpy.mean(v) for k, v in z.items()} for
+                     z in eff_summary]
+                # 5th percentile values for outputs
+                energy_eff_low, energy_save_low, energy_costsave_low, \
+                    carb_eff_low, carb_save_low, carb_costsave_low,\
+                    irr_e_low, irr_ec_low, payback_e_low, payback_ec_low, \
+                    cce_low, cce_c_low, ccc_low, ccc_e_low = \
+                    [{k: numpy.percentile(v, 5) for k, v in z.items()} for
+                     z in eff_summary]
+                # 95th percentile values for outputs
+                energy_eff_high, energy_save_high, energy_costsave_high, \
+                    carb_eff_high, carb_save_high, carb_costsave_high, \
+                    irr_e_high, irr_ec_high, payback_e_high, \
+                    payback_ec_high, cce_high, cce_c_high, ccc_high, \
+                    ccc_e_high = \
+                    [{k: numpy.percentile(v, 95) for k, v in z.items()} for
+                     z in eff_summary]
+            else:
+                energy_eff_avg, energy_save_avg, energy_costsave_avg, \
+                    carb_eff_avg, carb_save_avg, carb_costsave_avg, \
+                    irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg, \
+                    cce_avg, cce_c_avg, ccc_avg, ccc_e_avg,\
                     energy_eff_low, energy_save_low, energy_costsave_low, \
-                        carb_eff_low, carb_save_low, carb_costsave_low,\
-                        irr_e_low, irr_ec_low, payback_e_low, payback_ec_low, \
-                        cce_low, cce_c_low, ccc_low, ccc_e_low = \
-                        [numpy.percentile(x, 5) for x in summary_mat]
-                    # 95th percentile values for outputs
-                    energy_eff_high, energy_save_high, energy_costsave_high, \
-                        carb_eff_high, carb_save_high, carb_costsave_high, \
-                        irr_e_high, irr_ec_high, payback_e_high, payback_ec_high, \
-                        cce_high, cce_c_high, ccc_high, ccc_e_high = \
-                        [numpy.percentile(x, 95) for x in summary_mat]
-                else:
-                    energy_eff_avg, energy_save_avg, energy_costsave_avg, \
-                        carb_eff_avg, carb_save_avg, carb_costsave_avg, \
-                        irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg, \
-                        cce_avg, cce_c_avg, ccc_avg, ccc_e_avg,\
-                        energy_eff_low, energy_save_low, energy_costsave_low, \
-                        carb_eff_low, carb_save_low, carb_costsave_low, \
-                        irr_e_low, irr_ec_low, payback_e_low, payback_ec_low, \
-                        cce_low, cce_c_low, ccc_low, ccc_e_low, \
-                        energy_eff_high, energy_save_high, energy_costsave_high, \
-                        carb_eff_high, carb_save_high, carb_costsave_high, \
-                        irr_e_high, irr_ec_high, payback_e_high, payback_ec_high, \
-                        cce_high, cce_c_high, ccc_high, ccc_e_high = \
-                        [x for x in summary_mat] * 3
+                    carb_eff_low, carb_save_low, carb_costsave_low, \
+                    irr_e_low, irr_ec_low, payback_e_low, payback_ec_low, \
+                    cce_low, cce_c_low, ccc_low, ccc_e_low, \
+                    energy_eff_high, energy_save_high, \
+                    energy_costsave_high, carb_eff_high, carb_save_high, \
+                    carb_costsave_high, irr_e_high, irr_ec_high, \
+                    payback_e_high, payback_ec_high, cce_high, \
+                    cce_c_high, ccc_high, ccc_e_high = \
+                    [x for x in eff_summary] * 3
 
-                # Set up subscript translator for CO2 variable strings
-                sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+            # Set up subscript translator for carbon variable strings
+            sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 
-                # Define a dict of summary output keys and values for the
-                # current measure
-                measure_summary_dict_yr = OrderedDict([
-                    ("Year", yr), ("Measure Name", m.name),
+            # Update the dict of measure summary outputs, using the
+            # measure name as a dictionary key with the summary
+            # outputs as its associated value (formatted in an
+            # ordered dict)
+            measure_output_dict[m.name] = OrderedDict([
+                # Update filtering output variables for the measure
+                ("Filter Variables", OrderedDict([
                     ("Measure Climate Zone", m.climate_zone),
                     ("Measure Building Type", m.bldg_type),
                     ("Measure Structure Type", m.structure_type),
                     ("Measure Fuel Type", m.fuel_type["primary"]),
-                    ("Measure End Use", m.end_use["primary"]),
-                    ("Baseline Energy Use (MMBtu)", m.master_mseg[
-                        "energy"]["total"]["baseline"][yr]),
-                    ("Competed Energy Use (MMBtu)", m.master_mseg[
-                        "energy"]["competed"]["baseline"][yr]),
+                    ("Measure End Use", m.end_use["primary"])])),
+                # Update overall markets and savings for the measure
+                ("Markets and Savings (Overall)", OrderedDict([
+                    # Order year entries of baseline energy market
+                    ("Baseline Energy Use (MMBtu)",
+                        OrderedDict(sorted(m.master_mseg[
+                            "energy"]["total"]["baseline"].items()))),
                     ("Efficient Energy Use (MMBtu)", energy_eff_avg),
                     ("Efficient Energy Use (low) (MMBtu)", energy_eff_low),
                     ("Efficient Energy Use (high) (MMBtu)", energy_eff_high),
+                    # Order year entries of baseline carbon market
+                    ("Baseline CO2 Emissions  (MMTons)".translate(sub),
+                        OrderedDict(sorted(m.master_mseg[
+                            "carbon"]["total"]["baseline"].items()))),
+                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                        carb_eff_avg),
+                    ("Efficient CO2 Emissions (low) (MMTons)".translate(
+                        sub), carb_eff_low),
+                    ("Efficient CO2 Emissions (high) (MMTons)".translate(
+                        sub), carb_eff_high),
                     ("Energy Savings (MMBtu)", energy_save_avg),
                     ("Energy Savings (low) (MMBtu)", energy_save_low),
                     ("Energy Savings (high) (MMBtu)", energy_save_high),
                     ("Energy Cost Savings (USD)", energy_costsave_avg),
                     ("Energy Cost Savings (low) (USD)", energy_costsave_low),
                     ("Energy Cost Savings (high) (USD)", energy_costsave_high),
-                    ("Baseline CO2 Emissions  (MMTons)".translate(sub),
-                        m.master_mseg["carbon"]["total"]["baseline"][yr]),
-                    ("Competed CO2 Emissions (MMTons)".translate(sub),
-                        m.master_mseg[
-                        "carbon"]["competed"]["baseline"][yr]),
-                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                        carb_eff_avg),
-                    ("Efficient CO2 Emissions (low) (MMTons)".translate(sub),
-                        carb_eff_low),
-                    ("Efficient CO2 Emissions (high) (MMTons)".translate(sub),
-                        carb_eff_high),
                     ("Avoided CO2 Emissions (MMTons)".translate(sub),
                         carb_save_avg),
                     ("Avoided CO2 Emissions (low) (MMTons)".translate(sub),
@@ -2641,16 +2792,57 @@ class Engine(object):
                     ("CO2 Cost Savings (low) (USD)".translate(sub),
                         carb_costsave_low),
                     ("CO2 Cost Savings (high) (USD)".translate(sub),
-                        carb_costsave_high),
-                    ("IRR (%)", irr_e_avg * 100),
-                    ("IRR (low) (%)", irr_e_low * 100),
-                    ("IRR (high) (%)", irr_e_high * 100),
+                        carb_costsave_high)])),
+                # Update by-category markets and savings for the measure
+                # (initially the same as overall markets/savings, updated by
+                # output category partitions below)
+                ("Markets and Savings (by Category)", OrderedDict([
+                    # Order year entries of baseline energy market
+                    ("Baseline Energy Use (MMBtu)",
+                        OrderedDict(sorted(m.master_mseg[
+                            "energy"]["total"]["baseline"].items()))),
+                    ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                    ("Efficient Energy Use (low) (MMBtu)", energy_eff_low),
+                    ("Efficient Energy Use (high) (MMBtu)", energy_eff_high),
+                    # Order year entries of baseline carbon market
+                    ("Baseline CO2 Emissions  (MMTons)".translate(sub),
+                        OrderedDict(sorted(m.master_mseg[
+                            "carbon"]["total"]["baseline"].items()))),
+                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                        carb_eff_avg),
+                    ("Efficient CO2 Emissions (low) (MMTons)".translate(
+                        sub), carb_eff_low),
+                    ("Efficient CO2 Emissions (high) (MMTons)".translate(
+                        sub), carb_eff_high),
+                    ("Energy Savings (MMBtu)", energy_save_avg),
+                    ("Energy Savings (low) (MMBtu)", energy_save_low),
+                    ("Energy Savings (high) (MMBtu)", energy_save_high),
+                    ("Energy Cost Savings (USD)", energy_costsave_avg),
+                    ("Energy Cost Savings (low) (USD)", energy_costsave_low),
+                    ("Energy Cost Savings (high) (USD)", energy_costsave_high),
+                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
+                        carb_save_avg),
+                    ("Avoided CO2 Emissions (low) (MMTons)".translate(sub),
+                        carb_save_low),
+                    ("Avoided CO2 Emissions (high) (MMTons)".translate(sub),
+                        carb_save_high),
+                    ("CO2 Cost Savings (USD)".translate(sub),
+                        carb_costsave_avg),
+                    ("CO2 Cost Savings (low) (USD)".translate(sub),
+                        carb_costsave_low),
+                    ("CO2 Cost Savings (high) (USD)".translate(sub),
+                        carb_costsave_high)])),
+                # Update economic metrics for the measure
+                ("Economic Metrics", OrderedDict([
+                    ("IRR (%)", irr_e_avg),
+                    ("IRR (low) (%)", irr_e_low),
+                    ("IRR (high) (%)", irr_e_high),
                     ("IRR (w/ CO2 cost savings) (%)".translate(sub),
-                        irr_ec_avg * 100),
+                        irr_ec_avg),
                     ("IRR (w/ CO2 cost savings) (low) (%)".translate(sub),
-                        irr_ec_low * 100),
+                        irr_ec_low),
                     ("IRR (w/ CO2 cost savings) (high) (%)".translate(sub),
-                        irr_ec_high * 100),
+                        irr_ec_high),
                     ("Payback (years)", payback_e_avg),
                     ("Payback (low) (years)", payback_e_low),
                     ("Payback (high) (years)", payback_e_high),
@@ -2665,12 +2857,14 @@ class Engine(object):
                         cce_low),
                     ("Cost of Conserved Energy (high) ($/MMBtu saved)",
                         cce_high),
-                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
-                      "($/MMBtu saved)").translate(sub), cce_c_avg),
-                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
-                      "(low) ($/MMBtu saved)").translate(sub), cce_c_low),
-                    (("Cost of Conserved Energy (w/ CO2 cost savings benefit) "
-                      "(high) ($/MMBtu saved)").translate(sub), cce_c_high),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings "
+                      "benefit) ($/MMBtu saved)").translate(sub), cce_c_avg),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings "
+                      "benefit) (low) ($/MMBtu saved)").translate(sub),
+                     cce_c_low),
+                    (("Cost of Conserved Energy (w/ CO2 cost savings "
+                      "benefit) (high) ($/MMBtu saved)").translate(sub),
+                     cce_c_high),
                     (("Cost of Conserved CO2 "
                       "($/MMTon CO2 avoided)").translate(sub), ccc_avg),
                     (("Cost of Conserved CO2 (low) "
@@ -2685,24 +2879,44 @@ class Engine(object):
                       "($/MMTon CO2 avoided)").translate(sub), ccc_e_low),
                     (("Cost of Conserved CO2 (high) "
                       "(w/ energy cost savings benefit) "
-                      "($/MMTon CO2 avoided)").translate(sub), ccc_e_high)])
+                      "($/MMTon CO2 avoided)").translate(sub),
+                     ccc_e_high)]))])
 
-                # Append the dict of summary outputs for the current measure to
-                # the summary list of outputs across all active measures
-                measure_summary_list.append(measure_summary_dict_yr)
+            # Scale down the measure's overall energy and carbon markets/
+            # savings by the climate zone, building type, and end use
+            # partitioning fractions established for the measure in the
+            # 'mseg_find_partition' function
+            for k in measure_output_dict[m.name][
+                    'Markets and Savings (by Category)'].keys():
+                measure_output_dict[m.name][
+                    'Markets and Savings (by Category)'][k] = \
+                    self.out_break_walk(
+                        copy.deepcopy(m.mseg_out_break), measure_output_dict[
+                            m.name]['Markets and Savings (by Category)'][k])
 
-        # Write the summary outputs list to a CSV
-        with open(csv_output_file, 'w', newline="") as f:
-            dict_writer = csv.DictWriter(
-                f, fieldnames=measure_summary_list[0].keys())
-            dict_writer.writeheader()
-            dict_writer.writerows(measure_summary_list)
+        # Write summary outputs for all measures to a JSON
+        with open(json_output_file, "w") as jso:
+            json.dump(measure_output_dict, jso, indent=4)
+
+    def out_break_walk(self, adjust_dict, adjust_val):
+        """ Break out overall measure energy and carbon markets/savings by
+        climate zone, building type, and end use """
+        for (k, i) in sorted(adjust_dict.items()):
+            if isinstance(i, dict):
+                self.out_break_walk(i, adjust_val)
+            else:
+                # Apply appropriate climate zone/building type/end use
+                # partitioning fraction to the overall market/savings
+                # value
+                adjust_dict[k] = adjust_dict[k] * adjust_val[k]
+        # Return broken out markets/savings values
+        return adjust_dict
 
 
 # Define class for measure package objects
 class Measure_Package(Measure, Engine):
 
-    def __init__(self, measure_list_package, p):
+    def __init__(self, measure_list_package, p, out_break_in):
         # Set the list of measures to package
         self.measures_to_package = measure_list_package
         # Set the name of the measure package
@@ -2740,6 +2954,7 @@ class Measure_Package(Measure, Engine):
                     "competed": {"baseline": None, "efficient": None}}},
             "lifetime": {"baseline": None, "measure": None}}
         self.master_savings = {}
+        self.mseg_out_break = copy.deepcopy(out_break_in)
 
     def merge_measures(self):
         """ Merge a list of input measures into a single measure that combines
@@ -2780,8 +2995,10 @@ class Measure_Package(Measure, Engine):
                 else:
                     # Add measure's contributing microsegments
                     if k == "contributing mseg keys and values":
-                        # Combine overlapping microsegments
                         for cm in m.mseg_adjust[k].keys():
+                            # Account for overlaps betwen the current
+                            # contributing microsegment and existing
+                            # contributing microsegments for the package
                             if cm in self.mseg_adjust[k].keys():
                                 # Add in measure captured stock
                                 self.mseg_adjust[k][cm]["stock"]["measure"] \
@@ -2801,6 +3018,10 @@ class Measure_Package(Measure, Engine):
                                                 "baseline"] -
                                             m.mseg_adjust[k][cm]["cost"][kt][
                                                 "efficient"])
+                            # If there is no overlap between the current
+                            # contributing microsegment and existing
+                            # contributing microsegments for the package, add
+                            # in the current microsegment as is
                             else:
                                 self.mseg_adjust[k][cm] = m.mseg_adjust[k][cm]
 
@@ -2816,6 +3037,15 @@ class Measure_Package(Measure, Engine):
                             m.mseg_adjust[k]["savings"])
                         self.mseg_adjust[k]["total"].update(
                             m.mseg_adjust[k]["total"])
+
+            # Generate a dictionary including information about how
+            # much of the packaged measure's baseline energy use is attributed
+            # to each of the output climate zones, building types, and end uses
+            # it applies to (normalized by the measure's total baseline
+            # energy use below to yield output partitioning fractions)
+            self.mseg_out_break = self.out_break_merge(
+                self.mseg_out_break, m.mseg_out_break, m.master_mseg[
+                    'energy']['total']['baseline'])
 
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
@@ -2843,6 +3073,50 @@ class Measure_Package(Measure, Engine):
                 key_chain_ct_package
         self.master_mseg["lifetime"]["measure"] = self.master_mseg[
             "lifetime"]["measure"] / key_chain_ct_package
+
+        # Normalize baseline energy use values for each category in the
+        # packaged measure's output breakout dictionary by the total
+        # baseline energy use for the packaged measure across all its
+        # contributing measures; this yields partitioning fractions that
+        # will eventually be used to breakout the packaged measure's
+        # energy and carbon markets/savings by climate zone, building
+        # type, and end use
+        self.mseg_out_break = self.out_break_norm(
+            self.mseg_out_break, self.master_mseg[
+                'energy']['total']['baseline'])
+
+    def out_break_merge(self, init_dict, update_dict, update_multiplier):
+        """ Merge the output breakout dictionary for a measure that
+        contributes to a packaged measure into the packaged measure's
+        existing output breakout dictionary """
+
+        for (k, i), (k2, i2) in zip(sorted(init_dict.items()),
+                                    sorted(update_dict.items())):
+            if isinstance(i, dict) and len(i.keys()) > 0:
+                self.out_break_merge(i, i2, update_multiplier)
+            else:
+                # If this is the first time the packaged measure's output
+                # breakout dictionary is being updated, replace appropriate
+                # terminal leaf node value with terminal leaf node values
+                # of the current contributing measure
+                if len(update_dict[k2].keys()) > 0 and \
+                   len(init_dict[k].keys()) == 0:
+                    for yr in update_dict[k2].keys():
+                        init_dict[k][yr] = \
+                            update_dict[k2][yr] * update_multiplier[yr]
+                # If the packaged measure's output breakout dictionary has
+                # already been updated for a previous contributing measure,
+                # add the appropriate terminal leaf node values of the current
+                # contributing measure to the dictionary's existing terminal
+                # leaf node values
+                elif len(update_dict[k2].keys()) > 0 and \
+                        len(init_dict[k].keys()) > 0:
+                    for yr in update_dict[k2].keys():
+                        init_dict[k][yr] += \
+                            update_dict[k2][yr] * update_multiplier[yr]
+
+        # Return the updated output breakout dict for the packaged measure
+        return init_dict
 
 
 def main():
@@ -2877,13 +3151,13 @@ def main():
     # Find master microsegment information for each active measure
     a_run.initialize_active(microsegments_input, base_costperflife_info_input,
                             adopt_scheme, rate, adjust_savings,
-                            com_timeprefs, measure_packages)
+                            com_timeprefs, measure_packages, out_break_in)
     # Compete active measures if user has specified this option
     if adjust_savings is True:
         a_run.adjust_savings(com_timeprefs, 'Competing Measures')
 
     # Write selected outputs to a summary CSV file for post-processing
-    a_run.write_outputs(csv_output_file)
+    a_run.write_outputs(json_output_file)
 
 if __name__ == '__main__':
     import time
