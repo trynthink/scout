@@ -430,15 +430,34 @@ def dtype_eval(entry):
     return dtype
 
 
-def dtype_array(data_file_path, delim_char=','):
-    """ Use the csv module to read the first two lines of a text data
-    file to determine the column names and data types for each column
-    and construct a list of tuples that can be used to define the dtype
-    of a numpy structured array """
+def dtype_array(data_file_path, delim_char=',', hl=None):
+    """Use the first two lines (generally) of a file to assess the data type.
 
-    # This approach is most useful when there is a header row in the
-    # file, the data are not of the same type in every column, and
-    # them, as this last bit will cause np.genfromtxt to fail
+    Using the csv module, read the first two lines of a text data file
+    or, if specified, the first and third lines after skipping the
+    header lines specified by variable 'hl'. These two lines are used
+    to determine the column names and data types for each column, and
+    are then converted into a list of tuples that can be used to
+    specify the dtype parameter of a numpy structured array.
+
+    This function expects that the data file provided has a header
+    row, and works only when the data in the first row (after the
+    header) is exemplary of the type of data in the entirety of each
+    column. Columns with data of varying types will not always be
+    handled properly by this function.
+
+    Args:
+        data_file_path (str): The full path to the data file to be imported.
+        delim_char (str, optional): The delimiting character, defaults to ','.
+        hl (int, optional): The number of header lines to skip from the
+            top of the file before reading data.
+
+    Returns:
+        A numpy structured array dtype definition, which takes the form
+        of a list of tuples, where each tuple containing two entries, a
+        column heading string, and a string specifying the data type
+        for that column.
+    """
 
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
@@ -447,9 +466,20 @@ def dtype_array(data_file_path, delim_char=','):
         # quotechar '"' is appropriate
         filecont = csv.reader(thefile, delimiter=delim_char)
 
+        # Skip the specified number of extraneous leading lines in
+        # the file that do not include the column headers
+        if hl:
+            for i in range(0, hl):
+                next(filecont)
+
         # Extract header (first) row and remove leading and trailing
         # spaces from all entries
         header_names = [entry.strip() for entry in next(filecont)]
+
+        # Skip the blank line between the header and the first row
+        # of data in the ktek data file
+        if hl:
+            next(filecont)
 
         # Determine dtype using the second line of the file (since the
         # first line is a header row)
@@ -461,14 +491,32 @@ def dtype_array(data_file_path, delim_char=','):
         return comb_dtypes
 
 
-def data_import(data_file_path, dtype_list, delim_char=','):
-    """ Read the contents of a data file with a header line and convert
-    it into a numpy structured array using the provided dtype definition,
-    skipping any non-conforming informational lines at the end of the file """
+def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
+    """Import data and convert to a numpy structured array.
 
-    # This method is most useful when the end of the file has lines
-    # that provide background information, since those data can't be
-    # inserted into the same array as the main data
+    Read the contents of a data file with a header line and convert
+    it into a numpy structured array using the provided dtype definition,
+    skipping any non-conforming informational lines at the end of the
+    file. If specified, skip lines at the beginning of the file, for the
+    case where informational content appears there instead. Also support
+    capture of only the specified columns from the original data file.
+
+    Args:
+        data_file_path (str): The full path to the data file to be imported.
+        dtype_list (list): A list of tuples with each tuple containing two
+            entries, a column heading string, and a string defining the
+            data type for that column. Formatted as a numpy dtype list.
+        delim_char (str, optional): The delimiting character, defaults to ','.
+        hl (int, optional): The number of header lines to skip from the
+            top of the file before reading data.
+        cols (list): A list of numbers representing the indices for the
+            positions of the columns retained in the dtype definition
+            (and thus the columns to include from each row of the data).
+
+    Returns:
+        A numpy structured array of the imported data file with the
+        columns specified by dtype_list.
+    """
 
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
@@ -484,10 +532,24 @@ def data_import(data_file_path, dtype_list, delim_char=','):
         # Skip first line of the file
         next(filecont)
 
+        # If a number of header lines to skip (variable 'hl') is
+        # specified, skip those lines, plus one to accommodate
+        # the empty line between the header line and the first
+        # row of data in the ktek file (which is the intended
+        # target for these lines of code).
+        if hl:
+            for i in range(0, hl+1):
+                next(filecont)
+
         # Import the data, skipping lines that are not the correct length
         for row in filecont:
             if len(tuple(row)) == len(dtype_list):
                 data.append(tuple(row))
+            # If there are specific columns of interest specified, select
+            # only those columns from the row of data and append the result
+            elif cols:
+                shorter = [row[i] for i in cols]
+                data.append(tuple(shorter))
 
         # Convert data into numpy structured array, using the
         # try/catch in the case where the data include the string 'NA',

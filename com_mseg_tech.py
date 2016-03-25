@@ -8,6 +8,9 @@ import numpy as np
 import re
 import warnings
 
+# Identify files to import for processing and conversion
+cpl_data = 'ktek.csv'
+
 
 def units_id(sel, flag):
     """ Provides a units text string for a specified microsegment.
@@ -549,6 +552,86 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
         complete_mseg_tech_data[tech] = tech_data_dict
 
     return complete_mseg_tech_data
+
+
+def dtype_reducer(the_dtype, wanted_cols):
+    """Remove extraneous columns from the dtype definition.
+
+    In cases where a data file includes some columns of data that are
+    not of particular interest or relevance, this function can remove
+    those columns that are not needed (or more accurately, retain only
+    the columns that are desired). This function was originally created
+    for the purpose of importing the EIA ktek data, which may include
+    some columns with mixed data types that are difficult to import and
+    not relevant to this analysis anyway. Avoiding those columns
+    entirely is easier than developing far more sophisticated functions
+    to import the data.
+
+    Args:
+        the_dtype (list): A list of tuples with each tuple containing two
+            entries, a column heading string, and a string defining the
+            data type for that column. Formatted as a numpy dtype list.
+        wanted_cols (list): A list of strings that represent the names of
+            the columns from the ktek data that should be kept.
+
+    Returns:
+        col_loc is a list of the numeric indices for the positions of
+        the columns retained in the dtype definition (and thus which
+        columns should be retained when importing the full data file).
+        shortened_dtype is the dtype definition (in numpy dtype format)
+        that includes only the desired columns.
+    """
+
+    # Strip apart the dtype definition
+    headers, dtypes = zip(*the_dtype)
+
+    # Preallocate list for the numeric column indices of the wanted_cols
+    col_loc = []
+
+    # Make a list of the numeric index positions of the desired columns
+    for entry in wanted_cols:
+        try:
+            col_loc.append(headers.index(entry))
+        except ValueError:
+            print('desired column ' + entry + ' not found in the ktek data')
+
+    # Update the headers and dtypes by building them as new lists with
+    # only the desired columns and then recombining them into the numpy
+    # dtype definition format
+    headers = [headers[i] for i in col_loc]
+    dtypes = [dtypes[i] for i in col_loc]
+    shortened_dtype = list(zip(headers, dtypes))
+
+    return col_loc, shortened_dtype
+
+
+def main():
+    """Import external data files, process contents, and generate output data.
+
+    This function imports the required EIA data files and calls the
+    appropriate functions to convert their contents into the JSON file
+    format and nested structure expected. This function expects the
+    input and output file names to be available as global variables.
+    """
+
+    # Define the number of header lines in the ktek data file to skip
+    # and the names of the columns to keep from the ktek data
+    cpl_data_skip_lines = 100
+    columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
+                       'Life', 'y1', 'y2', 'technology name']
+
+    # Import technology cost, performance, and lifetime data in
+    # EIA AEO 'KTEK' data file
+    tech_dtypes = cm.dtype_array(cpl_data, ',', cpl_data_skip_lines)
+    col_indices, tech_dtypes = dtype_reducer(tech_dtypes, columns_to_keep)
+    tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
+    tech_data = cm.data_import(cpl_data, tech_dtypes, ',',
+                               cpl_data_skip_lines, col_indices)
+
+    # Import EIA AEO 'KSDOUT' service demand data
+    serv_dtypes = cm.dtype_array(cm.serv_dmd)
+    serv_data = cm.data_import(cm.serv_dmd, serv_dtypes)
+    serv_data = cm.str_cleaner(serv_data, 'Description')
 
 if __name__ == '__main__':
     main()
