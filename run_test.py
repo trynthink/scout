@@ -17,7 +17,8 @@ sample_measure = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
-    "structure_type": ["new", "retrofit"],
+    "measure_type": "full service",
+    "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
     "bldg_type": ["single family home"],
     "fuel_type": {"primary": ["electricity (grid)"],
@@ -37,7 +38,8 @@ sample_measure2 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
-    "structure_type": ["new", "retrofit"],
+    "measure_type": "full service",
+    "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
     "bldg_type": ["single family home"],
     "fuel_type": {"primary": ["electricity (grid)"],
@@ -57,7 +59,8 @@ sample_measure3 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
-    "structure_type": ["new", "retrofit"],
+    "measure_type": "full service",
+    "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
     "bldg_type": ["assembly"],
     "fuel_type": {"primary": ["electricity (grid)"],
@@ -78,7 +81,8 @@ sample_measure4 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
-    "structure_type": ["new", "retrofit"],
+    "measure_type": "full service",
+    "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
     "bldg_type": ["single family home"],
     "fuel_type": {"primary": ["natural gas"],
@@ -141,7 +145,7 @@ sample_measure4 = {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
             ("('AIA_CZ1', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 10, "2010": 10},
@@ -237,7 +241,7 @@ sample_measure4 = {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 10, "2010": 10},
@@ -290,7 +294,7 @@ sample_measure4 = {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ1', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
@@ -298,7 +302,7 @@ sample_measure4 = {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}}},
         "supply-demand adjustment": {
@@ -409,7 +413,8 @@ sample_measure5 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
-    "structure_type": ["retrofit"],
+    "measure_type": "full service",
+    "structure_type": ["existing"],
     "climate_zone": ["AIA_CZ1"],
     "bldg_type": ["single family home"],
     "fuel_type": {"primary": ["electricity (grid)"],
@@ -425,7 +430,7 @@ sample_measure5 = {
     "mseg_adjust": {
         "contributing mseg keys and values": {
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+             "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 100, "2010": 100},
@@ -473,7 +478,7 @@ sample_measure5 = {
                     "baseline": {"2009": 1, "2010": 1},
                     "measure": 20}},
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+             "'lighting', 'reflector (halogen)', 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 100, "2010": 100},
@@ -522,11 +527,11 @@ sample_measure5 = {
                     "measure": 15}}},
         "competed choice parameters": {
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+             "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+             "'lighting', 'reflector (halogen)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}}},
         "supply-demand adjustment": {
@@ -636,6 +641,7 @@ sample_measure6 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "measure_type": "full service",
     "structure_type": ["new"],
     "climate_zone": ["AIA_CZ5"],
     "bldg_type": ["multi family home"],
@@ -809,6 +815,7 @@ sample_measure7 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "measure_type": "full service",
     "structure_type": ["new"],
     "climate_zone": ["AIA_CZ5"],
     "bldg_type": ["multi family home"],
@@ -1460,52 +1467,52 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                        'new'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'heating', 'supply',
-                       'boiler (electric)', 'retrofit'),
+                       'boiler (electric)', 'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'ASHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'GSHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'room AC',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'cooling', 'supply',
-                       'boiler (electric)', 'retrofit'),
+                       'boiler (electric)', 'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'ASHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'GSHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ1', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'room AC',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'heating', 'supply',
-                       'boiler (electric)', 'retrofit'),
+                       'boiler (electric)', 'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'ASHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'GSHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'heating', 'supply', 'room AC',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'cooling', 'supply',
-                       'boiler (electric)', 'retrofit'),
+                       'boiler (electric)', 'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'ASHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'GSHP',
-                       'retrofit'),
+                       'existing'),
                       ('primary', 'AIA_CZ2', 'single family home',
                        'electricity (grid)', 'cooling', 'supply', 'room AC',
-                       'retrofit')]
+                       'existing')]
 
     # Correct key chain output (secondary microsegment)
     ok_out_secondary = [('secondary', 'AIA_CZ1', 'single family home',
@@ -1516,10 +1523,10 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                          'general service (LED)', 'new'),
                         ('secondary', 'AIA_CZ1', 'single family home',
                          'electricity (grid)', 'lighting',
-                         'general service (LED)', 'retrofit'),
+                         'general service (LED)', 'existing'),
                         ('secondary', 'AIA_CZ2', 'single family home',
                          'electricity (grid)', 'lighting',
-                         'general service (LED)', 'retrofit')]
+                         'general service (LED)', 'existing')]
 
     # Test the generation of a list of primary mseg key chains
     def test_primary(self):
@@ -1631,13 +1638,13 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     # is primary or secondary (where the latter could reflect,
     # for example, the heating/cooling energy impacts of a lighting efficiency
     # measure); it also determines whether the microsegment applies to
-    # new building structure types or retrofit building structure types
+    # new building structure types or existing building structure types
     mskeys = [('primary', 'AIA_CZ1', 'single family home',
                'electricity (grid)', 'heating', 'supply', 'boiler (electric)',
                'new'),
               ('primary', 'AIA_CZ1', 'single family home',
                'electricity (grid)', 'heating', 'supply', 'boiler (electric)',
-               'retrofit')]
+               'existing')]
 
     # Correct output of the "ok" function test
     ok_out = [
@@ -1914,7 +1921,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             # adoption potential)
             for scn in range(0, len(self.test_schemes)):
                 # Loop through two microsegment key chains (one applying
-                # to new structure type, another to retrofit structure type)
+                # to new structure type, another to existing structure type)
                 for k in range(0, len(self.mskeys)):
                     # List of output dicts generated by the function
                     lists1 = self.measure_instance.partition_microsegment(
@@ -5082,7 +5089,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": ["electricity (grid)"],
@@ -5099,14 +5107,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
                     "energy_efficiency": {
-                        "primary": {"new": 25, "retrofit": 25},
+                        "primary": {"new": 25, "existing": 25},
                         "secondary": None},
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {"primary": ["natural gas"],
@@ -5132,7 +5141,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5167,7 +5177,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5190,7 +5201,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": ["electricity (grid)"],
@@ -5216,7 +5228,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": ["electricity (grid)"],
@@ -5245,7 +5258,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                     "fuel_type": {"primary": ["electricity (grid)"],
@@ -5267,22 +5281,25 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary": None},
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["assembly"],
                     "climate_zone": ["AIA_CZ1"],
-                    "fuel_type": {"primary": ["electricity (grid)"],
-                                  "secondary": ["electricity (grid)",
-                                                "natural gas"]},
+                    "fuel_type": {
+                        "primary": ["electricity (grid)"],
+                        "secondary": None},
                     "fuel_switch_to": None,
-                    "end_use": {"primary": ["lighting"],
-                                "secondary": None},
+                    "end_use": {
+                        "primary": ["lighting"],
+                        "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
-                    "technology": {"primary":
-                                   ["commercial light type X"],
-                                   "secondary": None}},
+                    "technology": {
+                        "primary": [
+                            "commercial light type X"],
+                        "secondary": None}},
                    {"name": "sample measure 9",
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
@@ -5291,6 +5308,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "product_lifetime": 1,
+                    "measure_type": "full service",
                     "structure_type": ["new"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
@@ -5315,7 +5333,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {"primary": ["natural gas"],
@@ -5341,7 +5360,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": 2010,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5375,7 +5395,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": 2010,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5410,7 +5431,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
                                   "multi family home"],
                     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -5435,14 +5457,15 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
                     "energy_efficiency": {
-                        "primary": {"new": 25, "retrofit": 25},
+                        "primary": {"new": 25, "existing": 25},
                         "secondary": None},
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {"primary": ["natural gas"],
@@ -5466,7 +5489,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
-                    "structure_type": ["new", "retrofit"],
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {"primary": ["electricity (grid)"],
@@ -5478,7 +5502,36 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "technology_type": {"primary": "supply",
                                         "secondary": None},
                     "technology": {"primary": [None, "freezers"],
-                                   "secondary": None}}]
+                                   "secondary": None}},
+                   {"name": "sample measure 16 (lighting S&C)",
+                    "installed_cost": 11,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {
+                        "primary": 0.44,
+                        "secondary": None},
+                    "energy_efficiency_units": {
+                        "primary": "relative savings (constant)",
+                        "secondary": None},
+                    "product_lifetime": 1,
+                    "measure_type": "add-on",
+                    "structure_type": ["new", "existing"],
+                    "bldg_type": ["assembly"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {
+                        "primary": ["electricity (grid)"],
+                        "secondary": None},
+                    "fuel_switch_to": None,
+                    "end_use": {
+                        "primary": ["lighting"],
+                        "secondary": None},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {
+                        "primary": [
+                            "commercial light type X"],
+                        "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
     # as probability distributions
@@ -5500,7 +5553,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
-                         "structure_type": ["new", "retrofit"],
+                         "measure_type": "full service",
+                         "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": ["electricity (grid)"],
@@ -5523,7 +5577,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": ["normal", 1, 1],
-                         "structure_type": ["new", "retrofit"],
+                         "measure_type": "full service",
+                         "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1"],
                          "fuel_type": {"primary": ["natural gas"],
@@ -5552,7 +5607,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
-                         "structure_type": ["new", "retrofit"],
+                         "measure_type": "full service",
+                         "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
                          "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                          "fuel_type": {"primary": ["electricity (grid)"],
@@ -5579,7 +5635,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency": {"primary": 25,
                                                "secondary": None},
                          "product_lifetime": 1,
-                         "structure_type": ["new", "retrofit"],
+                         "measure_type": "full service",
+                         "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
                          "market_entry_year": None,
@@ -5604,7 +5661,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
-                         "structure_type": ["new", "retrofit"],
+                         "measure_type": "full service",
+                         "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
                                                      "secondary": None},
                          "bldg_type": ["single family home"],
@@ -5634,7 +5692,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_entry_year": None,
                        "market_exit_year": None,
                        "product_lifetime": 1,
-                       "structure_type": ["new", "retrofit"],
+                       "measure_type": "full service",
+                       "structure_type": ["new", "existing"],
                        "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": ["electricity (grid)"],
@@ -5660,7 +5719,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_entry_year": None,
                        "market_exit_year": None,
                        "product_lifetime": 1,
-                       "structure_type": ["new", "retrofit"],
+                       "measure_type": "full service",
+                       "structure_type": ["new", "existing"],
                        "bldg_type": ["single family home"],
                        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
                        "fuel_type": {"primary": ["electricity (grid)"],
@@ -5679,7 +5739,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 1,
-                       "structure_type": ["new", "retrofit"],
+                       "measure_type": "full service",
+                       "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
                        "market_entry_year": None,
@@ -5707,7 +5768,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 1,
-                       "structure_type": ["new", "retrofit"],
+                       "measure_type": "full service",
+                       "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
                                                    "secondary": None},
                        "market_entry_year": None,
@@ -6422,6 +6484,52 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1992767.41, "2010": 1975144.64},
                     "efficient": {"2009": 1793490.67, "2010": 1777630.18}}}},
         "lifetime": {"baseline": {"2009": 16, "2010": 16},
+                     "measure": 1}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 11, "2010": 11},
+                "measure": {"2009": 11, "2010": 11}},
+            "competed": {
+                "all": {"2009": 11, "2010": 11},
+                "measure": {"2009": 11, "2010": 11}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 76.56, "2010": 76.8},
+                "efficient": {"2009": 62.524, "2010": 62.72}},
+            "competed": {
+                "baseline": {"2009": 76.56, "2010": 76.8},
+                "efficient": {"2009": 62.524, "2010": 62.72}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 4352.208, "2010": 4313.72},
+                "efficient": {"2009": 3554.304, "2010": 3522.872}},
+            "competed": {
+                "baseline": {"2009": 4352.208, "2010": 4313.72},
+                "efficient": {"2009": 3554.304, "2010": 3522.872}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 154, "2010": 154},
+                    "efficient": {"2009": 275, "2010": 275}},
+                "competed": {
+                    "baseline": {"2009": 154, "2010": 154},
+                    "efficient": {"2009": 275, "2010": 275}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 695.1648, "2010": 656.64},
+                    "efficient": {"2009": 567.7179, "2010": 536.256}},
+                "competed": {
+                    "baseline": {"2009": 695.1648, "2010": 656.64},
+                    "efficient": {"2009": 567.7179, "2010": 536.256}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 143622.88, "2010": 142352.77},
+                    "efficient": {"2009": 117292.02, "2010": 116254.76}},
+                "competed": {
+                    "baseline": {"2009": 143622.88, "2010": 142352.77},
+                    "efficient": {"2009": 117292.02, "2010": 116254.76}}}},
+        "lifetime": {"baseline": {"2009": 140, "2010": 140},
                      "measure": 1}}]
 
     # Set the consumer choice dicts that should be generated by the
@@ -6460,30 +6568,30 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         'cooling', 'supply', 'room AC', 'new')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
         'heating', 'supply',
-        'boiler (electric)', 'retrofit')""": compete_choice_val,
+        'boiler (electric)', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'heating', 'supply', 'ASHP', 'retrofit')""": compete_choice_val,
+        'heating', 'supply', 'ASHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'heating', 'supply', 'GSHP', 'retrofit')""": compete_choice_val,
+        'heating', 'supply', 'GSHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'ASHP', 'retrofit')""": compete_choice_val,
+        'cooling', 'supply', 'ASHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'GSHP', 'retrofit')""": compete_choice_val,
+        'cooling', 'supply', 'GSHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'room AC', 'retrofit')""": compete_choice_val,
+        'cooling', 'supply', 'room AC', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
         'heating', 'supply',
-        'boiler (electric)', 'retrofit')""": compete_choice_val,
+        'boiler (electric)', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'heating', 'supply', 'ASHP', 'retrofit')""": compete_choice_val,
+        'heating', 'supply', 'ASHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'heating', 'supply', 'GSHP', 'retrofit')""": compete_choice_val,
+        'heating', 'supply', 'GSHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'ASHP', 'retrofit')""": compete_choice_val,
+        'cooling', 'supply', 'ASHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'GSHP', 'retrofit')""": compete_choice_val,
+        'cooling', 'supply', 'GSHP', 'existing')""": compete_choice_val,
         """('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)',
-        'cooling', 'supply', 'room AC', 'retrofit')""": compete_choice_val},
+        'cooling', 'supply', 'room AC', 'existing')""": compete_choice_val},
         {"""('primary', 'AIA_CZ1', 'single family home', 'natural gas',
         'water heating', 'supply', '','new')""": compete_choice_val}]
 
@@ -6506,18 +6614,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'new')": {"2009": 0, "2010": 0},
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'new')": {"2009": 0, "2010": 0},
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'new')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'retrofit')": {"2009": 0, "2010": 0},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'retrofit')": {"2009": 0, "2010": 0}},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'existing')": {"2009": 0, "2010": 0},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'existing')": {"2009": 0, "2010": 0}},
         "total": {
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'new')": {"2009": 28.71, "2010": 28.80},
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'new')": {"2009": 28.71, "2010": 28.80},
@@ -6531,18 +6639,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'new')": {"2009": 108.46, "2010": 108.8},
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'new')": {"2009": 108.46, "2010": 108.8},
             "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'new')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'retrofit')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'retrofit')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'retrofit')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'retrofit')": {"2009": 28.71, "2010": 28.80},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'retrofit')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'retrofit')": {"2009": 108.46, "2010": 108.8},
-            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'retrofit')": {"2009": 108.46, "2010": 108.8}}},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'existing')": {"2009": 108.46, "2010": 108.8},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'existing')": {"2009": 108.46, "2010": 108.8},
+            "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'existing')": {"2009": 108.46, "2010": 108.8},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'heating', 'supply', 'GSHP', 'existing')": {"2009": 28.71, "2010": 28.80},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'ASHP', 'existing')": {"2009": 108.46, "2010": 108.8},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'GSHP', 'existing')": {"2009": 108.46, "2010": 108.8},
+            "('primary', 'AIA_CZ2', 'single family home', 'electricity (grid)', 'cooling', 'supply', 'room AC', 'existing')": {"2009": 108.46, "2010": 108.8}}},
         {"savings": {},
          "total": {}}]
 
@@ -11482,7 +11590,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
         'Package: CAC + CFLs + NGWH',
         ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ5'],
         ['single family home', 'multi family home'],
-        ['new', 'retrofit'],
+        ['new', 'existing'],
         ['electricity (grid)', 'natural gas'],
         ['water heating', 'lighting', 'cooling']]
 
@@ -11540,7 +11648,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
             ("('AIA_CZ1', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 10, "2010": 10},
@@ -11636,7 +11744,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 10, "2010": 10},
@@ -11685,7 +11793,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "measure": 10}},
 
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+             "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 100, "2010": 100},
@@ -11733,7 +11841,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 1, "2010": 1},
                     "measure": 20}},
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+             "'lighting', 'reflector (halogen)', 'existing')"): {
                 "stock": {
                     "total": {
                         "all": {"2009": 100, "2010": 100},
@@ -11835,7 +11943,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ1', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
@@ -11843,15 +11951,15 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ2', 'single family home', 'natural gas',"
-             "'water heating', None, 'retrofit')"): {
+             "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (incandescent)', 'retrofit')"): {
+             "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
             ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
-             "'lighting', 'reflector (halogen)', 'retrofit')"): {
+             "'lighting', 'reflector (halogen)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
             ("('AIA_CZ5', 'single family home', 'electricity (grid)',"

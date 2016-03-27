@@ -361,11 +361,11 @@ class Measure(object):
             for i in range(0, len(mskeys)):
                 # Check for key in dict level
                 if mskeys[i] in base_costperflife.keys() or mskeys[i] in \
-                   ["primary", "secondary", "new", "retrofit", None]:
+                   ["primary", "secondary", "new", "existing", None]:
                     # Skip over "primary" or "secondary" key in updating
                     # cost and lifetime information (not relevant)
                     if mskeys[i] not in [
-                            "primary", "secondary", "new", "retrofit", None]:
+                            "primary", "secondary", "new", "existing", None]:
 
                         # Restrict base cost/performance/lifetime dict to key
                         # chain info.
@@ -724,12 +724,12 @@ class Measure(object):
                 # Determine the fraction to use in scaling down the stock,
                 # energy, and carbon microsegments to the applicable structure
                 # type indicated in the microsegment key chain (e.g., new
-                # structures or retrofit structures)
+                # structures or existing structures)
                 if mskeys[-1] == "new":
-                    new_retrofit_frac = {key: val for key, val in
+                    new_existing_frac = {key: val for key, val in
                                          new_bldg_frac["total"].items()}
                 else:
-                    new_retrofit_frac = {key: (1 - val) for key, val in
+                    new_existing_frac = {key: (1 - val) for key, val in
                                          new_bldg_frac["total"].items()}
 
                 # Update bass diffusion parameters needed to determine the
@@ -750,16 +750,16 @@ class Measure(object):
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
                     add_stock = {
-                        key: val * new_retrofit_frac[key] for key, val in
+                        key: val * new_existing_frac[key] for key, val in
                         mseg_sqft_stock["square footage"].items()}
                 else:
                     add_stock = {
-                        key: val * new_retrofit_frac[key] for key, val in
+                        key: val * new_existing_frac[key] for key, val in
                         mseg["stock"].items()}
                 # Total energy use (primary)
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_retrofit_frac[key]
+                    new_existing_frac[key]
                     for key, val in mseg["energy"].items()}
                 # Total carbon emissions
                 add_carb = {key: val * intensity_carb_base[key]
@@ -940,7 +940,7 @@ class Measure(object):
             # that the measure applies to.
             if sqft_subst == 1:
                 # Determine number of structure types the measure applies to
-                # (could be just new, just retrofit, or both)
+                # (could be just new, just existing, or both)
                 if isinstance(self.structure_type, list):
                     structure_types = 2
                 else:
@@ -1022,10 +1022,10 @@ class Measure(object):
         ms_iterable_init = list(itertools.product(*ms_lists))
 
         # Add primary or secondary microsegment type indicator to beginning
-        # of each key chain and the applicable structure type (new or retrofit)
+        # of each key chain and the applicable structure type (new or existing)
         # to the end of each key chain
 
-        # Case where measure applies to both new and retrofit structures
+        # Case where measure applies to both new and existing structures
         # (final ms_iterable list length is double that of ms_iterable_init)
         if len(self.structure_type) > 1:
             ms_iterable1, ms_iterable2 = ([] for n in range(2))
@@ -1035,7 +1035,7 @@ class Measure(object):
                 ms_iterable2.append((mseg_type,) + ms_iterable_init[i] +
                                     (self.structure_type[1], ))
             ms_iterable = ms_iterable1 + ms_iterable2
-        # Case where measure applies to only new or retrofit structures
+        # Case where measure applies to only new or existing structures
         # (final ms_iterable list length is same as that of ms_iterable_init)
         else:
             ms_iterable = []
@@ -1148,9 +1148,9 @@ class Measure(object):
                     else:
                         captured_base_replace_frac = 0
                 # For a case where the current microsegment applies to
-                # retrofit structures, the baseline replacement fraction
+                # existing structures, the baseline replacement fraction
                 # is the lesser of (1 / baseline lifetime) and the fraction
-                # of retrofit stock from previous years that has already been
+                # of existing stock from previous years that has already been
                 # captured by the baseline technology
                 else:
                     if (1 / life_base[yr]) <= captured_base_frac:
@@ -1217,7 +1217,7 @@ class Measure(object):
                     else:
                         competed_frac = 0
                 # Non first year technical potential where current microsegment
-                # applies to retrofit structure type
+                # applies to existing structure type
                 else:
                     competed_frac = captured_base_replace_frac + \
                         captured_eff_replace_frac
@@ -1348,11 +1348,24 @@ class Measure(object):
             stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
             # Baseline cost of the competed stock
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
-            # Competed-efficient stock cost
-            stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
-            # Total-efficient stock cost
-            stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
-                + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+            # Total and competed-efficient stock cost for add-on and
+            # full service measures. * Note: the baseline technology installed
+            # cost must be added to the measure installed cost in the case of
+            # an add-on measure type
+            if self.measure_type == "add-on":
+                # Total-efficient stock cost (add-on measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * (
+                    cost_meas + cost_base[yr]) + (
+                    stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+                # Competed-efficient stock cost (add-on measure)
+                stock_compete_cost_eff[yr] = \
+                    stock_compete[yr] * (cost_meas + cost_base[yr])
+            else:
+                # Total-efficient stock cost (full service measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
+                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+                # Competed-efficient stock cost (full service measure)
+                stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
 
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
@@ -2996,7 +3009,7 @@ class Measure_Package(Measure, Engine):
                     # Add measure's contributing microsegments
                     if k == "contributing mseg keys and values":
                         for cm in m.mseg_adjust[k].keys():
-                            # Account for overlaps betwen the current
+                            # Account for overlaps between the current
                             # contributing microsegment and existing
                             # contributing microsegments for the package
                             if cm in self.mseg_adjust[k].keys():
