@@ -1113,16 +1113,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
     base_dict2 = copy.deepcopy(base_dict1)
 
     # 2nd dict to be added to "base_dict1" in the "ok" test of the function
-    ok_add_dict2 = {"level 1a":
-                    {"level 2aa":
-                        {"2009": 2, "2010": 3},
-                     "level2ab":
-                        {"2009": 4, "2010": 5}},
-                    "level 1b":
-                    {"level 2ba":
-                        {"2009": 6, "2010": 7},
-                     "level2bb":
-                        {"2009": 8, "2010": 9}}}
+    ok_add_dict2 = copy.deepcopy(base_dict1)
 
     # 2nd dict to be added to "base_dict2" in the "fail" test of the function
     fail_add_dict2 = {"level 1a":
@@ -1160,6 +1151,49 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
         with self.assertRaises(KeyError):
             self.measure_instance.add_keyvals(self.base_dict2,
                                               self.fail_add_dict2)
+
+
+class AddKeyValsRestrictTest(unittest.TestCase, CommonMethods):
+    """ Test the operation of the add_keyvals_restrict function to verify
+    it adds together dict items correctly and restricts the addition of
+    any measure lifetime information """
+
+    # Create a measure instance to use in the testing
+    measure_instance = run.Measure(**sample_measure)
+
+    # 1st dict to be entered into the test of the function
+    base_dict1 = {"level 1a":
+                  {"level 2aa":
+                      {"2009": 2, "2010": 3},
+                   "level2ab":
+                      {"2009": 4, "2010": 5}},
+                  "lifetime":
+                  {"level 2ba":
+                      {"2009": 6, "2010": 7},
+                   "level2bb":
+                      {"2009": 8, "2010": 9}}}
+
+    # 2nd dict to be added to "base_dict1" in the test of the function
+    ok_add_dict2 = copy.deepcopy(base_dict1)
+
+    # Correct output of the test to check against
+    ok_out = {"level 1a":
+              {"level 2aa":
+                  {"2009": 4, "2010": 6},
+               "level2ab":
+                  {"2009": 8, "2010": 10}},
+              "lifetime":
+              {"level 2ba":
+                  {"2009": 6, "2010": 7},
+               "level2bb":
+                  {"2009": 8, "2010": 9}}}
+
+    # Test the function output
+    def test_ok_add_restrict(self):
+        dict1 = self.measure_instance.add_keyvals_restrict(
+            self.base_dict1, self.ok_add_dict2)
+        dict2 = self.ok_out
+        self.dict_check(dict1, dict2)
 
 
 class ReduceSqftStockCostTest(unittest.TestCase, CommonMethods):
@@ -5936,11 +5970,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 1600, "2010": 2000},
-                "measure": {"2009": 1600, "2010": 2000}},
+                "all": {"2009": 1600000000, "2010": 2000000000},
+                "measure": {"2009": 1600000000, "2010": 2000000000}},
             "competed": {
-                "all": {"2009": 1600, "2010": 2000},
-                "measure": {"2009": 1600, "2010": 2000}}},
+                "all": {"2009": 1600000000, "2010": 2000000000},
+                "measure": {"2009": 1600000000, "2010": 2000000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 12.76, "2010": 12.8},
@@ -5958,11 +5992,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 20400, "2010": 24600},
-                    "efficient": {"2009": 16000, "2010": 20000}},
+                    "baseline": {"2009": 20400000000, "2010": 24600000000},
+                    "efficient": {"2009": 16000000000, "2010": 20000000000}},
                 "competed": {
-                    "baseline": {"2009": 20400, "2010": 24600},
-                    "efficient": {"2009": 16000, "2010": 20000}}},
+                    "baseline": {"2009": 20400000000, "2010": 24600000000},
+                    "efficient": {"2009": 16000000000, "2010": 20000000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 129.3864, "2010": 123.776},
@@ -5982,11 +6016,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}},
             "competed": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 6.38, "2010": 6.4},
@@ -6004,11 +6038,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 1200, "2010": 1600},
-                    "efficient": {"2009": 6000, "2010": 8000}},
+                    "baseline": {"2009": 1200000000, "2010": 1600000000},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}},
                 "competed": {
-                    "baseline": {"2009": 1200, "2010": 1600},
-                    "efficient": {"2009": 6000, "2010": 8000}}},
+                    "baseline": {"2009": 1200000000, "2010": 1600000000},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 64.6932, "2010": 61.888},
@@ -6028,11 +6062,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}},
             "competed": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 146.74, "2010": 147.2},
@@ -6050,11 +6084,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 3100, "2010": 4133.33},
-                    "efficient": {"2009": 6000, "2010": 8000}},
+                    "baseline": {"2009": 3100000000, "2010": 4133333333.33},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}},
                 "competed": {
-                    "baseline": {"2009": 3100, "2010": 4133.33},
-                    "efficient": {"2009": 6000, "2010": 8000}}},
+                    "baseline": {"2009": 3100000000, "2010": 4133333333.33},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 1487.944, "2010": 1423.424},
@@ -6074,11 +6108,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}},
             "competed": {
-                "all": {"2009": 600, "2010": 800},
-                "measure": {"2009": 600, "2010": 800}}},
+                "all": {"2009": 600000000, "2010": 800000000},
+                "measure": {"2009": 600000000, "2010": 800000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 146.74, "2010": 147.2},
@@ -6096,11 +6130,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 3100, "2010": 4133.33},
-                    "efficient": {"2009": 6000, "2010": 8000}},
+                    "baseline": {"2009": 3100000000, "2010": 4133333333.33},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}},
                 "competed": {
-                    "baseline": {"2009": 3100, "2010": 4133.33},
-                    "efficient": {"2009": 6000, "2010": 8000}}},
+                    "baseline": {"2009": 3100000000, "2010": 4133333333.33},
+                    "efficient": {"2009": 6000000000, "2010": 8000000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 1487.944, "2010": 1423.424},
@@ -6806,7 +6840,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     # generated by "ok_measures_dist" above using the "sample_msegin" dict
     ok_out_dist = [[121.74, 50, 1844.58, 50, 1, 1],
                    [11.61, 50, 379.91, 50, 1.03, 50],
-                   [57.20, 50, 6017.91, 50, 1, 1]]
+                   [57.20, 50, 6017912381.8599997, 50, 1, 1]]
 
     # Master stock, energy, and cost information that should be generated by
     # "partial_measures" above using the "sample_msegin" dict
@@ -7615,7 +7649,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]},
             "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
-                                     "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
+                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
             "savings (annual)": {"2009": 10, "2010": 10},
@@ -8228,7 +8262,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     # Define sample strings for the competed demand-side and supply-side
     # microsegment key chains being tested
     adjust_key1 = str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows conduction'])
+                       'cooling', 'demand', 'windows'])
     adjust_key2 = str(['AIA_CZ1', 'single family home', 'electricity (grid)',
                        'cooling', 'supply', 'ASHP'])
 
@@ -9374,9 +9408,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     measures_overlap2 = {
         "measures": measures_all[0:2],
         "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows conduction'])],
+                       'cooling', 'demand', 'windows'])],
                  [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows conduction'])]]}
+                       'cooling', 'demand', 'windows'])]]}
 
     # Instantiate engine object based on above measures
     a_run = run.Engine(measures_all)
@@ -9406,13 +9440,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                        'cooling', 'supply', 'ASHP'])],
                  [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
                        'cooling', 'supply', 'ASHP'])]]}
-    # No secondary effects for supply-side measures
+    # Define the list of demand-side measures and associated contributing
+    # microsegment keys that overlap with the above supply-side measures
     measures_overlap2_dist = {
         "measures": measures_all_dist[0:2],
         "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows conduction'])],
+                       'cooling', 'demand', 'windows'])],
                  [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows conduction'])]]}
+                       'cooling', 'demand', 'windows'])]]}
     # Instantiate engine object based on above measures
     a_run_dist = run.Engine(measures_all_dist)
 

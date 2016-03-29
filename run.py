@@ -293,6 +293,20 @@ class Measure(object):
         # and stock/energy information for measure
         for ind, mskeys in enumerate(ms_iterable):
 
+            # Adjust the key chain to be used in registering contributing
+            # microsegment information for cases where 'windows solar'
+            # or 'windows conduction' are in the key chain. Change
+            # such entries to just 'windows' to ensure the competition
+            # of 'windows conduction' and 'windows solar' contributing
+            # microsegments in the 'adjust_savings' function below
+            contrib_mseg_key = mskeys
+            if any([x is not None and "windows" in x for x in
+                    contrib_mseg_key]):
+                contrib_mseg_key = list(contrib_mseg_key)
+                contrib_mseg_key[numpy.where([x is not None and "windows" in x
+                                 for x in contrib_mseg_key])[0][0]] = "windows"
+                contrib_mseg_key = tuple(contrib_mseg_key)
+
             # Initialize performance/cost/lifetime and units if:
             # a) For loop through all measure mseg key chains is in first
             # iteration, b) A switch has been made from updating "primary"
@@ -424,18 +438,46 @@ class Measure(object):
                             else:
                                 adj_vals = self.add_keyvals(
                                     adj_vals, mseg[ks]["energy"])
-                        # Adjust the resultant total overlapping energy values
-                        # by appropriate site-source conversion factor and
-                        # record as part of the 'mseg_adjust' measure
-                        # attribute
-                        mseg_adjust["supply-demand adjustment"]["total"][
-                            str(mskeys)] = {key: val * site_source_conv_base[
-                                key] for key, val in adj_vals.items()}
-                        # Set overlapping energy savings values to zero in
-                        # 'mseg_adjust' for now (updated as necessary in the
-                        # 'adjust_savings' function below)
-                        mseg_adjust["supply-demand adjustment"]["savings"][
-                            str(mskeys)] = dict.fromkeys(adj_vals.keys(), 0)
+
+                        # Case with no existing 'windows' contributing
+                        # microsegment for the current climate zone,
+                        # building type, fuel type, and end use (create new
+                        # 'supply-demand adjustment' information)
+                        if contrib_mseg_key not in mseg_adjust[
+                                "supply-demand adjustment"]["total"].keys():
+                            # Adjust the resultant total overlapping energy
+                            # values by appropriate site-source conversion
+                            # factor and record as the measure's 'supply-demand
+                            # adjustment' information
+                            mseg_adjust["supply-demand adjustment"]["total"][
+                                str(contrib_mseg_key)] = {
+                                    key: val * site_source_conv_base[
+                                        key] for key, val in adj_vals.items()}
+                            # Set overlapping energy savings values to zero in
+                            # the measure's 'supply-demand adjustment'
+                            # information for now (updated as necessary in the
+                            # 'adjust_savings' function below)
+                            mseg_adjust["supply-demand adjustment"]["savings"][
+                                str(contrib_mseg_key)] = dict.fromkeys(
+                                    adj_vals.keys(), 0)
+                        # Case with existing 'windows' contributing
+                        # microsegment for the current climate zone, building
+                        # type, fuel type, and end use (add to existing
+                        # 'supply-demand adjustment' information)
+                        else:
+                            # Adjust the resultant total overlapping energy
+                            # values by appropriate site-source conversion
+                            # factor and add to existing 'supply-demand
+                            # adjustment' information for the current windows
+                            # microsegment
+                            add_adjust = {
+                                key: val * site_source_conv_base[
+                                    key] for key, val in adj_vals.items()}
+                            mseg_adjust["supply-demand adjustment"]["total"][
+                                str(contrib_mseg_key)] = self.add_key_vals(
+                                    mseg_adjust["supply-demand adjustment"][
+                                        "total"][str(contrib_mseg_key)],
+                                    add_adjust)
 
                 # If no key match, break the loop
                 else:
@@ -749,9 +791,11 @@ class Measure(object):
                     add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
+                    # * Note: multiply AEO square footages by 1 million (AEO
+                    # reports in million square feet)
                     add_stock = {
-                        key: val * new_existing_frac[key] for key, val in
-                        mseg_sqft_stock["square footage"].items()}
+                        key: val * new_existing_frac[key] * 1000000 for key,
+                        val in mseg_sqft_stock["square footage"].items()}
                 else:
                     add_stock = {
                         key: val * new_existing_frac[key] for key, val in
@@ -897,20 +941,33 @@ class Measure(object):
                     raise ValueError(
                         'Microsegment not found in output categories!')
 
-                # Register contributing microsegment for later use
-                # in determining savings overlaps for measures that apply
-                # to this microsegment
-                mseg_adjust[
-                    "contributing mseg keys and values"][str(mskeys)] = \
-                    add_dict
+                # Case with no existing 'windows' contributing microsegment
+                # for the current climate zone, building type, fuel type, and
+                # end use (create new 'contributing mseg keys and values'
+                # and 'competed choice parameters' microsegment information)
+                if contrib_mseg_key not in mseg_adjust[
+                        "contributing mseg keys and values"].keys():
+                    # Register contributing microsegment information for later
+                    # use in determining savings overlaps for measures that
+                    # apply to this microsegment
+                    mseg_adjust["contributing mseg keys and values"][
+                        str(contrib_mseg_key)] = add_dict
+                    # Register choice parameters associated with contributing
+                    # microsegment for later use in apportioning out various
+                    # technology options across competed stock
+                    mseg_adjust["competed choice parameters"][
+                        str(contrib_mseg_key)] = choice_params
+                # Case with no existing 'windows' contributing microsegment
+                # for the current climate zone, building type, fuel type, and
+                # end use (add to existing 'contributing mseg keys and values'
+                # information)
+                else:
+                    mseg_adjust["contributing mseg keys and values"][
+                        str(contrib_mseg_key)] = self.add_keyvals_restrict(
+                            mseg_adjust["contributing mseg keys and values"][
+                                str(contrib_mseg_key)], add_dict)
 
-                # Register choice parameters associated with contributing
-                # microsegment for later use in apportioning out various
-                # technology options across competed stock
-                mseg_adjust["competed choice parameters"][str(mskeys)] = \
-                    choice_params
-
-                # Add all updated info. to existing master mseg dict and
+                # Add all updated information to existing master mseg dict and
                 # move to next iteration of the loop through key chains
                 mseg_master = self.add_keyvals(mseg_master, add_dict)
 
@@ -1052,6 +1109,27 @@ class Measure(object):
         for (k, i), (k2, i2) in zip(sorted(dict1.items()),
                                     sorted(dict2.items())):
             if k == k2:
+                if isinstance(i, dict):
+                    self.add_keyvals(i, i2)
+                else:
+                    if dict1[k] is None:
+                        dict1[k] = copy.deepcopy(dict2[k2])
+                    else:
+                        dict1[k] = dict1[k] + dict2[k]
+            else:
+                raise KeyError('Add dict keys do not match!')
+        return dict1
+
+    def add_keyvals_restrict(self, dict1, dict2):
+        """ Add key values of two identically structured dicts together,
+        with the exception of any keys that indicate measure lifetime
+        values """
+
+        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
+                                    sorted(dict2.items())):
+            if k == k2 and k == "lifetime":
+                continue
+            elif k == k2 and k != "lifetime":
                 if isinstance(i, dict):
                     self.add_keyvals(i, i2)
                 else:
@@ -1766,8 +1844,8 @@ class Measure(object):
         # Return the randomly sampled list of values
         return rand_list
 
-    def metric_update(self, rate, scost_base_add, life_base, scostsave_annual, esave,
-                      ecostsave, csave, ccostsave, life_ratio, life_meas,
+    def metric_update(self, rate, scost_base_add, life_base, scostsave_annual,
+                      esave, ecostsave, csave, ccostsave, life_ratio, life_meas,
                       num_units, com_timeprefs):
         """ Calculate internal rate of return, simple payback, and cost of
         conserved energy/carbon from cash flows and energy/carbon
@@ -2211,7 +2289,6 @@ class Engine(object):
                                 str(mseg_key)]["b1"][yr] + op_cost *
                         m.mseg_adjust["competed choice parameters"][
                             str(mseg_key)]["b2"][yr])
-
                     # Add calculated market fraction to mkt fraction sum
                     mkt_fracs_tot[yr] = \
                         mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
