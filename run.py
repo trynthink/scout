@@ -610,22 +610,36 @@ class Measure(object):
                                     if base_costperflife[
                                         "performance"]["units"] \
                                             not in inverted_relperf_list:
-                                        perf_meas = perf_meas_orig * (
+                                        perf_meas = 1 - (perf_base[yr] / (
                                             perf_base[str(perf_units[1])] /
-                                            perf_base[yr])
+                                            (1 - perf_meas_orig)))
                                     else:
-                                        perf_meas = perf_meas_orig * (
-                                            perf_base[yr] /
-                                            perf_base[str(perf_units[1])])
-                                    # Ensure that none of the adjusted relative
-                                    # savings fractions exceed 1
-                                    if type(perf_meas) == numpy.array and \
-                                            any(perf_meas > 0):
-                                        perf_meas[
-                                            numpy.where(perf_meas > 1)] = 1
+                                        perf_meas = 1 - (
+                                            (perf_base[str(perf_units[1])] *
+                                             (1 - perf_meas_orig)) /
+                                            perf_base[yr])
+                                    # Ensure that the adjusted relative savings
+                                    # fraction is not greater than 1 or less
+                                    # than 0 if not originally specified as
+                                    # less than 0. * Note: savings will
+                                    # initially be specified as less than zero
+                                    # in lighting efficiency cases, which
+                                    # secondarily increase heating energy use
+                                    if type(perf_meas) == numpy.array:
+                                        if any(perf_meas > 1):
+                                            perf_meas[
+                                                numpy.where(perf_meas > 1)] = 1
+                                        elif any(perf_meas < 0) and \
+                                                all(perf_meas_orig) > 0:
+                                            perf_meas[
+                                                numpy.where(perf_meas < 0)] = 0
                                     elif type(perf_meas) != numpy.array and \
                                             perf_meas > 1:
                                         perf_meas = 1
+                                    elif type(perf_meas) != numpy.array and \
+                                            perf_meas < 0 and \
+                                            perf_meas_orig > 0:
+                                        perf_meas = 0
                                 # Calculate relative performance
                                 rel_perf[yr] = 1 - perf_meas
                     elif perf_units not in inverted_relperf_list:
@@ -1969,20 +1983,23 @@ class Measure(object):
         # Calculate irr and simple payback for capital + energy cash flows.
         # Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        try:
-            irr_e = numpy.irr(cashflows_s + cashflows_e)
-            payback_e = self.payback(cashflows_s + cashflows_e)
-        except (ValueError, LinAlgError):
-            pass
+        if any(esave_array) != 0:
+            try:
+                irr_e = numpy.irr(cashflows_s + cashflows_e)
+                payback_e = self.payback(cashflows_s + cashflows_e)
+            except (ValueError, LinAlgError):
+                pass
 
         # Calculate irr and simple payback for capital + energy + carbon cash
         # flows.  Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        try:
-            irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
-            payback_ec = self.payback(cashflows_s + cashflows_e + cashflows_c)
-        except (ValueError, LinAlgError):
-            pass
+        if any(esave_array) != 0 or any(csave_array) != 0:
+            try:
+                irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
+                payback_ec = \
+                    self.payback(cashflows_s + cashflows_e + cashflows_c)
+            except (ValueError, LinAlgError):
+                pass
 
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
         # benefits.  Check to ensure energy savings NPV in the denominator is
