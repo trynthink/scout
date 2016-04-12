@@ -61,7 +61,7 @@ com_timeprefs = {
         "refrigeration": [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]}}
 
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
-adopt_scheme = 'Max adoption potential'
+adopt_scheme = 'Technical potential'
 adjust_savings = True
 
 # Define a summary JSON file. For now, yield separate output files for a
@@ -185,18 +185,30 @@ class Measure(object):
             "lifetime": {"baseline": None, "measure": None}}
 
         # Initialize a dict that registers all microsegments that contribute
-        # to the current measure's master microsegment, the consumer choice
-        # information associated with these contributing microsegments, and
-        # information needed to adjust the microsegments' values in
-        # heating/cooling measure cases where the microsegment overlaps with
-        # other active measure microsegments across the supply-side and the
-        # demand-side (e.g., an ASHP microsegment that overlaps with a windows
-        # (conduction) microsegment). Together, this information will be used
-        # in the 'adjust_savings' function below to ensure there is no double-
-        # counting of energy/carbon impacts across multiple competing measures
+        # to the current measure's master microsegment; the consumer choice
+        # information associated with these contributing microsegments;
+        # information needed to scale down secondary heating/cooling
+        # microsegments in accordance with stocks-and-flows in primary lighting
+        # microsegments; and information needed to adjust the microsegments'
+        # values in heating/cooling measure cases where the microsegment
+        # overlaps with other active measure microsegments across the
+        # supply-side and the demand-side (e.g., an ASHP microsegment that
+        # overlaps with a windows (conduction) microsegment). Together, this
+        # information will be used in the 'adjust_savings' function below to
+        # ensure there is no overestimation of energy/carbon impacts across
+        # multiple competing measures
         mseg_adjust = {
             "contributing mseg keys and values": {},
             "competed choice parameters": {},
+            "secondary mseg adjustments": {
+                "stock-and-flow": {
+                    "original stock": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock": {},
+                    "adjusted stock": {}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -833,7 +845,8 @@ class Measure(object):
                  add_stock_cost_meas, add_energy_cost_eff, add_carb_cost_eff,
                  add_stock_cost_compete, add_energy_cost_compete,
                  add_carb_cost_compete, add_stock_cost_compete_meas,
-                 add_energy_cost_compete_eff, add_carb_cost_compete_eff] = \
+                 add_energy_cost_compete_eff, add_carb_cost_compete_eff,
+                 mseg_adjust] = \
                     self.partition_microsegment(add_stock, add_energy,
                                                 add_carb, rel_perf, cost_base,
                                                 cost_meas, cost_energy_base,
@@ -844,7 +857,7 @@ class Measure(object):
                                                 intensity_carb_meas,
                                                 new_bldg_frac, diffuse_params,
                                                 adopt_scheme, life_base,
-                                                life_meas, mskeys)
+                                                life_meas, mskeys, mseg_adjust)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -1161,7 +1174,8 @@ class Measure(object):
                                site_source_conv_base, site_source_conv_meas,
                                intensity_carb_base, intensity_carb_meas,
                                new_bldg_frac, diffuse_params,
-                               adopt_scheme, life_base, life_meas, mskeys):
+                               adopt_scheme, life_base, life_meas, mskeys,
+                               mseg_adjust):
         """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
         consumption under the measure).  Also find the cost of the baseline
@@ -1194,29 +1208,80 @@ class Measure(object):
         captured_eff_frac = 0
         captured_base_frac = 1
 
+        # In cases where secondary heating/cooling microsegments are present
+        # for a lighting efficiency measure, initialize a dict of year-by-year
+        # secondary microsegment adjustment information that will be used
+        # to scale down the secondary heating/cooling microsegment(s) in
+        # accordance with the portion of the total applicable lighting stock
+        # that is captured by the measure in each year
+        if self.end_use["secondary"] is not None and mskeys[4] in ["lighting",
+           "heating", "secondary heating", "cooling"]:
+            # Set short name for secondary adjustment information dict
+            second_adjust = mseg_adjust[
+                "secondary mseg adjustments"]["stock-and-flow"]
+            # Determine a dictionary key indicating the climate zone, building
+            # type, and structure type that is shared by the primary lighting
+            # microsegment and secondary heating/cooling microsegment
+            secnd_mseg_adjkey = (mskeys[1], mskeys[2], mskeys[-1])
+            # If no year-by-year secondary microsegment adjustment information
+            # exists for the given climate zone, building type, and structure
+            # type, initialize all year-by-year adjustment values as 0
+            if secnd_mseg_adjkey not in second_adjust[
+                    "original stock"].keys():
+                # Initialize original primary microsegment stock information
+                second_adjust["original stock"][secnd_mseg_adjkey] = \
+                    dict.fromkeys(stock_total.keys(), 0)
+                # Initialize previously captured primary microsegment stock
+                # information
+                second_adjust["adjusted stock (previously captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+                # Initialize competed primary microsegment stock information
+                second_adjust["adjusted stock (competed)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+                # Initialize competed and captured primary microsegment stock
+                # information
+                second_adjust["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+
+        # In cases where no secondary heating/cooling microsegment is present,
+        # set secondary microsegment adjustment key to None
+        else:
+            secnd_mseg_adjkey = None
+
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
         for yr in sorted(stock_total.keys()):
 
-            # Calculate the diffusion fraction for the efficient measure
-            # and replacement fractions for the baseline and efficient stock
-            # * NOTE: CURRENTLY NO ADJUSTED ADOPTION POTENTIAL. THIS PART OF
-            # THE ROUTINE CURRENTLY ONLY APPLIES TO 'PRIMARY' MICROSEGMENTS;
-            # 'SECONDARY' MICROSEGMENTS REQUIRE SPECIAL HANDLING, TO BE FILLED
-            # OUT IN A FUTURE COMMIT
-            if mskeys[0] == "primary":
-
-                # For the adjusted adoption potential case, determine the
-                # portion of "competed" (new/replacement) technologies
-                # that remain with the baseline technology or change to the
-                # efficient alternative technology; otherwise, for all other
-                # scenarios, set both fractions to 1
-                if adopt_scheme == "Adjusted adoption potential":
-                    # PLACEHOLDER
-                    diffuse_eff_frac = 999
+            # For secondary microsegments only, update the portion of
+            # associated primary microsegment stock captured by the measure in
+            # previous years
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None:
+                if second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
+                    captured_eff_frac = second_adjust[
+                        "adjusted stock (previously captured)"][
+                        secnd_mseg_adjkey][yr] / second_adjust[
+                        "original stock"][secnd_mseg_adjkey][yr]
                 else:
-                    diffuse_eff_frac = 1
+                    captured_eff_frac = 0
+                # Update portion of existing primary stock remaining with the
+                # baseline technology
+                captured_base_frac = 1 - captured_eff_frac
 
+            # For a primary microsegment and adjusted adoption potential case,
+            # determine the portion of competed stock that remains with the
+            # baseline technology or changes to the efficient alternative
+            # technology; for all other scenarios, set both fractions to 1
+            if adopt_scheme == "Adjusted adoption potential" and \
+               mskeys[0] == "primary":
+                # PLACEHOLDER
+                diffuse_eff_frac = 999
+            else:
+                diffuse_eff_frac = 1
+
+            # Calculate replacement fractions for the baseline and efficient
+            # stock. * Note: these fractions are both 0 for secondary
+            # microsegments
+            if mskeys[0] == "primary":
                 # Calculate the portions of existing baseline and efficient
                 # stock that are up for replacement
 
@@ -1280,43 +1345,85 @@ class Measure(object):
                             (1 / life_meas)
                     else:
                         captured_eff_replace_frac = 0
-            else:  # PLACEHOLDER FOR HANDLING SECONDARY MICROSEGMENTS
-                diffuse_eff_frac, captured_base_replace_frac = \
-                    (1 for n in range(2))
-                captured_eff_replace_frac = 0
+            else:
+                captured_eff_replace_frac, captured_base_replace_frac = \
+                    (0 for n in range(2))
 
             # Determine the fraction of total stock, energy, and carbon
-            # in a given year that the measure will compete for under the
-            # given technology adoption scenario
+            # in a given year that the measure will compete for given the
+            # microsegment type and technology adoption scenario
 
-            # Calculate the competed fraction for a year where the measure is
-            # on the market
-            if (int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
-                # First year technical potential (all stock competed/captured)
-                if int(yr) == mkt_entry_yr and \
-                        adopt_scheme == "Technical potential":
-                    competed_frac = 1
-                # Non first year technical potential where current microsegment
-                # applies to new structure type
-                elif mskeys[-1] == "new":
-                    if new_bldg_frac["total"][yr] != 0:
-                        new_bldg_add_frac = new_bldg_frac["added"][yr] / \
-                            new_bldg_frac["total"][yr]
-                        competed_frac = new_bldg_add_frac + \
-                            (1 - new_bldg_add_frac) * \
-                            (captured_eff_replace_frac +
-                             captured_base_replace_frac)
-                    else:
-                        competed_frac = 0
-                # Non first year technical potential where current microsegment
-                # applies to existing structure type
+            # Secondary microsegment (competed fraction tied to the associated
+            # primary microsegment)
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None and \
+               second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
+                    competed_frac = second_adjust["adjusted stock (competed)"][
+                        secnd_mseg_adjkey][yr] / second_adjust[
+                            "original stock"][secnd_mseg_adjkey][yr]
+            # Primary microsegment in the first year of a technical potential
+            # scenario (all stock competed)
+            elif mskeys[0] == "primary" and int(yr) == mkt_entry_yr and \
+                    adopt_scheme == "Technical potential":
+                competed_frac = 1
+            # Primary microsegment not in the first year where current
+            # microsegment applies to new structure type
+            elif mskeys[0] == "primary" and mskeys[-1] == "new":
+                if new_bldg_frac["total"][yr] != 0:
+                    new_bldg_add_frac = new_bldg_frac["added"][yr] / \
+                        new_bldg_frac["total"][yr]
+                    competed_frac = new_bldg_add_frac + \
+                        (1 - new_bldg_add_frac) * \
+                        (captured_eff_replace_frac +
+                         captured_base_replace_frac)
                 else:
-                    competed_frac = captured_base_replace_frac + \
-                        captured_eff_replace_frac
-            # The competed fraction for year where measure is not on market is
-            # zero
+                    competed_frac = 0
+            # Primary microsegment not in the first year where current
+            # microsegment applies to existing structure type
+            elif mskeys[0] == "primary" and mskeys[-1] == "existing":
+                competed_frac = captured_base_replace_frac + \
+                    captured_eff_replace_frac
+            # For all other cases, set competed fraction to 0
             else:
                 competed_frac = 0
+
+            # Determine the fraction of total stock, energy, and carbon
+            # in a given year that is competed and captured by the measure
+
+            # Secondary microsegment (competed and captured fraction tied
+            # to the associated primary microsegment)
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
+               and second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
+                    competed_captured_eff_frac = second_adjust[
+                        "adjusted stock (competed and captured)"][
+                        secnd_mseg_adjkey][yr] / second_adjust[
+                        "original stock"][secnd_mseg_adjkey][yr]
+            # Primary microsegment and year when measure is on the market
+            elif mskeys[0] == "primary" and (
+                    int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
+                competed_captured_eff_frac = competed_frac * diffuse_eff_frac
+            # For all other cases, set competed and captured fraction to 0
+            else:
+                competed_captured_eff_frac = 0
+
+            # In the case of a primary microsegment with secondary effects,
+            # update the information needed to scale down the secondary
+            # microsegment(s) by the previously captured, competed, and
+            # competed and captured fractions for the primary microsegment
+            if mskeys[0] == "primary" and secnd_mseg_adjkey is not None:
+                # Total stock
+                second_adjust["original stock"][secnd_mseg_adjkey][yr] += \
+                    stock_total[yr]
+                # Previously captured stock
+                second_adjust["adjusted stock (previously captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    captured_eff_frac * stock_total[yr]
+                # Competed stock
+                second_adjust["adjusted stock (competed)"][
+                    secnd_mseg_adjkey][yr] += competed_frac * stock_total[yr]
+                # Competed and captured stock
+                second_adjust["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    competed_captured_eff_frac * stock_total[yr]
 
             # Update competed stock, energy, and carbon
             stock_compete[yr] = stock_total[yr] * competed_frac
@@ -1324,7 +1431,8 @@ class Measure(object):
             carb_compete[yr] = carb_total[yr] * competed_frac
 
             # Determine the competed stock that is captured by the measure
-            stock_compete_meas[yr] = stock_compete[yr] * diffuse_eff_frac
+            stock_compete_meas[yr] = stock_total[yr] * \
+                competed_captured_eff_frac
 
             # Determine the amount of existing stock that has already
             # been captured by the measure up until the current year;
@@ -1351,7 +1459,8 @@ class Measure(object):
                     # measure (reflects all previously captured stock +
                     # captured competed stock from the current year)
                     stock_total_meas[yr] = \
-                        stock_total_meas[str(int(yr) - 1)] + \
+                        (stock_total_meas[str(int(yr) - 1)]) * (
+                            1 - captured_eff_replace_frac) + \
                         stock_compete_meas[yr]
 
                     # Ensure captured stock never exceeds total stock
@@ -1389,15 +1498,14 @@ class Measure(object):
             # captured in the current year and the stock captured in all
             # previous years
             else:
-                total_capture = \
-                    competed_frac * diffuse_eff_frac + \
-                    (1 - competed_frac) * captured_eff_frac
+                total_capture = competed_captured_eff_frac + (
+                    1 - competed_frac) * captured_eff_frac
                 if total_capture != 0:
                     rel_perf_weighted = (
-                        rel_perf_competed * competed_frac * diffuse_eff_frac +
+                        rel_perf_competed * competed_captured_eff_frac +
                         rel_perf_weighted * (
-                            total_capture - competed_frac *
-                            diffuse_eff_frac)) / total_capture
+                            total_capture - competed_captured_eff_frac)) / \
+                        total_capture
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -1407,9 +1515,10 @@ class Measure(object):
             # for the given year (if not, use baseline energy and carbon)
 
             # Competed-efficient energy
-            energy_compete_eff[yr] = energy_compete[yr] * diffuse_eff_frac * \
-                rel_perf_weighted * \
-                (site_source_conv_meas[yr] / site_source_conv_base[yr])
+            energy_compete_eff[yr] = energy_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
+                energy_total[yr] * (competed_frac - competed_captured_eff_frac)
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * \
@@ -1418,10 +1527,11 @@ class Measure(object):
                 (energy_total[yr] - energy_compete[yr]) * \
                 (1 - captured_eff_frac)
             # Competed-efficient carbon
-            carb_compete_eff[yr] = carb_compete[yr] * diffuse_eff_frac * \
-                rel_perf_weighted * \
+            carb_compete_eff[yr] = carb_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                (intensity_carb_meas[yr] / intensity_carb_base[yr])
+                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
+                carb_total[yr] * (competed_frac - competed_captured_eff_frac)
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 (carb_total[yr] - carb_compete[yr]) * \
@@ -1451,13 +1561,18 @@ class Measure(object):
                     stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
                 # Competed-efficient stock cost (add-on measure)
                 stock_compete_cost_eff[yr] = \
-                    stock_compete[yr] * (cost_meas + cost_base[yr])
+                    stock_compete_meas[yr] * (cost_meas + cost_base[yr]) + (
+                        stock_compete[yr] - stock_compete_meas[yr]) * \
+                    cost_base[yr]
             else:
                 # Total-efficient stock cost (full service measure)
                 stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
                     + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
                 # Competed-efficient stock cost (full service measure)
-                stock_compete_cost_eff[yr] = stock_compete[yr] * cost_meas
+                stock_compete_cost_eff[yr] = \
+                    stock_compete_meas[yr] * cost_meas + (
+                        stock_compete[yr] - stock_compete_meas[yr]) * \
+                    cost_base[yr]
 
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
@@ -1479,32 +1594,26 @@ class Measure(object):
             # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
 
-            # Update portion of stock captured by efficient measure in
-            # previous years to reflect gains from the current modeling year.
-            # If this portion is already 1 or the total stock for the year is
-            # 0, do not update the captured portion from the previous year;
-            # if updating a secondary microsegment, set efficient stock portion
-            # to 1 (* FOR NOW *)
-            if type(stock_total_meas[yr]) == numpy.ndarray:
-                for i in range(0, len(stock_total_meas[yr])):
-                    if stock_total[yr] != 0 and captured_eff_frac[i] != 1 \
-                            and mskeys[0] == "primary":
-                        captured_eff_frac[i] = stock_total_meas[yr][i] / \
-                            stock_total[yr]
-                    elif mskeys[0] == "secondary":
-                        captured_eff_frac[i] = 1
-            # Handle case where stock captured by measure is a point value
-            else:
-                if stock_total[yr] != 0 and captured_eff_frac != 1 and \
-                   mskeys[0] == "primary":
-                    captured_eff_frac = \
-                        stock_total_meas[yr] / stock_total[yr]
-                elif mskeys[0] == "secondary":
-                    captured_eff_frac = 1
-
-            # Update portion of existing stock remaining with the baseline
-            # technology
-            captured_base_frac = 1 - captured_eff_frac
+            # For primary microsegments only, update portion of stock captured
+            # by efficient measure in previous years to reflect gains from the
+            # current modeling year. If this portion is already 1 or the total
+            # stock for the year is 0, do not update the captured portion from
+            # the previous year
+            if mskeys[0] == "primary":
+                # Handle case where stock captured by measure is a numpy array
+                if type(stock_total_meas[yr]) == numpy.ndarray:
+                    for i in range(0, len(stock_total_meas[yr])):
+                        if stock_total[yr] != 0 and captured_eff_frac[i] != 1:
+                            captured_eff_frac[i] = stock_total_meas[yr][i] / \
+                                stock_total[yr]
+                # Handle case where stock captured by measure is a point value
+                else:
+                    if stock_total[yr] != 0 and captured_eff_frac != 1:
+                        captured_eff_frac = \
+                            stock_total_meas[yr] / stock_total[yr]
+                # Update portion of existing stock remaining with the baseline
+                # technology
+                captured_base_frac = 1 - captured_eff_frac
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total_meas, energy_total_eff, carb_total_eff,
@@ -1514,7 +1623,7 @@ class Measure(object):
                 carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
-                energy_compete_cost_eff, carb_compete_cost_eff]
+                energy_compete_cost_eff, carb_compete_cost_eff, mseg_adjust]
 
     def calc_metric_update(
             self, rate, adjust_savings, com_timeprefs, adopt_scheme):

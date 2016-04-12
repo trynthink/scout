@@ -1583,6 +1583,22 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     # Create a measure instance to use in the testing
     measure_instance = run.Measure(**sample_measure)
 
+    # Set sample secondary microsegment adjustment information dict
+    mseg_adjust = {
+        "contributing mseg keys and values": {},
+        "competed choice parameters": {},
+        "secondary mseg adjustments": {
+            "stock-and-flow": {
+                "adjusted stock": {},
+                "original stock": {}},
+            "market share": {
+                "adjusted stock": {},
+                "original stock": {}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}
+
     # Set sample stock and energy inputs for testing
     test_stock = [{"2009": 100, "2010": 200, "2011": 300},
                   {"2025": 400, "2026": 500, "2027": 600},
@@ -1703,7 +1719,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 30, "2010": 80, "2011": 36},
             {"2009": 2000, "2010": 1333.33, "2011": 2400},
             {"2009": 3, "2010": 4, "2011": 7.2},
-            {"2009": 9, "2010": 24, "2011": 10.8}],
+            {"2009": 9, "2010": 24, "2011": 10.8},
+            mseg_adjust],
             [
             {"2009": 100, "2010": 200, "2011": 300},
             {"2009": 3, "2010": 6, "2011": 9},
@@ -1725,7 +1742,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 30, "2010": 0, "2011": 0},
             {"2009": 2000, "2010": 0, "2011": 0},
             {"2009": 3, "2010": 0, "2011": 0},
-            {"2009": 9, "2010": 0, "2011": 0}]],
+            {"2009": 9, "2010": 0, "2011": 0},
+            mseg_adjust]],
          [[
              {"2009": 100, "2010": 166.67, "2011": 286.67},
              {"2009": 3, "2010": 6, "2011": 9},
@@ -1747,7 +1765,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2009": 30, "2010": 80, "2011": 36},
              {"2009": 2000, "2010": 1333.33, "2011": 2400},
              {"2009": 3, "2010": 4, "2011": 7.2},
-             {"2009": 9, "2010": 24, "2011": 10.8}],
+             {"2009": 9, "2010": 24, "2011": 10.8},
+             mseg_adjust],
              [
              {"2009": 10, "2010": 30, "2011": 60},
              {"2009": 9.3, "2010": 17.34, "2011": 25.06},
@@ -1769,7 +1788,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2009": 3, "2010": 24, "2011": 9},
              {"2009": 200, "2010": 400, "2011": 600},
              {"2009": 0.3, "2010": 1.2, "2011": 1.8},
-             {"2009": 0.9, "2010": 7.2, "2011": 2.7}]]],
+             {"2009": 0.9, "2010": 7.2, "2011": 2.7},
+             mseg_adjust]]],
         [[[
             {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
@@ -1791,7 +1811,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2025": 120, "2026": 50, "2027": 216},
             {"2025": 12000, "2026": 5000, "2027": 7200},
             {"2025": 12, "2026": 5, "2027": 7.2},
-            {"2025": 18, "2026": 7.5, "2027": 32.4}],
+            {"2025": 18, "2026": 7.5, "2027": 32.4},
+            mseg_adjust],
             [
             {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
@@ -1813,7 +1834,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2025": 120, "2026": 0, "2027": 0},
             {"2025": 12000, "2026": 0, "2027": 0},
             {"2025": 12, "2026": 0, "2027": 0},
-            {"2025": 18, "2026": 0, "2027": 0}]],
+            {"2025": 18, "2026": 0, "2027": 0},
+            mseg_adjust]],
          [[
              {"2025": 400, "2026": 500, "2027": 600},
              {"2025": 6, "2026": 7.5, "2027": 9},
@@ -1835,7 +1857,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2025": 120, "2026": 50, "2027": 216},
              {"2025": 12000, "2026": 5000, "2027": 7200},
              {"2025": 12, "2026": 5, "2027": 7.2},
-             {"2025": 18, "2026": 7.5, "2027": 32.4}],
+             {"2025": 18, "2026": 7.5, "2027": 32.4},
+             mseg_adjust],
              [
              {"2025": 40, "2026": 90, "2027": 150},
              {"2025": 36.6, "2026": 41.92, "2027": 46.64},
@@ -1857,7 +1880,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2025": 12, "2026": 15, "2027": 54},
              {"2025": 1200, "2026": 1500, "2027": 1800},
              {"2025": 1.2, "2026": 1.5, "2027": 1.8},
-             {"2025": 1.8, "2026": 2.25, "2027": 8.1}]]],
+             {"2025": 1.8, "2026": 2.25, "2027": 8.1},
+             mseg_adjust]]],
         [[[
             {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
@@ -1879,7 +1903,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2020": 210, "2021": 228, "2022": 27.0},
             {"2020": 28000, "2021": 30400, "2022": 3600},
             {"2020": 105.0, "2021": 114.0, "2022": 13.5},
-            {"2020": 157.50, "2021": 171.00, "2022": 20.25}],
+            {"2020": 157.50, "2021": 171.00, "2022": 20.25},
+            mseg_adjust],
             [
             {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
@@ -1901,7 +1926,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2020": 210, "2021": 0, "2022": 0},
             {"2020": 28000, "2021": 0, "2022": 0},
             {"2020": 105, "2021": 0, "2022": 0},
-            {"2020": 157.5, "2021": 0, "2022": 0}]],
+            {"2020": 157.5, "2021": 0, "2022": 0},
+            mseg_adjust]],
          [[
              {"2020": 700, "2021": 800, "2022": 890},
              {"2020": 52.5, "2021": 60, "2022": 67.5},
@@ -1923,7 +1949,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2020": 210, "2021": 228, "2022": 27.0},
              {"2020": 28000, "2021": 30400, "2022": 3600},
              {"2020": 105.0, "2021": 114.0, "2022": 13.5},
-             {"2020": 157.50, "2021": 171.00, "2022": 20.25}],
+             {"2020": 157.50, "2021": 171.00, "2022": 20.25},
+             mseg_adjust],
              [
              {"2020": 70, "2021": 150, "2022": 240},
              {"2020": 68.25, "2021": 76.2, "2022": 83.95},
@@ -1945,7 +1972,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2020": 21, "2021": 24, "2022": 27},
              {"2020": 2800, "2021": 3200, "2022": 3600},
              {"2020": 10.5, "2021": 12.0, "2022": 13.5},
-             {"2020": 15.75, "2021": 18.00, "2022": 20.25}]]]]
+             {"2020": 15.75, "2021": 18.00, "2022": 20.25},
+             mseg_adjust]]]]
 
     # Test the function output against 'ok_out' above
     def test_ok(self):
@@ -1977,7 +2005,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.test_schemes[scn],
                         self.life_base,
                         self.life_meas,
-                        self.mskeys[k])
+                        self.mskeys[k], self.mseg_adjust)
                     # Correct list of output dicts
                     lists2 = self.ok_out[elem][scn][k]
                     # Compare the lists of output dicts
@@ -5565,6 +5593,33 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "technology": {
                         "primary": [
                             "commercial light type X"],
+                        "secondary": None}},
+                   {"name": "sample measure 17",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": None},
+                    "energy_efficiency_units": {"primary": "lm/W",
+                                                "secondary": None},
+                    "product_lifetime": 1,
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
+                    "bldg_type": ["assembly"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {
+                        "primary": ["electricity (grid)"],
+                        "secondary": None},
+                    "fuel_switch_to": None,
+                    "end_use": {
+                        "primary": ["lighting"],
+                        "secondary": None},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {
+                        "primary": [
+                            "commercial light type X"],
                         "secondary": None}}]
 
     # List of selected "ok" measures above with certain inputs now specified
@@ -6295,90 +6350,90 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "all": {"2009": 148, "2010": 148},
                 "measure": {"2009": 0, "2010": 148}},
             "competed": {
-                "all": {"2009": 0, "2010": 148},
+                "all": {"2009": 15.50, "2010": 148},
                 "measure": {"2009": 0, "2010": 148}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 648.47, "2010": 650.43},
                 "efficient": {"2009": 648.47, "2010": 551.722}},
             "competed": {
-                "baseline": {"2009": 0, "2010": 650.43},
-                "efficient": {"2009": 0, "2010": 551.722}}},
+                "baseline": {"2009": 68.11, "2010": 650.43},
+                "efficient": {"2009": 68.11, "2010": 551.722}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 36855.9, "2010": 36504.45},
                 "efficient": {"2009": 36855.9, "2010": 30960.7}},
             "competed": {
-                "baseline": {"2009": 0, "2010": 36504.45},
-                "efficient": {"2009": 0, "2010": 30960.7}}},
+                "baseline": {"2009": 3871.04, "2010": 36504.45},
+                "efficient": {"2009": 3871.04, "2010": 30960.7}}},
         "cost": {
             "stock": {
                 "total": {
                     "baseline": {"2009": 2972, "2010": 2972},
                     "efficient": {"2009": 2972, "2010": 3700}},
                 "competed": {
-                    "baseline": {"2009": 0, "2010": 2972},
-                    "efficient": {"2009": 0, "2010": 3700}}},
+                    "baseline": {"2009": 310.52, "2010": 2972},
+                    "efficient": {"2009": 310.52, "2010": 3700}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 6601.968, "2010": 6315.443},
                     "efficient": {"2009": 6601.968, "2010": 5360.489}},
                 "competed": {
-                    "baseline": {"2009": 0, "2010": 6315.443},
-                    "efficient": {"2009": 0, "2010": 5360.489}}},
+                    "baseline": {"2009": 693.4394, "2010": 6315.443},
+                    "efficient": {"2009": 693.4394, "2010": 5360.489}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 1216244.58, "2010": 1204646.90},
                     "efficient": {"2009": 1216244.58, "2010": 1021703.20}},
                 "competed": {
-                    "baseline": {"2009": 0, "2010": 1204646.90},
-                    "efficient": {"2009": 0, "2010": 1021703.20}}}},
+                    "baseline": {"2009": 127744.32, "2010": 1204646.90},
+                    "efficient": {"2009": 127744.32, "2010": 1021703.20}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
                      "measure": 1}},
               {
         "stock": {
             "total": {
                 "all": {"2009": 148, "2010": 148},
-                "measure": {"2009": 148, "2010": 140.6}},
+                "measure": {"2009": 148, "2010": 0}},
             "competed": {
-                "all": {"2009": 148, "2010": 0},
+                "all": {"2009": 148, "2010": 148},
                 "measure": {"2009": 148, "2010": 0}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 648.47, "2010": 650.43},
-                "efficient": {"2009": 550.0692, "2010": 551.722}},
+                "efficient": {"2009": 550.0692, "2010": 650.43}},
             "competed": {
-                "baseline": {"2009": 648.47, "2010": 0},
-                "efficient": {"2009": 550.0692, "2010": 0}}},
+                "baseline": {"2009": 648.47, "2010": 650.43},
+                "efficient": {"2009": 550.0692, "2010": 650.43}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 36855.9, "2010": 36504.45},
-                "efficient": {"2009": 31262.24, "2010": 30960.7}},
+                "efficient": {"2009": 31262.24, "2010": 36504.45}},
             "competed": {
-                "baseline": {"2009": 36855.9, "2010": 0},
-                "efficient": {"2009": 31262.24, "2010": 0}}},
+                "baseline": {"2009": 36855.9, "2010": 36504.45},
+                "efficient": {"2009": 31262.24, "2010": 36504.45}}},
         "cost": {
             "stock": {
                 "total": {
                     "baseline": {"2009": 2972, "2010": 2972},
-                    "efficient": {"2009": 3700, "2010": 3663.6}},
+                    "efficient": {"2009": 3700, "2010": 2972}},
                 "competed": {
-                    "baseline": {"2009": 2972, "2010": 0},
-                    "efficient": {"2009": 3700, "2010": 0}}},
+                    "baseline": {"2009": 2972, "2010": 2972},
+                    "efficient": {"2009": 3700, "2010": 2972}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 6601.968, "2010": 6315.443},
-                    "efficient": {"2009": 5603.723, "2010": 5360.489}},
+                    "efficient": {"2009": 5603.723, "2010": 6315.443}},
                 "competed": {
-                    "baseline": {"2009": 6601.968, "2010": 0},
-                    "efficient": {"2009": 5603.723, "2010": 0}}},
+                    "baseline": {"2009": 6601.968, "2010": 6315.443},
+                    "efficient": {"2009": 5603.723, "2010": 6315.443}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 1216244.58, "2010": 1204646.90},
-                    "efficient": {"2009": 1031653.83, "2010": 1021703.198}},
+                    "efficient": {"2009": 1031653.83, "2010": 1204646.90}},
                 "competed": {
-                    "baseline": {"2009": 1216244.58, "2010": 0},
-                    "efficient": {"2009": 1031653.83, "2010": 0}}}},
+                    "baseline": {"2009": 1216244.58, "2010": 1204646.90},
+                    "efficient": {"2009": 1031653.83, "2010": 1204646.90}}}},
         "lifetime": {"baseline": {"2009": 200, "2010": 200},
                      "measure": 1}},
               {
@@ -6564,6 +6619,52 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 143622.88, "2010": 142352.77},
                     "efficient": {"2009": 117292.02, "2010": 116254.76}}}},
         "lifetime": {"baseline": {"2009": 140, "2010": 140},
+                     "measure": 1}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 11, "2010": 11},
+                "measure": {"2009": 0.0786, "2010": 0.236}},
+            "competed": {
+                "all": {"2009": 0.0786, "2010": 0.157},
+                "measure": {"2009": 0.0786, "2010": 0.157}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 76.56, "2010": 76.8},
+                "efficient": {"2009": 76.46, "2010": 76.50}},
+            "competed": {
+                "baseline": {"2009": 0.55, "2010": 1.10},
+                "efficient": {"2009": 0.45, "2010": 0.90}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 4352.208, "2010": 4313.72},
+                "efficient": {"2009": 4346.51, "2010": 4296.85}},
+            "competed": {
+                "baseline": {"2009": 31.09, "2010": 61.62},
+                "efficient": {"2009": 25.39, "2010": 50.33}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 154, "2010": 154},
+                    "efficient": {"2009": 154.86, "2010": 156.59}},
+                "competed": {
+                    "baseline": {"2009": 1.1, "2010": 2.2},
+                    "efficient": {"2009": 1.96, "2010": 3.93}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 695.1648, "2010": 656.64},
+                    "efficient": {"2009": 694.25, "2010": 654.07}},
+                "competed": {
+                    "baseline": {"2009": 4.97, "2010": 9.38},
+                    "efficient": {"2009": 4.06, "2010": 7.66}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 143622.88, "2010": 142352.77},
+                    "efficient": {"2009": 143434.80, "2010": 141796.19}},
+                "competed": {
+                    "baseline": {"2009": 1025.88, "2010": 2033.61},
+                    "efficient": {"2009": 837.80, "2010": 1660.78}}}},
+        "lifetime": {"baseline": {"2009": 140, "2010": 140},
                      "measure": 1}}]
 
     # Set the consumer choice dicts that should be generated by the
@@ -6629,12 +6730,38 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         {"""('primary', 'AIA_CZ1', 'single family home', 'natural gas',
         'water heating', 'supply', '','new')""": compete_choice_val}]
 
+    # Master secondary microsegment adjustment dicts that should be generated
+    # by the first two "ok_measures" above using the "sample_msegin" dict.
+    # Secondary microsegment adjustment information is needed to scale down
+    # secondary heating/cooling microsegments to reflect realistic stocks
+    # and flows in associated primary lighting microsegments.  The first two
+    # "ok_measures" do not include any secondary microsegments; thus, the
+    # leaf node values for this dict are each empty dicts
+    ok_out_second_mseg_adjust = [{
+        "stock-and-flow": {
+            "original stock": {},
+            "adjusted stock (previously captured)": {},
+            "adjusted stock (competed)": {},
+            "adjusted stock (competed and captured)": {}},
+        "market share": {
+            "adjusted stock": {},
+            "original stock": {}}},
+        {
+        "stock-and-flow": {
+            "original stock": {},
+            "adjusted stock (previously captured)": {},
+            "adjusted stock (competed)": {},
+            "adjusted stock (competed and captured)": {}},
+        "market share": {
+            "original stock": {},
+            "adjusted stock": {}}}]
+
     # Master supply-demand adjustment dicts that should be generated by
     # the first two "ok_measures" above using the "sample_msegin" dict.
     # Supply-demand adjustment information is needed to account for overlaps
     # between measures that access supply-side and demand-side microsegments
     # for the heating and cooling end uses.
-    ok_out_compete_demand = [{
+    ok_out_compete_supply_demand = [{
         "savings": {
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'boiler (electric)', 'new')": {"2009": 0, "2010": 0},
             "('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)', 'heating', 'supply', 'ASHP', 'new')": {"2009": 0, "2010": 0},
@@ -6946,10 +7073,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             # Create an instance of the object based on ok measure info
             measure_instance = run.Measure(**measure)
             # Assert that the first output of mseg_find partition (master
-            # microsegment information) is correct
-            dict_base = measure_instance.mseg_find_partition(
-                self.sample_msegin, self.sample_basein,
-                "Technical potential", ok_out_break_in)
+            # microsegment information) is correct; note that the first
+            # 16 sample measures are run under a Technical potential
+            # adoption scenario, while the 17th sample measure is run
+            # under a Max adoption potential scenario
+            if idx < 16:
+                dict_base = measure_instance.mseg_find_partition(
+                    self.sample_msegin, self.sample_basein,
+                    "Technical potential", ok_out_break_in)
+            else:
+                dict_base = measure_instance.mseg_find_partition(
+                    self.sample_msegin, self.sample_basein,
+                    "Max adoption potential", ok_out_break_in)
             dict1 = dict_base[0]
             dict2 = self.ok_out[idx]
             self.dict_check(dict1, dict2)
@@ -6963,24 +7098,28 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 dict3 = dict_base[1]["competed choice parameters"]
                 dict4 = self.ok_out_compete_choice[idx]
                 self.dict_check(dict3, dict4)
-                # Supply-demand adjustment output check
-                dict5 = dict_base[1]["supply-demand adjustment"]
-                dict6 = self.ok_out_compete_demand[idx]
+                # Secondary microsegment adjustment output check
+                dict5 = dict_base[1]["secondary mseg adjustments"]
+                dict6 = self.ok_out_second_mseg_adjust[idx]
                 self.dict_check(dict5, dict6)
+                # Supply-demand adjustment output check
+                dict7 = dict_base[1]["supply-demand adjustment"]
+                dict8 = self.ok_out_compete_supply_demand[idx]
+                self.dict_check(dict7, dict8)
 
             # Check that the output breakout information in the third
             # output of mseg_find_partition is correct (limit this check to
             # the first two sample measures and the refrigerator/freezer
             # sample measure only to reduce computation time)
             if idx < 2 or idx == 14:
-                dict7 = dict_base[2]
+                dict9 = dict_base[2]
                 # Check the refrigerator/freezer sample measure
                 if idx == 14:
-                    dict8 = self.ok_out_break[2]
+                    dict10 = self.ok_out_break[2]
                 # Check the first two sample measures
                 else:
-                    dict8 = self.ok_out_break[idx]
-                self.dict_check(dict7, dict8)
+                    dict10 = self.ok_out_break[idx]
+                self.dict_check(dict9, dict10)
 
     # Test for correct output from "ok_measures_dist" input
     def test_mseg_ok_distrib(self):
@@ -7935,7 +8074,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]},
             "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
-                                     "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
+                                      "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
             "savings (total)": {"2009": 15, "2010": 20},
             "savings (annual)": {"2009": 10, "2010": 10},
