@@ -202,13 +202,15 @@ class Measure(object):
             "competed choice parameters": {},
             "secondary mseg adjustments": {
                 "stock-and-flow": {
-                    "original stock": {},
+                    "original stock (total)": {},
                     "adjusted stock (previously captured)": {},
                     "adjusted stock (competed)": {},
                     "adjusted stock (competed and captured)": {}},
                 "market share": {
-                    "original stock": {},
-                    "adjusted stock": {}}},
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -753,8 +755,11 @@ class Measure(object):
                     # access this baseline microsegment. For the residential
                     # sector, these parameters are found in the baseline
                     # technology cost, performance, and lifetime JSON
-                    choice_params = base_costperflife["consumer choice"][
-                        "competed market share"]["parameters"]
+                    if mskeys[0] == "secondary":
+                        choice_params = {}  # No choice params for 2nd msegs
+                    else:
+                        choice_params = base_costperflife["consumer choice"][
+                            "competed market share"]["parameters"]
                 else:
                     # Update commercial baseline and measure energy cost
                     # information, accounting for any fuel switching from
@@ -780,7 +785,9 @@ class Measure(object):
                     # com_timeprefs info. may eventually be integrated into the
                     # baseline technology cost, performance, and lifetime JSON
                     # as for residential)
-                    if mskeys[4] in com_timeprefs["distributions"].keys():
+                    if mskeys[0] == "secondary":
+                        choice_params = {}  # No choice params for 2nd msegs
+                    elif mskeys[4] in com_timeprefs["distributions"].keys():
                         choice_params = {"rate distribution": com_timeprefs[
                             "distributions"][mskeys[4]]}
                     # For uncovered end uses, default to choice parameters for
@@ -1217,8 +1224,10 @@ class Measure(object):
         if self.end_use["secondary"] is not None and mskeys[4] in ["lighting",
            "heating", "secondary heating", "cooling"]:
             # Set short name for secondary adjustment information dict
-            second_adjust = mseg_adjust[
+            secnd_adj_stk = mseg_adjust[
                 "secondary mseg adjustments"]["stock-and-flow"]
+            secnd_adj_mkt = mseg_adjust[
+                "secondary mseg adjustments"]["market share"]
             # Determine a dictionary key indicating the climate zone, building
             # type, and structure type that is shared by the primary lighting
             # microsegment and secondary heating/cooling microsegment
@@ -1226,21 +1235,39 @@ class Measure(object):
             # If no year-by-year secondary microsegment adjustment information
             # exists for the given climate zone, building type, and structure
             # type, initialize all year-by-year adjustment values as 0
-            if secnd_mseg_adjkey not in second_adjust[
-                    "original stock"].keys():
+            if secnd_mseg_adjkey not in secnd_adj_stk[
+                    "original stock (total)"].keys():
+                # Initialize stock-and-flow secondary adjustment information
+
                 # Initialize original primary microsegment stock information
-                second_adjust["original stock"][secnd_mseg_adjkey] = \
+                secnd_adj_stk["original stock (total)"][secnd_mseg_adjkey] = \
                     dict.fromkeys(stock_total.keys(), 0)
                 # Initialize previously captured primary microsegment stock
                 # information
-                second_adjust["adjusted stock (previously captured)"][
+                secnd_adj_stk["adjusted stock (previously captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
                 # Initialize competed primary microsegment stock information
-                second_adjust["adjusted stock (competed)"][
+                secnd_adj_stk["adjusted stock (competed)"][
                     secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
                 # Initialize competed and captured primary microsegment stock
                 # information
-                second_adjust["adjusted stock (competed and captured)"][
+                secnd_adj_stk["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+
+                # Initialize market share secondary adjustment information
+                # (used in 'adjust_savings' function below)
+
+                # Initialize original total captured stock information
+                secnd_adj_mkt["original stock (total captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+                # Initialize original competed and captured stock information
+                secnd_adj_mkt["original stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+                # Initialize adjusted total captured stock information
+                secnd_adj_mkt["adjusted stock (total captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
+                # Initialize adjusted competed and captured stock information
+                secnd_adj_mkt["adjusted stock (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(stock_total.keys(), 0)
 
         # In cases where no secondary heating/cooling microsegment is present,
@@ -1256,11 +1283,12 @@ class Measure(object):
             # associated primary microsegment stock captured by the measure in
             # previous years
             if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None:
-                if second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
-                    captured_eff_frac = second_adjust[
+                if secnd_adj_stk["original stock (total)"][
+                        secnd_mseg_adjkey][yr] != 0:
+                    captured_eff_frac = secnd_adj_stk[
                         "adjusted stock (previously captured)"][
-                        secnd_mseg_adjkey][yr] / second_adjust[
-                        "original stock"][secnd_mseg_adjkey][yr]
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original stock (total)"][secnd_mseg_adjkey][yr]
                 else:
                     captured_eff_frac = 0
                 # Update portion of existing primary stock remaining with the
@@ -1356,10 +1384,11 @@ class Measure(object):
             # Secondary microsegment (competed fraction tied to the associated
             # primary microsegment)
             if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None and \
-               second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
-                    competed_frac = second_adjust["adjusted stock (competed)"][
-                        secnd_mseg_adjkey][yr] / second_adjust[
-                            "original stock"][secnd_mseg_adjkey][yr]
+               secnd_adj_stk["original stock (total)"][
+                    secnd_mseg_adjkey][yr] != 0:
+                    competed_frac = secnd_adj_stk["adjusted stock (competed)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                            "original stock (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment in the first year of a technical potential
             # scenario (all stock competed)
             elif mskeys[0] == "primary" and int(yr) == mkt_entry_yr and \
@@ -1392,11 +1421,12 @@ class Measure(object):
             # Secondary microsegment (competed and captured fraction tied
             # to the associated primary microsegment)
             if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
-               and second_adjust["original stock"][secnd_mseg_adjkey][yr] != 0:
-                    competed_captured_eff_frac = second_adjust[
+               and secnd_adj_stk[
+                    "original stock (total)"][secnd_mseg_adjkey][yr] != 0:
+                    competed_captured_eff_frac = secnd_adj_stk[
                         "adjusted stock (competed and captured)"][
-                        secnd_mseg_adjkey][yr] / second_adjust[
-                        "original stock"][secnd_mseg_adjkey][yr]
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original stock (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment and year when measure is on the market
             elif mskeys[0] == "primary" and (
                     int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
@@ -1411,17 +1441,18 @@ class Measure(object):
             # competed and captured fractions for the primary microsegment
             if mskeys[0] == "primary" and secnd_mseg_adjkey is not None:
                 # Total stock
-                second_adjust["original stock"][secnd_mseg_adjkey][yr] += \
+                secnd_adj_stk[
+                    "original stock (total)"][secnd_mseg_adjkey][yr] += \
                     stock_total[yr]
                 # Previously captured stock
-                second_adjust["adjusted stock (previously captured)"][
+                secnd_adj_stk["adjusted stock (previously captured)"][
                     secnd_mseg_adjkey][yr] += \
                     captured_eff_frac * stock_total[yr]
                 # Competed stock
-                second_adjust["adjusted stock (competed)"][
+                secnd_adj_stk["adjusted stock (competed)"][
                     secnd_mseg_adjkey][yr] += competed_frac * stock_total[yr]
                 # Competed and captured stock
-                second_adjust["adjusted stock (competed and captured)"][
+                secnd_adj_stk["adjusted stock (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
                     competed_captured_eff_frac * stock_total[yr]
 
@@ -2253,8 +2284,11 @@ class Engine(object):
         for x in measure_list:
             mseg_keys.extend(x.mseg_adjust[
                 "contributing mseg keys and values"].keys())
-        # Establish list of unique key chains in mseg_keys list above
-        msegs = numpy.unique(mseg_keys)
+
+        # Establish list of unique key chains in mseg_keys list above,
+        # ensuring that all primary microsegments are ordered (and thus
+        # updated) before secondary microsegments that depend upon them
+        msegs = sorted(numpy.unique(mseg_keys))
 
         # Run through all unique contributing microsegments in above list,
         # determining how the measure savings associated with each should be
@@ -2262,7 +2296,7 @@ class Engine(object):
         # applicable, the removal of overlapping heating/cooling supply-side
         # and demand-side savings
         for msu in msegs:
-            # Determine the subset of measures that compete for the given
+            # Determine the subset of measures that pertain to the given
             # microsegment
             measures_adj = [
                 x for x in measure_list if msu in x.mseg_adjust[
@@ -2305,23 +2339,41 @@ class Engine(object):
                         measures_overlap["measures"].append(m)
                         measures_overlap["keys"].append(keys)
 
-            # If multiple measures are competing for the microsegment,
-            # determine the market shares of the competing measures and adjust
-            # measure master microsegments accordingly, using separate market
-            # share modeling routines for residential and commercial sectors.
-            if adjust_type == "Competing Measures" and \
-                len(measures_adj) > 1 and \
-                any(x in msu for x in (
-                    'single family home', 'multi family home', 'mobile home')):
-                self.res_compete(measures_adj, msu)
-            elif adjust_type == "Competing Measures" and \
-                len(measures_adj) > 1 and \
-                all(x not in msu for x in (
-                    'single family home', 'multi family home', 'mobile home')):
-                self.com_compete(measures_adj, msu)
-            elif adjust_type == "Packaged Measures" and \
-                    len(measures_adj) > 1:
-                self.package_merge(measures_adj, msu)
+            # Adjust a measure's primary savings based on the share of the
+            # current market microsegment it captures when directly competed
+            # against other measures that apply to the same microsegment
+            if "primary" in msu:
+                # If multiple measures are competing for a primary
+                # microsegment, determine the market shares of the
+                # competing measures and adjust measure master microsegments
+                # accordingly, using separate market share modeling routines
+                # for residential and commercial sectors.
+                if adjust_type == "Competing Measures" and \
+                    len(measures_adj) > 1 and \
+                    any(x in msu for x in (
+                        'single family home', 'multi family home',
+                        'mobile home')):
+                    self.res_compete(measures_adj, msu)
+                elif adjust_type == "Competing Measures" and \
+                    len(measures_adj) > 1 and \
+                    all(x not in msu for x in (
+                        'single family home', 'multi family home',
+                        'mobile home')):
+                    self.com_compete(measures_adj, msu)
+                elif adjust_type == "Packaged Measures" and \
+                        len(measures_adj) > 1:
+                    self.package_merge(measures_adj, msu)
+            # Adjust a measure's secondary savings based on the market share
+            # previously calculated for the primary microsegment these
+            # secondary savings are associated with
+            elif "secondary" in msu:
+                self.secondary_mktshare_adjust(measures_adj, msu)
+            # Microsegments not tagged as 'primary' or 'secondary' are
+            # flagged as invalid
+            else:
+                raise ValueError(
+                    'Microsegment type must be primary or secondary!')
+
             # If the microsegment applies to heating/cooling and overlaps with
             # other active microsegments across the heating/cooling supply-side
             # and demand-side, record any associated savings; these will be
@@ -2714,57 +2766,119 @@ class Engine(object):
         carbon, and associated cost savings that are attributed to the current
         contributing microsegment that is being competed """
 
-        # Combine the competed market share adjustment for the stock
-        # captured by the measure in the current year with that of the stock
-        # captured by the measure in all previous years, yielding a weighted
-        # market share adjustment
+        # Set market shares for the competed stock in the current year, and
+        # for the weighted combination of the competed stock for the current
+        # and all previous years. Handle this calculation differently for
+        # primary and secondary microsegment types
 
-        # Determine the subset of all years leading up to the current
-        # year in the modeling time horizon
-        weighting_yrs = sorted([
-            x for x in adj_fracs.keys() if int(x) <= int(yr)])
-        # Loop through the above set of years, successively updating
-        # the weighted market share based on the captured stock in each year
-        for ind, wyr in enumerate(weighting_yrs):
-            # First year in time horizon; weighted market share equals market
-            # share for the captured stock in current year only
-            if ind == 0:
-                adj_frac_wt = copy.deepcopy(adj_fracs[yr])
-            # Subsequent year; weighted market share combines market share
-            # for captured stock in current year and all previous years
-            else:
-                # Only update weighted market share if measure captures
-                # stock in the current year
-                if type(adj["stock"]["total"]["measure"][wyr]) == \
-                    numpy.ndarray and all(
-                        adj["stock"]["total"]["measure"][wyr]) != 0 or \
-                   type(adj["stock"]["total"]["measure"][wyr]) != \
-                    numpy.ndarray and \
-                        adj["stock"]["total"]["measure"][wyr] != 0:
-                    # Develop the split between captured stock in the
-                    # current year and all previously captured stock
-                    wt_comp = adj["stock"]["competed"]["measure"][wyr] / \
-                        adj["stock"]["total"]["measure"][wyr]
-                    # Calculate weighted combination of market shares for
-                    # current and previously captured stock
-                    adj_frac_wt = \
-                        adj_fracs[wyr] * wt_comp + adj_frac_wt * (1 - wt_comp)
+        # Set primary microsegment competed and total weighted market shares
+        if "primary" in mseg_key:
+            # Competed stock market share (represents adjustment for current
+            # year)
+            adj_frac_comp = copy.deepcopy(adj_fracs[yr])
+
+            # Combine the competed market share adjustment for the stock
+            # captured by the measure in the current year with that of the
+            # stock captured by the measure in all previous years, yielding a
+            # weighted market share adjustment
+
+            # Determine the subset of all years leading up to the current
+            # year in the modeling time horizon
+            weighting_yrs = sorted([
+                x for x in adj_fracs.keys() if int(x) <= int(yr)])
+            # Loop through the above set of years, successively updating the
+            # weighted market share based on the captured stock in each year
+            for ind, wyr in enumerate(weighting_yrs):
+                # First year in time horizon; weighted market share equals
+                # market share for the captured stock in current year only
+                if ind == 0:
+                    adj_frac_tot = copy.deepcopy(adj_fracs[yr])
+                # Subsequent year; weighted market share combines market share
+                # for captured stock in current year and all previous years
+                else:
+                    # Only update weighted market share if measure captures
+                    # stock in the current year
+                    if type(adj["stock"]["total"]["measure"][wyr]) == \
+                        numpy.ndarray and all(
+                            adj["stock"]["total"]["measure"][wyr]) != 0 or \
+                       type(adj["stock"]["total"]["measure"][wyr]) != \
+                        numpy.ndarray and \
+                            adj["stock"]["total"]["measure"][wyr] != 0:
+                        # Develop the split between captured stock in the
+                        # current year and all previously captured stock
+                        wt_comp = adj["stock"]["competed"]["measure"][wyr] / \
+                            adj["stock"]["total"]["measure"][wyr]
+                        # Calculate weighted combination of market shares for
+                        # current and previously captured stock
+                        adj_frac_tot = adj_fracs[wyr] * wt_comp + \
+                            adj_frac_tot * (1 - wt_comp)
+        # Set secondary microsegment competed and total weighted market shares
+        # (based on competed/total market shares previously calculated for
+        # associated primary microsegment)
+        elif "secondary" in mseg_key:
+            # Competed stock market share (represents adjustment for current
+            # year)
+            adj_frac_comp = adj_fracs["competed"]
+            # Total weighted stock market share (represents adjustments for
+            # current and all previous years)
+            adj_frac_tot = adj_fracs["total"]
+        # Microsegments not tagged as 'primary' or 'secondary' are flagged
+        # as invalid
+        else:
+            raise ValueError(
+                'Microsegment type must be primary or secondary!')
+
+        # For a primary contributing microsegment, record market share
+        # information that will subsequently be used to adjust associated
+        # secondary microsegments and associated savings
+        if measure.end_use["secondary"] is not None and "lighting" in mseg_key:
+            # Determine the climate zone, building type, and structure
+            # type for the current contributing primary microsegment
+            cz_bldg_struct = re.search(
+                ("'[\w+\s*]+\(*\w+\)*',\s'([\w+\s*]+\(*\w+\)*)',"
+                 "\s'([\w+\s*]+\(*\w+\)*)',\s'[\w+\s*]+\(*\w+\)*',"
+                 "\s'[\w+\s*]+\(*\w+\)*',\s'[\w+\s*]+\(*\w+\)*',"
+                 "\s'([\w+\s*]+\(*\w+\)*)'"), mseg_key)
+            # Use climate zone, building type, and structure type as
+            # the key for linking the primary and its associated
+            # secondary microsegment
+            secnd_mseg_adjkey = str(
+                (cz_bldg_struct.group(1), cz_bldg_struct.group(2),
+                 cz_bldg_struct.group(3)))
+            # Record original and adjusted primary stock numbers as part of
+            # the measure's 'mseg_adjust' attribute
+            secnd_adj_mkt = measure.mseg_adjust[
+                "secondary mseg adjustments"]["market share"]
+            # Original total captured stock
+            secnd_adj_mkt["original stock (total captured)"][
+                secnd_mseg_adjkey][yr] += \
+                adj["stock"]["total"]["measure"][yr]
+            # Original competed and captured stock
+            secnd_adj_mkt["original stock (competed and captured)"][
+                secnd_mseg_adjkey][yr] += \
+                adj["stock"]["competed"]["measure"][yr]
+            # Adjusted total captured stock
+            secnd_adj_mkt["adjusted stock (total captured)"][
+                secnd_mseg_adjkey][yr] += \
+                (adj["stock"]["total"]["measure"][yr] * adj_frac_tot)
+            # Adjusted competed and captured stock
+            secnd_adj_mkt["adjusted stock (competed and captured)"][
+                secnd_mseg_adjkey][yr] += \
+                (adj["stock"]["competed"]["measure"][yr] * adj_frac_comp)
 
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share for the master microsegment and
         # current contributing microsegment
         base["stock"]["total"]["measure"][yr] = \
             base["stock"]["total"]["measure"][yr] - \
-            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_wt)
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_tot)
         base["stock"]["competed"]["measure"][yr] = \
             base["stock"]["competed"]["measure"][yr] - \
-            adj["stock"]["competed"]["measure"][yr] * (1 - adj_fracs[yr])
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_frac_comp)
         adj["stock"]["total"]["measure"][yr] = \
-            adj["stock"]["total"]["measure"][yr] - \
-            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_wt)
+            adj["stock"]["total"]["measure"][yr] * adj_frac_tot
         adj["stock"]["competed"]["measure"][yr] = \
-            adj["stock"]["competed"]["measure"][yr] - \
-            adj["stock"]["competed"]["measure"][yr] * (1 - adj_fracs[yr])
+            adj["stock"]["competed"]["measure"][yr] * adj_frac_comp
 
         # Adjust the total and competed energy, carbon, and associated cost
         # savings by the appropriate measure market share for the master
@@ -2774,33 +2888,102 @@ class Engine(object):
             base["cost"]["carbon"]["total"]["efficient"][yr], \
             base["energy"]["total"]["efficient"][yr], \
             base["carbon"]["total"]["efficient"][yr] = [
-                x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_wt)) for x, y, z in
+                x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_tot)) for x, y, z in
                 zip(base_list_eff[0:5], adj_list_eff[0:5], adj_list_base[0:5])]
         base["cost"]["stock"]["competed"]["efficient"][yr], \
             base["cost"]["energy"]["competed"]["efficient"][yr], \
             base["cost"]["carbon"]["competed"]["efficient"][yr], \
             base["energy"]["competed"]["efficient"][yr], \
             base["carbon"]["competed"]["efficient"][yr] = [
-                x[yr] + ((z[yr] - y[yr]) * (1 - adj_fracs[yr])) for x, y, z in
+                x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_comp)) for x, y, z in
                 zip(base_list_eff[5:], adj_list_eff[5:], adj_list_base[5:])]
         adj["cost"]["stock"]["total"]["efficient"][yr], \
             adj["cost"]["energy"]["total"]["efficient"][yr], \
             adj["cost"]["carbon"]["total"]["efficient"][yr], \
             adj["energy"]["total"]["efficient"][yr], \
             adj["carbon"]["total"]["efficient"][yr] = [
-                x[yr] + ((y[yr] - x[yr]) * (1 - adj_frac_wt)) for x, y in
+                x[yr] + ((y[yr] - x[yr]) * (1 - adj_frac_tot)) for x, y in
                 zip(adj_list_eff[0:5], adj_list_base[0:5])]
         adj["cost"]["stock"]["competed"]["efficient"][yr], \
             adj["cost"]["energy"]["competed"]["efficient"][yr], \
             adj["cost"]["carbon"]["competed"]["efficient"][yr], \
             adj["energy"]["competed"]["efficient"][yr], \
             adj["carbon"]["competed"]["efficient"][yr] = [
-                x[yr] + ((y[yr] - x[yr]) * (1 - adj_fracs[yr])) for x, y in
+                x[yr] + ((y[yr] - x[yr]) * (1 - adj_frac_comp)) for x, y in
                 zip(adj_list_eff[5:], adj_list_base[5:])]
 
         # Register the measure's savings adjustments if not already registered
         if measure.mseg_adjust["savings updated"] is not True:
             measure.mseg_adjust["savings updated"] = True
+
+    def secondary_mktshare_adjust(self, measures_adj, mseg_key):
+        """ Adjust a measure's secondary microsegment values to reflect the
+        the updated market shares calculated for an associated primary
+        microsegment """
+        # Loop through all measures that apply to the current contributing
+        # secondary microsegment
+        for ind, m in enumerate(measures_adj):
+            # Establish starting master microsegment and current contributing
+            # secondary microsegment information for the measure
+            base, adj, base_list_eff, adj_list_eff, adj_list_base = \
+                self.savings_adjustment_dicts(m, mseg_key)
+
+            # Adjust measure savings for the current contributing
+            # secondary microsegment based on the market share calculated
+            # for an associated primary contributing microsegment
+            for yr in adj["energy"]["total"]["baseline"].keys():
+                # Determine the climate zone, building type, and structure
+                # type for the current contributing secondary microsegment
+                cz_bldg_struct = re.search(
+                    ("'[\w+\s*]+\(*\w+\)*',\s'([\w+\s*]+\(*\w+\)*)',"
+                     "\s'([\w+\s*]+\(*\w+\)*)',\s'[\w+\s*]+\(*\w+\)*',"
+                     "\s'[\w+\s*]+\(*\w+\)*',\s'[\w+\s*]+\(*\w+\)*',"
+                     "\s'([\w+\s*]+\(*\w+\)*)'"), mseg_key)
+                # Use climate zone, building type, and structure type as
+                # the key for linking the secondary and its associated
+                # primary microsegment
+                secnd_mseg_adjkey = str(
+                    (cz_bldg_struct.group(1), cz_bldg_struct.group(2),
+                     cz_bldg_struct.group(3)))
+                # Find the appropriate market share adjustment information
+                # for the given secondary climate zone, building type, and
+                # structure type in the measure's 'mseg_adjust' attribute
+                # and scale down the secondary and master savings accordingly
+                secnd_adj_mkt = m.mseg_adjust[
+                    "secondary mseg adjustments"]["market share"]
+                # Check to ensure that market share adjustment information
+                # exists for the secondary microsegment climate zone, building
+                # type, and structure type
+                if secnd_mseg_adjkey in \
+                   secnd_adj_mkt["original stock (total captured)"].keys():
+                    # Calculate the market share adjustment factors to apply
+                    # to the secondary and master savings, for both the
+                    # currently competed secondary stock and the
+                    # total current and previously competed secondary stock
+
+                    # Initialize dictionary to store competed and total market
+                    # adjustment factors for the secondary microsegments
+                    adj_factors = {"total": None, "competed": None}
+                    # Calculate and store competed and total adjustment factors
+                    adj_factors["competed"] = secnd_adj_mkt[
+                        "adjusted stock (competed and captured)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_mkt[
+                        "original stock (competed and captured)"][
+                        secnd_mseg_adjkey][yr]
+                    adj_factors["total"] = secnd_adj_mkt[
+                        "adjusted stock (total captured)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_mkt[
+                        "original stock (total captured)"][
+                        secnd_mseg_adjkey][yr]
+                    # Apply the market share adjustment factors to the
+                    # secondary and master savings
+                    self.compete_adjustment(
+                        adj_factors, base, adj, base_list_eff, adj_list_eff,
+                        adj_list_base, yr, mseg_key, m)
+                # Raise error if no adjustment information exists
+                else:
+                    raise KeyError(
+                        'Secondary market share adjustment info. missing!')
 
     def overlap_recording(self, measures_adj, measures_overlap, mseg_key):
         """ For heating/cooling measures, record any savings associated

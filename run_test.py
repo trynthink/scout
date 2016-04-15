@@ -96,7 +96,7 @@ sample_measure4 = {
                    "secondary": None},
     "mseg_adjust": {
         "contributing mseg keys and values": {
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "stock": {
                     "total": {
@@ -144,7 +144,7 @@ sample_measure4 = {
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
@@ -192,7 +192,7 @@ sample_measure4 = {
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "stock": {
                     "total": {
@@ -240,7 +240,7 @@ sample_measure4 = {
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
@@ -289,19 +289,19 @@ sample_measure4 = {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}}},
         "competed choice parameters": {
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}}},
@@ -429,7 +429,8 @@ sample_measure5 = {
         "reflector (halogen)"], "secondary": None},
     "mseg_adjust": {
         "contributing mseg keys and values": {
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "stock": {
                     "total": {
@@ -477,7 +478,8 @@ sample_measure5 = {
                 "lifetime": {
                     "baseline": {"2009": 1, "2010": 1},
                     "measure": 20}},
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (halogen)', 'existing')"): {
                 "stock": {
                     "total": {
@@ -526,11 +528,13 @@ sample_measure5 = {
                     "baseline": {"2009": 2, "2010": 2},
                     "measure": 15}}},
         "competed choice parameters": {
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (halogen)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}}},
@@ -656,7 +660,8 @@ sample_measure6 = {
                    "secondary": None},
     "mseg_adjust": {
         "contributing mseg keys and values": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "stock": {
                     "total": {
@@ -705,7 +710,8 @@ sample_measure6 = {
                     "baseline": {"2009": 18, "2010": 18},
                     "measure": 18}}},
         "competed choice parameters": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
@@ -830,7 +836,8 @@ sample_measure7 = {
                    "secondary": None},
     "mseg_adjust": {
         "contributing mseg keys and values": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "stock": {
                     "total": {
@@ -879,7 +886,8 @@ sample_measure7 = {
                     "baseline": {"2009": 18, "2010": 18},
                     "measure": 18}}},
         "competed choice parameters": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
@@ -1589,11 +1597,15 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         "competed choice parameters": {},
         "secondary mseg adjustments": {
             "stock-and-flow": {
-                "adjusted stock": {},
-                "original stock": {}},
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
             "market share": {
-                "adjusted stock": {},
-                "original stock": {}}},
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -6676,13 +6688,13 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "b2": {"2009": None, "2010": None}}
     ok_out_compete_choice = [{
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
-        'heating', 'supply',
-        'boiler (electric)', 'new')""": compete_choice_val,
+        'heating', 'supply', 'boiler (electric)',
+        'new')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
         'heating', 'supply', 'ASHP', 'new')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
         'heating', 'supply', 'GSHP', 'new')""": compete_choice_val,
-        """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
+        """('primary', 'AIA_CZ1', 'single family home','electricity (grid)',
         'cooling', 'supply', 'ASHP', 'new')""": compete_choice_val,
         """('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
         'cooling', 'supply', 'GSHP', 'new')""": compete_choice_val,
@@ -6739,22 +6751,26 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     # leaf node values for this dict are each empty dicts
     ok_out_second_mseg_adjust = [{
         "stock-and-flow": {
-            "original stock": {},
+            "original stock (total)": {},
             "adjusted stock (previously captured)": {},
             "adjusted stock (competed)": {},
             "adjusted stock (competed and captured)": {}},
         "market share": {
-            "adjusted stock": {},
-            "original stock": {}}},
+            "original stock (total captured)": {},
+            "original stock (competed and captured)": {},
+            "adjusted stock (total captured)": {},
+            "adjusted stock (competed and captured)": {}}},
         {
         "stock-and-flow": {
-            "original stock": {},
+            "original stock (total)": {},
             "adjusted stock (previously captured)": {},
             "adjusted stock (competed)": {},
             "adjusted stock (competed and captured)": {}},
         "market share": {
-            "original stock": {},
-            "adjusted stock": {}}}]
+            "original stock (total captured)": {},
+            "original stock (competed and captured)": {},
+            "adjusted stock (total captured)": {},
+            "adjusted stock (competed and captured)": {}}}]
 
     # Master supply-demand adjustment dicts that should be generated by
     # the first two "ok_measures" above using the "sample_msegin" dict.
@@ -8400,16 +8416,19 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     # Define sample strings for the competed demand-side and supply-side
     # microsegment key chains being tested
-    adjust_key1 = str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows'])
-    adjust_key2 = str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])
+    adjust_key1 = str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'demand', 'windows', 'existing'))
+    adjust_key2 = str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))
 
     # Define master microsegments, the microsegment(s) that contribute to the
     # master microsegment (one of which is being competed), and capital/
     # operating cost information for five sample cooling measures
     compete_meas1 = {
         "name": "sample compete measure r1",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -8533,6 +8552,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     # instead of point values
     compete_meas1_dist = {
         "name": "sample compete measure r1 dist",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -8709,6 +8729,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas2 = {
         "name": "sample compete measure r2",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -8803,8 +8824,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}},
-                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'single family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -8876,6 +8898,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas3 = {
         "name": "sample compete measure r3",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -8998,6 +9021,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     # includes a list of capital cost input values instead of point values
     compete_meas3_dist = {
         "name": "sample compete measure r3 dist",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -9138,6 +9162,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas4 = {
         "name": "sample compete measure r4",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -9232,8 +9257,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
-                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'single family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -9305,6 +9331,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas5 = {
         "name": "sample compete measure r5",
+        "end_use": {"primary": ["cooling"], "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -9399,8 +9426,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
-                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'single family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -9446,8 +9474,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}},
-                str(['AIA_CZ2', 'multi family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'multi family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -9536,20 +9565,25 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     # microsegment keys that overlap with the above demand-side measures
     measures_overlap1 = {
         "measures": measures_all[2:5],
-        "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])]]}
+        "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))]]}
     # Define the list of demand-side measures and associated contributing
     # microsegment keys that overlap with the above supply-side measures
     measures_overlap2 = {
         "measures": measures_all[0:2],
-        "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows'])]]}
+        "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'demand', 'windows', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'demand', 'windows', 'existing'))]]}
 
     # Instantiate engine object based on above measures
     a_run = run.Engine(measures_all)
@@ -9573,20 +9607,25 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     # microsegment keys that overlap with the above demand-side measures
     measures_overlap1_dist = {
         "measures": measures_all_dist[2:5],
-        "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'supply', 'ASHP'])]]}
+        "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home',
+                       'electricity (grid)',
+                       'cooling', 'supply', 'ASHP', 'existing'))]]}
     # Define the list of demand-side measures and associated contributing
     # microsegment keys that overlap with the above supply-side measures
     measures_overlap2_dist = {
         "measures": measures_all_dist[0:2],
-        "keys": [[str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows'])],
-                 [str(['AIA_CZ1', 'single family home', 'electricity (grid)',
-                       'cooling', 'demand', 'windows'])]]}
+        "keys": [[str(('primary', 'AIA_CZ1', 'single family home', 
+                       'electricity (grid)',
+                       'cooling', 'demand', 'windows', 'existing'))],
+                 [str(('primary', 'AIA_CZ1', 'single family home', 
+                       'electricity (grid)',
+                       'cooling', 'demand', 'windows', 'existing'))]]}
     # Instantiate engine object based on above measures
     a_run_dist = run.Engine(measures_all_dist)
 
@@ -10259,59 +10298,71 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     it correctly calculates market shares and updates master microsegments
     for a series of competing commercial measures"""
 
-    # Define sample string for the competed microsegment key chain being tested
-    overlap_key = str(['AIA_CZ1', 'assembly', 'electricity (grid)',
-                       'lighting', 'reflector (LED)'])
+    # Define sample string for the competed primary microsegment key chain
+    # being tested
+    overlap_key = str(('primary', 'AIA_CZ1', 'assembly', 'electricity (grid)',
+                       'lighting', 'reflector (LED)', 'existing'))
+    # Define sample string for a secondary microsegment associated with the
+    # above primary microsegment
+    overlap_key_scnd = str(('secondary', 'AIA_CZ1', 'assembly',
+                            'electricity (grid)', 'cooling', 'ASHP',
+                            'existing'))
+    # Define the key used to link the primary and secondary microsegments
+    # (common climate zone, building type, and structure type)
+    secnd_adj_key = str(('AIA_CZ1', 'assembly', 'existing'))
 
     # Define master microsegments, the microsegment(s) that contribute to the
     # master microsegment (one of which is being competed), and capital/
     # operating cost information for three competing sample lighting measures
     compete_meas1 = {
         "name": "sample compete measure c1",
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": ["heating", "secondary heating", "cooling"]},
         "master_mseg": {
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
-                    "measure": {"2009": 10, "2010": 10}},
+                    "all": {"2009": 20, "2010": 20},
+                    "measure": {"2009": 20, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
-                    "measure": {"2009": 5, "2010": 5}}},
+                    "all": {"2009": 10, "2010": 10},
+                    "measure": {"2009": 10, "2010": 10}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 20, "2010": 20},
-                    "efficient": {"2009": 15, "2010": 15}},
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 30, "2010": 30}},
                 "competed": {
-                    "baseline": {"2009": 10, "2010": 10},
-                    "efficient": {"2009": 5, "2010": 5}}},
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 10, "2010": 10}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 30, "2010": 30},
-                    "efficient": {"2009": 20, "2010": 20}},
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {"2009": 40, "2010": 40}},
                 "competed": {
-                    "baseline": {"2009": 15, "2010": 15},
-                    "efficient": {"2009": 5, "2010": 5}}},
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 10, "2010": 10}}},
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
-                        "efficient": {"2009": 5, "2010": 5}},
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 10, "2010": 10}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
+                        "baseline": {"2009": 10, "2010": 10},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
-                        "efficient": {"2009": 15, "2010": 15}},
+                        "baseline": {"2009": 40, "2010": 40},
+                        "efficient": {"2009": 30, "2010": 30}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
-                        "efficient": {"2009": 5, "2010": 5}}},
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 10, "2010": 10}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
-                        "efficient": {"2009": 20, "2010": 20}},
+                        "baseline": {"2009": 60, "2010": 60},
+                        "efficient": {"2009": 40, "2010": 40}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
-                        "efficient": {"2009": 5, "2010": 5}}}},
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 10, "2010": 10}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": {"2009": 1, "2010": 1}}},
         "mseg_adjust": {
@@ -10361,12 +10412,79 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 15, "2010": 15},
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}},
+                overlap_key_scnd: {
+                    "stock": {
+                        "total": {
+                            "all": {"2009": 10, "2010": 10},
+                            "measure": {"2009": 10, "2010": 10}},
+                        "competed": {
+                            "all": {"2009": 5, "2010": 5},
+                            "measure": {"2009": 5, "2010": 5}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 20, "2010": 20}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}},
+                            "competed": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "efficient": {"2009": 0, "2010": 0}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 15, "2010": 15}},
+                            "competed": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "baseline": {"2009": 15, "2010": 15},
+                                "efficient": {"2009": 5, "2010": 5}}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
             "competed choice parameters": {
                 overlap_key: {
                     "rate distribution": {
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
-                        "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
+                        "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
+                overlap_key_scnd: {
+                    "rate distribution": {}}},
+            "secondary mseg adjustments": {
+                "stock-and-flow": {
+                    "original stock (total)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (previously captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}},
+                "market share": {
+                    "original stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "original stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -10427,52 +10545,57 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     # point values
     compete_meas1_dist = {
         "name": "sample compete measure c1 dist",
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": ["heating", "secondary heating", "cooling"]},
         "master_mseg": {
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
-                    "measure": {"2009": 10, "2010": 10}},
+                    "all": {"2009": 20, "2010": 20},
+                    "measure": {"2009": 20, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
-                    "measure": {"2009": 5, "2010": 5}}},
+                    "all": {"2009": 10, "2010": 10},
+                    "measure": {"2009": 10, "2010": 10}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 20, "2010": 20},
-                    "efficient": {"2009": 15, "2010": 15}},
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 30, "2010": 30}},
                 "competed": {
-                    "baseline": {"2009": 10, "2010": 10},
-                    "efficient": {"2009": 5, "2010": 5}}},
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 10, "2010": 10}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 30, "2010": 30},
-                    "efficient": {"2009": 20, "2010": 20}},
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {"2009": 40, "2010": 40}},
                 "competed": {
-                    "baseline": {"2009": 15, "2010": 15},
-                    "efficient": {"2009": 5, "2010": 5}}},
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 10, "2010": 10}}},
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
-                        "efficient": {"2009": numpy.array([5, 6, 7]),
-                                      "2010": numpy.array([5, 6, 7])}},
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {
+                            "2009": numpy.array([10, 12, 14]),
+                            "2010": numpy.array([10, 12, 14])}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
-                        "efficient": {"2009": numpy.array([0, 1, 2]),
-                                      "2010": numpy.array([0, 1, 2])}}},
+                        "baseline": {"2009": 10, "2010": 10},
+                        "efficient": {
+                            "2009": numpy.array([0, 2, 4]),
+                            "2010": numpy.array([0, 2, 4])}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
-                        "efficient": {"2009": 15, "2010": 15}},
+                        "baseline": {"2009": 40, "2010": 40},
+                        "efficient": {"2009": 30, "2010": 30}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
-                        "efficient": {"2009": 5, "2010": 5}}},
+                        "baseline": {"2009": 20, "2010": 20},
+                        "efficient": {"2009": 10, "2010": 10}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
-                        "efficient": {"2009": 20, "2010": 20}},
+                        "baseline": {"2009": 60, "2010": 60},
+                        "efficient": {"2009": 40, "2010": 40}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
-                        "efficient": {"2009": 5, "2010": 5}}}},
+                        "baseline": {"2009": 30, "2010": 30},
+                        "efficient": {"2009": 10, "2010": 10}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": {"2009": 1, "2010": 1}}},
         "mseg_adjust": {
@@ -10525,12 +10648,82 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 15, "2010": 15},
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                 "measure": {"2009": 1, "2010": 1}}},
+                overlap_key_scnd: {
+                    "stock": {
+                        "total": {
+                            "all": {"2009": 10, "2010": 10},
+                            "measure": {"2009": 10, "2010": 10}},
+                        "competed": {
+                            "all": {"2009": 5, "2010": 5},
+                            "measure": {"2009": 5, "2010": 5}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {"2009": 20, "2010": 20},
+                            "efficient": {"2009": 15, "2010": 15}},
+                        "competed": {
+                            "baseline": {"2009": 10, "2010": 10},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {"2009": 30, "2010": 30},
+                            "efficient": {"2009": 20, "2010": 20}},
+                        "competed": {
+                            "baseline": {"2009": 15, "2010": 15},
+                            "efficient": {"2009": 5, "2010": 5}}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": numpy.array([5, 6, 7]),
+                                              "2010": numpy.array([5, 6, 7])}},
+                            "competed": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "efficient": {"2009": numpy.array([0, 1, 2]),
+                                              "2010": numpy.array([
+                                                  0, 1, 2])}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 15, "2010": 15}},
+                            "competed": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "baseline": {"2009": 15, "2010": 15},
+                                "efficient": {"2009": 5, "2010": 5}}}},
+                    "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
             "competed choice parameters": {
                 overlap_key: {
                     "rate distribution": {
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
-                        "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
+                        "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
+                overlap_key_scnd: {
+                    "rate distribution": {}}},
+            "secondary mseg adjustments": {
+                "stock-and-flow": {
+                    "original stock (total)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (previously captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}},
+                "market share": {
+                    "original stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "original stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -10608,6 +10801,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas2 = {
         "name": "sample compete measure c2",
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -10702,8 +10898,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
-                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'single family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -10754,6 +10951,25 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "rate distribution": {
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
                         "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
+            "secondary mseg adjustments": {
+                "stock-and-flow": {
+                    "original stock (total)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (previously captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}},
+                "market share": {
+                    "original stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "original stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -10809,6 +11025,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     compete_meas3 = {
         "name": "sample compete measure c3",
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": None},
         "master_mseg": {
             "stock": {
                 "total": {
@@ -10903,8 +11122,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}}},
-                str(['AIA_CZ2', 'single family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'single family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -10950,8 +11170,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                 "efficient": {"2009": 5, "2010": 5}}}},
                     "lifetime": {"baseline": {"2009": 1, "2010": 1},
                                  "measure": {"2009": 1, "2010": 1}}},
-                str(['AIA_CZ2', 'multi family home', 'electricity (grid)',
-                     'lighting', 'reflector (LED)']): {
+                str(('primary', 'AIA_CZ2', 'multi family home',
+                     'electricity (grid)', 'lighting',
+                     'reflector (LED)')): {
                     "stock": {
                         "total": {
                             "all": {"2009": 10, "2010": 10},
@@ -11002,6 +11223,25 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "rate distribution": {
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
                         "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
+            "secondary mseg adjustments": {
+                "stock-and-flow": {
+                    "original stock (total)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (previously captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}},
+                "market share": {
+                    "original stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "original stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (total captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}},
+                    "adjusted stock (competed and captured)": {
+                        secnd_adj_key: {"2009": 0, "2010": 0}}}},
             "supply-demand adjustment": {
                 "savings": {},
                 "total": {}},
@@ -11067,6 +11307,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     # Define list of all competing measures
     measures_compete = [run.Measure(**x) for x in [
         compete_meas1, compete_meas2, compete_meas3]]
+    # Define measures with secondary effects
+    measures_secondary = [measures_compete[0]]
     # Instantiate engine object based on above measures
     a_run = run.Engine(measures_compete)
 
@@ -11076,6 +11318,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     measures_compete_dist = [run.Measure(**x) for x in [
         compete_meas1_dist, copy.deepcopy(compete_meas2),
         copy.deepcopy(compete_meas3)]]
+    # Define measures with secondary effects
+    measures_secondary_dist = [measures_compete_dist[0]]
     # Instantiate engine object based on above measures
     a_run_dist = run.Engine(measures_compete_dist)
 
@@ -11091,47 +11335,47 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     measures_master_msegs = [{
         "stock": {
             "total": {
-                "all": {"2009": 10, "2010": 10},
-                "measure": {"2009": 6, "2010": 6}},
+                "all": {"2009": 20, "2010": 20},
+                "measure": {"2009": 12, "2010": 12}},
             "competed": {
-                "all": {"2009": 5, "2010": 5},
-                "measure": {"2009": 3, "2010": 3}}},
+                "all": {"2009": 10, "2010": 10},
+                "measure": {"2009": 6, "2010": 6}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 20},
-                "efficient": {"2009": 17, "2010": 17}},
+                "baseline": {"2009": 40, "2010": 40},
+                "efficient": {"2009": 34, "2010": 34}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 10},
-                "efficient": {"2009": 7, "2010": 7}}},
+                "baseline": {"2009": 20, "2010": 20},
+                "efficient": {"2009": 14, "2010": 14}}},
         "carbon": {
             "total": {
-                "baseline": {"2009": 30, "2010": 30},
-                "efficient": {"2009": 24, "2010": 24}},
+                "baseline": {"2009": 60, "2010": 60},
+                "efficient": {"2009": 48, "2010": 48}},
             "competed": {
-                "baseline": {"2009": 15, "2010": 15},
-                "efficient": {"2009": 9, "2010": 9}}},
+                "baseline": {"2009": 30, "2010": 30},
+                "efficient": {"2009": 18, "2010": 18}}},
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 10, "2010": 10},
-                    "efficient": {"2009": 7, "2010": 7}},
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 14, "2010": 14}},
                 "competed": {
-                    "baseline": {"2009": 5, "2010": 5},
-                    "efficient": {"2009": 2, "2010": 2}}},
+                    "baseline": {"2009": 10, "2010": 10},
+                    "efficient": {"2009": 4, "2010": 4}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 20, "2010": 20},
-                    "efficient": {"2009": 17, "2010": 17}},
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {"2009": 34, "2010": 34}},
                 "competed": {
-                    "baseline": {"2009": 10, "2010": 10},
-                    "efficient": {"2009": 7, "2010": 7}}},
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {"2009": 14, "2010": 14}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 30, "2010": 30},
-                    "efficient": {"2009": 24, "2010": 24}},
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {"2009": 48, "2010": 48}},
                 "competed": {
-                    "baseline": {"2009": 15, "2010": 15},
-                    "efficient": {"2009": 9, "2010": 9}}}},
+                    "baseline": {"2009": 30, "2010": 30},
+                    "efficient": {"2009": 18, "2010": 18}}}},
         "lifetime": {"baseline": {"2009": 1, "2010": 1},
                      "measure": {"2009": 1, "2010": 1}}},
         {
@@ -11232,71 +11476,71 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     measures_master_msegs_dist = [{
         "stock": {
             "total": {
+                "all": {"2009": 20, "2010": 20},
+                "measure": {
+                    "2009": numpy.array([12, 10, 6]),
+                    "2010": numpy.array([12, 10, 6])}},
+            "competed": {
                 "all": {"2009": 10, "2010": 10},
                 "measure": {
-                    "2009": numpy.array([6, 5, 3]),
-                    "2010": numpy.array([6, 5, 3])}},
-            "competed": {
-                "all": {"2009": 5, "2010": 5},
-                "measure": {
-                    "2009": numpy.array([3.0, 2.5, 1.5]),
-                    "2010": numpy.array([3.0, 2.5, 1.5])}}},
+                    "2009": numpy.array([6.0, 5, 3]),
+                    "2010": numpy.array([6.0, 5, 3])}}},
         "energy": {
             "total": {
+                "baseline": {"2009": 40, "2010": 40},
+                "efficient": {
+                    "2009": numpy.array([34.0, 35, 37]),
+                    "2010": numpy.array([34.0, 35, 37])}},
+            "competed": {
                 "baseline": {"2009": 20, "2010": 20},
                 "efficient": {
-                    "2009": numpy.array([17.0, 17.5, 18.5]),
-                    "2010": numpy.array([17.0, 17.5, 18.5])}},
-            "competed": {
-                "baseline": {"2009": 10, "2010": 10},
-                "efficient": {
-                    "2009": numpy.array([7.0, 7.5, 8.5]),
-                    "2010": numpy.array([7.0, 7.5, 8.5])}}},
+                    "2009": numpy.array([14.0, 15, 17]),
+                    "2010": numpy.array([14.0, 15, 17])}}},
         "carbon": {
             "total": {
+                "baseline": {"2009": 60, "2010": 60},
+                "efficient": {
+                    "2009": numpy.array([48, 50, 54]),
+                    "2010": numpy.array([48, 50, 54])}},
+            "competed": {
                 "baseline": {"2009": 30, "2010": 30},
                 "efficient": {
-                    "2009": numpy.array([24, 25, 27]),
-                    "2010": numpy.array([24, 25, 27])}},
-            "competed": {
-                "baseline": {"2009": 15, "2010": 15},
-                "efficient": {
-                    "2009": numpy.array([9, 10, 12]),
-                    "2010": numpy.array([9, 10, 12])}}},
+                    "2009": numpy.array([18, 20, 24]),
+                    "2010": numpy.array([18, 20, 24])}}},
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 10, "2010": 10},
-                    "efficient": {
-                        "2009": numpy.array([7, 8, 9.1]),
-                        "2010": numpy.array([7, 8, 9.1])}},
-                "competed": {
-                    "baseline": {"2009": 5, "2010": 5},
-                    "efficient": {
-                        "2009": numpy.array([2, 3, 4.1]),
-                        "2010": numpy.array([2, 3, 4.1])}}},
-            "energy": {
-                "total": {
                     "baseline": {"2009": 20, "2010": 20},
                     "efficient": {
-                        "2009": numpy.array([17, 17.5, 18.5]),
-                        "2010": numpy.array([17, 17.5, 18.5])}},
+                        "2009": numpy.array([14, 16, 18.2]),
+                        "2010": numpy.array([14, 16, 18.2])}},
                 "competed": {
                     "baseline": {"2009": 10, "2010": 10},
                     "efficient": {
-                        "2009": numpy.array([7, 7.5, 8.5]),
-                        "2010": numpy.array([7, 7.5, 8.5])}}},
+                        "2009": numpy.array([4, 6, 8.2]),
+                        "2010": numpy.array([4, 6, 8.2])}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 40, "2010": 40},
+                    "efficient": {
+                        "2009": numpy.array([34, 35, 37]),
+                        "2010": numpy.array([34, 35, 37])}},
+                "competed": {
+                    "baseline": {"2009": 20, "2010": 20},
+                    "efficient": {
+                        "2009": numpy.array([14, 15, 17]),
+                        "2010": numpy.array([14, 15, 17])}}},
             "carbon": {
                 "total": {
+                    "baseline": {"2009": 60, "2010": 60},
+                    "efficient": {
+                        "2009": numpy.array([48, 50, 54]),
+                        "2010": numpy.array([48, 50, 54])}},
+                "competed": {
                     "baseline": {"2009": 30, "2010": 30},
                     "efficient": {
-                        "2009": numpy.array([24, 25, 27]),
-                        "2010": numpy.array([24, 25, 27])}},
-                "competed": {
-                    "baseline": {"2009": 15, "2010": 15},
-                    "efficient": {
-                        "2009": numpy.array([9, 10, 12]),
-                        "2010": numpy.array([9, 10, 12])}}}},
+                        "2009": numpy.array([18, 20, 24]),
+                        "2010": numpy.array([18, 20, 24])}}}},
         "lifetime": {"baseline": {"2009": 1, "2010": 1},
                      "measure": {"2009": 1, "2010": 1}}},
         {
@@ -11456,6 +11700,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     def test_compete_com(self):
         # Run the measure competition routine on sample measures
         self.a_run.com_compete(self.measures_compete, self.overlap_key)
+        # Run secondary microsegment adjustments on sample measure
+        self.a_run.secondary_mktshare_adjust(
+            self.measures_secondary, self.overlap_key_scnd)
         # Check outputs for each sample measure after competition
         for ind, d in enumerate(self.a_run.measures):
             # Check updated measure master microsegment
@@ -11472,6 +11719,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         # Run the measure competition routine on sample measures
         self.a_run_dist.com_compete(
             self.measures_compete_dist, self.overlap_key)
+        # Run secondary microsegment adjustments on sample measure
+        self.a_run_dist.secondary_mktshare_adjust(
+            self.measures_secondary_dist, self.overlap_key_scnd)
         # Check outputs for each sample measure after competition
         for ind, d in enumerate(self.a_run_dist.measures):
             # Check updated measure master microsegment
@@ -11502,7 +11752,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
     # case, the two contributing measures overlap)
     overlap_measures = packaged_measure.measures_to_package
     # Set the key name for the overlapping baseline microsegment
-    overlap_key = ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+    overlap_key = ("('primary', AIA_CZ5', 'single family home', "
+                   "'electricity (grid)',"
                    "'cooling', 'supply', 'ASHP', 'new')")
 
     # Set the sample contributing microsegment information that should be
@@ -11511,7 +11762,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
     # needed in 'run.py' to determine measure competition outcomes
     ok_mseg_adjust = [{
         "contributing mseg keys and values": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "stock": {
                     "total": {
@@ -11560,7 +11812,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 18, "2010": 18},
                     "measure": 18}}},
         "competed choice parameters": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
@@ -11570,7 +11823,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
         "savings updated": True},
         {
         "contributing mseg keys and values": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "stock": {
                     "total": {
@@ -11619,7 +11873,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 18, "2010": 18},
                     "measure": 18}}},
         "competed choice parameters": {
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
@@ -11773,7 +12028,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
     # is needed in 'run.py' to determine measure competition outcomes
     ok_mseg_adjust = {
         "contributing mseg keys and values": {
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "stock": {
                     "total": {
@@ -11821,7 +12076,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
@@ -11869,7 +12124,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "stock": {
                     "total": {
@@ -11917,7 +12172,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "lifetime": {
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "stock": {
                     "total": {
@@ -11966,7 +12221,8 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 5, "2010": 5},
                     "measure": 10}},
 
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "stock": {
                     "total": {
@@ -12014,7 +12270,8 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                 "lifetime": {
                     "baseline": {"2009": 1, "2010": 1},
                     "measure": 20}},
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (halogen)', 'existing')"): {
                 "stock": {
                     "total": {
@@ -12063,7 +12320,8 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 2, "2010": 2},
                     "measure": 15}},
 
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "stock": {
                     "total": {
@@ -12112,31 +12370,34 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 18, "2010": 18},
                     "measure": 18}}},
         "competed choice parameters": {
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ1', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ1', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'new')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ2', 'single family home', 'natural gas',"
+            ("('primary', AIA_CZ2', 'single family home', 'natural gas',"
              "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}},
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (incandescent)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
-            ("('AIA_CZ1', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ1', 'single family home', "
+             "'electricity (grid)',"
              "'lighting', 'reflector (halogen)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}},
-            ("('AIA_CZ5', 'single family home', 'electricity (grid)',"
+            ("('primary', AIA_CZ5', 'single family home', "
+             "'electricity (grid)',"
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
