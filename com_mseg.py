@@ -522,8 +522,12 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
     with open(data_file_path) as thefile:
 
         # This use of csv.reader assumes that the default setting of
-        # quotechar '"' is appropriate
-        filecont = csv.reader(thefile, delimiter=delim_char)
+        # quotechar '"' is appropriate; the skipinitialspace option
+        # ensures proper reading of double-quoted text strings in the
+        # AEO data that have the delimiter inside them (e.g., cooking
+        # equipment descriptions)
+        filecont = csv.reader(thefile, delimiter=delim_char,
+                              skipinitialspace=True)
 
         # Create list to be populated with tuples of each row of data
         # from the data file
