@@ -7,6 +7,12 @@ import re
 from numpy.linalg import LinAlgError
 from collections import OrderedDict
 
+# User-specified inputs (placeholders for now, eventually draw from GUI?)
+adopt_scheme = 'Technical potential'  # Determines measure adoption scenario
+adjust_savings = True  # Determines whether measures are competed or not
+retro_rate = 0.02  # Fraction of building stock retrofitted each year
+nsamples = 50  # Number of samples in cases with input distributions
+
 # Define measures/microsegments files
 measures_file = "measures_test.json"
 microsegments_file = "microsegments_out.json"
@@ -60,10 +66,6 @@ com_timeprefs = {
         "lighting": [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027],
         "refrigeration": [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]}}
 
-# User-specified inputs (placeholders for now, eventually draw from GUI?)
-adopt_scheme = 'Technical potential'
-adjust_savings = True
-
 # Define a summary JSON file. For now, yield separate output files for a
 # competed and non-competed case and technical potential and non-technical
 # potential case to help organize test plotting efforts
@@ -75,9 +77,6 @@ elif adopt_scheme is not'Technical potential' and adjust_savings is True:
     json_output_file = "output_summary_competed_nontp.json"
 else:
     json_output_file = "output_summary_noncompeted_nontp.json"
-
-# Set default number of input samples for Monte Carlo runs
-nsamples = 50
 
 # Define end use cases where relative performance calculation should be
 # inverted (i.e., a lower air change rate is an improvement)
@@ -152,8 +151,8 @@ class Measure(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def mseg_find_partition(
-            self, mseg_in, base_costperflife_in, adopt_scheme, out_break_in):
+    def mseg_find_partition(self, mseg_in, base_costperflife_in, adopt_scheme,
+                            out_break_in, retro_rate):
         """ Given an input measure with microsegment selection information and two
         input dicts with AEO microsegment cost and performance and stock and
         energy consumption information, find: 1) total and competed stock,
@@ -864,7 +863,8 @@ class Measure(object):
                                                 intensity_carb_meas,
                                                 new_bldg_frac, diffuse_params,
                                                 adopt_scheme, life_base,
-                                                life_meas, mskeys, mseg_adjust)
+                                                life_meas, mskeys, mseg_adjust,
+                                                retro_rate)
 
                 # Combine stock/energy/carbon/cost/lifetime updating info. into
                 # a dict
@@ -1182,7 +1182,7 @@ class Measure(object):
                                intensity_carb_base, intensity_carb_meas,
                                new_bldg_frac, diffuse_params,
                                adopt_scheme, life_base, life_meas, mskeys,
-                               mseg_adjust):
+                               mseg_adjust, retro_rate):
         """ Partition microsegment to find "competed" stock and energy/carbon
         consumption as well as "efficient" energy consumption (representing
         consumption under the measure).  Also find the cost of the baseline
@@ -1409,8 +1409,14 @@ class Measure(object):
             # Primary microsegment not in the first year where current
             # microsegment applies to existing structure type
             elif mskeys[0] == "primary" and mskeys[-1] == "existing":
-                competed_frac = captured_base_replace_frac + \
-                    captured_eff_replace_frac
+                # Ensure that replacement plus retrofit fraction does not
+                # exceed 1
+                if captured_base_replace_frac + captured_eff_replace_frac + \
+                   retro_rate <= 1:
+                    competed_frac = captured_base_replace_frac + \
+                        captured_eff_replace_frac + retro_rate
+                else:
+                    competed_frac = 1
             # For all other cases, set competed fraction to 0
             else:
                 competed_frac = 0
@@ -2228,8 +2234,8 @@ class Engine(object):
             # Find master microsegment and partitions, as well as measure
             # savings overlaps and markets/savings output breakout information
             m.master_mseg, m.mseg_adjust, m.mseg_out_break = \
-                m.mseg_find_partition(
-                    mseg_in, base_costperflife_in, adopt_scheme, out_break_in)
+                m.mseg_find_partition(mseg_in, base_costperflife_in, adopt_scheme,
+                                      out_break_in, retro_rate)
             # Update savings outcomes and economic metrics
             # based on master microsegment
             m.master_savings = m.calc_metric_update(
