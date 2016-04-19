@@ -8,8 +8,31 @@ import numpy as np
 import re
 import warnings
 
-# Identify files to import for processing and conversion
-cpl_data = 'ktek.csv'
+
+# Set up class to contain what would otherwise be global variables
+class UsefulVars(object):
+    """Set up class to contain what would otherwise be global variables.
+
+    Attributes:
+        cpl_data (str): File name for the EIA AEO technology data.
+        json_in (str): File name for the input JSON database.
+        cpl_data_skip_lines (int): The number of lines of preamble that
+            must be skipped at the beginning of the EIA AEO technology
+            data file.
+        columns_to_keep (list): A list of strings defining the columns
+            from the EIA AEO technology data file that are required.
+    """
+
+    def __init__(self):
+        # Identify files to import for processing and conversion
+        self.cpl_data = 'ktek.csv'
+        self.json_in = 'microsegments.json'
+
+        # Define the number of header lines in the ktek data file to
+        # skip and the names of the columns to keep from the ktek data
+        self.cpl_data_skip_lines = 100
+        self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
+                                'Life', 'y1', 'y2', 'technology name']
 
 
 def units_id(sel, flag):
@@ -614,19 +637,18 @@ def main():
     input and output file names to be available as global variables.
     """
 
-    # Define the number of header lines in the ktek data file to skip
-    # and the names of the columns to keep from the ktek data
-    cpl_data_skip_lines = 100
-    columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
-                       'Life', 'y1', 'y2', 'technology name']
+    # Instantiate object that contains useful variables
+    handyvars = UsefulVars()
 
     # Import technology cost, performance, and lifetime data in
     # EIA AEO 'KTEK' data file
-    tech_dtypes = cm.dtype_array(cpl_data, ',', cpl_data_skip_lines)
-    col_indices, tech_dtypes = dtype_reducer(tech_dtypes, columns_to_keep)
+    tech_dtypes = cm.dtype_array(handyvars.cpl_data, ',',
+                                 handyvars.cpl_data_skip_lines)
+    col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
+                                             handyvars.columns_to_keep)
     tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
-    tech_data = cm.data_import(cpl_data, tech_dtypes, ',',
-                               cpl_data_skip_lines, col_indices)
+    tech_data = cm.data_import(handyvars.cpl_data, tech_dtypes, ',',
+                               handyvars.cpl_data_skip_lines, col_indices)
 
     # Import EIA AEO 'KSDOUT' service demand data
     serv_dtypes = cm.dtype_array(cm.serv_dmd)
