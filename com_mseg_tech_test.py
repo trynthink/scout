@@ -6,6 +6,43 @@ import com_mseg_tech as cmt
 # Import packages
 import unittest
 import numpy as np
+import os
+import csv
+
+
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
+class EIADataFileIntegrityTest(unittest.TestCase):
+    """ Test for the presence of the anticipated column headings in
+    the EIA commercial buildings technology characteristics data file
+    and report when any required columns are missing. """
+
+    @classmethod  # so that set up is run once for the entire class
+    def setUpClass(self):
+        # Instantiate object from com_mseg_tech that contains useful variables
+        self.usefulvars = cmt.UsefulVars()
+
+        # Open the EIA data file, extract the header row, and reformat
+        # the text in each entry for easier handling, producing a list
+        # of strings for the column titles
+        with open(self.usefulvars.cpl_data, 'r') as tech:
+            tech_fl = csv.reader(tech)
+
+            # Skip content preceding header row
+            for i in range(0, self.usefulvars.cpl_data_skip_lines):
+                next(tech_fl)
+
+            self.tech_head = [entry.strip() for entry in next(tech_fl)]
+
+    # Check that the EIA ktek data includes the desired columns
+    # to be imported for processing
+    def test_integrity_of_commercial_technology_characteristics_data(self):
+
+        # Check for the presence of each of the desired column headings
+        for head in self.usefulvars.columns_to_keep:
+            self.assertTrue(head in self.tech_head, msg='Column ' + head +
+                            (' is missing from the technology data file.'))
 
 
 class CommonUnitTest(unittest.TestCase):
