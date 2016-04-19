@@ -7,6 +7,7 @@ import com_mseg as cm
 import numpy as np
 import re
 import warnings
+import json
 
 
 # Set up class to contain what would otherwise be global variables
@@ -577,6 +578,65 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
     return complete_mseg_tech_data
 
 
+def walk(tech_data, serv_data, years, json_db, key_list=[]):
+    """Recursively explore the JSON structure and add the appropriate data.
+
+    Note that this walk function and the data processing function
+    ('mseg_techology_handler') are set up slightly differently than in
+    com_mseg. Here, the json_interpreter function is called before the
+    data processing function and the numeric indices are passed to the
+    function, rather than sending the list of keys from the JSON to
+    that function and calling json_interpreter within the function.
+
+    Args:
+        tech_data (numpy.ndarray): A numpy structured array of the
+            EIA technology data, including the cost, performance,
+            and lifetime of individual technologies.
+        serv_data (numpy.ndarray): A numpy structured array of the
+            EIA service demand data.
+        years (list): A list of the years (YYYY) of data to be converted.
+        json_db (dict): The nested dict structure of the empty or
+            partially complete database to be populated with new data.
+        key_list (list): The list of keys that define the current
+            location in the database structure.
+
+    Returns:
+        A complete and populated dict structure for the JSON database.
+    """
+
+    # Explore data structure from current level
+    for key, item in json_db.items():
+
+        # If there are additional levels in the dict, call the function
+        # again to advance another level deeper into the data structure
+        if isinstance(item, dict):
+            walk(tech_data, serv_data, years, item, key_list + [key])
+
+        # If a leaf node has been reached, check if the second entry in
+        # the key list is one of the recognized building types, and if
+        # so, finish constructing the key list for the current location
+        # and obtain the data to update the dict
+        else:
+            if key_list[1] in cm.bldgtypedict.keys():
+                leaf_node_keys = key_list + [key]
+
+                # Convert keys into integers that define the microsegment
+                mseg_codes = cm.json_interpreter(leaf_node_keys)
+
+                # Skip all demand microsegments and end uses coded > 7
+                if 'demand' not in leaf_node_keys and mseg_codes[2] <= 7:
+
+                    # Extract data from original data sources
+                    data_dict = mseg_technology_handler(tech_data, serv_data,
+                                                        mseg_codes, years)
+
+                    # Set dict key to extracted data
+                    json_db[key] = data_dict
+
+    # Return filled database structure
+    return json_db
+
+
 def dtype_reducer(the_dtype, wanted_cols):
     """Remove extraneous columns from the dtype definition.
 
@@ -654,6 +714,20 @@ def main():
     serv_dtypes = cm.dtype_array(cm.serv_dmd)
     serv_data = cm.data_import(cm.serv_dmd, serv_dtypes)
     serv_data = cm.str_cleaner(serv_data, 'Description')
+
+    # Define years vector
+    years = list(range(2009, 2041))
+
+    # Import empty microsegments JSON file and traverse database structure
+    with open(handyvars.json_in, 'r') as jsi:
+        msjson = json.load(jsi)
+
+        # Proceed recursively through database structure
+        result = walk(tech_data, serv_data, years, msjson)
+
+    # Write the updated dict of data to a new JSON file
+    with open(cm.json_out, 'w') as jso:
+        json.dump(result, jso, indent=2)
 
 if __name__ == '__main__':
     main()
