@@ -2247,25 +2247,25 @@ class CostAndPerformanceDataExtractionTest(CommonUnitTest):
     # Test equality of the dicts of cost data generated for each technology
     def test_cost_selection_and_conversion(self):
         for idx, input_array in enumerate(self.reduced_tech_data):
-            self.dict_check(
-                cmt.cost_perf_extractor(input_array,
-                                        self.selected_sd_data[idx],
-                                        self.selected_sd_names[idx],
-                                        self.tmp_yrs,
-                                        'cost'),
-                self.result_cost[idx])
+            cost_data, non_matched_names = cmt.cost_perf_extractor(
+                input_array,
+                self.selected_sd_data[idx],
+                self.selected_sd_names[idx],
+                self.tmp_yrs,
+                'cost')
+            self.dict_check(cost_data, self.result_cost[idx])
 
     # Test equality of the dicts of performance (i.e., energy efficiency)
     # data generated for each technology
     def test_performance_selection_and_conversion(self):
         for idx, input_array in enumerate(self.reduced_tech_data):
-            self.dict_check(
-                cmt.cost_perf_extractor(input_array,
-                                        self.selected_sd_data[idx],
-                                        self.selected_sd_names[idx],
-                                        self.tmp_yrs,
-                                        'performance'),
-                self.result_perf[idx])
+            perf_data, non_matched_names = cmt.cost_perf_extractor(
+                input_array,
+                self.selected_sd_data[idx],
+                self.selected_sd_names[idx],
+                self.tmp_yrs,
+                'performance')
+            self.dict_check(perf_data, self.result_perf[idx])
 
 
 class LifetimeDataExtractionTest(CommonUnitTest):
@@ -2277,8 +2277,7 @@ class LifetimeDataExtractionTest(CommonUnitTest):
     # each technology
     def test_lifetime_selection_and_conversion(self):
         for idx, input_array in enumerate(self.reduced_tech_data):
-            self.dict_check(cmt.life_extractor(input_array,
-                                               self.tmp_yrs),
+            self.dict_check(cmt.life_extractor(input_array, self.tmp_yrs),
                             self.result_life[idx])
 
 
@@ -2312,10 +2311,9 @@ class TechnologyDataHandlerTest(CommonUnitTest):
                 unique_data_to_select.append(an_mseg)
 
         for idx, selected in enumerate(unique_data_to_select):
-            self.dict_check(
-                cmt.mseg_technology_handler(self.tech_data, self.sd_data,
-                                            selected, self.tmp_yrs),
-                self.tech_master_dict[idx])
+            mseg_dict, non_matched_names = cmt.mseg_technology_handler(
+                self.tech_data, self.sd_data, selected, self.tmp_yrs)
+            self.dict_check(mseg_dict, self.tech_master_dict[idx])
 
 
 class ChoiceModelParametersExtractionTest(CommonUnitTest):

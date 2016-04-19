@@ -10,7 +10,6 @@ import warnings
 import json
 
 
-# Set up class to contain what would otherwise be global variables
 class UsefulVars(object):
     """Set up class to contain what would otherwise be global variables.
 
@@ -37,7 +36,7 @@ class UsefulVars(object):
 
 
 def units_id(sel, flag):
-    """ Provides a units text string for a specified microsegment.
+    """Provides a units text string for a specified microsegment.
 
     Depending on the end use number given in the sel list, which
     specifies the entire microsegment, this function returns the
@@ -154,7 +153,7 @@ def sd_data_selector(sd_data, sel, years):
 
 
 def single_tech_selector(tech_array, specific_name):
-    """Extracts a single technoogy from tech data for an entire microsegment.
+    """Extracts a single technology from tech data for an entire microsegment.
 
     Each microsegment is comprised of multiple technologies. Cost,
     performance, and lifetime data are needed for each technology in a
@@ -246,7 +245,9 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     Returns:
         A top-level dict with keys for the 'typical' and 'maximum' cost
         or performance cases, and child dicts for each case with values
-        reported for each year in years.
+        reported for each year in years. Also a list of technology
+        names that didn't match between the technology cost,
+        performance, and lifetime data and the service demand data.
     """
 
     # Using the string in the 'flag' argument, set a variable
@@ -267,6 +268,9 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     # and service demand data
     val = np.zeros([n_entries, n_years])
     select_sd = np.zeros([n_entries, n_years])
+
+    # Preallocate list of non-matching technology names
+    non_matching_tech_names = []
 
     for idx, row in enumerate(single_tech_array):
         # Determine the starting and ending column indices for the
@@ -290,16 +294,43 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
         # is before the first year in years, do not update the service
         # demand data array used later to calculate val_mean and val_max
         if idx_en > 0:
+            # The technology name from the ktek data must be updated to have
+            # formatting consistent with the slightly different service
+            # demand data technology names
+
+            # Identify technology name for the current row of the ktek data
+            name_from_ktek = row['technology name']
+
+            # Check to see if either an ampersand or double-quote
+            # symbol is present in the ktek technology name string
+            ampersand_present = re.search('&', name_from_ktek)
+            quote_present = re.search('"', name_from_ktek)
+
+            # For matching purposes, replace the ampersand and quote
+            # symbols with the HTML-like strings that appear in the
+            # service demand data
+            if ampersand_present:
+                name_from_ktek = re.sub('&', '&amp;', name_from_ktek)
+            elif quote_present:
+                name_from_ktek = re.sub('"', '&quot;', name_from_ktek)
+
+            # Truncate technology name string from technology data to
+            # 44 characters since all string descriptors in the service
+            # demand data are limited to that length, then remove any
+            # trailing spaces that might create text matching problems
+            name_from_ktek = name_from_ktek[:44].strip()
+
             # Find the matching row in service demand data by comparing
             # the row technology name to sd_names and use that index to
             # extract the service demand data and insert them into the
             # service demand array in the same row as the corresponding
             # cost data
-            select_sd[idx, ] = sd_array[
-                sd_names.index(row['technology name'][:44]), ]
-            # Truncate technology name string from technology data to 44
-            # characters since all string descriptors in the service
-            # demand data are limited to that length
+            try:
+                select_sd[idx, ] = sd_array[sd_names.index(name_from_ktek), ]
+            except ValueError:
+                # If no match is found, add the unmatched technology
+                # name to a list
+                non_matching_tech_names.append(name_from_ktek)
 
     # Normalize the service demand data to simplify the calculation of
     # the service demand-weighted arithmetic mean of the desired data
@@ -330,7 +361,7 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     final_dict = {'typical': dict(zip(map(str, years), val_mean)),
                   'best': dict(zip(map(str, years), val_max))}
 
-    return final_dict
+    return final_dict, non_matching_tech_names
 
 
 def life_extractor(single_tech_array, years):
@@ -515,7 +546,10 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
     Returns:
         A dict that specifies the cost, performance, and lifetime on
         a technology-specific basis for all of the technologies in the
-        microsegment indicated by the 'sel' argument.
+        microsegment indicated by the 'sel' argument. Also a list of
+        the technology names in the microsegment that did not match
+        between the cost, performance, and lifetime data and the
+        service demand data.
     """
 
     # Instantiate a master dict for this microsegment
@@ -535,6 +569,9 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
     # included in this microsegment
     tech_names_list = tech_names_extractor(filtered_tech_data)
 
+    # Preallocate a list of non-matching technology names for this microsegment
+    mseg_non_matching_names = []
+
     # Extract the cost, performance, and lifetime data for each
     # technology in this microsegment, insert those data into a dict
     # with the correct structure, and append that dict to the master
@@ -546,15 +583,21 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
 
         # Extract the cost data, restructure into the appropriate dict
         # format, and append the units and data source
-        the_cost = cost_perf_extractor(single_tech_data, filtered_sd_data,
-                                       sd_names_list, years, 'cost')
+        the_cost, cost_non_matching_names = cost_perf_extractor(
+            single_tech_data,
+            filtered_sd_data,
+            sd_names_list,
+            years, 'cost')
         the_cost['units'] = the_cost_units
         the_cost['source'] = 'EIA AEO'
 
         # Extract the performance data, restructure into the appropriate
         # dict format, and append the units and data source
-        the_perf = cost_perf_extractor(single_tech_data, filtered_sd_data,
-                                       sd_names_list, years, 'performance')
+        the_perf, _ = cost_perf_extractor(
+            single_tech_data,
+            filtered_sd_data,
+            sd_names_list,
+            years, 'performance')
         the_perf['units'] = the_performance_units
         the_perf['source'] = 'EIA AEO'
 
@@ -575,10 +618,18 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
         # entire microsegment
         complete_mseg_tech_data[tech] = tech_data_dict
 
-    return complete_mseg_tech_data
+        # If there were any non-matching names identified, replace the
+        # preallocated empty list with the list of non-matching names;
+        # note that only the non-matching names from the cost case are
+        # included here since the list of names will be the same for
+        # either the cost or performance data extraction
+        if cost_non_matching_names:
+            mseg_non_matching_names = cost_non_matching_names
+
+    return complete_mseg_tech_data, mseg_non_matching_names
 
 
-def walk(tech_data, serv_data, years, json_db, key_list=[]):
+def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
     """Recursively explore the JSON structure and add the appropriate data.
 
     Note that this walk function and the data processing function
@@ -599,9 +650,13 @@ def walk(tech_data, serv_data, years, json_db, key_list=[]):
             partially complete database to be populated with new data.
         key_list (list): The list of keys that define the current
             location in the database structure.
+        no_match_names (list): A list of names of technologies found in
+             the cost, performance, and lifetime data, but not in the
+             service demand data.
 
     Returns:
-        A complete and populated dict structure for the JSON database.
+        A complete and populated dict structure for the JSON database,
+        and a list of all technology names that did not find a match.
     """
 
     # Explore data structure from current level
@@ -627,14 +682,18 @@ def walk(tech_data, serv_data, years, json_db, key_list=[]):
                 if 'demand' not in leaf_node_keys and mseg_codes[2] <= 7:
 
                     # Extract data from original data sources
-                    data_dict = mseg_technology_handler(tech_data, serv_data,
-                                                        mseg_codes, years)
+                    data_dict, non_matching_names = mseg_technology_handler(
+                        tech_data, serv_data, mseg_codes, years)
 
                     # Set dict key to extracted data
                     json_db[key] = data_dict
 
-    # Return filled database structure
-    return json_db
+                    # If non-matching names are identified, add them to
+                    # the existing list of non-matched technology names
+                    if non_matching_names:
+                        no_match_names.extend(non_matching_names)
+
+    return json_db, no_match_names
 
 
 def dtype_reducer(the_dtype, wanted_cols):
@@ -723,7 +782,21 @@ def main():
         msjson = json.load(jsi)
 
         # Proceed recursively through database structure
-        result = walk(tech_data, serv_data, years, msjson)
+        result, stuff = walk(tech_data, serv_data, years, msjson)
+
+        # Print warning message to the standard out with a unique
+        # (i.e., non-repeating) list of technologies that didn't have
+        # a match between the two data sets and thus were not added
+        # to the aggregated cost or performance data in the output JSON
+        if stuff:
+            text = ('Warning: some technologies reported in the '
+                    'technology characteristics data were not found to '
+                    'have corresponding service demand data and were '
+                    'thus excluded from the reported technology cost: '
+                    'and performance:')
+            print(text)
+            for item in sorted(list(set(stuff))):
+                print('   ' + item)
 
     # Write the updated dict of data to a new JSON file
     with open(cm.json_out, 'w') as jso:
