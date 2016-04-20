@@ -3,6 +3,7 @@
 # Import commercial microsegments code to use some of its data
 # reading and processing functions
 import com_mseg as cm
+import mseg
 
 import numpy as np
 import re
@@ -16,6 +17,9 @@ class UsefulVars(object):
     Attributes:
         cpl_data (str): File name for the EIA AEO technology data.
         json_in (str): File name for the input JSON database.
+        com_climate_convert_rev (str): File name for the input census
+            division to climate zone conversion factors for the cost,
+            performance, and lifetime data.
         cpl_data_skip_lines (int): The number of lines of preamble that
             must be skipped at the beginning of the EIA AEO technology
             data file.
@@ -27,6 +31,8 @@ class UsefulVars(object):
         # Identify files to import for processing and conversion
         self.cpl_data = 'ktek.csv'
         self.json_in = 'microsegments.json'
+        self.com_climate_convert_rev = ('Com_Cdiv_Czone_ConvertTable'
+                                        '_Rev_Final.txt')
 
         # Define the number of header lines in the ktek data file to
         # skip and the names of the columns to keep from the ktek data
@@ -750,10 +756,19 @@ def dtype_reducer(the_dtype, wanted_cols):
 def main():
     """Import external data files, process contents, and generate output data.
 
-    This function imports the required EIA data files and calls the
+    This function imports the required EIA data files with the relevant
+    cost, performance, and equipment lifetime data and calls the
     appropriate functions to convert their contents into the JSON file
-    format and nested structure expected. This function expects the
-    input and output file names to be available as global variables.
+    format and nested structure expected. After extracting the data
+    from the original EIA source files, they are converted from a
+    census division to a climate zone basis.
+
+    The census division to climate zone conversion data file appropriate
+    for the cost, performance, and lifetime data is formatted such that
+    the translation factors act as weights to compute a weighted average
+    of the cost, performance, and lifetime values reported. This file is
+    different from the file used for the conversion for the energy data
+    and is specific to commercial buildings.
     """
 
     # Instantiate object that contains useful variables
@@ -777,6 +792,14 @@ def main():
     # Define years vector
     years = list(range(2009, 2041))
 
+    # Import census division to climate zone conversion data, using
+    # the appropriate file for weighting the cost, performance, and
+    # lifetime data
+    czone_cdiv_conversion = np.genfromtxt(handyvars.com_climate_convert_rev,
+                                          names=True,
+                                          delimiter='\t',
+                                          dtype=None)
+
     # Import empty microsegments JSON file and traverse database structure
     with open(handyvars.json_in, 'r') as jsi:
         msjson = json.load(jsi)
@@ -797,6 +820,9 @@ def main():
             print(text)
             for item in sorted(list(set(stuff))):
                 print('   ' + item)
+
+        # Convert the updated data from census division to climate breakdown
+        result = mseg.clim_converter(result, czone_cdiv_conversion)
 
     # Write the updated dict of data to a new JSON file
     with open(cm.json_out, 'w') as jso:
