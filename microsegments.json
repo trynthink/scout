@@ -682,6 +682,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -800,6 +802,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -918,6 +922,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1036,6 +1042,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1154,6 +1162,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1272,6 +1282,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1390,6 +1402,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1508,6 +1522,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1626,6 +1642,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1744,6 +1762,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -1862,6 +1882,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -2663,6 +2685,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -2781,6 +2805,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -2899,6 +2925,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3017,6 +3045,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3135,6 +3165,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3253,6 +3285,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3371,6 +3405,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3489,6 +3525,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3607,6 +3645,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3725,6 +3765,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -3843,6 +3885,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -4644,6 +4688,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -4762,6 +4808,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -4880,6 +4928,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -4998,6 +5048,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5116,6 +5168,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5234,6 +5288,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5352,6 +5408,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5470,6 +5528,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5588,6 +5648,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5706,6 +5768,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -5824,6 +5888,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -6625,6 +6691,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -6743,6 +6811,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -6861,6 +6931,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -6979,6 +7051,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7097,6 +7171,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7215,6 +7291,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7333,6 +7411,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7451,6 +7531,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7569,6 +7651,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7687,6 +7771,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -7805,6 +7891,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -8606,6 +8694,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -8724,6 +8814,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -8842,6 +8934,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -8960,6 +9054,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9078,6 +9174,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9196,6 +9294,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9314,6 +9414,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9432,6 +9534,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9550,6 +9654,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9668,6 +9774,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -9786,6 +9894,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -10587,6 +10697,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -10705,6 +10817,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -10823,6 +10937,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -10941,6 +11057,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11059,6 +11177,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11177,6 +11297,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11295,6 +11417,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11413,6 +11537,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11531,6 +11657,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11649,6 +11777,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -11767,6 +11897,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -12568,6 +12700,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -12686,6 +12820,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -12804,6 +12940,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -12922,6 +13060,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13040,6 +13180,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13158,6 +13300,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13276,6 +13420,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13394,6 +13540,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13512,6 +13660,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13630,6 +13780,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -13748,6 +13900,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -14549,6 +14703,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -14667,6 +14823,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -14785,6 +14943,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -14903,6 +15063,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15021,6 +15183,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15139,6 +15303,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15257,6 +15423,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15375,6 +15543,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15493,6 +15663,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15611,6 +15783,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -15729,6 +15903,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -16530,6 +16706,8 @@
 			}
 			},
 		"assembly": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -16648,6 +16826,8 @@
 			}
 			},
 		"education": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -16766,6 +16946,8 @@
 			}
 			},
 		"food sales": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -16884,6 +17066,8 @@
 			}
 			},
 		"food service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17002,6 +17186,8 @@
 			}
 			},
 		"health care": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17120,6 +17306,8 @@
 			}
 			},
 		"lodging": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17238,6 +17426,8 @@
 			}
 			},
 		"large office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17356,6 +17546,8 @@
 			}
 			},
 		"small office": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17474,6 +17666,8 @@
 			}
 			},
 		"mercantile/service": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17592,6 +17786,8 @@
 			}
 			},
 		"warehouse": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
@@ -17710,6 +17906,8 @@
 			}
 			},
 		"other": {
+			"total square footage": 0,
+			"new square footage": 0,
 			"electricity": {
 				"heating": {
 					"demand": {
