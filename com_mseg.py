@@ -107,43 +107,78 @@ demand_typedict = {'windows conduction': 'WIND_COND',
 
 
 def json_interpreter(key_series):
-    """ Change the list of strings acquired from the JSON database into
-    a format that can be used to extract data from the applicable array.
+    """Convert strings in JSON database into codes for data extraction.
 
-    This function is fairly brittle and assumes that when it is called,
-    the input data are already correctly formatted as a list of strings
-    in the order [census division, building type, end use, fuel type] """
+    From a list of strings acquired from the JSON database, this
+    function converts them into a format that can be used to extract
+    data from the applicable array.
 
-    # Since the JSON database is formatted with fuel type before end
-    # use, switch the order of the end use and fuel type entries in the
-    # key_series list
-    key_series[2], key_series[3] = key_series[3], key_series[2]
+    This function is configured with the assumption that the keys are
+    provided in the order: census division, building type, fuel type,
+    and end use (and optionally MEL type or 'demand' and demand type).
+    This function reverses fuel type and end use to be in the order
+    used in the EIA data files.
 
-    # Set up list of dict names in the order specified above
-    dict_names = [cdivdict, bldgtypedict, endusedict, fueldict]
+    Args:
+        key_series (list): A list of strings assembled by the walk
+            function representing the definition of a leaf node in
+            the microsegments JSON data structure.
+
+    Returns:
+        A list of numbers and (sometimes) strings that are used to
+        extract data from the relevant files. There may be up to four
+        numeric entries in the first four positions in the list,
+        specifying the census division, building type, fuel type,
+        and end use, with a fifth position occupied by a string or
+        number in the case of demand or MELs data, respectively.
+    """
+
+    # Separate handling for key_series for square footage data, where
+    # key_series has only three entries, and complete microsegments,
+    # which have at least four entries
+    if 'total square footage' in key_series or \
+       'new square footage' in key_series:
+        # Set up a list of dict names for the square footage data,
+        # which are only specified on a census division and building
+        # type basis
+        dict_names = [cdivdict, bldgtypedict]
+
+        # Replicate key_series as keys
+        keys = key_series
+    else:
+        # Create a copy of key_series that can be modified without
+        # changing the original contents in key_series
+        keys = key_series.copy()
+
+        # Since the JSON database is formatted with fuel type before
+        # end use, switch the order of the end use and fuel type
+        # entries in the keys list
+        keys[2], keys[3] = keys[3], keys[2]
+
+        # Set up list of dict names in the order specified in the
+        # function docstring
+        dict_names = [cdivdict, bldgtypedict, endusedict, fueldict]
 
     # Convert keys from the JSON into a new list using the translation
     # dicts defined at the top of this file
     interpreted_values = []
     for idx, dict_name in enumerate(dict_names):
-        interpreted_values.append(dict_name[key_series[idx]])
+        interpreted_values.append(dict_name[keys[idx]])
 
     # If the end use is heating or cooling, either demand or supply
     # will be specified in the 5th position in the list; if demand is
     # indicated, the demand component should be included in the output
-    if 'demand' in key_series:
+    if 'demand' in keys:
         # Interpret the demand component specified and append to the list
-        interpreted_values.append(demand_typedict[key_series[5]])
+        interpreted_values.append(demand_typedict[keys[5]])
 
     # If the end use is miscellaneous electric loads ('MELs'),
-    # key_series will have one additional entry, which should be
+    # keys will have one additional entry, which should be
     # processed against the dict 'mels_techdict'
-    if 'MELs' in key_series:
+    if 'MELs' in keys:
         # Interpret the MEL type specified and append to the list
-        interpreted_values.append(mels_techdict[key_series[4]])
+        interpreted_values.append(mels_techdict[keys[4]])
 
-    # interpreted_values is a list in the order r,b,s,f with an
-    # additional optional entry for the demand component or MEL type
     return interpreted_values
 
 
@@ -242,21 +277,44 @@ def sd_mseg_percent(sd_array, sel):
 
 
 def catg_data_selector(db_array, sel, section_label):
-    """ This function generally extracts a subset of the data available
-    in the array that contains data from the commercial building energy
-    data file ('catg_dmd'). The subset is based on the type of data,
-    indicated in the 'Label' column of the array and specified in the
-    variable 'section_label'. The 'sel' variable specifies the desired
-    census division, building type, end use, and fuel type. """
+    """Extracts a specified subset from the commercial building data array.
+
+    This function generally extracts a subset of the data available in
+    the commercial building data file. The particular subset is based
+    on type of data, indicated in the 'Label' column of the array and
+    specified by the variable 'section_label', and the 'sel' variable,
+    which specifies the desired census division and building type, and
+    if applicable, end use/MEL type, and fuel type.
+
+    Args:
+        db_array (numpy.ndarray): An array of commercial building data,
+            including total energy use by end use/fuel type and all
+            MELs types, new and surviving square footage, and other
+            parameters.
+        sel (list): A list of integers that specifies the desired
+            census division, building type, end use, and fuel type.
+        section_label (str): The name of the particular data to be extracted.
+
+    Returns:
+        A numpy structured array with columns for only the year and
+        magnitude of the data corresponding to 'sel' and 'section_label'.
+    """
 
     # Filter main EIA commercial data array based on the relevant
     # section label, and then filter further based on the specified
-    # division, building type, end use, and fuel type
-    filtered = db_array[np.all([db_array['Label'] == section_label,
-                                db_array['Division'] == sel[0],
-                                db_array['BldgType'] == sel[1],
-                                db_array['EndUse'] == sel[2],
-                                db_array['Fuel'] == sel[3]], axis=0)]
+    # division, building type, end use, and fuel type - unless the
+    # section_label indicates square footage data, which are specified
+    # by only census division and building type
+    if 'SurvFloorTotal' in section_label or 'CMNewFloorSpace' in section_label:
+        filtered = db_array[np.all([db_array['Label'] == section_label,
+                                    db_array['Division'] == sel[0],
+                                    db_array['BldgType'] == sel[1]], axis=0)]
+    else:
+        filtered = db_array[np.all([db_array['Label'] == section_label,
+                                    db_array['Division'] == sel[0],
+                                    db_array['BldgType'] == sel[1],
+                                    db_array['EndUse'] == sel[2],
+                                    db_array['Fuel'] == sel[3]], axis=0)]
 
     # Adjust years reported based on the pivot year
     filtered['Year'] = filtered['Year'] + pivot_year
@@ -273,15 +331,41 @@ def catg_data_selector(db_array, sel, section_label):
     return desired_cols
 
 
-def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
-    """ At each leaf/terminal node in the microsegments JSON, this
+def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
+    """Restructure data for each terminal node in the microsegments JSON.
+
+    At each leaf/terminal node in the microsegments JSON, this
     function is used to convert data from the source arrays into dicts
-    to be written to the microsegments database at that location. The
-    applicable data is obtained for a given semi-microsegment (i.e.,
-    census division, building type, end use, and fuel type) from the
-    commercial building energy (and other) data ('db_array') and, if
-    applicable, the thermal load factors ('load_array') or technology-
-    specific data ('sd_array'). """
+    to be written to the microsegments database at the current node.
+    The applicable data is obtained for a given semi-microsegment
+    (census division and building type for square footage data, and
+    end use and fuel type for energy use data) from the commercial
+    building energy data and, if applicable, the thermal load
+    components and technology-specific performance (i.e., service
+    demand) data.
+
+    Args:
+        db_array (numpy.ndarray): An array of commercial building data,
+            including total energy use by end use/fuel type and all
+            MELs types, new and surviving square footage, and other
+            parameters.
+        sd_array (numpy.ndarray): Service demand data for commercial
+            building equipment, given by technology and performance level.
+        load_array (numpy.ndarray): Thermal load components data
+            (i.e., energy exchange between buildings and their
+            surroundings through walls, foundations, etc.) for
+            commercial buildings, specified by census division,
+            building type, and heating/cooling season.
+        key_series (list): The set of strings that describe the
+            current terminal node in the JSON database for which data
+            should be generated.
+        sd_end_uses (list): The numbers corresponding to the end uses
+            that have service demand data.
+
+    Returns:
+        A dict with data appropriate for the current location in the
+        JSON specified by 'key_series'.
+    """
 
     # Convert the list of keys into a list of numeric indices that can
     # be used to select the appropriate data
@@ -338,6 +422,20 @@ def energy_select(db_array, sd_array, load_array, key_series, sd_end_uses):
 
         # Convert into dict with years as keys and energy as values
         final_dict = dict(zip(subset['Year'], subset['Amount']))
+    elif 'new square footage' in key_series:
+        # Extract the relevant data from KDBOUT
+        subset = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
+
+        # Convert into dict with years as keys and new square footage as values
+        final_dict = dict(zip(subset['Year'], subset['Amount']))
+    elif 'total square footage' in key_series:
+        # Extract the relevant data from KDBOUT
+        sub1 = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
+        sub2 = catg_data_selector(db_array, index_series, 'SurvFloorTotal')
+
+        # Combine the surviving floor space and new floor space
+        # quantities and construct into final dict
+        final_dict = dict(zip(sub1['Year'], sub1['Amount'] + sub2['Amount']))
     elif index_series[2] in sd_end_uses:
         # Extract the relevant data from KDBOUT
         subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
@@ -399,8 +497,8 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
                 leaf_node_keys = key_list + [key]
 
                 # Extract data from original data sources
-                data_dict = energy_select(db_array, sd_array, load_array,
-                                          leaf_node_keys, sd_end_uses)
+                data_dict = data_handler(db_array, sd_array, load_array,
+                                         leaf_node_keys, sd_end_uses)
 
                 # Set dict key to extracted data
                 json_db[key] = data_dict
