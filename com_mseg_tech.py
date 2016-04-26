@@ -674,11 +674,13 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
             walk(tech_data, serv_data, years, item, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
-        # the key list is one of the recognized building types, and if
-        # so, finish constructing the key list for the current location
-        # and obtain the data to update the dict
+        # the key list is one of the recognized building types and that
+        # there are more than two total keys present (to exclude square
+        # footage leaf nodes), and if so, finish constructing the key
+        # list for the current location and obtain the data to update
+        # the dict
         else:
-            if key_list[1] in cm.bldgtypedict.keys():
+            if key_list[1] in cm.bldgtypedict.keys() and len(key_list) > 2:
                 leaf_node_keys = key_list + [key]
 
                 # Convert keys into integers that define the microsegment
