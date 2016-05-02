@@ -119,10 +119,14 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'ST ', 3, 1, b'EL', b'ELEC_RAD', 2011, 0.0, 0, -1, ''),
         (b'ST ', 3, 1, b'EL', b'ELEC_HP ', 2011, 3569.0, 0, -1, ''),
         (b'ST ', 3, 1, b'GS', b'NG_FA   ', 2011, 3463.0, 0, -1, ''),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, ''),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, ''),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, ''),
-        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, '')],
+        (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+        (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+        (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, ''),
+        (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, '')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -142,10 +146,14 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
-        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+        (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+        (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+        (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b''),
+        (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -177,10 +185,14 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-        (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
-        (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
-        (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
-        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+        (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+        (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+        (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b''),
+        (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -197,10 +209,14 @@ class NumpyArrayReductionTest(unittest.TestCase):
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
-         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
-         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
-         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+         (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+         (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+         (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b''),
+         (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -219,7 +235,11 @@ class NumpyArrayReductionTest(unittest.TestCase):
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
         (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+        (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+        (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+        (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b''),
+        (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -236,9 +256,13 @@ class NumpyArrayReductionTest(unittest.TestCase):
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
-         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
-         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b'')],
+         (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+         (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+         (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+         (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
@@ -255,18 +279,22 @@ class NumpyArrayReductionTest(unittest.TestCase):
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2010, 104401.0, 1897629, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2011, 101793.0, 1875027, -1, b''),
          (b'HW ', 7, 3, b'GS', b'NG_WH   ', 2012, 99374.0, 1848448, -1, b''),
-         (b'SQ ', 7, 3, 0, 0, 2010, 2158, 2079, 7301, b''),
-         (b'SQ ', 7, 3, 0, 0, 2011, 2164, 2042, 7331, b''),
-         (b'SQ ', 7, 3, 0, 0, 2012, 2171, 2130, 7371, b''),
-         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b'')],
+         (b'SQ ', 2, 2, 0, 0, 2010, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 2, 2, 0, 0, 2011, 2262.0, 2332, 8246, b''),
+         (b'SQ ', 2, 2, 0, 0, 2012, 2262.0, 2332, 8247, b''),
+         (b'SQ ', 1, 1, 0, 0, 2025, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2026, 2262.0, 2332, 8245, b''),
+         (b'SQ ', 1, 1, 0, 0, 2027, 2262.0, 2332, 8245, b''),
+         (b'HS ', 7, 3, 0, 0, 2012, 3434, 0, -1, b''),
+         (b'HS ', 3, 1, 0, 0, 2012, 3434, 0, -1, b'')],
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
                ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])]
 
     # Define filter to select a subset of the sample EIA supply data
-    EIA_supply_filter = ['.*DW.+2.+1.+EL.+DS_WASH',
-                         '.*HT.+1.+1.+EL.+ELEC_RAD']
+    EIA_supply_filter = ['.*DW\W+.*\W+2\W+.*\W+1\W+.*\W+EL\W+.*\W+DS_WASH',
+                         '.*HT\W+.*\W+1\W+.*\W+1\W+.*\W+EL\W+.*\W+ELEC_RAD']
 
     # Set up selected data from EIA sample array as the basis for comparison
     EIA_supply_sample = [({"2010": 9417809, "2011": 9387396, "2012": 9386813},
@@ -278,18 +306,22 @@ class NumpyArrayReductionTest(unittest.TestCase):
                           supply_reduced[1])]
 
     # Define filter to select sq. footage subset of sample EIA supply data
-    EIA_sqft_homes_filter = ['.*SQ.+7.+3', '.*HS.+7.+3',
-                             '.*HT.+1.+1.+EL.+ELEC_RAD']
+    EIA_sqft_homes_filter = [
+        '.*SQ\W+.*\W+2\W+.*\W+2\W+.*\W+', '.*HS\W+.*\W+7\W+.*\W+3\W+.*\W+',
+        '.*HT\W+.*\W+1\W+.*\W+1\W+.*\W+EL\W+.*\W+ELEC_RAD\W+.*\W+']
+
+    # '.*SQ\W+.*\W+2\W+.*\W+2\W+.*\W+
+    # (b'SQ ', 1, 1, b'0', b'0', 2025, 2262.0, 2332, 8245, b'')
 
     # Set up selected data from EIA sample array as the basis for comparison
-    EIA_sqft_homes_sample = [({"2010": 7301, "2011": 7331, "2012": 7371},
+    EIA_sqft_homes_sample = [({"2010": 8245, "2011": 8246, "2012": 8247},
                               sqft_reduced[0]),
                              ({"2012": 3434}, sqft_reduced[1]),
                              ({"2010": 3, "2011": 4, "2012": 5},
                               sqft_reduced[2])]
 
     # Define filter to select a subset of the sample EIA demand data
-    EIA_demand_filter = '.*HT.+1.+1.+EL.+ELEC_RAD'
+    EIA_demand_filter = '.*HT\W+.*\W+1\W+.*\W+1\W+.*\W+EL\W+.*\W+ELEC_RAD'
 
     # Set up selected data from EIA sample array as the basis for comparison
     EIA_demand_sample = ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
@@ -318,7 +350,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('PEOPLE', '<f8'), ('GRND', '<f8'), ('EQUIP', '<f8')])
 
     # Create filter to select thermal load data
-    tl_flt = '.*CL.+2.+1'
+    tl_flt = '.*CL\W+.*\W+2\W+.*\W+1'
 
     # Identify thermal load data to be reported (based on column names)
     tl_col = 'INFIL'
@@ -665,18 +697,20 @@ class RegexConstructionTest(unittest.TestCase):
                      [['HT', 5, 3, ('LG', 'KS', 'CL', 'GE', 'WD'),
                       'WOOD_HT'], ''],
                      [['HT', 5, 3, 'EL', 'ELEC_RAD'], ''],
-                     [['HS', 1, 1], '']]
+                     [['HS', 1, 1], ''],
+                     [['SQ', 1, 1], '']]
 
     # Define the desired final regular expressions output using the
     # regex conversion function in mseg
-    final_regexes = [('.*VGC.+4.+1.+EL.+', 'NA'),
-                     ('.*LT.+3.+2.+EL.+GSL.+LED.+', 'NA'),
-                     ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA).+7.+1.+EL.+',
+    final_regexes = [('.*VGC\W+.*\W+4\W+.*\W+1\W+.*\W+EL\W+.*\W+', 'NA'),
+                     ('.*LT\W+.*\W+3\W+.*\W+2\W+.*\W+EL\W+.*\W+GSL\W+.*\W+LED\W+.*\W+', 'NA'),
+                     ('.*(BAT|COF|DEH|EO|MCO|OA|PHP|SEC|SPA)\W+.*\W+7\W+.*\W+1\W+.*\W+EL\W+.*\W+',
                       'NA'),
-                     ('.*HT.+1.+2.+DS.+', 'ROOF'),
-                     ('.*HT.+5.+3.+(LG|KS|CL|GE|WD).+WOOD_HT.+', 'NA'),
-                     ('.*HT.+5.+3.+EL.+ELEC_RAD.+', 'NA'),
-                     ('.*HS.+1.+1.+', 'NA')]
+                     ('.*HT\W+.*\W+1\W+.*\W+2\W+.*\W+DS\W+.*\W+', 'ROOF'),
+                     ('.*HT\W+.*\W+5\W+.*\W+3\W+.*\W+(LG|KS|CL|GE|WD)\W+.*\W+WOOD_HT\W+.*\W+', 'NA'),
+                     ('.*HT\W+.*\W+5\W+.*\W+3\W+.*\W+EL\W+.*\W+ELEC_RAD\W+.*\W+', 'NA'),
+                     ('.*HS\W+.*\W+1\W+.*\W+1\W+.*\W+', 'NA'),
+                     ('.*SQ\W+.*\W+1\W+.*\W+1\W+.*\W+', 'NA')]
 
     # Compare the regular expressions with the conversion function output
     def test_regex_creation_function(self):
@@ -817,128 +851,203 @@ class ClimConverterTest(unittest.TestCase):
     inputs and test against established outputs) """
 
     # Create a test input dict with 3 census divisions
-    test_input = \
-        {'new england': {'single family home': {
-                         'electricity (grid)': {'lighting': {
-                                                'linear fluorescent':
-                                                {'stock':
-                                                 {'2009': 1,
-                                                  '2010': 2,
-                                                  '2011': 3},
-                                                 'energy':
-                                                 {'2009': 4,
-                                                  '2010': 5,
-                                                  '2011': 6}}}}}},
-         'mid atlantic': {'single family home': {
-                          'electricity (grid)': {'lighting': {
-                                                 'linear fluorescent':
-                                                 {'stock':
-                                                  {'2009': 7,
-                                                   '2010': 8,
-                                                   '2011': 9},
-                                                  'energy':
-                                                  {'2009': 10,
-                                                   '2010': 11,
-                                                   '2011': 12}}}}}},
-         'east north central': {'single family home': {
-                                'electricity (grid)': {'lighting': {
-                                                       'linear fluorescent':
-                                                       {'stock':
-                                                        {'2009': 13,
-                                                         '2010': 14,
-                                                         '2011': 15},
-                                                        'energy':
-                                                        {'2009': 16,
-                                                         '2010': 17,
-                                                         '2011': 18}}}}}}}
+    test_input = {
+        'new england': {
+            'single family home': {
+                'new homes': {
+                    '2009': 1, '2010': 11, '2011': 1},
+                'total homes': {
+                    '2009': 2, '2010': 22, '2011': 2},
+                'square footage': {
+                    '2009': 3, '2010': 33, '2011': 3},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 1,
+                                '2010': 2,
+                                '2011': 3},
+                            'energy': {
+                                '2009': 4,
+                                '2010': 5,
+                                '2011': 6}}}}}},
+        'mid atlantic': {
+            'single family home': {
+                'new homes': {
+                    '2009': 11, '2010': 11, '2011': 11},
+                'total homes': {
+                    '2009': 22, '2010': 22, '2011': 22},
+                'square footage': {
+                    '2009': 33, '2010': 33, '2011': 33},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 7,
+                                '2010': 8,
+                                '2011': 9},
+                            'energy': {
+                                '2009': 10,
+                                '2010': 11,
+                                '2011': 12}}}}}},
+        'east north central': {
+            'single family home': {
+                'new homes': {
+                    '2009': 111, '2010': 111, '2011': 111},
+                'total homes': {
+                    '2009': 222, '2010': 222, '2011': 222},
+                'square footage': {
+                    '2009': 333, '2010': 333, '2011': 333},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 13,
+                                '2010': 14,
+                                '2011': 15},
+                            'energy': {
+                                '2009': 16,
+                                '2010': 17,
+                                '2011': 18}}}}}}}
 
-    test_fail_input = \
-        {'new england': {'single family home': {
-                         'electricity (grid)': {'lighting': {
-                                                'linear fluorescent':
-                                                {'stock':
-                                                 {'2009': 1,
-                                                  '2010': 1,
-                                                  '2011': 1},
-                                                 'energy':
-                                                 {'2009': 1,
-                                                  '2010': 1,
-                                                  '2011': 1}}}}}},
-         'middle atlantic': {'single family home': {
-                             'electricity (grid)': {'lighting': {
-                                                    'linear fluorescent':
-                                                    {'stock':
-                                                     {'2009': 2,
-                                                      '2010': 2,
-                                                      '2011': 2},
-                                                     'energy':
-                                                     {'2009': 2,
-                                                      '2010': 2,
-                                                      '2011': 2}}}}}},
-         'east north central': {'single family home': {
-                                'electricity (grid)': {'lighting': {
-                                                       'linear fluorescent':
-                                                       {'stock':
-                                                        {'2009': 3,
-                                                         '2010': 3,
-                                                         '2011': 3},
-                                                        'energy':
-                                                        {'2009': 3,
-                                                         '2010': 3,
-                                                         '2011': 3}}}}}}}
+    test_fail_input = {
+        'new england': {
+            'single family home': {
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 1,
+                                '2010': 1,
+                                '2011': 1},
+                            'energy': {
+                                '2009': 1,
+                                '2010': 1,
+                                '2011': 1}}}}}},
+        'middle atlantic': {
+            'single family home': {
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 2,
+                                '2010': 2,
+                                '2011': 2},
+                            'energy': {
+                                '2009': 2,
+                                '2010': 2,
+                                '2011': 2}}}}}},
+        'east north central': {
+            'single family home': {
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            'stock': {
+                                '2009': 3,
+                                '2010': 3,
+                                '2011': 3},
+                            'energy': {
+                                '2009': 3,
+                                '2010': 3,
+                                '2011': 3}}}}}}}
 
     # Create an expected output dict broken down by climate zone
-    test_output = {'AIA_CZ1': {'single family home': {'electricity (grid)': {
-                               'lighting': {'linear fluorescent':
-                                            {"stock":
-                                             {"2009": 2.6591,
-                                              "2010": 3.0940,
-                                              "2011": 3.5289},
-                                             "energy":
-                                             {"2009": 3.9638,
-                                              "2010": 4.3987,
-                                              "2011": 4.8336}}}}}},
-                   'AIA_CZ2': {'single family home': {'electricity (grid)': {
-                               'lighting': {'linear fluorescent':
-                                            {"stock":
-                                             {"2009": 11.8729,
-                                              "2010": 13.6148,
-                                              "2011": 15.3567},
-                                             "energy":
-                                             {"2009": 17.0986,
-                                              "2010": 18.8405,
-                                              "2011": 20.5824}}}}}},
-                   'AIA_CZ3': {'single family home': {'electricity (grid)': {
-                               'lighting': {'linear fluorescent':
-                                            {"stock":
-                                             {"2009": 6.4681,
-                                              "2010": 7.2914,
-                                              "2011": 8.1147},
-                                             "energy":
-                                             {"2009": 8.9380,
-                                              "2010": 9.7613,
-                                              "2011": 10.5846}}}}}},
-                   'AIA_CZ4': {'single family home': {'electricity (grid)': {
-                               'lighting': {'linear fluorescent':
-                                            {"stock":
-                                             {"2009": 0,
-                                              "2010": 0,
-                                              "2011": 0},
-                                             "energy":
-                                             {"2009": 0,
-                                              "2010": 0,
-                                              "2011": 0}}}}}},
-                   'AIA_CZ5': {'single family home': {'electricity (grid)': {
-                               'lighting': {'linear fluorescent':
-                                            {"stock":
-                                             {"2009": 0,
-                                              "2010": 0,
-                                              "2011": 0},
-                                             "energy":
-                                             {"2009": 0,
-                                              "2010": 0,
-                                              "2011": 0}}}}}}
-                   }
+    test_output = {
+        'AIA_CZ1': {
+            'single family home': {
+                'new homes': {
+                    '2009': 18.1279, '2010': 20.3239, '2011': 18.1279},
+                'total homes': {
+                    '2009': 36.2558, '2010': 40.6478, '2011': 36.2558},
+                'square footage': {
+                    '2009': 54.3837, '2010': 60.9717, '2011': 54.3837},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 2.6591,
+                                "2010": 3.0940,
+                                "2011": 3.5289},
+                            "energy": {
+                                "2009": 3.9638,
+                                "2010": 4.3987,
+                                "2011": 4.8336}}}}}},
+        'AIA_CZ2': {
+            'single family home': {
+                'new homes': {
+                    '2009': 79.2779, '2010': 86.5509, '2011': 79.2779},
+                'total homes': {
+                    '2009': 158.5558, '2010': 173.1018, '2011': 158.5558},
+                'square footage': {
+                    '2009': 237.8337, '2010': 259.6527, '2011': 237.8337},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 11.8729,
+                                "2010": 13.6148,
+                                "2011": 15.3567},
+                            "energy": {
+                                "2009": 17.0986,
+                                "2010": 18.8405,
+                                "2011": 20.5824}}}}}},
+        'AIA_CZ3': {
+            'single family home': {
+                'new homes': {
+                    '2009': 25.5943, '2010': 26.1263, '2011': 25.5943},
+                'total homes': {
+                    '2009': 51.1886, '2010': 52.2526, '2011': 51.1886},
+                'square footage': {
+                    '2009': 76.7829, '2010': 78.3789, '2011': 76.7829},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 6.4681,
+                                "2010": 7.2914,
+                                "2011": 8.1147},
+                            "energy": {
+                                "2009": 8.9380,
+                                "2010": 9.7613,
+                                "2011": 10.5846}}}}}},
+        'AIA_CZ4': {
+            'single family home': {
+                'new homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'total homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0},
+                            "energy": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0}}}}}},
+        'AIA_CZ5': {
+            'single family home': {
+                'new homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'total homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity (grid)': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0},
+                            "energy": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0}}}}}}}
 
     # Array that provides the weights for converting the data from
     # a census division to climate zone basis

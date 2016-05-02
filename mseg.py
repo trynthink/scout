@@ -269,20 +269,20 @@ def filter_formatter(txt_filter):
         # comparison
         if isinstance(element, tuple):
             if endusedict['lighting'] in txt_filter_loop:
-                newelement = element[0] + '.+' + element[1]
-                supply_filter = supply_filter + newelement + '.+'
+                newelement = element[0] + '\W+.*\W+' + element[1]
+                supply_filter = supply_filter + newelement + '\W+.*\W+'
             else:
                 newelement = '|'.join(element)
-                supply_filter = supply_filter + '(' + newelement + ').+'
+                supply_filter = supply_filter + '(' + newelement + ')\W+.*\W+'
         # If element is a number and not on the "demand" technology level, turn
         # into a string for regex comparison
         elif isinstance(element, int):
             newelement = str(element)
-            supply_filter = supply_filter + newelement + '.+'
+            supply_filter = supply_filter + newelement + '\W+.*\W+'
         # If element is a string and not on the "demand" technology level, add
         # it to the filter list without modification
         elif isinstance(element, str):
-            supply_filter = supply_filter + element + '.+'
+            supply_filter = supply_filter + element + '\W+.*\W+'
         else:
             print('Error in list finder form!')
 
@@ -450,8 +450,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         # Find/apply appropriate thermal load component
 
         # 1. Construct appropriate row filter for tloads array
-        fuel_remove = re.search('(\.\*)(\(*\w+\|*\w+\)*)(\.\+\w+\.\+\w+)',
-                                comparefrom_base)
+        fuel_remove = re.search(
+            '(\.\*)(\(*\w+\|*\w+\)*)(\W+\w+\W+\w+\W+\w+\W+\w+\W+\w+\W+\w+)',
+            comparefrom_base)
         # If special case of secondary heating, change end use part of regex to
         # 'HT', which is what both primary and secondary heating are coded as
         # in thermal loads text file data
