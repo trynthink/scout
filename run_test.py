@@ -17,6 +17,8 @@ sample_measure = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -38,6 +40,8 @@ sample_measure2 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -59,6 +63,8 @@ sample_measure3 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -81,6 +87,8 @@ sample_measure4 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
@@ -413,6 +421,8 @@ sample_measure5 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["existing"],
     "climate_zone": ["AIA_CZ1"],
@@ -645,6 +655,8 @@ sample_measure6 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new"],
     "climate_zone": ["AIA_CZ5"],
@@ -821,6 +833,8 @@ sample_measure7 = {
     "active": 1,
     "market_entry_year": None,
     "market_exit_year": None,
+    "market_scaling_fractions": None,
+    "market_scaling_fractions_source": None,
     "measure_type": "full service",
     "structure_type": ["new"],
     "climate_zone": ["AIA_CZ5"],
@@ -1711,9 +1725,14 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                'electricity (grid)', 'heating', 'supply', 'boiler (electric)',
                'existing')]
 
+    mkt_scale_frac = 1
+
     # Correct output of the "ok" function test
     ok_out = [
         [[[
+            {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 10, "2010": 20, "2011": 30},
+            {"2009": 30, "2010": 60, "2011": 90},
             {"2009": 100, "2010": 200, "2011": 300},
             {"2009": 3, "2010": 6, "2011": 9},
             {"2009": 9, "2010": 18, "2011": 27},
@@ -1738,6 +1757,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             mseg_adjust],
             [
             {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 10, "2010": 20, "2011": 30},
+            {"2009": 30, "2010": 60, "2011": 90},
+            {"2009": 100, "2010": 200, "2011": 300},
             {"2009": 3, "2010": 6, "2011": 9},
             {"2009": 9, "2010": 18, "2011": 27},
             {"2009": 100, "2010": 4, "2011": 6},
@@ -1760,6 +1782,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 9, "2010": 1.44, "2011": 0.54},
             mseg_adjust]],
          [[
+             {"2009": 100, "2010": 200, "2011": 300},
+             {"2009": 10, "2010": 20, "2011": 30},
+             {"2009": 30, "2010": 60, "2011": 90},
              {"2009": 100, "2010": 166.67, "2011": 286.67},
              {"2009": 3, "2010": 6, "2011": 9},
              {"2009": 9, "2010": 18, "2011": 27},
@@ -1783,6 +1808,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2009": 9, "2010": 24, "2011": 10.8},
              mseg_adjust],
              [
+             {"2009": 100, "2010": 200, "2011": 300},
+             {"2009": 10, "2010": 20, "2011": 30},
+             {"2009": 30, "2010": 60, "2011": 90},
              {"2009": 12, "2010": 36, "2011": 72},
              {"2009": 9.16, "2010": 16.84, "2011": 24.15},
              {"2009": 27.48, "2010": 50.52, "2011": 72.46},
@@ -1807,6 +1835,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              mseg_adjust]]],
         [[[
             {"2025": 400, "2026": 500, "2027": 600},
+            {"2025": 40, "2026": 50, "2027": 60},
+            {"2025": 120, "2026": 150, "2027": 180},
+            {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
             {"2025": 18, "2026": 22.5, "2027": 27},
             {"2025": 400, "2026": 166.67, "2027": 240},
@@ -1829,6 +1860,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2025": 18, "2026": 7.5, "2027": 32.4},
             mseg_adjust],
             [
+            {"2025": 400, "2026": 500, "2027": 600},
+            {"2025": 40, "2026": 50, "2027": 60},
+            {"2025": 120, "2026": 150, "2027": 180},
             {"2025": 400, "2026": 500, "2027": 600},
             {"2025": 6, "2026": 7.5, "2027": 9},
             {"2025": 18, "2026": 22.5, "2027": 27},
@@ -1853,6 +1887,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             mseg_adjust]],
          [[
              {"2025": 400, "2026": 500, "2027": 600},
+             {"2025": 40, "2026": 50, "2027": 60},
+             {"2025": 120, "2026": 150, "2027": 180},
+             {"2025": 400, "2026": 500, "2027": 600},
              {"2025": 6, "2026": 7.5, "2027": 9},
              {"2025": 18, "2026": 22.5, "2027": 27},
              {"2025": 400, "2026": 166.67, "2027": 240},
@@ -1875,6 +1912,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2025": 18, "2026": 7.5, "2027": 32.4},
              mseg_adjust],
              [
+             {"2025": 400, "2026": 500, "2027": 600},
+             {"2025": 40, "2026": 50, "2027": 60},
+             {"2025": 120, "2026": 150, "2027": 180},
              {"2025": 48, "2026": 108, "2027": 180},
              {"2025": 35.92, "2026": 40.41, "2027": 44.19},
              {"2025": 107.76, "2026": 121.24, "2027": 132.56},
@@ -1899,6 +1939,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              mseg_adjust]]],
         [[[
             {"2020": 700, "2021": 800, "2022": 900},
+            {"2020": 70, "2021": 80, "2022": 90},
+            {"2020": 210, "2021": 240, "2022": 270},
+            {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
             {"2020": 157.5, "2021": 180.0, "2022": 202.5},
             {"2020": 700, "2021": 760, "2022": 90},
@@ -1922,6 +1965,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             mseg_adjust],
             [
             {"2020": 700, "2021": 800, "2022": 900},
+            {"2020": 70, "2021": 80, "2022": 90},
+            {"2020": 210, "2021": 240, "2022": 270},
+            {"2020": 700, "2021": 800, "2022": 900},
             {"2020": 52.5, "2021": 60, "2022": 67.5},
             {"2020": 157.5, "2021": 180, "2022": 202.5},
             {"2020": 700, "2021": 16, "2022": 18},
@@ -1944,6 +1990,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2020": 157.5, "2021": 3.60, "2022": 4.05},
             mseg_adjust]],
          [[
+             {"2020": 700, "2021": 800, "2022": 900},
+             {"2020": 70, "2021": 80, "2022": 90},
+             {"2020": 210, "2021": 240, "2022": 270},
              {"2020": 700, "2021": 800, "2022": 890},
              {"2020": 52.5, "2021": 60, "2022": 67.5},
              {"2020": 157.5, "2021": 180.0, "2022": 202.5},
@@ -1967,6 +2016,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              {"2020": 157.50, "2021": 171.00, "2022": 20.25},
              mseg_adjust],
              [
+             {"2020": 700, "2021": 800, "2022": 900},
+             {"2020": 70, "2021": 80, "2022": 90},
+             {"2020": 210, "2021": 240, "2022": 270},
              {"2020": 84, "2021": 180, "2022": 288},
              {"2020": 67.90, "2021": 75.49, "2022": 82.85},
              {"2020": 203.70, "2021": 226.46, "2022": 248.54},
@@ -2021,7 +2073,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.life_base,
                         self.life_meas,
                         self.mskeys[k], self.mseg_adjust,
-                        sample_retro_rate)
+                        sample_retro_rate,
+                        self.mkt_scale_frac)
                     # Correct list of output dicts
                     lists2 = self.ok_out[elem][scn][k]
                     # Compare the lists of output dicts
@@ -5167,6 +5220,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5192,6 +5247,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5219,6 +5276,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
@@ -5255,6 +5314,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
@@ -5279,6 +5340,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5306,6 +5369,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5336,6 +5401,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5359,6 +5426,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary": None},
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["assembly"],
@@ -5386,6 +5455,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "energy_efficiency_units": {"primary": "EF",
                                                 "secondary": None},
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new"],
                     "bldg_type": ["single family home"],
@@ -5411,6 +5482,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["existing"],
                     "bldg_type": ["single family home"],
@@ -5438,6 +5511,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": 2010,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
@@ -5473,6 +5548,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": 2010,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
@@ -5509,6 +5586,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home",
@@ -5542,6 +5621,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5567,6 +5648,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "market_entry_year": None,
                     "market_exit_year": None,
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["single family home"],
@@ -5591,6 +5674,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                         "primary": "relative savings (constant)",
                         "secondary": None},
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "add-on",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["assembly"],
@@ -5613,11 +5698,104 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                    {"name": "sample measure 17",
                     "installed_cost": 25,
                     "cost_units": "2014$/unit",
+                    "energy_efficiency": {
+                        "primary": {"new": 25, "existing": 25},
+                        "secondary": None},
+                    "energy_efficiency_units": {"primary": "EF",
+                                                "secondary": None},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "market_scaling_fractions": {
+                        "new": 0.25,
+                        "existing": 0.5},
+                    "market_scaling_fractions_source": {
+                        "new": {
+                            "title": None,
+                            "author": None,
+                            "organization": None,
+                            "year": None,
+                            "URL": None},
+                        "existing": {
+                            "title": None,
+                            "author": None,
+                            "organization": None,
+                            "year": None,
+                            "URL": None}},
+                    "product_lifetime": 1,
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
+                    "bldg_type": ["single family home"],
+                    "climate_zone": ["AIA_CZ1"],
+                    "fuel_type": {"primary": ["natural gas"],
+                                  "secondary": None},
+                    "fuel_switch_to": None,
+                    "end_use": {"primary": ["water heating"],
+                                "secondary": None},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": None},
+                    "technology": {"primary": None,
+                                   "secondary": None}},
+                   {"name": "sample measure 18",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
+                    "energy_efficiency": {"primary": 25,
+                                          "secondary": {
+                                              "heating": 0.4,
+                                              "secondary heating": 0.4,
+                                              "cooling": -0.4}},
+                    "energy_efficiency_units": {"primary": "lm/W",
+                                                "secondary":
+                                                "relative savings (constant)"},
+                    "market_entry_year": None,
+                    "market_exit_year": None,
+                    "market_scaling_fractions": {
+                        "new": 0.25,
+                        "existing": 0.5},
+                    "market_scaling_fractions_source": {
+                        "new": {
+                            "title": None,
+                            "author": None,
+                            "organization": None,
+                            "year": None,
+                            "URL": None},
+                        "existing": {
+                            "title": None,
+                            "author": None,
+                            "organization": None,
+                            "year": None,
+                            "URL": None}},
+                    "product_lifetime": 1,
+                    "measure_type": "full service",
+                    "structure_type": ["new", "existing"],
+                    "bldg_type": ["single family home",
+                                  "multi family home"],
+                    "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+                    "fuel_type": {"primary": ["electricity (grid)"],
+                                  "secondary": ["electricity (grid)",
+                                                "natural gas"]},
+                    "fuel_switch_to": None,
+                    "end_use": {"primary": ["lighting"],
+                                "secondary": ["heating", "secondary heating",
+                                              "cooling"]},
+                    "technology_type": {"primary": "supply",
+                                        "secondary": "demand"},
+                    "technology": {"primary":
+                                   ["linear fluorescent (LED)",
+                                    "general service (LED)",
+                                    "external (LED)"],
+                                   "secondary":
+                                   ["windows conduction",
+                                    "windows solar"]}},
+                   {"name": "sample measure 19",
+                    "installed_cost": 25,
+                    "cost_units": "2014$/unit",
                     "energy_efficiency": {"primary": 25,
                                           "secondary": None},
                     "energy_efficiency_units": {"primary": "lm/W",
                                                 "secondary": None},
                     "product_lifetime": 1,
+                    "market_scaling_fractions": None,
+                    "market_scaling_fractions_source": None,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
                     "bldg_type": ["assembly"],
@@ -5658,6 +5836,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
+                         "market_scaling_fractions": None,
+                         "market_scaling_fractions_source": None,
                          "measure_type": "full service",
                          "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
@@ -5682,6 +5862,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": ["normal", 1, 1],
+                         "market_scaling_fractions": None,
+                         "market_scaling_fractions_source": None,
                          "measure_type": "full service",
                          "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
@@ -5712,6 +5894,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
+                         "market_scaling_fractions": None,
+                         "market_scaling_fractions_source": None,
                          "measure_type": "full service",
                          "structure_type": ["new", "existing"],
                          "bldg_type": ["single family home"],
@@ -5740,6 +5924,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "energy_efficiency": {"primary": 25,
                                                "secondary": None},
                          "product_lifetime": 1,
+                         "market_scaling_fractions": None,
+                         "market_scaling_fractions_source": None,
                          "measure_type": "full service",
                          "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
@@ -5766,6 +5952,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                          "market_entry_year": None,
                          "market_exit_year": None,
                          "product_lifetime": 1,
+                         "market_scaling_fractions": None,
+                         "market_scaling_fractions_source": None,
                          "measure_type": "full service",
                          "structure_type": ["new", "existing"],
                          "energy_efficiency_units": {"primary": "COP",
@@ -5797,6 +5985,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_entry_year": None,
                        "market_exit_year": None,
                        "product_lifetime": 1,
+                       "market_scaling_fractions": None,
+                       "market_scaling_fractions_source": None,
                        "measure_type": "full service",
                        "structure_type": ["new", "existing"],
                        "bldg_type": ["single family home"],
@@ -5824,6 +6014,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "market_entry_year": None,
                        "market_exit_year": None,
                        "product_lifetime": 1,
+                       "market_scaling_fractions": None,
+                       "market_scaling_fractions_source": None,
                        "measure_type": "full service",
                        "structure_type": ["new", "existing"],
                        "bldg_type": ["single family home"],
@@ -5844,6 +6036,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 1,
+                       "market_scaling_fractions": None,
+                       "market_scaling_fractions_source": None,
                        "measure_type": "full service",
                        "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
@@ -5873,6 +6067,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                        "cost_units": "2014$/unit",
                        "energy_efficiency": {"primary": 25, "secondary": None},
                        "product_lifetime": 1,
+                       "market_scaling_fractions": None,
+                       "market_scaling_fractions_source": None,
                        "measure_type": "full service",
                        "structure_type": ["new", "existing"],
                        "energy_efficiency_units": {"primary": "lm/W",
@@ -6639,6 +6835,98 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
+                "all": {"2009": 7.125, "2010": 6.9375},
+                "measure": {"2009": 7.125, "2010": 6.9375}},
+            "competed": {
+                "all": {"2009": 7.125, "2010": 6.9375},
+                "measure": {"2009": 7.125, "2010": 6.9375}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 7.1963, "2010": 7.0069},
+                "efficient": {"2009": 5.1813, "2010": 5.0449}},
+            "competed": {
+                "baseline": {"2009": 7.1963, "2010": 7.0069},
+                "efficient": {"2009": 5.1813, "2010": 5.0449}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 406.7016, "2010": 384.801},
+                "efficient": {"2009": 292.8251, "2010": 277.0567}},
+            "competed": {
+                "baseline": {"2009": 406.7016, "2010": 384.801},
+                "efficient": {"2009": 292.8251, "2010": 277.0567}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 128.25, "2010": 124.875},
+                    "efficient": {"2009": 178.125, "2010": 173.4375}},
+                "competed": {
+                    "baseline": {"2009": 128.25, "2010": 124.875},
+                    "efficient": {"2009": 178.125, "2010": 173.4375}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 81.1737, "2010": 75.53411},
+                    "efficient": {"2009": 58.44506, "2010": 54.38456}},
+                "competed": {
+                    "baseline": {"2009": 81.1737, "2010": 75.53411},
+                    "efficient": {"2009": 58.44506, "2010": 54.38456}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 13421.15, "2010": 12698.43},
+                    "efficient": {"2009": 9663.23, "2010": 9142.871}},
+                "competed": {
+                    "baseline": {"2009": 13421.15, "2010": 12698.43},
+                    "efficient": {"2009": 9663.23, "2010": 9142.871}}}},
+        "lifetime": {"baseline": {"2009": 180, "2010": 180},
+                     "measure": 1}},
+              {
+        "stock": {
+            "total": {
+                "all": {"2009": 70.3, "2010": 68.45},
+                "measure": {"2009": 70.3, "2010": 68.45}},
+            "competed": {
+                "all": {"2009": 70.3, "2010": 68.45},
+                "measure": {"2009": 70.3, "2010": 68.45}}},
+        "energy": {
+            "total": {
+                "baseline": {"2009": 308.0233, "2010": 300.8239},
+                "efficient": {"2009": 261.2829, "2010": 255.1714}},
+            "competed": {
+                "baseline": {"2009": 308.0233, "2010": 300.8239},
+                "efficient": {"2009": 261.2829, "2010": 255.1714}}},
+        "carbon": {
+            "total": {
+                "baseline": {"2009": 17506.55, "2010": 16883.31},
+                "efficient": {"2009": 14849.56, "2010": 14319.33}},
+            "competed": {
+                "baseline": {"2009": 17506.55, "2010": 16883.31},
+                "efficient": {"2009": 14849.56, "2010": 14319.33}}},
+        "cost": {
+            "stock": {
+                "total": {
+                    "baseline": {"2009": 1411.7, "2010": 1374.55},
+                    "efficient": {"2009": 1757.5, "2010": 1711.25}},
+                "competed": {
+                    "baseline": {"2009": 1411.7, "2010": 1374.55},
+                    "efficient": {"2009": 1757.5, "2010": 1711.25}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 3135.935, "2010": 2920.893},
+                    "efficient": {"2009": 2661.769, "2010": 2479.226}},
+                "competed": {
+                    "baseline": {"2009": 3135.935, "2010": 2920.893},
+                    "efficient": {"2009": 2661.769, "2010": 2479.226}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 577716.18, "2010": 557149.19},
+                    "efficient": {"2009": 490035.57, "2010": 472537.73}},
+                "competed": {
+                    "baseline": {"2009": 577716.18, "2010": 557149.19},
+                    "efficient": {"2009": 490035.57, "2010": 472537.73}}}},
+        "lifetime": {"baseline": {"2009": 200, "2010": 200},
+                     "measure": 1}},
+              {
+        "stock": {
+            "total": {
                 "all": {"2009": 11, "2010": 11},
                 "measure": {"2009": 0.30, "2010": 0.89}},
             "competed": {
@@ -7094,10 +7382,10 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
             measure_instance = run.Measure(**measure)
             # Assert that the first output of mseg_find partition (master
             # microsegment information) is correct; note that the first
-            # 16 sample measures are run under a Technical potential
-            # adoption scenario, while the 17th sample measure is run
+            # 18 sample measures are run under a Technical potential
+            # adoption scenario, while the 19th sample measure is run
             # under a Max adoption potential scenario
-            if idx < 16:
+            if idx < 18:
                 dict_base = measure_instance.mseg_find_partition(
                     self.sample_msegin, self.sample_basein,
                     "Technical potential", ok_out_break_in,
@@ -12540,7 +12828,6 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
         self.dict_check(
             self.packaged_measure.mseg_out_break, self.ok_out_break)
         self.dict_check(self.packaged_measure.master_mseg, self.ok_master_mseg)
-
 
 # Offer external code execution (include all lines below this point in all
 # test files)
