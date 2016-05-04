@@ -9,6 +9,14 @@ __pycache__/
 
 *out.txt
 ktek.*
+k*.txt
+rs*.txt
+
+# Populated microsegment JSON databases #
+#########################################
+
+*_cdiv.json
+*_cz.json
 
 # Presentation files #
 ######################
