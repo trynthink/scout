@@ -313,6 +313,20 @@ sample_measure4 = {
              "'water heating', None, 'existing')"): {
                 "b1": {"2009": 0.5, "2010": 0.5},
                 "b2": {"2009": 0.5, "2010": 0.5}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -548,6 +562,20 @@ sample_measure5 = {
              "'lighting', 'reflector (halogen)', 'existing')"): {
                 "b1": {"2009": 0.25, "2010": 0.25},
                 "b2": {"2009": 0.25, "2010": 0.25}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -727,6 +755,20 @@ sample_measure6 = {
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -905,6 +947,20 @@ sample_measure7 = {
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -8823,6 +8879,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key1: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key1: {
@@ -8979,6 +9049,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key1: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key1: {
@@ -9172,6 +9256,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key1: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key1: {
@@ -9293,6 +9391,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key2: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key2: {
@@ -9424,6 +9536,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key2: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key2: {
@@ -9605,6 +9731,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key2: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key2: {
@@ -9822,6 +9962,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "competed choice parameters": {
                 adjust_key2: {"b1": {"2009": -0.95, "2010": -0.95},
                               "b2": {"2009": -0.10, "2010": -0.10}}},
+            "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
+                "stock-and-flow": {
+                    "original stock (total)": {},
+                    "adjusted stock (previously captured)": {},
+                    "adjusted stock (competed)": {},
+                    "adjusted stock (competed and captured)": {}},
+                "market share": {
+                    "original stock (total captured)": {},
+                    "original stock (competed and captured)": {},
+                    "adjusted stock (total captured)": {},
+                    "adjusted stock (competed and captured)": {}}},
             "supply-demand adjustment": {
                 "savings": {
                     adjust_key2: {
@@ -10764,6 +10918,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 overlap_key_scnd: {
                     "rate distribution": {}}},
             "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
                 "stock-and-flow": {
                     "original stock (total)": {
                         secnd_adj_key: {"2009": 0, "2010": 0}},
@@ -11003,6 +11160,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 overlap_key_scnd: {
                     "rate distribution": {}}},
             "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
                 "stock-and-flow": {
                     "original stock (total)": {
                         secnd_adj_key: {"2009": 0, "2010": 0}},
@@ -11249,6 +11409,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
                         "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
             "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
                 "stock-and-flow": {
                     "original stock (total)": {
                         secnd_adj_key: {"2009": 0, "2010": 0}},
@@ -11521,6 +11684,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "2009": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
                         "2010": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
             "secondary mseg adjustments": {
+                "sub-market": {
+                    "original stock (total)": {},
+                    "adjusted stock (sub-market)": {}},
                 "stock-and-flow": {
                     "original stock (total)": {
                         secnd_adj_key: {"2009": 0, "2010": 0}},
@@ -12114,6 +12280,20 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -12175,6 +12355,20 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},
@@ -12698,6 +12892,20 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
              "'cooling', 'supply', 'ASHP', 'new')"): {
                 "b1": {"2009": 0.75, "2010": 0.75},
                 "b2": {"2009": 0.75, "2010": 0.75}}},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
         "supply-demand adjustment": {
             "savings": {},
             "total": {}},

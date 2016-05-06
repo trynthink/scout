@@ -2203,7 +2203,7 @@ class Measure(object):
         # Calculate irr and simple payback for capital + energy cash flows.
         # Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        if any(esave_array) != 0:
+        if any(numpy.isclose(esave_array[1:], 0)) is False:
             try:
                 irr_e = numpy.irr(cashflows_s + cashflows_e)
                 payback_e = self.payback(cashflows_s + cashflows_e)
@@ -2213,7 +2213,8 @@ class Measure(object):
         # Calculate irr and simple payback for capital + energy + carbon cash
         # flows.  Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        if any(esave_array) != 0 or any(csave_array) != 0:
+        if any(numpy.isclose(esave_array[1:], 0)) is False or \
+           any(numpy.isclose(csave_array[1:], 0)) is False:
             try:
                 irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
                 payback_ec = \
@@ -2224,14 +2225,14 @@ class Measure(object):
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
         # benefits.  Check to ensure energy savings NPV in the denominator is
         # not zero
-        if any(esave_array) != 0:
+        if any(numpy.isclose(esave_array[1:], 0)) is False:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
         # benefits.  Check to ensure carbon savings NPV in the denominator is
         # not zero.
-        if any(csave_array) != 0:
+        if any(numpy.isclose(csave_array[1:], 0)) is False:
             ccc = (-npv_s / npv_csave)
             ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
@@ -2908,10 +2909,12 @@ class Engine(object):
             raise ValueError(
                 'Microsegment type must be primary or secondary!')
 
-        # For a primary contributing microsegment, record market share
-        # information that will subsequently be used to adjust associated
-        # secondary microsegments and associated savings
-        if measure.end_use["secondary"] is not None and "lighting" in mseg_key:
+        # For a primary contributing microsegment with secondary effects,
+        # record market share information that will subsequently be used
+        # to adjust associated secondary microsegments and associated savings
+        if "lighting" in mseg_key and len(measure.mseg_adjust[
+                "secondary mseg adjustments"]["market share"][
+                "original stock (total captured)"].keys()) != 0:
             # Determine the climate zone, building type, and structure
             # type for the current contributing primary microsegment
             cz_bldg_struct = re.search(
@@ -3506,16 +3509,10 @@ class Measure_Package(Measure, Engine):
 
                     # Add measure's contributing microsegment consumer choice
                     # parameters
-                    elif k == "competed choice parameters":
+                    elif k in ["competed choice parameters",
+                               "secondary mseg adjustments",
+                               "supply-demand adjustment"]:
                         self.mseg_adjust[k].update(m.mseg_adjust[k])
-                    # Add information about supply-demand overlaps for the
-                    # measure's contributing microsegments (relevant for HVAC
-                    # measures)
-                    elif k == "supply-demand adjustment":
-                        self.mseg_adjust[k]["savings"].update(
-                            m.mseg_adjust[k]["savings"])
-                        self.mseg_adjust[k]["total"].update(
-                            m.mseg_adjust[k]["total"])
 
             # Generate a dictionary including information about how
             # much of the packaged measure's baseline energy use is attributed
