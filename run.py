@@ -11,6 +11,8 @@ from collections import OrderedDict
 adopt_scheme = 'Technical potential'  # Determines measure adoption scenario
 adjust_savings = True  # Determines whether measures are competed or not
 retro_rate = 0.02  # Fraction of building stock retrofitted each year
+# Note: set retrofit rate to zero to compare against P-Tool results, where
+# no retrofits are considered in the calculations
 nsamples = 50  # Number of samples in cases with input distributions
 
 # Define measures/microsegments files
