@@ -1656,53 +1656,62 @@ class Measure(object):
             # on the market for the given year (if not, use baseline technology
             # cost)
 
-            # Baseline cost of the total stock
-            stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
             # Baseline cost of the competed stock
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
+            # Baseline cost of the total stock
+            stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
             # Total and competed-efficient stock cost for add-on and
             # full service measures. * Note: the baseline technology installed
             # cost must be added to the measure installed cost in the case of
             # an add-on measure type
             if self.measure_type == "add-on":
-                # Total-efficient stock cost (add-on measure)
-                stock_total_cost_eff[yr] = stock_total_meas[yr] * (
-                    cost_meas + cost_base[yr]) + (
-                    stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
                 # Competed-efficient stock cost (add-on measure)
                 stock_compete_cost_eff[yr] = \
                     stock_compete_meas[yr] * (cost_meas + cost_base[yr]) + (
                         stock_compete[yr] - stock_compete_meas[yr]) * \
                     cost_base[yr]
+                # Total-efficient stock cost (add-on measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * (
+                    cost_meas + cost_base[yr]) + (
+                    stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
             else:
-                # Total-efficient stock cost (full service measure)
-                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
-                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
                 # Competed-efficient stock cost (full service measure)
                 stock_compete_cost_eff[yr] = \
                     stock_compete_meas[yr] * cost_meas + (
                         stock_compete[yr] - stock_compete_meas[yr]) * \
                     cost_base[yr]
+                # Total-efficient stock cost (full service measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
+                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
 
-            # Total baseline energy cost
-            energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
-            # Total energy-efficient cost
-            energy_total_eff_cost[yr] = energy_total_eff[yr] * \
-                cost_energy_meas[yr]
             # Competed baseline energy cost
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy_base[yr]
             # Competed energy-efficient cost
-            energy_compete_cost_eff[yr] = energy_compete_eff[yr] * \
-                cost_energy_meas[yr]
+            energy_compete_cost_eff[yr] = energy_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                cost_energy_meas[yr] + energy_total[yr] * (
+                    competed_frac - competed_captured_eff_frac) * \
+                cost_energy_base[yr]
+            # Total baseline energy cost
+            energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
+            # Total energy-efficient cost
+            energy_total_eff_cost[yr] = energy_compete_cost_eff[yr] + \
+                (energy_total[yr] - energy_compete[yr]) * captured_eff_frac * \
+                rel_perf_weighted * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                cost_energy_meas[yr] + (
+                    energy_total[yr] - energy_compete[yr]) * (
+                    1 - captured_eff_frac) * cost_energy_base[yr]
 
-            # Total baseline carbon cost
-            carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]
-            # Total carbon-efficient cost
-            carb_total_eff_cost[yr] = carb_total_eff[yr] * cost_carb[yr]
             # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * cost_carb[yr]
             # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = carb_compete_eff[yr] * cost_carb[yr]
+            # Total baseline carbon cost
+            carb_total_cost[yr] = carb_total[yr] * cost_carb[yr]
+            # Total carbon-efficient cost
+            carb_total_eff_cost[yr] = carb_total_eff[yr] * cost_carb[yr]
 
             # For primary microsegments only, update portion of stock captured
             # by efficient measure in previous years to reflect gains from the

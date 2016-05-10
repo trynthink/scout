@@ -32,7 +32,28 @@ sample_measure = {
                         "secondary": None},
     "technology": {"primary": ["boiler (electric)",
                    "ASHP", "GSHP", "room AC"],
-                   "secondary": None}}
+                   "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {},
+        "competed choice parameters": {},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}}
 
 # Define sample residential measure w/ secondary msegs for use in tests below
 sample_measure2 = {
@@ -55,7 +76,28 @@ sample_measure2 = {
                         "secondary": "supply"},
     "technology": {"primary": ["boiler (electric)",
                    "ASHP", "GSHP", "room AC"],
-                   "secondary": ["general service (LED)"]}}
+                   "secondary": ["general service (LED)"]},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {},
+        "competed choice parameters": {},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}}
 
 # Define sample commercial measure for use in tests below
 sample_measure3 = {
@@ -78,7 +120,28 @@ sample_measure3 = {
                         "secondary": None},
     "technology": {"primary": ["boiler (electric)",
                    "ASHP", "GSHP", "room AC"],
-                   "secondary": None}}
+                   "secondary": None},
+    "mseg_adjust": {
+        "contributing mseg keys and values": {},
+        "competed choice parameters": {},
+        "secondary mseg adjustments": {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
+            "stock-and-flow": {
+                "original stock (total)": {},
+                "adjusted stock (previously captured)": {},
+                "adjusted stock (competed)": {},
+                "adjusted stock (competed and captured)": {}},
+            "market share": {
+                "original stock (total captured)": {},
+                "original stock (competed and captured)": {},
+                "adjusted stock (total captured)": {},
+                "adjusted stock (competed and captured)": {}}},
+        "supply-demand adjustment": {
+            "savings": {},
+            "total": {}},
+        "savings updated": False}}
 
 # Define sample residential water heating measure for use in tests of
 # measure packaging routine below
