@@ -10,6 +10,9 @@ import unittest
 import numpy
 import scipy.stats as ss
 import copy
+import warnings
+# Custom format warning message
+warnings.formatwarning = run.custom_formatwarning
 
 # Define sample residential measure for use in tests below
 sample_measure = {
@@ -5829,17 +5832,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                         "existing": 0.5},
                     "market_scaling_fractions_source": {
                         "new": {
-                            "title": None,
-                            "author": None,
-                            "organization": None,
-                            "year": None,
-                            "URL": None},
+                            "title": 'Sample title 1',
+                            "author": 'Sample author 1',
+                            "organization": 'Sample org 1',
+                            "year": 'Sample year 1',
+                            "URL": ('http://www.eia.gov/consumption/'
+                                    'commercial/data/2012/'),
+                            "fraction_derivation": "Divide X by Y"},
                         "existing": {
-                            "title": None,
-                            "author": None,
-                            "organization": None,
-                            "year": None,
-                            "URL": None}},
+                            "title": 'Sample title 1',
+                            "author": 'Sample author 1',
+                            "organization": 'Sample org 1',
+                            "year": 'Sample year 1',
+                            "URL": ('http://www.eia.gov/consumption/'
+                                    'commercial/data/2012/'),
+                            "fraction_derivation": "Divide X by Y"}},
                     "product_lifetime": 1,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
@@ -5872,17 +5879,21 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                         "existing": 0.5},
                     "market_scaling_fractions_source": {
                         "new": {
-                            "title": None,
-                            "author": None,
-                            "organization": None,
-                            "year": None,
-                            "URL": None},
+                            "title": 'Sample title 2',
+                            "author": 'Sample author 2',
+                            "organization": 'Sample org 2',
+                            "year": 'Sample year 2',
+                            "URL": ('http://www.eia.gov/consumption/'
+                                    'commercial/data/2012/'),
+                            "fraction_derivation": "Divide X by Y"},
                         "existing": {
-                            "title": None,
-                            "author": None,
-                            "organization": None,
-                            "year": None,
-                            "URL": None}},
+                            "title": 'Sample title 2',
+                            "author": 'Sample author 2',
+                            "organization": 'Sample org 2',
+                            "year": 'Sample year 2',
+                            "URL": ('http://www.eia.gov/consumption/'
+                                    'residential/data/2009/'),
+                            "fraction_derivation": "Divide X by Y"}},
                     "product_lifetime": 1,
                     "measure_type": "full service",
                     "structure_type": ["new", "existing"],
@@ -6212,6 +6223,195 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                       "secondary":
                                       ["windows conduction",
                                        "windows solar"]}}]
+
+    # List of measures with invalid sub-market scaling fraction
+    # source attributions that should yield warnings
+    warn_measures = [{
+        "name": "warn measure 1",
+        "active": 1,
+        "installed_cost": 25,
+        "cost_units": "2014$/unit",
+        "energy_efficiency": {
+            "primary": 25,
+            "secondary": {
+                "heating": 0.4,
+                "secondary heating": 0.4,
+                "cooling": -0.4}},
+        "energy_efficiency_units": {
+            "primary": "lm/W",
+            "secondary": "relative savings (constant)"},
+        "market_entry_year": None,
+        "market_exit_year": None,
+        "market_scaling_fractions": {
+            "new": 0.25,
+            "existing": 0.5},
+        "market_scaling_fractions_source": {
+            "new": {
+                "title": None,
+                "author": None,
+                "organization": None,
+                "year": None,
+                "URL": None,
+                "fraction_derivation": None},
+            "existing": {
+                "title": None,
+                "author": None,
+                "organization": None,
+                "year": None,
+                "URL": None,
+                "fraction_derivation": None}},
+        "product_lifetime": 1,
+        "measure_type": "full service",
+        "structure_type": ["new", "existing"],
+        "bldg_type": [
+            "single family home",
+            "multi family home"],
+        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+        "fuel_type": {
+            "primary": ["electricity (grid)"],
+            "secondary": [
+                "electricity (grid)",
+                "natural gas"]},
+        "fuel_switch_to": None,
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": [
+                "heating", "secondary heating",
+                "cooling"]},
+        "technology_type": {"primary": "supply",
+                            "secondary": "demand"},
+        "technology": {
+            "primary": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"],
+            "secondary":[
+                "windows conduction",
+                "windows solar"]}},
+        {
+        "name": "warn measure 2",
+        "installed_cost": 25,
+        "active": 1,
+        "cost_units": "2014$/unit",
+        "energy_efficiency": {
+            "primary": 25,
+            "secondary": {
+                "heating": 0.4,
+                "secondary heating": 0.4,
+                "cooling": -0.4}},
+        "energy_efficiency_units": {
+            "primary": "lm/W",
+            "secondary": "relative savings (constant)"},
+        "market_entry_year": None,
+        "market_exit_year": None,
+        "market_scaling_fractions": {
+            "new": 0.25,
+            "existing": 0.5},
+        "market_scaling_fractions_source": {
+            "new": {
+                "title": "Sample title",
+                "author": "Sample author",
+                "organization": "Sample organization",
+                "year": "http://www.sciencedirectcom",
+                "URL": "some BS",
+                "fraction_derivation": None},
+            "existing": {
+                "title": "Sample title",
+                "author": "Sample author",
+                "organization": "Sample organization",
+                "year": "Sample year",
+                "URL": "http://www.sciencedirect.com",
+                "fraction_derivation": None}},
+        "product_lifetime": 1,
+        "measure_type": "full service",
+        "structure_type": ["new", "existing"],
+        "bldg_type": [
+            "single family home",
+            "multi family home"],
+        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+        "fuel_type": {
+            "primary": ["electricity (grid)"],
+            "secondary": [
+                "electricity (grid)",
+                "natural gas"]},
+        "fuel_switch_to": None,
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": [
+                "heating", "secondary heating",
+                "cooling"]},
+        "technology_type": {"primary": "supply",
+                            "secondary": "demand"},
+        "technology": {
+            "primary": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"],
+            "secondary":[
+                "windows conduction",
+                "windows solar"]}},
+        {
+        "name": "warn measure 3",
+        "installed_cost": 25,
+        "active": 1,
+        "cost_units": "2014$/unit",
+        "energy_efficiency": {
+            "primary": 25,
+            "secondary": {
+                "heating": 0.4,
+                "secondary heating": 0.4,
+                "cooling": -0.4}},
+        "energy_efficiency_units": {
+            "primary": "lm/W",
+            "secondary": "relative savings (constant)"},
+        "market_entry_year": None,
+        "market_exit_year": None,
+        "market_scaling_fractions": {
+            "new": 0.25,
+            "existing": 0.5},
+        "market_scaling_fractions_source": {
+            "new": {
+                "title": "Sample title",
+                "author": None,
+                "organization": "Sample organization",
+                "year": "Sample year",
+                "URL": "https://bpd.lbl.gov/",
+                "fraction_derivation": "Divide X by Y"},
+            "existing": {
+                "title": "Sample title",
+                "author": None,
+                "organization": "Sample organization",
+                "year": "Sample year",
+                "URL": "https://cms.doe.gov/data/green-button",
+                "fraction_derivation": "Divide X by Y"}},
+        "product_lifetime": 1,
+        "measure_type": "full service",
+        "structure_type": ["new", "existing"],
+        "bldg_type": [
+            "single family home",
+            "multi family home"],
+        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+        "fuel_type": {
+            "primary": ["electricity (grid)"],
+            "secondary": [
+                "electricity (grid)",
+                "natural gas"]},
+        "fuel_switch_to": None,
+        "end_use": {
+            "primary": ["lighting"],
+            "secondary": [
+                "heating", "secondary heating",
+                "cooling"]},
+        "technology_type": {"primary": "supply",
+                            "secondary": "demand"},
+        "technology": {
+            "primary": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"],
+            "secondary":[
+                "windows conduction",
+                "windows solar"]}}]
 
     # Master stock, energy, and cost information that should be generated by
     # "ok_measures" above using the "sample_msegin" dict
@@ -7491,6 +7691,30 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "lifetime": {"baseline": {"2009": 80, "2010": 80},
                      "measure": 1}}]
 
+    # Warning messages that should be yielded by each of the
+    # "warn_measures" above using the "sample_msegin" dict
+    ok_warn_messages = [
+        [("WARNING: warn measure 1 has invalid "
+          "sub-market scaling fraction source title, author, "
+          "organization, and/or year information"),
+         ("WARNING: warn measure 1 has invalid "
+          "sub-market scaling fraction source URL information"),
+         ("WARNING: warn measure 1 has invalid "
+          "sub-market scaling fraction derivation information"),
+         ("WARNING (CRITICAL): warn measure 1 has "
+          "insufficient sub-market source information and "
+          "will be removed from analysis")],
+        [("WARNING: warn measure 2 has invalid "
+          "sub-market scaling fraction source URL information"),
+         ("WARNING: warn measure 2 has invalid "
+          "sub-market scaling fraction derivation information"),
+         ("WARNING (CRITICAL): warn measure 2 has "
+          "insufficient sub-market source information and "
+          "will be removed from analysis")],
+        [("WARNING: warn measure 3 has invalid "
+          "sub-market scaling fraction source title, author, "
+          "organization, and/or year information")]]
+
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
         # Adjust maxDiff parameter to ensure that any dict key discrepancies
@@ -7603,6 +7827,33 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     self.sample_basein,
                     "Technical potential", ok_out_break_in,
                     sample_retro_rate)
+
+    # Test for correct output from "warn_measures" input
+    def test_mseg_warn(self):
+        for idx, mw in enumerate(self.warn_measures):
+            # Create an instance of the object based on warn measure info
+            measure_instance = run.Measure(**mw)
+            # Assert that inputs generate correct warnings and that measure is
+            # marked inactive where necessary
+            with warnings.catch_warnings(record=True) as w:
+                measure_instance.mseg_find_partition(
+                    self.sample_msegin, self.sample_basein,
+                    "Technical potential", ok_out_break_in, sample_retro_rate)
+                # Check correct number of warnings is yielded
+                self.assertEqual(len(w), len(self.ok_warn_messages[idx]))
+                # Check correct type of warnings is yielded
+                self.assertTrue(
+                    all([issubclass(wn.category, UserWarning) for wn in w]))
+                # Check correct warning messages are yielded
+                [self.assertTrue(
+                    wm in str([wmt.message for wmt in w])) for
+                    wm in self.ok_warn_messages[idx]]
+                # Check that measure is marked inactive when a critical
+                # warning message is yielded
+                if any(['CRITICAL' in x for x in self.ok_warn_messages[idx]]):
+                    self.assertEqual(measure_instance.active, 0)
+                else:
+                    self.assertEqual(measure_instance.active, 1)
 
 
 class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):

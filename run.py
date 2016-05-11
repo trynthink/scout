@@ -6,7 +6,8 @@ import copy
 import re
 from numpy.linalg import LinAlgError
 from collections import OrderedDict
-
+import warnings
+from urllib.parse import urlparse
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'  # Determines measure adoption scenario
 adjust_savings = True  # Determines whether measures are competed or not
@@ -136,6 +137,13 @@ for kc in out_levels_keys:
             current_level[elem] = OrderedDict()
         current_level = current_level[elem]
 
+# Establish an initial approved list of websites for sub-market scaling data
+valid_submkt_urls = [
+    '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov', '.energystar.gov',
+    '.epa.gov', '.census.gov', '.pnnl.gov', '.lbl.gov',
+    '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
+    'www.navigantresearch.com']
+
 
 # Define class for measure objects
 class Measure(object):
@@ -235,6 +243,11 @@ class Measure(object):
 
         # Initialize a counter of valid key chains
         key_chain_ct = 0
+
+        # Initialize flags for invalid information about sub-market fraction
+        # source, URL, and derivation
+        sbmkt_source_invalid, sbmkt_URL_invalid, sbmkt_derive_invalid = (
+            0 for n in range(3))
 
         # Initialize variable indicating use of sq.ft. as microsegment stock
         sqft_subst = 0
@@ -367,7 +380,7 @@ class Measure(object):
                     mkt_scale_frac = self.market_scaling_fractions
                 if ind == 0 or isinstance(
                         self.market_scaling_fractions_source, dict):
-                    mkt_scale_frac_source = self.market_scaling_fractions
+                    mkt_scale_frac_source = self.market_scaling_fractions_source
 
             # Set appropriate site-source conversion factor, energy cost, and
             # carbon intensity for given key chain
@@ -534,6 +547,95 @@ class Measure(object):
                 # microsegments do not contribute to
                 if mskeys[0] == "primary":
                     key_chain_ct += 1
+
+                # If a sub-market scaling fraction is to be applied to the
+                # current baseline microsegment, check that the source
+                # information for the fraction is sufficient; if not, remove
+                # the measure from further analysis
+                if mkt_scale_frac_source is not None:
+                    # Establish sub-market fraction general source, URL, and
+                    # derivation information
+
+                    # Set general source info. for the sub-market fraction
+                    source_info = [
+                        mkt_scale_frac_source['title'],
+                        mkt_scale_frac_source['author'],
+                        mkt_scale_frac_source['organization'],
+                        mkt_scale_frac_source['year']]
+                    # Set URL for the sub-market fraction
+                    URL = mkt_scale_frac_source['URL']
+                    # Set information about how sub-market fraction was derived
+                    frac_derive = mkt_scale_frac_source['fraction_derivation']
+
+                    # Check the validity of sub-market fraction source, URL,
+                    # and derivation information
+
+                    # Check sub-market fraction general source information,
+                    # yield warning if source information is invalid and
+                    # invalid source information flag hasn't already been
+                    # raised for this measure
+                    if sbmkt_source_invalid != 1 and (any([
+                        not isinstance(x, str) or
+                       len(x) < 2 for x in source_info]) is True):
+                        # Print invalid source information warning
+                        warnings.warn((
+                            "WARNING: " + self.name + " has invalid "
+                            "sub-market scaling fraction source title, author,"
+                            " organization, and/or year information"))
+                        # Set invalid source information flag to 1
+                        sbmkt_source_invalid = 1
+                    # Check sub-market fraction URL, yield warning if URL is
+                    # invalid and invalid URL flag hasn't already been raised
+                    # for this measure
+                    if sbmkt_URL_invalid != 1:
+                        # Parse the URL into components (addressing scheme,
+                        # network location, etc.)
+                        url_check = urlparse(URL)
+                        # Check for valid URL address scheme and network
+                        # location components
+                        if (any([len(url_check.scheme),
+                                 len(url_check.netloc)]) == 0 or
+                            all([x not in url_check.netloc for x in
+                                 valid_submkt_urls])):
+                            # Print invalid URL warning
+                            warnings.warn((
+                                "WARNING: " + self.name + " has invalid "
+                                "sub-market scaling fraction source URL "
+                                "information"))
+                            # Set invalid URL flag to 1
+                            sbmkt_URL_invalid = 1
+                    # Check sub-market fraction derivation information, yield
+                    # warning if invalid
+                    if not isinstance(frac_derive, str):
+                        # Print invalid derivation warning
+                        warnings.warn((
+                            "WARNING: " + self.name + " has invalid "
+                            "sub-market scaling fraction derivation "
+                            "information"))
+                        # Set invalid derivation flag to 1
+                        sbmkt_derive_invalid = 1
+
+                    # If the derivation information or the general source
+                    # and URL information for the sub-market fraction are
+                    # invalid, yield warning that measure will be removed from
+                    # analysis, reset the current valid contributing key chain
+                    # count to a 999 flag, and flag the measure as inactive
+                    # such that it will be removed from all further routines
+                    if sbmkt_derive_invalid == 1 or (
+                            sbmkt_source_invalid == 1 and
+                            sbmkt_URL_invalid == 1):
+                        # Print measure removal warning
+                        warnings.warn((
+                            "WARNING (CRITICAL): " + self.name + " has "
+                            "insufficient sub-market source information and "
+                            "will be removed from analysis"))
+                        # Reset valid key chain count to 999 flag
+                        key_chain_ct = 999
+                        # Reset measure 'active' attribute to zero
+                        self.active = 0
+                        # Break from all further baseline stock/energy/carbon
+                        # and cost information updates for the measure
+                        break
 
                 # Seed the random number generator such that performance, cost,
                 # and lifetime draws are consistent across all microsegments
@@ -1031,7 +1133,15 @@ class Measure(object):
                 # move to next iteration of the loop through key chains
                 mseg_master = self.add_keyvals(mseg_master, add_dict)
 
-        if key_chain_ct != 0:
+        # Further normalize a measure's lifetime and stock information (where
+        # the latter is based on square footage) to the number of valid
+        # microsegments that contribute to the measure's overall master
+        # microsegment. Before proceeeding with this calculation, ensure the
+        # number of valid contributing microsegments is non-zero, and that the
+        # measure has not been flagged for removal from the analysis due to
+        # insufficient sub-market scaling source information (key_chain_ct =
+        # 999 in this case)
+        if key_chain_ct != 0 and key_chain_ct != 999:
 
             # Reduce summed lifetimes by number of microsegments that
             # contributed to the sums
@@ -1085,10 +1195,12 @@ class Measure(object):
             # markets/savings by climate zone, building type, and end use
             mseg_out_break = self.out_break_norm(
                 mseg_out_break, mseg_master['energy']['total']['baseline'])
-
-        else:
-                raise KeyError('No valid key chains discovered for lifetime \
-                                and stock and cost division operations!')
+        # Generate an error message when no valid contributing microsegments
+        # have been found for the measure's master microsegment
+        elif key_chain_ct == 0:
+            raise KeyError((
+                "No valid key chains discovered for lifetime "
+                "and stock and cost division operations!"))
 
         # Return the final master microsegment as well as contributing
         # microsegment and markets/savings output breakout information
@@ -2320,12 +2432,21 @@ class Engine(object):
             # Find master microsegment and partitions, as well as measure
             # savings overlaps and markets/savings output breakout information
             m.master_mseg, m.mseg_adjust, m.mseg_out_break = \
-                m.mseg_find_partition(mseg_in, base_costperflife_in, adopt_scheme,
-                                      out_break_in, retro_rate)
-            # Update savings outcomes and economic metrics
-            # based on master microsegment
-            m.master_savings = m.calc_metric_update(
-                rate, adjust_savings, com_timeprefs, adopt_scheme)
+                m.mseg_find_partition(
+                    mseg_in, base_costperflife_in, adopt_scheme,
+                    out_break_in, retro_rate)
+            # Screen measure from further savings/metrics calculations if it
+            # has sub-market scaling information with insufficient source
+            # attribution
+            if m.active == 1:
+                # Update savings outcomes and economic metrics
+                # based on master microsegment
+                m.master_savings = m.calc_metric_update(
+                    rate, adjust_savings, com_timeprefs, adopt_scheme)
+
+        # Permanently remove any measures with insufficiently sourced
+        # sub-market scaling information
+        self.measures = [x for x in self.measures if x.active == 1]
 
         # If packaged measures are present, merge the individual measures that
         # contribute to the package and append to the overall measures list
@@ -3606,7 +3727,15 @@ class Measure_Package(Measure, Engine):
         return init_dict
 
 
+def custom_formatwarning(msg, *a):
+    """ Given a warning object, return only the warning message """
+    return str(msg) + '\n'
+
+
 def main():
+
+    # Custom format all warning messages (ignore everything but message itself)
+    warnings.formatwarning = custom_formatwarning
 
     # Import measures/microsegments files
     with open(measures_file, 'r') as mjs:
