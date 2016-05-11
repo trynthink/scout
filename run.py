@@ -380,7 +380,8 @@ class Measure(object):
                     mkt_scale_frac = self.market_scaling_fractions
                 if ind == 0 or isinstance(
                         self.market_scaling_fractions_source, dict):
-                    mkt_scale_frac_source = self.market_scaling_fractions_source
+                    mkt_scale_frac_source = \
+                        self.market_scaling_fractions_source
 
             # Set appropriate site-source conversion factor, energy cost, and
             # carbon intensity for given key chain
@@ -552,7 +553,8 @@ class Measure(object):
                 # current baseline microsegment, check that the source
                 # information for the fraction is sufficient; if not, remove
                 # the measure from further analysis
-                if mkt_scale_frac_source is not None:
+                if isinstance(mkt_scale_frac_source, dict) and \
+                        "title" in mkt_scale_frac_source.keys():
                     # Establish sub-market fraction general source, URL, and
                     # derivation information
 
@@ -1466,8 +1468,9 @@ class Measure(object):
                 # baseline technology
                 captured_base_frac = 1 - captured_eff_frac
 
-            # If sub-market scaling fraction is None, set to 1
-            if mkt_scale_frac is None:
+            # If sub-market scaling fraction is non-numeric (indicating
+            # it is not applicable to current microsegment), set to 1
+            if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
                 mkt_scale_frac = 1
 
             # Stock, energy, and carbon adjustments

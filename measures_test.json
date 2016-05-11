@@ -296,8 +296,16 @@
 	"market_exit_year": null,
 	"market_exit_year_source": "NA",
 	"market_exit_year_source_quality": 0,
-	"market_scaling_fractions": null,
-	"market_scaling_fractions_source": null,
+	"market_scaling_fractions": {
+        "central AC": 0.356},
+    "market_scaling_fractions_source": {
+        "central AC": {
+            "title": "RECS 2009'",
+            "author": "U.S. Energy Information Administration (EIA)",
+            "organization": "U.S. Energy Information Administration (EIA)",
+            "year": "2009",
+            "URL": "https://www.eia.gov/consumption/residential/data/2009/index.cfm?view=microdata",
+            "fraction_derivation": "14,942,604 total residential cooled sq.ft. filtered for electric heating"}},
 	"product_lifetime": 18,
 	"product_lifetime_units": "years",
 	"product_lifetime_source": "NA",
