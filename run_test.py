@@ -114,7 +114,7 @@ sample_measure3 = {
     "structure_type": ["new", "existing"],
     "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
     "bldg_type": ["assembly"],
-    "fuel_type": {"primary": ["electricity (grid)"],
+    "fuel_type": {"primary": ["electricity"],
                   "secondary": None},
     "fuel_switch_to": None,
     "end_use": {"primary": ["heating", "cooling"],
@@ -952,7 +952,7 @@ sample_measure7 = {
     "fuel_switch_to": None,
     "end_use": {"primary": ["cooling"],
                 "secondary": None},
-    "technology_type": {"primary": ["supply"],
+    "technology_type": {"primary": "supply",
                         "secondary": None},
     "technology": {"primary": ["ASHP"],
                    "secondary": None},
@@ -1727,6 +1727,11 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     that it properly partitions an input microsegment to yield the required
     competed stock/energy/cost and energy efficient consumption information """
 
+    # Modify run.py time horizon to match time horizon used in test
+    time_horizons = [
+        ["2009", "2010", "2011"], ["2025", "2026", "2027"],
+        ["2020", "2021", "2022"]]
+
     # Create a measure instance to use in the testing
     measure_instance = run.Measure(**sample_measure)
 
@@ -2168,6 +2173,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
     def test_ok(self):
         # Loop through 'ok_out' elements
         for elem in range(0, len(self.ok_out)):
+            # Reset AEO time horizon
+            run.aeo_years = self.time_horizons[elem]
             # Loop through two test schemes (Technical potential and Max
             # adoption potential)
             for scn in range(0, len(self.test_schemes)):
@@ -2214,7 +2221,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     sample_basein = {
         "AIA_CZ1": {
             "assembly": {
-                "electricity (grid)": {
+                "electricity": {
                     "heating": {
                         "demand": {
                             "windows conduction": {
@@ -5006,40 +5013,40 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
     sample_msegin = {
         "AIA_CZ1": {
             "assembly": {
-                "electricity (grid)": {
+                "total square footage": {"2009": 11, "2010": 11},
+                "new square footage": {"2009": 0, "2010": 0},
+                "electricity": {
                     "heating": {"demand": {"windows conduction": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 0, "2010": 0}},
+                                           "2009": 0 / 1000000,
+                                           "2010": 0 / 1000000},
                                            "windows solar": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 1, "2010": 1}},
+                                           "2009": 1 / 1000000,
+                                           "2010": 1 / 1000000},
                                            "lights": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 1, "2010": 1}}}},
+                                           "2009": 1 / 1000000,
+                                           "2010": 1 / 1000000}}},
                     "secondary heating": {"demand": {"windows conduction": {
-                                                     "stock": "NA",
-                                                     "energy": {"2009": 5,
-                                                                "2010": 5}},
+                                                     "2009": 5 / 1000000,
+                                                     "2010": 5 / 1000000},
                                                      "windows solar": {
-                                                     "stock": "NA",
-                                                     "energy": {"2009": 6,
-                                                                "2010": 6}},
+                                                     "2009": 6 / 1000000,
+                                                     "2010": 6 / 1000000},
                                                      "lights": {
-                                                     "stock": "NA",
-                                                     "energy": {"2009": 6,
-                                                                "2010": 6}}}},
+                                                     "2009": 6 / 1000000,
+                                                     "2010": 6 / 1000000}}},
                     "cooling": {"demand": {"windows conduction": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 5, "2010": 5}},
+                                           "2009": 5 / 1000000,
+                                           "2010": 5 / 1000000},
                                            "windows solar": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 6, "2010": 6}},
+                                           "2009": 6 / 1000000,
+                                           "2010": 6 / 1000000},
                                            "lights": {
-                                           "stock": "NA",
-                                           "energy": {"2009": 6, "2010": 6}}}},
-                    "lighting": {"commercial light type X": {
-                                 "stock": {"2009": 11, "2010": 11},
-                                 "energy": {"2009": 11, "2010": 11}}}}},
+                                           "2009": 6 / 1000000,
+                                           "2010": 6 / 1000000}}},
+                    "lighting": {
+                        "commercial light type X": {
+                            "2009": 11 / 1000000,
+                            "2010": 11 / 1000000}}}},
             "single family home": {
                 "square footage": {"2009": 100, "2010": 200},
                 "total homes": {"2009": 1000, "2010": 1000},
@@ -5555,7 +5562,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["assembly"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {
-                        "primary": ["electricity (grid)"],
+                        "primary": ["electricity"],
                         "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {
@@ -5803,7 +5810,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["assembly"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {
-                        "primary": ["electricity (grid)"],
+                        "primary": ["electricity"],
                         "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {
@@ -5931,7 +5938,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "bldg_type": ["assembly"],
                     "climate_zone": ["AIA_CZ1"],
                     "fuel_type": {
-                        "primary": ["electricity (grid)"],
+                        "primary": ["electricity"],
                         "secondary": None},
                     "fuel_switch_to": None,
                     "end_use": {
@@ -6740,11 +6747,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 11, "2010": 11},
-                "measure": {"2009": 11, "2010": 11}},
+                "all": {"2009": 11000000, "2010": 11000000},
+                "measure": {"2009": 11000000, "2010": 11000000}},
             "competed": {
-                "all": {"2009": 11, "2010": 11},
-                "measure": {"2009": 11, "2010": 11}}},
+                "all": {"2009": 11000000, "2010": 11000000},
+                "measure": {"2009": 11000000, "2010": 11000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 76.56, "2010": 76.8},
@@ -6762,11 +6769,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 154, "2010": 154},
-                    "efficient": {"2009": 275, "2010": 275}},
+                    "baseline": {"2009": 154000000, "2010": 154000000},
+                    "efficient": {"2009": 275000000, "2010": 275000000}},
                 "competed": {
-                    "baseline": {"2009": 154, "2010": 154},
-                    "efficient": {"2009": 275, "2010": 275}}},
+                    "baseline": {"2009": 154000000, "2010": 154000000},
+                    "efficient": {"2009": 275000000, "2010": 275000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 695.1648, "2010": 656.64},
@@ -7108,11 +7115,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 11, "2010": 11},
-                "measure": {"2009": 11, "2010": 11}},
+                "all": {"2009": 11000000, "2010": 11000000},
+                "measure": {"2009": 11000000, "2010": 11000000}},
             "competed": {
-                "all": {"2009": 11, "2010": 11},
-                "measure": {"2009": 11, "2010": 11}}},
+                "all": {"2009": 11000000, "2010": 11000000},
+                "measure": {"2009": 11000000, "2010": 11000000}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 76.56, "2010": 76.8},
@@ -7130,11 +7137,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 154, "2010": 154},
-                    "efficient": {"2009": 275, "2010": 275}},
+                    "baseline": {"2009": 154000000, "2010": 154000000},
+                    "efficient": {"2009": 275000000, "2010": 275000000}},
                 "competed": {
-                    "baseline": {"2009": 154, "2010": 154},
-                    "efficient": {"2009": 275, "2010": 275}}},
+                    "baseline": {"2009": 154000000, "2010": 154000000},
+                    "efficient": {"2009": 275000000, "2010": 275000000}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 695.1648, "2010": 656.64},
@@ -7246,11 +7253,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
               {
         "stock": {
             "total": {
-                "all": {"2009": 11, "2010": 11},
-                "measure": {"2009": 0.30, "2010": 0.89}},
+                "all": {"2009": 11000000, "2010": 11000000},
+                "measure": {"2009": 298571.43, "2010": 887610.20}},
             "competed": {
-                "all": {"2009": 0.30, "2010": 0.60},
-                "measure": {"2009": 0.30, "2010": 0.60}}},
+                "all": {"2009": 298571.43, "2010": 597142.86},
+                "measure": {"2009": 298571.43, "2010": 597142.86}}},
         "energy": {
             "total": {
                 "baseline": {"2009": 76.56, "2010": 76.8},
@@ -7268,11 +7275,11 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
         "cost": {
             "stock": {
                 "total": {
-                    "baseline": {"2009": 154, "2010": 154},
-                    "efficient": {"2009": 157.28, "2010": 163.76}},
+                    "baseline": {"2009": 154000000, "2010": 154000000},
+                    "efficient": {"2009": 157284285.71, "2010": 163763712.24}},
                 "competed": {
-                    "baseline": {"2009": 4.18, "2010": 8.36},
-                    "efficient": {"2009": 7.46, "2010": 14.93}}},
+                    "baseline": {"2009": 4180000, "2010": 8360000},
+                    "efficient": {"2009": 7464285.71, "2010": 14928571.43}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 695.1648, "2010": 656.64},
@@ -7717,6 +7724,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Test for correct output from "ok_measures" input
     def test_mseg_ok(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Adjust maxDiff parameter to ensure that any dict key discrepancies
         # revealed by the test are fully reported
         self.maxDiff = None
@@ -7776,6 +7785,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Test for correct output from "ok_measures_dist" input
     def test_mseg_ok_distrib(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]        
         # Seed random number generator to yield repeatable results
         numpy.random.seed(1234)
         for idx, measure in enumerate(self.ok_measures_dist):
@@ -7803,6 +7814,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Test for correct output from "partial_measures" input
     def test_mseg_partial(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         for idx, measure in enumerate(self.partial_measures):
             # Create an instance of the object based on partial measure info
             measure_instance = run.Measure(**measure)
@@ -7817,6 +7830,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Test for correct output from "blank_measures" input
     def test_mseg_blank(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         for idx, measure in enumerate(self.blank_measures):
             # Create an instance of the object based on blank measure info
             measure_instance = run.Measure(**measure)
@@ -7830,6 +7845,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
 
     # Test for correct output from "warn_measures" input
     def test_mseg_warn(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         for idx, mw in enumerate(self.warn_measures):
             # Create an instance of the object based on warn measure info
             measure_instance = run.Measure(**mw)
@@ -7884,11 +7901,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 5, "2010": 10}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 30},
-                "efficient": {"2009": 5, "2010": 10}},
+                "baseline": {"2009": 200, "2010": 300},
+                "efficient": {"2009": 50, "2010": 100}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 15},
-                "efficient": {"2009": 0, "2010": 5}}},
+                "baseline": {"2009": 100, "2010": 150},
+                "efficient": {"2009": 0, "2010": 50}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 200, "2010": 300},
@@ -7935,15 +7952,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 5, "2010": 10}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 30},
+                "baseline": {"2009": 200, "2010": 300},
                 "efficient": {
-                    "2009": numpy.array([1.6, 2.7, 3.1, 6, 5.1]),
-                    "2010": numpy.array([10.6, 9.5, 8.1, 11, 12.4])}},
+                    "2009": numpy.array([16, 27, 31, 6, 51]),
+                    "2010": numpy.array([106, 95, 81, 11, 124])}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 15},
+                "baseline": {"2009": 100, "2010": 150},
                 "efficient": {
-                    "2009": numpy.array([0.6, 0.7, 0.1, 1.6, 0.1]),
-                    "2010": numpy.array([3.6, 4.5, 6.1, 5, 5.4])}}},
+                    "2009": numpy.array([6, 7, 1, 16, 1]),
+                    "2010": numpy.array([36, 45, 61, 5, 54])}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 200, "2010": 300},
@@ -8004,11 +8021,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 5, "2010": 10}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 30},
-                "efficient": {"2009": 5, "2010": 10}},
+                "baseline": {"2009": 200, "2010": 300},
+                "efficient": {"2009": 50, "2010": 100}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 15},
-                "efficient": {"2009": 0, "2010": 5}}},
+                "baseline": {"2009": 100, "2010": 150},
+                "efficient": {"2009": 0, "2010": 50}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 200, "2010": 300},
@@ -8061,11 +8078,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 5, "2010": 10}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 30},
-                "efficient": {"2009": 5, "2010": 10}},
+                "baseline": {"2009": 200, "2010": 300},
+                "efficient": {"2009": 50, "2010": 100}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 15},
-                "efficient": {"2009": 0, "2010": 5}}},
+                "baseline": {"2009": 100, "2010": 150},
+                "efficient": {"2009": 0, "2010": 50}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 200, "2010": 300},
@@ -8111,11 +8128,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 5, "2010": 10}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 20, "2010": 30},
-                "efficient": {"2009": 5, "2010": 10}},
+                "baseline": {"2009": 200, "2010": 300},
+                "efficient": {"2009": 50, "2010": 100}},
             "competed": {
-                "baseline": {"2009": 10, "2010": 15},
-                "efficient": {"2009": 0, "2010": 5}}},
+                "baseline": {"2009": 100, "2010": 150},
+                "efficient": {"2009": 0, "2010": 50}}},
         "carbon": {
             "total": {
                 "baseline": {"2009": 200, "2010": 300},
@@ -8162,8 +8179,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": -5, "2010": -10},
             "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
-            "savings (total)": {"2009": 15, "2010": 20},
-            "savings (annual)": {"2009": 10, "2010": 10},
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (annual)": {"2009": 100, "2010": 100},
             "cost savings (total)": {"2009": 10, "2010": 15},
             "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
@@ -8202,9 +8219,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2009": 0.25, "2010": 0.33},
             "payback (w/ energy and carbon $)": {
                 "2009": 0.2, "2010": 0.22},
-            "cce": {"2009": -0.24, "2010": -0.22},
+            "cce": {"2009": -0.02, "2010": -0.02},
             "cce (w/ carbon $ benefits)": {
-                "2009": -0.74, "2010": -1.72},
+                "2009": -0.07, "2010": -0.17},
             "ccc": {"2009": -0.05, "2010": -0.04},
             "ccc (w/ energy $ benefits)": {
                 "2009": -0.25, "2010": -0.34}}}
@@ -8217,8 +8234,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": -5, "2010": -10},
             "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
-            "savings (total)": {"2009": 15, "2010": 20},
-            "savings (annual)": {"2009": 10, "2010": 10},
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (annual)": {"2009": 100, "2010": 100},
             "cost savings (total)": {"2009": 10, "2010": 15},
             "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
@@ -8299,9 +8316,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2009": 0.25, "2010": 0.33},
             "payback (w/ energy and carbon $)": {
                 "2009": 0.2, "2010": 0.22},
-            "cce": {"2009": -0.24, "2010": -0.22},
+            "cce": {"2009": -0.02, "2010": -0.02},
             "cce (w/ carbon $ benefits)": {
-                "2009": -0.74, "2010": -1.72},
+                "2009": -0.07, "2010": -0.17},
             "ccc": {"2009": -0.05, "2010": -0.04},
             "ccc (w/ energy $ benefits)": {
                 "2009": -0.25, "2010": -0.34}}}
@@ -8314,11 +8331,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
             "savings (total)": {
-                "2009": [18.4, 17.3, 16.9, 14.0, 14.9],
-                "2010": [19.4, 20.5, 21.9, 19.0, 17.6]},
+                "2009": [184, 173, 169, 194, 149],
+                "2010": [194, 205, 219, 289, 176]},
             "savings (annual)": {
-                "2009": [9.4, 9.3, 9.9, 8.4, 9.9],
-                "2010": [11.4, 10.5, 8.9, 10.0, 9.6]},
+                "2009": [94, 93, 99, 84, 99],
+                "2010": [114, 105, 89, 145, 96]},
             "cost savings (total)": {
                 "2009": [10.9, 11.3, 12.3, 8.8, 7.5],
                 "2010": [14.9, 16.3, 13.3, 13.8, 12.5]},
@@ -8452,11 +8469,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "2009": [0.19, 0.19, 0.17, 0.28, 0.17],
                 "2010": [0.20, 0.19, 0.21, 0.21, 0.22]},
             "cce": {
-                "2009": [-0.26, -0.26, -0.24, -0.29, -0.24],
-                "2010": [-0.19, -0.21, -0.25, -0.22, -0.23]},
+                "2009": [-0.02557046, -0.02584541, -0.02427902,
+                         -0.02861456, -0.02427902],
+                "2010": [-0.01949742, -0.02116862, -0.02497422,
+                         -0.01532900, -0.02315318]},
             "cce (w/ carbon $ benefits)": {
-                "2009": [-0.78, -0.83, -0.88, -0.14, -1.40],
-                "2010": [-1.94, -2.24, -2.31, -2.10, -2.05]},
+                "2009": [-0.07769812, -0.08283466, -0.08791539,
+                         -0.01432885, -0.1404406],
+                "2010": [-0.19405882, -0.22402576, -0.23059219,
+                         -0.14498417, -0.2054448]},
             "ccc": {
                 "2009": [-0.05, -0.06, -0.06, -0.05, -0.05],
                 "2010": [-0.04, -0.05, -0.05, -0.05, -0.05]},
@@ -8473,8 +8494,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                       "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
-            "savings (total)": {"2009": 15, "2010": 20},
-            "savings (annual)": {"2009": 10, "2010": 10},
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (annual)": {"2009": 100, "2010": 100},
             "cost savings (total)": {"2009": 10, "2010": 15},
             "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
@@ -8596,11 +8617,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [0.20, 0.11, 0.16, 0.17, 0.22],
                  "2010": [0.11, 0.08, 0.15, 0.09, 0.12]},
             "cce":
-                {"2009": [-0.23, -0.37, -0.29, -0.28, -0.21],
-                 "2010": [-0.49, -0.57, -0.40, -0.54, -0.47]},
+                {"2009": [-0.02348314, -0.03675734, -0.02901406,
+                          -0.02846097, -0.02127077],
+                 "2010": [-0.04932855, -0.05707184, -0.04047908,
+                          -0.05430638, -0.04711618]},
             "cce (w/ carbon $ benefits)":
-                {"2009": [-0.73, -0.87, -0.79, -0.78, -0.71],
-                 "2010": [-1.99, -2.07, -1.90, -2.04, -1.97]},
+                {"2009": [-0.07348314, -0.08675734, -0.07901406,
+                          -0.07846097, -0.07127077],
+                 "2010": [-0.19932855, -0.20707184, -0.19047908,
+                          -0.20430638, -0.19711618]},
             "ccc":
                 {"2009": [-0.05, -0.07, -0.06, -0.06, -0.04],
                  "2010": [-0.10, -0.11, -0.08, -0.11, -0.09]},
@@ -8615,8 +8640,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (total)": {"2009": -5, "2010": -10},
             "cost savings (annual)": {"2009": -5, "2010": -10}},
         "energy": {
-            "savings (total)": {"2009": 15, "2010": 20},
-            "savings (annual)": {"2009": 10, "2010": 10},
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (annual)": {"2009": 100, "2010": 100},
             "cost savings (total)": {"2009": 10, "2010": 15},
             "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
@@ -8738,11 +8763,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [0.33, 0.33, 0.20, 0.20, 0.20],
                  "2010": [0.33, 0.33, 0.22, 0.22, 0.22]},
             "cce":
-                {"2009": [0.54, 0.54, -0.24, -0.24, -0.7],
-                 "2010": [1.07, 1.07, -0.22, -0.22, -1.0]},
+                {"2009": [0.0535, 0.0535, -0.02403623,
+                          -0.02403623, -0.07041640],
+                 "2010": [0.1070, 0.1070, -0.02222705,
+                          -0.02222705, -0.09952733]},
             "cce (w/ carbon $ benefits)":
-                {"2009": [0.03, 0.03, -0.74, -0.74, -1.2],
-                 "2010": [-0.43, -0.43, -1.72, -1.72, -2.5]},
+                {"2009": [0.0035, 0.0035, -0.07403623,
+                          -0.07403623, -0.1204164],
+                 "2010": [-0.0430, -0.0430, -0.17222705,
+                          -0.17222705, -0.2495273]},
             "ccc":
                 {"2009": [0.11, 0.11, -0.05, -0.05, -0.14],
                  "2010": [0.21, 0.21, -0.04, -0.04, -0.20]},
@@ -8759,8 +8788,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "cost savings (annual)": {"2009": [-5.1, -2.7, -4.1, -4.2, -5.5],
                                       "2010": [-5.1, -3.7, -6.7, -4.2, -5.5]}},
         "energy": {
-            "savings (total)": {"2009": 15, "2010": 20},
-            "savings (annual)": {"2009": 10, "2010": 10},
+            "savings (total)": {"2009": 150, "2010": 200},
+            "savings (annual)": {"2009": 100, "2010": 100},
             "cost savings (total)": {"2009": 10, "2010": 15},
             "cost savings (annual)": {"2009": 10, "2010": 15}},
         "carbon": {
@@ -8882,11 +8911,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [0.34, 0.18, 0.16, 0.17, 0.22],
                  "2010": [0.17, 0.12, 0.15, 0.09, 0.12]},
             "cce":
-                {"2009": [0.55, 0.29, -0.29, -0.28, -0.69],
-                 "2010": [0.55, 0.40, -0.40, -0.54, -1.11]},
+                {"2009": [0.05457, 0.02889, -0.02901406,
+                          -0.02846097, -0.06919694],
+                 "2010": [0.05457, 0.03959, -0.04047908,
+                          -0.05430638, -0.11050241]},
             "cce (w/ carbon $ benefits)":
-                {"2009": [0.05, -0.21, -0.79, -0.78, -1.19],
-                 "2010": [-0.95, -1.10, -1.90, -2.04, -2.61]},
+                {"2009": [0.00457, -0.02111, -0.07901406,
+                          -0.07846097, -0.1191969],
+                 "2010": [-0.09543, -0.11041, -0.19047908,
+                          -0.20430638, -0.2605024]},
             "ccc":
                 {"2009": [0.11, 0.06, -0.06, -0.06, -0.14],
                  "2010": [0.11, 0.08, -0.08, -0.11, -0.22]},
@@ -9004,11 +9037,11 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     # Test ok capital cost increment
     ok_scostsave = -10
     # Test ok energy savings
-    ok_esave = 25
+    ok_esave = 75
     # Test ok energy cost savings
     ok_ecostsave = 5
     # Test ok carbon savings
-    ok_csave = 50
+    ok_csave = 500
     # Test ok carbon cost savings
     ok_ccostsave = 10
     # Test ok life ratio
@@ -9024,7 +9057,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     # Correct floating point output values that should be yielded by
     # using "ok" inputs above (final eight elements of 'metric_update' output
     # list)
-    ok_out_array = [0.62, 1.59, 2, 0.67, 0.02, -0.38, 0.01, -0.09]
+    ok_out_array = [0.62, 1.59, 2, 0.67, 0.005, -0.13, 0.008, -0.009]
 
     # Test for correct outputs given "ok" inputs above
     def test_metric_updates(self):
@@ -10995,6 +11028,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     # Test outcomes given sample measures with all point value inputs
     def test_compete_res(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the measure competition routine on all sample demand-side
         # measures first, given their cumulative affect on supply-side measures
         self.a_run.res_compete(self.measures_demand, self.adjust_key1)
@@ -11025,6 +11060,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     # Test outcomes given list inputs for sample measures 1 and 3
     def test_compete_res_dist(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the measure competition and supply-demand overlap recording
         # routines on all sample cooling demand-side measures
         self.a_run_dist.res_compete(
@@ -12475,6 +12512,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     # Test outcomes given sample measures with all point value inputs
     def test_compete_com(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the measure competition routine on sample measures
         self.a_run.com_compete(self.measures_compete, self.overlap_key)
         # Run secondary microsegment adjustments on sample measure
@@ -12493,6 +12532,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     # Test outcomes given a list input for sample measure 1 capital cost
     def test_compete_com_dist(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the measure competition routine on sample measures
         self.a_run_dist.com_compete(
             self.measures_compete_dist, self.overlap_key)
@@ -12788,6 +12829,8 @@ class PackageMergeTest(unittest.TestCase, CommonMethods):
     # Test outcomes of the package_merge function, given sample measure
     # inputs and overlapping microsegment information defined above
     def test_package_merge(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the package_merge routine to remove overlapping market
         # microsegments across the sample measures to be packaged
         self.packaged_measure.package_merge(
@@ -13331,6 +13374,8 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
     # Test outcomes of the merge_measures function, given sample packaged
     # measure object defined above
     def test_package_measure(self):
+        # Modify run.py time horizon to match time horizon used in test
+        run.aeo_years = ["2009", "2010"]
         # Run the merge measures routine
         self.packaged_measure.merge_measures()
         # Check for correct package measure name, climate zone, building
@@ -13350,6 +13395,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
         self.dict_check(
             self.packaged_measure.mseg_out_break, self.ok_out_break)
         self.dict_check(self.packaged_measure.master_mseg, self.ok_master_mseg)
+
 
 # Offer external code execution (include all lines below this point in all
 # test files)

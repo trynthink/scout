@@ -610,5 +610,140 @@
 		"email": null,
 		"timestamp": null
 	}
+},
+{
+	"name": "Demand Controlled Ventilation",
+	"active": 1,
+	"measure_type": "add-on",
+	"component_cost": 0.17,
+	"installed_cost": 0.17,
+	"cost_units": "2016$/sf",
+	"component_cost_source": "NA",
+	"component_cost_source_quality": "NA",
+	"installed_cost_source": "NA",
+	"installed_cost_source_quality": "NA",
+	"energy_efficiency": {"primary": 0.20, "secondary": null},
+	"energy_efficiency_units": {
+		"primary": "relative savings (constant)", "secondary": null},
+	"energy_efficiency_source": "NA",
+	"energy_efficiency_source_quality": 0,
+	"market_entry_year": 2012,
+	"market_entry_year_source": "NA",
+	"market_entry_year_source_quality": 0,
+	"market_exit_year": null,
+	"market_exit_year_source": "NA",
+	"market_exit_year_source_quality": 0,
+	"market_scaling_fractions": null,
+	"market_scaling_fractions_source": null,
+	"product_lifetime": 15,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "NA",
+	"product_lifetime_source_quality": "NA",
+	"TRL": "NA",
+	"end_use": {
+		"primary": ["heating", "cooling", "ventilation"],
+		"secondary": null},
+	"fuel_type": {
+		"primary": [
+			"electricity", "natural gas", "distillate"],
+		"secondary": null},
+	"fuel_switch_to": null,
+	"technology_type": {"primary": "supply", "secondary": null},
+	"technology": {
+		"primary": [
+			"wall-window_room_AC", "reciprocating_chiller",
+			"comm_GSHP-cool", "res_type_central_AC",
+			"scroll_chiller", "centrifugal_chiller", "rooftop_AC",
+			"rooftop_ASHP-cool", "screw_chiller", "VAV_Vent", 
+			"CAV_Vent", "elec_boiler", "electric_res-heat",
+			"comm_GSHP-heat", "rooftop_ASHP-heat",
+			"gas_eng-driven_RTAC", "gas_eng-driven_RTHP-cool",
+			"res_type_gasHP-cool", "gas_chiller",
+			"gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
+			"gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
+		"secondary": null},
+	"bldg_type": [
+		"assembly", "education", "food sales", "food service",
+        "health care", "lodging", "large office", "small office",
+        "mercantile/service", "warehouse", "other"],
+	"climate_zone": [
+		"AIA_CZ1", "AIA_CZ2", "AIA_CZ3","AIA_CZ4", "AIA_CZ5"],
+	"structure_type": ["new", "existing"],
+	"_description": null,
+	"_notes": null,
+	"_added_by": {
+		"name": "Jared Langevin",
+		"organization": "DOE Building Technologies Office",
+		"email": "jared.langevin@gmail.com",
+		"timestamp": "2016-05-11 22:04:55 EDT"
+	},
+	"_updated_by": {
+		"name": null,
+		"organization": null,
+		"email": null,
+		"timestamp": null
+	}
+},
+{
+	"name": "Move from CAV to VAV",
+	"active": 1,
+	"measure_type": "full service",
+	"component_cost": 5782,
+	"installed_cost": 5782,
+	"cost_units": "2013$/1000 cfm",
+	"component_cost_source": "NA",
+	"component_cost_source_quality": "NA",
+	"installed_cost_source": "NA",
+	"installed_cost_source_quality": "NA",
+	"energy_efficiency": {"primary": 0.25, "secondary": null},
+	"energy_efficiency_units": {
+		"primary": "relative savings (constant)", "secondary": null},
+	"energy_efficiency_source": "NA",
+	"energy_efficiency_source_quality": 0,
+	"market_entry_year": 2012,
+	"market_entry_year_source": "NA",
+	"market_entry_year_source_quality": 0,
+	"market_exit_year": null,
+	"market_exit_year_source": "NA",
+	"market_exit_year_source_quality": 0,
+	"market_scaling_fractions": null,
+	"market_scaling_fractions_source": null,
+	"product_lifetime": 20,
+	"product_lifetime_units": "years",
+	"product_lifetime_source": "NA",
+	"product_lifetime_source_quality": "NA",
+	"TRL": "NA",
+	"end_use": {
+		"primary": ["ventilation"],
+		"secondary": null},
+	"fuel_type": {
+		"primary": ["electricity"],
+		"secondary": null},
+	"fuel_switch_to": null,
+	"technology_type": {"primary": "supply", "secondary": null},
+	"technology": {
+		"primary": ["CAV_Vent"],
+		"secondary": null},
+	"bldg_type": [
+		"assembly", "education", "food sales", "food service",
+        "health care", "lodging", "large office", "small office",
+        "mercantile/service", "warehouse", "other"],
+	"climate_zone": [
+		"AIA_CZ1", "AIA_CZ2", "AIA_CZ3","AIA_CZ4", "AIA_CZ5"],
+	"structure_type": ["new", "existing"],
+	"_description": null,
+	"_notes": null,
+	"_added_by": {
+		"name": "Jared Langevin",
+		"organization": "DOE Building Technologies Office",
+		"email": "jared.langevin@gmail.com",
+		"timestamp": "2016-05-12 14:19:49 EDT"
+	},
+	"_updated_by": {
+		"name": null,
+		"organization": null,
+		"email": null,
+		"timestamp": null
+	}
 }
 ]

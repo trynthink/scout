@@ -8,6 +8,14 @@ from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import warnings
 from urllib.parse import urlparse
+# Establish a modeling time horizon for updating across all input files
+# Start year
+aeo_min = 2009
+# End year
+aeo_max = 2040
+# Year list
+aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
+
 # User-specified inputs (placeholders for now, eventually draw from GUI?)
 adopt_scheme = 'Technical potential'  # Determines measure adoption scenario
 adjust_savings = True  # Determines whether measures are competed or not
@@ -18,8 +26,8 @@ nsamples = 50  # Number of samples in cases with input distributions
 
 # Define measures/microsegments files
 measures_file = "measures_test.json"
-microsegments_file = "microsegments_out.json"
-mseg_base_costperflife_info = "base_costperflife.json"
+microsegments_file = "mseg_res_com_cz.json"
+mseg_base_costperflife_info = "cpl_res_com_cz.json"
 measure_packages_file = 'measure_packages_test.json'
 
 # Define and import site-source conversions and carbon emissions data
@@ -28,13 +36,17 @@ cost_ss_carb = numpy.genfromtxt(cost_sitesource_carb,
                                 names=True, delimiter='\t',
                                 dtype=None)
 
+###########################################################################
+# MAKE RES/COM MSEG ELECTRICITY DEFINITIONS CONSISTENT
 # Set fuel type site-source conversion factors dict
 ss_conv = {"electricity (grid)": cost_ss_carb[7],
+           "electricity": cost_ss_carb[7],
            "natural gas": cost_ss_carb[8],
            "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
 
 # Set fuel type carbon intensity dict
 carb_int = {"electricity (grid)": cost_ss_carb[10],
+            "electricity": cost_ss_carb[10],
             "natural gas": cost_ss_carb[11],
             "distillate": cost_ss_carb[12], "other fuel": cost_ss_carb[12]}
 
@@ -43,10 +55,11 @@ ecosts = {"residential": {"electricity (grid)": cost_ss_carb[0],
                           "natural gas": cost_ss_carb[1],
                           "distillate": cost_ss_carb[2],
                           "other fuel": cost_ss_carb[2]},
-          "commercial": {"electricity (grid)": cost_ss_carb[3],
+          "commercial": {"electricity": cost_ss_carb[3],
                          "natural gas": cost_ss_carb[4],
                          "distillate": cost_ss_carb[5],
                          "other fuel": cost_ss_carb[5]}}
+###########################################################################
 # Set carbon costs dict
 ccosts = cost_ss_carb[6]
 
@@ -55,19 +68,26 @@ rate = 0.07
 
 # Set end use-specific discount rate distributions for use in commercial
 # sector measure competition.  For now, specify this manually using Table
-# E-1 of the commercial demand module documentation.  * Note: in the future,
-# a routine will be added that imports this information from the most recent
-# AEO kprem.txt raw data file
+# E-1 of the commercial demand module documentation, with distributions
+# constant across all years in the modeling horizon.  * Note: in the future,
+# this information will be drawn from the mseg_base_costperflife data file
 com_timeprefs = {
     "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
     "distributions": {
-        "heating": [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003],
-        "cooling": [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004],
-        "water heating": [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004],
-        "ventilation": [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003],
-        "cooking": [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004],
-        "lighting": [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027],
-        "refrigeration": [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]}}
+        "heating": {key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in aeo_years},
+        "cooling": {key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
+                    for key in aeo_years},
+        "water heating": {key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006,
+                                0.004] for key in aeo_years},
+        "ventilation": {key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013,
+                              0.003] for key in aeo_years},
+        "cooking": {key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
+                    for key in aeo_years},
+        "lighting": {key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
+                     for key in aeo_years},
+        "refrigeration": {key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006,
+                                0.004] for key in aeo_years}}}
 
 # Define a summary JSON file. For now, yield separate output files for a
 # competed and non-competed case and technical potential and non-technical
@@ -246,7 +266,7 @@ class Measure(object):
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
-        sbmkt_source_invalid, sbmkt_URL_invalid, sbmkt_derive_invalid = (
+        sbmkt_source_invalid, sbmkt_url_invalid, sbmkt_derive_invalid = (
             0 for n in range(3))
 
         # Initialize variable indicating use of sq.ft. as microsegment stock
@@ -300,13 +320,11 @@ class Measure(object):
                         "relative savings (constant)"
                     # Set secondary fuel type to include all heating/cooling
                     # fuels
-                    self.fuel_type["secondary"] = ["electricity (grid)",
-                                                   "natural gas",
-                                                   "other"]
+                    self.fuel_type["secondary"] = [
+                        "electricity", "natural gas", "other"]
                     # Set relevant secondary end uses
-                    self.end_use["secondary"] = ["heating",
-                                                 "secondary heating",
-                                                 "cooling"]
+                    self.end_use["secondary"] = [
+                        "heating", "secondary heating", "cooling"]
                     # Set secondary technology type ("demand" as the lighting
                     # measure affects heating/cooling loads)
                     self.technology_type["secondary"] = "demand"
@@ -324,6 +342,13 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for ind, mskeys in enumerate(ms_iterable):
+
+            # Set building sector for the current microsegment
+            if mskeys[2] in [
+                    "single family home", "mobile home", "multi family home"]:
+                bldg_sect = "residential"
+            else:
+                bldg_sect = "commercial"
 
             # Adjust the key chain to be used in registering contributing
             # microsegment information for cases where 'windows solar'
@@ -433,6 +458,13 @@ class Measure(object):
                         # Restrict stock/energy dict to key chain info.
                         mseg = mseg[mskeys[i]]
 
+                        ######################################################
+                        # FORMAT RES/COM MSEG TERMINAL LEAF NODES CONSISTENTLY
+                        if any([isinstance(x, dict) for x in mseg.values()]) \
+                                is False and bldg_sect == "commercial":
+                            mseg = {"stock": "NA", "energy": mseg}
+                        ######################################################
+
                         # Restrict sq.ft. dict to key chain info.
                         if i < 3:  # Note: sq.ft. broken out 2 levels
                             mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
@@ -485,11 +517,23 @@ class Measure(object):
                         # and fuel type, heating/cooling supply and demand
                         # energy should be equal.
                         for ind, ks in enumerate(mseg.keys()):
-                            if ind == 0:
-                                adj_vals = copy.deepcopy(mseg[ks]["energy"])
+                            ##########################################
+                            # FORMAT RES/COM MSEG TERMINAL LEAF NODES
+                            # CONSISTENTLY
+                            if bldg_sect == "residential":
+                                if ind == 0:
+                                    adj_vals = copy.deepcopy(mseg[ks][
+                                        "energy"])
+                                else:
+                                    adj_vals = self.add_keyvals(
+                                        adj_vals, mseg[ks]["energy"])
                             else:
-                                adj_vals = self.add_keyvals(
-                                    adj_vals, mseg[ks]["energy"])
+                                if ind == 0:
+                                    adj_vals = copy.deepcopy(mseg[ks])
+                                else:
+                                    adj_vals = self.add_keyvals(
+                                        adj_vals, mseg[ks])
+                            ###########################################
 
                         # Case with no existing 'windows' contributing
                         # microsegment for the current climate zone,
@@ -504,14 +548,15 @@ class Measure(object):
                             mseg_adjust["supply-demand adjustment"]["total"][
                                 str(contrib_mseg_key)] = {
                                     key: val * site_source_conv_base[
-                                        key] for key, val in adj_vals.items()}
+                                        key] for key, val in adj_vals.items()
+                                    if key in aeo_years}
                             # Set overlapping energy savings values to zero in
                             # the measure's 'supply-demand adjustment'
                             # information for now (updated as necessary in the
                             # 'adjust_savings' function below)
                             mseg_adjust["supply-demand adjustment"]["savings"][
                                 str(contrib_mseg_key)] = dict.fromkeys(
-                                    adj_vals.keys(), 0)
+                                    aeo_years, 0)
                         # Case with existing 'windows' contributing
                         # microsegment for the current climate zone, building
                         # type, fuel type, and end use (add to existing
@@ -524,7 +569,8 @@ class Measure(object):
                             # microsegment
                             add_adjust = {
                                 key: val * site_source_conv_base[
-                                    key] for key, val in adj_vals.items()}
+                                    key] for key, val in adj_vals.items()
+                                if key in aeo_years}
                             mseg_adjust["supply-demand adjustment"]["total"][
                                 str(contrib_mseg_key)] = self.add_key_vals(
                                     mseg_adjust["supply-demand adjustment"][
@@ -565,7 +611,7 @@ class Measure(object):
                         mkt_scale_frac_source['organization'],
                         mkt_scale_frac_source['year']]
                     # Set URL for the sub-market fraction
-                    URL = mkt_scale_frac_source['URL']
+                    url = mkt_scale_frac_source['URL']
                     # Set information about how sub-market fraction was derived
                     frac_derive = mkt_scale_frac_source['fraction_derivation']
 
@@ -589,10 +635,10 @@ class Measure(object):
                     # Check sub-market fraction URL, yield warning if URL is
                     # invalid and invalid URL flag hasn't already been raised
                     # for this measure
-                    if sbmkt_URL_invalid != 1:
+                    if sbmkt_url_invalid != 1:
                         # Parse the URL into components (addressing scheme,
                         # network location, etc.)
-                        url_check = urlparse(URL)
+                        url_check = urlparse(url)
                         # Check for valid URL address scheme and network
                         # location components
                         if (any([len(url_check.scheme),
@@ -605,7 +651,7 @@ class Measure(object):
                                 "sub-market scaling fraction source URL "
                                 "information"))
                             # Set invalid URL flag to 1
-                            sbmkt_URL_invalid = 1
+                            sbmkt_url_invalid = 1
                     # Check sub-market fraction derivation information, yield
                     # warning if invalid
                     if not isinstance(frac_derive, str):
@@ -625,7 +671,7 @@ class Measure(object):
                     # such that it will be removed from all further routines
                     if sbmkt_derive_invalid == 1 or (
                             sbmkt_source_invalid == 1 and
-                            sbmkt_URL_invalid == 1):
+                            sbmkt_url_invalid == 1):
                         # Print measure removal warning
                         warnings.warn((
                             "WARNING (CRITICAL): " + self.name + " has "
@@ -741,7 +787,7 @@ class Measure(object):
                             perf_meas_orig = copy.deepcopy(perf_meas)
                             # Loop through all years in modeling time horizon
                             # and calculate relative measure performance
-                            for yr in perf_base.keys():
+                            for yr in aeo_years:
                                 # If relative savings must be adjusted to
                                 # account for changes in baseline performance,
                                 # scale the relative savings value by the
@@ -785,10 +831,10 @@ class Measure(object):
                                 # Calculate relative performance
                                 rel_perf[yr] = 1 - perf_meas
                     elif perf_units not in inverted_relperf_list:
-                        for yr in perf_base.keys():
+                        for yr in aeo_years:
                             rel_perf[yr] = (perf_base[yr] / perf_meas)
                     else:
-                        for yr in perf_base.keys():
+                        for yr in aeo_years:
                             rel_perf[yr] = (perf_meas / perf_base[yr])
 
                     # If looping through a commercial lighting microsegment
@@ -834,15 +880,14 @@ class Measure(object):
                     life_base = base_costperflife["lifetime"]["average"]
                     # Set any base lifetime values less than 1 to 1
                     # (minimum lifetime)
-                    for yr in life_base.keys():
+                    for yr in aeo_years:
                         if life_base[yr] < 1:
                             life_base[yr] = 1
 
                 # Reduce energy costs and stock turnover info. to appropriate
                 # building type and - for energy costs - fuel, before
                 # entering into "partition_microsegment"
-                if mskeys[2] in ["single family home", "mobile home",
-                                 "multi family home"]:
+                if bldg_sect == "residential":
                     # Update residential baseline and measure energy cost
                     # information, accounting for any fuel switching from
                     # baseline technology to measure technology
@@ -855,28 +900,12 @@ class Measure(object):
                             self.fuel_switch_to]
 
                     # Update new buildings fraction information
-                    for yr in sorted(mseg["energy"].keys()):
+                    for yr in aeo_years:
                         # Find fraction of total buildings that are
                         # newly constructed in the current year
                         new_bldg_frac["added"][yr] = \
                             mseg_sqft_stock["new homes"][yr] / \
                             mseg_sqft_stock["total homes"][yr]
-
-                        # Find fraction of total buildings that are newly
-                        # constructed in all years up through the current
-                        # modeling year. These data are used to determine total
-                        # cumulative new structure markets for a measure
-                        if yr == list(sorted(mseg["energy"].keys()))[0]:
-                            new_bldg_frac["total"][yr] = \
-                                new_bldg_frac["added"][yr]
-                        else:
-                            new_bldg_frac["total"][yr] = \
-                                new_bldg_frac["added"][yr] + new_bldg_frac[
-                                "total"][str(int(yr) - 1)]
-
-                        # Ensure that cumulative new building fraction is <= 1
-                        if new_bldg_frac["total"][yr] > 1:
-                            new_bldg_frac["total"][yr] = 1
 
                     # Update technology choice parameters needed to choose
                     # between multiple efficient technology options that
@@ -901,10 +930,13 @@ class Measure(object):
                             self.fuel_switch_to]
 
                     # Update new buildings fraction information
-                    for yr in mseg["energy"].keys():
-                        # *** Placeholders for new commercial information ***
-                        new_bldg_frac["added"][yr] = 0
-                        new_bldg_frac["total"][yr] = 0
+                    for yr in aeo_years:
+                        # Find fraction of total buildings that are
+                        # newly constructed in the current year
+                        new_bldg_frac["added"][yr] = \
+                            mseg_sqft_stock["new square footage"][yr] / \
+                            mseg_sqft_stock["total square footage"][yr]
+
                     # Update technology choice parameters needed to choose
                     # between multiple efficient technology options that
                     # access this baseline microsegment. For the commercial
@@ -924,6 +956,17 @@ class Measure(object):
                         choice_params = {"rate distribution": com_timeprefs[
                             "distributions"]["heating"]}
 
+                # Find fraction of total buildings that are newly constructed
+                # in all years up through the current modeling year. These data
+                # are used to determine total cumulative new structure markets
+                # for a measure
+                for yr in aeo_years:
+                    if yr == aeo_years[0]:
+                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][yr]
+                    else:
+                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][
+                            yr] + new_bldg_frac["total"][str(int(yr) - 1)]
+
                 # Determine the fraction to use in scaling down the stock,
                 # energy, and carbon microsegments to the applicable structure
                 # type indicated in the microsegment key chain (e.g., new
@@ -939,8 +982,9 @@ class Measure(object):
                 # fraction of the baseline microegment that will be captured
                 # by efficient alternatives to the baseline technology
                 # (* BLANK FOR NOW, WILL CHANGE IN FUTURE *)
-                diffuse_params = base_costperflife["consumer choice"][
-                    "competed market"]["parameters"]
+                diffuse_params = None
+                # diffuse_params = base_costperflife["consumer choice"][
+                #    "competed market"]["parameters"]
 
                 # Update total stock, energy use, and carbon emissions for the
                 # current contributing microsegment. Note that secondary
@@ -952,23 +996,44 @@ class Measure(object):
                     add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
+                    ##########################################################
+                    # FORMAT RES/COM MSEG TOTAL SF KEYS CONSISTENTLY
                     # * Note: multiply AEO square footages by 1 million (AEO
                     # reports in million square feet)
-                    add_stock = {
-                        key: val * new_existing_frac[key] * 1000000 for key,
-                        val in mseg_sqft_stock["square footage"].items()}
+                    if bldg_sect == "residential":
+                        add_stock = {
+                            key: val * new_existing_frac[key] * 1000000 for
+                            key, val in mseg_sqft_stock[
+                                "square footage"].items() if key in aeo_years}
+                    else:
+                        add_stock = {
+                            key: val * new_existing_frac[key] * 1000000 for
+                            key, val in mseg_sqft_stock[
+                                "total square footage"].items()
+                            if key in aeo_years}
+                    ##########################################################
                 else:
                     add_stock = {
                         key: val * new_existing_frac[key] for key, val in
-                        mseg["stock"].items()}
+                        mseg["stock"].items() if key in aeo_years}
+                #############################################################
+                # FORMAT RES/COM MSEG TOTAL ENERGY UNITS CONSISTENTLY
                 # Total energy use (primary)
-                add_energy = {
-                    key: val * site_source_conv_base[key] *
-                    new_existing_frac[key]
-                    for key, val in mseg["energy"].items()}
+                if bldg_sect == "residential":
+                    add_energy = {
+                        key: val * site_source_conv_base[key] *
+                        new_existing_frac[key] for key, val in mseg[
+                            "energy"].items() if key in aeo_years}
+                else:
+                    add_energy = {
+                        key: val * site_source_conv_base[key] *
+                        new_existing_frac[key] * 1000000 for key, val in mseg[
+                            "energy"].items() if key in aeo_years}
+                ##############################################################
                 # Total carbon emissions
                 add_carb = {key: val * intensity_carb_base[key]
-                            for key, val in add_energy.items()}
+                            for key, val in add_energy.items()
+                            if key in aeo_years}
 
                 # Update total, competed, and efficient stock, energy, carbon
                 # and baseline/measure cost info. based on adoption scheme
@@ -1095,8 +1160,7 @@ class Measure(object):
                     # energy values of the current contributing microsegment
                     # to the dictionary's existing terminal leaf node values
                     else:
-                        for yr in mseg_out_break[out_cz][
-                                out_bldg][out_eu].keys():
+                        for yr in aeo_years:
                             mseg_out_break[out_cz][out_bldg][
                                 out_eu][yr] += add_energy[yr]
                 # Yield error if current contributing microsegment cannot be
@@ -1147,7 +1211,7 @@ class Measure(object):
 
             # Reduce summed lifetimes by number of microsegments that
             # contributed to the sums
-            for yr in mseg_master["lifetime"]["baseline"].keys():
+            for yr in aeo_years:
                 mseg_master["lifetime"]["baseline"][yr] = mseg_master[
                     "lifetime"]["baseline"][yr] / key_chain_ct
             mseg_master["lifetime"]["measure"] = mseg_master[
@@ -1210,47 +1274,71 @@ class Measure(object):
 
     def create_keychain(self, mseg_type, htcl_enduse_ct=0):
         """ Given input microsegment information, create a list of keys that
-        represents associated branch on the microsegment tree """
+        represent branches on the microsegment tree """
 
-        # Flag a heating/cooling end use case; here, an extra 'supply' or
-        # 'demand' key is required in the key chain, which flags the
-        # supply-side and demand-side variants of heating/cooling technologies
-        # (e.g., ASHP for the former, envelope air sealing for the latter).
+        # Flag heating/cooling end use microsegments. For heating/cooling
+        # cases, an extra 'supply' or 'demand' key is required in the key
+        # chain; this key indicates the supply-side and demand-side variants
+        # of heating/ cooling technologies (e.g., ASHP for the former,
+        # envelope air sealing for the latter).
+        ht_cl_euses = ["heating", "secondary heating", "cooling"]
 
-        # Case where there is only one end use listed for the measure
-        if isinstance(self.end_use[mseg_type], list) is False:
-            if self.end_use[mseg_type] in [
-                    "heating", "secondary heating", "cooling"]:
-                htcl_enduse_ct = 1
-        # Case where there is more than one end use listed for the measure
-        else:
-            for eu in self.end_use[mseg_type]:
-                if eu in ["heating", "secondary heating", "cooling"]:
-                    htcl_enduse_ct += 1
-
-        # Create a list of lists where each list has key information for
-        # one of the microsegment levels. Use list to find all possible
-        # microsegment key chains (i.e. ("new england", "single family home",
-        # "natural gas", "water heating")). Add in "demand" and "supply keys
-        # where needed (heating, secondary heating, cooling end uses)
-        if (htcl_enduse_ct > 0):
+        # Case with heating and/or cooling microsegments
+        if any([x in ht_cl_euses for x in self.end_use[mseg_type]]):
+            # Format measure end use attribute as numpy array
+            eu = numpy.array(self.end_use[mseg_type])
+            # Set a list of heating and/or cooling end uses
+            eu_hc = list(eu[numpy.where([x in ht_cl_euses for x in eu])])
+            # Set a list of all other end uses
+            eu_non_hc = list(eu[numpy.where([
+                x not in ht_cl_euses for x in eu])])
+            # Set a list including all measure microsegment attributes,
+            # constraining the 'end_use' attribute to only heating/cooling
+            # end uses
             ms_lists = [self.climate_zone, self.bldg_type,
-                        self.fuel_type[mseg_type],
-                        self.end_use[mseg_type],
+                        self.fuel_type[mseg_type], eu_hc,
                         self.technology_type[mseg_type],
                         self.technology[mseg_type]]
+            # Ensure every element of 'ms_lists' is a list
+            for x in range(0, len(ms_lists)):
+                if isinstance(ms_lists[x], list) is False:
+                    ms_lists[x] = [ms_lists[x]]
+            # Generate a list of all possible combinations of the elements
+            # in 'ms_lists' above
+            ms_iterable_init = list(itertools.product(*ms_lists))
+            # If there are also non-heating/cooling microsegments, set
+            # a list including all measure microsegment attributes,
+            # constraining the 'end_use' attribute to only non-heating/cooling
+            # end uses
+            if len(eu_non_hc) > 0:
+                ms_lists_add = [self.climate_zone, self.bldg_type,
+                                self.fuel_type[mseg_type], eu_non_hc,
+                                self.technology[mseg_type]]
+                # Ensure every element of 'ms_lists_add' is a list
+                for x in range(0, len(ms_lists_add)):
+                    if isinstance(ms_lists_add[x], list) is False:
+                        ms_lists_add[x] = [ms_lists_add[x]]
+                # Generate a list of all possible combinations of the
+                # elements in 'ms_lists_add' above and add this list
+                # to 'ms_iterable_init', also adding 'ms_lists_add'
+                # to 'ms_lists'
+                ms_iterable_init.extend(
+                    list(itertools.product(*ms_lists_add)))
+                ms_lists.extend(ms_lists_add)
+
+        # Case without heating or cooling microsegments
         else:
+            # Set a list including all measure microsegment attributes
             ms_lists = [self.climate_zone, self.bldg_type,
                         self.fuel_type[mseg_type], self.end_use[mseg_type],
                         self.technology[mseg_type]]
-
-        # Ensure that every list element is itself a list
-        for x in range(0, len(ms_lists)):
-            if isinstance(ms_lists[x], list) is False:
-                ms_lists[x] = [ms_lists[x]]
-
-        # Find all possible microsegment key chains
-        ms_iterable_init = list(itertools.product(*ms_lists))
+            # Ensure every element of 'ms_lists' is a list
+            for x in range(0, len(ms_lists)):
+                if isinstance(ms_lists[x], list) is False:
+                    ms_lists[x] = [ms_lists[x]]
+            # Generate a list of all possible combinations of the elements
+            # in 'ms_lists' above
+            ms_iterable_init = list(itertools.product(*ms_lists))
 
         # Add primary or secondary microsegment type indicator to beginning
         # of each key chain and the applicable structure type (new or existing)
@@ -1439,7 +1527,7 @@ class Measure(object):
 
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
-        for yr in sorted(stock_total_init.keys()):
+        for yr in aeo_years:
 
             # For secondary microsegments only, update: a) sub-market scaling
             # fraction, based on any sub-market scaling in the associated
@@ -1670,7 +1758,7 @@ class Measure(object):
             # metrics to a per unit basis.
 
             # First year in the modeling time horizon
-            if yr == list(sorted(stock_total.keys()))[0]:
+            if yr == aeo_years[0]:
                 stock_total_meas[yr] = stock_compete_meas[yr]
             # Subsequent year in modeling time horizon
             else:
@@ -1718,7 +1806,7 @@ class Measure(object):
             # weighted relative performance level as identical to that of the
             # competed stock (e.g., initialize to the the relative performance
             # from baseline -> measure for that year only)
-            if yr == sorted(stock_total.keys())[0]:
+            if yr == aeo_years[0]:
                 rel_perf_weighted = rel_perf[yr]
             # For a subsequent year in the modeling time horizon, calculate
             # a weighted sum of the relative performances of the competed stock
@@ -2329,7 +2417,7 @@ class Measure(object):
         # Calculate irr and simple payback for capital + energy cash flows.
         # Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        if any(numpy.isclose(esave_array[1:], 0)) is False:
+        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
             try:
                 irr_e = numpy.irr(cashflows_s + cashflows_e)
                 payback_e = self.payback(cashflows_s + cashflows_e)
@@ -2339,8 +2427,7 @@ class Measure(object):
         # Calculate irr and simple payback for capital + energy + carbon cash
         # flows.  Check to ensure thar irr/payback can be calculated for the
         # given cash flows
-        if any(numpy.isclose(esave_array[1:], 0)) is False or \
-           any(numpy.isclose(csave_array[1:], 0)) is False:
+        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
             try:
                 irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
                 payback_ec = \
@@ -2351,14 +2438,14 @@ class Measure(object):
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
         # benefits.  Check to ensure energy savings NPV in the denominator is
         # not zero
-        if any(numpy.isclose(esave_array[1:], 0)) is False:
+        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
         # benefits.  Check to ensure carbon savings NPV in the denominator is
         # not zero.
-        if any(numpy.isclose(csave_array[1:], 0)) is False:
+        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
             ccc = (-npv_s / npv_csave)
             ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
@@ -2645,7 +2732,7 @@ class Engine(object):
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
             # # Loop through all years in modeling time horizon
-            for yr in anpv_s_in[ind].keys():
+            for yr in aeo_years:
                 # Ensure measure has captured stock to adjust in given year
                 if (type(m.master_mseg["stock"]["competed"][
                     "measure"][yr]) == numpy.ndarray and all(
@@ -2698,8 +2785,7 @@ class Engine(object):
                 self.savings_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
-            for yr in sorted(m.master_savings[
-                    "metrics"]["anpv"]["stock cost"].keys()):
+            for yr in aeo_years:
                 # Ensure measure has captured stock to adjust in given year
                 if (type(m.master_mseg["stock"]["competed"][
                     "measure"][yr]) == numpy.ndarray and all(
@@ -2748,7 +2834,7 @@ class Engine(object):
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
             # Loop through all years in modeling time horizon
-            for yr in anpv_s_in[ind].keys():
+            for yr in aeo_years:
                 # Ensure measure has captured stock to adjust in given year
                 if (type(m.master_mseg["stock"]["competed"][
                     "measure"][yr]) == numpy.ndarray and all(
@@ -2828,8 +2914,7 @@ class Engine(object):
                 self.savings_adjustment_dicts(m, mseg_key)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
-            for yr in m.master_savings[
-                    "metrics"]["anpv"]["stock cost"].keys():
+            for yr in aeo_years:
                 # Ensure measure has captured stock to adjust in given year
                 if (type(m.master_mseg["stock"]["competed"][
                     "measure"][yr]) == numpy.ndarray and all(
@@ -2881,7 +2966,8 @@ class Engine(object):
                         for ind2, dr in enumerate(tot_cost[ind][yr]):
                             if tot_cost[ind][yr][ind2] == \
                                min([tot_cost[x][yr][ind2] for x in range(
-                                    0, len(measures_adj))]):
+                                    0, len(measures_adj)) if
+                                    yr in tot_cost[x].keys()]):
                                 mkt_fracs[ind][yr].append(mkt_dists[ind2])
                             else:
                                 mkt_fracs[ind][yr].append(0)
@@ -2910,7 +2996,7 @@ class Engine(object):
                 self.savings_adjustment_dicts(m, mseg_key)
             # Assign building energy use share for the measure to be packaged
             # and adjust measure's master microsegment values accordingly
-            for yr in m.master_mseg["stock"]["total"]["all"].keys():
+            for yr in aeo_years:
                 package_fracs[ind][yr] = 1 / len(measures_adj)
                 # Make the adjustment to the measure's master microsegment
                 # based on its assigned building energy use share
@@ -3149,7 +3235,7 @@ class Engine(object):
             # Adjust measure savings for the current contributing
             # secondary microsegment based on the market share calculated
             # for an associated primary contributing microsegment
-            for yr in adj["energy"]["total"]["baseline"].keys():
+            for yr in aeo_years:
                 # Determine the climate zone, building type, and structure
                 # type for the current contributing secondary microsegment
                 cz_bldg_struct = re.search(
@@ -3219,7 +3305,7 @@ class Engine(object):
             # Record any measure savings associated with the current
             # contributing microsegment; these will be removed from
             # overlapping microsegments in the 'overlap_adjustment' function
-            for yr in adj["energy"]["total"]["baseline"].keys():
+            for yr in aeo_years:
                 # Loop through all overlapping measure microsegments and
                 # record the overlapping savings associated with the
                 # current measure microsegment
@@ -3247,8 +3333,7 @@ class Engine(object):
                 # Calculate annual supply-demand overlap adjustment fraction
                 # for the measure and adjust measure's master microsegment
                 # values accordingly
-                for yr in m.mseg_adjust[
-                        "supply-demand adjustment"]["savings"][mseg].keys():
+                for yr in aeo_years:
                     # Calculate supply-demand adjustment fraction
                     if m.mseg_adjust["supply-demand adjustment"][
                        "total"][mseg][yr] == 0:
@@ -3678,7 +3763,7 @@ class Measure_Package(Measure, Engine):
         # to the packaged master microsegment by the number of
         # microsegments that contributed to the sums, to arrive at an
         # average baseline/measure lifetime for the packaged measure
-        for yr in self.master_mseg["lifetime"]["baseline"].keys():
+        for yr in aeo_years:
             self.master_mseg["lifetime"]["baseline"][yr] = \
                 self.master_mseg["lifetime"]["baseline"][yr] / \
                 key_chain_ct_package
@@ -3712,7 +3797,7 @@ class Measure_Package(Measure, Engine):
                 # of the current contributing measure
                 if len(update_dict[k2].keys()) > 0 and \
                    len(init_dict[k].keys()) == 0:
-                    for yr in update_dict[k2].keys():
+                    for yr in aeo_years:
                         init_dict[k][yr] = \
                             update_dict[k2][yr] * update_multiplier[yr]
                 # If the packaged measure's output breakout dictionary has
@@ -3722,7 +3807,7 @@ class Measure_Package(Measure, Engine):
                 # leaf node values
                 elif len(update_dict[k2].keys()) > 0 and \
                         len(init_dict[k].keys()) > 0:
-                    for yr in update_dict[k2].keys():
+                    for yr in aeo_years:
                         init_dict[k][yr] += \
                             update_dict[k2][yr] * update_multiplier[yr]
 
