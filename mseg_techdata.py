@@ -12,18 +12,7 @@ json_in = "microsegments.json"
 
 # Set technology performance, cost, and lifetime information output JSON
 # file name
-json_out = "base_costperflife.json"
-
-# Identify the file with the appropriate residential census division to
-# climate zone conversion - note that the '_Rev_' version of the
-# conversion matrix has weights scaled such that the columns (climate
-# zones) sum to 1, which is required to calculate the weighted average
-# of technology performance, lifetime, etc. across the census divisions.
-# (Conversely, the other census division to climate zone conversion file
-# is structured such that the census divisions sum to 1, since the energy
-# data are originally recorded by census division, and all of the energy
-# use reported must be accounted for when switching to climate zones.)
-res_climate_convert_rev = "Res_Cdiv_Czone_ConvertTable_Rev_Final.txt"
+json_out = "costperflife_res_cdiv.json"
 
 # Set the file names for the EIA information on the performance,
 # cost, and lifetime of non-lighting and lighting technologies in the
@@ -993,29 +982,19 @@ def main():
                           "b2": {k: -0.012
                                  for k in project_dict.keys()}}
 
-    # Import the residential census to climate conversion factors needed
-    # to roll the performance/cost/lifetime data available for each census
-    # division into properly weighted figures for each AIA climate zone
-    res_convert_array_rev = numpy.genfromtxt(res_climate_convert_rev,
-                                             names=True, delimiter="\t",
-                                             dtype=None)
-
     # Import microsegments JSON file as a dictionary structure
     with open(json_in, "r") as jsi:
         msjson = json.load(jsi)
 
     # Run through microsegment JSON levels, determine technology leaf node
     # info. to mine from the imported data, and update nodes with this info.
-    updated_data = walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                                 non_eia_env_choice, tech_eia_nonlt,
-                                 tech_eia_lt, tech_non_eia,
-                                 msjson, project_dict)
-
-    final_data = mseg.clim_converter(updated_data, res_convert_array_rev)
+    result = walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
+                           non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                           tech_non_eia, msjson, project_dict)
 
     # Write the updated dict of data to a new JSON file
     with open(json_out, "w") as jso:
-        json.dump(final_data, jso, indent=4)
+        json.dump(result, jso, indent=2)
 
 
 if __name__ == "__main__":

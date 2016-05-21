@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-# import sys
 import re
 import numpy
 import json
-import copy
 
 # Set AEO time horizon in years (used in list_generator function
 # to check for correct length of microsegment value lists)
@@ -13,11 +11,8 @@ aeo_years = 32
 # Identify files to import for conversion
 EIA_res_file = 'RESDBOUT.txt'
 json_in = 'microsegments.json'
-json_out = 'microsegments_out.json'
+json_out = 'mseg_res_cdiv.json'
 res_tloads = 'Res_TLoads_Final.txt'
-res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
-com_tloads = 'Com_TLoads_Final.txt'
-com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
@@ -539,72 +534,6 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
     return json_dict
 
 
-def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
-              cdiv_list):
-    """ Given two dicts of the same structure, add values at the end
-    of each branch of the second dict to those of the first dict
-    (used to convert microsegment data from a census division to a
-    climate zone breakdown) """
-
-    for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
-                                sorted(add_dict.items())):
-        # Check to ensure dicts do have same structure
-        if k == k2:
-            # Recursively loop through both dicts
-            if isinstance(i, dict):
-                merge_sum(i, i2, cd, clim, convert_array, cdivdict, cdiv_list)
-            elif type(base_dict[k]) is not str:
-                # Once end of branch is reached, add values weighted by an
-                # appropriate census division to climate zone factor
-                cd_convert = convert_array[cd][clim]
-
-                # Special handling of first dict (no addition of the
-                # second dict, only conversion of the first dict with
-                # the appropriate factor)
-                if (cd == (cdivdict[cdiv_list[0]] - 1)):
-                    base_dict[k] = (base_dict[k] * cd_convert)
-                else:
-                    base_dict[k] = (base_dict[k] + add_dict[k2] * cd_convert)
-        else:
-            raise(KeyError('Merge keys do not match!'))
-
-    # Return a single dict representing sum of values of original two dicts
-    return base_dict
-
-
-def clim_converter(input_dict, convert_array):
-    """ Convert an updated microsegments dict from a census division
-    to a climate zone breakdown """
-
-    # Set climate zone and census division names
-    clim_list = convert_array.dtype.names[1:]
-    cdiv_list = list(input_dict.keys())
-
-    # Set up empty dict to be updated
-    converted_dict = {}
-
-    # Climate zone for loop
-    for climnum, clim in enumerate(clim_list):
-        base_dict = copy.deepcopy(input_dict[cdiv_list[0]])
-
-        # Census division for loop
-        for cdiv in cdiv_list:
-            # If cdivnum in cdivdict, find cdivnum using cdivdict; subtract 1
-            # to ensure proper list indexing (1st element = 0th in python)
-            if cdiv in cdivdict.keys():
-                cdivnum = cdivdict[cdiv] - 1
-                add_dict = copy.deepcopy(input_dict[cdiv])
-                base_dict = merge_sum(base_dict, add_dict, cdivnum,
-                                      (climnum + 1), convert_array, cdivdict,
-                                      cdiv_list)
-            else:
-                raise(KeyError("Cdiv name not found in dict keys!"))
-        newadd = base_dict
-        converted_dict.update({clim: newadd})
-
-    return converted_dict
-
-
 def array_row_remover(data, comparefrom):
     """ Remove rows from large arrays (e.g. EIA data) based on a
     regular expression that defines which rows are not going to
@@ -651,24 +580,26 @@ def main():
     loads = numpy.genfromtxt(res_tloads, names=True,
                              delimiter='\t', dtype=None)
 
-    # Import the residential census division to climate zone conversion array
-    res_convert_array = numpy.genfromtxt(res_climate_convert, names=True,
-                                         delimiter='\t', dtype=None)
+    # json.dump cannot convert ("serialize") numbers of the type
+    # np.int64 to integers, but all of the integers in 'result' are
+    # formatted as np.int64; this function fixes that problem as the
+    # data are serialized and exported
+    def fix_ints(num):
+        if isinstance(num, numpy.integer):
+            return int(num)
+        else:
+            raise TypeError
 
     # Import JSON file and run through updating scheme
-    with open(json_in, 'r') as jsi:
+    with open(json_in, 'r') as jsi, open(json_out, 'w') as jso:
         msjson = json.load(jsi)
 
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
-        updated_data = walk(supply, demand, loads, msjson)
+        result = walk(supply, demand, loads, msjson)
 
-        # Convert the updated data from census division to climate breakdown
-        final_data = clim_converter(updated_data, res_convert_array)
-
-    # Write the updated dict of data to a new JSON file
-    with open(json_out, 'w') as jso:
-        json.dump(final_data, jso, indent=4)
+        # Write the updated dict of data to a new JSON file
+        json.dump(result, jso, indent=2, default=fix_ints)
 
 
 if __name__ == '__main__':

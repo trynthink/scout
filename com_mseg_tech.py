@@ -3,7 +3,6 @@
 # Import commercial microsegments code to use some of its data
 # reading and processing functions
 import com_mseg as cm
-import mseg
 
 import numpy as np
 import re
@@ -17,9 +16,7 @@ class UsefulVars(object):
     Attributes:
         cpl_data (str): File name for the EIA AEO technology data.
         json_in (str): File name for the input JSON database.
-        com_climate_convert_rev (str): File name for the input census
-            division to climate zone conversion factors for the cost,
-            performance, and lifetime data.
+        json_out (str): File name for the JSON output from this script.
         cpl_data_skip_lines (int): The number of lines of preamble that
             must be skipped at the beginning of the EIA AEO technology
             data file.
@@ -30,9 +27,8 @@ class UsefulVars(object):
     def __init__(self):
         # Identify files to import for processing and conversion
         self.cpl_data = 'ktek.csv'
-        self.json_in = 'microsegments.json'
-        self.com_climate_convert_rev = ('Com_Cdiv_Czone_ConvertTable'
-                                        '_Rev_Final.txt')
+        self.json_in = 'costperflife_res_cdiv.json'
+        self.json_out = 'costperflife_res_com_cdiv.json'
 
         # Define the number of header lines in the ktek data file to
         # skip and the names of the columns to keep from the ktek data
@@ -794,41 +790,37 @@ def main():
     # Define years vector
     years = list(range(2009, 2041))
 
-    # Import census division to climate zone conversion data, using
-    # the appropriate file for weighting the cost, performance, and
-    # lifetime data
-    czone_cdiv_conversion = np.genfromtxt(handyvars.com_climate_convert_rev,
-                                          names=True,
-                                          delimiter='\t',
-                                          dtype=None)
-
     # Import empty microsegments JSON file and traverse database structure
-    with open(handyvars.json_in, 'r') as jsi:
-        msjson = json.load(jsi)
+    try:
+        with open(handyvars.json_in, 'r') as jsi, open(
+             handyvars.json_out, 'w') as jso:
+            msjson = json.load(jsi)
 
-        # Proceed recursively through database structure
-        result, stuff = walk(tech_data, serv_data, years, msjson)
+            # Proceed recursively through database structure
+            result, stuff = walk(tech_data, serv_data, years, msjson)
 
-        # Print warning message to the standard out with a unique
-        # (i.e., non-repeating) list of technologies that didn't have
-        # a match between the two data sets and thus were not added
-        # to the aggregated cost or performance data in the output JSON
-        if stuff:
-            text = ('Warning: some technologies reported in the '
-                    'technology characteristics data were not found to '
-                    'have corresponding service demand data and were '
-                    'thus excluded from the reported technology cost: '
-                    'and performance:')
-            print(text)
-            for item in sorted(list(set(stuff))):
-                print('   ' + item)
+            # Print warning message to the standard out with a unique
+            # (i.e., non-repeating) list of technologies that didn't have
+            # a match between the two data sets and thus were not added
+            # to the aggregated cost or performance data in the output JSON
+            if stuff:
+                text = ('Warning: some technologies reported in the '
+                        'technology characteristics data were not found to '
+                        'have corresponding service demand data and were '
+                        'thus excluded from the reported technology cost '
+                        'and performance:')
+                print(text)
+                for item in sorted(list(set(stuff))):
+                    print('   ' + item)
 
-        # Convert the updated data from census division to climate breakdown
-        result = mseg.clim_converter(result, czone_cdiv_conversion)
+            # Write the updated dict of data to a new JSON file
+            json.dump(result, jso, indent=2)
 
-    # Write the updated dict of data to a new JSON file
-    with open(cm.json_out, 'w') as jso:
-        json.dump(result, jso, indent=2)
+    except FileNotFoundError:
+        errtext = ('Confirm that the expected residential data file ' +
+                   handyvars.json_in + ' has already been created and '
+                   'is in the current directory.\n')
+        print(errtext)
 
 if __name__ == '__main__':
     main()

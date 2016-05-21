@@ -4,7 +4,6 @@ import numpy as np
 import re
 import csv
 import json
-import mseg
 
 # Set the pivot year (i.e., the year that should be added to the data
 # reported to convert the values to actual calendar years) for KDBOUT
@@ -13,12 +12,9 @@ pivot_year = 1989
 # Identify files to import for conversion
 serv_dmd = 'KSDOUT.txt'
 catg_dmd = 'KDBOUT.txt'
-json_in = 'microsegments.json'
-json_out = 'microsegments_out.json'
-# res_tloads = 'Res_TLoads_Final.txt'
-# res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
+json_in = 'mseg_res_cdiv.json'
+json_out = 'mseg_res_com_cdiv.json'
 com_tloads = 'Com_TLoads_Final.txt'
-com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
@@ -726,10 +722,6 @@ def main():
     load_dtypes = dtype_array(com_tloads, '\t')
     load_data = data_import(com_tloads, load_dtypes, '\t')
 
-    # Import census division to climate zone conversion data
-    czone_cdiv_conversion = np.genfromtxt(com_climate_convert, names=True,
-                                          delimiter='\t', dtype=None)
-
     # Not all end uses are broken down by equipment type and vintage in
     # KSDOUT; determine which end uses are present so that the service
     # demand data are not explored unnecessarily when they are not even
@@ -737,19 +729,22 @@ def main():
     serv_data_end_uses = np.unique(serv_data['s'])
 
     # Import empty microsegments JSON file and traverse database structure
-    with open(json_in, 'r') as jsi:
-        msjson = json.load(jsi)
+    try:
+        with open(json_in, 'r') as jsi, open(json_out, 'w') as jso:
+            msjson = json.load(jsi)
 
-        # Proceed recursively through database structure
-        result = walk(catg_data, serv_data, load_data,
-                      serv_data_end_uses, msjson)
+            # Proceed recursively through database structure
+            result = walk(catg_data, serv_data, load_data,
+                          serv_data_end_uses, msjson)
 
-        # Convert the updated data from census division to climate breakdown
-        result = mseg.clim_converter(result, czone_cdiv_conversion)
+            # Write the updated dict of data to a new JSON file
+            json.dump(result, jso, indent=2)
 
-    # Write the updated dict of data to a new JSON file
-    with open(json_out, 'w') as jso:
-        json.dump(result, jso, indent=2)
+    except FileNotFoundError:
+        errtext = ('Confirm that the expected residential data file ' +
+                   json_in + ' has already been created and '
+                   'is in the current directory.\n')
+        print(errtext)
 
 if __name__ == '__main__':
     main()
