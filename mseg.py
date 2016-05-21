@@ -37,7 +37,7 @@ bldgtypedict = {'single family home': 1,
 
 # Fuel type dict
 fueldict = {'electricity (on site)': 'SL',
-            'electricity (grid)': 'EL',
+            'electricity': 'EL',
             'natural gas': 'GS',
             'distillate': 'DS',
             'other fuel': ('LG', 'KS', 'CL', 'GE', 'WD')
@@ -52,7 +52,7 @@ fueldict = {'electricity (on site)': 'SL',
 # also left out of the "other fuel" definition.
 
 # End use dict
-endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
+endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'new homes': 'HS',
               'total homes': 'HT',
               'heating': 'HT',
@@ -168,11 +168,11 @@ def json_translator(dictlist, filterformat):
 
     # Restructure the filterformat variable in the case of a "total homes"
     # update, where "total homes" uses the same filter codes as a heating,
-    # electricity (grid), boiler (electric) microsegment in RESDBOUT,
+    # electricity, boiler (electric) microsegment in RESDBOUT,
     # but with the relevant data in the "HOUSEHOLDS" column
     if 'total homes' in filterformat and len(filterformat) == 3:
         filterformat = filterformat[0:2]
-        filterformat.extend(['electricity (grid)', 'total homes',
+        filterformat.extend(['electricity', 'total homes',
                              'total homes (tech level)'])
     # Reduce dictlist as appropriate to filtering information (if not a
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
@@ -186,7 +186,7 @@ def json_translator(dictlist, filterformat):
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
-    elif 'square footage' in filterformat and len(filterformat) == 3 or \
+    elif 'total square footage' in filterformat and len(filterformat) == 3 or \
          'new homes' in filterformat and len(filterformat) == 3:
         dictlist_loop = dictlist[:(len(dictlist) - 3)]
     elif len(filterformat) <= 4:
@@ -377,7 +377,7 @@ def sqft_homes_select(data, comparefrom):
     rows_to_remove = []
 
     # Define initial square footage, new homes, or total homes lists
-    if endusedict['square footage'] in comparefrom or \
+    if endusedict['total square footage'] in comparefrom or \
        endusedict['new homes'] in comparefrom or \
        endusedict['total homes'] in comparefrom:
         group_out = {}
@@ -394,7 +394,7 @@ def sqft_homes_select(data, comparefrom):
 
         # If there is a match, append values for the current cdiv/bldg. type
         if match:
-            if endusedict['square footage'] in comparefrom or \
+            if endusedict['total square footage'] in comparefrom or \
                endusedict['total homes'] in comparefrom:
                 # Record square foot or total homes info. (in "HOUSEHOLDS"
                 # column in RESDBOUT)
@@ -469,9 +469,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
         return [{'stock': 'NA', 'energy': group_energy}, ms_supply]
-    # Check whether current microsegment is updating "square footage" info.
-    # (handled differently)
-    elif 'square footage' in filterdata or 'new homes' in filterdata or \
+    # Check whether current microsegment is updating "total square footage"
+    # information (handled differently)
+    elif 'total square footage' in filterdata or 'new homes' in filterdata or \
          'total homes' in filterdata:
         # Given input numpy array and 'compare from' list, return sq. footage
         # projection lists and reduced numpy array (with matched rows removed)

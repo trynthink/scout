@@ -3,8 +3,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -230,8 +230,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -457,8 +457,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -2006,8 +2006,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -2233,8 +2233,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -2460,8 +2460,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -4009,8 +4009,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -4236,8 +4236,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -4463,8 +4463,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -6012,8 +6012,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -6239,8 +6239,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -6466,8 +6466,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -8015,8 +8015,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -8242,8 +8242,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -8469,8 +8469,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -10018,8 +10018,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -10245,8 +10245,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -10472,8 +10472,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -12021,8 +12021,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -12248,8 +12248,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -12475,8 +12475,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -14024,8 +14024,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -14251,8 +14251,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -14478,8 +14478,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -16027,8 +16027,8 @@
 		"single family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -16254,8 +16254,8 @@
 		"multi family home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,
@@ -16481,8 +16481,8 @@
 		"mobile home" : {
 			"total homes": 0,
 			"new homes": 0,
-			"square footage" : 0,
-			"electricity (grid)" : {
+			"total square footage" : 0,
+			"electricity" : {
 				"heating" : {
 					"demand" : {
 						"windows conduction" : 0,

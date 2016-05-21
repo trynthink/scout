@@ -17,17 +17,17 @@ class SimpleWalkTest(unittest.TestCase):
 
     # Define a test dict to walk through
     in_dict = {
-        "cdiv 1": {"bldg 1": {"square footage": None, "fuel 1": {
+        "cdiv 1": {"bldg 1": {"total square footage": None, "fuel 1": {
             "end use 1": {"tech 1": None}}}},
-        "cdiv 2": {"bldg 2": {"square footage": None, "fuel 2": {
+        "cdiv 2": {"bldg 2": {"total square footage": None, "fuel 2": {
             "end use 2": {"tech 2": None}},
             "fuel 3": {
                 "end use 3": {"tech 3": None}}}},
-        "cdiv 3": {"bldg 3": {"square footage": None, "fuel 3": {
+        "cdiv 3": {"bldg 3": {"total square footage": None, "fuel 3": {
             "end use 3": {"tech 4": None}}},
             "bldg 4": {"fuel 4": {
                 "end use 4": {"tech 5": None}}}},
-        "cdiv 4": {"bldg 4": {"square footage": None, "fuel 5": {
+        "cdiv 4": {"bldg 4": {"total square footage": None, "fuel 5": {
             "end use 5": {"tech 6": {"sub tech 1": None,
                                      "sub tech 2": None}}}}}}
 
@@ -36,12 +36,12 @@ class SimpleWalkTest(unittest.TestCase):
     # are set to be the values for those leaf nodes.
     out_dict = {
         "cdiv 1": {"bldg 1": {
-            "square footage": None,
+            "total square footage": None,
             "fuel 1": {"end use 1": {
                 "tech 1":
                 ["cdiv 1", "bldg 1", "fuel 1", "end use 1", "tech 1"]}}}},
         "cdiv 2": {"bldg 2": {
-            "square footage": None,
+            "total square footage": None,
             "fuel 2": {"end use 2": {
                 "tech 2":
                 ["cdiv 2", "bldg 2", "fuel 2", "end use 2", "tech 2"]}},
@@ -50,7 +50,7 @@ class SimpleWalkTest(unittest.TestCase):
                 ["cdiv 2", "bldg 2", "fuel 3", "end use 3", "tech 3"]}}}},
         "cdiv 3": {
             "bldg 3": {
-                "square footage": None,
+                "total square footage": None,
                 "fuel 3": {"end use 3": {
                     "tech 4":
                     ["cdiv 3", "bldg 3", "fuel 3", "end use 3", "tech 4"]}}},
@@ -60,7 +60,7 @@ class SimpleWalkTest(unittest.TestCase):
                     ["cdiv 3", "bldg 4", "fuel 4", "end use 4", "tech 5"]}}}},
         "cdiv 4": {
             "bldg 4": {
-                "square footage": None,
+                "total square footage": None,
                 "fuel 5": {"end use 5": {
                     "tech 6": {
                         "sub tech 1":
@@ -71,7 +71,7 @@ class SimpleWalkTest(unittest.TestCase):
                     }}}}}}
 
     def simple_walk(self, in_dict, key_list=[]):
-        """ This function represents a simpler verison of the walk_techdata
+        """ This function represents a simpler version of the walk_techdata
         function in mseg_techdata_test.py where terminal leaf node values are
         assigned as the key chain that leads to the given leaf node """
         for key, item in sorted(in_dict.items()):
@@ -84,9 +84,10 @@ class SimpleWalkTest(unittest.TestCase):
             else:
                 # Update key chain
                 leaf_node_keys = key_list + [key]
-                # Avoid updating a "square footage" leaf node in the input
-                # dict - square footage is not relevant to mseg_techdata.py
-                if leaf_node_keys[-1] != "square footage":
+                # Avoid updating a "total square footage" leaf node in
+                # the input dict; square footage is not relevant to the
+                # cost, performance, and lifetime data
+                if leaf_node_keys[-1] != "total square footage":
                     # Update dict key value to the updated key chain
                     in_dict[key] = leaf_node_keys
 
@@ -336,11 +337,11 @@ class ListGeneratorTest(unittest.TestCase):
     # be used to determine what performance, cost, lifetime, and consumer
     # choice data to look for
     tech_ok_keys = [["new england", "single family home",
-                     "electricity (grid)", "heating", "supply", "ASHP"],
+                     "electricity", "heating", "supply", "ASHP"],
                     ["east north central", "multi family home",
-                     "electricity (grid)", "refrigeration"],
+                     "electricity", "refrigeration"],
                     ["east north central", "multi family home",
-                     "electricity (grid)", "other (grid electric)",
+                     "electricity", "other (grid electric)",
                      "clothes washing"],
                     ["mid atlantic", "single family home",
                      "natural gas", "cooking"],
@@ -349,16 +350,16 @@ class ListGeneratorTest(unittest.TestCase):
                     ["west north central", "mobile home",
                      "natural gas", "water heating"],
                     ["west north central", "mobile home",
-                     "electricity (grid)", "lighting",
+                     "electricity", "lighting",
                      "general service (LED)"],
                     ["mid atlantic", "single family home",
-                     "electricity (grid)", "secondary heating",
+                     "electricity", "secondary heating",
                      "supply", "non-specific"],
                     ["mid atlantic", "single family home",
-                     "electricity (grid)", "secondary heating",
+                     "electricity", "secondary heating",
                      "demand", "windows conduction"],
                     ["west north central", "multi family home",
-                     "electricity (grid)", "cooling",
+                     "electricity", "cooling",
                      "supply", "NGHP"]]
 
     # Define a sample list of full dictionary key chains as above that should
@@ -366,13 +367,13 @@ class ListGeneratorTest(unittest.TestCase):
     tech_fail_keys_ke = [["nengland", "single family home",
                           "electricity", "heating", "supply", "ASHP"],
                          ["east north central", "multi family home",
-                          "electricity (grid)", "other (gas electric)",
+                          "electricity", "other (gas electric)",
                           "cooking"],
                          ["east north central", "multi family home",
-                          "electricity (grid)", "other (gas electric)",
+                          "electricity", "other (gas electric)",
                           "washing device"],
                          ["east north central", "multi family home",
-                          "square footage"]]
+                          "total square footage"]]
 
     # Define a sample list of full dictionary key chains as above that should
     # cause the function to yield a ValueError

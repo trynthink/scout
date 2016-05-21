@@ -360,7 +360,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
     # a "non-specific" technology type only applies to electric and natural
     # gas secondary heating in the microsegments JSON
     if tech_dict_key == "non-specific":
-        if fuel_type == "electricity (grid)":
+        if fuel_type == "electricity":
             tech_dict_key = "secondary heating (electric)"
         else:
             tech_dict_key = "secondary heating (natural gas)"
@@ -450,7 +450,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                 elif isinstance(filter_info[2], list):
                     # Filter names determined by fuel type (electricity,
                     # natural gas, and distillate/"other")
-                    if fuel_type == "electricity (grid)":
+                    if fuel_type == "electricity":
                         typ_filter_name = filter_info[2][0]
                         best_filter_name = filter_info[3][0]
                         # Update performance units (cost units set later)
@@ -582,7 +582,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                 # Determine lifetime filtering names for a non-lighting
                 # technology with multiple fuel types
                 if isinstance(filter_info[1], list):
-                    if fuel_type == "electricity (grid)":
+                    if fuel_type == "electricity":
                         filter_name = filter_info[1][0]
                     elif fuel_type == "natural gas":
                         if end_use == "water heating":
