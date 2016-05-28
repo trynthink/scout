@@ -335,24 +335,24 @@ def main():
     elif input_var is '2':
         handyvars.configure_for_cost_performance_lifetime_data()
 
-    # # Import the residential census division to climate zone conversion data
-    # res_cd_cz_conv = np.genfromtxt(handyvars.res_climate_convert, names=True,
-    #                                delimiter='\t', dtype=None)
+    # Import the residential census division to climate zone conversion data
+    res_cd_cz_conv = np.genfromtxt(handyvars.res_climate_convert, names=True,
+                                   delimiter='\t', dtype=None)
 
-    # # Import the commercial census division to climate zone conversion data
-    # com_cd_cz_conv = np.genfromtxt(handyvars.com_climate_convert, names=True,
-    #                                delimiter='\t', dtype=None)
+    # Import the commercial census division to climate zone conversion data
+    com_cd_cz_conv = np.genfromtxt(handyvars.com_climate_convert, names=True,
+                                   delimiter='\t', dtype=None)
 
-    # # Import microsegments JSON file with and traverse database structure
-    # with open(handyvars.json_in, 'r') as jsi:
-    #     msjson_cdiv = json.load(jsi)
+    # Import microsegments JSON file with and traverse database structure
+    with open(handyvars.json_in, 'r') as jsi:
+        msjson_cdiv = json.load(jsi)
 
-    #     # Convert data
-    #     result = clim_converter(msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
+        # Convert data
+        result = clim_converter(msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
 
-    # # Write the updated dict of data to a new JSON file
-    # with open(handyvars.json_out, 'w') as jso:
-    #     json.dump(result, jso, indent=2)
+    # Write the updated dict of data to a new JSON file
+    with open(handyvars.json_out, 'w') as jso:
+        json.dump(result, jso, indent=2)
 
 if __name__ == '__main__':
     main()
