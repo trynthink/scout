@@ -25,13 +25,10 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        # Identify files to import for processing and conversion
         self.cpl_data = 'ktek.csv'
         self.json_in = 'costperflife_res_cdiv.json'
         self.json_out = 'costperflife_res_com_cdiv.json'
 
-        # Define the number of header lines in the ktek data file to
-        # skip and the names of the columns to keep from the ktek data
         self.cpl_data_skip_lines = 100
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
                                 'Life', 'y1', 'y2', 'technology name']
@@ -676,7 +673,8 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
         # list for the current location and obtain the data to update
         # the dict
         else:
-            if key_list[1] in cm.bldgtypedict.keys() and len(key_list) > 2:
+            cd = cm.CommercialTranslationDicts()  # Shortens if statement below
+            if key_list[1] in cd.bldgtypedict.keys() and len(key_list) > 2:
                 leaf_node_keys = key_list + [key]
 
                 # Convert keys into integers that define the microsegment
@@ -783,8 +781,8 @@ def main():
                                handyvars.cpl_data_skip_lines, col_indices)
 
     # Import EIA AEO 'KSDOUT' service demand data
-    serv_dtypes = cm.dtype_array(cm.serv_dmd)
-    serv_data = cm.data_import(cm.serv_dmd, serv_dtypes)
+    serv_dtypes = cm.dtype_array(cm.UsefulVars().serv_dmd)
+    serv_data = cm.data_import(cm.UsefulVars().serv_dmd, serv_dtypes)
     serv_data = cm.str_cleaner(serv_data, 'Description')
 
     # Define years vector

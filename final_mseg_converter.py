@@ -85,27 +85,6 @@ class UsefulVars(object):
         self.json_out = 'costperflife_res_com_cz.json'
 
 
-class UsefulDicts(object):
-    """Set up class containing string to integer code translation dictionaries.
-
-    Attributes:
-        cd_dict (dict): A dict with strings for all nine census divisions
-             and the integer codes corresponding to each census division.
-    """
-
-    def __init__(self):
-        self.cd_dict = {'new england': 1,
-                        'mid atlantic': 2,
-                        'east north central': 3,
-                        'west north central': 4,
-                        'south atlantic': 5,
-                        'east south central': 6,
-                        'west south central': 7,
-                        'mountain': 8,
-                        'pacific': 9
-                        }
-
-
 def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
               res_convert_array, com_convert_array, cd_to_cz_factor=0):
     """Calculate values to restructure census division data to climate zones.
@@ -173,7 +152,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
     # Extract lists of strings corresponding to the residential and
     # commercial building types used to process these inputs
     res_bldg_types = list(mseg.bldgtypedict.keys())
-    com_bldg_types = list(cm.bldgtypedict.keys())
+    com_bldg_types = list(cm.CommercialTranslationDicts().bldgtypedict.keys())
 
     for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
                                 sorted(add_dict.items())):
@@ -239,10 +218,10 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
         have been updated to correspond to those climate zones.
     """
 
-    # Create an instance of the UsefulDicts object, which contains
-    # the dict required to translate census division strings into
-    # the corresponding integer codes
-    ud = UsefulDicts()
+    # Create an instance of the CommercialTranslationDicts object from
+    # com_mseg, which contains a dict that translates census division
+    # strings into the corresponding integer codes
+    cd = cm.CommercialTranslationDicts()
 
     # Obtain list of all climate zone names as strings
     cz_list = res_convert_array.dtype.names[1:]
@@ -268,11 +247,11 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
             # Proceed only if the census division name is found in
             # the dict specified in this function, otherwise raise
             # a KeyError
-            if cd_name in ud.cd_dict.keys():
+            if cd_name in cd.cdivdict.keys():
                 # Obtain the census division number from the dict
                 # and subtract 1 to make the number usable as a list
                 # index (1st list element is indexed by 0 in Python)
-                cd_number = ud.cd_dict[cd_name] - 1
+                cd_number = cd.cdivdict[cd_name] - 1
 
                 # Make a copy of the portion of the input dict
                 # corresponding to the current census division
@@ -288,7 +267,7 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
                 # zone basis as the contribution from each census
                 # division is added to the climate zone by merge_sum
                 base_dict = merge_sum(base_dict, add_dict, cd_number,
-                                      (cz_number + 1), ud.cd_dict, cd_list,
+                                      (cz_number + 1), cd.cdivdict, cd_list,
                                       res_convert_array, com_convert_array)
             else:
                 raise(KeyError("Census division name not found in dict keys!"))

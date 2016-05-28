@@ -5,101 +5,126 @@ import re
 import csv
 import json
 
-# Set the pivot year (i.e., the year that should be added to the data
-# reported to convert the values to actual calendar years) for KDBOUT
-pivot_year = 1989
 
-# Identify files to import for conversion
-serv_dmd = 'KSDOUT.txt'
-catg_dmd = 'KDBOUT.txt'
-json_in = 'mseg_res_cdiv.json'
-json_out = 'mseg_res_com_cdiv.json'
-com_tloads = 'Com_TLoads_Final.txt'
+class UsefulVars(object):
+    """Class of variables that would otherwise be global.
 
-# Define a series of dicts that will translate imported JSON
-# microsegment names to AEO microsegment(s)
+    Args:
+        pivot_year (int): The pivot year is the value that should be
+            added to the year numbers reported in KDBOUT to convert
+            the values to actual calendar years.
+        serv_dmd (str): Filename for the commercial service demand data.
+        catg_dmd (str): Filename for the commercial energy and stock data.
+        com_tloads (str): Filename for the commercial thermal load components.
+        json_in (str): Filename for input JSON that has only residential data.
+        json_out (str): Filename for JSON with commercial building data added.
+    """
 
-# Census division (identical to residential)
-cdivdict = {'new england': 1,
-            'mid atlantic': 2,
-            'east north central': 3,
-            'west north central': 4,
-            'south atlantic': 5,
-            'east south central': 6,
-            'west south central': 7,
-            'mountain': 8,
-            'pacific': 9
-            }
+    def __init__(self):
+        self.pivot_year = 1989
+        self.serv_dmd = 'KSDOUT.txt'
+        self.catg_dmd = 'KDBOUT.txt'
+        self.com_tloads = 'Com_TLoads_Final.txt'
+        self.json_in = 'mseg_res_cdiv.json'
+        self.json_out = 'mseg_res_com_cdiv.json'
 
-# Building type
-bldgtypedict = {'assembly': 1,
-                'education': 2,
-                'food sales': 3,
-                'food service': 4,
-                'health care': 5,
-                'lodging': 6,
-                'large office': 7,
-                'small office': 8,
-                'mercantile/service': 9,
-                'warehouse': 10,
-                'other': 11,
-                'FIGURE THIS ONE OUT': 12
-                }
 
-# End use
-endusedict = {'heating': 1,
-              'cooling': 2,
-              'water heating': 3,
-              'ventilation': 4,
-              'cooking': 5,
-              'lighting': 6,
-              'refrigeration': 7,
-              'PCs': 8,
-              'non-PC office equipment': 9,
-              'MELs': 10
-              }
+class CommercialTranslationDicts(object):
+    """Class of dicts that relate the JSON strings with numeric indices.
 
-# Miscellaneous electric load end uses
-mels_techdict = {'distribution transformers': 1,
-                 'security systems': 2,
-                 'elevators': 3,
-                 'escalators': 4,
-                 'non-road electric vehicles': 5,
-                 'coffee brewers': 6,
-                 'kitchen ventilation': 7,
-                 'laundry': 8,
-                 'lab fridges and freezers': 9,
-                 'fume hoods': 10,
-                 'medical imaging': 11,
-                 'video displays': 15,
-                 'large video displays': 16,
-                 'municipal water services': 17
-                 }
+    For each set defining a microsegment, e.g., census divisions,
+    climate zones, building types, the members of that set are recorded
+    using human-readable strings in the microsegments JSON files and
+    indexed numerically (in general) in the EIA AEO data files. Each
+    dict here provides the translation between the string and numeric
+    indices for a single set of indices. Demand data are the exception;
+    those data use short string indices instead of numbers.
 
-# Fuel types
-fueldict = {'electricity': 1,
-            'natural gas': 2,
-            'distillate': 3,
-            'liquefied petroleum gas (LPG)': 5,
-            'other fuel': (4, 6, 7, 8)
-            }
-# Other fuel includes residual oil (4), steam from coal (6),
-# motor gasoline (7), and kerosene (8)
+    Args:
+        cdivdict (dict): Translation for census divisions.
+        bldgtypedict (dict): Translation for commercial building types.
+        endusedict (dict): Translation for commercial building end uses.
+        mels_techdict (dict): Translation for miscellaneous electric loads.
+        fueldict (dict): Translation for fuel types.
+        demand_typedict (dict): Translation for components of thermal load.
+    """
 
-# Demand components dict
-demand_typedict = {'windows conduction': 'WIND_COND',
-                   'windows solar': 'WIND_SOL',
-                   'wall': 'WALL',
-                   'roof': 'ROOF',
-                   'ground': 'GRND',
-                   'floor': 'FLOOR',
-                   'infiltration': 'INFIL',
-                   'ventilation': 'VENT',
-                   'people gain': 'PEOPLE',
-                   'equipment gain': 'EQUIP_ELEC',
-                   'lighting gain': 'LIGHTS',
-                   'other heat gain': 'EQUIP_NELEC'
-                   }
+    def __init__(self):
+        self.cdivdict = {'new england': 1,
+                         'mid atlantic': 2,
+                         'east north central': 3,
+                         'west north central': 4,
+                         'south atlantic': 5,
+                         'east south central': 6,
+                         'west south central': 7,
+                         'mountain': 8,
+                         'pacific': 9
+                         }
+
+        self.bldgtypedict = {'assembly': 1,
+                             'education': 2,
+                             'food sales': 3,
+                             'food service': 4,
+                             'health care': 5,
+                             'lodging': 6,
+                             'large office': 7,
+                             'small office': 8,
+                             'mercantile/service': 9,
+                             'warehouse': 10,
+                             'other': 11,
+                             'FIGURE THIS ONE OUT': 12
+                             }
+
+        self.endusedict = {'heating': 1,
+                           'cooling': 2,
+                           'water heating': 3,
+                           'ventilation': 4,
+                           'cooking': 5,
+                           'lighting': 6,
+                           'refrigeration': 7,
+                           'PCs': 8,
+                           'non-PC office equipment': 9,
+                           'MELs': 10
+                           }
+
+        self.mels_techdict = {'distribution transformers': 1,
+                              'security systems': 2,
+                              'elevators': 3,
+                              'escalators': 4,
+                              'non-road electric vehicles': 5,
+                              'coffee brewers': 6,
+                              'kitchen ventilation': 7,
+                              'laundry': 8,
+                              'lab fridges and freezers': 9,
+                              'fume hoods': 10,
+                              'medical imaging': 11,
+                              'video displays': 15,
+                              'large video displays': 16,
+                              'municipal water services': 17
+                              }
+
+        self.fueldict = {'electricity': 1,
+                         'natural gas': 2,
+                         'distillate': 3,
+                         'liquefied petroleum gas (LPG)': 5,
+                         'other fuel': (4, 6, 7, 8)
+                         }
+        # Other fuel includes residual oil (4), steam from coal (6),
+        # motor gasoline (7), and kerosene (8)
+
+        self.demand_typedict = {'windows conduction': 'WIND_COND',
+                                'windows solar': 'WIND_SOL',
+                                'wall': 'WALL',
+                                'roof': 'ROOF',
+                                'ground': 'GRND',
+                                'floor': 'FLOOR',
+                                'infiltration': 'INFIL',
+                                'ventilation': 'VENT',
+                                'people gain': 'PEOPLE',
+                                'equipment gain': 'EQUIP_ELEC',
+                                'lighting gain': 'LIGHTS',
+                                'other heat gain': 'EQUIP_NELEC'
+                                }
 
 
 def json_interpreter(key_series):
@@ -129,6 +154,10 @@ def json_interpreter(key_series):
         number in the case of demand or MELs data, respectively.
     """
 
+    # Create an instance of the commercial data translation dicts object
+    # to be able to use the translation dicts
+    cd = CommercialTranslationDicts()
+
     # Separate handling for key_series for square footage data, where
     # key_series has only three entries, and complete microsegments,
     # which have at least four entries
@@ -137,7 +166,7 @@ def json_interpreter(key_series):
         # Set up a list of dict names for the square footage data,
         # which are only specified on a census division and building
         # type basis
-        dict_names = [cdivdict, bldgtypedict]
+        dict_names = [cd.cdivdict, cd.bldgtypedict]
 
         # Replicate key_series as keys
         keys = key_series
@@ -153,7 +182,7 @@ def json_interpreter(key_series):
 
         # Set up list of dict names in the order specified in the
         # function docstring
-        dict_names = [cdivdict, bldgtypedict, endusedict, fueldict]
+        dict_names = [cd.cdivdict, cd.bldgtypedict, cd.endusedict, cd.fueldict]
 
     # Convert keys from the JSON into a new list using the translation
     # dicts defined at the top of this file
@@ -166,14 +195,14 @@ def json_interpreter(key_series):
     # indicated, the demand component should be included in the output
     if 'demand' in keys:
         # Interpret the demand component specified and append to the list
-        interpreted_values.append(demand_typedict[keys[5]])
+        interpreted_values.append(cd.demand_typedict[keys[5]])
 
     # If the end use is miscellaneous electric loads ('MELs'),
     # keys will have one additional entry, which should be
     # processed against the dict 'mels_techdict'
     if 'MELs' in keys:
         # Interpret the MEL type specified and append to the list
-        interpreted_values.append(mels_techdict[keys[4]])
+        interpreted_values.append(cd.mels_techdict[keys[4]])
 
     return interpreted_values
 
@@ -313,7 +342,7 @@ def catg_data_selector(db_array, sel, section_label):
                                     db_array['Fuel'] == sel[3]], axis=0)]
 
     # Adjust years reported based on the pivot year
-    filtered['Year'] = filtered['Year'] + pivot_year
+    filtered['Year'] = filtered['Year'] + UsefulVars().pivot_year
 
     # From the filtered data, select only the two needed columns,
     # the year and the data
@@ -339,6 +368,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
     building energy data and, if applicable, the thermal load
     components and technology-specific performance (i.e., service
     demand) data.
+
+    This function also converts the units of the energy data from
+    TBTU (10^12 BTU) to MMBTU (10^6 BTU.)
 
     Args:
         db_array (numpy.ndarray): An array of commercial building data,
@@ -366,6 +398,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
     # Convert the list of keys into a list of numeric indices that can
     # be used to select the appropriate data
     index_series = json_interpreter(key_series)
+
+    # TEMPORARY
+    to_mmbtu = 1000000  # 1e6
 
     # Call the appropriate functions depending on the keys associated
     # with a given leaf node in the JSON database; each of the four
@@ -402,7 +437,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
 
         # Multiply together the thermal load multiplier and energy use
         # data and construct the dict with years as keys
-        final_dict = dict(zip(subset['Year'], subset['Amount']*tl_multiplier))
+        final_dict = dict(zip(subset['Year'],
+                              subset['Amount']*tl_multiplier*to_mmbtu))
     elif 'MELs' in key_series:
         # Miscellaneous Electric Loads (MELs) energy use data are
         # stored in db_array in a separate section with a different
@@ -417,13 +453,15 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         subset = catg_data_selector(db_array, index_series, 'MiscElConsump')
 
         # Convert into dict with years as keys and energy as values
-        final_dict = dict(zip(subset['Year'], subset['Amount']))
+        final_dict = dict(zip(subset['Year'],
+                              subset['Amount']*to_mmbtu))
     elif 'new square footage' in key_series:
         # Extract the relevant data from KDBOUT
         subset = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
 
         # Convert into dict with years as keys and new square footage as values
-        final_dict = dict(zip(subset['Year'], subset['Amount']))
+        final_dict = dict(zip(subset['Year'],
+                              subset['Amount']))
     elif 'total square footage' in key_series:
         # Extract the relevant data from KDBOUT
         sub1 = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
@@ -431,7 +469,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
 
         # Combine the surviving floor space and new floor space
         # quantities and construct into final dict
-        final_dict = dict(zip(sub1['Year'], sub1['Amount'] + sub2['Amount']))
+        final_dict = dict(zip(sub1['Year'],
+                              sub1['Amount'] + sub2['Amount']))
     elif index_series[2] in sd_end_uses:
         # Extract the relevant data from KDBOUT
         subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
@@ -451,7 +490,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         # into a dict
         for technology in tech_pct:
             tech_dict_list.append(
-                dict(zip(subset['Year'], technology*subset['Amount'])))
+                dict(zip(subset['Year'],
+                         technology*subset['Amount']*to_mmbtu)))
 
         # The final dict should be {technology: {year: data, ...}, ...}
         final_dict = dict(zip(tech_names, tech_dict_list))
@@ -462,7 +502,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
 
         # Convert into dict with years as keys and energy as values
-        final_dict = dict(zip(subset['Year'], subset['Amount']))
+        final_dict = dict(zip(subset['Year'],
+                              subset['Amount']*to_mmbtu))
 
     # Return the dict that should end up at the leaf node in the exported JSON
     return final_dict
@@ -489,7 +530,7 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
         # so, finish constructing the key list for the current location
         # and obtain the data to update the dict
         else:
-            if key_list[1] in bldgtypedict.keys():
+            if key_list[1] in CommercialTranslationDicts().bldgtypedict.keys():
                 leaf_node_keys = key_list + [key]
 
                 # Extract data from original data sources
@@ -708,19 +749,22 @@ def str_cleaner(data_array, column_name):
 def main():
     """ Import input data files and do other things """
 
+    # Create a UsefulVars object instance for repeated use in this function
+    handyvars = UsefulVars()
+
     # Import EIA AEO 'KSDOUT' service demand file
-    serv_dtypes = dtype_array(serv_dmd)
-    serv_data = data_import(serv_dmd, serv_dtypes)
+    serv_dtypes = dtype_array(handyvars.serv_dmd)
+    serv_data = data_import(handyvars.serv_dmd, serv_dtypes)
     serv_data = str_cleaner(serv_data, 'Description')
 
     # Import EIA AEO 'KDBOUT' additional data file
-    catg_dtypes = dtype_array(catg_dmd)
-    catg_data = data_import(catg_dmd, catg_dtypes)
+    catg_dtypes = dtype_array(handyvars.catg_dmd)
+    catg_data = data_import(handyvars.catg_dmd, catg_dtypes)
     catg_data = str_cleaner(catg_data, 'Label')
 
     # Import thermal loads data
-    load_dtypes = dtype_array(com_tloads, '\t')
-    load_data = data_import(com_tloads, load_dtypes, '\t')
+    load_dtypes = dtype_array(handyvars.com_tloads, '\t')
+    load_data = data_import(handyvars.com_tloads, load_dtypes, '\t')
 
     # Not all end uses are broken down by equipment type and vintage in
     # KSDOUT; determine which end uses are present so that the service
@@ -730,7 +774,8 @@ def main():
 
     # Import empty microsegments JSON file and traverse database structure
     try:
-        with open(json_in, 'r') as jsi, open(json_out, 'w') as jso:
+        with open(handyvars.json_in, 'r') as jsi, open(
+             handyvars.json_out, 'w') as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
@@ -742,7 +787,7 @@ def main():
 
     except FileNotFoundError:
         errtext = ('Confirm that the expected residential data file ' +
-                   json_in + ' has already been created and '
+                   handyvars.json_in + ' has already been created and '
                    'is in the current directory.\n')
         print(errtext)
 

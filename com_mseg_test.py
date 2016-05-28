@@ -29,11 +29,11 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         # Open each EIA data file, extract the header row, and reformat
         # the text in each entry for easier handling, producing a list
         # of strings for the column titles
-        with open(cm.serv_dmd, 'r') as sd:
+        with open(cm.UsefulVars().serv_dmd, 'r') as sd:
             sd_fl = csv.reader(sd)
             self.sd_head = [entry.strip() for entry in next(sd_fl)]
 
-        with open(cm.catg_dmd, 'r') as db:
+        with open(cm.UsefulVars().catg_dmd, 'r') as db:
             db_fl = csv.reader(db)
             self.db_head = [entry.strip() for entry in next(db_fl)]
 
@@ -69,7 +69,7 @@ class EIADataFileIntegrityTest(unittest.TestCase):
 
         # Read the first 100 data lines to (subsequently) create a
         # unique list of year numbers in the data
-        with open(cm.catg_dmd, 'r') as db:
+        with open(cm.UsefulVars().catg_dmd, 'r') as db:
             db_fl = csv.reader(db)
             next(db_fl)  # Skip first line
             for row in itertools.islice(db_fl, 100):
@@ -81,7 +81,7 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         # Create a list of the unique years reported out of the first
         # 100 lines of the main commercial data file and adjust the
         # list based on the expected pivot year of 1989
-        db_yrs = np.unique(db_yrs) + cm.pivot_year
+        db_yrs = np.unique(db_yrs) + cm.UsefulVars().pivot_year
 
         # Compare the contents of the two lists, where if the lists are
         # exactly the same, the list comprehension will be empty. Each
@@ -706,30 +706,32 @@ class CommonUnitTest(unittest.TestCase):
     # Final dicts in the form that should be produced by the function
     # under test, in the same order as the sample_keys list
     dict_list = [
-        {'2019': 1.6523982, '2020': 1.6480006, '2021': 1.6414042},
-        {'2019': 0.006972, '2020': 0.006804, '2021': 0.006552},
-        {'2019': 0.101, '2020': 0.103, '2021': 0.106},
-        {'2019': 1.475, '2020': 1.484, '2021': 1.492},
+        {'2019': 1652398.2, '2020': 1648000.6, '2021': 1641404.2},
+        {'2019': 6972, '2020': 6804, '2021': 6552},
+        {'2019': 101000, '2020': 103000, '2021': 106000},
+        {'2019': 1475000, '2020': 1484000, '2021': 1492000},
         {'rooftop_ASHP-cool':
-            {'2019': 0.1192638, '2020': 0.12138204, '2021': 0.12298784},
+            {'2019': 119263.8, '2020': 121382.04, '2021': 122987.84},
          'comm_GSHP-cool':
-            {'2019': 0.01897379, '2020': 0.01772996, '2021': 0.01639838},
+            {'2019': 18973.79, '2020': 17729.96, '2021': 16398.38},
          'res_type_central_AC':
-            {'2019': 2.29176241, '2020': 2.259888, '2021': 2.22061378}},
-        {'gas_instantaneous_WH': {'2019': 0, '2020': 0, '2021': 0},
-         'gas_water_heater': {'2019': 9.430, '2020': 9.373, '2021': 9.311}},
+            {'2019': 2291762.41, '2020': 2259888, '2021': 2220613.78}},
+        {'gas_instantaneous_WH':
+            {'2019': 0, '2020': 0, '2021': 0},
+         'gas_water_heater':
+            {'2019': 9430000, '2020': 9373000, '2021': 9311000}},
         {'2L F54T5HO LB':
             {'2019': 0.0, '2020': 0.0, '2021': 0.0},
          '90W Halogen PAR-38':
-            {'2019': 0.188196736, '2020': 0.177240371, '2021': 0.167691597},
+            {'2019': 188196.749, '2020': 177240.371, '2021': 167691.597},
          'F28T8 HE w/ OS &amp; SR':
-            {'2019': 3.366293468, '2020': 3.386728125, '2021': 3.405816447},
+            {'2019': 3366293.456, '2020': 3386728.109, '2021': 3405816.43},
          'MH 175_LB':
-            {'2019': 0.027318896, '2020': 0.025548147, '2021': 0.02347684},
+            {'2019': 27318.883, '2020': 25548.161, '2021': 23476.82},
          'T8 2e),':
-            {'2019': 0.0591909, '2020': 0.057483358, '2021': 0.057015152}},
-        {'2019': 11.983, '2020': 12.165, '2021': 12.377},
-        {'2019': 24.763, '2020': 24.724, '2021': 24.733},
+            {'2019': 59190.913, '2020': 57483.358, '2021': 57015.145}},
+        {'2019': 11983000, '2020': 12165000, '2021': 12377000},
+        {'2019': 24763000, '2020': 24724000, '2021': 24733000},
         {'2019': 2.097, '2020': 2.074, '2021': 2.037},
         {'2019': 2549.03, '2020': 2576.48, '2021': 2604.12}]
 

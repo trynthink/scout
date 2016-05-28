@@ -6,6 +6,9 @@
 # Import code to be tested
 import final_mseg_converter as fmc
 
+# Import code with translation dicts
+import com_mseg as cm
+
 # Import needed packages
 import unittest
 import numpy as np
@@ -128,11 +131,11 @@ class DataRestructuringFunctionTest(CommonUnitTest):
     # specified by 'census_divisions'
     climate_zones = [1, 1]
 
-    # Create an instance of the UsefulDicts object from the script
-    # under test, which includes dictionaries for converting between
+    # Create an instance of the CommericalTranslationDicts object from
+    # com_mseg, which includes dictionaries for converting between
     # descriptive string keys for e.g., census divisions and the
     # corresponding integer numeric values for those strings
-    ud = fmc.UsefulDicts()
+    cd = cm.CommercialTranslationDicts()
 
     # List of census divisions typically derived from the top-level
     # keys in the input JSON database
@@ -217,7 +220,7 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                                    add_input,
                                    self.census_divisions[idx],
                                    self.climate_zones[idx],
-                                   self.ud.cd_dict,
+                                   self.cd.cdivdict,
                                    self.cd_list,
                                    self.res_cd_cz_array,
                                    self.com_cd_cz_array)
