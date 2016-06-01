@@ -275,10 +275,10 @@ class Measure(object):
         # Establish a flag for a commercial lighting case where the user has
         # not specified secondary end use effects on heating and cooling.  In
         # this case, secondary effects are added automatically by adjusting
-        # the "lights" thermal load component in accordance with the lighting
-        # efficiency change (e.g., a 40% relative savings from efficient
-        # lighting equipment translates to a 40% increase in heating loads and
-        # 40% decrease in cooling load)
+        # the "lighting gain" thermal load component in accordance with the
+        # lighting efficiency change (e.g., a 40% relative savings from
+        # efficient lighting equipment translates to a 40% increase in heating
+        # loads and 40% decrease in cooling load)
         lighting_secondary = False
 
         # Find all possible microsegment key chains.  First, determine all
@@ -299,8 +299,8 @@ class Measure(object):
         # Determine "secondary" microsegment key chains and add to the
         # "primary" microsegment key chain list, if needed. In a commercial
         # lighting measure case where no secondary microsegment is specified,
-        # use the "lights" thermal load component microsegments to represent
-        # secondary end use effects of the lighting measure
+        # use the "lighting gain" thermal load component microsegments to
+        # represent secondary end use effects of the lighting measure
         if self.end_use["secondary"] is not None:
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
@@ -321,17 +321,16 @@ class Measure(object):
                     # Set secondary fuel type to include all heating/cooling
                     # fuels
                     self.fuel_type["secondary"] = [
-                        "electricity", "natural gas", "other"]
+                        "electricity", "natural gas", "distillate"]
                     # Set relevant secondary end uses
-                    self.end_use["secondary"] = [
-                        "heating", "secondary heating", "cooling"]
+                    self.end_use["secondary"] = ["heating", "cooling"]
                     # Set secondary technology type ("demand" as the lighting
                     # measure affects heating/cooling loads)
                     self.technology_type["secondary"] = "demand"
-                    # Set secondary technology class to "lights", which will
-                    # access the portion of commercial heating/cooling demand
-                    # that is attributable to waste heat from lights
-                    self.technology["secondary"] = "lights"
+                    # Set secondary technology class to "lighting gain", which
+                    # will access the portion of commercial heating/cooling
+                    # demand that is attributable to waste heat from lights
+                    self.technology["secondary"] = "lighting gain"
 
                     # Determine secondary microsegment key chains and add to
                     # the primary microsegment key chain list
@@ -425,29 +424,36 @@ class Measure(object):
                     intensity_carb_base = carb_int[mskeys[3]]
                     intensity_carb_meas = carb_int[self.fuel_switch_to]
 
-            # Initialize dicts of microsegment information specific to this run
-            # of for loop; also initialize dict for mining sq.ft. information
-            # to be used as stock for microsegments without no. units info.;
-            # finally, initialize a dict to store information about the portion
-            # of this microsegment's stock and energy that is attributable to
-            # new buildings. The new buildings fraction will be used in the
-            # partitition_microsegment function below
+            # Initialize cost/performance/lifetime, stock/energy, square
+            # footage, and new building fraction variables for the baseline
+            # microsegment associated with the current key chain
             base_costperflife = base_costperflife_in
             mseg = mseg_in
             mseg_sqft_stock = mseg_in
             new_bldg_frac = {"added": {}, "total": {}}
 
-            # Initialize a dict for relative performance (broken out by year in
-            # modeling time horizon)
+            # Initialize a variable for measure relative performance (broken
+            # out by year in modeling time horizon)
             rel_perf = {}
 
-            # Loop recursively through the above dicts, moving down key chain
+            # In cases where measure and baseline cost/performance/lifetime
+            # data and/or baseline stock/energy market size data are formatted
+            # as nested dicts, loop recursively through dict levels until
+            # appropriate terminal value is reached
             for i in range(0, len(mskeys)):
-                # Check for key in dict level
-                if mskeys[i] in base_costperflife.keys() or mskeys[i] in \
-                   ["primary", "secondary", "new", "existing", None]:
-                    # Skip over "primary" or "secondary" key in updating
-                    # cost and lifetime information (not relevant)
+                # Check whether baseline microsegment cost/performance/lifetime
+                # data are in dict format and current key is in dict keys; if
+                # so, proceed further with the recursive loop. * Note: dict key
+                # hierarchies and syntax are assumed to be consistent across
+                # all measure and baseline cost/performance/lifetime and
+                # stock/energy market data
+                if isinstance(base_costperflife, dict) and mskeys[i] in \
+                    base_costperflife.keys() or mskeys[i] in [
+                        "primary", "secondary", "new", "existing", None]:
+                    # Skip over "primary", "secondary", "new", and "existing"
+                    # keys in updating baseline stock/energy, cost and lifetime
+                    # information (this information is not broken out by these
+                    # categories)
                     if mskeys[i] not in [
                             "primary", "secondary", "new", "existing", None]:
 
@@ -742,8 +748,12 @@ class Measure(object):
                         perf_units and base_costperflife[
                         "installed cost"]["units"] == cost_units):
 
-                    # Set base performance dict
-                    perf_base = base_costperflife["performance"]["typical"]
+                    # Set a baseline performance dict if measure performance is
+                    # specified in absolute units or as a relative savings
+                    # percentage that is dynamically tied to changes in the
+                    # baseline performance level over time
+                    if perf_units != "relative savings (constant)":
+                        perf_base = base_costperflife["performance"]["typical"]
 
                     # Relative performance calculation depends on whether the
                     # performance units are already specified as 'relative
@@ -864,7 +874,7 @@ class Measure(object):
                     # make no contribution to the stock cost calculation, as
                     # they only affect energy/carbon and associated costs
                     if mskeys[0] == "secondary":
-                        cost_base = dict.fromkeys(mseg["energy"].keys(), 0)
+                        cost_base = dict.fromkeys(aeo_years, 0)
                     else:
                         cost_base = base_costperflife[
                             "installed cost"]["typical"]
@@ -875,7 +885,7 @@ class Measure(object):
                 # no contribution to the lifetime calculation, as they only
                 # affect energy/carbon and associated costs
                 if mskeys[0] == "secondary":
-                    life_base = dict.fromkeys(mseg["energy"].keys(), 0)
+                    life_base = dict.fromkeys(aeo_years, 0)
                 else:
                     life_base = base_costperflife["lifetime"]["average"]
                     # Set any base lifetime values less than 1 to 1
@@ -993,7 +1003,7 @@ class Measure(object):
 
                 # Total stock
                 if mskeys[0] == 'secondary':
-                    add_stock = dict.fromkeys(mseg["energy"].keys(), 0)
+                    add_stock = dict.fromkeys(aeo_years, 0)
                 elif mseg["stock"] == "NA":  # Use sq.ft. in absence of # units
                     sqft_subst = 1
                     ##########################################################
@@ -1591,16 +1601,20 @@ class Measure(object):
                 # since the baseline technology was first adopted in new
                 # homes in year 1 of the modeling time horizon to begin
                 # replacing that baseline stock; if so, the baseline
-                # replacement fraction equals the fraction of stock in new
-                # homes already captured by baseline technology multiplied
-                # by (1 / baseline lifetime); if not, the baseline replacement
+                # replacement fraction is the lesser of (1 / baseline
+                # lifetime) and the fraction of new construction stock from
+                # previous years that has already been captured by the
+                # baseline technology; if not, the baseline replacement
                 # fraction is 0
                 if mskeys[-1] == "new":
                     turnover_base = life_base[yr] - (
                         int(yr) - int(list(sorted(stock_total.keys()))[0]))
-                    if turnover_base <= 0:
-                        captured_base_replace_frac = captured_base_frac * \
-                            (1 / life_base[yr])
+                    if turnover_base <= 0 and (
+                            1 / life_base[yr]) <= captured_base_frac:
+                        captured_base_replace_frac = (1 / life_base[yr])
+                    elif turnover_base <= 0 and (
+                            1 / life_base[yr]) > captured_base_frac:
+                        captured_base_replace_frac = captured_base_frac
                     else:
                         captured_base_replace_frac = 0
                 # For a case where the current microsegment applies to
@@ -2414,20 +2428,17 @@ class Measure(object):
         irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = \
             (999 for n in range(8))
 
-        # Calculate irr and simple payback for capital + energy cash flows.
-        # Check to ensure thar irr/payback can be calculated for the
-        # given cash flows
-        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
+        # Calculate IRR and simple payback for capital + energy and capital +
+        # energy + carbon cash flows.  Check to ensure that relevant cash flows
+        # are non-zero and that IRR/payback can be calculated
+        if any(cashflows_e) != 0:
+            # IRR/payback given capital + energy cash flows
             try:
                 irr_e = numpy.irr(cashflows_s + cashflows_e)
                 payback_e = self.payback(cashflows_s + cashflows_e)
             except (ValueError, LinAlgError):
                 pass
-
-        # Calculate irr and simple payback for capital + energy + carbon cash
-        # flows.  Check to ensure thar irr/payback can be calculated for the
-        # given cash flows
-        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
+            # IRR/payback given capital + energy + carbon cash flows
             try:
                 irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
                 payback_ec = \
@@ -2436,16 +2447,16 @@ class Measure(object):
                 pass
 
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
-        # benefits.  Check to ensure energy savings NPV in the denominator is
-        # not zero
-        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
+        # benefits.  Check to ensure energy savings NPV in the denominator
+        # is not zero
+        if npv_esave != 0:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
-        # benefits.  Check to ensure carbon savings NPV in the denominator is
-        # not zero.
-        if any(numpy.isclose(esave_array[1:], 0, atol=5)) is False:
+        # benefits.  Check to ensure carbon savings NPV in the denominator
+        # is not zero.
+        if npv_csave != 0:
             ccc = (-npv_s / npv_csave)
             ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
@@ -2599,11 +2610,6 @@ class Engine(object):
         # applicable, the removal of overlapping heating/cooling supply-side
         # and demand-side savings
         for msu in msegs:
-            # Determine the subset of measures that pertain to the given
-            # microsegment
-            measures_adj = [
-                x for x in measure_list if msu in x.mseg_adjust[
-                    "contributing mseg keys and values"].keys()]
 
             # For a heating/cooling microsegment update, find all microsegments
             # that overlap with the current contributing microsegment across
@@ -2646,6 +2652,11 @@ class Engine(object):
             # current market microsegment it captures when directly competed
             # against other measures that apply to the same microsegment
             if "primary" in msu:
+                # Determine the subset of measures that pertain to the given
+                # primary microsegment
+                measures_adj = [
+                    x for x in measure_list if msu in x.mseg_adjust[
+                        "contributing mseg keys and values"].keys()]
                 # If multiple measures are competing for a primary
                 # microsegment, determine the market shares of the
                 # competing measures and adjust measure master microsegments
@@ -2670,7 +2681,23 @@ class Engine(object):
             # previously calculated for the primary microsegment these
             # secondary savings are associated with
             elif "secondary" in msu:
-                self.secondary_mktshare_adjust(measures_adj, msu)
+                # Determine the subset of measures that pertain to the given
+                # secondary microsegment and require updates to this
+                # microsegment (the latter is indicated by the existence of
+                # market share adjustment data for the secondary microsegment
+                # in the measure's 'mseg_adjust' attribute)
+                measures_adj = [
+                    x for x in measure_list if len(x.mseg_adjust[
+                        "secondary mseg adjustments"]["market share"][
+                        "original stock (total captured)"].keys()) > 0 and
+                    msu in x.mseg_adjust[
+                        "secondary mseg adjustments"]["market share"][
+                        "original stock (total captured)"].keys()]
+                # If at least one measure requires secondary microsegment
+                # market share adjustments, proceed with the adjustment
+                # calculation
+                if len(measures_adj) > 0:
+                    self.secondary_mktshare_adjust(measures_adj, msu)
             # Microsegments not tagged as 'primary' or 'secondary' are
             # flagged as invalid
             else:
@@ -3130,25 +3157,27 @@ class Engine(object):
             raise ValueError(
                 'Microsegment type must be primary or secondary!')
 
-        # For a primary contributing microsegment with secondary effects,
+        # For a primary lighting microsegment with secondary effects,
         # record market share information that will subsequently be used
         # to adjust associated secondary microsegments and associated savings
-        if "lighting" in mseg_key and len(measure.mseg_adjust[
-                "secondary mseg adjustments"]["market share"][
-                "original stock (total captured)"].keys()) != 0:
+        if "primary" in mseg_key and "lighting" in mseg_key and len(
+            measure.mseg_adjust["secondary mseg adjustments"]["market share"][
+                "original stock (total captured)"].keys()) > 0:
             # Determine the climate zone, building type, and structure
-            # type for the current contributing primary microsegment
+            # type for the current contributing primary microsegment from the
+            # microsegment key chain information
             cz_bldg_struct = re.search(
-                ("'[\w+\s*]+\(*\w+\)*',\s'([\w+\s*]+\(*\w+\)*)',"
-                 "\s'([\w+\s*]+\(*\w+\)*)',\s'[\w+\s*]+\(*\w+\)*',"
-                 "\s'[\w+\s*]+\(*\w+\)*',\s'[\w+\s*]+\(*\w+\)*',"
-                 "\s'([\w+\s*]+\(*\w+\)*)'"), mseg_key)
-            # Use climate zone, building type, and structure type as
-            # the key for linking the primary and its associated
-            # secondary microsegment
-            secnd_mseg_adjkey = str(
-                (cz_bldg_struct.group(1), cz_bldg_struct.group(2),
-                 cz_bldg_struct.group(3)))
+                ("'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)',"
+                 "\s'([a-zA-Z0-9_() /&-]+)',\s'[a-zA-Z0-9_() /&-]+',"
+                 "\s'[a-zA-Z0-9_() /&-]+',\s'[a-zA-Z0-9_() /&-]+',"
+                 "\s'([a-zA-Z0-9_() /&-]+)'"), mseg_key)
+
+            # Use climate zone, building type, and structure type as the key
+            # for linking the primary and its associated secondary microsegment
+            secnd_mseg_adjkey = (
+                cz_bldg_struct.group(1), cz_bldg_struct.group(2),
+                cz_bldg_struct.group(3))
+
             # Record original and adjusted primary stock numbers as part of
             # the measure's 'mseg_adjust' attribute
             secnd_adj_mktshr = measure.mseg_adjust[
@@ -3238,17 +3267,20 @@ class Engine(object):
             for yr in aeo_years:
                 # Determine the climate zone, building type, and structure
                 # type for the current contributing secondary microsegment
+                # from the microsegment key chain information
                 cz_bldg_struct = re.search(
-                    ("'[\w+\s*]+\(*\w+\)*',\s'([\w+\s*]+\(*\w+\)*)',"
-                     "\s'([\w+\s*]+\(*\w+\)*)',\s'[\w+\s*]+\(*\w+\)*',"
-                     "\s'[\w+\s*]+\(*\w+\)*',\s'[\w+\s*]+\(*\w+\)*',"
-                     "\s'([\w+\s*]+\(*\w+\)*)'"), mseg_key)
+                    ("'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)',"
+                     "\s'([a-zA-Z0-9_() /&-]+)',\s'[a-zA-Z0-9_() /&-]+',"
+                     "\s'[a-zA-Z0-9_() /&-]+',\s'[a-zA-Z0-9_() /&-]+',"
+                     "\s'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)'"),
+                    mseg_key)
+
                 # Use climate zone, building type, and structure type as
                 # the key for linking the secondary and its associated
                 # primary microsegment
-                secnd_mseg_adjkey = str(
-                    (cz_bldg_struct.group(1), cz_bldg_struct.group(2),
-                     cz_bldg_struct.group(3)))
+                secnd_mseg_adjkey = (
+                    cz_bldg_struct.group(1), cz_bldg_struct.group(2),
+                    cz_bldg_struct.group(3))
                 # Find the appropriate market share adjustment information
                 # for the given secondary climate zone, building type, and
                 # structure type in the measure's 'mseg_adjust' attribute
@@ -3265,25 +3297,37 @@ class Engine(object):
                     # currently competed secondary stock and the
                     # total current and previously competed secondary stock
 
-                    # Initialize dictionary to store competed and total market
-                    # adjustment factors for the secondary microsegments
-                    adj_factors = {"total": None, "competed": None}
-                    # Calculate and store competed and total adjustment factors
-                    adj_factors["competed"] = secnd_adj_mktshr[
-                        "adjusted stock (competed and captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original stock (competed and captured)"][
-                        secnd_mseg_adjkey][yr]
-                    adj_factors["total"] = secnd_adj_mktshr[
-                        "adjusted stock (total captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original stock (total captured)"][
-                        secnd_mseg_adjkey][yr]
-                    # Apply the market share adjustment factors to the
-                    # secondary and master savings
-                    self.compete_adjustment(
-                        adj_factors, base, adj, base_list_eff, adj_list_eff,
-                        adj_list_base, yr, mseg_key, m)
+                    # Initialize competed and total market adjustment factors
+                    # for the secondary microsegments as 1 (no adjustment)
+                    adj_factors = {"total": 1, "competed": 1}
+                    # Update competed market adjustment factor if originally
+                    # competed and captured baseline stock is not zero for
+                    # current year
+                    if secnd_adj_mktshr[
+                            "original stock (competed and captured)"][
+                            secnd_mseg_adjkey][yr] != 0:
+                        adj_factors["competed"] = secnd_adj_mktshr[
+                            "adjusted stock (competed and captured)"][
+                            secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
+                            "original stock (competed and captured)"][
+                            secnd_mseg_adjkey][yr]
+                    # Update total market adjustment factor if total
+                    # originally captured baseline stock is not zero for
+                    # current year
+                    if secnd_adj_mktshr["original stock (total captured)"][
+                            secnd_mseg_adjkey][yr] != 0:
+                        adj_factors["total"] = secnd_adj_mktshr[
+                            "adjusted stock (total captured)"][
+                            secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
+                            "original stock (total captured)"][
+                            secnd_mseg_adjkey][yr]
+                    # Apply any updated secondary market share adjustment
+                    # factors to associated energy, carbon, and cost savings
+                    if any([type(x) is numpy.ndarray or x != 1 for x in
+                            adj_factors.values()]):
+                        self.compete_adjustment(
+                            adj_factors, base, adj, base_list_eff,
+                            adj_list_eff, adj_list_base, yr, mseg_key, m)
                 # Raise error if no adjustment information exists
                 else:
                     raise KeyError(

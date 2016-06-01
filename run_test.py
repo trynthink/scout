@@ -2286,132 +2286,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}},
-                            "lights": {
-                                "performance": {
-                                    "typical": 0,
-                                    "best": 0,
-                                    "units": "NA",
-                                    "source":
-                                    "NA"},
-                                "installed cost": {
-                                    "typical": 0,
-                                    "best": 0,
-                                    "units": "NA",
-                                    "source": "NA"},
-                                "lifetime": {
-                                    "average": 0,
-                                    "range": 0,
-                                    "units": "NA",
-                                    "source": "NA"},
-                                "consumer choice": {
-                                    "competed market share": {
-                                        "source": "EIA AEO",
-                                        "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": {"2009": None, "2010": None},
-                                            "b2": {"2009": None,
-                                                   "2010": None}}},
-                                    "competed market": {
-                                        "source": "COBAM",
-                                        "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA",
-                                            "q": "NA"}}}}}},
-                    "secondary heating": {
-                        "demand": {
-                            "windows conduction": {
-                                "performance": {
-                                    "typical": {"2009": 1, "2010": 1},
-                                    "best": {"2009": 1, "2010": 1},
-                                    "units": "R Value",
-                                    "source":
-                                    "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 1, "2010": 1},
-                                    "best": {"2009": 1, "2010": 1},
-                                    "units": "2014$/sf",
-                                    "source": "EIA AEO"},
-                                "lifetime": {
-                                    "average": {"2009": 10, "2010": 10},
-                                    "range": {"2009": 1, "2010": 1},
-                                    "units": "years",
-                                    "source": "EIA AEO"},
-                                "consumer choice": {
-                                    "competed market share": {
-                                        "source": "EIA AEO",
-                                        "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": {"2009": None, "2010": None},
-                                            "b2": {"2009": None,
-                                                   "2010": None}}},
-                                    "competed market": {
-                                        "source": "COBAM",
-                                        "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA",
-                                            "q": "NA"}}}},
-                            "windows solar": {
-                                "performance": {
-                                    "typical": {"2009": 2, "2010": 2},
-                                    "best": {"2009": 2, "2010": 2},
-                                    "units": "SHGC",
-                                    "source":
-                                    "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 2, "2010": 2},
-                                    "best": {"2009": 2, "2010": 2},
-                                    "units": "2014$/sf",
-                                    "source": "EIA AEO"},
-                                "lifetime": {
-                                    "average": {"2009": 20, "2010": 20},
-                                    "range": {"2009": 2, "2010": 2},
-                                    "units": "years",
-                                    "source": "EIA AEO"},
-                                "consumer choice": {
-                                    "competed market share": {
-                                        "source": "EIA AEO",
-                                        "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": {"2009": None, "2010": None},
-                                            "b2": {"2009": None,
-                                                   "2010": None}}},
-                                    "competed market": {
-                                        "source": "COBAM",
-                                        "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA",
-                                            "q": "NA"}}}},
-                            "lights": {
-                                "performance": {
-                                    "typical": 0,
-                                    "best": 0,
-                                    "units": "NA",
-                                    "source":
-                                    "NA"},
-                                "installed cost": {
-                                    "typical": 0,
-                                    "best": 0,
-                                    "units": "NA",
-                                    "source": "NA"},
-                                "lifetime": {
-                                    "average": 0,
-                                    "range": 0,
-                                    "units": "NA",
-                                    "source": "NA"},
-                                "consumer choice": {
-                                    "competed market share": {
-                                        "source": "EIA AEO",
-                                        "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": {"2009": None, "2010": None},
-                                            "b2": {"2009": None,
-                                                   "2010": None}}},
-                                    "competed market": {
-                                        "source": "COBAM",
-                                        "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA",
-                                            "q": "NA"}}}}}},
+                            "lighting gain": 0}},
                     "cooling": {
                         "demand": {
                             "windows conduction": {
@@ -2476,7 +2351,7 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}},
-                            "lights": {
+                            "lighting gain": {
                                 "performance": {
                                     "typical": 0,
                                     "best": 0,
@@ -5022,25 +4897,16 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                            "windows solar": {
                                            "2009": 1 / 1000000,
                                            "2010": 1 / 1000000},
-                                           "lights": {
-                                           "2009": 1 / 1000000,
-                                           "2010": 1 / 1000000}}},
-                    "secondary heating": {"demand": {"windows conduction": {
-                                                     "2009": 5 / 1000000,
-                                                     "2010": 5 / 1000000},
-                                                     "windows solar": {
-                                                     "2009": 6 / 1000000,
-                                                     "2010": 6 / 1000000},
-                                                     "lights": {
-                                                     "2009": 6 / 1000000,
-                                                     "2010": 6 / 1000000}}},
+                                           "lighting gain": {
+                                           "2009": 7 / 1000000,
+                                           "2010": 7 / 1000000}}},
                     "cooling": {"demand": {"windows conduction": {
                                            "2009": 5 / 1000000,
                                            "2010": 5 / 1000000},
                                            "windows solar": {
                                            "2009": 6 / 1000000,
                                            "2010": 6 / 1000000},
-                                           "lights": {
+                                           "lighting gain": {
                                            "2009": 6 / 1000000,
                                            "2010": 6 / 1000000}}},
                     "lighting": {
@@ -11107,11 +10973,11 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     # Define sample string for a secondary microsegment associated with the
     # above primary microsegment
     overlap_key_scnd = str(('secondary', 'AIA_CZ1', 'assembly',
-                            'electricity (grid)', 'cooling', 'ASHP',
-                            'existing'))
+                            'electricity (grid)', 'cooling', 'demand',
+                            'lighting gain', 'existing'))
     # Define the key used to link the primary and secondary microsegments
     # (common climate zone, building type, and structure type)
-    secnd_adj_key = str(('AIA_CZ1', 'assembly', 'existing'))
+    secnd_adj_key = ('AIA_CZ1', 'assembly', 'existing')
 
     # Define master microsegments, the microsegment(s) that contribute to the
     # master microsegment (one of which is being competed), and capital/
