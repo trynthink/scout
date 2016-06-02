@@ -551,11 +551,23 @@ class Measure(object):
                             # values by appropriate site-source conversion
                             # factor and record as the measure's 'supply-demand
                             # adjustment' information
-                            mseg_adjust["supply-demand adjustment"]["total"][
-                                str(contrib_mseg_key)] = {
-                                    key: val * site_source_conv_base[
-                                        key] for key, val in adj_vals.items()
-                                    if key in aeo_years}
+
+                            ###############################################
+                            # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
+                            if bldg_sect == "residential":
+                                mseg_adjust["supply-demand adjustment"][
+                                    "total"][str(contrib_mseg_key)] = {
+                                        key: val * site_source_conv_base[
+                                            key] for key, val in
+                                    adj_vals.items() if key in aeo_years}
+                            else:
+                                mseg_adjust["supply-demand adjustment"][
+                                    "total"][str(contrib_mseg_key)] = {
+                                        key: val * site_source_conv_base[
+                                            key] * 1000000 for key, val in
+                                    adj_vals.items() if key in aeo_years}
+                            ###############################################
+
                             # Set overlapping energy savings values to zero in
                             # the measure's 'supply-demand adjustment'
                             # information for now (updated as necessary in the
@@ -573,10 +585,20 @@ class Measure(object):
                             # factor and add to existing 'supply-demand
                             # adjustment' information for the current windows
                             # microsegment
-                            add_adjust = {
-                                key: val * site_source_conv_base[
-                                    key] for key, val in adj_vals.items()
-                                if key in aeo_years}
+
+                            ###############################################
+                            # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
+                            if bldg_sect == "residential":
+                                add_adjust = {
+                                    key: val * site_source_conv_base[
+                                        key] for key, val in adj_vals.items()
+                                    if key in aeo_years}
+                            else:
+                                add_adjust = {
+                                    key: val * site_source_conv_base[
+                                        key] * 1000000 for key, val in
+                                    adj_vals.items() if key in aeo_years}
+                            ###############################################
                             mseg_adjust["supply-demand adjustment"]["total"][
                                 str(contrib_mseg_key)] = self.add_key_vals(
                                     mseg_adjust["supply-demand adjustment"][
@@ -2627,9 +2649,13 @@ class Engine(object):
 
                 # Establish key matching criteria
                 if 'supply' in msu:
-                    msu_split = re.search('(.*)(\,.*supply.*)', msu).group(1)
+                    msu_split = re.search(
+                        "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*supply.*",
+                        msu).group(1)
                 else:
-                    msu_split = re.search('(.*)(\,.*demand.*)', msu).group(1)
+                    msu_split = re.search(
+                        "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*demand.*",
+                        msu).group(1)
                 # Loop through all measures to find key chain matches
                 for m in measure_list:
                     # Register the matching key chains
