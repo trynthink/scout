@@ -437,8 +437,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
 
         # Multiply together the thermal load multiplier and energy use
         # data and construct the dict with years as keys
-        final_dict = dict(zip(subset['Year'],
-                              subset['Amount']*tl_multiplier*to_mmbtu))
+        final_dict = {'energy': dict(zip(
+            subset['Year'], subset['Amount']*tl_multiplier*to_mmbtu)),
+            'stock': 'NA'}
     elif 'MELs' in key_series:
         # Miscellaneous Electric Loads (MELs) energy use data are
         # stored in db_array in a separate section with a different
@@ -453,8 +454,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         subset = catg_data_selector(db_array, index_series, 'MiscElConsump')
 
         # Convert into dict with years as keys and energy as values
-        final_dict = dict(zip(subset['Year'],
-                              subset['Amount']*to_mmbtu))
+        final_dict = {'energy': dict(zip(subset['Year'],
+                                         subset['Amount']*to_mmbtu)),
+                      'stock': 'NA'}
     elif 'new square footage' in key_series:
         # Extract the relevant data from KDBOUT
         subset = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
@@ -490,8 +492,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         # into a dict
         for technology in tech_pct:
             tech_dict_list.append(
-                dict(zip(subset['Year'],
-                         technology*subset['Amount']*to_mmbtu)))
+                {'energy': dict(zip(subset['Year'],
+                                    technology*subset['Amount']*to_mmbtu)),
+                 'stock': 'NA'})
 
         # The final dict should be {technology: {year: data, ...}, ...}
         final_dict = dict(zip(tech_names, tech_dict_list))
@@ -502,8 +505,9 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
 
         # Convert into dict with years as keys and energy as values
-        final_dict = dict(zip(subset['Year'],
-                              subset['Amount']*to_mmbtu))
+        final_dict = {'energy': dict(zip(subset['Year'],
+                                         subset['Amount']*to_mmbtu)),
+                      'stock': 'NA'}
 
     # Return the dict that should end up at the leaf node in the exported JSON
     return final_dict
