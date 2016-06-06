@@ -9,7 +9,7 @@ import json
 class UsefulVars(object):
     """Class of variables that would otherwise be global.
 
-    Args:
+    Attributes:
         pivot_year (int): The pivot year is the value that should be
             added to the year numbers reported in KDBOUT to convert
             the values to actual calendar years.
@@ -40,7 +40,7 @@ class CommercialTranslationDicts(object):
     indices for a single set of indices. Demand data are the exception;
     those data use short string indices instead of numbers.
 
-    Args:
+    Attributes:
         cdivdict (dict): Translation for census divisions.
         bldgtypedict (dict): Translation for commercial building types.
         endusedict (dict): Translation for commercial building end uses.
@@ -399,7 +399,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
     # be used to select the appropriate data
     index_series = json_interpreter(key_series)
 
-    # TEMPORARY
+    # Factor to convert commercial energy data from TBTU to MMBTU
     to_mmbtu = 1000000  # 1e6
 
     # Call the appropriate functions depending on the keys associated
@@ -714,9 +714,51 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
 
 
 def str_cleaner(data_array, column_name):
-    """ Fix improperly formatted strings with extra leading and/or
-    trailing spaces in the specified column of a numpy structured
-    array and remove any extraneous double quotes, if present """
+    """Clean up formatting of technology description strings in imported data.
+
+    In the imported EIA data, the strings that describe the technology
+    and performance level have inconsistent formatting and often have
+    leading or trailing spaces that make later string matching to link
+    data together difficult. This function edits those strings to have
+    consistent formatting and removes unusual formatting of special
+    characters and extraneous double quotes.
+
+    Args:
+        data_array (numpy.ndarray): A numpy structured array of imported data.
+        column_name (str): The name of the column in data_array to edit.
+
+    Returns:
+        The input array with the strings in column_name revised.
+    """
+
+    def special_character_handler(text_string):
+        """Edit special characters in strings to be written consistently.
+
+        Args:
+            text_string (str): A string describing a particular technology.
+
+        Returns:
+            The edited text string.
+        """
+
+        # Check to see if an HTML character reference ampersand or
+        # double-quote, or standard double-quote character is in
+        # the string
+        html_ampersand_present = re.search('&amp;', text_string)
+        html_double_quote_present = re.search('&quot;', text_string)
+        double_quote_present = re.search('\"', text_string)
+
+        # For data matching purposes, replace the ampersand and quote
+        # symbols with consistent characters/strings and eliminate the
+        # use of the standalone double-quote character
+        if html_ampersand_present:
+            text_string = re.sub('&amp;', '&', text_string)
+        elif html_double_quote_present:
+            text_string = re.sub('&quot;', '-inch', text_string)
+        elif double_quote_present:
+            text_string = re.sub('\"', '-inch', text_string)
+
+        return text_string
 
     # Check for double quotes in the first entry in the specified column
     # and, assuming all entries in the column are the same, revise all
@@ -731,6 +773,10 @@ def str_cleaner(data_array, column_name):
             # Delete quotes (should now be first and last characters of string)
             entry = entry[1:-1]
 
+            # Clean up strings with special characters to ensure that
+            # these characters appear consistently across all imported data
+            entry = special_character_handler(entry)
+
             # Delete any newly "apparent" (no longer enclosed by the double
             # quotes) trailing or (unlikely) leading spaces and replace the
             # original entry
@@ -740,8 +786,12 @@ def str_cleaner(data_array, column_name):
         # Operate on each row in the specified column of the structured array
         for row_idx, entry in enumerate(data_array[column_name]):
 
+            # Clean up strings with special characters to ensure that
+            # these characters appear consistently across all imported data
+            entry = special_character_handler(entry)
+
             # Delete any leading and trailing spaces
-            data_array[column_name][row_idx] = entry = entry.strip()
+            data_array[column_name][row_idx] = entry.strip()
 
     return data_array
 

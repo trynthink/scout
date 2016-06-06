@@ -300,24 +300,19 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             # Identify technology name for the current row of the ktek data
             name_from_ktek = row['technology name']
 
-            # Check to see if either an ampersand or double-quote
-            # symbol is present in the ktek technology name string
-            ampersand_present = re.search('&', name_from_ktek)
-            quote_present = re.search('"', name_from_ktek)
-
-            # For matching purposes, replace the ampersand and quote
-            # symbols with the HTML-like strings that appear in the
-            # service demand data
-            if ampersand_present:
-                name_from_ktek = re.sub('&', '&amp;', name_from_ktek)
-            elif quote_present:
-                name_from_ktek = re.sub('"', '&quot;', name_from_ktek)
-
             # Truncate technology name string from technology data to
-            # 44 characters since all string descriptors in the service
-            # demand data are limited to that length, then remove any
-            # trailing spaces that might create text matching problems
-            name_from_ktek = name_from_ktek[:44].strip()
+            # 44 characters since all of the string descriptions in the
+            # service demand data are limited to 44 characters; there
+            # is an exception for strings that have '-inch' in them,
+            # which should be matched to the first 43 characters since
+            # the substitution of '-inch' for '&quot;' shortens the
+            # string by one character; finally remove any trailing
+            # spaces that might create text matching problems
+            if re.search('-inch', name_from_ktek[:43]):
+                length = 43
+            else:
+                length = 44
+            name_from_ktek = name_from_ktek[:length].strip()
 
             # Find the matching row in service demand data by comparing
             # the row technology name to sd_names and use that index to
@@ -779,6 +774,7 @@ def main():
     tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
     tech_data = cm.data_import(handyvars.cpl_data, tech_dtypes, ',',
                                handyvars.cpl_data_skip_lines, col_indices)
+    tech_data = cm.str_cleaner(tech_data, 'technology name')
 
     # Import EIA AEO 'KSDOUT' service demand data
     serv_dtypes = cm.dtype_array(cm.UsefulVars().serv_dmd)
@@ -806,7 +802,8 @@ def main():
                         'technology characteristics data were not found to '
                         'have corresponding service demand data and were '
                         'thus excluded from the reported technology cost '
-                        'and performance:')
+                        'and performance. Four performance levels for '
+                        'solar water heaters are expected in this list.')
                 print(text)
                 for item in sorted(list(set(stuff))):
                     print('   ' + item)

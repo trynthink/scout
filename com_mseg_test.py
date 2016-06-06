@@ -152,6 +152,22 @@ class StructuredArrayStringProcessingTest(unittest.TestCase):
         ('WithSome&pecial/Chars', 16)],
         dtype=[('The Column', '<U50'), ('Other', '<i4')])
 
+    # Define a test array with strings like those in the Description
+    # column of KSDOUT that have characters that appear using HTML
+    # character encodings and are rewritten by the function for
+    # later matching with the edited technology name strings in KTEK
+    string_format3 = np.array([
+        (' "F28T8 HE w/ OS &amp; SR 2020 typical        "', 9),
+        (' "Range, Electric, 4 burner, oven, 11&quot; gr"', 23),
+        (' "Range, Gas, 4 burner, oven, 11&quot; griddle"', 31)],
+        dtype=[('Column to Test', '<U50'), ('Other', '<i4')])
+
+    string_format3_clean = np.array([
+        ('F28T8 HE w/ OS & SR 2020 typical', 9),
+        ('Range, Electric, 4 burner, oven, 11-inch gr', 23),
+        ('Range, Gas, 4 burner, oven, 11-inch griddle', 31)],
+        dtype=[('Column to Test', '<U50'), ('Other', '<i4')])
+
     # Test processing of strings that have double quotes
     def test_string_processing_with_double_quotes(self):
         self.assertCountEqual(
@@ -163,6 +179,12 @@ class StructuredArrayStringProcessingTest(unittest.TestCase):
         self.assertCountEqual(
             cm.str_cleaner(self.string_format2, 'The Column'),
             self.string_format2_clean)
+
+    # Test processing of strings with HTML character encodings
+    def test_string_processing_with_HTML_characters(self):
+        self.assertCountEqual(
+            cm.str_cleaner(self.string_format3, 'Column to Test'),
+            self.string_format3_clean)
 
 
 class CommonUnitTest(unittest.TestCase):
