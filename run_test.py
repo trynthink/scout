@@ -4898,8 +4898,8 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                            "2009": 1 / 1000000,
                                            "2010": 1 / 1000000},
                                            "lighting gain": {
-                                           "2009": 7 / 1000000,
-                                           "2010": 7 / 1000000}}},
+                                           "2009": -7 / 1000000,
+                                           "2010": -7 / 1000000}}},
                     "cooling": {"demand": {"windows conduction": {
                                            "2009": 5 / 1000000,
                                            "2010": 5 / 1000000},
@@ -5633,7 +5633,9 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                                    "secondary": None}},
                    {"name": "sample measure 15",
                     "installed_cost": 500,
-                    "cost_units": "2010$/unit",
+                    "cost_units": {
+                        "refrigeration": "2010$/unit",
+                        "other (grid electric)": "2014$/unit"},
                     "energy_efficiency": {
                         "primary": 0.1,
                         "secondary": None},
@@ -6620,18 +6622,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 11000000, "2010": 11000000}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 76.56, "2010": 76.8},
-                "efficient": {"2009": 62.524, "2010": 62.72}},
+                "baseline": {"2009": 31.9, "2010": 32.0},
+                "efficient": {"2009": 17.86, "2010": 17.92}},
             "competed": {
-                "baseline": {"2009": 76.56, "2010": 76.8},
-                "efficient": {"2009": 62.524, "2010": 62.72}}},
+                "baseline": {"2009": 31.9, "2010": 32.0},
+                "efficient": {"2009": 17.86, "2010": 17.92}}},
         "carbon": {
             "total": {
-                "baseline": {"2009": 4352.208, "2010": 4313.72},
-                "efficient": {"2009": 3554.304, "2010": 3522.872}},
+                "baseline": {"2009": 1813.42, "2010": 1797.38},
+                "efficient": {"2009": 1015.52, "2010": 1006.53}},
             "competed": {
-                "baseline": {"2009": 4352.208, "2010": 4313.72},
-                "efficient": {"2009": 3554.304, "2010": 3522.872}}},
+                "baseline": {"2009": 1813.42, "2010": 1797.38},
+                "efficient": {"2009": 1015.52, "2010": 1006.53}}},
         "cost": {
             "stock": {
                 "total": {
@@ -6642,18 +6644,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "efficient": {"2009": 275000000, "2010": 275000000}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 695.1648, "2010": 656.64},
-                    "efficient": {"2009": 567.7179, "2010": 536.256}},
+                    "baseline": {"2009": 289.65, "2010": 273.6},
+                    "efficient": {"2009": 162.21, "2010": 153.22}},
                 "competed": {
-                    "baseline": {"2009": 695.1648, "2010": 656.64},
-                    "efficient": {"2009": 567.7179, "2010": 536.256}}},
+                    "baseline": {"2009": 289.65, "2010": 273.6},
+                    "efficient": {"2009": 162.21, "2010": 153.22}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 143622.88, "2010": 142352.77},
-                    "efficient": {"2009": 117292.02, "2010": 116254.76}},
+                    "baseline": {"2009": 59842.87, "2010": 59313.65},
+                    "efficient": {"2009": 33512, "2010": 33215.65}},
                 "competed": {
-                    "baseline": {"2009": 143622.88, "2010": 142352.77},
-                    "efficient": {"2009": 117292.02, "2010": 116254.76}}}},
+                    "baseline": {"2009": 59842.87, "2010": 59313.65},
+                    "efficient": {"2009": 33512, "2010": 33215.65}}}},
         "lifetime": {"baseline": {"2009": 140, "2010": 140},
                      "measure": 1}},
               {
@@ -6988,18 +6990,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 11000000, "2010": 11000000}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 76.56, "2010": 76.8},
-                "efficient": {"2009": 62.524, "2010": 62.72}},
+                "baseline": {"2009": 31.9, "2010": 32.0},
+                "efficient": {"2009": 17.86, "2010": 17.92}},
             "competed": {
-                "baseline": {"2009": 76.56, "2010": 76.8},
-                "efficient": {"2009": 62.524, "2010": 62.72}}},
+                "baseline": {"2009": 31.9, "2010": 32.0},
+                "efficient": {"2009": 17.86, "2010": 17.92}}},
         "carbon": {
             "total": {
-                "baseline": {"2009": 4352.208, "2010": 4313.72},
-                "efficient": {"2009": 3554.304, "2010": 3522.872}},
+                "baseline": {"2009": 1813.42, "2010": 1797.38},
+                "efficient": {"2009": 1015.52, "2010": 1006.53}},
             "competed": {
-                "baseline": {"2009": 4352.208, "2010": 4313.72},
-                "efficient": {"2009": 3554.304, "2010": 3522.872}}},
+                "baseline": {"2009": 1813.42, "2010": 1797.38},
+                "efficient": {"2009": 1015.52, "2010": 1006.53}}},
         "cost": {
             "stock": {
                 "total": {
@@ -7010,18 +7012,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "efficient": {"2009": 275000000, "2010": 275000000}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 695.1648, "2010": 656.64},
-                    "efficient": {"2009": 567.7179, "2010": 536.256}},
+                    "baseline": {"2009": 289.65, "2010": 273.6},
+                    "efficient": {"2009": 162.21, "2010": 153.22}},
                 "competed": {
-                    "baseline": {"2009": 695.1648, "2010": 656.64},
-                    "efficient": {"2009": 567.7179, "2010": 536.256}}},
+                    "baseline": {"2009": 289.65, "2010": 273.6},
+                    "efficient": {"2009": 162.21, "2010": 153.22}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 143622.88, "2010": 142352.77},
-                    "efficient": {"2009": 117292.02, "2010": 116254.76}},
+                    "baseline": {"2009": 59842.87, "2010": 59313.65},
+                    "efficient": {"2009": 33512, "2010": 33215.65}},
                 "competed": {
-                    "baseline": {"2009": 143622.88, "2010": 142352.77},
-                    "efficient": {"2009": 117292.02, "2010": 116254.76}}}},
+                    "baseline": {"2009": 59842.87, "2010": 59313.65},
+                    "efficient": {"2009": 33512, "2010": 33215.65}}}},
         "lifetime": {"baseline": {"2009": 140, "2010": 140},
                      "measure": 1}},
               {
@@ -7126,18 +7128,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "measure": {"2009": 298571.43, "2010": 597142.86}}},
         "energy": {
             "total": {
-                "baseline": {"2009": 76.56, "2010": 76.8},
-                "efficient": {"2009": 76.18, "2010": 75.67}},
+                "baseline": {"2009": 31.90, "2010": 32.00},
+                "efficient": {"2009": 31.52, "2010": 30.87}},
             "competed": {
-                "baseline": {"2009": 2.08, "2010": 4.17},
-                "efficient": {"2009": 1.70, "2010": 3.40}}},
+                "baseline": {"2009": 0.87, "2010": 1.74},
+                "efficient": {"2009": 0.48, "2010": 0.97}}},
         "carbon": {
             "total": {
-                "baseline": {"2009": 4352.208, "2010": 4313.72},
-                "efficient": {"2009": 4330.55, "2010": 4250.49}},
+                "baseline": {"2009": 1813.42, "2010": 1797.38},
+                "efficient": {"2009": 1791.76, "2010": 1734.15}},
             "competed": {
-                "baseline": {"2009": 118.13, "2010": 234.17},
-                "efficient": {"2009": 96.47, "2010": 191.24}}},
+                "baseline": {"2009": 49.22, "2010": 97.57},
+                "efficient": {"2009": 27.56, "2010": 54.64}}},
         "cost": {
             "stock": {
                 "total": {
@@ -7148,18 +7150,18 @@ class FindPartitionMasterMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "efficient": {"2009": 7464285.71, "2010": 14928571.43}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 695.1648, "2010": 656.64},
-                    "efficient": {"2009": 691.71, "2010": 647.01}},
+                    "baseline": {"2009": 289.65, "2010": 273.60},
+                    "efficient": {"2009": 286.19, "2010": 263.97}},
                 "competed": {
-                    "baseline": {"2009": 18.87, "2010": 35.65},
-                    "efficient": {"2009": 15.41, "2010": 29.11}}},
+                    "baseline": {"2009": 7.86, "2010": 14.85},
+                    "efficient": {"2009": 4.40, "2010": 8.32}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 143622.88, "2010": 142352.77},
-                    "efficient": {"2009": 142908.18, "2010": 140266.10}},
+                    "baseline": {"2009": 59842.87, "2010": 59313.65},
+                    "efficient": {"2009": 59128.17, "2010": 57226.98}},
                 "competed": {
-                    "baseline": {"2009": 3898.34, "2010": 7727.72},
-                    "efficient": {"2009": 3183.64, "2010": 6310.97}}}},
+                    "baseline": {"2009": 1624.31, "2010": 3219.88},
+                    "efficient": {"2009": 909.61, "2010": 1803.14}}}},
         "lifetime": {"baseline": {"2009": 140, "2010": 140},
                      "measure": 1}}]
 

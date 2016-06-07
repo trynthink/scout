@@ -279,7 +279,7 @@ class Measure(object):
         # lighting efficiency change (e.g., a 40% relative savings from
         # efficient lighting equipment translates to a 40% increase in heating
         # loads and 40% decrease in cooling load)
-        lighting_secondary = False
+        light_scnd_autoperf = False
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -308,8 +308,8 @@ class Measure(object):
         elif "lighting" in self.end_use["primary"] and \
             any([x not in ["single family home", "multi family home",
                            "mobile home"] for x in self.bldg_type]):
-                    # Set secondary lighting microsegment flag to True
-                    lighting_secondary = True
+                    # Set secondary lighting mseg performance flag to True
+                    light_scnd_autoperf = True
                     # Set secondary energy efficiency value to "Missing"
                     # (used below as a flag)
                     self.energy_efficiency["secondary"] = \
@@ -763,11 +763,11 @@ class Measure(object):
                 # make an exception for cases where performance is specified
                 # in 'relative savings' units (no explicit check
                 # of baseline units needed in this case)
-                if perf_units == 'relative savings (constant)' or \
-                   (isinstance(perf_units, list) and
-                    perf_units[0] == 'relative savings (dynamic)') or \
-                    (base_costperflife["performance"]["units"] ==
-                        perf_units and base_costperflife[
+                if (perf_units == 'relative savings (constant)' or
+                   (isinstance(perf_units, list) and perf_units[0] ==
+                    'relative savings (dynamic)') or base_costperflife[
+                    "performance"]["units"] == perf_units) and (
+                        mskeys[0] == "secondary" or base_costperflife[
                         "installed cost"]["units"] == cost_units):
 
                     # Set a baseline performance dict if measure performance is
@@ -791,7 +791,7 @@ class Measure(object):
                         # In a commercial lighting case where the relative
                         # savings impact of the lighting change on a secondary
                         # end use (heating/cooling) has not been user-
-                        # specified, draw from the "lighting_secondary"
+                        # specified, draw from the "light_scnd_autoperf"
                         # variable to determine relative performance for this
                         # secondary microsegment; in all other cases where
                         # relative savings are directly user-specified in the
@@ -799,20 +799,7 @@ class Measure(object):
                         # based on the relative savings value
                         if type(perf_meas) != numpy.ndarray and \
                            perf_meas == "Missing (secondary lighting)":
-                            # If relevant secondary lighting performance
-                            # information doesn't exist, throw an error
-                            if type(lighting_secondary) == dict:
-                                # Relative performance for heating end uses
-                                if mskeys[4] in ["heating",
-                                                 "secondary heating"]:
-                                    rel_perf = lighting_secondary["heat"]
-                                # Relative performance for cooling end uses
-                                else:
-                                    rel_perf = lighting_secondary["cool"]
-                            else:
-                                raise ValueError("No performance value available for \
-                                                 secondary lighting end use \
-                                                 effect calculation!")
+                            rel_perf = light_scnd_autoperf
                         else:
                             # Set the original measure relative savings value
                             # (potentially adjusted via re-baselining)
@@ -875,22 +862,8 @@ class Measure(object):
                     # relative performance of the efficient lighting equipment
                     # for later use in updating these secondary microsegments
                     if mskeys[4] == "lighting" and mskeys[0] == "primary" and\
-                            lighting_secondary is True:
-
-                        # The impact of a lighting efficiency change on heating
-                        # is the negative of that on cooling, as improved
-                        # lighting efficiency reduces waste heat from lights,
-                        # increasing heating load and decreasing cooling load
-                        secondary_perf_cool = rel_perf
-                        secondary_perf_heat = copy.deepcopy(rel_perf)
-                        secondary_perf_heat.update((x, (2 - y)) for x, y in
-                                                   secondary_perf_heat.items())
-
-                        # Store the secondary microsegment performance
-                        # information for later use in updating these secondary
-                        # microsegments
-                        lighting_secondary = {"heat": secondary_perf_heat,
-                                              "cool": secondary_perf_cool}
+                            light_scnd_autoperf is True:
+                        light_scnd_autoperf = rel_perf
 
                     # Set base stock cost. Note that secondary microsegments
                     # make no contribution to the stock cost calculation, as
