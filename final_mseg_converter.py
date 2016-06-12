@@ -183,9 +183,24 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                 # second dict, only conversion of the first dict with
                 # the appropriate factor)
                 if (cd == (cd_dict[cd_list[0]] - 1)):
-                    base_dict[k] = (base_dict[k]*cd_to_cz_factor)
+                    # In the special case of consumer choice/time
+                    # preference premium data, the data are reported
+                    # as a list and must be reprocessed using a list
+                    # comprehension (or comparable looping approach)
+                    if isinstance(base_dict[k], list):
+                        base_dict[k] = [z*cd_to_cz_factor for z
+                                        in base_dict[k]]
+                    else:
+                        base_dict[k] = base_dict[k]*cd_to_cz_factor
                 else:
-                    base_dict[k] = (base_dict[k]+add_dict[k2]*cd_to_cz_factor)
+                    if isinstance(base_dict[k], list):
+                        base_dict[k] = [sum(y) for y
+                                        in zip(base_dict[k],
+                                        [z*cd_to_cz_factor for z
+                                         in add_dict[k2]])]
+                    else:
+                        base_dict[k] = (base_dict[k] +
+                                        add_dict[k2]*cd_to_cz_factor)
         else:
             raise(KeyError('Merge keys do not match!'))
 

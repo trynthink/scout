@@ -26,6 +26,8 @@ class CommonUnitTest(unittest.TestCase):
             if isinstance(i, dict):
                 self.assertCountEqual(i, i2)
                 self.dict_check(i, i2)
+            elif isinstance(i, list):
+                np.testing.assert_almost_equal(dict1[k], dict2[k2], decimal=3)
             else:
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=3)
 
@@ -407,6 +409,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.1, 0.3, 0.5],
+                                '2016': [0.1, 0.3, 0.5],
+                                '2017': [0.1, 0.3, 0.5]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -443,6 +454,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.2, 0.4, 0.4],
+                                '2016': [0.2, 0.4, 0.4],
+                                '2017': [0.2, 0.4, 0.4]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -524,6 +544,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.1, 0.3, 0.5],
+                                '2016': [0.1, 0.3, 0.5],
+                                '2017': [0.1, 0.3, 0.5]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -560,6 +589,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.1, 0.3, 0.5],
+                                '2016': [0.1, 0.3, 0.5],
+                                '2017': [0.1, 0.3, 0.5]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -641,6 +679,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.1, 0.4, 0.5],
+                                '2016': [0.1, 0.4, 0.5],
+                                '2017': [0.1, 0.4, 0.5]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -677,6 +724,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.1, 0.8, 1.2],
+                                '2016': [0.1, 0.8, 1.2],
+                                '2017': [0.1, 0.8, 1.2]},
+                            'population fraction': {
+                                '2015': [0.2, 0.3, 0.5],
+                                '2016': [0.2, 0.3, 0.5],
+                                '2017': [0.2, 0.3, 0.5]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -1004,6 +1060,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -1040,6 +1105,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -1121,6 +1195,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -1157,6 +1240,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -1238,6 +1330,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0387, 0.3093, 0.4641],
+                                '2016': [0.0387, 0.3093, 0.4641],
+                                '2017': [0.0387, 0.3093, 0.4641]},
+                            'population fraction': {
+                                '2015': [0.0387, 0.1204, 0.1934],
+                                '2016': [0.0387, 0.1204, 0.1934],
+                                '2017': [0.0387, 0.1204, 0.1934]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -1274,6 +1375,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0387, 0.3093, 0.4641],
+                                '2016': [0.0387, 0.3093, 0.4641],
+                                '2017': [0.0387, 0.3093, 0.4641]},
+                            'population fraction': {
+                                '2015': [0.0674, 0.1403, 0.1691],
+                                '2016': [0.0674, 0.1403, 0.1691],
+                                '2017': [0.0674, 0.1403, 0.1691]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -1355,6 +1465,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0658, 0.5262, 0.7893],
+                                '2016': [0.0658, 0.5262, 0.7893],
+                                '2017': [0.0658, 0.5262, 0.7893]},
+                            'population fraction': {
+                                '2015': [0.0658, 0.2102, 0.3289],
+                                '2016': [0.0658, 0.2102, 0.3289],
+                                '2017': [0.0658, 0.2102, 0.3289]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -1391,6 +1510,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0658, 0.5262, 0.7893],
+                                '2016': [0.0658, 0.5262, 0.7893],
+                                '2017': [0.0658, 0.5262, 0.7893]},
+                            'population fraction': {
+                                '2015': [0.1191, 0.2377, 0.2885],
+                                '2016': [0.1191, 0.2377, 0.2885],
+                                '2017': [0.1191, 0.2377, 0.2885]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {
@@ -1472,6 +1600,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'new square footage': 0,
                 'electricity': {
                     'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0938, 0.7503, 1.1255],
+                                '2016': [0.0938, 0.7503, 1.1255],
+                                '2017': [0.0938, 0.7503, 1.1255]},
+                            'population fraction': {
+                                '2015': [0.0938, 0.3356, 0.4689],
+                                '2016': [0.0938, 0.3356, 0.4689],
+                                '2017': [0.0938, 0.3356, 0.4689]}},
                         'Supermkt_display_case': {
                             'installed cost': {
                                 'typical': {
@@ -1508,6 +1645,15 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}},
                 'natural gas': {
                     'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0938, 0.7503, 1.1255],
+                                '2016': [0.0938, 0.7503, 1.1255],
+                                '2017': [0.0938, 0.7503, 1.1255]},
+                            'population fraction': {
+                                '2015': [0.1834, 0.3167, 0.4336],
+                                '2016': [0.1834, 0.3167, 0.4336],
+                                '2017': [0.1834, 0.3167, 0.4336]}},
                         'gas_water_heater': {
                             'installed cost': {
                                 'typical': {

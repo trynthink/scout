@@ -8,6 +8,7 @@ import numpy as np
 import re
 import warnings
 import json
+import csv
 
 
 class UsefulVars(object):
@@ -15,6 +16,7 @@ class UsefulVars(object):
 
     Attributes:
         cpl_data (str): File name for the EIA AEO technology data.
+        tpp_data (str): File name for the EIA AEO time preference premium data.
         json_in (str): File name for the input JSON database.
         json_out (str): File name for the JSON output from this script.
         cpl_data_skip_lines (int): The number of lines of preamble that
@@ -22,16 +24,44 @@ class UsefulVars(object):
             data file.
         columns_to_keep (list): A list of strings defining the columns
             from the EIA AEO technology data file that are required.
+        tpp_data_skip_lines (int): The number of lines of preamble
+            that must be skipped before finding data in the EIA AEO
+            time preference premium data file.
     """
 
     def __init__(self):
         self.cpl_data = 'ktek.csv'
+        self.tpp_data = 'kprem.txt'
         self.json_in = 'costperflife_res_cdiv.json'
         self.json_out = 'costperflife_res_com_cdiv.json'
 
         self.cpl_data_skip_lines = 100
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
                                 'Life', 'y1', 'y2', 'technology name']
+
+        self.tpp_data_skip_lines = 100
+
+
+class UsefulDicts(object):
+    """Set up class for dicts to relate diferent data file formats.
+
+    Attributes:
+        kprem_endusedict (dict): Keys are the strings found in the time
+            preference premium data, and values are the strings used in
+            the JSON database. Further conversion to numeric indices
+            used in other EIA data files can be performed using the
+            dicts found in com_mseg.py.
+    """
+
+    def __init__(self):
+        self.kprem_endusedict = {
+            'heating': 'Space Heating',
+            'cooling': 'Space Cooling',
+            'water heating': 'Hot Water Heating',
+            'ventilation': 'Ventilation',
+            'cooking': 'Cooking',
+            'lighting': 'Lighting',
+            'refrigeration': 'Refrigeration'}
 
 
 def units_id(sel, flag):
@@ -504,8 +534,79 @@ def tech_names_extractor(tech_array):
     return technames
 
 
-def mseg_technology_handler(tech_data, sd_data, sel, years):
-    """Reformats cost, performance, and lifetime data into a dict.
+def tpp_handler(tpp_data, sel, years):
+    """Extracts and restructures time preference premium data for an end use.
+
+    Time preference premium data are specific to a year and end use and
+    are available for the main end uses in commercial buildings:
+    heating, cooling, water heating, ventilation, cooking, lighting,
+    and refrigeration. The data are given as the fraction of the total
+    population of building owners/customers with a particular time
+    preference (related to their discount rate) and the particular time
+    preferences for each subset of the population. These two parameters
+    are recorded as the 'population fraction' and 'time preference',
+    respectively.
+
+    Args:
+        tpp_data(numpy.ndarray): A numpy structured array of the time
+            preference data.
+        sel (list): A list of integers indicating the microsegment.
+        years (list): A list of integers representing the range of years
+            in the data, precalculated for speed.
+
+    Returns:
+        A dict with years as keys and lists of numbers as values for
+        both the population fractions and corresponding time preferences
+        for each year of data indicated in 'years'. These dicts are
+        rolled up to a master dict with keys for each of the types of
+        data.
+    """
+
+    # From the number for the end use given in 'sel', do reverse
+    # lookups in the respective translation dicts to obtain the
+    # string that should be used to select time preference data
+    # NOTE - reverse lookups on dicts is not typical and can
+    # be unstable because unique keys can have identical values,
+    # though for the particular dicts used here, there should not
+    # be a problem
+    end_use_num = sel[2]
+    end_use_dict_loc = list(
+        cm.CommercialTranslationDicts().endusedict.values()).index(end_use_num)
+    end_use_json_str = list(
+        cm.CommercialTranslationDicts().endusedict.keys())[end_use_dict_loc]
+    end_use_kprem_string = UsefulDicts().kprem_endusedict[end_use_json_str]
+
+    # Obtain the time preference data associated with the end use
+    # extracted from the dict lookup
+    tpp_subset = tpp_data[tpp_data['End Use'] == end_use_kprem_string]
+
+    # Initialize dicts for the population fraction/proportion data and
+    # corresponding time preferences
+    proportion_dict = {}
+    time_prefs_dict = {}
+
+    # For each year in the data, extract the applicable population
+    # fractions and time preferences and, if values are reported for both
+    # parameters for that year, add them to their respective dicts using
+    # the current year as the key; time preference premiums generally
+    # do not vary by year, but they are included by year for completeness
+    for yr in years:
+        population_frac = tpp_subset[tpp_subset['Year'] == yr]['Proportion']
+        premiums = tpp_subset[tpp_subset['Year'] == yr]['Time Pref Premium']
+        # If any data are found/present, add to dict
+        if population_frac.any() and premiums.any():
+            proportion_dict[str(yr)] = list(population_frac)
+            time_prefs_dict[str(yr)] = list(premiums)
+
+    # Combine into one the separate dicts for the parameters of interest
+    adict = {'time preference': time_prefs_dict,
+             'population fraction': proportion_dict}
+
+    return adict
+
+
+def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
+    """Restructures cost, performance, lifetime, and time preference data.
 
     Using external functions that process and reformat specific
     categories of data from the EIA source data arrays, this function
@@ -513,7 +614,9 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
     technology within a particular microsegment to a dict format that
     is consistent with the residential technology data. Those data for
     each technology are then added to a master dict that ultimately
-    includes all of the technologies in the microsegment.
+    includes all of the technologies in the microsegment. In addition,
+    the time preference premium data associated with each end use and
+    year are added to the master dict for the microsegment.
 
     This function is called for each terminal, or leaf, node in the
     microsegments JSON database that governs the structure of the major
@@ -533,6 +636,8 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
             including technology cost, performance, and service lifetime.
         sd_data (numpy.ndarray): Imported EIA service demand data specified
             over the same efficiency levels for each technology.
+        tpp_data (numpy.ndarray): A numpy structured array of the
+            EIA commercial market time preference premium data.
         sel (list): A list of integers indicating the microsegment.
         years (list): A list of integers representing the range of years
             in the data, precalculated for speed.
@@ -620,10 +725,17 @@ def mseg_technology_handler(tech_data, sd_data, sel, years):
         if cost_non_matching_names:
             mseg_non_matching_names = cost_non_matching_names
 
+    # Add time preference premium data for the current end use
+    # to the complete dict with all of the technology cost,
+    # performance, and lifetime data added
+    complete_mseg_tech_data['consumer choice'] = tpp_handler(
+        tpp_data, sel, years)
+
     return complete_mseg_tech_data, mseg_non_matching_names
 
 
-def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
+def walk(tech_data, serv_data, tpp_data, years, json_db,
+         key_list=[], no_match_names=[]):
     """Recursively explore the JSON structure and add the appropriate data.
 
     Note that this walk function and the data processing function
@@ -639,6 +751,8 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
             and lifetime of individual technologies.
         serv_data (numpy.ndarray): A numpy structured array of the
             EIA service demand data.
+        tpp_data (numpy.ndarray): A numpy structured array of the
+            EIA commercial market time preference premium data.
         years (list): A list of the years (YYYY) of data to be converted.
         json_db (dict): The nested dict structure of the empty or
             partially complete database to be populated with new data.
@@ -659,7 +773,7 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(tech_data, serv_data, years, item, key_list + [key])
+            walk(tech_data, serv_data, tpp_data, years, item, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types and that
@@ -680,7 +794,7 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
 
                     # Extract data from original data sources
                     data_dict, non_matching_names = mseg_technology_handler(
-                        tech_data, serv_data, mseg_codes, years)
+                        tech_data, serv_data, tpp_data, mseg_codes, years)
 
                     # Set dict key to extracted data
                     json_db[key] = data_dict
@@ -691,6 +805,78 @@ def walk(tech_data, serv_data, years, json_db, key_list=[], no_match_names=[]):
                         no_match_names.extend(non_matching_names)
 
     return json_db, no_match_names
+
+
+def kprem_import(data_file_path, dtype_list, hl):
+    """Import data and convert to a numpy structured array.
+
+    Read the contents of the time preference premium data file and
+    convert them into a numpy structured array. This function is
+    unique from the function used to import other EIA data because
+    the formatting of the time preference premium data (kprem) is
+    different. In particular, not all of the lines in the data are
+    the same length and there are empty lines separating the data
+    visually that are not needed when imported.
+
+    Args:
+        data_file_path (str): The full path to the data file to be imported.
+        dtype_list (list): A list of tuples with each tuple containing two
+            entries, a column heading string, and a string defining the
+            data type for that column. Formatted as a numpy dtype list.
+        hl (int): The number of header lines to skip from the top of
+            the file before reading data.
+
+    Returns:
+        A numpy structured array of the imported data file with the
+        columns specified by dtype_list.
+    """
+
+    # Open the target CSV formatted data file
+    with open(data_file_path) as thefile:
+        # Open the file contents as a csv reader object
+        filecont = csv.reader(thefile, delimiter='\t')
+
+        # Create list to be populated with tuples for each row of data
+        # from the data file
+        data = []
+
+        # Skip the specified number of header lines in the file
+        for i in range(0, hl):
+            next(filecont)
+
+        # Record data type length for later repeated reference
+        dtypelen = len(dtype_list)
+
+        # Import the data, reconstructing the line if it is missing data
+        for row in filecont:
+            rowlen = len(tuple(row))  # Record current row length
+
+            # If the current row and the data type lengths match,
+            # append the data to the list
+            if rowlen == dtypelen:
+                data.append(tuple(row))
+
+            # If the length of the current row is greater than zero but
+            # less than the length of the dtype, and is not an empty
+            # row (which appears as a list with two empty strings when
+            # imported), use the missing columns from the previous row
+            # to complete the row entry and append to the data list
+            elif rowlen > 0 and rowlen < dtypelen and row != ['', '']:
+                # Determine the number of missing columns of data
+                diff = dtypelen - rowlen
+
+                # Construct this line by appending (making a flat list
+                # using extend instead of append) any missing columns
+                # from the previous line
+                row.extend(list(data[len(data)-1][diff:]))
+
+                # Append constructed line, as a tuple, to the data
+                data.append(tuple(row))
+
+        # Convert data into numpy structured array
+        final_struct = np.array(data, dtype=dtype_list)
+
+        return final_struct
 
 
 def dtype_reducer(the_dtype, wanted_cols):
@@ -781,6 +967,12 @@ def main():
     serv_data = cm.data_import(cm.UsefulVars().serv_dmd, serv_dtypes)
     serv_data = cm.str_cleaner(serv_data, 'Description')
 
+    # Import EIA AEO 'kprem' time preference premium data
+    tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
+                  ('Year', 'i4'), ('End Use', 'U32')]
+    tpp_data = kprem_import(handyvars.tpp_data, tpp_dtypes,
+                            handyvars.tpp_data_skip_lines)
+
     # Define years vector
     years = list(range(2009, 2041))
 
@@ -791,13 +983,13 @@ def main():
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
-            result, stuff = walk(tech_data, serv_data, years, msjson)
+            result, nmtn = walk(tech_data, serv_data, tpp_data, years, msjson)
 
             # Print warning message to the standard out with a unique
             # (i.e., non-repeating) list of technologies that didn't have
             # a match between the two data sets and thus were not added
             # to the aggregated cost or performance data in the output JSON
-            if stuff:
+            if nmtn:
                 text = ('Warning: some technologies reported in the '
                         'technology characteristics data were not found to '
                         'have corresponding service demand data and were '
@@ -805,7 +997,7 @@ def main():
                         'and performance. Four performance levels for '
                         'solar water heaters are expected in this list.')
                 print(text)
-                for item in sorted(list(set(stuff))):
+                for item in sorted(list(set(nmtn))):
                     print('   ' + item)
 
             # Write the updated dict of data to a new JSON file
