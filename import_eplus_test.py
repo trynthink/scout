@@ -9,6 +9,7 @@ import unittest
 import xlrd
 import numpy
 import os
+from collections import OrderedDict
 
 
 class CommonMethods(object):
@@ -213,7 +214,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     sample_input_mseg = {
         'hot dry': {
             'education': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         "linear fluorescent (LED)": 0,
                         "general service (LED)": 0,
@@ -244,7 +245,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                             'windows conduction': 0,
                             'windows solar': 0}}}},
             'assembly': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         "linear fluorescent (LED)": 0,
                         "general service (LED)": 0,
@@ -276,7 +277,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                             'windows solar': 0}}}}},
         'mixed humid': {
             'education': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         "linear fluorescent (LED)": 0,
                         "general service (LED)": 0,
@@ -307,7 +308,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                             'windows conduction': 0,
                             'windows solar': 0}}}},
             'assembly': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         "linear fluorescent (LED)": 0,
                         "general service (LED)": 0,
@@ -339,66 +340,66 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                             'windows solar': 0}}}}}}
 
     # Define a sample measure to initialize a performance dictionary for
-    sample_eplus_measure = {
-        "name": "EPlus sample measure 1",
-        "installed_cost": 25,
-        "cost_units": "2014$/unit",
-        "energy_efficiency": {
-            "EnergyPlus file": "sample EnergyPlus file name"},
-        "energy_efficiency_units": {
-            "primary": "relative savings (constant)",
-            "secondary":
-                "relative savings (constant)"},
-        "market_entry_year": None,
-        "market_exit_year": None,
-        "product_lifetime": 10,
-        "structure_type": ["new", "retrofit"],
-        "bldg_type": ["assembly", "education"],
-        "climate_zone": ["hot dry", "mixed humid"],
-        "fuel_type": {
-            "primary": ["electricity (grid)"],
-            "secondary": [
-                "electricity (grid)", "natural gas", "other fuel"]},
-        "fuel_switch_to": None,
-        "end_use": {
-            "primary": ["lighting"],
-            "secondary": ["heating", "cooling"]},
-        "technology_type": {
-            "primary": "supply",
-            "secondary": "demand"},
-        "technology": {
-            "primary": ["linear fluorescent (LED)", "general service (LED)",
-                        "external (LED)"],
-            "secondary": ["windows conduction", "windows solar"]}}
+    sample_eplus_measure = OrderedDict([
+        ("name", "EPlus sample measure 1"),
+        ("installed_cost", 25),
+        ("cost_units", "2014$/unit"),
+        ("energy_efficiency", OrderedDict([
+            ("EnergyPlus file", "sample EnergyPlus file name")])),
+        ("energy_efficiency_units", OrderedDict([
+            ("primary", "relative savings (constant)"),
+            ("secondary", "relative savings (constant)")])),
+        ("market_entry_year", None),
+        ("market_exit_year", None),
+        ("product_lifetime", 10),
+        ("structure_type", ["new", "retrofit"]),
+        ("bldg_type", ["assembly", "education"]),
+        ("climate_zone", ["hot dry", "mixed humid"]),
+        ("fuel_type", OrderedDict([
+            ("primary", ["electricity"]),
+            ("secondary", [
+                "electricity", "natural gas", "other fuel"])])),
+        ("fuel_switch_to", None),
+        ("end_use", OrderedDict([
+            ("primary", ["lighting"]),
+            ("secondary", ["heating", "cooling"])])),
+        ("technology_type", OrderedDict([
+            ("primary", "supply"),
+            ("secondary", "demand")])),
+        ("technology", OrderedDict([
+            ("primary", [
+                "linear fluorescent (LED)", "general service (LED)",
+                "external (LED)"]),
+            ("secondary", ["windows conduction", "windows solar"])]))])
 
     # Define correct performance dictionary output for sample measure
     ok_out = {
         "primary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}}},
         "secondary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
@@ -406,14 +407,14 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
                         'cooling': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}},
                 'assembly': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}},
                     'natural gas': {
@@ -437,21 +438,21 @@ class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
         "primary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}}},
         "secondary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}}}}}
 
@@ -461,21 +462,21 @@ class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
         "primary": {
             'blazing hot': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0, 'new': 0}}}}},
         "secondary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': 0, 'new': 0},
                         'cooling': {'retrofit': 0, 'new': 0}}}}}}
 
@@ -623,21 +624,21 @@ class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
         "primary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0.75, 'new': 0.75}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'lighting': {'retrofit': 0.75, 'new': 0.75}}}}},
         "secondary": {
             'hot dry': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': -0.3, 'new': -0.3},
                         'cooling': {'retrofit': -0.1, 'new': -0.1}}}},
             'mixed humid': {
                 'education': {
-                    'electricity (grid)': {
+                    'electricity': {
                         'heating': {'retrofit': -0.3, 'new': -0.3},
                         'cooling': {'retrofit': -0.1, 'new': -0.1}}}}}}
 

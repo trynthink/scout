@@ -4,6 +4,7 @@ import numpy
 import re
 import itertools
 import json
+from collections import OrderedDict
 from os import listdir
 from os.path import isfile, join
 import copy
@@ -12,7 +13,7 @@ import sys
 # Define input file containing valid baseline microsegment information
 # (to check against in developing key chains for a measure
 # performance dictionary that will store EnergyPlus-generated data)
-mseg_in = "microsegments_out_eplus_sample.json"
+mseg_in = "cpl_res_com_cz_eplustest.json"
 # Define measures input file
 measures_in = "measures_eplus_sample.json"
 # Define CBECS square footage file
@@ -71,7 +72,7 @@ bldgtype = {
 
 # Fuel types
 fuel = {
-    'electricity (grid)': 'Electricity',
+    'electricity': 'Electricity',
     'natural gas': 'Gas',
     'other fuel': 'Other Fuel'}
 
@@ -481,7 +482,7 @@ def fill_perf_dict(perf_dict, EPlus_perf_array, EPlus_bldg_type_weight,
 
             # Update the current dictionary branch value to the final
             # relative savings value derived above
-            perf_dict[key] = end_key_val
+            perf_dict[key] = round(end_key_val, 3)
 
     # Return the filled in measure performance dict
     return perf_dict
@@ -520,7 +521,7 @@ def main(argv):
 
     # Import measures JSON
     with open(measures_in, 'r') as mjs:
-        measures = json.load(mjs)
+        measures = json.load(mjs, object_pairs_hook=OrderedDict)
 
     # Loop through all measures and updated with EPlus performance data
     # (where applicable)
@@ -528,7 +529,7 @@ def main(argv):
         if 'EnergyPlus file' in m['energy_efficiency'].keys():
             # Determine the appropriate EnergyPlus input XLSX file name
             EPlus_perf_in = [x for x in EPlus_perf_files if
-                             m['energy_efficiency']['EnergyPlus file'] in x]
+                             x == m['energy_efficiency']['EnergyPlus file']]
             # Import EnergyPlus input XLSX and translate to structured array
             # for future operations
             if len(EPlus_perf_in) == 1:
