@@ -3,7 +3,7 @@
 """ Tests for running the EnergyPlus data import """
 
 # Import code to be tested
-import import_eplus
+import measures_prep
 # Import needed packages
 import unittest
 import xlrd
@@ -50,7 +50,7 @@ class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
         CBECS_ok = xlrd.open_workbook(CBECS_in_test_ok)
         CBECS_sh_ok = CBECS_ok.sheet_by_index(0)
 
-        self.dict_check(import_eplus.CBECS_vintage_sf(
+        self.dict_check(measures_prep.CBECS_vintage_sf(
             CBECS_sh_ok), self.ok_out)
 
     # Test that an error is raised when none of the CBECS XLSX
@@ -62,7 +62,7 @@ class CBECSVintageSFTest(unittest.TestCase, CommonMethods):
         CBECS_sh_fail = CBECS_fail.sheet_by_index(0)
 
         with self.assertRaises(ValueError):
-            import_eplus.CBECS_vintage_sf(
+            measures_prep.CBECS_vintage_sf(
                 CBECS_sh_fail)
 
 
@@ -112,7 +112,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
             eplus_vintages_ok.append(eplus_perf_sh_ok.cell(x, 2).value)
         eplus_vintages_ok = numpy.unique(eplus_vintages_ok)
 
-        self.dict_check(import_eplus.find_vintage_weights(
+        self.dict_check(measures_prep.find_vintage_weights(
             self.sample_sf, eplus_vintages_ok,
             self.structure_type), self.ok_out)
 
@@ -129,7 +129,7 @@ class FindVintageWeightsTest(unittest.TestCase, CommonMethods):
         eplus_vintages_fail = numpy.unique(eplus_vintages_fail)
 
         with self.assertRaises(KeyError):
-            import_eplus.find_vintage_weights(
+            measures_prep.find_vintage_weights(
                 self.sample_sf, eplus_vintages_fail, self.structure_type)
 
 
@@ -199,7 +199,7 @@ class ConverttoArrayTest(unittest.TestCase, CommonMethods):
         eplus_perf_sh_ok = eplus_perf_ok.sheet_by_index(2)
 
         # Test for correct structured array output
-        numpy.array_equal(import_eplus.convert_to_array(eplus_perf_sh_ok),
+        numpy.array_equal(measures_prep.convert_to_array(eplus_perf_sh_ok),
                           self.ok_out)
 
 
@@ -424,7 +424,7 @@ class CreatePerformanceDictTest(unittest.TestCase, CommonMethods):
     # Test for correct generation of measure performance dictionary
     def test_dict_creation(self):
         self.dict_check(
-            import_eplus.create_perf_dict(
+            measures_prep.create_perf_dict(
                 self.sample_eplus_measure, self.sample_input_mseg),
             self.ok_out)
 
@@ -646,7 +646,7 @@ class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
     # given 'ok' inputs defined above
     def test_dict_fill(self):
         self.dict_check(
-            import_eplus.fill_perf_dict(
+            measures_prep.fill_perf_dict(
                 self.ok_perf_dict_empty,
                 self.ok_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
                 self.ok_EPlus_bldg_vintage_weights),
@@ -657,14 +657,14 @@ class FillPerformanceDictTest(unittest.TestCase, CommonMethods):
         # Ensure that an empty performance dict input with improper key
         # generates a KeyError
         with self.assertRaises(KeyError):
-            import_eplus.fill_perf_dict(
+            measures_prep.fill_perf_dict(
                 self.fail_perf_dict_empty,
                 self.ok_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
                 self.ok_EPlus_bldg_vintage_weights)
         # Ensure that an EnergyPlus array that is missing climate zone
         # information generates a ValueError
         with self.assertRaises(ValueError):
-            import_eplus.fill_perf_dict(
+            measures_prep.fill_perf_dict(
                 self.ok_perf_dict_empty,
                 self.fail_EPlus_perf_array, self.ok_EPlus_bldg_type_weight,
                 self.ok_EPlus_bldg_vintage_weights)
