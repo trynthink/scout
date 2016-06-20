@@ -5,6 +5,7 @@
 import com_mseg as cm
 
 import numpy as np
+import numpy.lib.recfunctions as recfn
 import re
 import warnings
 import json
@@ -534,6 +535,75 @@ def tech_names_extractor(tech_array):
     return technames
 
 
+def cost_conversion_factor(sf_data, sd_data, sel, years):
+    """Obtain factors to change cost data from service demand to sq ft basis.
+
+    Equipment capital costs provided in the AEO data have the units
+    dollars per unit service demand basis. These data must be converted
+    to a per square foot floor area basis to provide a usable baseline
+    for measure competition. This function calculates the conversion
+    factors that can be used to transform the units of the technology
+    cost data for each year for a given microsegment.
+
+    Args:
+        sf_data (numpy.ndarray): Imported EIA data including square
+            footage data as a function of census division and
+            building type. (Includes the full data file contents.)
+        sd_data (numpy.ndarray): Imported EIA service demand data specified
+            over the same efficiency levels for each technology.
+        tpp_data (numpy.ndarray): A numpy structured array of the
+            EIA commercial market time preference premium data.
+        sel (list): A list of integers indicating the microsegment.
+        years (list): A list of integers representing the range of years
+            in the data, precalculated for speed.
+
+    Returns:
+        A numpy array of scaling factors corresponding to the specified
+        microsegment for converting the technology/product baseline
+        costs from a per unit service demand to a per square foot
+        basis, specified for each year.
+    """
+
+    # Extract the square footage data for existing and new buildings
+    # for the microsegment identified by 'sel'
+    sqft_surv = cm.catg_data_selector(sf_data, sel, 'SurvFloorTotal')
+    sqft_new = cm.catg_data_selector(sf_data, sel, 'CMNewFloorSpace')
+
+    # Calculate the total square footage for each year by joining
+    # the square footage on a common year vector and then summing
+    # the two columns; delete the extraneous column and rename the
+    # remaining column to represent the data recorded
+    sqft = recfn.join_by(
+        'Year', sqft_surv, sqft_new, jointype='outer', usemask=False)
+    sqft['Amount1'] = sqft['Amount1'] + sqft['Amount2']
+    sqft = sqft[['Year', 'Amount1']]
+    sqft.dtype.names = 'Year', 'Total'
+
+    # Extract the service demand data applicable to the specified
+    # census division, building type, and end use
+    sd_cut = sd_data[np.all([sd_data['r'] == sel[0],
+                             sd_data['b'] == sel[1],
+                             sd_data['s'] == sel[2]], axis=0)]
+
+    # In the service demand data, each year of data is represented by
+    # a separate column; obtain the total service demand for each year
+    # in the list of years provided by summing the columns of the
+    # reduced service demand array
+    sd = np.sum(
+            sd_cut[list(map(str, years))].view(('<f8', len(years))), axis=0)
+
+    # For end uses other than lighting and ventilation, service demand
+    # is given as 1e12 BTU, which requires dividing by 1e3 to get the
+    # conversion factor such that it will yield $/ft^2 when multiplied
+    # by the baseline costs as coded in the data files
+    if sel[2] in [1, 2, 3, 5, 7]:
+        conv_factors = sd/sqft['Total']/1000
+    else:
+        conv_factors = sd/sqft['Total']
+
+    return conv_factors
+
+
 def tpp_handler(tpp_data, sel, years):
     """Extracts and restructures time preference premium data for an end use.
 
@@ -599,13 +669,13 @@ def tpp_handler(tpp_data, sel, years):
             time_prefs_dict[str(yr)] = list(premiums)
 
     # Combine into one the separate dicts for the parameters of interest
-    adict = {'time preference': time_prefs_dict,
-             'population fraction': proportion_dict}
+    combined_dict = {'time preference': time_prefs_dict,
+                     'population fraction': proportion_dict}
 
-    return adict
+    return combined_dict
 
 
-def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
+def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
     """Restructures cost, performance, lifetime, and time preference data.
 
     Using external functions that process and reformat specific
@@ -638,6 +708,9 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
             over the same efficiency levels for each technology.
         tpp_data (numpy.ndarray): A numpy structured array of the
             EIA commercial market time preference premium data.
+        sf_data (numpy.ndarray): Imported EIA data including square
+            footage data as a function of census division and
+            building type. (Includes the full data file contents.)
         sel (list): A list of integers indicating the microsegment.
         years (list): A list of integers representing the range of years
             in the data, precalculated for speed.
@@ -659,10 +732,14 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
     filtered_tech_data = tech_data_selector(tech_data, sel)
     (filtered_sd_data, sd_names_list) = sd_data_selector(sd_data, sel, years)
 
-    # Use the 'units_id' function to extract the cost and performance
-    # units for the microsegment specified by 'sel'
-    the_cost_units = units_id(sel, 'cost')
+    # Use the 'units_id' function to extract the performance units for
+    # the microsegment specified by 'sel' (the same function can also
+    # provide units for costs if they have not yet been converted to
+    # a per square foot floor area basis)
     the_performance_units = units_id(sel, 'performance')
+
+    # Obtain the cost conversion factors (by year) for this microsegment
+    conv_factors = cost_conversion_factor(sf_data, sd_data, sel, years)
 
     # Identify the names (as strings) of all of the technologies
     # included in this microsegment
@@ -680,14 +757,25 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
         # to a single technology, given by 'tech'
         single_tech_data = single_tech_selector(filtered_tech_data, tech)
 
-        # Extract the cost data, restructure into the appropriate dict
-        # format, and append the units and data source
+        # Extract the cost data in a dict format with 'typical' and
+        # 'best' cost cases
         the_cost, cost_non_matching_names = cost_perf_extractor(
             single_tech_data,
             filtered_sd_data,
             sd_names_list,
             years, 'cost')
-        the_cost['units'] = the_cost_units
+
+        # Update the cost data with the conversion factor from $/SD
+        # (where SD = service demand) to $/ft^2 for both the 'typical'
+        # and 'best' cases, then add the units and data source to
+        # complete the dict for this technology
+        the_cost['typical'] = dict(zip(
+            sorted(the_cost['typical'].keys()),
+            sorted(the_cost['typical'].values())*conv_factors))
+        the_cost['best'] = dict(zip(
+            sorted(the_cost['best'].keys()),
+            sorted(the_cost['best'].values())*conv_factors))
+        the_cost['units'] = '2013$/ft^2'
         the_cost['source'] = 'EIA AEO'
 
         # Extract the performance data, restructure into the appropriate
@@ -734,7 +822,7 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sel, years):
     return complete_mseg_tech_data, mseg_non_matching_names
 
 
-def walk(tech_data, serv_data, tpp_data, years, json_db,
+def walk(tech_data, serv_data, tpp_data, db_data, years, json_db,
          key_list=[], no_match_names=[]):
     """Recursively explore the JSON structure and add the appropriate data.
 
@@ -753,6 +841,11 @@ def walk(tech_data, serv_data, tpp_data, years, json_db,
             EIA service demand data.
         tpp_data (numpy.ndarray): A numpy structured array of the
             EIA commercial market time preference premium data.
+        db_data (numpy.ndarray): An array of commercial building data,
+            including total energy use by end use/fuel type and all
+            MELs types, new and surviving square footage, and other
+            parameters. Square footage data are specified as a
+            function of census division and building type.
         years (list): A list of the years (YYYY) of data to be converted.
         json_db (dict): The nested dict structure of the empty or
             partially complete database to be populated with new data.
@@ -773,7 +866,8 @@ def walk(tech_data, serv_data, tpp_data, years, json_db,
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(tech_data, serv_data, tpp_data, years, item, key_list + [key])
+            walk(tech_data, serv_data, tpp_data, db_data,
+                 years, item, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types and that
@@ -794,7 +888,8 @@ def walk(tech_data, serv_data, tpp_data, years, json_db,
 
                     # Extract data from original data sources
                     data_dict, non_matching_names = mseg_technology_handler(
-                        tech_data, serv_data, tpp_data, mseg_codes, years)
+                        tech_data, serv_data, tpp_data, db_data,
+                        mseg_codes, years)
 
                     # Set dict key to extracted data
                     json_db[key] = data_dict
@@ -918,7 +1013,7 @@ def dtype_reducer(the_dtype, wanted_cols):
         try:
             col_loc.append(headers.index(entry))
         except ValueError:
-            print('desired column ' + entry + ' not found in the ktek data')
+            print('Desired column "' + entry + '" not found in the data.')
 
     # Update the headers and dtypes by building them as new lists with
     # only the desired columns and then recombining them into the numpy
@@ -967,6 +1062,11 @@ def main():
     serv_data = cm.data_import(cm.UsefulVars().serv_dmd, serv_dtypes)
     serv_data = cm.str_cleaner(serv_data, 'Description')
 
+    # Import EIA AEO 'KDBOUT' additional data file
+    catg_dtypes = cm.dtype_array(cm.UsefulVars().catg_dmd)
+    catg_data = cm.data_import(cm.UsefulVars().catg_dmd, catg_dtypes)
+    catg_data = cm.str_cleaner(catg_data, 'Label')
+
     # Import EIA AEO 'kprem' time preference premium data
     tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
                   ('Year', 'i4'), ('End Use', 'U32')]
@@ -983,7 +1083,8 @@ def main():
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
-            result, nmtn = walk(tech_data, serv_data, tpp_data, years, msjson)
+            result, nmtn = walk(tech_data, serv_data, tpp_data, catg_data,
+                                years, msjson)
 
             # Print warning message to the standard out with a unique
             # (i.e., non-repeating) list of technologies that didn't have
