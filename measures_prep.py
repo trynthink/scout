@@ -59,7 +59,7 @@ class UsefulVars(object):
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
         self.inverted_relperf_list = [
-            "ACH50", "CFM/sf floor", "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
+            "ACH50", "CFM/ft^2 floor", "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
         self.valid_submkt_urls = [
             '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov',
             '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
@@ -281,13 +281,13 @@ class EPlusGlobals(object):
         # Initialize a flag for the first relevant row in the cbecs Excel sheet
         start_row_flag = 0
 
-        # Loop through all rows in the Excel sheet, and pull out sq.ft. data
+        # Loop through all rows in the Excel sheet, and pull out ft^2 data
         for i in range(self.cbecs_sh.nrows):
-            # Check for a string that indicates the start of the sq.ft. data
+            # Check for a string that indicates the start of the ft^2 data
             # rows
             if self.cbecs_sh.cell(i, 0).value == "Year constructed":
                 start_row_flag = 1
-            # Check for a string that indicates the end of sq.ft. data rows
+            # Check for a string that indicates the end of ft^2 data rows
             # (break)
             elif self.cbecs_sh.cell(i, 0).value == \
                     "Census region and division":
@@ -295,14 +295,14 @@ class EPlusGlobals(object):
             # If start row flag hasn't been raised, skip row
             elif start_row_flag == 0:
                 continue
-            # If start row flag has been raised, read in sq.ft. data from row
+            # If start row flag has been raised, read in ft^2 data from row
             else:
                 vintage_bin = self.cbecs_sh.cell(i, 0).value
                 sf_val = self.cbecs_sh.cell(i, 6).value
                 vintage_sf[vintage_bin] = sf_val
 
         if start_row_flag == 0:
-            raise ValueError('Problem reading in the cbecs sq.ft. data!')
+            raise ValueError('Problem reading in the cbecs ft^2 data!')
 
         return vintage_sf
 
@@ -370,7 +370,7 @@ class EPlusGlobals(object):
                         cbecs_yr = (int(cbecs_t1) + int(cbecs_t2)) / 2
                         # If the cbecs bin year falls within the year limits of
                         # the current EnergyPlus vintage bin, add the
-                        # associated cbecs sq.ft. data to the EnergyPlus
+                        # associated cbecs ft^2 data to the EnergyPlus
                         # vintage weight value
                         if cbecs_yr >= eplsdicts.structure_type[
                             'retrofit'][k][0] and \
@@ -432,21 +432,21 @@ class Measure(object):
         """Convert residential measure cost input to the proper units.
 
         Returns:
-            Updated measure costs in either $/unit or $/sf floor.
+            Updated measure costs in either $/unit or $/ft^2 floor.
         """
         # Set dummy variable values to check for execution of this function
         self.installed_cost = 999
-        self.cost_units = "2013$/sf floor"
+        self.cost_units = "2013$/ft^2 floor"
 
     def translate_costs_com(self):
         """Convert commercial measure cost input to the proper units.
 
         Returns:
-            Updated measure costs in $/sf floor.
+            Updated measure costs in $/ft^2 floor.
         """
         # Set dummy variable values to check for execution of this function
         self.installed_cost = 9999
-        self.cost_units = "2013$/sf floor"
+        self.cost_units = "2013$/ft^2 floor"
 
     def fill_eplus(self, msegs, eplus_dir, eplus_files, vintage_weights):
         """Fill in measure performance with EnergyPlus simulation results.
@@ -870,9 +870,9 @@ def fill_measures(measures, msegs, msegs_cpl, eplus_dir):
         Measure(**m) for m in measures if m['status']['update'] is True or
         'EnergyPlus file' in m['energy_efficiency'].keys() or
         (all([x in res_bldg for x in m['bldg_type']]) and
-         all(x not in m['cost_units'] for x in ['$/sf floor', '$/unit'])) or
+         all(x not in m['cost_units'] for x in ['$/ft^2 floor', '$/unit'])) or
         (all([x not in res_bldg for x in m['bldg_type']]) and
-         '$/sf floor' not in m['cost_units']) or m['mkts_savings'] is None]
+         '$/ft^2 floor' not in m['cost_units']) or m['mkts_savings'] is None]
 
     # Determine the subset of above measures in need of updated EnergyPlus-
     # derived relative performance information, and execute the update
@@ -888,12 +888,12 @@ def fill_measures(measures, msegs, msegs_cpl, eplus_dir):
     # cost information, and execute the update
     [m.translate_costs_res() for m in measures_update if (
         all([x in res_bldg for x in m.bldg_type]) and
-        all(x not in m.cost_units for x in ['$/sf floor', '$/unit']))]
+        all(x not in m.cost_units for x in ['$/ft^2 floor', '$/unit']))]
     # Determine the subset of above measures in need of updated commercial
     # cost information, and execute the update
     [m.translate_costs_com() for m in measures_update if (
         all([x not in res_bldg for x in m.bldg_type]) and
-        '$/sf floor' not in m.cost_units)]
+        '$/ft^2 floor' not in m.cost_units)]
     # Update markets/savings information for all objects in 'measures_update'
     [m.fill_mkts(msegs, msegs_cpl) for m in measures_update]
 

@@ -52,8 +52,8 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
             cause EPlusGlobals object instantiation to fail.
         cbecs_failpath (string): Path to invalid EnergyPlus simulation data
             file that should cause EPlusGlobals object instantiation to fail.
-        ok_out_sf (dict): Correct square footage outputs for 'cbecs_vintage_sf'
-            function given valid inputs.
+        ok_out_sf (dict): Correct square footage outputs for
+            'cbecs_vintage_sf' function given valid inputs.
         ok_out_weights (dict): Correct vintage weights output for
             'find_vintage_weights'function given valid inputs.
     """
@@ -671,7 +671,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": True},
             "installed_cost": 25,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -685,7 +685,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 25,
-            "cost_units": "2013$/sf glazing",
+            "cost_units": "2013$/ft^2 glazing",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -713,7 +713,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 25,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -730,7 +730,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 25,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -747,7 +747,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 999,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -764,7 +764,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 9999,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
@@ -781,7 +781,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "status": {
                 "active": True, "update": False},
             "installed_cost": 25,
-            "cost_units": "2013$/sf floor",
+            "cost_units": "2013$/ft^2 floor",
             "energy_efficiency": {
                 "primary": 0.5, "secondary": None},
             "energy_efficiency_units": {
