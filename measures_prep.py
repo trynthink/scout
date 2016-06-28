@@ -19,6 +19,7 @@ class UsefulInputFiles(object):
         msegs_in (JSON): A database of baseline microsegment stock/energy.
         msegs_cpl_in (JSON): A database of baseline technology characteristics.
         packages_in (JSON): A database of measure names to package.
+        meas_costconvert (JSON): A database of measure cost unit conversions.
     """
 
     def __init__(self):
@@ -26,6 +27,7 @@ class UsefulInputFiles(object):
         self.msegs_in = "mseg_res_com_cz.json"
         self.msegs_cpl_in = "cpl_res_com_cz.json"
         self.packages_in = "measure_packages_test.json"
+        self.cost_convert_in = "meas_costconvert.json"
 
 
 class UsefulVars(object):
@@ -158,7 +160,11 @@ class EPlusMapDicts(object):
 
     Attributes:
         czone (dict): Scout-EnergyPlus climate zone mapping.
-        bldgtype (dict): Scout-EnergyPlus building type mapping.
+        bldgtype (dict): Scout-EnergyPlus building type mapping. Shown are
+            the EnergyPlus commercial reference building names that correspond
+            to each AEO commercial building type, and the weights needed in
+            some cases to map multiple EnergyPlus reference building types to
+            a single AEO type. See 'meas_costconvert' JSON for more details.
         fuel (dict): Scout-EnergyPlus fuel type mapping.
         enduse (dict): Scout-EnergyPlus end use mapping.
         structure_type (dict): Scout-EnergyPlus structure type mapping.
@@ -175,21 +181,32 @@ class EPlusMapDicts(object):
             "hot dry": "BA-HotDry",
             "hot humid": "BA-HotHumid"}
         self.bldgtype = {
-            'assembly': [
-                'PrimarySchool', 'RetailStandalone', 'RetailStripmall',
-                'SecondarySchool', 'SmallOffice'],
-            'education': ['PrimarySchool', 'SecondarySchool'],
-            'food sales': [
-                'FullServiceRestaurant', 'QuickServiceRestaurant'],
-            'food service': ['Supermarket'],
-            'health care': ['Hospital'],
-            'mercantile/service': ['RetailStandalone', 'RetailStripmall'],
-            'lodging': ['LargeHotel', 'SmallHotel'],
-            'multi family home': ['HighRiseApartment', 'MidriseApartment'],
-            'large office': ['LargeOffice', 'MediumOffice'],
-            'small office': ['MediumOffice', 'SmallOffice'],
-            'warehouse': ['Warehouse'],
-            'other': ['LargeOffice', 'SmallHotel', 'Warehouse']}
+            "assembly": {
+                "Hospital": 1},
+            "education": {
+                "PrimarySchool": 0.26,
+                "SecondarySchool": 0.74},
+            "food sales": {
+                "Supermarket": 1},
+            "food service": {
+                "QuickServiceRestaurant": 0.31,
+                "FullServiceRestaurant": 0.69},
+            "healthcare": None,
+            "lodging": {
+                "SmallHotel": 0.26,
+                "LargeHotel": 0.74},
+            "large office": {
+                "LargeOffice": 0.9,
+                "MediumOffice": 0.1},
+            "small office": {
+                "SmallOffice": 0.12,
+                "OutpatientHealthcare": 0.88},
+            "mercantile and service": {
+                "RetailStandalone": 0.53,
+                "RetailStripmall": 0.47},
+            "warehouse": {
+                "Warehouse": 1},
+            "other": None}
         self.fuel = {
             'electricity': 'Electricity',
             'natural gas': 'Gas',
@@ -457,7 +474,7 @@ class Measure(object):
             in these results to determine the measure performance attribute.
 
         Args:
-            msegs (dict): Dictionary of baseline microsegments to use in
+            msegs (dict): Baseline microsegment stock/energy data to use in
                 validating categorization of measure performance information.
             eplus_dir (string): Directory of EnergyPlus performance files.
             eplus_files (list): EnergyPlus performance file names.
@@ -494,11 +511,11 @@ class Measure(object):
             if perf_dict_empty['secondary'] is not None:
                 self.energy_efficiency = self.fill_perf_dict(
                     perf_dict_empty, eplus_perf_array,
-                    vintage_weights)
+                    vintage_weights, eplus_bldg_types={})
             else:
                 self.energy_efficiency = self.fill_perf_dict(
                     perf_dict_empty['primary'], eplus_perf_array,
-                    vintage_weights)
+                    vintage_weights, eplus_bldg_types={})
             # Set the energy efficiency data source for the measure to
             # EnergyPlus and set to highest data quality rating
             self.energy_efficiency_source = 'EnergyPlus/OpenStudio'
@@ -513,10 +530,10 @@ class Measure(object):
         """Fill in measure markets/savings using EIA baseline data.
 
         Args:
-            msegs (dict): Dictionary of baseline microsegment stock
-                and energy use information.
-            msegs_cpl (dict): Dictionary of baseline technology cost,
-                performance, and lifetime information.
+            msegs (dict): Baseline microsegment stock and energy use
+                information.
+            msegs_cpl (dict): Baseline technology cost, performance, and
+                lifetime information.
 
         Returns:
             Updated measure total stock, stock cost, and energy/carbon market
@@ -529,13 +546,14 @@ class Measure(object):
         self.status['update'] = False
 
     def fill_perf_dict(
-            self, perf_dict, eplus_perf_array, vintage_weights):
+            self, perf_dict, eplus_perf_array, vintage_weights,
+            eplus_bldg_types):
         """Fill an empty dict with updated measure performance information.
 
         Note:
-            Use data from an EnergyPlus output file and building type/vintage
-            weighting data to fill a dictionary of final measure performance
-            information.
+            Use structured array data drawn from an EnergyPlus output file
+            and building type/vintage weighting data to fill a dictionary of
+            final measure performance information.
 
         Args:
             perf_dict (dict): Empty dictionary to fill with EnergyPlus-based
@@ -545,6 +563,10 @@ class Measure(object):
                 energy savings information for the Measure.
             vintage_weights (dict): Square-footage-derived weighting factors
                 for each EnergyPlus building vintage type.
+            eplus_bldg_types (dict): Scout-EnergyPlus building type mapping
+                data, including weighting factors needed to map multiple
+                EnergyPlus building types to a single Scout building type.
+                Drawn from EPlusMapDicts object's 'bldgtype' attribute.
 
         Returns:
             A measure performance dictionary filled with relative energy
@@ -553,9 +575,9 @@ class Measure(object):
         Raises:
             KeyError: If an EnergyPlus category name cannot be mapped to the
                 input perf_dict keys.
+            ValueError: If weights used to map multiple EnergyPlus reference
+                building types to a single Scout building type do not sum to 1.
         """
-        # Copy eplus_perf_array
-        reduce_array = copy.deepcopy(eplus_perf_array)
 
         # Instantiate useful EnergyPlus-Scout mapping dicts
         handydicts = EPlusMapDicts()
@@ -563,7 +585,7 @@ class Measure(object):
         # Set the header of the EnergyPlus input array (used when reducing
         # columns of the array to the specific performance categories being
         # updated below)
-        eplus_header = list(reduce_array.dtype.names)
+        eplus_header = list(eplus_perf_array.dtype.names)
 
         # Loop through zeroed out measure performance dictionary input and
         # update the values with data from the EnergyPlus input array
@@ -575,25 +597,31 @@ class Measure(object):
                 # Microsegment type level (no update to EnergyPlus array
                 # required)
                 if key in ['primary', 'secondary']:
-                    updated_perf_array = reduce_array
+                    updated_perf_array = eplus_perf_array
                 # Climate zone level
                 elif key in handydicts.czone.keys():
                     # Reduce EnergyPlus array to only rows with climate zone
                     # currently being updated in the performance dictionary
-                    updated_perf_array = reduce_array[numpy.where(
-                        reduce_array[
+                    updated_perf_array = eplus_perf_array[numpy.where(
+                        eplus_perf_array[
                             'Climate Zone'] == handydicts.czone[key])].copy()
                     if len(updated_perf_array) == 0:
-                        raise ValueError('eplus climate zone name not found!')
+                        raise KeyError('eplus climate zone name not found!')
                 # Building type level
                 elif key in handydicts.bldgtype.keys():
+                    # Determine relevant EnergyPlus building types for current
+                    # Scout building type
+                    eplus_bldg_types = handydicts.bldgtype[key]
+                    if sum(eplus_bldg_types.values()) != 1:
+                        raise ValueError(
+                            'eplus building type weights do not sum to 1!')
                     # Reduce EnergyPlus array to only rows with building type
-                    # currently being updated in the performance dictionary
-                    updated_perf_array = reduce_array[numpy.in1d(
-                        reduce_array[
-                            'Building Type'], handydicts.bldgtype[key])].copy()
+                    # relevant to current Scout building type
+                    updated_perf_array = eplus_perf_array[numpy.in1d(
+                        eplus_perf_array['Building Type'],
+                        list(eplus_bldg_types.keys()))].copy()
                     if len(updated_perf_array) == 0:
-                        raise ValueError('eplus building type name not found!')
+                        raise KeyError('eplus building type name not found!')
                 # Fuel type level
                 elif key in handydicts.fuel.keys():
                     # Reduce EnergyPlus array to only columns with fuel type
@@ -602,8 +630,8 @@ class Measure(object):
                     colnames.extend([
                         x for x in eplus_header if handydicts.fuel[key] in x])
                     if len(colnames) == 3:
-                        raise ValueError('eplus fuel type name not found!')
-                    updated_perf_array = reduce_array[colnames].copy()
+                        raise KeyError('eplus fuel type name not found!')
+                    updated_perf_array = eplus_perf_array[colnames].copy()
                 # End use level
                 elif key in handydicts.enduse.keys():
                     # Reduce EnergyPlus array to only columns with end use
@@ -613,8 +641,8 @@ class Measure(object):
                         x for x in eplus_header if x in handydicts.enduse[
                             key]])
                     if len(colnames) == 3:
-                        raise ValueError('eplus end use name not found!')
-                    updated_perf_array = reduce_array[colnames].copy()
+                        raise KeyError('eplus end use name not found!')
+                    updated_perf_array = eplus_perf_array[colnames].copy()
                 else:
                     raise KeyError(
                         'Invalid measure performance dictionary key!')
@@ -622,7 +650,8 @@ class Measure(object):
                 # Given updated EnergyPlus array, proceed further down the
                 # dict level hierarchy
                 self.fill_perf_dict(
-                    item, updated_perf_array, vintage_weights)
+                    item, updated_perf_array, vintage_weights,
+                    eplus_bldg_types)
             else:
                 # Reduce EnergyPlus array to only rows with structure type
                 # currently being updated in the performance dictionary
@@ -631,14 +660,14 @@ class Measure(object):
                     # A 'new' structure type will match only one of the
                     # EnergyPlus building vintage names
                     if key == "new":
-                        updated_perf_array = reduce_array[numpy.where(
-                            reduce_array['Template'] ==
+                        updated_perf_array = eplus_perf_array[numpy.where(
+                            eplus_perf_array['Template'] ==
                             handydicts.structure_type['new'])].copy()
                     # A 'retrofit' structure type will match multiple
                     # EnergyPlus building vintage names
                     else:
-                        updated_perf_array = reduce_array[numpy.in1d(
-                            reduce_array['Template'], list(
+                        updated_perf_array = eplus_perf_array[numpy.in1d(
+                            eplus_perf_array['Template'], list(
                                 handydicts.structure_type[
                                     'retrofit'].keys()))].copy()
                     if len(updated_perf_array) == 0 or \
@@ -658,19 +687,15 @@ class Measure(object):
                 # measure performance dictionary branch as 0
                 end_key_val = 0
 
-                # Update building type weight to account for cases where
-                # multiple eplus building types map to one Scout building type
-                # (for now, weight each eplus type evenly)
-                eplus_bldg_type_weight = 1 / \
-                    len(numpy.unique(updated_perf_array['Building Type']))
-
                 # Weight and combine the relative savings values left in the
                 # EnergyPlus array to arrive at the final measure relative
                 # savings value for the current dictionary branch
                 for r in updated_perf_array:
                     for n in eplus_header:
                         if r[n].dtype.char != 'S' and r[n].dtype.char != 'U':
-                            r[n] = r[n] * eplus_bldg_type_weight * \
+                            eplus_bldg_type_wt_row = \
+                                eplus_bldg_types[r['Building Type']]
+                            r[n] = r[n] * eplus_bldg_type_wt_row * \
                                 vintage_weights[
                                 r['Template'].copy()]
                             end_key_val += r[n]
@@ -690,8 +715,8 @@ class Measure(object):
             with a hierarchy that is defined by these measure properties.
 
         Args:
-            msegs (dict): Dictionary of baseline microsegment stock and
-                energy use information to use in validating categorization of
+            msegs (dict): Baseline microsegment stock and energy use
+                information to use in validating categorization of
                 measure performance information.
 
         Returns:
@@ -725,8 +750,8 @@ class Measure(object):
             to zero.
 
         Args:
-            msegs (dict): Dictionary of baseline microsegment stock and
-                energy use information to use in validating categorization of
+            msegs (dict): Baseline microsegment stock and energy use
+                information to use in validating categorization of
                 measure performance information.
             mseg_type (string): Primary or secondary microsegment type flag.
 
@@ -836,7 +861,7 @@ class Measure(object):
         return eplus_perf_array
 
 
-def fill_measures(measures, msegs, msegs_cpl, eplus_dir):
+def fill_measures(measures, msegs, msegs_cpl, meas_costconvert, eplus_dir):
     """Fill in any missing efficiency measure attributes.
 
     Note:
@@ -847,10 +872,11 @@ def fill_measures(measures, msegs, msegs_cpl, eplus_dir):
 
     Args:
         measures (dict): Attributes for individual efficiency measures.
-        msegs (dict): Dictionary of baseline microsegment stock and energy use
+        msegs (dict): Baseline microsegment stock and energy use
             information.
-        msegs_cpl (dict): Dictionary of baseline technology cost, performance,
-            and lifetime information.
+        msegs_cpl (dict): Baseline technology cost, performance, and lifetime
+            information.
+        meas_costconvert (dict): Measure cost unit conversions.
         eplus_dir (string): Directory for EnergyPlus simulation output files to
             use in updating measure performance inputs.
 
@@ -952,9 +978,13 @@ def main(argv):
     # Import baseline cost, performance, and lifetime data
     with open(handyfiles.msegs_cpl_in, 'r') as bjs:
         msegs_cpl = json.load(bjs)
+    # Import measure cost unit conversion data
+    with open(handyfiles.meas_costconvert_in, 'r') as cc:
+        meas_costconvert = json.load(cc)
 
     # Run through each measure and fill in any missing attributes
-    measures = fill_measures(measures, msegs, msegs_cpl, argv)
+    measures = fill_measures(
+        measures, msegs, msegs_cpl, meas_costconvert, argv)
     # Add measure packages
     if packages:
         measures = add_packages(packages, measures)

@@ -443,7 +443,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                         'natural gas': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
         cls.ok_array_type_out = numpy.ndarray
-        cls.ok_array_length_out = 144
+        cls.ok_array_length_out = 192
         cls.ok_arraynames_out = (
             'Climate Zone', 'Building Type', 'Template', 'Status',
             'Floor Area', 'Total Site Electricity', 'Net Site Electricity',
@@ -527,11 +527,11 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                     'education': {
                         'electricity': {
                             'lighting': {
-                                'retrofit': 0.25, 'new': 0.125}}},
+                                'retrofit': 0.25, 'new': 0.065}}},
                     'assembly': {
                         'electricity': {
                             'lighting': {
-                                'retrofit': 0.25, 'new': 0.125}}}}},
+                                'retrofit': 0.25, 'new': 0}}}}},
             "secondary": {
                 'hot dry': {
                     'education': {
@@ -556,19 +556,19 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                     'education': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.5, 'new': 0.25}},
+                            'cooling': {'retrofit': 0.5, 'new': 0.13}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.5, 'new': -0.25}},
+                                'retrofit': -0.5, 'new': -0.13}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}},
                     'assembly': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.5, 'new': 0.25}},
+                            'cooling': {'retrofit': 0.5, 'new': 0}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.5, 'new': -0.25}},
+                                'retrofit': -0.5, 'new': 0}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
 
@@ -605,7 +605,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         self.dict_check(
             self.meas.fill_perf_dict(
                 self.ok_perfdictempty_out, self.ok_perfarray_in,
-                self.ok_eplus_vintagewts),
+                self.ok_eplus_vintagewts, eplus_bldg_types={}),
             self.ok_perfdictfill_out)
 
     def test_dict_fill_fail(self):
@@ -616,16 +616,15 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             performance dictionary to fill or invalid input array of
             EnergyPlus simulation information to fill the dict with.
         """
-        # Case with invalid input dictionary
         with self.assertRaises(KeyError):
+            # Case with invalid input dictionary
             self.meas.fill_perf_dict(
                 self.fail_perfdictempty_in, self.ok_perfarray_in,
-                self.ok_eplus_vintagewts)
-        # Case with invalid input array of EnergyPlus information
-        with self.assertRaises(ValueError):
+                self.ok_eplus_vintagewts, eplus_bldg_types={})
+            # Case with invalid input array of EnergyPlus information
             self.meas.fill_perf_dict(
                 self.ok_perfdictempty_out, self.fail_perfarray_in,
-                self.ok_eplus_vintagewts)
+                self.ok_eplus_vintagewts, eplus_bldg_types={})
 
     def test_fill_eplus(self):
         """Test 'fill_eplus' function given valid inputs.
@@ -802,7 +801,8 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             require updating and that the updates are performed correctly.
         """
         measures_out = measures_prep.fill_measures(
-            self.measures_in, msegs={}, msegs_cpl={}, eplus_dir=None)
+            self.measures_in, msegs={}, msegs_cpl={}, eplus_dir=None,
+            meas_costconvert={})
         for oc in range(0, len(measures_out)):
             self.dict_check(measures_out[oc], self.ok_out[oc])
 
