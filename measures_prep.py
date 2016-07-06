@@ -9,6 +9,8 @@ from os import listdir, getcwd
 from os.path import isfile, join
 import copy
 import sys
+import warnings
+from urllib.parse import urlparse
 
 
 class UsefulInputFiles(object):
@@ -51,8 +53,10 @@ class UsefulVars(object):
     """
 
     def __init__(self):
+        self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.02
+        self.nsamples = 50
         # Set minimum AEO modeling year
         aeo_min = 2009
         # Set maximum AEO modeling year
@@ -115,12 +119,12 @@ class UsefulVars(object):
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
         # Climate zone breakout mapping
-        out_break_czones = OrderedDict([
+        self.out_break_czones = OrderedDict([
             ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
             ('AIA CZ5', 'AIA_CZ5')])
         # Building type breakout mapping
-        out_break_bldgtypes = OrderedDict([
+        self.out_break_bldgtypes = OrderedDict([
             ('Residential', [
                 'single family home', 'multi family home', 'mobile home']),
             ('Commercial', [
@@ -128,7 +132,7 @@ class UsefulVars(object):
                 'health care', 'mercantile/service', 'lodging', 'large office',
                 'small office', 'warehouse', 'other'])])
         # End use breakout mapping
-        out_break_enduses = OrderedDict([
+        self.out_break_enduses = OrderedDict([
             ('Heating', ["heating", "secondary heating"]),
             ('Cooling', ["cooling"]),
             ('Ventilation', ["ventilation"]),
@@ -142,8 +146,9 @@ class UsefulVars(object):
         # values at terminal leaf nodes; this dict will eventually store
         # partitioning fractions needed to breakout the measure results
         # Determine all possible outcome category combinations
-        out_levels = [out_break_czones.keys(), out_break_bldgtypes.keys(),
-                      out_break_enduses.keys()]
+        out_levels = [
+            self.out_break_czones.keys(), self.out_break_bldgtypes.keys(),
+            self.out_break_enduses.keys()]
         out_levels_keys = list(itertools.product(*out_levels))
         # Create dictionary using outcome category combinations as key chains
         self.out_break_in = OrderedDict()
@@ -432,38 +437,82 @@ class Measure(object):
     """Set up a class representing efficiency measures as objects.
 
     Attributes:
-        **kwargs: Arbitrary keyword arguments used to fill measure attributes.
-        mkts_savings (dict): Measure total stock, stock cost, energy/carbon
-            markets, and associated energy, carbon, and cost savings.
+        **kwargs: Arbitrary keyword arguments used to fill measure attributes
+            from an input dictionary.
+        handyvars (object): Global variables useful across Measure methods
+        markets (dict): Data grouped by adoption scheme on:
+            a) 'master_mseg': a measure's master market microsegments (stock,
+               energy, carbon, cost),
+            b) 'mseg_adjust': master microsegment adjustments that may
+               eventually be required for measure competition.
+            c) 'mseg_out_break': master microsegment breakdowns by key
+               variables (e.g., climate zone, building type, end use, etc.)
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, handyvars, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.mkts_savings = {
-            "master_mseg": {}, "mseg_adjust": {}, "mseg_out_break": {},
-            "master_savings": {}}
-
-    def translate_costs_res(self):
-        """Convert residential measure cost input to the proper units.
-
-        Returns:
-            Updated measure costs in either $/unit or $/ft^2 floor.
-        """
-        # Set dummy variable values to check for execution of this function
-        self.installed_cost = 999
-        self.cost_units = "2013$/ft^2 floor"
-
-    def translate_costs_com(self):
-        """Convert commercial measure cost input to the proper units.
-
-        Returns:
-            Updated measure costs in $/ft^2 floor.
-        """
-        # Set dummy variable values to check for execution of this function
-        self.installed_cost = 9999
-        self.cost_units = "2013$/ft^2 floor"
+        self.handyvars = handyvars
+        self.markets = {}
+        for adopt_scheme in handyvars.adopt_schemes:
+            self.markets[adopt_scheme] = {
+                "master_mseg": {
+                    "stock": {
+                        "total": {
+                            "all": None, "measure": None},
+                        "competed": {
+                            "all": None, "measure": None}},
+                    "energy": {
+                        "total": {
+                            "baseline": None, "efficient": None},
+                        "competed": {
+                            "baseline": None, "efficient": None}},
+                    "carbon": {
+                        "total": {
+                            "baseline": None, "efficient": None},
+                        "competed": {
+                            "baseline": None, "efficient": None}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}},
+                        "energy": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}},
+                        "carbon": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}}},
+                    "lifetime": {"baseline": None, "measure": None}},
+                "mseg_adjust": {
+                    "contributing mseg keys and values": {},
+                    "competed choice parameters": {},
+                    "secondary mseg adjustments": {
+                        "sub-market": {
+                            "original stock (total)": {},
+                            "adjusted stock (sub-market)": {}},
+                        "stock-and-flow": {
+                            "original stock (total)": {},
+                            "adjusted stock (previously captured)": {},
+                            "adjusted stock (competed)": {},
+                            "adjusted stock (competed and captured)": {}},
+                        "market share": {
+                            "original stock (total captured)": {},
+                            "original stock (competed and captured)": {},
+                            "adjusted stock (total captured)": {},
+                            "adjusted stock (competed and captured)": {}}},
+                    "supply-demand adjustment": {
+                        "savings": {},
+                        "total": {}},
+                    "savings updated": False},
+                "mseg_out_break": copy.deepcopy(
+                    self.handyvars.out_break_in)}
 
     def fill_eplus(self, msegs, eplus_dir, eplus_files, vintage_weights):
         """Fill in measure performance with EnergyPlus simulation results.
@@ -526,24 +575,2002 @@ class Measure(object):
             raise ValueError(
                 'Failure to match measure name to eplus files!')
 
-    def fill_mkts(self, msegs, msegs_cpl):
-        """Fill in measure markets/savings using EIA baseline data.
+    def fill_mkts(self, msegs, msegs_cpl, meas_costconvert):
+        """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
-            msegs (dict): Baseline microsegment stock and energy use
-                information.
+            msegs (dict): Baseline microsegment stock and energy use.
             msegs_cpl (dict): Baseline technology cost, performance, and
-                lifetime information.
+                lifetime.
+            meas_costconvert (dict): Measure -> baseline cost unit conversions.
 
         Returns:
-            Updated measure total stock, stock cost, and energy/carbon market
-            information, as stored in the 'mkts_savings' attribute.
+            Updated measure stock, energy/carbon, and cost market microsegment
+            information, as stored in the 'markets' attribute.
+
+        Raises:
+            KeyError: If measure and baseline performance or cost units are
+                inconsistent, or a valid baseline market microsegment cannot
+                be found for the given measure definition.
+            ValueError: If a market microsegment cannot be mapped to a
+                valid output breakout category.
         """
-        # Set dummy variable values to check for execution of this function
-        self.mkts_savings["master_mseg"] = 999
-        self.mkts_savings["mseg_adjust"] = 999
-        self.mkts_savings["mseg_out_break"] = 999
-        self.status['update'] = False
+        # If multiple runs are required to handle probability distributions on
+        # measure inputs, set a number to seed each random draw of cost,
+        # performance, and or lifetime with for consistency across all
+        # microsegments that contribute to the measure's master microsegment
+        if self.handyvars.nsamples is not None:
+            rnd_sd = numpy.random.randint(10000)
+
+        # Initialize a counter of valid key chains
+        key_chain_ct = 0
+
+        # Initialize flags for invalid information about sub-market fraction
+        # source, URL, and derivation
+        sbmkt_source_invalid, sbmkt_url_invalid, sbmkt_derive_invalid = (
+            0 for n in range(3))
+
+        # Initialize variable indicating use of ft^2 floor area as microsegment
+        # stock
+        sqft_subst = 0
+
+        # Establish a flag for a commercial lighting case where the user has
+        # not specified secondary end use effects on heating and cooling.  In
+        # this case, secondary effects are added automatically by adjusting
+        # the "lighting gain" thermal load component in accordance with the
+        # lighting efficiency change (e.g., a 40% relative savings from
+        # efficient lighting equipment translates to a 40% increase in heating
+        # loads and 40% decrease in cooling load)
+        light_scnd_autoperf = False
+
+        # Find all possible microsegment key chains.  First, determine all
+        # "primary" microsegment key chains, where "primary" refers to the
+        # baseline microsegment(s) directly affected by a measure (e.g.,
+        # incandescent bulb lights for an LED replacement measure).  Second,
+        # if needed, determine all "secondary" microsegment key chains, where
+        # "secondary" refers to baseline microsegments that are indirectly
+        # affected by the measure (e.g., heating and cooling for the above
+        # LED replacement).  Secondary microsegments are only relevant for
+        # energy/carbon and associated energy/carbon cost calculations, as
+        # they do not indicate additional equipment purchases (and thus do not
+        # affect stock, stock costs, or equipment lifetime calculations)
+
+        # Determine "primary" microsegment key chains
+        ms_iterable, ms_lists = self.create_keychain("primary")
+
+        # Determine "secondary" microsegment key chains and add to the
+        # "primary" microsegment key chain list, if needed. In a commercial
+        # lighting measure case where no secondary microsegment is specified,
+        # use the "lighting gain" thermal load component microsegments to
+        # represent secondary end use effects of the lighting measure
+        if self.end_use["secondary"] is not None:
+            ms_iterable_second, ms_lists_second = self.create_keychain(
+                "secondary")
+            ms_iterable.extend(ms_iterable_second)
+        elif "lighting" in self.end_use["primary"] and \
+            any([x not in ["single family home", "multi family home",
+                           "mobile home"] for x in self.bldg_type]):
+                    # Set secondary lighting mseg performance flag to True
+                    light_scnd_autoperf = True
+                    # Set secondary energy efficiency value to "Missing"
+                    # (used below as a flag)
+                    self.energy_efficiency["secondary"] = \
+                        "Missing (secondary lighting)"
+                    # Set secondary energy efficiency units to "relative
+                    # savings"
+                    self.energy_efficiency_units["secondary"] = \
+                        "relative savings (constant)"
+                    # Set secondary fuel type to include all heating/cooling
+                    # fuels
+                    self.fuel_type["secondary"] = [
+                        "electricity", "natural gas", "distillate"]
+                    # Set relevant secondary end uses
+                    self.end_use["secondary"] = ["heating", "cooling"]
+                    # Set secondary technology type ("demand" as the lighting
+                    # measure affects heating/cooling loads)
+                    self.technology_type["secondary"] = "demand"
+                    # Set secondary technology class to "lighting gain", which
+                    # will access the portion of commercial heating/cooling
+                    # demand that is attributable to waste heat from lights
+                    self.technology["secondary"] = "lighting gain"
+
+                    # Determine secondary microsegment key chains and add to
+                    # the primary microsegment key chain list
+                    ms_iterable_second, ms_lists_second = self.create_keychain(
+                        "secondary")
+                    ms_iterable.extend(ms_iterable_second)
+
+        # Loop through discovered key chains to find needed performance/cost
+        # and stock/energy information for measure
+        for ind, mskeys in enumerate(ms_iterable):
+
+            # Set building sector for the current microsegment
+            if mskeys[2] in [
+                    "single family home", "mobile home", "multi family home"]:
+                bldg_sect = "residential"
+            else:
+                bldg_sect = "commercial"
+
+            # Adjust the key chain to be used in registering contributing
+            # microsegment information for cases where 'windows solar'
+            # or 'windows conduction' are in the key chain. Change
+            # such entries to just 'windows' to ensure the competition
+            # of 'windows conduction' and 'windows solar' contributing
+            # microsegments in the 'adjust_savings' function below
+            contrib_mseg_key = mskeys
+            if any([x is not None and "windows" in x for x in
+                    contrib_mseg_key]):
+                contrib_mseg_key = list(contrib_mseg_key)
+                contrib_mseg_key[numpy.where([x is not None and "windows" in x
+                                 for x in contrib_mseg_key])[0][0]] = "windows"
+                contrib_mseg_key = tuple(contrib_mseg_key)
+
+            # Initialize measure performance/cost/lifetime, associated units,
+            # and sub-market scaling fractions/sources if: a) For loop through
+            # all measure mseg key chains is in first iteration, b) A switch
+            # has been made from updating "primary" microsegment info. to
+            # updating "secondary" microsegment info. (relevant to cost/
+            # lifetime units only), or c) Any of performance/cost/lifetime/
+            # units is a dict which must be parsed further to reach the final
+            # value. * Note: cost/lifetime/sub-market information is not
+            # updated for "secondary" microsegments, which do not pertain to
+            # these variables; lifetime units are assumed to be years
+            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+               or isinstance(self.energy_efficiency, dict):
+                perf_meas = self.energy_efficiency
+            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+               or isinstance(self.energy_efficiency_units, dict):
+                perf_units = self.energy_efficiency_units
+            if mskeys[0] == "secondary":
+                cost_meas = 0
+                cost_units = "NA"
+                life_meas = 0
+                # * Note: no unique sub-market scaling fractions for secondary
+                # microsegments; secondary microsegments are only scaled down
+                # by the sub-market fraction for their associated primary
+                # microsegments
+                mkt_scale_frac, mkt_scale_frac_source = (
+                    None for n in range(2))
+            else:
+                if ind == 0 or isinstance(
+                        self.installed_cost, dict):
+                    cost_meas = self.installed_cost
+                if ind == 0 or isinstance(
+                        self.cost_units, dict):
+                    cost_units = self.cost_units
+                if ind == 0 or isinstance(
+                        self.product_lifetime, dict):
+                    life_meas = self.product_lifetime
+                if ind == 0 or isinstance(
+                        self.market_scaling_fractions, dict):
+                    mkt_scale_frac = self.market_scaling_fractions
+                if ind == 0 or isinstance(
+                        self.market_scaling_fractions_source, dict):
+                    mkt_scale_frac_source = \
+                        self.market_scaling_fractions_source
+
+            # Set appropriate site-source conversion factor, energy cost, and
+            # carbon intensity for given key chain
+            if mskeys[3] in self.handyvars.ss_conv.keys():
+                # Set baseline and measure site-source conversions and
+                # carbon intensities, accounting for any fuel switching from
+                # baseline technology to measure technology
+                if self.fuel_switch_to is None:
+                    site_source_conv_base, site_source_conv_meas = (
+                        self.handyvars.ss_conv[mskeys[3]] for n in range(2))
+                    intensity_carb_base, intensity_carb_meas = (
+                        self.handyvars.carb_int[mskeys[3]] for n in range(2))
+                else:
+                    site_source_conv_base = self.handyvars.ss_conv[mskeys[3]]
+                    site_source_conv_meas = self.handyvars.ss_conv[
+                        self.fuel_switch_to]
+                    intensity_carb_base = self.handyvars.carb_int[mskeys[3]]
+                    intensity_carb_meas = self.handyvars.carb_int[
+                        self.fuel_switch_to]
+
+            # Initialize cost/performance/lifetime, stock/energy, square
+            # footage, and new building fraction variables for the baseline
+            # microsegment associated with the current key chain
+            base_costperflife = msegs_cpl
+            mseg = msegs
+            mseg_sqft_stock = msegs
+            new_bldg_frac = {"added": {}, "total": {}}
+
+            # Initialize a variable for measure relative performance (broken
+            # out by year in modeling time horizon)
+            rel_perf = {}
+
+            # In cases where measure and baseline cost/performance/lifetime
+            # data and/or baseline stock/energy market size data are formatted
+            # as nested dicts, loop recursively through dict levels until
+            # appropriate terminal value is reached
+            for i in range(0, len(mskeys)):
+                # Check whether baseline microsegment cost/performance/lifetime
+                # data are in dict format and current key is in dict keys; if
+                # so, proceed further with the recursive loop. * Note: dict key
+                # hierarchies and syntax are assumed to be consistent across
+                # all measure and baseline cost/performance/lifetime and
+                # stock/energy market data
+                if isinstance(base_costperflife, dict) and mskeys[i] in \
+                    base_costperflife.keys() or mskeys[i] in [
+                        "primary", "secondary", "new", "existing", None]:
+                    # Skip over "primary", "secondary", "new", and "existing"
+                    # keys in updating baseline stock/energy, cost and lifetime
+                    # information (this information is not broken out by these
+                    # categories)
+                    if mskeys[i] not in [
+                            "primary", "secondary", "new", "existing", None]:
+
+                        # Restrict base cost/performance/lifetime dict to key
+                        # chain info.
+                        base_costperflife = base_costperflife[mskeys[i]]
+
+                        # Restrict stock/energy dict to key chain info.
+                        mseg = mseg[mskeys[i]]
+
+                        ######################################################
+                        # FORMAT RES/COM MSEG TERMINAL LEAF NODES CONSISTENTLY
+                        if any([isinstance(x, dict) for x in mseg.values()]) \
+                                is False and bldg_sect == "commercial":
+                            mseg = {"stock": "NA", "energy": mseg}
+                        ######################################################
+
+                        # Restrict ft^2 floor area dict to key chain info.
+                        if i < 3:  # Note: ft^2 floor area broken out 2 levels
+                            mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
+
+                    # Restrict any measure cost/performance/lifetime/market
+                    # scaling info. that is a dict type to key chain info.
+                    if isinstance(perf_meas, dict) and mskeys[i] in \
+                       perf_meas.keys():
+                            perf_meas = perf_meas[mskeys[i]]
+                    if isinstance(perf_units, dict) and mskeys[i] in \
+                       perf_units.keys():
+                            perf_units = perf_units[mskeys[i]]
+                    if isinstance(cost_meas, dict) and mskeys[i] in \
+                       cost_meas.keys():
+                        cost_meas = cost_meas[mskeys[i]]
+                    if isinstance(cost_units, dict) and mskeys[i] in \
+                       cost_units.keys():
+                        cost_units = cost_units[mskeys[i]]
+                    if isinstance(life_meas, dict) and mskeys[i] in \
+                       life_meas.keys():
+                        life_meas = life_meas[mskeys[i]]
+                    if isinstance(mkt_scale_frac, dict) and mskeys[i] in \
+                            mkt_scale_frac.keys():
+                        mkt_scale_frac = mkt_scale_frac[mskeys[i]]
+                    if isinstance(mkt_scale_frac_source, dict) and \
+                            mskeys[i] in mkt_scale_frac_source.keys():
+                        mkt_scale_frac_source = \
+                            mkt_scale_frac_source[mskeys[i]]
+
+                    # If updating heating/cooling measure microsegment,
+                    # record the total amount of overlapping supply and
+                    # demand-side energy. For example, given a supply-side
+                    # cooling measure microsegment key chain of ['AIA_CZ1',
+                    # 'single family home', 'electricity (grid)', 'cooling',
+                    # 'supply', 'ASHP'], the total cooling energy that overlaps
+                    # with demand-side measures (e.g. highly insulating window)
+                    # is defined by the key ['AIA_CZ1', 'single family home',
+                    # 'electricity (grid)', 'cooling']. This information will
+                    # be used in the 'adjust_savings' function below to
+                    # adjust supply-side measure savings by the fraction
+                    # of overlapping demand-side savings, and vice versa.
+                    if (mskeys[i] == "supply" or mskeys[i] == "demand") \
+                       and mskeys[i + 1] in mseg.keys():
+                        # Find the total overlapping heating/cooling energy
+                        # by summing together the energy for all microsegments
+                        # under the current 'supply' or 'demand' levels of the
+                        # key chain (e.g. could be 'ASHP', 'GSHP', 'boiler',
+                        # 'windows (conduction)', 'infiltration', etc.).
+                        # Note that for a given climate zone, building type,
+                        # and fuel type, heating/cooling supply and demand
+                        # energy should be equal.
+                        for ind, ks in enumerate(mseg.keys()):
+                            ##########################################
+                            # FORMAT RES/COM MSEG TERMINAL LEAF NODES
+                            # CONSISTENTLY
+                            if bldg_sect == "residential":
+                                if ind == 0:
+                                    adj_vals = copy.deepcopy(mseg[ks][
+                                        "energy"])
+                                else:
+                                    adj_vals = self.add_keyvals(
+                                        adj_vals, mseg[ks]["energy"])
+                            else:
+                                if ind == 0:
+                                    adj_vals = copy.deepcopy(mseg[ks])
+                                else:
+                                    adj_vals = self.add_keyvals(
+                                        adj_vals, mseg[ks])
+                            ###########################################
+
+                        for adopt_scheme in self.handyvars.adopt_schemes:
+                            # Case with no existing 'windows' contributing
+                            # microsegment for the current climate zone,
+                            # building type, fuel type, and end use (create new
+                            # 'supply-demand adjustment' information)
+                            if contrib_mseg_key not in self.markets[
+                                adopt_scheme]["mseg_adjust"][
+                                    "supply-demand adjustment"][
+                                    "total"].keys():
+                                # Adjust the resultant total overlapping energy
+                                # values by appropriate site-source conversion
+                                # factor and record as the measure's
+                                # 'supply-demand adjustment' information
+
+                                ###############################################
+                                # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
+                                if bldg_sect == "residential":
+                                    self.markets[adopt_scheme]["mseg_adjust"][
+                                        "supply-demand adjustment"][
+                                        "total"][str(contrib_mseg_key)] = {
+                                            key: val * site_source_conv_base[
+                                                key] for key, val in
+                                        adj_vals.items() if key in
+                                        self.handyvars.aeo_years}
+                                else:
+                                    self.markets[adopt_scheme]["mseg_adjust"][
+                                        "supply-demand adjustment"][
+                                        "total"][str(contrib_mseg_key)] = {
+                                            key: val * site_source_conv_base[
+                                                key] * 1000000 for key, val in
+                                        adj_vals.items() if key in
+                                        self.handyvars.aeo_years}
+                                ###############################################
+
+                                # Set overlapping energy savings values to zero
+                                # in the measure's 'supply-demand adjustment'
+                                # information for now (updated as necessary in
+                                # the 'adjust_savings' function below)
+                                self.markets[adopt_scheme]["mseg_adjust"][
+                                    "supply-demand adjustment"][
+                                    "savings"][str(contrib_mseg_key)] = \
+                                    dict.fromkeys(self.handyvars.aeo_years, 0)
+                            # Case with existing 'windows' contributing
+                            # microsegment for the current climate zone,
+                            # building type, fuel type, and end use (add to
+                            # existing 'supply-demand adjustment' information)
+                            else:
+                                # Adjust the resultant total overlapping energy
+                                # values by appropriate site-source conversion
+                                # factor and add to existing 'supply-demand
+                                # adjustment' information for the current
+                                # windows microsegment
+
+                                ###############################################
+                                # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
+                                if bldg_sect == "residential":
+                                    add_adjust = {
+                                        key: val * site_source_conv_base[
+                                            key] for key, val in
+                                        adj_vals.items() if key in
+                                        self.handyvars.aeo_years}
+                                else:
+                                    add_adjust = {
+                                        key: val * site_source_conv_base[
+                                            key] * 1000000 for key, val in
+                                        adj_vals.items() if key in
+                                        self.handyvars.aeo_years}
+                                ###############################################
+                                self.markets[adopt_scheme]["mseg_adjust"][
+                                    "supply-demand adjustment"][
+                                    "total"][str(contrib_mseg_key)] = \
+                                    self.add_key_vals(
+                                        self.markets[adopt_scheme][
+                                            "mseg_adjust"][
+                                            "supply-demand adjustment"][
+                                            "total"][
+                                            str(contrib_mseg_key)], add_adjust)
+
+                # If no key match, break the loop
+                else:
+                    if mskeys[i] is not None:
+                        mseg = {}
+                    break
+
+            # If mseg dict isn't defined to "stock" info. level, go no further
+            if "stock" not in list(mseg.keys()):
+                continue
+            # Otherwise update all stock/energy/cost information for each year
+            else:
+                # Restrict valid key chain count to "primary" microsegment
+                # key chains only, as the key chain count is used later in
+                # stock and stock cost calculations, which secondary
+                # microsegments do not contribute to
+                if mskeys[0] == "primary":
+                    key_chain_ct += 1
+                    # Flag use of ft^2 floor area as stock when number of stock
+                    # units is unavailable for a primary microsegment
+                    if mseg["stock"] == "NA":
+                        sqft_subst = 1
+
+                # If a sub-market scaling fraction is to be applied to the
+                # current baseline microsegment, check that the source
+                # information for the fraction is sufficient; if not, remove
+                # the measure from further analysis
+                if isinstance(mkt_scale_frac_source, dict) and \
+                        "title" in mkt_scale_frac_source.keys():
+                    # Establish sub-market fraction general source, URL, and
+                    # derivation information
+
+                    # Set general source info. for the sub-market fraction
+                    source_info = [
+                        mkt_scale_frac_source['title'],
+                        mkt_scale_frac_source['author'],
+                        mkt_scale_frac_source['organization'],
+                        mkt_scale_frac_source['year']]
+                    # Set URL for the sub-market fraction
+                    url = mkt_scale_frac_source['URL']
+                    # Set information about how sub-market fraction was derived
+                    frac_derive = mkt_scale_frac_source['fraction_derivation']
+
+                    # Check the validity of sub-market fraction source, URL,
+                    # and derivation information
+
+                    # Check sub-market fraction general source information,
+                    # yield warning if source information is invalid and
+                    # invalid source information flag hasn't already been
+                    # raised for this measure
+                    if sbmkt_source_invalid != 1 and (any([
+                        not isinstance(x, str) or
+                       len(x) < 2 for x in source_info]) is True):
+                        # Print invalid source information warning
+                        warnings.warn(
+                            "WARNING: '" + self.name + "' has invalid "
+                            "sub-market scaling fraction source title, author,"
+                            " organization, and/or year information")
+                        # Set invalid source information flag to 1
+                        sbmkt_source_invalid = 1
+                    # Check sub-market fraction URL, yield warning if URL is
+                    # invalid and invalid URL flag hasn't already been raised
+                    # for this measure
+                    if sbmkt_url_invalid != 1:
+                        # Parse the URL into components (addressing scheme,
+                        # network location, etc.)
+                        url_check = urlparse(url)
+                        # Check for valid URL address scheme and network
+                        # location components
+                        if (any([len(url_check.scheme),
+                                 len(url_check.netloc)]) == 0 or
+                            all([x not in url_check.netloc for x in
+                                 self.handyvars.valid_submkt_urls])):
+                            # Print invalid URL warning
+                            warnings.warn(
+                                "WARNING: '" + self.name + "' has invalid "
+                                "sub-market scaling fraction source URL "
+                                "information")
+                            # Set invalid URL flag to 1
+                            sbmkt_url_invalid = 1
+                    # Check sub-market fraction derivation information, yield
+                    # warning if invalid
+                    if not isinstance(frac_derive, str):
+                        # Print invalid derivation warning
+                        warnings.warn(
+                            "WARNING: '" + self.name + "' has invalid "
+                            "sub-market scaling fraction derivation "
+                            "information")
+                        # Set invalid derivation flag to 1
+                        sbmkt_derive_invalid = 1
+
+                    # If the derivation information or the general source
+                    # and URL information for the sub-market fraction are
+                    # invalid, yield warning that measure will be removed from
+                    # analysis, reset the current valid contributing key chain
+                    # count to a 999 flag, and flag the measure as inactive
+                    # such that it will be removed from all further routines
+                    if sbmkt_derive_invalid == 1 or (
+                            sbmkt_source_invalid == 1 and
+                            sbmkt_url_invalid == 1):
+                        # Print measure removal warning
+                        warnings.warn(
+                            "WARNING (CRITICAL): '" + self.name + "' has "
+                            "insufficient sub-market source information and "
+                            "will be removed from analysis")
+                        # Reset valid key chain count to 999 flag
+                        key_chain_ct = 999
+                        # Reset measure 'active' attribute to zero
+                        self.active = 0
+                        # Break from all further baseline stock/energy/carbon
+                        # and cost information updates for the measure
+                        break
+
+                # Seed the random number generator such that performance, cost,
+                # and lifetime draws are consistent across all microsegments
+                # that contribute to a measure's master microsegment (e.g, if
+                # measure performance, cost, and/or lifetime distributions
+                # are identical relative to two contributing baseline
+                # microsegments, the numpy arrays yielded by the random number
+                # generator for these measure parameters and microsegments
+                # will also be identical)
+                numpy.random.seed(rnd_sd)
+
+                # If the measure performance/cost/lifetime variable is list
+                # with distribution information, sample values accordingly
+                if isinstance(perf_meas, list) and isinstance(perf_meas[0],
+                                                              str):
+                    # Sample measure performance values
+                    perf_meas = self.rand_list_gen(
+                        perf_meas, self.handyvars.nsamples)
+                    # Set any measure performance values less than zero to
+                    # zero, for cases where performance isn't relative
+                    if perf_units != 'relative savings (constant)' and \
+                        type(perf_units) is not list and any(
+                            perf_meas < 0) is True:
+                        perf_meas[numpy.where(perf_meas < 0)] == 0
+
+                if isinstance(cost_meas, list) and isinstance(cost_meas[0],
+                                                              str):
+                    # Sample measure cost values
+                    cost_meas = self.rand_list_gen(
+                        cost_meas, self.handyvars.nsamples)
+                    # Set any measure cost values less than zero to zero
+                    if any(cost_meas < 0) is True:
+                        cost_meas[numpy.where(cost_meas < 0)] == 0
+                if isinstance(life_meas, list) and isinstance(life_meas[0],
+                                                              str):
+                    # Sample measure lifetime values
+                    life_meas = self.rand_list_gen(
+                        life_meas, self.handyvars.nsamples)
+                    # Set any measure lifetime values in list less than zero
+                    # to 1
+                    if any(life_meas < 0) is True:
+                        life_meas[numpy.where(life_meas < 0)] == 1
+                elif isinstance(life_meas, float) or \
+                        isinstance(life_meas, int) and mskeys[0] == "primary":
+                    # Set measure lifetime point values less than zero to 1
+                    # (minimum lifetime)
+                    if life_meas < 1:
+                        life_meas = 1
+
+                # Convert user-defined measure cost units to align with
+                # baseline cost units, given input cost conversion data
+                if mskeys[0] == "primary" and bldg_sect == "residential" and (
+                    (sqft_subst == 1 and '$/ft^2 floor' not in cost_units) or
+                        (sqft_subst == 0 and '$/unit' not in cost_units)):
+                    cost_meas, cost_units = \
+                        self.translate_costs_res(meas_costconvert)
+                elif mskeys[0] == "primary" and bldg_sect == "commercial" and \
+                        '$/ft^2 floor' not in cost_units:
+                    cost_meas, cost_units = \
+                        self.translate_costs_com(meas_costconvert)
+
+                # Determine relative measure performance after checking for
+                # consistent baseline/measure performance and cost units;
+                # make an exception for cases where performance is specified
+                # in 'relative savings' units (no explicit check
+                # of baseline units needed in this case)
+                if (perf_units == 'relative savings (constant)' or
+                   (isinstance(perf_units, list) and perf_units[0] ==
+                    'relative savings (dynamic)') or base_costperflife[
+                    "performance"]["units"] == perf_units) and (
+                        mskeys[0] == "secondary" or base_costperflife[
+                        "installed cost"]["units"] == cost_units):
+
+                    # Set a baseline performance dict if measure performance is
+                    # specified in absolute units or as a relative savings
+                    # percentage that is dynamically tied to changes in the
+                    # baseline performance level over time
+                    if perf_units != "relative savings (constant)":
+                        perf_base = base_costperflife["performance"]["typical"]
+
+                    # Relative performance calculation depends on whether the
+                    # performance units are already specified as 'relative
+                    # savings' over the baseline technology; if not, the
+                    # calculation depends on the technology case (i.e. COP  of
+                    # 4 is higher relative performance than a baseline COP 3,
+                    # but 1 ACH50 is higher rel. performance than 13 ACH50).
+                    # Note that relative performance values are stored in a
+                    # dict with keys for each year in the modeling time horizon
+                    if perf_units == 'relative savings (constant)' or \
+                       (isinstance(perf_units, list) and perf_units[0] ==
+                            'relative savings (dynamic)'):
+                        # In a commercial lighting case where the relative
+                        # savings impact of the lighting change on a secondary
+                        # end use (heating/cooling) has not been user-
+                        # specified, draw from the "light_scnd_autoperf"
+                        # variable to determine relative performance for this
+                        # secondary microsegment; in all other cases where
+                        # relative savings are directly user-specified in the
+                        # measure definition, calculate relative performance
+                        # based on the relative savings value
+                        if type(perf_meas) != numpy.ndarray and \
+                           perf_meas == "Missing (secondary lighting)":
+                            rel_perf = light_scnd_autoperf
+                        else:
+                            # Set the original measure relative savings value
+                            # (potentially adjusted via re-baselining)
+                            perf_meas_orig = copy.deepcopy(perf_meas)
+                            # Loop through all years in modeling time horizon
+                            # and calculate relative measure performance
+                            for yr in self.handyvars.aeo_years:
+                                # If relative savings must be adjusted to
+                                # account for changes in baseline performance,
+                                # scale the relative savings value by the
+                                # ratio of current year baseline to that of
+                                # an anchor year specified with the measure
+                                # performance units
+                                if isinstance(perf_units, list):
+                                    if base_costperflife["performance"][
+                                        "units"] not in self.handyvars.\
+                                            inverted_relperf_list:
+                                        perf_meas = 1 - (perf_base[yr] / (
+                                            perf_base[str(perf_units[1])] /
+                                            (1 - perf_meas_orig)))
+                                    else:
+                                        perf_meas = 1 - (
+                                            (perf_base[str(perf_units[1])] *
+                                             (1 - perf_meas_orig)) /
+                                            perf_base[yr])
+                                    # Ensure that the adjusted relative savings
+                                    # fraction is not greater than 1 or less
+                                    # than 0 if not originally specified as
+                                    # less than 0. * Note: savings will
+                                    # initially be specified as less than zero
+                                    # in lighting efficiency cases, which
+                                    # secondarily increase heating energy use
+                                    if type(perf_meas) == numpy.array:
+                                        if any(perf_meas > 1):
+                                            perf_meas[
+                                                numpy.where(perf_meas > 1)] = 1
+                                        elif any(perf_meas < 0) and \
+                                                all(perf_meas_orig) > 0:
+                                            perf_meas[
+                                                numpy.where(perf_meas < 0)] = 0
+                                    elif type(perf_meas) != numpy.array and \
+                                            perf_meas > 1:
+                                        perf_meas = 1
+                                    elif type(perf_meas) != numpy.array and \
+                                            perf_meas < 0 and \
+                                            perf_meas_orig > 0:
+                                        perf_meas = 0
+                                # Calculate relative performance
+                                rel_perf[yr] = 1 - perf_meas
+                    elif perf_units not in \
+                            self.handyvars.inverted_relperf_list:
+                        for yr in self.handyvars.aeo_years:
+                            rel_perf[yr] = (perf_base[yr] / perf_meas)
+                    else:
+                        for yr in self.handyvars.aeo_years:
+                            rel_perf[yr] = (perf_meas / perf_base[yr])
+
+                    # If looping through a commercial lighting microsegment
+                    # where secondary end use effects (heating/cooling) are not
+                    # specified by the user and must be added, store the
+                    # relative performance of the efficient lighting equipment
+                    # for later use in updating these secondary microsegments
+                    if mskeys[4] == "lighting" and mskeys[0] == "primary" and\
+                            light_scnd_autoperf is True:
+                        light_scnd_autoperf = rel_perf
+
+                    # Set base stock cost. Note that secondary microsegments
+                    # make no contribution to the stock cost calculation, as
+                    # they only affect energy/carbon and associated costs
+                    if mskeys[0] == "secondary":
+                        cost_base = dict.fromkeys(self.handyvars.aeo_years, 0)
+                    else:
+                        cost_base = base_costperflife[
+                            "installed cost"]["typical"]
+                else:
+                    raise KeyError('Inconsistent performance or cost units!')
+
+                # Set base lifetime.  Note that secondary microsegments make
+                # no contribution to the lifetime calculation, as they only
+                # affect energy/carbon and associated costs
+                if mskeys[0] == "secondary":
+                    life_base = dict.fromkeys(self.handyvars.aeo_years, 0)
+                else:
+                    life_base = base_costperflife["lifetime"]["average"]
+                    # Set any base lifetime values less than 1 to 1
+                    # (minimum lifetime)
+                    for yr in self.handyvars.aeo_years:
+                        if life_base[yr] < 1:
+                            life_base[yr] = 1
+
+                # Reduce energy costs and stock turnover info. to appropriate
+                # building type and - for energy costs - fuel, before
+                # entering into "partition_microsegment"
+                if bldg_sect == "residential":
+                    # Update residential baseline and measure energy cost
+                    # information, accounting for any fuel switching from
+                    # baseline technology to measure technology
+                    if self.fuel_switch_to is None:
+                        cost_energy_base, cost_energy_meas = (
+                            self.handyvars.ecosts[
+                                "residential"][mskeys[3]] for n in range(2))
+                    else:
+                        cost_energy_base = self.handyvars.ecosts[
+                            "residential"][mskeys[3]]
+                        cost_energy_meas = self.handyvars.ecosts[
+                            "residential"][self.fuel_switch_to]
+
+                    # Update new buildings fraction information
+                    for yr in self.handyvars.aeo_years:
+                        # Find fraction of total buildings that are
+                        # newly constructed in the current year
+                        new_bldg_frac["added"][yr] = \
+                            mseg_sqft_stock["new homes"][yr] / \
+                            mseg_sqft_stock["total homes"][yr]
+
+                    # Update technology choice parameters needed to choose
+                    # between multiple efficient technology options that
+                    # access this baseline microsegment. For the residential
+                    # sector, these parameters are found in the baseline
+                    # technology cost, performance, and lifetime JSON
+                    if mskeys[0] == "secondary":
+                        choice_params = {}  # No choice params for 2nd msegs
+                    else:
+                        choice_params = base_costperflife["consumer choice"][
+                            "competed market share"]["parameters"]
+                else:
+                    # Update commercial baseline and measure energy cost
+                    # information, accounting for any fuel switching from
+                    # baseline technology to measure technology
+                    if self.fuel_switch_to is None:
+                        cost_energy_base, cost_energy_meas = (
+                            self.handyvars.ecosts[
+                                "commercial"][mskeys[3]] for n in range(2))
+                    else:
+                        cost_energy_base = self.handyvars.ecosts[
+                            "commercial"][mskeys[3]]
+                        cost_energy_meas = self.handyvars.ecosts[
+                            "commercial"][self.fuel_switch_to]
+
+                    # Update new buildings fraction information
+                    for yr in self.handyvars.aeo_years:
+                        # Find fraction of total buildings that are
+                        # newly constructed in the current year
+                        new_bldg_frac["added"][yr] = \
+                            mseg_sqft_stock["new square footage"][yr] / \
+                            mseg_sqft_stock["total square footage"][yr]
+
+                    # Update technology choice parameters needed to choose
+                    # between multiple efficient technology options that
+                    # access this baseline microsegment. For the commercial
+                    # sector, these parameters are specified at the
+                    # beginning of run.py in com_timeprefs (* Note:
+                    # com_timeprefs info. may eventually be integrated into the
+                    # baseline technology cost, performance, and lifetime JSON
+                    # as for residential)
+                    if mskeys[0] == "secondary":
+                        choice_params = {}  # No choice params for 2nd msegs
+                    elif mskeys[4] in self.handyvars.com_timeprefs[
+                            "distributions"].keys():
+                        choice_params = {
+                            "rate distribution": self.handyvars.com_timeprefs[
+                                "distributions"][mskeys[4]]}
+                    # For uncovered end uses, default to choice parameters for
+                    # the heating end use
+                    else:
+                        choice_params = {
+                            "rate distribution": self.handyvars.com_timeprefs[
+                                "distributions"]["heating"]}
+
+                # Find fraction of total buildings that are newly constructed
+                # in all years up through the current modeling year. These data
+                # are used to determine total cumulative new structure markets
+                # for a measure
+                for yr in self.handyvars.aeo_years:
+                    if yr == self.handyvars.aeo_years[0]:
+                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][yr]
+                    else:
+                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][
+                            yr] + new_bldg_frac["total"][str(int(yr) - 1)]
+
+                # Determine the fraction to use in scaling down the stock,
+                # energy, and carbon microsegments to the applicable structure
+                # type indicated in the microsegment key chain (e.g., new
+                # structures or existing structures)
+                if mskeys[-1] == "new":
+                    new_existing_frac = {key: val for key, val in
+                                         new_bldg_frac["total"].items()}
+                else:
+                    new_existing_frac = {key: (1 - val) for key, val in
+                                         new_bldg_frac["total"].items()}
+
+                # Update bass diffusion parameters needed to determine the
+                # fraction of the baseline microegment that will be captured
+                # by efficient alternatives to the baseline technology
+                # (* BLANK FOR NOW, WILL CHANGE IN FUTURE *)
+                diffuse_params = None
+                # diffuse_params = base_costperflife["consumer choice"][
+                #    "competed market"]["parameters"]
+
+                # Update total stock, energy use, and carbon emissions for the
+                # current contributing microsegment. Note that secondary
+                # microsegments make no contribution to the stock calculation,
+                # as they only affect energy/carbon and associated costs.
+
+                # Total stock
+                if mskeys[0] == 'secondary':
+                    add_stock = dict.fromkeys(self.handyvars.aeo_years, 0)
+                elif sqft_subst == 1:  # Use ft^2 floor area in absence of # units
+                    ##########################################################
+                    # FORMAT RES/COM MSEG TOTAL SF KEYS CONSISTENTLY
+                    # * Note: multiply AEO square footages by 1 million (AEO
+                    # reports in million square feet)
+                    if bldg_sect == "residential":
+                        add_stock = {
+                            key: val * new_existing_frac[key] * 1000000 for
+                            key, val in mseg_sqft_stock[
+                                "square footage"].items() if key in
+                            self.handyvars.aeo_years}
+                    else:
+                        add_stock = {
+                            key: val * new_existing_frac[key] * 1000000 for
+                            key, val in mseg_sqft_stock[
+                                "total square footage"].items()
+                            if key in self.handyvars.aeo_years}
+                    ##########################################################
+                else:
+                    add_stock = {
+                        key: val * new_existing_frac[key] for key, val in
+                        mseg["stock"].items() if key in
+                        self.handyvars.aeo_years}
+                #############################################################
+                # FORMAT RES/COM MSEG TOTAL ENERGY UNITS CONSISTENTLY
+                # Total energy use (primary)
+                if bldg_sect == "residential":
+                    add_energy = {
+                        key: val * site_source_conv_base[key] *
+                        new_existing_frac[key] for key, val in mseg[
+                            "energy"].items() if key in
+                        self.handyvars.aeo_years}
+                else:
+                    add_energy = {
+                        key: val * site_source_conv_base[key] *
+                        new_existing_frac[key] * 1000000 for key, val in mseg[
+                            "energy"].items() if key in
+                        self.handyvars.aeo_years}
+                ##############################################################
+                # Total carbon emissions
+                add_carb = {key: val * intensity_carb_base[key]
+                            for key, val in add_energy.items()
+                            if key in self.handyvars.aeo_years}
+
+                for adopt_scheme in self.handyvars.adopt_schemes:
+                    # Update total, competed, and efficient stock, energy,
+                    # carbon and baseline/measure cost info. based on adoption
+                    # scheme
+                    [add_stock_total, add_energy_total, add_carb_total,
+                     add_stock_total_meas, add_energy_total_eff,
+                     add_carb_total_eff, add_stock_compete, add_energy_compete,
+                     add_carb_compete, add_stock_compete_meas,
+                     add_energy_compete_eff, add_carb_compete_eff,
+                     add_stock_cost, add_energy_cost, add_carb_cost,
+                     add_stock_cost_meas, add_energy_cost_eff,
+                     add_carb_cost_eff, add_stock_cost_compete,
+                     add_energy_cost_compete, add_carb_cost_compete,
+                     add_stock_cost_compete_meas, add_energy_cost_compete_eff,
+                     add_carb_cost_compete_eff] = \
+                        self.partition_microsegment(
+                            adopt_scheme, diffuse_params, mskeys,
+                            mkt_scale_frac, new_bldg_frac, add_stock,
+                            add_energy, add_carb, cost_base, cost_meas,
+                            cost_energy_base, cost_energy_meas, rel_perf,
+                            life_base, life_meas, site_source_conv_base,
+                            site_source_conv_meas, intensity_carb_base,
+                            intensity_carb_meas)
+
+                    # Combine stock/energy/carbon/cost/lifetime updating info.
+                    # into a dict
+                    add_dict = {
+                        "stock": {
+                            "total": {
+                                "all": add_stock_total,
+                                "measure": add_stock_total_meas},
+                            "competed": {
+                                "all": add_stock_compete,
+                                "measure": add_stock_compete_meas}},
+                        "energy": {
+                            "total": {
+                                "baseline": add_energy_total,
+                                "efficient": add_energy_total_eff},
+                            "competed": {
+                                "baseline": add_energy_compete,
+                                "efficient": add_energy_compete_eff}},
+                        "carbon": {
+                            "total": {
+                                "baseline": add_carb_total,
+                                "efficient": add_carb_total_eff},
+                            "competed": {
+                                "baseline": add_carb_compete,
+                                "efficient": add_carb_compete_eff}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": add_stock_cost,
+                                    "efficient": add_stock_cost_meas},
+                                "competed": {
+                                    "baseline": add_stock_cost_compete,
+                                    "efficient": add_stock_cost_compete_meas}},
+                            "energy": {
+                                "total": {
+                                    "baseline": add_energy_cost,
+                                    "efficient": add_energy_cost_eff},
+                                "competed": {
+                                    "baseline": add_energy_cost_compete,
+                                    "efficient": add_energy_cost_compete_eff}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": add_carb_cost,
+                                    "efficient": add_carb_cost_eff},
+                                "competed": {
+                                    "baseline": add_carb_cost_compete,
+                                    "efficient": add_carb_cost_compete_eff}}},
+                        "lifetime": {
+                            "baseline": life_base, "measure": life_meas}}
+
+                    # Using the key chain for the current microsegment,
+                    # determine the output climate zone, building type, and end
+                    # use breakout categories to which the current microsegment
+                    # applies
+
+                    # Establish applicable climate zone breakout
+                    for cz in self.handyvars.out_break_czones.items():
+                        if mskeys[1] in cz[1]:
+                            out_cz = cz[0]
+                    # Establish applicable building type breakout
+                    for bldg in self.handyvars.out_break_bldgtypes.items():
+                        if mskeys[2] in bldg[1]:
+                            out_bldg = bldg[0]
+                    # Establish applicable end use breakout
+                    for eu in self.handyvars.out_break_enduses.items():
+                        # * Note: The 'other (grid electric)' microsegment end
+                        # use may map to either the 'Refrigeration' output
+                        # breakout or the 'Other' output breakout, depending on
+                        # the technology type specified in the measure
+                        # definition
+                        if mskeys[4] == "other (grid electric)":
+                            if mskeys[5] == "freezers":
+                                out_eu = "Refrigeration"
+                            else:
+                                out_eu = "Other"
+                        elif mskeys[4] in eu[1]:
+                            out_eu = eu[0]
+
+                    # Given the contributing microsegment's applicable climate
+                    # zone, building type, and end use categories, add the
+                    # microsegment's baseline energy use value to the
+                    # appropriate leaf node of the dictionary used to store
+                    # measure output breakout information. * Note: the values
+                    # in this dictionary will eventually be normalized by the
+                    # measure's total baseline energy use to yield the
+                    # fractions of measure energy and carbon markets/savings
+                    # that are attributable to each climate zone, building
+                    # type, and end use the measure applies to
+                    if out_cz and out_bldg and out_eu:
+                        # If this is the first time the output breakout
+                        # dictionary is being updated, replace appropriate
+                        # terminal leaf node value with the baseline energy use
+                        # values of the current contributing microsegment
+                        if len(self.markets[adopt_scheme]["mseg_out_break"][
+                                out_cz][out_bldg][out_eu].keys()) == 0:
+                            self.markets[adopt_scheme]["mseg_out_break"][
+                                out_cz][out_bldg][out_eu] = \
+                                OrderedDict(sorted(add_energy.items()))
+
+                        # If the output breakout dictionary has already been
+                        # updated for a previous microsegment, add the baseline
+                        # energy values of the current contributing
+                        # microsegment to the dictionary's existing terminal
+                        # leaf node values
+                        else:
+                            for yr in self.handyvars.aeo_years:
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    out_cz][out_bldg][
+                                    out_eu][yr] += add_energy[yr]
+                    # Yield error if current contributing microsegment cannot
+                    # be mapped to an output breakout category
+                    else:
+                        raise ValueError(
+                            'Microsegment not found in output categories!')
+
+                    # Case with no existing 'windows' contributing microsegment
+                    # for the current climate zone, building type, fuel type,
+                    # and end use (create new 'contributing mseg keys and
+                    # values' and 'competed choice parameters' microsegment
+                    # information)
+                    if contrib_mseg_key not in self.markets[adopt_scheme][
+                        "mseg_adjust"][
+                            "contributing mseg keys and values"].keys():
+                        # Register contributing microsegment information for
+                        # later use in determining savings overlaps for
+                        # measures that apply to this microsegment
+                        self.markets[adopt_scheme]["mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            str(contrib_mseg_key)] = add_dict
+                        # Register choice parameters associated with
+                        # contributing microsegment for later use in
+                        # apportioning out various technology options across
+                        # competed stock
+                        self.markets[adopt_scheme]["mseg_adjust"][
+                            "competed choice parameters"][
+                            str(contrib_mseg_key)] = choice_params
+                    # Case with existing 'windows' contributing microsegment
+                    # for the current climate zone, building type, fuel type,
+                    # and end use (add to existing 'contributing mseg keys and
+                    # values' information)
+                    else:
+                        self.markets[adopt_scheme]["mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            str(contrib_mseg_key)] = self.add_keyvals_restrict(
+                                self.markets[adopt_scheme]["mseg_adjust"][
+                                    "contributing mseg keys and values"][
+                                    str(contrib_mseg_key)], add_dict)
+
+                    # Add all updated information to existing master mseg dict
+                    # and move to next iteration of the loop through key chains
+                    self.markets[adopt_scheme]["master_mseg"] = \
+                        self.add_keyvals(self.markets[adopt_scheme][
+                            "master_mseg"], add_dict)
+
+        # Further normalize a measure's lifetime and stock information (where
+        # the latter is based on square footage) to the number of valid
+        # microsegments that contribute to the measure's overall master
+        # microsegment. Before proceeeding with this calculation, ensure the
+        # number of valid contributing microsegments is non-zero, and that the
+        # measure has not been flagged for removal from the analysis due to
+        # insufficient sub-market scaling source information (key_chain_ct =
+        # 999 in this case)
+        if key_chain_ct != 0 and key_chain_ct != 999:
+
+            for adopt_scheme in self.handyvars.adopt_schemes:
+                # Reduce summed lifetimes by number of microsegments that
+                # contributed to the sums
+                for yr in self.handyvars.aeo_years:
+                    self.markets[adopt_scheme]["master_mseg"]["lifetime"][
+                        "baseline"][yr] = self.markets[adopt_scheme][
+                        "master_mseg"]["lifetime"]["baseline"][yr] / \
+                        key_chain_ct
+                self.markets[adopt_scheme][
+                    "master_mseg"]["lifetime"]["measure"] = \
+                    self.markets[adopt_scheme]["master_mseg"][
+                    "lifetime"]["measure"] / key_chain_ct
+
+                # In microsegments where square footage must be used as stock,
+                # the square footages cannot be summed to calculate the master
+                # microsegment stock values (as is the case when using no. of
+                # units).  For example, 1000 Btu of cooling and heating in the
+                # same 1000 square foot building should not yield 2000 total
+                # square feet of stock in the master microsegment even though
+                # there are two contributing microsegments in this case
+                # (heating and cooling). This is remedied by dividing summed
+                # square footage values by (# valid key chains / (# czones * #
+                # bldg types * # structure types)), where the numerator refers
+                # to the number of full dict key chains that contributed to the
+                # mseg stock, energy, and cost calcs, and the denominator
+                # reflects the breakdown of square footage by climate zone,
+                # building type, and the structure type that the measure
+                # applies to.
+                if sqft_subst == 1:
+                    # Determine number of structure types the measure applies
+                    # to (could be just new, just existing, or both)
+                    if isinstance(self.structure_type, list):
+                        structure_types = 2
+                    else:
+                        structure_types = 1
+                    # Create a factor for reduction of msegs with ft^2 floor
+                    # area stock
+                    reduce_factor = key_chain_ct / (len(ms_lists[0]) *
+                                                    len(ms_lists[1]) *
+                                                    structure_types)
+                    # Adjust master microsegment by above factor
+                    self.markets[adopt_scheme]["master_mseg"] = \
+                        self.reduce_sqft(self.markets[adopt_scheme][
+                            "master_mseg"], reduce_factor)
+                    # Adjust all recorded microsegments that contributed to the
+                    # master microsegment by above factor
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "contributing mseg keys and values"] = \
+                        self.reduce_sqft(copy.deepcopy(
+                            self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"]),
+                        reduce_factor)
+                else:
+                    reduce_factor = 1
+
+                # Normalize baseline energy use values for each category in the
+                # measure's output breakout dictionary by the total baseline
+                # energy use for the measure across all contributing
+                # microsegments; this yields partitioning fractions that will
+                # eventually be used to breakout measure energy and carbon
+                # markets/savings by climate zone, building type, and end use
+                self.markets[adopt_scheme]["mseg_out_break"] = \
+                    self.out_break_norm(
+                    self.markets[adopt_scheme]["mseg_out_break"],
+                    self.markets[adopt_scheme]["master_mseg"][
+                        'energy']['total']['baseline'])
+        # Generate an error message when no valid contributing microsegments
+        # have been found for the measure's master microsegment
+        elif key_chain_ct == 0:
+            raise KeyError(
+                "No valid baseline market microsegments found for measure!")
+
+        # Update measure attribute update flag to 'False'
+        self.status['finalize attributes'] = False
+
+    def translate_costs_res(self, meas_costconvert):
+        """Convert residential measure cost input to the proper units.
+
+        Args:
+            meas_costconvert (dict): Measure cost unit conversions.
+
+        Returns:
+            Updated measure costs and cost units in $/unit or $/ft^2 floor.
+        """
+        # Set dummy variable values for now
+        cost_meas = None
+        cost_units = None
+
+        return cost_meas, cost_units
+
+    def translate_costs_com(self, meas_costconvert):
+        """Convert commercial measure cost input to the proper units.
+
+        Args:
+            meas_costconvert (dict): Measure cost unit conversions.
+
+        Returns:
+            Updated measure costs and cost units in $/ft^2 floor.
+        """
+        # Set dummy variable values for now
+        cost_meas = None
+        cost_units = None
+
+        return cost_meas, cost_units
+
+    def partition_microsegment(
+            self, adopt_scheme, diffuse_params, mskeys, mkt_scale_frac,
+            new_bldg_frac, stock_total_init, energy_total_init,
+            carb_total_init, cost_base, cost_meas, cost_energy_base,
+            cost_energy_meas, rel_perf, life_base, life_meas,
+            site_source_conv_base, site_source_conv_meas, intensity_carb_base,
+            intensity_carb_meas):
+        """Find total, competed, and efficient portions of a market microsegment.
+
+        Args:
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            diffuse_params (NoneType): Parameters relating to the 'adjusted
+                adoption' consumer choice model (currently a placeholder).
+            mskeys (list): Dictionary key information for the currently
+                partitioned market microsegment (e.g. czone->bldg->fuel, etc.)
+            mkt_scale_frac (float): Microsegment scaling fraction (used to
+                break market microsegments into more granular sub-markets).
+            new_bldg_frac (dict): Portion of microsegment attributed to new
+                construction, by year.
+            stock_total_init (dict): Baseline technology stock, by year.
+            energy_total_init (dict): Baseline microsegment primary energy use,
+                by year.
+            carb_total_init (dict): Baseline microsegment carbon emissions,
+                by year.
+            cost_base (dict): Baseline technology installed cost, by year.
+            cost_meas (float): Measure installed cost, by year.
+            cost_energy_base (dict): Baseline fuel cost, by year.
+            cost_energy_meas (dict): Measure fuel cost, by year.
+            rel_perf (float): Measure performance relative to baseline.
+            life_base (dict): Baseline technology lifetime.
+            life_meas (float): Measure lifetime.
+            site_source_conv_base (dict): Baseline fuel site-source conversion,
+                by year.
+            site_source_conv_meas (dict): Measure fuel site-source conversion,
+                by year.
+            intensity_carb_base (dict): Baseline fuel carbon intensity,
+                by year.
+            intensity_carb_meas (dict): Measure fuel carbon intensity, by year.
+
+        Returns:
+            Total, total-efficient, competed, and competed-efficient
+            stock, energy, carbon, and cost market microsegments.
+        """
+        # Initialize stock, energy, and carbon mseg partition dicts, where the
+        # dict keys will be years in the modeling time horizon
+        stock_total, energy_total, carb_total, stock_total_meas, \
+            energy_total_eff, carb_total_eff, stock_compete, \
+            energy_compete, carb_compete, stock_compete_meas, \
+            energy_compete_eff, carb_compete_eff, stock_total_cost, \
+            energy_total_cost, carb_total_cost, stock_total_cost_eff, \
+            energy_total_eff_cost, carb_total_eff_cost, \
+            stock_compete_cost, energy_compete_cost, carb_compete_cost, \
+            stock_compete_cost_eff, energy_compete_cost_eff, \
+            carb_compete_cost_eff = ({} for n in range(24))
+
+        # Set measure market entry year
+        if self.market_entry_year is None:
+            mkt_entry_yr = int(list(sorted(stock_total_init.keys()))[0])
+        else:
+            mkt_entry_yr = self.market_entry_year
+        # Set measure market exit year
+        if self.market_exit_year is None:
+            mkt_exit_yr = int(list(sorted(stock_total_init.keys()))[-1]) + 1
+        else:
+            mkt_exit_yr = self.market_exit_year
+
+        # Initialize the portion of microsegment already captured by the
+        # efficient measure as 0, and the portion baseline stock as 1.
+        captured_eff_frac = 0
+        captured_base_frac = 1
+
+        # In cases where secondary heating/cooling microsegments are present
+        # for a lighting efficiency measure, initialize a dict of year-by-year
+        # secondary microsegment adjustment information that will be used
+        # to scale down the secondary heating/cooling microsegment(s) in
+        # accordance with the portion of the total applicable lighting stock
+        # that is captured by the measure in each year
+        if self.end_use["secondary"] is not None and mskeys[4] in ["lighting",
+           "heating", "secondary heating", "cooling"]:
+            # Set short names for secondary adjustment information dicts
+            secnd_adj_sbmkt = self.markets[adopt_scheme]["mseg_adjust"][
+                "secondary mseg adjustments"]["sub-market"]
+            secnd_adj_stk = self.markets[adopt_scheme]["mseg_adjust"][
+                "secondary mseg adjustments"]["stock-and-flow"]
+            secnd_adj_mktshr = self.markets[adopt_scheme]["mseg_adjust"][
+                "secondary mseg adjustments"]["market share"]
+            # Determine a dictionary key indicating the climate zone, building
+            # type, and structure type that is shared by the primary lighting
+            # microsegment and secondary heating/cooling microsegment
+            secnd_mseg_adjkey = (mskeys[1], mskeys[2], mskeys[-1])
+            # If no year-by-year secondary microsegment adjustment information
+            # exists for the given climate zone, building type, and structure
+            # type, initialize all year-by-year adjustment values as 0
+            if secnd_mseg_adjkey not in secnd_adj_stk[
+                    "original stock (total)"].keys():
+                # Initialize sub-market secondary adjustment information
+
+                # Initialize original primary microsegment stock information
+                secnd_adj_sbmkt["original stock (total)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize sub-market adjusted microsegment stock information
+                secnd_adj_sbmkt["adjusted stock (sub-market)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+
+                # Initialize stock-and-flow secondary adjustment information
+
+                # Initialize original primary microsegment stock information
+                secnd_adj_stk["original stock (total)"][secnd_mseg_adjkey] = \
+                    dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize previously captured primary microsegment stock
+                # information
+                secnd_adj_stk["adjusted stock (previously captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize competed primary microsegment stock information
+                secnd_adj_stk["adjusted stock (competed)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize competed and captured primary microsegment stock
+                # information
+                secnd_adj_stk["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+
+                # Initialize market share secondary adjustment information
+                # (used in 'adjust_savings' function below)
+
+                # Initialize original total captured stock information
+                secnd_adj_mktshr["original stock (total captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize original competed and captured stock information
+                secnd_adj_mktshr["original stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize adjusted total captured stock information
+                secnd_adj_mktshr["adjusted stock (total captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+                # Initialize adjusted competed and captured stock information
+                secnd_adj_mktshr["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey] = dict.fromkeys(
+                        stock_total_init.keys(), 0)
+
+        # In cases where no secondary heating/cooling microsegment is present,
+        # set secondary microsegment adjustment key to None
+        else:
+            secnd_mseg_adjkey = None
+
+        # Loop through and update stock, energy, and carbon mseg partitions for
+        # each year in the modeling time horizon
+        for yr in self.handyvars.aeo_years:
+
+            # For secondary microsegments only, update: a) sub-market scaling
+            # fraction, based on any sub-market scaling in the associated
+            # primary microsegment, and b) the portion of associated primary
+            # microsegment stock that has been captured by the measure in
+            # previous years
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None:
+                # Adjust sub-market scaling fraction
+                if secnd_adj_sbmkt["original stock (total)"][
+                        secnd_mseg_adjkey][yr] != 0:
+                    mkt_scale_frac = secnd_adj_sbmkt[
+                        "adjusted stock (sub-market)"][
+                        secnd_mseg_adjkey][yr] / \
+                        secnd_adj_sbmkt["original stock (total)"][
+                        secnd_mseg_adjkey][yr]
+                # Adjust previously captured efficient fraction
+                if secnd_adj_stk["original stock (total)"][
+                        secnd_mseg_adjkey][yr] != 0:
+                    captured_eff_frac = secnd_adj_stk[
+                        "adjusted stock (previously captured)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original stock (total)"][secnd_mseg_adjkey][yr]
+                else:
+                    captured_eff_frac = 0
+                # Update portion of existing primary stock remaining with the
+                # baseline technology
+                captured_base_frac = 1 - captured_eff_frac
+
+            # If sub-market scaling fraction is non-numeric (indicating
+            # it is not applicable to current microsegment), set to 1
+            if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
+                mkt_scale_frac = 1
+
+            # Stock, energy, and carbon adjustments
+            stock_total[yr] = stock_total_init[yr] * mkt_scale_frac
+            energy_total[yr] = energy_total_init[yr] * mkt_scale_frac
+            carb_total[yr] = carb_total_init[yr] * mkt_scale_frac
+
+            # For a primary microsegment and adjusted adoption potential case,
+            # determine the portion of competed stock that remains with the
+            # baseline technology or changes to the efficient alternative
+            # technology; for all other scenarios, set both fractions to 1
+            if adopt_scheme == "Adjusted adoption potential" and \
+               mskeys[0] == "primary":
+                # PLACEHOLDER
+                diffuse_eff_frac = 999
+            else:
+                diffuse_eff_frac = 1
+
+            # Calculate replacement fractions for the baseline and efficient
+            # stock. * Note: these fractions are both 0 for secondary
+            # microsegments
+            if mskeys[0] == "primary":
+                # Calculate the portions of existing baseline and efficient
+                # stock that are up for replacement
+
+                # Update base replacement fraction
+
+                # For a case where the current microsegment applies to new
+                # structures, determine whether enough years have passed
+                # since the baseline technology was first adopted in new
+                # homes in year 1 of the modeling time horizon to begin
+                # replacing that baseline stock; if so, the baseline
+                # replacement fraction is the lesser of (1 / baseline
+                # lifetime) and the fraction of new construction stock from
+                # previous years that has already been captured by the
+                # baseline technology; if not, the baseline replacement
+                # fraction is 0
+                if mskeys[-1] == "new":
+                    turnover_base = life_base[yr] - (
+                        int(yr) - int(list(sorted(stock_total.keys()))[0]))
+                    if turnover_base <= 0 and (
+                            1 / life_base[yr]) <= captured_base_frac:
+                        captured_base_replace_frac = (1 / life_base[yr])
+                    elif turnover_base <= 0 and (
+                            1 / life_base[yr]) > captured_base_frac:
+                        captured_base_replace_frac = captured_base_frac
+                    else:
+                        captured_base_replace_frac = 0
+                # For a case where the current microsegment applies to
+                # existing structures, the baseline replacement fraction
+                # is the lesser of (1 / baseline lifetime) and the fraction
+                # of existing stock from previous years that has already been
+                # captured by the baseline technology
+                else:
+                    if (1 / life_base[yr]) <= captured_base_frac:
+                        captured_base_replace_frac = (1 / life_base[yr])
+                    else:
+                        captured_base_replace_frac = captured_base_frac
+
+                # Update efficient replacement fraction
+
+                # Determine whether enough years have passed since the
+                # efficient measure was first adopted in new homes in its
+                # market entry year to begin replacing that efficient stock;
+                # if so, the efficient replacement fraction is the fraction of
+                # stock in new homes already captured by the efficient
+                # technology multiplied by (1 / efficient lifetime); if not,
+                # the efficient replacement fraction is 0
+                if self.market_entry_year is None:
+                    turnover_meas = life_meas - (
+                        int(yr) - int(list(sorted(stock_total.keys()))[0]))
+                else:
+                    turnover_meas = life_meas - (
+                        int(yr) - self.market_entry_year)
+                # Handle case where efficient measure lifetime is a numpy array
+                if type(life_meas) == numpy.ndarray:
+                    for ind, l in enumerate(life_meas):
+                        if turnover_meas[ind] <= 0:
+                            captured_eff_replace_frac = \
+                                captured_eff_frac * (1 / l)
+                        else:
+                            captured_eff_replace_frac = 0
+                # Handle case where efficient measure lifetime is a point value
+                else:
+                    if turnover_meas <= 0:
+                        captured_eff_replace_frac = captured_eff_frac * \
+                            (1 / life_meas)
+                    else:
+                        captured_eff_replace_frac = 0
+            else:
+                captured_eff_replace_frac, captured_base_replace_frac = \
+                    (0 for n in range(2))
+
+            # Determine the fraction of total stock, energy, and carbon
+            # in a given year that the measure will compete for given the
+            # microsegment type and technology adoption scenario
+
+            # Secondary microsegment (competed fraction tied to the associated
+            # primary microsegment)
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None and \
+               secnd_adj_stk["original stock (total)"][
+                    secnd_mseg_adjkey][yr] != 0:
+                    competed_frac = secnd_adj_stk["adjusted stock (competed)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                            "original stock (total)"][secnd_mseg_adjkey][yr]
+            # Primary microsegment in the first year of a technical potential
+            # scenario (all stock competed)
+            elif mskeys[0] == "primary" and int(yr) == mkt_entry_yr and \
+                    adopt_scheme == "Technical potential":
+                competed_frac = 1
+            # Primary microsegment not in the first year where current
+            # microsegment applies to new structure type
+            elif mskeys[0] == "primary" and mskeys[-1] == "new":
+                if new_bldg_frac["total"][yr] != 0:
+                    new_bldg_add_frac = new_bldg_frac["added"][yr] / \
+                        new_bldg_frac["total"][yr]
+                    competed_frac = new_bldg_add_frac + \
+                        (1 - new_bldg_add_frac) * \
+                        (captured_eff_replace_frac +
+                         captured_base_replace_frac)
+                else:
+                    competed_frac = 0
+            # Primary microsegment not in the first year where current
+            # microsegment applies to existing structure type
+            elif mskeys[0] == "primary" and mskeys[-1] == "existing":
+                # Ensure that replacement plus retrofit fraction does not
+                # exceed 1
+                if captured_base_replace_frac + captured_eff_replace_frac + \
+                   self.handyvars.retro_rate <= 1:
+                    competed_frac = captured_base_replace_frac + \
+                        captured_eff_replace_frac + self.handyvars.retro_rate
+                else:
+                    competed_frac = 1
+            # For all other cases, set competed fraction to 0
+            else:
+                competed_frac = 0
+
+            # Determine the fraction of total stock, energy, and carbon
+            # in a given year that is competed and captured by the measure
+
+            # Secondary microsegment (competed and captured fraction tied
+            # to the associated primary microsegment)
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
+               and secnd_adj_stk[
+                    "original stock (total)"][secnd_mseg_adjkey][yr] != 0:
+                    competed_captured_eff_frac = secnd_adj_stk[
+                        "adjusted stock (competed and captured)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original stock (total)"][secnd_mseg_adjkey][yr]
+            # Primary microsegment and year when measure is on the market
+            elif mskeys[0] == "primary" and (
+                    int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
+                competed_captured_eff_frac = competed_frac * diffuse_eff_frac
+            # For all other cases, set competed and captured fraction to 0
+            else:
+                competed_captured_eff_frac = 0
+
+            # In the case of a primary microsegment with secondary effects,
+            # update the information needed to scale down the secondary
+            # microsegment(s) by a sub-market fraction and previously captured,
+            # competed, and competed and captured stock fractions for the
+            # primary microsegment
+            if mskeys[0] == "primary" and secnd_mseg_adjkey is not None:
+                # Total stock
+                secnd_adj_sbmkt["original stock (total)"][
+                    secnd_mseg_adjkey][yr] += stock_total_init[yr]
+                # Sub-market stock
+                secnd_adj_sbmkt["adjusted stock (sub-market)"][
+                    secnd_mseg_adjkey][yr] += stock_total[yr]
+                # Total stock
+                secnd_adj_stk[
+                    "original stock (total)"][secnd_mseg_adjkey][yr] += \
+                    stock_total[yr]
+                # Previously captured stock
+                secnd_adj_stk["adjusted stock (previously captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    captured_eff_frac * stock_total[yr]
+                # Competed stock
+                secnd_adj_stk["adjusted stock (competed)"][
+                    secnd_mseg_adjkey][yr] += competed_frac * stock_total[yr]
+                # Competed and captured stock
+                secnd_adj_stk["adjusted stock (competed and captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    competed_captured_eff_frac * stock_total[yr]
+
+            # Update competed stock, energy, and carbon
+            stock_compete[yr] = stock_total[yr] * competed_frac
+            energy_compete[yr] = energy_total[yr] * competed_frac
+            carb_compete[yr] = carb_total[yr] * competed_frac
+
+            # Determine the competed stock that is captured by the measure
+            stock_compete_meas[yr] = stock_total[yr] * \
+                competed_captured_eff_frac
+
+            # Determine the amount of existing stock that has already
+            # been captured by the measure up until the current year;
+            # subsequently, update the number of total and competed stock units
+            # captured by the measure to reflect additions from the current
+            # year. * Note: captured stock numbers are used in the
+            # cost_metric_update function below to normalize measure cost
+            # metrics to a per unit basis.
+
+            # First year in the modeling time horizon
+            if yr == self.handyvars.aeo_years[0]:
+                stock_total_meas[yr] = stock_compete_meas[yr]
+            # Subsequent year in modeling time horizon
+            else:
+                # Technical potential case where the measure is on the
+                # market: the stock captured by the measure should equal the
+                # total stock (measure captures all stock)
+                if adopt_scheme == "Technical potential" and \
+                        (int(yr) >= mkt_entry_yr) and (int(yr) < mkt_exit_yr):
+                    stock_total_meas[yr] = stock_total[yr]
+                # All other cases
+                else:
+                    # Update total number of stock units captured by the
+                    # measure (reflects all previously captured stock +
+                    # captured competed stock from the current year)
+                    stock_total_meas[yr] = \
+                        (stock_total_meas[str(int(yr) - 1)]) * (
+                            1 - captured_eff_replace_frac) + \
+                        stock_compete_meas[yr]
+
+                    # Ensure captured stock never exceeds total stock
+
+                    # Handle case where stock captured by measure is an array
+                    if type(stock_total_meas[yr]) == numpy.ndarray and \
+                       any(stock_total_meas[yr] > stock_total[yr]) \
+                            is True:
+                        stock_total_meas[yr][
+                            numpy.where(
+                                stock_total_meas[yr] > stock_total[yr])] = \
+                            stock_total[yr]
+                    # Handle case where stock captured by measure is point val
+                    elif type(stock_total_meas[yr]) != numpy.ndarray and \
+                            stock_total_meas[yr] > stock_total[yr]:
+                        stock_total_meas[yr] = stock_total[yr]
+
+            # Set a relative performance level for all stock captured by the
+            # measure by weighting the relative performance of competed
+            # stock captured by the measure in the current year and the
+            # relative performance of all stock captured by the measure in
+            # previous years
+
+            # Set the relative performance of the current year's competed stock
+            rel_perf_competed = rel_perf[yr]
+
+            # If first year in the modeling time horizon, initialize the
+            # weighted relative performance level as identical to that of the
+            # competed stock (e.g., initialize to the the relative performance
+            # from baseline -> measure for that year only)
+            if yr == self.handyvars.aeo_years[0]:
+                rel_perf_weighted = rel_perf[yr]
+            # For a subsequent year in the modeling time horizon, calculate
+            # a weighted sum of the relative performances of the competed stock
+            # captured in the current year and the stock captured in all
+            # previous years
+            else:
+                total_capture = competed_captured_eff_frac + (
+                    1 - competed_frac) * captured_eff_frac
+                if total_capture != 0:
+                    rel_perf_weighted = (
+                        rel_perf_competed * competed_captured_eff_frac +
+                        rel_perf_weighted * (
+                            total_capture - competed_captured_eff_frac)) / \
+                        total_capture
+
+            # Update total-efficient and competed-efficient energy and
+            # carbon, where "efficient" signifies the total and competed
+            # energy/carbon remaining after measure implementation plus
+            # non-competed energy/carbon. * Note: Efficient energy and
+            # carbon is dependent upon whether the measure is on the market
+            # for the given year (if not, use baseline energy and carbon)
+
+            # Competed-efficient energy
+            energy_compete_eff[yr] = energy_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
+                energy_total[yr] * (competed_frac - competed_captured_eff_frac)
+            # Total-efficient energy
+            energy_total_eff[yr] = energy_compete_eff[yr] + \
+                (energy_total[yr] - energy_compete[yr]) * \
+                captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
+                (energy_total[yr] - energy_compete[yr]) * \
+                (1 - captured_eff_frac)
+            # Competed-efficient carbon
+            carb_compete_eff[yr] = carb_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
+                carb_total[yr] * (competed_frac - competed_captured_eff_frac)
+            # Total-efficient carbon
+            carb_total_eff[yr] = carb_compete_eff[yr] + \
+                (carb_total[yr] - carb_compete[yr]) * \
+                captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
+                (carb_total[yr] - carb_compete[yr]) * (1 - captured_eff_frac)
+
+            # Update total and competed stock, energy, and carbon
+            # costs. * Note: total-efficient and competed-efficient stock
+            # cost for the measure are dependent upon whether that measure is
+            # on the market for the given year (if not, use baseline technology
+            # cost)
+
+            # Baseline cost of the competed stock
+            stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
+            # Baseline cost of the total stock
+            stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
+            # Total and competed-efficient stock cost for add-on and
+            # full service measures. * Note: the baseline technology installed
+            # cost must be added to the measure installed cost in the case of
+            # an add-on measure type
+            if self.measure_type == "add-on":
+                # Competed-efficient stock cost (add-on measure)
+                stock_compete_cost_eff[yr] = \
+                    stock_compete_meas[yr] * (cost_meas + cost_base[yr]) + (
+                        stock_compete[yr] - stock_compete_meas[yr]) * \
+                    cost_base[yr]
+                # Total-efficient stock cost (add-on measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * (
+                    cost_meas + cost_base[yr]) + (
+                    stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+            else:
+                # Competed-efficient stock cost (full service measure)
+                stock_compete_cost_eff[yr] = \
+                    stock_compete_meas[yr] * cost_meas + (
+                        stock_compete[yr] - stock_compete_meas[yr]) * \
+                    cost_base[yr]
+                # Total-efficient stock cost (full service measure)
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
+                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+
+            # Competed baseline energy cost
+            energy_compete_cost[yr] = energy_compete[yr] * cost_energy_base[yr]
+            # Competed energy-efficient cost
+            energy_compete_cost_eff[yr] = energy_total[yr] * \
+                competed_captured_eff_frac * rel_perf_weighted * \
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                cost_energy_meas[yr] + energy_total[yr] * (
+                    competed_frac - competed_captured_eff_frac) * \
+                cost_energy_base[yr]
+            # Total baseline energy cost
+            energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
+            # Total energy-efficient cost
+            energy_total_eff_cost[yr] = energy_compete_cost_eff[yr] + \
+                (energy_total[yr] - energy_compete[yr]) * captured_eff_frac * \
+                rel_perf_weighted * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                cost_energy_meas[yr] + (
+                    energy_total[yr] - energy_compete[yr]) * (
+                    1 - captured_eff_frac) * cost_energy_base[yr]
+
+            # Competed baseline carbon cost
+            carb_compete_cost[yr] = carb_compete[yr] * \
+                self.handyvars.ccosts[yr]
+            # Competed carbon-efficient cost
+            carb_compete_cost_eff[yr] = \
+                carb_compete_eff[yr] * self.handyvars.ccosts[yr]
+            # Total baseline carbon cost
+            carb_total_cost[yr] = carb_total[yr] * self.handyvars.ccosts[yr]
+            # Total carbon-efficient cost
+            carb_total_eff_cost[yr] = \
+                carb_total_eff[yr] * self.handyvars.ccosts[yr]
+
+            # For primary microsegments only, update portion of stock captured
+            # by efficient measure in previous years to reflect gains from the
+            # current modeling year. If this portion is already 1 or the total
+            # stock for the year is 0, do not update the captured portion from
+            # the previous year
+            if mskeys[0] == "primary":
+                # Handle case where stock captured by measure is a numpy array
+                if type(stock_total_meas[yr]) == numpy.ndarray:
+                    for i in range(0, len(stock_total_meas[yr])):
+                        if stock_total[yr] != 0 and captured_eff_frac[i] != 1:
+                            captured_eff_frac[i] = stock_total_meas[yr][i] / \
+                                stock_total[yr]
+                # Handle case where stock captured by measure is a point value
+                else:
+                    if stock_total[yr] != 0 and captured_eff_frac != 1:
+                        captured_eff_frac = \
+                            stock_total_meas[yr] / stock_total[yr]
+                # Update portion of existing stock remaining with the baseline
+                # technology
+                captured_base_frac = 1 - captured_eff_frac
+
+        # Return partitioned stock, energy, and cost mseg information
+        return [stock_total, energy_total, carb_total,
+                stock_total_meas, energy_total_eff, carb_total_eff,
+                stock_compete, energy_compete,
+                carb_compete, stock_compete_meas, energy_compete_eff,
+                carb_compete_eff, stock_total_cost, energy_total_cost,
+                carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
+                carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
+                carb_compete_cost, stock_compete_cost_eff,
+                energy_compete_cost_eff, carb_compete_cost_eff]
+
+    def create_keychain(self, mseg_type):
+        """Create list of dictionary keys used to find baseline microsegments.
+
+        Args:
+            mseg_type (string): Identifies the type of baseline microsegments
+                to generate keys for ('primary' or 'secondary').
+
+        Returns:
+            List of key chains to use in retreiving data for the measure's
+            applicable baseline market microsegments.
+        """
+        # Flag heating/cooling end use microsegments. For heating/cooling
+        # cases, an extra 'supply' or 'demand' key is required in the key
+        # chain; this key indicates the supply-side and demand-side variants
+        # of heating/ cooling technologies (e.g., ASHP for the former,
+        # envelope air sealing for the latter).
+        ht_cl_euses = ["heating", "secondary heating", "cooling"]
+
+        # Case with heating and/or cooling microsegments
+        if any([x in ht_cl_euses for x in self.end_use[mseg_type]]):
+            # Format measure end use attribute as numpy array
+            eu = numpy.array(self.end_use[mseg_type])
+            # Set a list of heating and/or cooling end uses
+            eu_hc = list(eu[numpy.where([x in ht_cl_euses for x in eu])])
+            # Set a list of all other end uses
+            eu_non_hc = list(eu[numpy.where([
+                x not in ht_cl_euses for x in eu])])
+            # Set a list including all measure microsegment attributes,
+            # constraining the 'end_use' attribute to only heating/cooling
+            # end uses
+            ms_lists = [
+                self.climate_zone, self.bldg_type, self.fuel_type[mseg_type],
+                eu_hc, self.technology_type[mseg_type],
+                self.technology[mseg_type]]
+            # Ensure every element of 'ms_lists' is a list
+            for x in range(0, len(ms_lists)):
+                if isinstance(ms_lists[x], list) is False:
+                    ms_lists[x] = [ms_lists[x]]
+            # Generate a list of all possible combinations of the elements
+            # in 'ms_lists' above
+            ms_iterable_init = list(itertools.product(*ms_lists))
+            # If there are also non-heating/cooling microsegments, set
+            # a list including all measure microsegment attributes,
+            # constraining the 'end_use' attribute to only non-heating/cooling
+            # end uses
+            if len(eu_non_hc) > 0:
+                ms_lists_add = [self.climate_zone, self.bldg_type,
+                                self.fuel_type[mseg_type], eu_non_hc,
+                                self.technology[mseg_type]]
+                # Ensure every element of 'ms_lists_add' is a list
+                for x in range(0, len(ms_lists_add)):
+                    if isinstance(ms_lists_add[x], list) is False:
+                        ms_lists_add[x] = [ms_lists_add[x]]
+                # Generate a list of all possible combinations of the
+                # elements in 'ms_lists_add' above and add this list
+                # to 'ms_iterable_init', also adding 'ms_lists_add'
+                # to 'ms_lists'
+                ms_iterable_init.extend(
+                    list(itertools.product(*ms_lists_add)))
+                ms_lists.extend(ms_lists_add)
+
+        # Case without heating or cooling microsegments
+        else:
+            # Set a list including all measure microsegment attributes
+            ms_lists = [self.climate_zone, self.bldg_type,
+                        self.fuel_type[mseg_type], self.end_use[mseg_type],
+                        self.technology[mseg_type]]
+            # Ensure every element of 'ms_lists' is a list
+            for x in range(0, len(ms_lists)):
+                if isinstance(ms_lists[x], list) is False:
+                    ms_lists[x] = [ms_lists[x]]
+            # Generate a list of all possible combinations of the elements
+            # in 'ms_lists' above
+            ms_iterable_init = list(itertools.product(*ms_lists))
+
+        # Add primary or secondary microsegment type indicator to beginning
+        # of each key chain and the applicable structure type (new or existing)
+        # to the end of each key chain
+
+        # Case where measure applies to both new and existing structures
+        # (final ms_iterable list length is double that of ms_iterable_init)
+        if len(self.structure_type) > 1:
+            ms_iterable1, ms_iterable2 = ([] for n in range(2))
+            for i in range(0, len(ms_iterable_init)):
+                ms_iterable1.append((mseg_type,) + ms_iterable_init[i] +
+                                    (self.structure_type[0], ))
+                ms_iterable2.append((mseg_type,) + ms_iterable_init[i] +
+                                    (self.structure_type[1], ))
+            ms_iterable = ms_iterable1 + ms_iterable2
+        # Case where measure applies to only new or existing structures
+        # (final ms_iterable list length is same as that of ms_iterable_init)
+        else:
+            ms_iterable = []
+            for i in range(0, len(ms_iterable_init)):
+                ms_iterable.append(((mseg_type, ) + ms_iterable_init[i] +
+                                    (self.structure_type[0], )))
+
+        # Output list of key chains
+        return ms_iterable, ms_lists
+
+    def add_keyvals(self, dict1, dict2):
+        """Add key values of two identically structured dicts together.
+
+        Args:
+            dict1 (dict): First dictionary to add.
+            dict2 (dict): Second dictionary to add.
+
+        Returns:
+            Single dictionary of combined values.
+
+        Raises:
+            KeyError: When added dict keys do not match.
+        """
+        for (k, i), (k2, i2) in zip(
+                sorted(dict1.items()), sorted(dict2.items())):
+            if k == k2:
+                if isinstance(i, dict):
+                    self.add_keyvals(i, i2)
+                else:
+                    if dict1[k] is None:
+                        dict1[k] = copy.deepcopy(dict2[k2])
+                    else:
+                        dict1[k] = dict1[k] + dict2[k]
+            else:
+                raise KeyError('Add dict keys do not match!')
+        return dict1
+
+    def add_keyvals_restrict(self, dict1, dict2):
+        """Add key values of two dicts, with certain restrictions.
+
+        Notes:
+            Restrict the addition of 'lifetime' information. This
+            function is used to merge baseline microsegments for
+            windows conduction and windows solar components; the
+            lifetimes for these components will be the same and
+            need not be added and averaged later, as is the case
+            for summed lifetime information yielded by 'add_keyvals'.
+
+        Args:
+            dict1 (dict): First dictionary to add.
+            dict2 (dict): Second dictionary to add.
+
+        Returns:
+            Single dictionary of combined values.
+
+        Raises:
+            KeyError: When added dict keys do not match.
+        """
+        for (k, i), (k2, i2) in zip(
+                sorted(dict1.items()), sorted(dict2.items())):
+            if k == k2 and k == "lifetime":
+                continue
+            elif k == k2 and k != "lifetime":
+                if isinstance(i, dict):
+                    self.add_keyvals(i, i2)
+                else:
+                    if dict1[k] is None:
+                        dict1[k] = copy.deepcopy(dict2[k2])
+                    else:
+                        dict1[k] = dict1[k] + dict2[k]
+            else:
+                raise KeyError('Add dict keys do not match!')
+        return dict1
+
+    def rand_list_gen(self, distrib_info, nsamples):
+        """Generate N samples from a given probability distribution.
+
+        Args:
+            distrib_info (list): Distribution type and parameters.
+            nsamples (int): Number of samples to draw from distribution.
+
+        Returns:
+            Numpy array of samples from the input distribution.
+
+        Raises:
+            ValueError: When unsupported probability distribution is present.
+        """
+        # Generate a list of randomly generated numbers using the
+        # distribution name and parameters provided in "distrib_info".
+        # Check that the correct number of parameters is specified for
+        # each distribution.
+        if len(distrib_info) == 3 and distrib_info[0] == "normal":
+            rand_list = numpy.random.normal(distrib_info[1],
+                                            distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "lognormal":
+            rand_list = numpy.random.lognormal(distrib_info[1],
+                                               distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "uniform":
+            rand_list = numpy.random.uniform(distrib_info[1],
+                                             distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "gamma":
+            rand_list = numpy.random.gamma(distrib_info[1],
+                                           distrib_info[2], nsamples)
+        elif len(distrib_info) == 3 and distrib_info[0] == "weibull":
+            rand_list = numpy.random.weibull(distrib_info[1], nsamples)
+            rand_list = distrib_info[2] * rand_list
+        elif len(distrib_info) == 4 and distrib_info[0] == "triangular":
+            rand_list = numpy.random.triangular(distrib_info[1],
+                                                distrib_info[2],
+                                                distrib_info[3], nsamples)
+        else:
+            raise ValueError("Unsupported input distribution specification!")
+
+        return rand_list
+
+    def reduce_sqft(self, dict1, reduce_factor):
+        """Divide input dictionary values by a given factor.
+
+        Notes:
+            Handles special case where square footage is used as
+            microsegment stock and double counted stock/stock cost
+            must be factored out. As this special case only concerns
+            microsegment stock and stock cost numbers, the function
+            does not apply the input factor to microsegment energy,
+            carbon, and lifetime information in the dict.
+
+        Args:
+            dict1 (dict): Baseline dictionary with microsegment
+                stock, energy, carbon, and cost information.
+            reduce_factor (float): Factor by which to divide the stock
+                and stock cost information.
+
+        Returns:
+            Microsegment dictionary with all stock/stock cost information
+                divided by the input factor.
+        """
+        for (k, i) in dict1.items():
+            # Do not divide any energy, carbon, or lifetime information
+            if (k == "energy" or k == "carbon" or k == "lifetime"):
+                continue
+            else:
+                if isinstance(i, dict):
+                    self.reduce_sqft(i, reduce_factor)
+                else:
+                    dict1[k] = dict1[k] / reduce_factor
+        return dict1
+
+    def out_break_norm(self, dict1, reduce_factor):
+        """Generate fractions used to partition key measure results.
+
+        Notes:
+            Divide a measure's climate, building, and end use-specific
+            baseline energy use by its total baseline energy use, yielding
+            climate, building sector, and end use partitioning fractions
+            used in output plot breakdowns.
+
+        Args:
+            dict1 (dict): Climate zone, building sector, and end use
+                specific baseline energy use values to be
+                normalized by total baseline energy use, by year.
+            reduce_factor (dict): Total baseline energy use to use in
+                normalizing climate zone, building sector, and end use
+                specific energy use values, by year.
+
+        Returns:
+            Dictionary of fractions to use in partitioning measure energy
+            and carbon results by climate zone, building sector, and end use.
+        """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.out_break_norm(i, reduce_factor)
+            else:
+                if reduce_factor[k] != 0:  # Handle total energy use of zero
+                    dict1[k] = dict1[k] / reduce_factor[k]
+                else:
+                    dict1[k] = 0
+        return dict1
 
     def fill_perf_dict(
             self, perf_dict, eplus_perf_array, vintage_weights,
@@ -578,7 +2605,6 @@ class Measure(object):
             ValueError: If weights used to map multiple EnergyPlus reference
                 building types to a single Scout building type do not sum to 1.
         """
-
         # Instantiate useful EnergyPlus-Scout mapping dicts
         handydicts = EPlusMapDicts()
 
@@ -861,22 +2887,23 @@ class Measure(object):
         return eplus_perf_array
 
 
-def fill_measures(measures, msegs, msegs_cpl, meas_costconvert, eplus_dir):
-    """Fill in any missing efficiency measure attributes.
+def fill_measures(
+        measures, meas_costconvert, msegs, msegs_cpl, handyvars, eplus_dir):
+    """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
-        Given a dict of measure information, determine which measures are
-        missing certain attributes; instantiate these measures as Measure
-        objects; and fill in the missing attribute information for each
-        object.
+        Determine which in a list of measures require updates to finalize
+        stock, energy, carbon, and cost markets for further use in the
+        analysis engine; instantiate these measures as Measure objects;
+        execute the necessary updates for each object; and update the
+        original list of measures accordingly.
 
     Args:
-        measures (dict): Attributes for individual efficiency measures.
-        msegs (dict): Baseline microsegment stock and energy use
-            information.
-        msegs_cpl (dict): Baseline technology cost, performance, and lifetime
-            information.
-        meas_costconvert (dict): Measure cost unit conversions.
+        measures (list): List of dicts with efficiency measure attributes.
+        meas_costconvert (dict): Measure cost unit conversion data.
+        msegs (dict): Baseline microsegment stock and energy use.
+        msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
+        handyvars (object): Global variables of use across Measure methods
         eplus_dir (string): Directory for EnergyPlus simulation output files to
             use in updating measure performance inputs.
 
@@ -887,46 +2914,45 @@ def fill_measures(measures, msegs, msegs_cpl, meas_costconvert, eplus_dir):
         ValueError: If more than one Measure object matches the name of a
             given input efficiency measure.
     """
-    # Set a variable to use in determining measure building sector below
-    res_bldg = ["single family home", "multi family home", "mobile home"]
+    # Determine subset of measures flagged by user for attribute updates
+    # (via a False value for the measure's 'status->finalized' attribute)
+    measures_update = [m for m in measures if (
+        m['status']['active'] is True and m['status']['finalized'] is False)]
+    # Determine subset of measures not flagged by user for attribute updates,
+    # but with incomplete 'markets' information
+    measures_update_warn = [m for m in measures if (
+        m['status']['active'] is True and m['status']['finalized']
+        is True and m['markets'] is None)]
+    # Warn user about need to update unflagged but incomplete measures;
+    # add these measures to those requiring user-defined attribute updates
+    if len(measures_update_warn) > 0:
+        [warnings.warn("WARNING: Incomplete 'markets' attribute for active "
+                       "measure '" + m["name"] + "'; this information will "
+                       "be added automatically") for m in measures_update_warn]
+        measures_update.extend(measures_update_warn)
+    # Initialize Measure() objects based on 'measures_update' list
+    measures_update_objs = [Measure(handyvars, **m) for m in measures_update]
 
-    # Determine the subset of measures that are missing certain attribute
-    # information and thus need updating
-    measures_update = [
-        Measure(**m) for m in measures if m['status']['update'] is True or
-        'EnergyPlus file' in m['energy_efficiency'].keys() or
-        (all([x in res_bldg for x in m['bldg_type']]) and
-         all(x not in m['cost_units'] for x in ['$/ft^2 floor', '$/unit'])) or
-        (all([x not in res_bldg for x in m['bldg_type']]) and
-         '$/ft^2 floor' not in m['cost_units']) or m['mkts_savings'] is None]
-
-    # Determine the subset of above measures in need of updated EnergyPlus-
-    # derived relative performance information, and execute the update
+    # Fill in EnergyPlus-based performance information for Measure objects
+    # with an 'EnergyPlus file' flag in their 'energy_efficiency' attribute
     if any(['EnergyPlus file' in m.energy_efficiency.keys() for
-            m in measures_update]):
+            m in measures_update_objs]):
         # Set EnergyPlus global variables
         handyeplusvars = EPlusGlobals(eplus_dir)
+        # Fill in EnergyPlus-based measure performance information
         [m.fill_eplus(
             msegs, handyeplusvars.eplus_dir, handyeplusvars.eplus_files,
-            handyeplusvars.eplus_vintage_weights) for m in
-         measures_update if 'EnergyPlus file' in m.energy_efficiency.keys()]
-    # Determine the subset of above measures in need of updated residential
-    # cost information, and execute the update
-    [m.translate_costs_res() for m in measures_update if (
-        all([x in res_bldg for x in m.bldg_type]) and
-        all(x not in m.cost_units for x in ['$/ft^2 floor', '$/unit']))]
-    # Determine the subset of above measures in need of updated commercial
-    # cost information, and execute the update
-    [m.translate_costs_com() for m in measures_update if (
-        all([x not in res_bldg for x in m.bldg_type]) and
-        '$/ft^2 floor' not in m.cost_units)]
-    # Update markets/savings information for all objects in 'measures_update'
-    [m.fill_mkts(msegs, msegs_cpl) for m in measures_update]
+            handyeplusvars.eplus_vintage_weights) for m in measures_update_objs
+            if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
-    # Add all updated information to original list of measure dictionaries
+    # Finalize 'markets' attribute for all Measure objects
+    [m.fill_mkts(msegs, msegs_cpl, meas_costconvert) for m in
+     measures_update_objs]
+
+    # Add all updated Measure information to original list of measure dicts
     for m in [x for x in measures if x["name"] in [
-            y.name for y in measures_update]]:
-        m_new = [mn for mn in measures_update if mn.name == m["name"]]
+            y.name for y in measures_update_objs]]:
+        m_new = [mn for mn in measures_update_objs if mn.name == m["name"]]
         if len(m_new) == 1:
             m.update(m_new[0].__dict__)
         else:
@@ -949,6 +2975,11 @@ def add_packages(packages, measures):
     pass
 
 
+def custom_formatwarning(msg, *a):
+    """Given a warning object, return only the warning message."""
+    return str(msg) + '\n'
+
+
 def main(argv):
     """Import and finalize measures input data for analysis engine.
 
@@ -963,8 +2994,13 @@ def main(argv):
     Returns:
         An finalized measures JSON for use in analysis engine.
     """
+    # Custom format all warning messages (ignore everything but message itself)
+    warnings.formatwarning = custom_formatwarning
+
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
+    # Instantiate useful variables object
+    handyvars = UsefulVars()
 
     # Import measures
     with open(handyfiles.measures_in, 'r') as mjs:
@@ -979,12 +3015,12 @@ def main(argv):
     with open(handyfiles.msegs_cpl_in, 'r') as bjs:
         msegs_cpl = json.load(bjs)
     # Import measure cost unit conversion data
-    with open(handyfiles.meas_costconvert_in, 'r') as cc:
+    with open(handyfiles.cost_convert_in, 'r') as cc:
         meas_costconvert = json.load(cc)
 
     # Run through each measure and fill in any missing attributes
     measures = fill_measures(
-        measures, msegs, msegs_cpl, meas_costconvert, argv)
+        measures, meas_costconvert, msegs, msegs_cpl, handyvars, argv)
     # Add measure packages
     if packages:
         measures = add_packages(packages, measures)
