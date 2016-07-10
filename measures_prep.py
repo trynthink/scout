@@ -21,7 +21,7 @@ class UsefulInputFiles(object):
         msegs_in (JSON): A database of baseline microsegment stock/energy.
         msegs_cpl_in (JSON): A database of baseline technology characteristics.
         packages_in (JSON): A database of measure names to package.
-        meas_costconvert (JSON): A database of measure cost unit conversions.
+        convert_data (JSON): A database of measure cost unit conversions.
     """
 
     def __init__(self):
@@ -29,7 +29,7 @@ class UsefulInputFiles(object):
         self.msegs_in = "mseg_res_com_cz.json"
         self.msegs_cpl_in = "cpl_res_com_cz.json"
         self.packages_in = "measure_packages_test.json"
-        self.cost_convert_in = "meas_costconvert.json"
+        self.cost_convert_in = "convert_data.json"
 
 
 class UsefulVars(object):
@@ -43,6 +43,7 @@ class UsefulVars(object):
             an inverted relative performance calculation (e.g., an air change
             rate where lower numbers indicate higher performance).
         valid_submkt_urls (list) = Valid URLs for sub-market scaling fractions.
+        consumer_price_ind (numpy.ndarray) = Historical Consumer Price Index.
         ss_conv (dict): Site-source conversion factors by fuel type.
         carb_int (dict): Carbon intensities by fuel type.
         ecosts (dict): Energy costs by building and fuel type.
@@ -50,6 +51,12 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         out_break_in (dict): Breakouts of measure energy/carbon markets/savings
             for eventual use in plotting of analysis results.
+        costconvert_enduses (dict): Maps end use key names of baseline
+            microsegment database to end use key names in measure cost unit
+            translation database.
+        costconvert_htcl (dict): Maps thermal load component key names
+            used in baseline microsegment database to component key(s) names in
+            measure cost unit translation database.
     """
 
     def __init__(self):
@@ -71,6 +78,9 @@ class UsefulVars(object):
             '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
             '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
             'www.navigantresearch.com']
+        self.consumer_price_ind = numpy.genfromtxt(
+            'CPI.csv', names=True, delimiter=',', dtype=[
+                ('DATE', 'U10'), ('VALUE', '<f8')])
         #######################################################################
         # MAKE RES/COM MSEG ELECTRICITY DEFINITIONS CONSISTENT
         cost_ss_carb = numpy.genfromtxt(
@@ -158,6 +168,24 @@ class UsefulVars(object):
                 if elem not in current_level:
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
+        self.costconvert_enduses = {
+            "heating": "heating and cooling",
+            "cooling": "heating and cooling",
+            "ventilation": "ventilation",
+            "lighting": "lighting",
+            "water heating": "water heating",
+            "refrigeration": "refrigeration",
+            "cooking": "cooking",
+            "MELs": "MELs"}
+        self.costconvert_htcl = {
+            "supply": {
+                "heating": "heating equipment",
+                "cooling": "cooling equipment"},
+            "demand": {
+                "windows conduction": ["windows", "walls"],
+                "windows solar": ["windows", "walls"],
+                "wall": "walls", "infiltration": "walls",
+                "ground": "footprint", "roof": ["roof", "footprint"]}}
 
 
 class EPlusMapDicts(object):
@@ -169,7 +197,7 @@ class EPlusMapDicts(object):
             the EnergyPlus commercial reference building names that correspond
             to each AEO commercial building type, and the weights needed in
             some cases to map multiple EnergyPlus reference building types to
-            a single AEO type. See 'meas_costconvert' JSON for more details.
+            a single AEO type. See 'convert_data' JSON for more details.
         fuel (dict): Scout-EnergyPlus fuel type mapping.
         enduse (dict): Scout-EnergyPlus end use mapping.
         structure_type (dict): Scout-EnergyPlus structure type mapping.
@@ -575,14 +603,14 @@ class Measure(object):
             raise ValueError(
                 'Failure to match measure name to eplus files!')
 
-    def fill_mkts(self, msegs, msegs_cpl, meas_costconvert):
+    def fill_mkts(self, msegs, msegs_cpl, convert_data):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
             msegs (dict): Baseline microsegment stock and energy use.
             msegs_cpl (dict): Baseline technology cost, performance, and
                 lifetime.
-            meas_costconvert (dict): Measure -> baseline cost unit conversions.
+            convert_data (dict): Measure -> baseline cost unit conversions.
 
         Returns:
             Updated measure stock, energy/carbon, and cost market microsegment
@@ -1125,15 +1153,13 @@ class Measure(object):
 
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
-                if mskeys[0] == "primary" and bldg_sect == "residential" and (
+                if mskeys[0] == "primary" and (
                     (sqft_subst == 1 and '$/ft^2 floor' not in cost_units) or
                         (sqft_subst == 0 and '$/unit' not in cost_units)):
-                    cost_meas, cost_units = \
-                        self.translate_costs_res(meas_costconvert)
-                elif mskeys[0] == "primary" and bldg_sect == "commercial" and \
-                        '$/ft^2 floor' not in cost_units:
-                    cost_meas, cost_units = \
-                        self.translate_costs_com(meas_costconvert)
+                    cost_meas, cost_units = self.convert_costs(
+                        convert_data, bldg_sect, mskeys, cost_meas,
+                        cost_units, base_costperflife[
+                            "installed cost"]["units"])
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -1690,35 +1716,137 @@ class Measure(object):
         # Update measure attribute update flag to 'False'
         self.status['finalize attributes'] = False
 
-    def translate_costs_res(self, meas_costconvert):
-        """Convert residential measure cost input to the proper units.
+    def convert_costs(self, convert_data, bldg_sect, mskeys,
+                      cost_meas, cost_meas_units, cost_base_units):
+        """Convert measure cost to comparable baseline cost units.
 
         Args:
-            meas_costconvert (dict): Measure cost unit conversions.
+            convert_data (dict): Measure cost unit conversions.
+            bldg_sect (string): Applicable building sector for measure cost.
+            mskeys (tuple): Full applicable market microsegment information for
+                measure cost (mseg type->czone->bldg->fuel->end use->technology
+                type->structure type).
+            cost_meas (float): Initial user-defined measure cost.
+            cost_meas_units (string): Initial user-defined measure cost units.
+            cost_base_units (string): Comparable baseline cost units.
 
         Returns:
-            Updated measure costs and cost units in $/unit or $/ft^2 floor.
+            Updated measure costs and cost units that are consistent with
+            baseline technology cost units.
+
+        Raises:
+            KeyError: If no cost conversion data are available for
+                the particular measure microsegment
+            ValueError: If initial user-defined measure cost units are
+                determined to be invalid/unsupported.
         """
-        # Set dummy variable values for now
-        cost_meas = None
-        cost_units = None
+        # Set dictionaries that are used to map the market
+        # microsegment definition to input cost translation data
+        map_euse = self.handyvars.costconvert_enduses
+        map_htcl = self.handyvars.costconvert_htcl
 
-        return cost_meas, cost_units
+        # Retrieve cost unit conversion data for the market microsegment
+        # end use and technology type. Conversion data should be formatted
+        # in a list to simplify its handling in subsequent operations.
+        if mskeys[4] in map_euse.keys():
+            convert_vals = convert_data['cost unit conversions'][
+                map_euse[mskeys[4]]]
+            # For special case of a heating/cooling end use, retrieve
+            # cost unit conversion data under 'supply' or 'demand' keys
+            if any([x in convert_vals.keys() for x in ['supply', 'demand']]):
+                if mskeys[5] == "supply":
+                    convert_vals = [convert_vals[mskeys[5]][
+                        map_htcl[mskeys[5]][mskeys[4]]]]
+                # For a demand-side heating/cooling microsegment, multiple
+                # stages of cost conversion may be required (for example,
+                # convert from ft^2 glazing -> ft^2 wall, then from
+                # ft^2 wall -> ft^2 floor). In such cases, cost conversion
+                # values will be retrieved as lists, where each element
+                # in the list represents a stage of the conversion.
+                elif mskeys[5] == "demand" and not isinstance(
+                        map_htcl[mskeys[5]][mskeys[6]], list):
+                    convert_vals = [convert_vals[mskeys[5]][
+                        map_htcl[mskeys[5]][mskeys[6]]]]
+                elif mskeys[5] == "demand":
+                    convert_vals = [convert_vals[mskeys[5]][x] for x in
+                                    map_htcl[mskeys[5]][mskeys[6]]]
+            else:
+                convert_vals = [convert_vals]
+        else:
+            raise KeyError('No cost unit conversion data for end use!')
 
-    def translate_costs_com(self, meas_costconvert):
-        """Convert commercial measure cost input to the proper units.
+        # Finalize cost conversion information retrieved above
 
-        Args:
-            meas_costconvert (dict): Measure cost unit conversions.
+        # Initialize a final cost conversion value for the microsegment
+        convert_val = 1
+        if convert_vals[0]['original units'] in cost_meas_units:
+            # Loop through list of conversion data, multiplying initial
+            # conversion value by successive list elements and weighting
+            # results as needed to map conversion factors for multiple
+            # non-Scout building types to the single Scout building type of
+            # the current microsegment
+            for cval in convert_vals:
+                if isinstance(cval['conversion factor']['value'], dict):
+                    cval_bldgtyp = \
+                        cval['conversion factor']['value'][bldg_sect]
+                    if isinstance(cval_bldgtyp, dict):
+                        # Develop weighting factors to map conversion data
+                        # from multiple non-Scout building types to the single
+                        # Scout building type of the current microsegment
+                        cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
+                        bldgtyp_wts = convert_data[
+                            'building type conversions']['conversion data'][
+                            'value'][bldg_sect][mskeys[2]].values()
+                        convert_val *= sum([a * b for a, b in zip(
+                            cval_bldgtyp, bldgtyp_wts)])
+                    else:
+                        convert_val *= cval_bldgtyp
+                else:
+                    convert_val *= cval['conversion factor']['value']
+        else:
+            raise ValueError('Cost units ' + cost_meas_units + ' are invalid!')
 
-        Returns:
-            Updated measure costs and cost units in $/ft^2 floor.
-        """
-        # Set dummy variable values for now
-        cost_meas = None
-        cost_units = None
+        # Map the year of measure cost units to the year of baseline cost units
 
-        return cost_meas, cost_units
+        # Establish the year of measure and baseline cost units
+        cost_meas_units_unpack, cost_base_units_unpack = [re.search(
+            '(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
+        cost_meas_yr, cost_base_yr = [
+            cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)]
+        # If measure and baseline cost years are inconsistent, map measure
+        # to baseline cost year using Consumer Price Index (CPI) data
+        if cost_meas_yr != cost_base_yr:
+            # Set full CPI dataset
+            cpi = self.handyvars.consumer_price_ind
+            # Find array of rows in CPI dataset associatd with the measure
+            # cost year
+            cpi_row_meas = [x for x in cpi if cost_meas_yr in x['DATE']]
+            if len(cpi_row_meas) == 0:
+                cpi_row_meas = cpi
+            # Find array of rows in CPI dataset associated with the baseline
+            # cost year
+            cpi_row_base = [x for x in cpi if cost_base_yr in x['DATE']]
+            if len(cpi_row_base) == 0:
+                cpi_row_base = cpi
+            # Calculate year conversion using last row in each array
+            # (representing the latest CPI value listed for each year)
+            convert_yr = cpi_row_base[-1][1] / cpi_row_meas[-1][1]
+        else:
+            convert_yr = 1
+
+        # Apply finalized cost conversion and year conversion factors
+        # to measure costs to map to baseline cost units
+        cost_meas_fin = cost_meas * convert_val * convert_yr
+        # Adjust initial measure cost units to reflect the conversion (should
+        # now be consistent with baseline cost units, this is checked in
+        # a subsequent step of the 'fill_mkts' routine)
+        if isinstance(convert_vals, list):
+            cost_meas_units_fin = \
+                cost_base_yr + convert_vals[-1]['revised units']
+        else:
+            cost_meas_units_fin = cost_base_yr + convert_vals['revised units']
+
+        return cost_meas_fin, cost_meas_units_fin
 
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, mkt_scale_frac,
@@ -1733,8 +1861,9 @@ class Measure(object):
             adopt_scheme (string): Assumed consumer adoption scenario.
             diffuse_params (NoneType): Parameters relating to the 'adjusted
                 adoption' consumer choice model (currently a placeholder).
-            mskeys (list): Dictionary key information for the currently
-                partitioned market microsegment (e.g. czone->bldg->fuel, etc.)
+            mskeys (tuple): Dictionary key information for the currently
+                partitioned market microsegment (mseg type->czone->bldg->
+                fuel->end use->technology type->structure type)
             mkt_scale_frac (float): Microsegment scaling fraction (used to
                 break market microsegments into more granular sub-markets).
             new_bldg_frac (dict): Portion of microsegment attributed to new
@@ -2888,7 +3017,7 @@ class Measure(object):
 
 
 def fill_measures(
-        measures, meas_costconvert, msegs, msegs_cpl, handyvars, eplus_dir):
+        measures, convert_data, msegs, msegs_cpl, handyvars, eplus_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -2900,7 +3029,7 @@ def fill_measures(
 
     Args:
         measures (list): List of dicts with efficiency measure attributes.
-        meas_costconvert (dict): Measure cost unit conversion data.
+        convert_data (dict): Measure cost unit conversion data.
         msegs (dict): Baseline microsegment stock and energy use.
         msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
         handyvars (object): Global variables of use across Measure methods
@@ -2946,7 +3075,7 @@ def fill_measures(
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, meas_costconvert) for m in
+    [m.fill_mkts(msegs, msegs_cpl, convert_data) for m in
      measures_update_objs]
 
     # Add all updated Measure information to original list of measure dicts
@@ -3016,11 +3145,11 @@ def main(argv):
         msegs_cpl = json.load(bjs)
     # Import measure cost unit conversion data
     with open(handyfiles.cost_convert_in, 'r') as cc:
-        meas_costconvert = json.load(cc)
+        convert_data = json.load(cc)
 
     # Run through each measure and fill in any missing attributes
     measures = fill_measures(
-        measures, meas_costconvert, msegs, msegs_cpl, handyvars, argv)
+        measures, convert_data, msegs, msegs_cpl, handyvars, argv)
     # Add measure packages
     if packages:
         measures = add_packages(packages, measures)

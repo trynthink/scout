@@ -6562,7 +6562,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_tpmeas_fullchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              meas_costconvert={})
+                              convert_data={})
             self.dict_check(
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_tpmeas_fullchk_msegout[idx])
@@ -6595,7 +6595,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_tpmeas_partchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              meas_costconvert={})
+                              convert_data={})
             self.dict_check(
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_tpmeas_partchk_msegout[idx])
@@ -6614,7 +6614,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # output
         for idx, measure in enumerate(self.ok_mapmeas_partchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              meas_costconvert={})
+                              convert_data={})
             self.dict_check(
                 measure.markets['Max adoption potential']['master_mseg'],
                 self.ok_mapmas_partchck_msegout[idx])
@@ -6635,7 +6635,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             # Generate lists of energy and cost output values
             measure.fill_mkts(
                 self.sample_mseg_in, self.sample_cpl_in,
-                meas_costconvert={})
+                convert_data={})
             test_outputs = measure.markets[
                 'Technical potential']['master_mseg']
             test_e = test_outputs["energy"]["total"]["efficient"]["2009"]
@@ -6663,7 +6663,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_partialmeas_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              meas_costconvert={})
+                              convert_data={})
             self.dict_check(
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_partialmeas_out[idx])
@@ -6678,7 +6678,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         for idx, measure in enumerate(self.failmeas_in):
             with self.assertRaises(KeyError):
                 measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                                  meas_costconvert={})
+                                  convert_data={})
 
     def test_mseg_warn(self):
         """Test 'fill_mkts' function given incomplete inputs.
@@ -6693,7 +6693,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             # is marked inactive where necessary
             with warnings.catch_warnings(record=True) as w:
                 mw.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                             meas_costconvert={})
+                             convert_data={})
                 # Check correct number of warnings is yielded
                 self.assertEqual(len(w), len(self.ok_warnmeas_out[idx]))
                 # Check correct type of warnings is yielded
@@ -6819,12 +6819,14 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 10, "2010": 20, "2011": 30},
             {"2025": 40, "2026": 50, "2027": 60},
             {"2020": 70, "2021": 80, "2022": 90}]
-        cls.ok_carb_in = [{"2009": 30, "2010": 60, "2011": 90},
-                     {"2025": 120, "2026": 150, "2027": 180},
-                     {"2020": 210, "2021": 240, "2022": 270}]
-        cls.ok_base_cost_in = [{"2009": 10, "2010": 10, "2011": 10},
-                          {"2025": 20, "2026": 20, "2027": 20},
-                          {"2020": 30, "2021": 30, "2022": 30}]
+        cls.ok_carb_in = [
+            {"2009": 30, "2010": 60, "2011": 90},
+            {"2025": 120, "2026": 150, "2027": 180},
+            {"2020": 210, "2021": 240, "2022": 270}]
+        cls.ok_base_cost_in = [
+            {"2009": 10, "2010": 10, "2011": 10},
+            {"2025": 20, "2026": 20, "2027": 20},
+            {"2020": 30, "2021": 30, "2022": 30}]
         cls.ok_cost_meas_in = [20, 30, 40]
         cls.ok_cost_energy_base_in, cls.ok_cost_energy_meas_in = \
             (numpy.array((b'Test', 1, 2, 2, 2, 2, 2, 2, 2, 2),
@@ -7722,6 +7724,369 @@ class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
                 self.ok_dict_in, self.ok_reduce_factors), self.ok_out)
 
 
+class CostConverstionTest(unittest.TestCase, CommonMethods):
+    """Test 'convert_costs' function.
+
+    Ensure that function properly converts user-defined measure cost units
+    to align with comparable baseline cost units.
+
+    Attributes:
+        sample_measure_in (dict): Sample measure attributes.
+        sample_convertdata_ok_in (dict): Sample cost conversion input data.
+        sample_bldgsect_ok_in (list): List of valid building sectors for
+            sample measure cost.
+        sample_mskeys_ok_in (list): List of valid full market microsegment
+            information for sample measure cost (mseg type->czone->bldg->fuel->
+            end use->technology type->structure type).
+        sample_mskeys_fail_in (list): List of microsegment information for
+            sample measure cost that should cause function to fail.
+        cost_meas_ok_in (int): Sample measure cost.
+        cost_meas_units_ok_in (list): List of valid sample measure cost units.
+        cost_meas_units_fail_in (string): List of sample measure cost units
+            that should cause the function to fail.
+        cost_base_units_ok_in (string): List of valid baseline cost units.
+        ok_out_costs (list): Converted measure costs that should be yielded
+            given valid inputs to the function.
+        ok_out_cost_units (string): Converted measure cost units that should
+            be yielded given valid inputs to the function.
+
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        handyvars = measures_prep.UsefulVars()
+        sample_measure_in = {
+            "name": "sample measure 2",
+            "active": 1,
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {
+                "primary": ["electricity (grid)"],
+                "secondary": ["electricity (grid)"]},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": ["heating", "cooling"],
+                "secondary": ["lighting"]},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": "supply"},
+            "technology": {
+                "primary": [
+                    "boiler (electric)", "ASHP",
+                    "GSHP", "room AC"],
+                "secondary": ["general service (LED)"]},
+            "mseg_adjust": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "sub-market": {
+                        "original stock (total)": {},
+                        "adjusted stock (sub-market)": {}},
+                    "stock-and-flow": {
+                        "original stock (total)": {},
+                        "adjusted stock (previously captured)": {},
+                        "adjusted stock (competed)": {},
+                        "adjusted stock (competed and captured)": {}},
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}},
+                "savings updated": False}}
+        cls.sample_measure_in = measures_prep.Measure(
+            handyvars, **sample_measure_in)
+        cls.sample_convertdata_ok_in = {
+            "building type conversions": {
+                "original type": "EnergyPlus reference buildings",
+                "revised type": "Annual Energy Outlook (AEO) buildings",
+                "conversion data": {
+                    "description": "sample",
+                    "value": {
+                        "residential": {
+                            "single family home": {
+                                "Single-Family": 1},
+                            "mobile home": {
+                                "Single-Family": 1},
+                            "multi family home": {
+                                "Multifamily": 1}},
+                        "commercial": {
+                            "assembly": {
+                                "Hospital": 1},
+                            "education": {
+                                "PrimarySchool": 0.26,
+                                "SecondarySchool": 0.74},
+                            "food sales": {
+                                "Supermarket": 1},
+                            "food service": {
+                                "QuickServiceRestaurant": 0.31,
+                                "FullServiceRestaurant": 0.69},
+                            "healthcare": None,
+                            "lodging": {
+                                "SmallHotel": 0.26,
+                                "LargeHotel": 0.74},
+                            "large office": {
+                                "LargeOffice": 0.9,
+                                "MediumOffice": 0.1},
+                            "small office": {
+                                "SmallOffice": 0.12,
+                                "OutpatientHealthcare": 0.88},
+                            "mercantile and service": {
+                                "RetailStandalone": 0.53,
+                                "RetailStripmall": 0.47},
+                            "warehouse": {
+                                "Warehouse": 1},
+                            "other": None}},
+                    "source": {
+                        "residential": "sample",
+                        "commercial": "sample"},
+                    "notes": {
+                        "residential": "sample",
+                        "commercial": "sample"}}},
+            "cost unit conversions": {
+                "heating and cooling": {
+                    "supply": {
+                        "heating equipment": {
+                            "original units": "$/kBtuh",
+                            "revised units": "$/ft^2 floor",
+                            "conversion factor": {
+                                "description": "sample",
+                                "value": 0.020,
+                                "units": "kBtuh/ft^2 floor",
+                                "source": "Rule of thumb",
+                                "notes": "sample"}},
+                        "cooling equipment": {
+                            "original units": "$/kBtuh",
+                            "revised units": "$/ft^2 floor",
+                            "conversion factor": {
+                                "description": "sample",
+                                "value": 0.036,
+                                "units": "kBtuh/ft^2 floor",
+                                "source": "Rule of thumb",
+                                "notes": "sample"}}},
+                    "demand": {
+                        "windows": {
+                            "original units": "$/ft^2 glazing",
+                            "revised units": "$/ft^2 wall",
+                            "conversion factor": {
+                                "description": "Window to wall ratio",
+                                "value": {
+                                    "residential": {
+                                        "single family home": {
+                                            "Single-Family": 0.15},
+                                        "mobile home": {
+                                            "Single-Family": 0.15},
+                                        "multi family home": {
+                                            "Multifamily": 0.10}},
+                                    "commercial": {
+                                        "assembly": {
+                                            "Hospital": 0.15},
+                                        "education": {
+                                            "PrimarySchool": 0.35,
+                                            "SecondarySchool": 0.33},
+                                        "food sales": {
+                                            "Supermarket": 0.11},
+                                        "food service": {
+                                            "QuickServiceRestaurant": 0.14,
+                                            "FullServiceRestaurant": 0.17},
+                                        "healthcare": 0.2,
+                                        "lodging": {
+                                            "SmallHotel": 0.11,
+                                            "LargeHotel": 0.27},
+                                        "large office": {
+                                            "LargeOffice": 0.38,
+                                            "MediumOffice": 0.33},
+                                        "small office": {
+                                            "SmallOffice": 0.21,
+                                            "OutpatientHealthcare": 0.19},
+                                        "mercantile and service": {
+                                            "RetailStandalone": 0.07,
+                                            "RetailStripmall": 0.11},
+                                        "warehouse": {
+                                            "Warehouse": 0.006},
+                                        "other": 0.2}},
+                                "units": None,
+                                "source": {
+                                    "residential": "sample",
+                                    "commercial": "sample"},
+                                "notes": "sample"}},
+                        "walls": {
+                            "original units": "$/ft^2 wall",
+                            "revised units": "$/ft^2 floor",
+                            "conversion factor": {
+                                "description": "Wall to floor ratio",
+                                "value": {
+                                    "residential": {
+                                        "single family home": {
+                                            "Single-Family": 1},
+                                        "mobile home": {
+                                            "Single-Family": 1},
+                                        "multi family home": {
+                                            "Multifamily": 1}},
+                                    "commercial": {
+                                        "assembly": {
+                                            "Hospital": 0.26},
+                                        "education": {
+                                            "PrimarySchool": 0.20,
+                                            "SecondarySchool": 0.16},
+                                        "food sales": {
+                                            "Supermarket": 0.38},
+                                        "food service": {
+                                            "QuickServiceRestaurant": 0.80,
+                                            "FullServiceRestaurant": 0.54},
+                                        "healthcare": 0.4,
+                                        "lodging": {
+                                            "SmallHotel": 0.40,
+                                            "LargeHotel": 0.38},
+                                        "large office": {
+                                            "LargeOffice": 0.26,
+                                            "MediumOffice": 0.40},
+                                        "small office": {
+                                            "SmallOffice": 0.55,
+                                            "OutpatientHealthcare": 0.35},
+                                        "mercantile and service": {
+                                            "RetailStandalone": 0.51,
+                                            "RetailStripmall": 0.57},
+                                        "warehouse": {
+                                            "Warehouse": 0.53},
+                                        "other": 0.4}},
+                                "units": None,
+                                "source": {
+                                    "residential": "sample",
+                                    "commercial": "sample"},
+                                "notes": "sample"}},
+                        "footprint": {
+                            "original units": "$/ft^2 footprint",
+                            "revised units": "$/ft^2 floor",
+                            "conversion factor": {
+                                "description": "sample",
+                                "value": {
+                                    "residential": {
+                                        "single family home": {
+                                            "Single-Family": 0.5},
+                                        "mobile home": {
+                                            "Single-Family": 0.5},
+                                        "multi family home": {
+                                            "Multifamily": 0.33}},
+                                    "commercial": {
+                                        "assembly": {
+                                            "Hospital": 0.20},
+                                        "education": {
+                                            "PrimarySchool": 1,
+                                            "SecondarySchool": 0.5},
+                                        "food sales": {"Supermarket": 1},
+                                        "food service": {
+                                            "QuickServiceRestaurant": 1,
+                                            "FullServiceRestaurant": 1},
+                                        "healthcare": 0.2,
+                                        "lodging": {
+                                            "SmallHotel": 0.25,
+                                            "LargeHotel": 0.17},
+                                        "large office": {
+                                            "LargeOffice": 0.083,
+                                            "MediumOffice": 0.33},
+                                        "small office": {
+                                            "SmallOffice": 1,
+                                            "OutpatientHealthcare": 0.33},
+                                        "mercantile and service": {
+                                            "RetailStandalone": 1,
+                                            "RetailStripmall": 1},
+                                        "warehouse": {
+                                            "Warehouse": 1},
+                                        "other": 1}},
+                                "units": None,
+                                "source": {
+                                    "residential": "sample",
+                                    "commercial": "sample"},
+                                "notes": "sample"}},
+                        "roof": {
+                            "original units": "$/ft^2 roof",
+                            "revised units": "$/ft^2 footprint",
+                            "conversion factor": {
+                                "description": "sample",
+                                "value": {
+                                    "residential": 1.05,
+                                    "commercial": 1},
+                                "units": None,
+                                "source": "Rule of thumb",
+                                "notes": "sample"}}}},
+                "ventilation": {
+                    "original units": "$/1000 CFM",
+                    "revised units": "$/ft^2 floor",
+                    "conversion factor": {
+                        "description": "sample",
+                        "value": 0.001,
+                        "units": "1000 CFM/ft^2 floor",
+                        "source": "Rule of thumb",
+                        "notes": "sample"}}}}
+        cls.sample_bldgsect_ok_in = [
+            "residential", "commercial", "commercial", "commercial",
+            "commercial", "commercial"]
+        cls.sample_mskeys_ok_in = [
+            ('primary', 'marine', 'single family home', 'electricity',
+             'cooling', 'demand', 'windows conduction', 'existing'),
+            ('primary', 'marine', 'assembly', 'electricity', 'heating',
+             'supply', 'rooftop_ASHP-heat', 'new'),
+            ('primary', 'marine', 'food sales', 'electricity', 'cooling',
+             'demand', 'ground', 'new'),
+            ('primary', 'marine', 'education', 'electricity', 'cooling',
+             'demand', 'roof', 'existing'),
+            ('primary', 'marine', 'lodging', 'electricity', 'cooling',
+             'demand', 'wall', 'new'),
+            ('primary', 'marine', 'food service', 'electricity', 'ventilation',
+             'CAV_Vent', 'existing')]
+        cls.sample_mskeys_fail_in = [
+            ('primary', 'marine', 'single family home', 'electricity',
+             'cooling', 'demand', 'people gain', 'existing'),
+            ('primary', 'marine', 'assembly', 'electricity', 'PCs',
+             None, 'new')]
+        cls.cost_meas_ok_in = 10
+        cls.cost_meas_units_ok_in = [
+            '$/ft^2 glazing', '2013$/kBtuh', '2010$/ft^2 footprint',
+            '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM']
+        cls.cost_meas_units_fail_in = '$/ft^2 facade'
+        cls.cost_base_units_ok_in = '2013$/ft^2 floor'
+        cls.ok_out_costs = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015]
+        cls.ok_out_cost_units = '2013$/ft^2 floor'
+
+    def test_convertcost_ok(self):
+        """Test 'convert_costs' function given valid inputs."""
+        for k in range(0, len(self.sample_mskeys_ok_in)):
+            func_output = self.sample_measure_in.convert_costs(
+                self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
+                self.sample_mskeys_ok_in[k], self.cost_meas_ok_in,
+                self.cost_meas_units_ok_in[k], self.cost_base_units_ok_in)
+            numpy.testing.assert_almost_equal(
+                func_output[0], self.ok_out_costs[k], decimal=2)
+            self.assertEqual(func_output[1], self.ok_out_cost_units)
+
+    def test_convertcost_fail(self):
+        """Test 'convert_costs' function given invalid inputs."""
+        # Test for KeyError
+        for k in range(0, len(self.sample_mskeys_fail_in)):
+            with self.assertRaises(KeyError):
+                self.sample_measure_in.convert_costs(
+                    self.sample_convertdata_ok_in,
+                    self.sample_bldgsect_ok_in[k],
+                    self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
+                    self.cost_meas_units_ok_in[k], self.cost_base_units_ok_in)
+        # Test for ValueError
+        with self.assertRaises(ValueError):
+            self.sample_measure_in.convert_costs(
+                self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
+                self.sample_mskeys_ok_in[0], self.cost_meas_ok_in,
+                self.cost_meas_units_fail_in[k], self.cost_base_units_ok_in)
+
+
 class FillMeasuresTest(unittest.TestCase, CommonMethods):
     """Test 'fill_measures' function.
 
@@ -7740,7 +8105,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
         measures_warn_in (list): List of measures that includes one measure
             with invalid 'status' attribute (the measure's 'markets' attribute
             has not been finalized but user has not flagged it for an update).
-        measures_costconvert (dict): Data used to convert expected
+        convert_data (dict): Data used to convert expected
             user-defined measure cost units to cost units required by Scout
             analysis engine.
         ok_out (list): List of measure master microsegment dicts that
@@ -7799,7 +8164,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
                                     "parameters": {
                                         "p": "NA",
                                         "q": "NA"}}}}}}}}
-        cls.meas_costconvert = {}  # Blank for now
+        cls.convert_data = {}  # Blank for now
         cls.handyvars = measures_prep.UsefulVars()
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.measures_ok_in = [{
@@ -7991,7 +8356,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             require updating and that the updates are performed correctly.
         """
         measures_out = measures_prep.fill_measures(
-            self.measures_ok_in, self.meas_costconvert,
+            self.measures_ok_in, self.convert_data,
             self.sample_mseg_in, self.sample_cpl_in, self.handyvars,
             eplus_dir=None)
         for oc in range(0, len(measures_out)):
@@ -8008,7 +8373,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
         """
         with warnings.catch_warnings(record=True) as w:
             measures_prep.fill_measures(
-                self.measures_warn_in, self.meas_costconvert,
+                self.measures_warn_in, self.convert_data,
                 self.sample_mseg_in, self.sample_cpl_in, self.handyvars,
                 eplus_dir=None)
             # Check correct number of warnings is yielded
