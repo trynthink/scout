@@ -7723,7 +7723,9 @@ class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
             self.sample_measure_in.out_break_norm(
                 self.ok_dict_in, self.ok_reduce_factors), self.ok_out)
 
-
+# Skip this test if running on Travis-CI and print the given skip statement
+@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                 'External File Dependency Unavailable on Travis-CI')
 class CostConverstionTest(unittest.TestCase, CommonMethods):
     """Test 'convert_costs' function.
 
