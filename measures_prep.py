@@ -467,7 +467,7 @@ class Measure(object):
     Attributes:
         **kwargs: Arbitrary keyword arguments used to fill measure attributes
             from an input dictionary.
-        handyvars (object): Global variables useful across Measure methods
+        handyvars (object): Global variables useful across class methods.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
@@ -3016,6 +3016,292 @@ class Measure(object):
         return eplus_perf_array
 
 
+class MeasurePackage(Measure):
+    """Set up a class representing packaged efficiency measures as objects.
+
+    The MeasurePackage class is a subclass of the Measure class.
+
+    Attributes:
+        handyvars (object): Global variables useful across class methods.
+        measures_to_package (list): List of measures to package.
+        name (string): Package name.
+        status (dict): Packaged measure analysis status (determines whether
+            measure is active in analysis and attributes are finalized)
+        climate_zone (list): Applicable climate zones for package.
+        bldg_type (list): Applicable building types for package.
+        structure_type (list): Applicable structure types for package.
+        fuel_type (dict): Applicable primary fuel type for package.
+        end_use (dict): Applicable primary end use type for package.
+        markets (dict): Data grouped by adoption scheme on:
+            a) 'master_mseg': a package's master market microsegments (stock,
+               energy, carbon, cost),
+            b) 'mseg_adjust': master microsegment adjustments that may
+               eventually be required for measure competition.
+            c) 'mseg_out_break': master microsegment breakdowns by key
+               variables (e.g., climate zone, building type, end use, etc.)
+    """
+
+    def __init__(self, measure_list_package, p, handyvars):
+        self.handyvars = handyvars
+        self.measures_to_package = measure_list_package
+        self.name = "Package: " + p
+        self.status = {"active": True, "finalized": False}
+        self.climate_zone, self.bldg_type, self.structure_type = (
+            [] for n in range(3))
+        self.fuel_type, self.end_use = ({"primary": []} for n in range(2))
+        self.markets = {}
+        for adopt_scheme in handyvars.adopt_schemes:
+            self.markets[adopt_scheme] = {
+                "master_mseg": {
+                    "stock": {
+                        "total": {
+                            "all": None, "measure": None},
+                        "competed": {
+                            "all": None, "measure": None}},
+                    "energy": {
+                        "total": {
+                            "baseline": None, "efficient": None},
+                        "competed": {
+                            "baseline": None, "efficient": None}},
+                    "carbon": {
+                        "total": {
+                            "baseline": None, "efficient": None},
+                        "competed": {
+                            "baseline": None, "efficient": None}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}},
+                        "energy": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}},
+                        "carbon": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}}},
+                    "lifetime": {"baseline": None, "measure": None}},
+                "mseg_adjust": {},
+                "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
+
+    def remove_pkg_overlaps(self):
+        """Remove any market overlaps between measures to be packaged.
+
+        Returns:
+            Updated markets for the measures to be packaged with all
+            stock, energy, carbon, and/or cost overlaps removed.
+        """
+        pass
+
+    def merge_measures(self):
+        """Merge the markets information of multiple individual measures.
+
+        Notes:
+            Combines the 'markets' attributes of each individual measure into
+            a packaged 'markets' attribute; assumes that any overlaps between
+            the 'markets' of individual measures have alredy been removed via
+            the 'remove_pkg_overlaps' function.
+
+        Returns:
+            Updated 'markets' attribute for a packaged measure that combines
+            the 'markets' attributes of multiple individual measures.
+        """
+        # Loop through each measure and add its attributes to the merged
+        # measure definition
+        for ind, m in enumerate(self.measures_to_package):
+            # Add measure climate zones
+            self.climate_zone.extend(
+                list(set(m["climate_zone"]) - set(self.climate_zone)))
+            # Add measure building types
+            self.bldg_type.extend(
+                list(set(m["bldg_type"]) - set(self.bldg_type)))
+            # Add measure structure types
+            self.structure_type.extend(
+                list(set(m["structure_type"]) - set(self.structure_type)))
+            # Add measure fuel types
+            self.fuel_type["primary"].extend(
+                list(set(m["fuel_type"]["primary"]) -
+                     set(self.fuel_type["primary"])))
+            # Add measure end uses
+            self.end_use["primary"].extend(
+                list(set(m["end_use"]["primary"]) -
+                     set(self.end_use["primary"])))
+
+            # Generate a dictionary with information about all the
+            # microsegments that contribute to the packaged measure's
+            # master microsegment
+            for adopt_scheme in self.handyvars.adopt_schemes:
+                # Set contributing microsegment info. for package measure
+                mseg_adj_meas = m["markets"][adopt_scheme]["mseg_adjust"]
+                # Set contributing microsegment info. to update for package
+                mseg_adj_pkg = self.markets[adopt_scheme]["mseg_adjust"]
+                # Loop through all measures in package and add contributing
+                # microsegment information for measure
+                for k in mseg_adj_meas.keys():
+                    # Case where we are adding the first of the measures
+                    # that contribute to the package
+                    if ind == 0:
+                        mseg_adj_pkg[k] = mseg_adj_meas[k]
+                    # Case where we are adding subsequent measures that
+                    # contribute to the package
+                    else:
+                        # Add measure's contributing microsegments
+                        if k == "contributing mseg keys and values":
+                            for cm in mseg_adj_meas[k].keys():
+                                # Account for overlaps between the current
+                                # contributing microsegment and existing
+                                # contributing microsegments for the package
+                                if cm in mseg_adj_pkg[k].keys():
+                                    # Add in measure captured stock
+                                    mseg_adj_pkg[k][cm]["stock"]["measure"] \
+                                        += mseg_adj_meas[
+                                            k][cm]["stock"]["measure"]
+                                    # Add in measure energy/carbon savings
+                                    for kt in ["energy", "carbon"]:
+                                        mseg_adj_pkg[k][cm][kt][
+                                            "efficient"] -= (
+                                            mseg_adj_meas[k][cm][kt][
+                                                "baseline"] -
+                                            mseg_adj_meas[k][cm][kt][
+                                                "efficient"])
+                                    # Add in measure stock, energy, and carbon
+                                    # cost savings
+                                    for kt in ["stock", "energy", "carbon"]:
+                                        mseg_adj_pkg[k][cm]["cost"][kt][
+                                            "efficient"] -= (
+                                            mseg_adj_meas[k][cm]["cost"][kt][
+                                                "baseline"] -
+                                            mseg_adj_meas[k][cm]["cost"][kt][
+                                                "efficient"])
+                                # If there is no overlap between the current
+                                # contributing microsegment and existing
+                                # contributing microsegments for the package,
+                                # add in the current microsegment as is
+                                else:
+                                    mseg_adj_pkg[k][cm] = mseg_adj_meas[k][cm]
+
+                        # Add measure's contributing microsegment consumer
+                        # choice parameters
+                        elif k in ["competed choice parameters",
+                                   "secondary mseg adjustments",
+                                   "supply-demand adjustment"]:
+                            mseg_adj_pkg[k].update(mseg_adj_meas[k])
+
+                # Generate a dictionary including information about how
+                # much of the packaged measure's baseline energy use is
+                # attributed to each of the output climate zones, building
+                # types, and end uses it applies to (normalized by the
+                # measure's total baseline energy use below to yield output
+                # partitioning fractions)
+                self.markets[adopt_scheme]["mseg_out_break"] = \
+                    self.out_break_merge(
+                    self.markets[adopt_scheme]["mseg_out_break"],
+                    m["markets"][adopt_scheme]["mseg_out_break"],
+                    m["markets"][adopt_scheme]["master_mseg"][
+                        'energy']['total']['baseline'])
+
+        # Generate a packaged master microsegment based on the contributing
+        # microsegment information defined above
+        for adopt_scheme in self.handyvars.adopt_schemes:
+            # Determine contributing microsegment key chain count for use in
+            # calculating an average baseline and measure lifetime below
+            key_chain_ct_package = len(
+                self.markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"].keys())
+
+            # Loop through all contributing microsegments for the packaged
+            # measure and add to the packaged master microsegment
+            for k in (self.markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"].keys()):
+                self.master_mseg = self.add_keyvals(
+                    self.markets[adopt_scheme]["master_mseg"],
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "contributing mseg keys and values"][k])
+
+            # Reduce summed lifetimes across all microsegments that contribute
+            # to the packaged master microsegment by the number of
+            # microsegments that contributed to the sums, to arrive at an
+            # average baseline/measure lifetime for the packaged measure
+            for yr in self.handyvars.aeo_years:
+                self.markets[adopt_scheme]["master_mseg"][
+                    "lifetime"]["baseline"][yr] = \
+                    self.markets[adopt_scheme]["master_mseg"][
+                    "lifetime"]["baseline"][yr] / key_chain_ct_package
+            self.markets[adopt_scheme]["master_mseg"]["lifetime"][
+                "measure"] = self.markets[adopt_scheme][
+                "master_mseg"]["lifetime"]["measure"] / key_chain_ct_package
+
+            # Normalize baseline energy use values for each category in the
+            # packaged measure's output breakout dictionary by the total
+            # baseline energy use for the packaged measure across all its
+            # contributing measures; this yields partitioning fractions that
+            # will eventually be used to breakout the packaged measure's
+            # energy and carbon markets/savings by climate zone, building
+            # type, and end use
+            self.markets[adopt_scheme]["mseg_out_break"] = self.out_break_norm(
+                self.markets[adopt_scheme]["mseg_out_break"],
+                self.markets[adopt_scheme]["master_mseg"][
+                    'energy']['total']['baseline'])
+
+    def out_break_merge(self, pkg_brk, meas_brk, meas_brk_unnorm):
+        """Merge output breakout info. for an individual measure into a package.
+
+        Notes:
+            The 'markets' attribute of an individual measure to be merged
+            into a package includes partitioning fractions needed to breakout
+            the measure's output markets/savings by by key variables (e.g.,
+            climate zone, building type, end use, etc.). These fractions are
+            based on the portion of the measure's total energy use market that
+            is attributable to each breakout variable (e.g., 50% of the
+            measure's total energy market is attributed to the heating end
+            use). This function unnormalizes the measure's breakout fractions
+            and adds the resultant energy use sub-market to a new set of
+            breakout information for a measure package.
+
+        Args:
+            pkg_brk (dict): Packaged measure output breakout information to
+                merge individual measure breakout information into.
+            meas_brk (dict): Individual measure output breakout information
+                to merge into the package breakout information.
+            meas_brk_unnorm (dict): Total energy use market for the
+                individual measure, used to derive unnormalized energy use
+                sub-markets for the individual measure to add to the package.
+
+        Returns:
+            Updated output breakout information for the packaged measure
+            that incorporates the individual measure's breakout information.
+        """
+        for (k, i), (k2, i2) in zip(sorted(pkg_brk.items()),
+                                    sorted(meas_brk.items())):
+            if isinstance(i, dict) and len(i.keys()) > 0:
+                self.out_break_merge(i, i2, meas_brk_unnorm)
+            else:
+                # If this is the first time the packaged measure's output
+                # breakout dictionary is being updated, replace appropriate
+                # terminal leaf node value with terminal leaf node values
+                # of the current contributing measure
+                if len(meas_brk[k2].keys()) > 0 and \
+                   len(pkg_brk[k].keys()) == 0:
+                    for yr in self.handyvars.aeo_years:
+                        pkg_brk[k][yr] = meas_brk[k2][yr] * meas_brk_unnorm[yr]
+                # If the packaged measure's output breakout dictionary has
+                # already been updated for a previous contributing measure,
+                # add the appropriate terminal leaf node values of the current
+                # contributing measure to the dictionary's existing terminal
+                # leaf node values
+                elif len(meas_brk[k2].keys()) > 0 and \
+                        len(pkg_brk[k].keys()) > 0:
+                    for yr in self.handyvars.aeo_years:
+                        pkg_brk[k][yr] += \
+                            meas_brk[k2][yr] * meas_brk_unnorm[yr]
+
+        return pkg_brk
+
+
 def fill_measures(
         measures, convert_data, msegs, msegs_cpl, handyvars, eplus_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
@@ -3032,7 +3318,7 @@ def fill_measures(
         convert_data (dict): Measure cost unit conversion data.
         msegs (dict): Baseline microsegment stock and energy use.
         msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
-        handyvars (object): Global variables of use across Measure methods
+        handyvars (object): Global variables of use across Measure methods.
         eplus_dir (string): Directory for EnergyPlus simulation output files to
             use in updating measure performance inputs.
 
@@ -3101,7 +3387,29 @@ def add_packages(packages, measures):
         A dict with packaged measure attributes that can be added to the
         existing measures database.
     """
-    pass
+    # Run through each unique measure package and merge the measures that
+    # contribute to this package
+    for p in packages.keys():
+        # Establish a list of names for measures that contribute to the
+        # package
+        package_measures = packages[p]
+        # Determine the subset of all active measures that belong
+        # to the current package
+        measure_list_package = [
+            x for x in measures if x["name"] in package_measures]
+        # Instantiate measure package object based on packaged measure
+        # subset above
+        packaged_measure = MeasurePackage(measure_list_package, p)
+        # Remove overlapping markets/savings between individual
+        # measures in the package object
+        packaged_measure.remove_pkg_overlaps()
+        # Merge measures in the package object
+        packaged_measure.merge_measures()
+        # Mark packaged measure attributes as finalized
+        packaged_measure.status['finalized'] = True
+        # Add the new packaged measure to the measure list for
+        # further evaluation like any other regular measure
+        measures.append(packaged_measure)
 
 
 def custom_formatwarning(msg, *a):

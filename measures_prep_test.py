@@ -7724,7 +7724,7 @@ class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
                 self.ok_dict_in, self.ok_reduce_factors), self.ok_out)
 
 
-class CostConverstionTest(unittest.TestCase, CommonMethods):
+class CostConversionTest(unittest.TestCase, CommonMethods):
     """Test 'convert_costs' function.
 
     Ensure that function properly converts user-defined measure cost units
@@ -8384,6 +8384,3008 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             # Check correct warning messages are yielded
             [self.assertTrue(wm in str([wmt.message for wmt in w])) for
                 wm in self.ok_warnmeas_out]
+
+
+class MergeMeasuresTest(unittest.TestCase, CommonMethods):
+    """Test 'merge_measures' function.
+
+    Ensure that the function correctly assembles a series of attributes for
+    individual measures into attributes for a packaged measure.
+
+    Attributes:
+        sample_measures_in (list): List of valid sample measure attributes
+            to package.
+        sample_package_name (string): Sample packaged measure name.
+        sample_package_in (object): Sample packaged measure object to update.
+        genattr_ok_out (list): General attributes that should be yielded
+            for the packaged measure given valid sample measures to package.
+        markets_ok_out (dict): Packaged measure markets (e.g. stock, energy,
+            carbon, cost) that should be yielded given valid sample measures
+            to package.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        handyvars = measures_prep.UsefulVars()
+        handyvars.aeo_years = ["2009", "2010"]
+        cls.sample_measures_in = [{
+            "name": "sample measure pkg 1",
+            "status": {"active": True, "finalized": True},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["natural gas"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["water heating"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": None,
+                           "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 40, "2010": 40},
+                                "measure": {"2009": 24, "2010": 24}},
+                            "competed": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 4, "2010": 4}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 80, "2010": 80},
+                                "efficient": {"2009": 48, "2010": 48}},
+                            "competed": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 8, "2010": 8}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 120, "2010": 120},
+                                "efficient": {"2009": 72, "2010": 72}},
+                            "competed": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 12, "2010": 12}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 72, "2010": 72}},
+                                "competed": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 72, "2010": 72}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 80, "2010": 80},
+                                    "efficient": {"2009": 48, "2010": 48}},
+                                "competed": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 8, "2010": 8}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 120, "2010": 120},
+                                    "efficient": {"2009": 72, "2010": 72}},
+                                "competed": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 12, "2010": 12}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 5, "2010": 5},
+                            "measure": 10}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {"2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 40, "2010": 40},
+                                "measure": {"2009": 24, "2010": 24}},
+                            "competed": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 4, "2010": 4}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 80, "2010": 80},
+                                "efficient": {"2009": 48, "2010": 48}},
+                            "competed": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 8, "2010": 8}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 120, "2010": 120},
+                                "efficient": {"2009": 72, "2010": 72}},
+                            "competed": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 12, "2010": 12}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 72, "2010": 72}},
+                                "competed": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 72, "2010": 72}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 80, "2010": 80},
+                                    "efficient": {"2009": 48, "2010": 48}},
+                                "competed": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 8, "2010": 8}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 120, "2010": 120},
+                                    "efficient": {"2009": 72, "2010": 72}},
+                                "competed": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 12, "2010": 12}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 5, "2010": 5},
+                            "measure": 10}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 6, "2010": 6}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 1, "2010": 1}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 12, "2010": 12}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 2, "2010": 2}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 18, "2010": 18}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 3, "2010": 3}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "measure": 10}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, 'new')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}},
+                            ("('primary', AIA_CZ2', 'single family home', "
+                             "'natural gas', 'water heating', None, "
+                             "'existing')"): {
+                                "b1": {"2009": 0.5, "2010": 0.5},
+                                "b2": {"2009": 0.5, "2010": 0.5}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {"2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}}}},
+            {
+            "name": "sample measure pkg 2",
+            "status": {"active": True, "finalized": True},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["existing"],
+            "climate_zone": ["AIA_CZ1"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity (grid)"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["lighting"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": [
+                "reflector (incandescent)",
+                "reflector (halogen)"], "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 200, "2010": 200},
+                                "measure": {"2009": 120, "2010": 120}},
+                            "competed": {
+                                "all": {"2009": 100, "2010": 100},
+                                "measure": {"2009": 20, "2010": 20}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 400, "2010": 400},
+                                "efficient": {"2009": 240, "2010": 240}},
+                            "competed": {
+                                "baseline": {"2009": 200, "2010": 200},
+                                "efficient": {"2009": 40, "2010": 40}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 600, "2010": 600},
+                                "efficient": {"2009": 360, "2010": 360}},
+                            "competed": {
+                                "baseline": {"2009": 300, "2010": 300},
+                                "efficient": {"2009": 60, "2010": 60}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}},
+                                "competed": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 400, "2010": 400},
+                                    "efficient": {"2009": 240, "2010": 240}},
+                                "competed": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 40, "2010": 40}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 600, "2010": 600},
+                                    "efficient": {"2009": 360, "2010": 360}},
+                                "competed": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 60, "2010": 60}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 1, "2010": 1},
+                            "measure": 20}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 2, "2010": 2},
+                                    "measure": 15}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 1, "2010": 1},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 200, "2010": 200},
+                                "measure": {"2009": 120, "2010": 120}},
+                            "competed": {
+                                "all": {"2009": 100, "2010": 100},
+                                "measure": {"2009": 20, "2010": 20}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 400, "2010": 400},
+                                "efficient": {"2009": 240, "2010": 240}},
+                            "competed": {
+                                "baseline": {"2009": 200, "2010": 200},
+                                "efficient": {"2009": 40, "2010": 40}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 600, "2010": 600},
+                                "efficient": {"2009": 360, "2010": 360}},
+                            "competed": {
+                                "baseline": {"2009": 300, "2010": 300},
+                                "efficient": {"2009": 60, "2010": 60}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}},
+                                "competed": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 400, "2010": 400},
+                                    "efficient": {"2009": 240, "2010": 240}},
+                                "competed": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 40, "2010": 40}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 600, "2010": 600},
+                                    "efficient": {"2009": 360, "2010": 360}},
+                                "competed": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 60, "2010": 60}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 1, "2010": 1},
+                            "measure": 20}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 2, "2010": 2},
+                                    "measure": 15}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 1, "2010": 1},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}}}},
+            {
+            "name": "sample measure pkg 3",
+            "status": {"active": True, "finalized": True},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new"],
+            "climate_zone": ["AIA_CZ5"],
+            "bldg_type": ["multi family home"],
+            "fuel_type": {"primary": ["electricity (grid)"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["cooling"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["ASHP"],
+                           "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 1000, "2010": 1000},
+                                "measure": {"2009": 600, "2010": 600}},
+                            "competed": {
+                                "all": {"2009": 500, "2010": 500},
+                                "measure": {"2009": 100, "2010": 100}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 2000, "2010": 2000},
+                                "efficient": {"2009": 1200, "2010": 1200}},
+                            "competed": {
+                                "baseline": {"2009": 1000, "2010": 1000},
+                                "efficient": {"2009": 200, "2010": 200}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 3000, "2010": 3000},
+                                "efficient": {"2009": 1800, "2010": 1800}},
+                            "competed": {
+                                "baseline": {"2009": 1500, "2010": 1500},
+                                "efficient": {"2009": 300, "2010": 300}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 180, "2010": 180}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 18, "2010": 18},
+                            "measure": 18}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ5', 'single family home', "
+                             "'electricity (grid)',"
+                             "'cooling', 'supply', 'ASHP', 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 1000, "2010": 1000},
+                                        "measure": {"2009": 600, "2010": 600}},
+                                    "competed": {
+                                        "all": {"2009": 500, "2010": 500},
+                                        "measure": {
+                                            "2009": 100, "2010": 100}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 2000, "2010": 2000},
+                                        "efficient": {
+                                            "2009": 1200, "2010": 1200}},
+                                    "competed": {
+                                        "baseline": {
+                                            "2009": 1000, "2010": 1000},
+                                        "efficient": {
+                                            "2009": 200, "2010": 200}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 3000, "2010": 3000},
+                                        "efficient": {
+                                            "2009": 1800, "2010": 1800}},
+                                    "competed": {
+                                        "baseline": {
+                                            "2009": 1500, "2010": 1500},
+                                        "efficient": {
+                                            "2009": 300, "2010": 300}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 18, "2010": 18},
+                                    "measure": 18}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ5', 'single family home', "
+                             "'electricity (grid)',"
+                             "'cooling', 'supply', 'ASHP', 'new')"): {
+                                "b1": {"2009": 0.75, "2010": 0.75},
+                                "b2": {"2009": 0.75, "2010": 0.75}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {"2009": 1, "2010": 1},
+                                'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 1000, "2010": 1000},
+                                "measure": {"2009": 600, "2010": 600}},
+                            "competed": {
+                                "all": {"2009": 500, "2010": 500},
+                                "measure": {"2009": 100, "2010": 100}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 2000, "2010": 2000},
+                                "efficient": {"2009": 1200, "2010": 1200}},
+                            "competed": {
+                                "baseline": {"2009": 1000, "2010": 1000},
+                                "efficient": {"2009": 200, "2010": 200}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 3000, "2010": 3000},
+                                "efficient": {"2009": 1800, "2010": 1800}},
+                            "competed": {
+                                "baseline": {"2009": 1500, "2010": 1500},
+                                "efficient": {"2009": 300, "2010": 300}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 180, "2010": 180}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 18, "2010": 18},
+                            "measure": 18}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ5', 'single family home', "
+                             "'electricity (grid)',"
+                             "'cooling', 'supply', 'ASHP', 'new')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 1000, "2010": 1000},
+                                        "measure": {"2009": 600, "2010": 600}},
+                                    "competed": {
+                                        "all": {"2009": 500, "2010": 500},
+                                        "measure": {
+                                            "2009": 100, "2010": 100}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 2000, "2010": 2000},
+                                        "efficient": {
+                                            "2009": 1200, "2010": 1200}},
+                                    "competed": {
+                                        "baseline": {
+                                            "2009": 1000, "2010": 1000},
+                                        "efficient": {
+                                            "2009": 200, "2010": 200}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 3000, "2010": 3000},
+                                        "efficient": {
+                                            "2009": 1800, "2010": 1800}},
+                                    "competed": {
+                                        "baseline": {
+                                            "2009": 1500, "2010": 1500},
+                                        "efficient": {
+                                            "2009": 300, "2010": 300}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 18, "2010": 18},
+                                    "measure": 18}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ5', 'single family home', "
+                             "'electricity (grid)',"
+                             "'cooling', 'supply', 'ASHP', 'new')"): {
+                                "b1": {"2009": 0.75, "2010": 0.75},
+                                "b2": {"2009": 0.75, "2010": 0.75}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}},
+                        "savings updated": False},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {"2009": 1, "2010": 1},
+                                'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}}}}]
+        cls.sample_package_name = "CAC + CFLs + NGWH"
+        cls.sample_package_in = measures_prep.MeasurePackage(
+            cls.sample_measures_in, cls.sample_package_name, handyvars)
+        cls.genattr_ok_out = [
+            'Package: CAC + CFLs + NGWH',
+            ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ5'],
+            ['single family home', 'multi family home'],
+            ['new', 'existing'],
+            ['electricity (grid)', 'natural gas'],
+            ['water heating', 'lighting', 'cooling']]
+        cls.markets_ok_out = {
+            "Technical potential": {
+                "master_mseg": {
+                    "stock": {
+                        "total": {
+                            "all": {'2010': 1240, '2009': 1240},
+                            "measure": {'2010': 744, '2009': 744}},
+                        "competed": {
+                            "all": {'2010': 620, '2009': 620},
+                            "measure": {'2010': 124, '2009': 124}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {'2010': 2480, '2009': 2480},
+                            "efficient": {'2010': 1488, '2009': 1488}},
+                        "competed": {
+                            "baseline": {'2010': 1240, '2009': 1240},
+                            "efficient": {'2010': 248, '2009': 248}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {'2010': 3720, '2009': 3720},
+                            "efficient": {'2010': 2232, '2009': 2232}},
+                        "competed": {
+                            "baseline": {'2010': 1860, '2009': 1860},
+                            "efficient": {'2010': 372, '2009': 372}}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 612, '2009': 612}},
+                            "competed": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 612, '2009': 612}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {'2010': 680, '2009': 680},
+                                "efficient": {'2010': 408, '2009': 408}},
+                            "competed": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 68, '2009': 68}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {'2010': 1020, '2009': 1020},
+                                "efficient": {'2010': 612, '2009': 612}},
+                            "competed": {
+                                "baseline": {'2010': 510, '2009': 510},
+                                "efficient": {'2010': 102, '2009': 102}}}},
+                    "lifetime": {
+                        "baseline": {'2010': 5.86, '2009': 5.86},
+                        "measure": 13.29}},
+                "mseg_adjust": {
+                    "contributing mseg keys and values": {
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (incandescent)', "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 1, "2010": 1},
+                                "measure": 20}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (halogen)', 'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 2, "2010": 2},
+                                "measure": 15}},
+                        ("('primary', AIA_CZ5', 'single family home', "
+                         "'electricity (grid)',"
+                         "'cooling', 'supply', 'ASHP', 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 1000, "2010": 1000},
+                                    "measure": {"2009": 600, "2010": 600}},
+                                "competed": {
+                                    "all": {"2009": 500, "2010": 500},
+                                    "measure": {"2009": 100, "2010": 100}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 2000, "2010": 2000},
+                                    "efficient": {"2009": 1200, "2010": 1200}},
+                                "competed": {
+                                    "baseline": {"2009": 1000, "2010": 1000},
+                                    "efficient": {"2009": 200, "2010": 200}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 3000, "2010": 3000},
+                                    "efficient": {"2009": 1800, "2010": 1800}},
+                                "competed": {
+                                    "baseline": {"2009": 1500, "2010": 1500},
+                                    "efficient": {"2009": 300, "2010": 300}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 18, "2010": 18},
+                                "measure": 18}}},
+                    "competed choice parameters": {
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (incandescent)', "
+                         "'existing')"): {
+                            "b1": {"2009": 0.25, "2010": 0.25},
+                            "b2": {"2009": 0.25, "2010": 0.25}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (halogen)', "
+                         "'existing')"): {
+                            "b1": {"2009": 0.25, "2010": 0.25},
+                            "b2": {"2009": 0.25, "2010": 0.25}},
+                        ("('primary', AIA_CZ5', 'single family home', "
+                         "'electricity (grid)',"
+                         "'cooling', 'supply', 'ASHP', 'new')"): {
+                            "b1": {"2009": 0.75, "2010": 0.75},
+                            "b2": {"2009": 0.75, "2010": 0.75}}},
+                    "secondary mseg adjustments": {
+                        "sub-market": {
+                            "original stock (total)": {},
+                            "adjusted stock (sub-market)": {}},
+                        "stock-and-flow": {
+                            "original stock (total)": {},
+                            "adjusted stock (previously captured)": {},
+                            "adjusted stock (competed)": {},
+                            "adjusted stock (competed and captured)": {}},
+                        "market share": {
+                            "original stock (total captured)": {},
+                            "original stock (competed and captured)": {},
+                            "adjusted stock (total captured)": {},
+                            "adjusted stock (competed and captured)": {}}},
+                    "supply-demand adjustment": {
+                        "savings": {},
+                        "total": {}},
+                    "savings updated": False},
+                "mseg_out_break": {
+                    'AIA CZ1': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {"2009": 0.161, "2010": 0.161},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0.016, "2010": 0.016},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ2': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0.016, "2010": 0.016},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ3': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ4': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ5': {
+                        'Residential': {
+                            'Cooling': {"2009": 0.806, "2010": 0.806},
+                            'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {},
+                            'Other': {}, 'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}}}},
+            "Max adoption potential": {
+                "master_mseg": {
+                    "stock": {
+                        "total": {
+                            "all": {'2010': 1240, '2009': 1240},
+                            "measure": {'2010': 744, '2009': 744}},
+                        "competed": {
+                            "all": {'2010': 620, '2009': 620},
+                            "measure": {'2010': 124, '2009': 124}}},
+                    "energy": {
+                        "total": {
+                            "baseline": {'2010': 2480, '2009': 2480},
+                            "efficient": {'2010': 1488, '2009': 1488}},
+                        "competed": {
+                            "baseline": {'2010': 1240, '2009': 1240},
+                            "efficient": {'2010': 248, '2009': 248}}},
+                    "carbon": {
+                        "total": {
+                            "baseline": {'2010': 3720, '2009': 3720},
+                            "efficient": {'2010': 2232, '2009': 2232}},
+                        "competed": {
+                            "baseline": {'2010': 1860, '2009': 1860},
+                            "efficient": {'2010': 372, '2009': 372}}},
+                    "cost": {
+                        "stock": {
+                            "total": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 612, '2009': 612}},
+                            "competed": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 612, '2009': 612}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {'2010': 680, '2009': 680},
+                                "efficient": {'2010': 408, '2009': 408}},
+                            "competed": {
+                                "baseline": {'2010': 340, '2009': 340},
+                                "efficient": {'2010': 68, '2009': 68}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {'2010': 1020, '2009': 1020},
+                                "efficient": {'2010': 612, '2009': 612}},
+                            "competed": {
+                                "baseline": {'2010': 510, '2009': 510},
+                                "efficient": {'2010': 102, '2009': 102}}}},
+                    "lifetime": {
+                        "baseline": {'2010': 5.86, '2009': 5.86},
+                        "measure": 13.29}},
+                "mseg_adjust": {
+                    "contributing mseg keys and values": {
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 10, "2010": 10},
+                                    "measure": {"2009": 6, "2010": 6}},
+                                "competed": {
+                                    "all": {"2009": 5, "2010": 5},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 12, "2010": 12}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 2, "2010": 2}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 18, "2010": 18}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 3, "2010": 3}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {
+                                            "2009": 18, "2010": 18}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 12, "2010": 12}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 2, "2010": 2}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 18, "2010": 18}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 3, "2010": 3}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 5, "2010": 5},
+                                "measure": 10}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (incandescent)', "
+                         "'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {
+                                            "2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 1, "2010": 1},
+                                "measure": 20}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (halogen)', 'existing')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {"2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {"2009": 150, "2010": 150},
+                                    "efficient": {"2009": 30, "2010": 30}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 2, "2010": 2},
+                                "measure": 15}},
+                        ("('primary', AIA_CZ5', 'single family home', "
+                         "'electricity (grid)',"
+                         "'cooling', 'supply', 'ASHP', 'new')"): {
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 1000, "2010": 1000},
+                                    "measure": {"2009": 600, "2010": 600}},
+                                "competed": {
+                                    "all": {"2009": 500, "2010": 500},
+                                    "measure": {"2009": 100, "2010": 100}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 2000, "2010": 2000},
+                                    "efficient": {"2009": 1200, "2010": 1200}},
+                                "competed": {
+                                    "baseline": {"2009": 1000, "2010": 1000},
+                                    "efficient": {"2009": 200, "2010": 200}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 3000, "2010": 3000},
+                                    "efficient": {"2009": 1800, "2010": 1800}},
+                                "competed": {
+                                    "baseline": {"2009": 1500, "2010": 1500},
+                                    "efficient": {"2009": 300, "2010": 300}}},
+                            "cost": {
+                                "stock": {
+                                    "total": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}}},
+                            "lifetime": {
+                                "baseline": {"2009": 18, "2010": 18},
+                                "measure": 18}}},
+                    "competed choice parameters": {
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, 'new')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ2', 'single family home', "
+                         "'natural gas', 'water heating', None, "
+                         "'existing')"): {
+                            "b1": {"2009": 0.5, "2010": 0.5},
+                            "b2": {"2009": 0.5, "2010": 0.5}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (incandescent)', "
+                         "'existing')"): {
+                            "b1": {"2009": 0.25, "2010": 0.25},
+                            "b2": {"2009": 0.25, "2010": 0.25}},
+                        ("('primary', AIA_CZ1', 'single family home', "
+                         "'electricity (grid)',"
+                         "'lighting', 'reflector (halogen)', "
+                         "'existing')"): {
+                            "b1": {"2009": 0.25, "2010": 0.25},
+                            "b2": {"2009": 0.25, "2010": 0.25}},
+                        ("('primary', AIA_CZ5', 'single family home', "
+                         "'electricity (grid)',"
+                         "'cooling', 'supply', 'ASHP', 'new')"): {
+                            "b1": {"2009": 0.75, "2010": 0.75},
+                            "b2": {"2009": 0.75, "2010": 0.75}}},
+                    "secondary mseg adjustments": {
+                        "sub-market": {
+                            "original stock (total)": {},
+                            "adjusted stock (sub-market)": {}},
+                        "stock-and-flow": {
+                            "original stock (total)": {},
+                            "adjusted stock (previously captured)": {},
+                            "adjusted stock (competed)": {},
+                            "adjusted stock (competed and captured)": {}},
+                        "market share": {
+                            "original stock (total captured)": {},
+                            "original stock (competed and captured)": {},
+                            "adjusted stock (total captured)": {},
+                            "adjusted stock (competed and captured)": {}}},
+                    "supply-demand adjustment": {
+                        "savings": {},
+                        "total": {}},
+                    "savings updated": False},
+                "mseg_out_break": {
+                    'AIA CZ1': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {"2009": 0.161, "2010": 0.161},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0.016, "2010": 0.016},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ2': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0.016, "2010": 0.016},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ3': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ4': {
+                        'Residential': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}},
+                    'AIA CZ5': {
+                        'Residential': {
+                            'Cooling': {"2009": 0.806, "2010": 0.806},
+                            'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {},
+                            'Other': {}, 'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}},
+                        'Commercial': {
+                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {}, 'Heating': {}}}}}}
+
+    def test_package_measure(self):
+        """Test 'merge_measures' function given valid inputs."""
+        self.sample_package_in.merge_measures()
+        # Check for correct general attributes for packaged measure
+        output_lists = [
+            self.sample_package_in.name, self.sample_package_in.climate_zone,
+            self.sample_package_in.bldg_type,
+            self.sample_package_in.structure_type,
+            self.sample_package_in.fuel_type["primary"],
+            self.sample_package_in.end_use["primary"]]
+        for ind in range(0, len(output_lists)):
+            self.assertEqual(sorted(self.genattr_ok_out[ind]),
+                             sorted(output_lists[ind]))
+        # Check for correct markets for packaged measure
+        self.dict_check(self.sample_package_in.markets, self.markets_ok_out)
 
 
 # Offer external code execution (include all lines below this point in all
