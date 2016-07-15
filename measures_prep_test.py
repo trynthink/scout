@@ -11,6 +11,7 @@ import numpy
 import os
 from collections import OrderedDict
 import warnings
+import copy
 
 
 class CommonMethods(object):
@@ -684,7 +685,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         sample_cpl_in (dict): Sample baseline technology cost, performance,
             and lifetime.
         ok_tpmeas_fullchk_in (list): Valid sample measure information
-            to update with markets data; measure cost, performance, and lifetime
+            to update with markets data; measure cost, performance, and life
             attributes are given as point estimates. Used to check the full
             measure 'markets' attribute under a 'Technical potential scenario.
         ok_tpmeas_partchk_in (list): Valid sample measure information to update
@@ -693,7 +694,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             'master_mseg' branch of measure 'markets' attribute under a
             'Technical potential scenario.
         ok_mapmeas_partchk_in (list): Valid sample measure information
-            to update with markets data; measure cost, performance, and lifetime
+            to update with markets data; measure cost, performance, and life
             attributes are given as point estimates. Used to check the
             'master_mseg' branch of measure 'markets' attribute under a 'Max
             adoption potential scenario.
@@ -7267,8 +7268,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                         "adjusted stock (competed and captured)": {}}},
                 "supply-demand adjustment": {
                     "savings": {},
-                    "total": {}},
-                "savings updated": False}}
+                    "total": {}}}}
         cls.sample_measure_in = measures_prep.Measure(
             handyvars, **sample_measure)
         cls.ok_out_primary = [
@@ -7534,117 +7534,18 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
                 self.ok_dict3_in, self.ok_dict4_in), self.ok_out_restrict)
 
 
-class ReduceSqftStockCostTest(unittest.TestCase, CommonMethods):
-    """Test 'reduce_sqft' function.
+class DivKeyValsTest(unittest.TestCase, CommonMethods):
+    """Test 'div_keyvals' function.
 
-    Ensure that the function properly divides dict key values by a given
-    factor to avoid double counting microsegment stock/stock cost when ft^2
-    floor area is used as stock.
-
-    Attributes:
-        sample_measure_in (dict): Sample measure attributes.
-        ok_reduce_factor (int): Factor by which dict values should be divided.
-        ok_dict_in (dict): Sample input dict with values to divide.
-        ok_out (dict): Output dictionary that should be yielded by function
-            given valid inputs.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
-        sample_measure_in = {
-            "name": "sample measure 1",
-            "active": 1,
-            "market_entry_year": None,
-            "market_exit_year": None,
-            "market_scaling_fractions": None,
-            "market_scaling_fractions_source": None,
-            "measure_type": "full service",
-            "structure_type": ["new", "existing"],
-            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "bldg_type": ["single family home"],
-            "fuel_type": {
-                "primary": ["electricity (grid)"],
-                "secondary": None},
-            "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
-            "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
-                "secondary": None}}
-        cls.sample_measure_in = measures_prep.Measure(
-            handyvars, **sample_measure_in)
-        cls.ok_reduce_factor = 4
-        cls.ok_dict_in = {
-            "stock": {
-                "total": {"2009": 100, "2010": 200},
-                "competed": {"2009": 300, "2010": 400}},
-            "energy": {
-                "total": {"2009": 500, "2010": 600},
-                "competed": {"2009": 700, "2010": 800},
-                "efficient": {"2009": 700, "2010": 800}},
-            "carbon": {
-                "total": {"2009": 500, "2010": 600},
-                "competed": {"2009": 700, "2010": 800},
-                "efficient": {"2009": 700, "2010": 800}},
-            "cost": {
-                "baseline": {
-                    "stock": {"2009": 900, "2010": 1000},
-                    "energy": {"2009": 900, "2010": 1000},
-                    "carbon": {"2009": 900, "2010": 1000}},
-                "measure": {
-                    "stock": {"2009": 1100, "2010": 1200},
-                    "energy": {"2009": 1100, "2010": 1200},
-                    "carbon": {"2009": 1100, "2010": 1200}}}}
-        cls.ok_out = {
-            "stock": {
-                "total": {"2009": 25, "2010": 50},
-                "competed": {"2009": 75, "2010": 100}},
-            "energy": {
-                "total": {"2009": 500, "2010": 600},
-                "competed": {"2009": 700, "2010": 800},
-                "efficient": {"2009": 700, "2010": 800}},
-            "carbon": {
-                "total": {"2009": 500, "2010": 600},
-                "competed": {"2009": 700, "2010": 800},
-                "efficient": {"2009": 700, "2010": 800}},
-            "cost": {
-                "baseline": {
-                    "stock": {"2009": 225, "2010": 250},
-                    "energy": {"2009": 900, "2010": 1000},
-                    "carbon": {"2009": 900, "2010": 1000}},
-                "measure": {
-                    "stock": {"2009": 275, "2010": 300},
-                    "energy": {"2009": 1100, "2010": 1200},
-                    "carbon": {"2009": 1100, "2010": 1200}}}}
-
-    def test_ok_add(self):
-        """Test 'reduce_sqft' function given valid inputs.
-
-        Raises:
-            AssertionError: If function yields unexpected results.
-        """
-        self.dict_check(
-            self.sample_measure_in.reduce_sqft(
-                self.ok_dict_in, self.ok_reduce_factor), self.ok_out)
-
-
-class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
-    """Test 'out_break_norm' function.
-
-    Ensure that the function properly normalizes dict key values by
-    a given factor to yield output partitioning fractions (used
-    to break out results by climate zone, building sector, end use).
+    Ensure that the function properly divides the key values of one dict
+    by those of another. Test inputs reflect the use of this function
+    to generate output partitioning fractions (used to break out
+    measure results by climate zone, building sector, end use).
 
     Attributes:
         sample_measure_in (dict): Sample measure attributes.
-        ok_reduce_factors (dict): Factors to normalize dict values by.
+        ok_reduce_dict (dict): Values from second dict to normalize first
+            dict values by.
         ok_dict_in (dict): Sample input dict with values to normalize.
         ok_out (dict): Output dictionary that should be yielded by the
             function given valid inputs.
@@ -7681,7 +7582,7 @@ class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
                 "secondary": None}}
         cls.sample_measure_in = measures_prep.Measure(
             handyvars, **sample_measure_in)
-        cls.ok_reduce_factors = {"2009": 100, "2010": 100}
+        cls.ok_reduce_dict = {"2009": 100, "2010": 100}
         cls.ok_dict_in = {
             "AIA CZ1": {
                 "Residential": {
@@ -7714,14 +7615,149 @@ class NormalizeOutputBreakoutTest(unittest.TestCase, CommonMethods):
                     "Cooling": {"2009": .45, "2010": .45}}}}
 
     def test_ok(self):
-        """Test 'out_break_norm' function given valid inputs.
+        """Test 'div_keyvals' function given valid inputs.
 
         Raises:
             AssertionError: If function yields unexpected results.
         """
         self.dict_check(
-            self.sample_measure_in.out_break_norm(
-                self.ok_dict_in, self.ok_reduce_factors), self.ok_out)
+            self.sample_measure_in.div_keyvals(
+                self.ok_dict_in, self.ok_reduce_dict), self.ok_out)
+
+
+class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
+    """Test 'div_keyvals_float' and div_keyvals_float_restrict' functions.
+
+    Ensure that the functions properly divide dict key values by a given
+    factor.
+
+    Attributes:
+        sample_measure_in (dict): Sample measure attributes.
+        ok_reduce_num (float): Factor by which dict values should be divided.
+        ok_dict_in (dict): Sample input dict with values to divide.
+        ok_out (dict): Output dictionary that should be yielded by
+            'div_keyvals_float' function given valid inputs.
+        ok_out_restrict (dict): Output dictionary that should be yielded by
+            'div_keyvals_float_restrict'function given valid inputs.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        handyvars = measures_prep.UsefulVars()
+        sample_measure_in = {
+            "name": "sample measure 1",
+            "active": 1,
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {
+                "primary": ["electricity (grid)"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": ["heating", "cooling"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply", "secondary": None},
+            "technology": {
+                "primary": [
+                    "boiler (electric)", "ASHP", "GSHP",
+                    "room AC"],
+                "secondary": None}}
+        cls.sample_measure_in = measures_prep.Measure(
+            handyvars, **sample_measure_in)
+        cls.ok_reduce_num = 4
+        cls.ok_dict_in = {
+            "stock": {
+                "total": {"2009": 100, "2010": 200},
+                "competed": {"2009": 300, "2010": 400}},
+            "energy": {
+                "total": {"2009": 500, "2010": 600},
+                "competed": {"2009": 700, "2010": 800},
+                "efficient": {"2009": 700, "2010": 800}},
+            "carbon": {
+                "total": {"2009": 500, "2010": 600},
+                "competed": {"2009": 700, "2010": 800},
+                "efficient": {"2009": 700, "2010": 800}},
+            "cost": {
+                "baseline": {
+                    "stock": {"2009": 900, "2010": 1000},
+                    "energy": {"2009": 900, "2010": 1000},
+                    "carbon": {"2009": 900, "2010": 1000}},
+                "measure": {
+                    "stock": {"2009": 1100, "2010": 1200},
+                    "energy": {"2009": 1100, "2010": 1200},
+                    "carbon": {"2009": 1100, "2010": 1200}}}}
+        cls.ok_out = {
+            "stock": {
+                "total": {"2009": 25, "2010": 50},
+                "competed": {"2009": 75, "2010": 100}},
+            "energy": {
+                "total": {"2009": 125, "2010": 150},
+                "competed": {"2009": 175, "2010": 200},
+                "efficient": {"2009": 175, "2010": 200}},
+            "carbon": {
+                "total": {"2009": 125, "2010": 150},
+                "competed": {"2009": 175, "2010": 200},
+                "efficient": {"2009": 175, "2010": 200}},
+            "cost": {
+                "baseline": {
+                    "stock": {"2009": 225, "2010": 250},
+                    "energy": {"2009": 225, "2010": 250},
+                    "carbon": {"2009": 225, "2010": 250}},
+                "measure": {
+                    "stock": {"2009": 275, "2010": 300},
+                    "energy": {"2009": 275, "2010": 300},
+                    "carbon": {"2009": 275, "2010": 300}}}}
+        cls.ok_out_restrict = {
+            "stock": {
+                "total": {"2009": 25, "2010": 50},
+                "competed": {"2009": 75, "2010": 100}},
+            "energy": {
+                "total": {"2009": 500, "2010": 600},
+                "competed": {"2009": 700, "2010": 800},
+                "efficient": {"2009": 700, "2010": 800}},
+            "carbon": {
+                "total": {"2009": 500, "2010": 600},
+                "competed": {"2009": 700, "2010": 800},
+                "efficient": {"2009": 700, "2010": 800}},
+            "cost": {
+                "baseline": {
+                    "stock": {"2009": 225, "2010": 250},
+                    "energy": {"2009": 900, "2010": 1000},
+                    "carbon": {"2009": 900, "2010": 1000}},
+                "measure": {
+                    "stock": {"2009": 275, "2010": 300},
+                    "energy": {"2009": 1100, "2010": 1200},
+                    "carbon": {"2009": 1100, "2010": 1200}}}}
+
+    def test_ok_div(self):
+        """Test 'div_keyvals_float' function given valid inputs.
+
+        Raises:
+            AssertionError: If function yields unexpected results.
+        """
+        self.dict_check(
+            self.sample_measure_in.div_keyvals_float(
+                copy.deepcopy(self.ok_dict_in), self.ok_reduce_num),
+            self.ok_out)
+
+    def test_ok_div_restrict(self):
+        """Test 'div_keyvals_float_restrict' function given valid inputs.
+
+        Raises:
+            AssertionError: If function yields unexpected results.
+        """
+        self.dict_check(
+            self.sample_measure_in.div_keyvals_float_restrict(
+                copy.deepcopy(self.ok_dict_in), self.ok_reduce_num),
+            self.ok_out_restrict)
 
 
 class CostConversionTest(unittest.TestCase, CommonMethods):
@@ -7801,8 +7837,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "adjusted stock (competed and captured)": {}}},
                 "supply-demand adjustment": {
                     "savings": {},
-                    "total": {}},
-                "savings updated": False}}
+                    "total": {}}}}
         cls.sample_measure_in = measures_prep.Measure(
             handyvars, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
@@ -8757,8 +8792,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
@@ -9163,8 +9197,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
@@ -9475,8 +9508,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
@@ -9764,8 +9796,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
@@ -9856,12 +9887,17 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             "fuel_type": {"primary": ["electricity (grid)"],
                           "secondary": None},
             "fuel_switch_to": None,
-            "end_use": {"primary": ["cooling"],
-                        "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
-            "technology": {"primary": ["ASHP"],
-                           "secondary": None},
+            "end_use": {
+                "primary": ["cooling", "lighting"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": [
+                    "ASHP",
+                    "reflector (incandescent)"],
+                "secondary": None},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -9913,6 +9949,72 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "measure": 18}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}},
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity (grid)',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -9988,7 +10090,13 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                              "'electricity (grid)',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "b1": {"2009": 0.75, "2010": 0.75},
-                                "b2": {"2009": 0.75, "2010": 0.75}}},
+                                "b2": {"2009": 0.75, "2010": 0.75}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
                                 "original stock (total)": {},
@@ -10005,13 +10113,12 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
+                                'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10134,6 +10241,72 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "measure": 18}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}},
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity (grid)',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -10209,7 +10382,13 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                              "'electricity (grid)',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "b1": {"2009": 0.75, "2010": 0.75},
-                                "b2": {"2009": 0.75, "2010": 0.75}}},
+                                "b2": {"2009": 0.75, "2010": 0.75}},
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (halogen)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
                                 "original stock (total)": {},
@@ -10226,13 +10405,12 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
+                                'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10304,6 +10482,493 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
+                                'Heating': {}}}}}}},
+            {
+            "name": "sample measure pkg 4",
+            "status": {"active": True, "finalized": True},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "add-on",
+            "structure_type": ["existing"],
+            "climate_zone": ["AIA_CZ1"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {
+                "primary": ["electricity (grid)"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["lighting"],
+                        "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {"primary": [
+                "reflector (incandescent)"], "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 100, "2010": 100},
+                                "measure": {"2009": 60, "2010": 60}},
+                            "competed": {
+                                "all": {"2009": 50, "2010": 50},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 200, "2010": 200},
+                                "efficient": {
+                                    "2009": 120, "2010": 120}},
+                            "competed": {
+                                "baseline": {"2009": 100, "2010": 100},
+                                "efficient": {
+                                    "2009": 20, "2010": 20}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 300, "2010": 300},
+                                "efficient": {
+                                    "2009": 180, "2010": 180}},
+                            "competed": {
+                                "baseline": {"2009": 150, "2010": 150},
+                                "efficient": {
+                                    "2009": 30, "2010": 30}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 200, "2010": 200},
+                                    "efficient": {
+                                        "2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 300, "2010": 300},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 150, "2010": 150},
+                                    "efficient": {
+                                        "2009": 30, "2010": 30}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 1, "2010": 1},
+                            "measure": 20}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}}},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 1, "2010": 1},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}}}},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 100, "2010": 100},
+                                "measure": {"2009": 60, "2010": 60}},
+                            "competed": {
+                                "all": {"2009": 50, "2010": 50},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 200, "2010": 200},
+                                "efficient": {
+                                    "2009": 120, "2010": 120}},
+                            "competed": {
+                                "baseline": {"2009": 100, "2010": 100},
+                                "efficient": {
+                                    "2009": 20, "2010": 20}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 300, "2010": 300},
+                                "efficient": {
+                                    "2009": 180, "2010": 180}},
+                            "competed": {
+                                "baseline": {"2009": 150, "2010": 150},
+                                "efficient": {
+                                    "2009": 30, "2010": 30}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 200, "2010": 200},
+                                    "efficient": {
+                                        "2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 20, "2010": 20}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {
+                                        "2009": 300, "2010": 300},
+                                    "efficient": {
+                                        "2009": 180, "2010": 180}},
+                                "competed": {
+                                    "baseline": {
+                                        "2009": 150, "2010": 150},
+                                    "efficient": {
+                                        "2009": 30, "2010": 30}}}},
+                        "lifetime": {
+                            "baseline": {"2009": 1, "2010": 1},
+                            "measure": 20}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
+                                    "competed": {
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 200, "2010": 200},
+                                        "efficient": {
+                                            "2009": 120, "2010": 120}},
+                                    "competed": {
+                                        "baseline": {"2009": 100, "2010": 100},
+                                        "efficient": {
+                                            "2009": 20, "2010": 20}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 300, "2010": 300},
+                                        "efficient": {
+                                            "2009": 180, "2010": 180}},
+                                    "competed": {
+                                        "baseline": {"2009": 150, "2010": 150},
+                                        "efficient": {
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20}}},
+                        "competed choice parameters": {
+                            ("('primary', AIA_CZ1', 'single family home', "
+                             "'electricity (grid)',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
+                                "b1": {"2009": 0.25, "2010": 0.25},
+                                "b2": {"2009": 0.25, "2010": 0.25}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {},
+                                "adjusted stock (previously captured)": {},
+                                "adjusted stock (competed)": {},
+                                "adjusted stock (competed and captured)": {}},
+                            "market share": {
+                                "original stock (total captured)": {},
+                                "original stock (competed and captured)": {},
+                                "adjusted stock (total captured)": {},
+                                "adjusted stock (competed and captured)": {}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}}},
+                    "mseg_out_break": {
+                        'AIA CZ1': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 1, "2010": 1},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ3': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ4': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ5': {
+                            'Residential': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {}, 'Refrigeration': {},
+                                'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
                                 'Heating': {}}}}}}}]
         cls.sample_package_name = "CAC + CFLs + NGWH"
         cls.sample_package_in = measures_prep.MeasurePackage(
@@ -10339,14 +11004,14 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                         "competed": {
                             "baseline": {'2010': 1860, '2009': 1860},
                             "efficient": {'2010': 372, '2009': 372}}},
-                    "cost": {
-                        "stock": {
-                            "total": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 612, '2009': 612}},
-                            "competed": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 612, '2009': 612}}},
+                    'cost': {
+                        'stock': {
+                            'competed': {
+                                'efficient': {'2010': 692, '2009': 692},
+                                "baseline": {'2010': 340, '2009': 340}},
+                            'total': {
+                                'efficient': {'2010': 692, '2009': 692},
+                                "baseline": {'2010': 340, '2009': 340}}},
                         "energy": {
                             "total": {
                                 "baseline": {'2010': 680, '2009': 680},
@@ -10595,11 +11260,11 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                         "baseline": {
                                             "2009": 100, "2010": 100},
                                         "efficient": {
-                                            "2009": 180, "2010": 180}},
+                                            "2009": 260, "2010": 260}},
                                     "competed": {
                                         "baseline": {"2009": 100, "2010": 100},
                                         "efficient": {
-                                            "2009": 180, "2010": 180}}},
+                                            "2009": 260, "2010": 260}}},
                                 "energy": {
                                     "total": {
                                         "baseline": {"2009": 200, "2010": 200},
@@ -10783,8 +11448,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "adjusted stock (competed and captured)": {}}},
                     "supply-demand adjustment": {
                         "savings": {},
-                        "total": {}},
-                    "savings updated": False},
+                        "total": {}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential': {
@@ -10866,14 +11530,14 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                         "competed": {
                             "baseline": {'2010': 1860, '2009': 1860},
                             "efficient": {'2010': 372, '2009': 372}}},
-                    "cost": {
-                        "stock": {
-                            "total": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 612, '2009': 612}},
-                            "competed": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 612, '2009': 612}}},
+                    'cost': {
+                        'stock': {
+                            'competed': {
+                                'efficient': {'2010': 692, '2009': 692},
+                                "baseline": {'2010': 340, '2009': 340}},
+                            'total': {
+                                'efficient': {'2010': 692, '2009': 692},
+                                "baseline": {'2010': 340, '2009': 340}}},
                         "energy": {
                             "total": {
                                 "baseline": {'2010': 680, '2009': 680},
@@ -11122,11 +11786,11 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                         "baseline": {
                                             "2009": 100, "2010": 100},
                                         "efficient": {
-                                            "2009": 180, "2010": 180}},
+                                            "2009": 260, "2010": 260}},
                                     "competed": {
                                         "baseline": {"2009": 100, "2010": 100},
                                         "efficient": {
-                                            "2009": 180, "2010": 180}}},
+                                            "2009": 260, "2010": 260}}},
                                 "energy": {
                                     "total": {
                                         "baseline": {"2009": 200, "2010": 200},
@@ -11310,8 +11974,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "adjusted stock (competed and captured)": {}}},
                     "supply-demand adjustment": {
                         "savings": {},
-                        "total": {}},
-                    "savings updated": False},
+                        "total": {}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential': {

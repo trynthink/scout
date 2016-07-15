@@ -224,7 +224,7 @@ class EPlusMapDicts(object):
             "food service": {
                 "QuickServiceRestaurant": 0.31,
                 "FullServiceRestaurant": 0.69},
-            "healthcare": None,
+            "health care": None,
             "lodging": {
                 "SmallHotel": 0.26,
                 "LargeHotel": 0.74},
@@ -234,7 +234,7 @@ class EPlusMapDicts(object):
             "small office": {
                 "SmallOffice": 0.12,
                 "OutpatientHealthcare": 0.88},
-            "mercantile and service": {
+            "mercantile/service": {
                 "RetailStandalone": 0.53,
                 "RetailStripmall": 0.47},
             "warehouse": {
@@ -471,8 +471,8 @@ class Measure(object):
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
-            b) 'mseg_adjust': master microsegment adjustments that may
-               eventually be required for measure competition.
+            b) 'mseg_adjust': all microsegments that contribute to each master
+               microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (e.g., climate zone, building type, end use, etc.)
     """
@@ -537,8 +537,7 @@ class Measure(object):
                             "adjusted stock (competed and captured)": {}}},
                     "supply-demand adjustment": {
                         "savings": {},
-                        "total": {}},
-                    "savings updated": False},
+                        "total": {}}},
                 "mseg_out_break": copy.deepcopy(
                     self.handyvars.out_break_in)}
 
@@ -1678,23 +1677,23 @@ class Measure(object):
                         structure_types = 1
                     # Create a factor for reduction of msegs with ft^2 floor
                     # area stock
-                    reduce_factor = key_chain_ct / (len(ms_lists[0]) *
+                    reduce_num = key_chain_ct / (len(ms_lists[0]) *
                                                     len(ms_lists[1]) *
                                                     structure_types)
                     # Adjust master microsegment by above factor
                     self.markets[adopt_scheme]["master_mseg"] = \
-                        self.reduce_sqft(self.markets[adopt_scheme][
-                            "master_mseg"], reduce_factor)
+                        self.div_keyvals_float_restrict(self.markets[
+                            adopt_scheme]["master_mseg"], reduce_num)
                     # Adjust all recorded microsegments that contributed to the
                     # master microsegment by above factor
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"] = \
-                        self.reduce_sqft(copy.deepcopy(
+                        self.div_keyvals_float_restrict(copy.deepcopy(
                             self.markets[adopt_scheme]["mseg_adjust"][
                                 "contributing mseg keys and values"]),
-                        reduce_factor)
+                        reduce_num)
                 else:
-                    reduce_factor = 1
+                    reduce_num = 1
 
                 # Normalize baseline energy use values for each category in the
                 # measure's output breakout dictionary by the total baseline
@@ -1703,7 +1702,7 @@ class Measure(object):
                 # eventually be used to breakout measure energy and carbon
                 # markets/savings by climate zone, building type, and end use
                 self.markets[adopt_scheme]["mseg_out_break"] = \
-                    self.out_break_norm(
+                    self.div_keyvals(
                     self.markets[adopt_scheme]["mseg_out_break"],
                     self.markets[adopt_scheme]["master_mseg"][
                         'energy']['total']['baseline'])
@@ -2534,7 +2533,10 @@ class Measure(object):
         return ms_iterable, ms_lists
 
     def add_keyvals(self, dict1, dict2):
-        """Add key values of two identically structured dicts together.
+        """Add key values of two dicts together.
+
+        Notes:
+            Dicts must be identically structured.
 
         Args:
             dict1 (dict): First dictionary to add.
@@ -2561,7 +2563,7 @@ class Measure(object):
         return dict1
 
     def add_keyvals_restrict(self, dict1, dict2):
-        """Add key values of two dicts, with certain restrictions.
+        """Add key values of two dicts, with restrictions.
 
         Notes:
             Restrict the addition of 'lifetime' information. This
@@ -2570,6 +2572,7 @@ class Measure(object):
             lifetimes for these components will be the same and
             need not be added and averaged later, as is the case
             for summed lifetime information yielded by 'add_keyvals'.
+            Dicts must be identically structured.
 
         Args:
             dict1 (dict): First dictionary to add.
@@ -2595,6 +2598,86 @@ class Measure(object):
                         dict1[k] = dict1[k] + dict2[k]
             else:
                 raise KeyError('Add dict keys do not match!')
+        return dict1
+
+    def div_keyvals(self, dict1, dict2):
+        """Divide key values of one dict by analogous values of another.
+
+        Notes:
+            This function is used to generate partitioning fractions
+            for key measure results. In that case the function divides a
+            measure's climate, building, and end use-specific
+            baseline energy use by its total baseline energy use
+            (both organized by year). Dicts must be identically structured.
+
+        Args:
+            dict1 (dict): Dict with values to divide.
+            dict2 (dict): Dict with factors to divide values of first dict by.
+
+        Returns:
+            An updated version of the first dict with all original
+            values divided by the analogous values in the second dict.
+        """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.div_keyvals(i, dict2)
+            else:
+                if dict2[k] != 0:  # Handle total energy use of zero
+                    dict1[k] = dict1[k] / dict2[k]
+                else:
+                    dict1[k] = 0
+        return dict1
+
+    def div_keyvals_float(self, dict1, reduce_num):
+        """Divide a dict's key values by a single number.
+
+        Args:
+            dict1 (dict): Dictionary with values to divide.
+            reduce_num (float): Factor to divide dict values by.
+
+        Returns:
+            An updated dict with all original values divided by the
+            number.
+
+        """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.div_keyvals_float(i, reduce_num)
+            else:
+                if reduce_num != 0:  # Handle zero values
+                    dict1[k] = dict1[k] / reduce_num
+                else:
+                    dict1[k] = 0
+        return dict1
+
+    def div_keyvals_float_restrict(self, dict1, reduce_num):
+        """Divide a dict's key values by a factor, with restrictions.
+
+        Notes:
+            This function handles the special case where square footage
+            is used as microsegment stock and double counted stock/stock
+            cost must be factored out. As this special case only concerns
+            microsegment stock and stock cost numbers, the function
+            does not apply the input factor to microsegment energy,
+            carbon, and lifetime information in the dict.
+
+        Args:
+            dict1 (dict): Dictionary with values to divide.
+            reduce_num (float): Number to divide dict values by.
+
+        Returns:
+            An updated dict with all non-restricted original values divided
+            by the number.
+        """
+        for (k, i) in dict1.items():
+            # Do not divide any energy, carbon, or lifetime information
+            if (k == "energy" or k == "carbon" or k == "lifetime"):
+                continue
+            else:
+                if isinstance(i, dict):
+                    self.div_keyvals_float_restrict(i, reduce_num)
+                else:
+                    dict1[k] = dict1[k] / reduce_num
         return dict1
 
     def rand_list_gen(self, distrib_info, nsamples):
@@ -2637,69 +2720,6 @@ class Measure(object):
             raise ValueError("Unsupported input distribution specification!")
 
         return rand_list
-
-    def reduce_sqft(self, dict1, reduce_factor):
-        """Divide input dictionary values by a given factor.
-
-        Notes:
-            Handles special case where square footage is used as
-            microsegment stock and double counted stock/stock cost
-            must be factored out. As this special case only concerns
-            microsegment stock and stock cost numbers, the function
-            does not apply the input factor to microsegment energy,
-            carbon, and lifetime information in the dict.
-
-        Args:
-            dict1 (dict): Baseline dictionary with microsegment
-                stock, energy, carbon, and cost information.
-            reduce_factor (float): Factor by which to divide the stock
-                and stock cost information.
-
-        Returns:
-            Microsegment dictionary with all stock/stock cost information
-                divided by the input factor.
-        """
-        for (k, i) in dict1.items():
-            # Do not divide any energy, carbon, or lifetime information
-            if (k == "energy" or k == "carbon" or k == "lifetime"):
-                continue
-            else:
-                if isinstance(i, dict):
-                    self.reduce_sqft(i, reduce_factor)
-                else:
-                    dict1[k] = dict1[k] / reduce_factor
-        return dict1
-
-    def out_break_norm(self, dict1, reduce_factor):
-        """Generate fractions used to partition key measure results.
-
-        Notes:
-            Divide a measure's climate, building, and end use-specific
-            baseline energy use by its total baseline energy use, yielding
-            climate, building sector, and end use partitioning fractions
-            used in output plot breakdowns.
-
-        Args:
-            dict1 (dict): Climate zone, building sector, and end use
-                specific baseline energy use values to be
-                normalized by total baseline energy use, by year.
-            reduce_factor (dict): Total baseline energy use to use in
-                normalizing climate zone, building sector, and end use
-                specific energy use values, by year.
-
-        Returns:
-            Dictionary of fractions to use in partitioning measure energy
-            and carbon results by climate zone, building sector, and end use.
-        """
-        for (k, i) in dict1.items():
-            if isinstance(i, dict):
-                self.out_break_norm(i, reduce_factor)
-            else:
-                if reduce_factor[k] != 0:  # Handle total energy use of zero
-                    dict1[k] = dict1[k] / reduce_factor[k]
-                else:
-                    dict1[k] = 0
-        return dict1
 
     def fill_perf_dict(
             self, perf_dict, eplus_perf_array, vintage_weights,
@@ -3035,8 +3055,8 @@ class MeasurePackage(Measure):
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a package's master market microsegments (stock,
                energy, carbon, cost),
-            b) 'mseg_adjust': master microsegment adjustments that may
-               eventually be required for measure competition.
+            b) 'mseg_adjust': all microsegments that contribute to each master
+               microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (e.g., climate zone, building type, end use, etc.)
     """
@@ -3085,17 +3105,12 @@ class MeasurePackage(Measure):
                             "competed": {
                                 "baseline": None, "efficient": None}}},
                     "lifetime": {"baseline": None, "measure": None}},
-                "mseg_adjust": {},
+                "mseg_adjust": {
+                    "contributing mseg keys and values": {},
+                    "competed choice parameters": {},
+                    "secondary mseg adjustments": {},
+                    "supply-demand adjustment": {}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
-
-    def remove_pkg_overlaps(self):
-        """Remove any market overlaps between measures to be packaged.
-
-        Returns:
-            Updated markets for the measures to be packaged with all
-            stock, energy, carbon, and/or cost overlaps removed.
-        """
-        pass
 
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
@@ -3131,74 +3146,39 @@ class MeasurePackage(Measure):
                 list(set(m["end_use"]["primary"]) -
                      set(self.end_use["primary"])))
 
-            # Generate a dictionary with information about all the
+            # Generate a dictionary with data about all the
             # microsegments that contribute to the packaged measure's
             # master microsegment
             for adopt_scheme in self.handyvars.adopt_schemes:
-                # Set contributing microsegment info. for package measure
-                mseg_adj_meas = m["markets"][adopt_scheme]["mseg_adjust"]
-                # Set contributing microsegment info. to update for package
-                mseg_adj_pkg = self.markets[adopt_scheme]["mseg_adjust"]
+                # Set contributing microsegment data for package measure
+                msegs_meas = m["markets"][adopt_scheme]["mseg_adjust"]
+                # Set contributing microsegment data to update for package
+                msegs_pkg = self.markets[adopt_scheme]["mseg_adjust"]
                 # Loop through all measures in package and add contributing
-                # microsegment information for measure
-                for k in mseg_adj_meas.keys():
-                    # Case where we are adding the first of the measures
-                    # that contribute to the package
-                    if ind == 0:
-                        mseg_adj_pkg[k] = mseg_adj_meas[k]
-                    # Case where we are adding subsequent measures that
-                    # contribute to the package
-                    else:
-                        # Add measure's contributing microsegments
-                        if k == "contributing mseg keys and values":
-                            for cm in mseg_adj_meas[k].keys():
-                                # Account for overlaps between the current
-                                # contributing microsegment and existing
-                                # contributing microsegments for the package
-                                if cm in mseg_adj_pkg[k].keys():
-                                    # Add in measure captured stock
-                                    mseg_adj_pkg[k][cm]["stock"]["measure"] \
-                                        += mseg_adj_meas[
-                                            k][cm]["stock"]["measure"]
-                                    # Add in measure energy/carbon savings
-                                    for kt in ["energy", "carbon"]:
-                                        mseg_adj_pkg[k][cm][kt][
-                                            "efficient"] -= (
-                                            mseg_adj_meas[k][cm][kt][
-                                                "baseline"] -
-                                            mseg_adj_meas[k][cm][kt][
-                                                "efficient"])
-                                    # Add in measure stock, energy, and carbon
-                                    # cost savings
-                                    for kt in ["stock", "energy", "carbon"]:
-                                        mseg_adj_pkg[k][cm]["cost"][kt][
-                                            "efficient"] -= (
-                                            mseg_adj_meas[k][cm]["cost"][kt][
-                                                "baseline"] -
-                                            mseg_adj_meas[k][cm]["cost"][kt][
-                                                "efficient"])
-                                # If there is no overlap between the current
-                                # contributing microsegment and existing
-                                # contributing microsegments for the package,
-                                # add in the current microsegment as is
-                                else:
-                                    mseg_adj_pkg[k][cm] = mseg_adj_meas[k][cm]
+                # microsegment data for measure
+                for k in msegs_meas.keys():
+                    # Add the measure's contributing microsegment markets
+                    if k == "contributing mseg keys and values":
+                        for cm in msegs_meas[k].keys():
+                            msegs_pkg[k], msegs_meas[k][cm] = \
+                                self.merge_contrib_msegs(
+                                    msegs_pkg[k], msegs_meas[k][cm],
+                                    cm, m["measure_type"], adopt_scheme)
+                    # Add all other contributing microsegment data for
+                    # the measure
+                    elif k in ["competed choice parameters",
+                               "secondary mseg adjustments",
+                               "supply-demand adjustment"]:
+                        msegs_pkg[k].update(msegs_meas[k])
 
-                        # Add measure's contributing microsegment consumer
-                        # choice parameters
-                        elif k in ["competed choice parameters",
-                                   "secondary mseg adjustments",
-                                   "supply-demand adjustment"]:
-                            mseg_adj_pkg[k].update(mseg_adj_meas[k])
-
-                # Generate a dictionary including information about how
-                # much of the packaged measure's baseline energy use is
-                # attributed to each of the output climate zones, building
-                # types, and end uses it applies to (normalized by the
-                # measure's total baseline energy use below to yield output
-                # partitioning fractions)
+                # Generate a dictionary including data on how much of the
+                # packaged measure's baseline energy use is attributed to
+                # each of the output climate zones, building types, and end
+                # uses it applies to (normalized by the measure's total
+                # baseline energy use below to yield output partitioning
+                # fractions)
                 self.markets[adopt_scheme]["mseg_out_break"] = \
-                    self.out_break_merge(
+                    self.merge_out_break(
                     self.markets[adopt_scheme]["mseg_out_break"],
                     m["markets"][adopt_scheme]["mseg_out_break"],
                     m["markets"][adopt_scheme]["master_mseg"][
@@ -3207,12 +3187,6 @@ class MeasurePackage(Measure):
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
         for adopt_scheme in self.handyvars.adopt_schemes:
-            # Determine contributing microsegment key chain count for use in
-            # calculating an average baseline and measure lifetime below
-            key_chain_ct_package = len(
-                self.markets[adopt_scheme]["mseg_adjust"][
-                    "contributing mseg keys and values"].keys())
-
             # Loop through all contributing microsegments for the packaged
             # measure and add to the packaged master microsegment
             for k in (self.markets[adopt_scheme]["mseg_adjust"][
@@ -3222,6 +3196,11 @@ class MeasurePackage(Measure):
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"][k])
 
+            # Determine contributing microsegment key chain count for use in
+            # calculating an average baseline and measure lifetime below
+            key_chain_ct_package = len(
+                self.markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"].keys())
             # Reduce summed lifetimes across all microsegments that contribute
             # to the packaged master microsegment by the number of
             # microsegments that contributed to the sums, to arrive at an
@@ -3242,25 +3221,130 @@ class MeasurePackage(Measure):
             # will eventually be used to breakout the packaged measure's
             # energy and carbon markets/savings by climate zone, building
             # type, and end use
-            self.markets[adopt_scheme]["mseg_out_break"] = self.out_break_norm(
+            self.markets[adopt_scheme]["mseg_out_break"] = self.div_keyvals(
                 self.markets[adopt_scheme]["mseg_out_break"],
                 self.markets[adopt_scheme]["master_mseg"][
                     'energy']['total']['baseline'])
 
-    def out_break_merge(self, pkg_brk, meas_brk, meas_brk_unnorm):
-        """Merge output breakout info. for an individual measure into a package.
+    def merge_contrib_msegs(
+            self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme):
+        """Add a measure's contributing microsegment data to a packaged measure.
+
+        Args:
+            msegs_pkg (dict): Existing contributing microsegment data for the
+                packaged measure.
+            msegs_meas (dict): Data for the contributing microsegment of an
+                individual measure that is being merged into the package.
+            cm_key (tuple): Microsegment key describing the contributing
+                microsegment currently being added (e.g. czone->bldg, etc.)
+            meas_typ (string): Individual measure type (full service / add-on).
+            adopt_scheme (string): Assumed consumer adoption scenario.
+
+        Returns:
+            Updated contributing microsegment information for the package that
+            incorporates the measure's contributing microsegment data.
+        """
+        # Determine what other measures in the package share the current
+        # contributing microsegment for the individual measure
+        overlap_meas = [x for x in self.measures_to_package if cm_key in x[
+            "markets"][adopt_scheme]["mseg_adjust"][
+            "contributing mseg keys and values"].keys()]
+        # Determine which overlapping measures are of the full service and
+        # add-on types (handled differently below)
+        if len(overlap_meas) > 0:
+            # Full service subset of overlapping measures
+            overlap_meas_fserv = [
+                x for x in overlap_meas if x["measure_type"] == "full service"]
+            # Add-on subset of overlapping measures
+            overlap_meas_add = [
+                x for x in overlap_meas if x["measure_type"] == "add-on"]
+        else:
+            overlap_meas_fserv, overlap_meas_add = ([] for n in range(2))
+
+        # Update the contributing microsegment data for the individual measure
+        # if the microsegment is shared with other measures in the package
+        if len(overlap_meas) > 1:
+            # Scale contributing microsegment energy, carbon, and associated
+            # cost data by total number of overlapping measures in the package
+            for k in ["energy", "carbon"]:
+                msegs_meas[k] = self.div_keyvals_float(
+                    msegs_meas[k], len(overlap_meas))
+                msegs_meas["cost"][k] = self.div_keyvals_float(
+                    msegs_meas["cost"][k], len(overlap_meas))
+            # Scale contributing microsegment stock and lifetime data
+            # differently depending on measure type
+
+            # Case where individual measure is of the full service type
+            if meas_typ == "full service":
+                # Scale contributing microsegment stock and lifetime data by
+                # total number of overlapping full service measures in package
+                for k in ["stock", "lifetime"]:
+                    msegs_meas[k] = self.div_keyvals_float(
+                        msegs_meas[k], len(overlap_meas_fserv))
+                msegs_meas["cost"]["stock"] = self.div_keyvals_float(
+                    msegs_meas["cost"]["stock"], len(overlap_meas_fserv))
+            # Case where individual measure is of the add-on type
+            elif meas_typ == "add-on":
+                # Scale contributing microsegment stock and lifetime data
+                # differently depending on existence of overlapping full
+                # service measures
+
+                # Case where overlapping full-service measures are present
+                if len(overlap_meas_fserv) > 0:
+                    # Add-on measure assumes the stock and lifetime data of the
+                    # full service measure(s) it overlaps with; update the
+                    # measure's stock and lifetime values to zero
+                    for k in ["stock", "lifetime"]:
+                        msegs_meas[k] = self.div_keyvals_float(
+                            msegs_meas[k], 0)
+                    # Add-on measure assumes the baseline stock cost of the
+                    # full service measure(s) it overlaps with, and
+                    # incrementally adds to the stock cost of the measure(s)
+                    for x in ["total", "competed"]:
+                        scost = msegs_meas["cost"]["stock"][x]
+                        # Calculate incremental stock cost of the add-on over
+                        # the baseline equipment it was originally paired with
+                        scost["efficient"] = {key: (
+                            scost["efficient"][key] - scost["baseline"][key])
+                            for key in scost["efficient"].keys()}
+                        # Update baseline stock cost of add-on to zero
+                        scost["baseline"] = {
+                            key: 0 for key in scost["baseline"].keys()}
+                # Case where only overlapping add-on measures are present
+                else:
+                    # Scale add-on measure stock and lifetime data
+                    # by total number of overlapping add-on measures in package
+                    for k in ["stock", "lifetime"]:
+                        msegs_meas[k] = self.div_keyvals_float(
+                            msegs_meas[k], len(overlap_meas_add))
+                    msegs_meas["cost"]["stock"] = self.div_keyvals_float(
+                        msegs_meas["cost"]["stock"], len(overlap_meas_add))
+
+        # Add updated contributing microsegment information for individual
+        # measure to the packaged measure, creating a new contributing
+        # microsegment key if one does not already exist for the package
+        if cm_key not in msegs_pkg.keys():
+            msegs_pkg[cm_key] = msegs_meas
+        else:
+            msegs_pkg[cm_key] = self.add_keyvals(msegs_pkg[cm_key], msegs_meas)
+
+        return msegs_pkg, msegs_meas
+
+    def merge_out_break(self, pkg_brk, meas_brk, meas_brk_unnorm):
+        """Merge output breakout data for an individual measure into a package.
 
         Notes:
             The 'markets' attribute of an individual measure to be merged
             into a package includes partitioning fractions needed to breakout
-            the measure's output markets/savings by by key variables (e.g.,
+            the measure's output markets/savings by key variables (e.g.,
             climate zone, building type, end use, etc.). These fractions are
             based on the portion of the measure's total energy use market that
             is attributable to each breakout variable (e.g., 50% of the
             measure's total energy market is attributed to the heating end
             use). This function unnormalizes the measure's breakout fractions
             and adds the resultant energy use sub-market to a new set of
-            breakout information for a measure package.
+            breakout information for a measure package. Output breakout dicts
+            must be identically structured for the merge to work.
 
         Args:
             pkg_brk (dict): Packaged measure output breakout information to
@@ -3275,29 +3359,24 @@ class MeasurePackage(Measure):
             Updated output breakout information for the packaged measure
             that incorporates the individual measure's breakout information.
         """
-        for (k, i), (k2, i2) in zip(sorted(pkg_brk.items()),
-                                    sorted(meas_brk.items())):
+        for (k, i), (k2, i2) in zip(
+                sorted(pkg_brk.items()), sorted(meas_brk.items())):
             if isinstance(i, dict) and len(i.keys()) > 0:
-                self.out_break_merge(i, i2, meas_brk_unnorm)
+                self.merge_out_break(i, i2, meas_brk_unnorm)
             else:
-                # If this is the first time the packaged measure's output
-                # breakout dictionary is being updated, replace appropriate
-                # terminal leaf node value with terminal leaf node values
-                # of the current contributing measure
-                if len(meas_brk[k2].keys()) > 0 and \
-                   len(pkg_brk[k].keys()) == 0:
-                    for yr in self.handyvars.aeo_years:
-                        pkg_brk[k][yr] = meas_brk[k2][yr] * meas_brk_unnorm[yr]
-                # If the packaged measure's output breakout dictionary has
-                # already been updated for a previous contributing measure,
-                # add the appropriate terminal leaf node values of the current
-                # contributing measure to the dictionary's existing terminal
-                # leaf node values
-                elif len(meas_brk[k2].keys()) > 0 and \
-                        len(pkg_brk[k].keys()) > 0:
-                    for yr in self.handyvars.aeo_years:
-                        pkg_brk[k][yr] += \
-                            meas_brk[k2][yr] * meas_brk_unnorm[yr]
+                if k == k2:
+                    # If individual measure output breakout data is
+                    # available to add to the current terminal leaf
+                    # node for the package, set the leaf node value
+                    # to the unnormalized breakout data (by year)
+                    # * Note: terminal leaf nodes for the package are
+                    # only updated once
+                    if isinstance(i2, dict) and len(i2.keys()) > 0:
+                        for yr in self.handyvars.aeo_years:
+                            i[yr] = i2[yr] * meas_brk_unnorm[yr]
+                else:
+                    raise KeyError(
+                        'Dicts to merge are not identically structured!')
 
         return pkg_brk
 
