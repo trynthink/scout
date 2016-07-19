@@ -12,7 +12,7 @@ json_in = "microsegments.json"
 
 # Set technology performance, cost, and lifetime information output JSON
 # file name
-json_out = "costperflife_res_cdiv.json"
+json_out = "cpl_res_cdiv.json"
 
 # Set the file names for the EIA information on the performance,
 # cost, and lifetime of non-lighting and lighting technologies in the
@@ -229,8 +229,8 @@ tech_non_eia = {"secondary heating (electric)": [["NA", "NA", "NA"],
                 "ground": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
                            ["NA", "NA", "NA"], "R Value"],
                 "infiltration": [[30, 30, "Legacy P-Tool"],
-                                 [13, 1, "Legacy P-Tool, NREL Residential, \
-                                  Efficiency DB"],
+                                 [13, 1, "Legacy P-Tool, NREL Residential, " +
+                                  "Efficiency DB"],
                                  [0, 0, "Legacy P-Tool"], "ACH"],
                 "people gain": [["NA", "NA", "NA"], ["NA", "NA", "NA"],
                                 ["NA", "NA", "NA"], "NA"],
@@ -239,7 +239,7 @@ tech_non_eia = {"secondary heating (electric)": [["NA", "NA", "NA"],
 
 
 def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                  non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                  tech_eia_nonlt, tech_eia_lt,
                   tech_non_eia, json_dict, project_dict, key_list=[]):
     """ Proceed recursively through data stored in dict-type structure
     and perform calculations at each leaf/terminal node in the data. In
@@ -253,7 +253,7 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                          non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                          tech_eia_nonlt, tech_eia_lt,
                           tech_non_eia, item, project_dict, key_list + [key])
         # If a leaf node has been reached, finish constructing the key
         # list for the current location and update the data in the dict
@@ -267,11 +267,10 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                 # footage information, which is not relevant to the
                 # mseg_techdata.py routine; in this case, skip the node
                 if leaf_node_keys[-1] not in [
-                   "square footage", "new homes", "total homes"]:
+                   "total square footage", "new homes", "total homes"]:
                     data_dict = \
                         list_generator_techdata(eia_nlt_cp, eia_nlt_l,
                                                 eia_lt, eia_lt_choice,
-                                                non_eia_env_choice,
                                                 tech_eia_nonlt,
                                                 tech_eia_lt, tech_non_eia,
                                                 leaf_node_keys, project_dict)
@@ -283,7 +282,7 @@ def walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
 
 
 def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                            non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                            tech_eia_nonlt, tech_eia_lt,
                             tech_non_eia, leaf_node_keys, project_dict):
     """ Given an empty leaf node for a specific technology in the microsegments
     JSON, as well as projected technology costs, performance, and lifetimes
@@ -523,8 +522,6 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                     match_list_typ_perfcost.append(row)
                 if match_best:
                     match_list_best_perfcost.append(row)
-            else:
-                continue
 
         # After search through EIA non-lighting technology performance/cost
         # and consumer choice array is complete:
@@ -539,8 +536,8 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
             match_list_best_perfcost = numpy.array(
                 match_list_best_perfcost, dtype=eia_nlt_cp.dtype)
         else:
-            raise ValueError("No EIA performance/cost data match for non-lighting \
-                              technology!")
+            raise ValueError("No EIA performance/cost data match for" +
+                             " non-lighting technology!")
 
         # Once matched "typical" and "best" performance, cost, and consumer
         # choice arrays are finalized for the given non-lighting technology,
@@ -622,14 +619,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                                               project_dict.keys(), n)
                                               for n in [life_avg_set,
                                                         life_range_set]]
-            else:
-                continue
 
         # If there were no matches for lifetime data on the technology, yield
         # an error
         if life_match_ct == 0:
-            raise ValueError("No EIA lifetime data match for non-lighting \
-                              technology!")
+            raise ValueError("No EIA lifetime data match for non-lighting" +
+                             " technology!")
 
         # Set source to EIA AEO for these non-lighting technologies
         [perf_source, cost_source, life_source, tech_choice_source] = \
@@ -671,8 +666,8 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
         if len(match_list) > 0:
             match_list = numpy.array(match_list, dtype=eia_lt.dtype)
         else:
-            raise ValueError("No performance/cost/lifetime data match for lighting \
-                              technology!")
+            raise ValueError("No performance/cost/lifetime data match for" +
+                             " lighting technology!")
 
         # Once the performance, cost, and lifetime arrays have been constructed
         # for the given lighting technology, rearrange the projection year
@@ -719,48 +714,34 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
             filter_info[3], filter_info[1][2], filter_info[2][2],
             filter_info[0][2]]
 
-        # Set envelope component technology consumer choice parameters to
-        # those typical of residential space heating/cooling technologies
-        # in EIA 'rsmeqp.txt' input file; set choice parameters for all
-        # remaining technologies to zero for now (* WILL CHANGE IN FUTURE *)
-        if 'demand' in leaf_node_keys:
-            b1 = copy.deepcopy(non_eia_env_choice["b1"])
-            b2 = copy.deepcopy(non_eia_env_choice["b2"])
-            tech_choice_source = "EIA space heating/cooling"
-        else:
-            b1, b2 = [
-                dict.fromkeys(project_dict.keys(), "NA") for n in range(2)]
-            tech_choice_source = "NA"
-
-    # Set cost units for the given technology based on whether it is a
-    # "demand" type or "supply" type technology
-    if "demand" in leaf_node_keys:
-            cost_units = "2013$/sf"
-    else:
-        cost_units = "2010$/unit"
+        # Set technology consumer choice parameters for all technologies to NA
+        # remaining technologies to 'NA' for now (* WILL CHANGE IN FUTURE *)
+        b1, b2 = [
+            dict.fromkeys(project_dict.keys(), "NA") for n in range(2)]
+        tech_choice_source = "NA"
 
     # Based on above search results, update the dict with performance, cost,
     # lifetime, and consumer choice information for the given technology
-
-    # Update performance information
-    data_dict["performance"] = {
-        "typical": perf_typ, "best": perf_best, "units": perf_units,
-        "source": perf_source}
-    # Update cost information
-    data_dict["installed cost"] = {
-        "typical": cost_typ, "best": cost_best, "units": cost_units,
-        "source": cost_source}
-    # Update lifetime information
-    data_dict["lifetime"] = {
-        "average": life_avg, "range": life_range, "units": "years",
-        "source": life_source}
-    # Update consumer choice information
-    data_dict["consumer choice"]["competed market share"][
-        "parameters"]["b1"] = b1
-    data_dict["consumer choice"]["competed market share"][
-        "parameters"]["b2"] = b2
-    data_dict["consumer choice"]["competed market share"]["source"] = \
-        tech_choice_source
+    if 'demand' not in leaf_node_keys:
+        # Update performance information
+        data_dict["performance"] = {"typical": perf_typ, "best": perf_best,
+                                    "units": perf_units, "source": perf_source}
+        # Update cost information
+        data_dict["installed cost"] = {"typical": cost_typ, "best": cost_best,
+                                       "units": "2010$/unit",
+                                       "source": cost_source}
+        # Update lifetime information
+        data_dict["lifetime"] = {"average": life_avg, "range": life_range,
+                                 "units": "years", "source": life_source}
+        # Update consumer choice information
+        data_dict["consumer choice"]["competed market share"][
+            "parameters"]["b1"] = b1
+        data_dict["consumer choice"]["competed market share"][
+            "parameters"]["b2"] = b2
+        data_dict["consumer choice"]["competed market share"][
+            "source"] = tech_choice_source
+    else:
+        data_dict = 0
 
     # Return updated technology performance, cost, and lifetime information
     # as well as reduced EIA non-lighting technology data array with matched
@@ -923,8 +904,8 @@ def stitch(input_array, project_dict, col_name):
                     output_dict[yr] = float(
                         input_array[array_close_ind][0][col_name])
                 else:
-                    raise ValueError("Multiple identical years in filtered \
-                                      array!")
+                    raise ValueError("Multiple identical years in filtered" +
+                                     " array!")
 
         # Update previous year value indicator to the output information for
         # the current loop
@@ -972,16 +953,6 @@ def main():
                      "b2": {k: -0.10
                             for k in project_dict.keys()}}
 
-    # Establish residential envelope component technology consumer choice
-    # parameters for each year in the modeling time horizon (these parameters
-    # will later be applied across all envelope technologies, and are based on
-    # EIA consumer choice data for the residential heating/cooling end uses in
-    # 'rsmeqp.txt') (* HARD CODED, MAY CHANGE IN THE FUTURE *)
-    non_eia_env_choice = {"b1": {k: -0.003
-                                 for k in project_dict.keys()},
-                          "b2": {k: -0.012
-                                 for k in project_dict.keys()}}
-
     # Import microsegments JSON file as a dictionary structure
     with open(json_in, "r") as jsi:
         msjson = json.load(jsi)
@@ -989,7 +960,7 @@ def main():
     # Run through microsegment JSON levels, determine technology leaf node
     # info. to mine from the imported data, and update nodes with this info.
     result = walk_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
-                           non_eia_env_choice, tech_eia_nonlt, tech_eia_lt,
+                           tech_eia_nonlt, tech_eia_lt,
                            tech_non_eia, msjson, project_dict)
 
     # Write the updated dict of data to a new JSON file

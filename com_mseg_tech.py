@@ -33,8 +33,8 @@ class UsefulVars(object):
     def __init__(self):
         self.cpl_data = 'ktek.csv'
         self.tpp_data = 'kprem.txt'
-        self.json_in = 'costperflife_res_cdiv.json'
-        self.json_out = 'costperflife_res_com_cdiv.json'
+        self.json_in = 'cpl_res_cdiv.json'
+        self.json_out = 'cpl_res_com_cdiv.json'
 
         self.cpl_data_skip_lines = 100
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
@@ -579,6 +579,10 @@ def cost_conversion_factor(sf_data, sd_data, sel, years):
     sqft = sqft[['Year', 'Amount1']]
     sqft.dtype.names = 'Year', 'Total'
 
+    # Include only the square footage data that corresponds to the
+    # years included in the 'years' list
+    sqft = [row['Total'] for row in sqft if int(row['Year']) in years]
+
     # Extract the service demand data applicable to the specified
     # census division, building type, and end use
     sd_cut = sd_data[np.all([sd_data['r'] == sel[0],
@@ -594,12 +598,12 @@ def cost_conversion_factor(sf_data, sd_data, sel, years):
 
     # For end uses other than lighting and ventilation, service demand
     # is given as 1e12 BTU, which requires dividing by 1e3 to get the
-    # conversion factor such that it will yield $/ft^2 when multiplied
-    # by the baseline costs as coded in the data files
+    # conversion factor such that it will yield $/ft^2 floor when
+    # multiplied by the baseline costs as coded in the data files
     if sel[2] in [1, 2, 3, 5, 7]:
-        conv_factors = sd/sqft['Total']/1000
+        conv_factors = sd/sqft/1000
     else:
-        conv_factors = sd/sqft['Total']
+        conv_factors = sd/sqft
 
     return conv_factors
 
@@ -775,7 +779,7 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
         the_cost['best'] = dict(zip(
             sorted(the_cost['best'].keys()),
             sorted(the_cost['best'].values())*conv_factors))
-        the_cost['units'] = '2013$/ft^2'
+        the_cost['units'] = '2013$/ft^2 floor'
         the_cost['source'] = 'EIA AEO'
 
         # Extract the performance data, restructure into the appropriate

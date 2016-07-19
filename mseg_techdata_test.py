@@ -324,13 +324,13 @@ class ListGeneratorTest(unittest.TestCase):
                      "b2": {k: -0.10
                             for k in project_dict.keys()}}
 
-    # Define sample technology choice parameters for residential envelope
-    # component technologies (technology choice information is not included
-    # for envelope component technologies in 'tech_non_eia' above)
-    non_eia_env_choice = {"b1": {k: -0.003
-                                 for k in project_dict.keys()},
-                          "b2": {k: -0.012
-                                 for k in project_dict.keys()}}
+    # # Define sample technology choice parameters for residential envelope
+    # # component technologies (technology choice information is not included
+    # # for envelope component technologies in 'tech_non_eia' above)
+    # non_eia_env_choice = {"b1": {k: -0.003
+    #                              for k in project_dict.keys()},
+    #                       "b2": {k: -0.012
+    #                              for k in project_dict.keys()}}
 
     # Define a sample list of full dictionary key chains that are defined
     # while running through the microsegments JSON structure and which will
@@ -671,42 +671,7 @@ class ListGeneratorTest(unittest.TestCase):
                                       "2011": "NA", "2012": "NA",
                                       "2013": "NA"}},
                               "source": "NA"}}},
-        {"performance": {
-            "typical": {"2009": 7, "2010": 7, "2011": 7, "2012": 7, "2013": 7},
-            "best": {"2009": 10, "2010": 10, "2011": 10, "2012": 10,
-                     "2013": 10},
-            "units": "R Value",
-            "source": "NREL Efficiency DB"},
-         "installed cost": {
-            "typical": {"2009": 20, "2010": 20, "2011": 20, "2012": 20,
-                        "2013": 20},
-            "best": {"2009": 30, "2010": 30, "2011": 30, "2012": 30,
-                     "2013": 30},
-            "units": "2013$/sf",
-            "source": "RS Means"},
-         "lifetime": {
-            "average": {"2009": 25, "2010": 25, "2011": 25, "2012": 25,
-                        "2013": 25},
-            "range": {"2009": 5, "2010": 5, "2011": 5, "2012": 5,
-                      "2013": 5},
-            "units": "years",
-            "source": "RS Means"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters": {
-                                  "b1": {
-                                      "2009": -0.003, "2010": -0.003,
-                                      "2011": -0.003, "2012": -0.003,
-                                      "2013": -0.003},
-                                  "b2": {
-                                      "2009": -0.012, "2010": -0.012,
-                                      "2011": -0.012, "2012": -0.012,
-                                      "2013": -0.012}},
-                              "source": "EIA space heating/cooling"}}},
+        0,
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -766,11 +731,15 @@ class ListGeneratorTest(unittest.TestCase):
         for (idx, tk) in enumerate(self.tech_ok_keys):
             dict1 = mseg_techdata.list_generator_techdata(
                 self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                self.eia_lt_choice, self.non_eia_env_choice,
+                self.eia_lt_choice,
                 mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                 self.tech_non_eia, tk, self.project_dict)
             dict2 = self.ok_datadict_out[idx]
-            self.dict_check(dict1, dict2)
+
+            if isinstance(dict2, dict):
+                self.dict_check(dict1, dict2)
+            else:
+                self.assertEqual(dict1, dict2)
 
     # Test that the walk_techdata function yields a KeyError given the
     # invalid key chain input along with the other sample inputs defined above
@@ -779,14 +748,14 @@ class ListGeneratorTest(unittest.TestCase):
             with self.assertRaises(KeyError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice, self.non_eia_env_choice,
+                    self.eia_lt_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ke, self.project_dict)
         for ve in self.tech_fail_keys_ve:
             with self.assertRaises(ValueError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice, self.non_eia_env_choice,
+                    self.eia_lt_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ve, self.project_dict)
 

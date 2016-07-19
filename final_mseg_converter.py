@@ -29,6 +29,7 @@ import numpy as np
 import json
 import mseg
 import com_mseg as cm
+import functools as ft
 
 
 class UsefulVars(object):
@@ -61,6 +62,14 @@ class UsefulVars(object):
     energy use reported must be accounted for when switching to
     climate zones.
 
+    Attributes:
+        addl_cpl_data (str): File name for database of cost,
+            performance, and lifetime data not found in the EIA data,
+            principally for envelope components and miscellaneous
+            electric loads.
+        conv_factors (str): File name for database of unit conversion
+            factors (principally costs) for a range of equipment types.
+
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
             census division to climate zone conversion data appropriate
@@ -72,6 +81,10 @@ class UsefulVars(object):
         json_out (str): File name for the output JSON database.
     """
 
+    def __init__(self):
+        self.addl_cpl_data = 'cpl_envelope_mels.json'
+        self.conv_factors = 'meas_costconvert.json'
+
     def configure_for_energy_square_footage_stock_data(self):
         self.res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
         self.com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
@@ -81,8 +94,8 @@ class UsefulVars(object):
     def configure_for_cost_performance_lifetime_data(self):
         self.res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Rev_Final.txt'
         self.com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Rev_Final.txt'
-        self.json_in = 'costperflife_res_com_cdiv.json'
-        self.json_out = 'costperflife_res_com_cz.json'
+        self.json_in = 'cpl_res_com_cdiv.json'
+        self.json_out = 'cpl_res_com_cz.json'
 
 
 def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
@@ -297,6 +310,450 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     return converted_dict
 
 
+def env_cpl_data_handler(cpl_data, conversions, years, key_list):
+    """Restructure envelope component cost, performance, and lifetime data.
+
+    This function extracts the cost, performance, and lifetime data for
+    the envelope components of residential and commercial buildings
+    from the original data and restructures it into a form that is
+    generally consistent with similar data originally obtained from
+    the Annual Energy Outlook (AEO). These data are added to the input
+    microsegments database after it is converted to a climate zone
+    basis, since these data are already reported by climate zone (if
+    the data for a given envelope component are climate-specific).
+
+    Args:
+        cpl_data (dict): Cost, performance, and lifetime data for
+            building envelope components (e.g., roofs, walls) including
+            units and source information.
+        conversions (dict): Cost unit conversions for envelope (and
+            heating and cooling equipment, though those conversions are
+            not used in this function) components, as well as the
+            mapping from EnergyPlus building prototypes to AEO building
+            types (as used in the microsegments file) to convert cost
+            data from sources that use the EnergyPlus building types
+            to the AEO building types.
+        years (list): A list of integers representing the range of years
+            in the data.
+        key_list (list): Keys that specify the current location in the
+            microsegments database structure and thus indicate what
+            data should be returned by this function.
+
+    Returns:
+        A dict with installed cost, performance, and lifetime data
+        applicable to the microsegment and envelope component specified
+        by key_list, as well as units and source information for those
+        data. All costs should have the units 2016$/ft^2 floor. Note
+        that unlike the cost, performance, and lifetime data obtained
+        from the AEO, these data are not specified on a yearly basis.
+        These data are returned only if applicable for the envelope
+        component that appears in key_list, and not for cases such as
+        "people gain" for which there is no corresponding product that
+        is part of the building.
+    """
+
+    # Preallocate variables for the building class (i.e., residential
+    # or commercial) and the building type
+    bldg_class = ''
+    bldg_type = ''
+
+    # Loop through the keys specifying the current microsegment to
+    # determine the building type, whether the building is residential
+    # or commercial, and identify the climate zone
+    for entry in key_list:
+        # Identify the building type and thus determine the building class
+        if entry in mseg.bldgtypedict.keys():
+            bldg_class = 'residential'
+            bldg_type = entry
+        elif entry in cm.CommercialTranslationDicts().bldgtypedict.keys():
+            bldg_class = 'commercial'
+            bldg_type = entry
+
+        # Identify and record the climate zone
+        if entry in ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']:
+            cz_int = entry
+
+    # Temporary (and not necessarily accurate) translation from AIA
+    # climate zones to Building America climate zones since the
+    # envelope cost, performance, and lifetime data are specified with
+    # Building America climate zones
+    if cz_int == 'AIA_CZ1':
+        cz = 'very cold'
+    elif cz_int == 'AIA_CZ2':
+        cz = 'cold'
+    elif cz_int == 'AIA_CZ3':
+        cz = 'mixed dry'
+    elif cz_int == 'AIA_CZ4':
+        cz = 'mixed dry'
+    elif cz_int == 'AIA_CZ5':
+        cz = 'hot humid'
+
+    # Some envelope components are reported as two or more words, but
+    # the first word is often the required word to select the relevant
+    # cost, performance, and lifetime data, thus it is helpful to split
+    # the envelope component key string into a list of words
+    envelope_type = key_list[-1].split()
+
+    # Use the first word in the list of strings for the envelope name
+    # to determine whether data are available cost, performance, and
+    # lifetime data and, if so, record those data (specified for the
+    # correct building class) to a new variable
+    specific_cpl_data = ''
+    if envelope_type[0] in cpl_data['envelope'].keys():
+        specific_cpl_data = cpl_data['envelope'][envelope_type[0]][bldg_class]
+
+    # Preallocate empty dicts for the cost, performance, and lifetime
+    # data, to include the data, units, and source information
+    the_cost = {}
+    the_perf = {}
+    the_life = {}
+
+    # If any data were found for the particular envelope type and
+    # building class, extract the cost, performance, and lifetime data,
+    # including units and source information, and record it to the
+    # appropriate dict created for those data
+    if specific_cpl_data:
+        # Extract cost data units, if available (since some envelope
+        # components, such as infiltration, have costs reported simply as
+        # 'NA' without a dict structure)
+        try:
+            orig_cost_units = specific_cpl_data['cost']['units']
+        except TypeError:
+            orig_cost_units = None
+
+        # Obtain and record the cost data in the preallocated dict,
+        # starting with cases where the cost units require conversion
+        # to be on the desired common basis of '2016$/ft^2 floor'
+        if orig_cost_units and orig_cost_units != '2016$/ft^2 floor':
+            # Extract the current cost value
+            orig_cost = specific_cpl_data['cost']['typical']
+
+            # Use the cost conversion function to obtain the costs
+            # for the current envelope component
+            adj_cost, adj_cost_units = cost_converter(orig_cost,
+                                                      orig_cost_units,
+                                                      bldg_class, bldg_type,
+                                                      conversions)
+
+            # Add the cost information to the appropriate dict,
+            # constructing the cost data itself into a structure with
+            # a value reported for each year
+            the_cost['typical'] = {str(yr): adj_cost for yr in years}
+            the_cost['units'] = adj_cost_units
+            the_cost['source'] = specific_cpl_data['cost']['source']
+
+        # If cost units are reported but the units indicate that there
+        # is no need for conversion, shift the data to a per year
+        # basis but carry over the units and source information
+        elif orig_cost_units:
+            the_cost['typical'] = {str(yr):
+                                   specific_cpl_data['cost']['typical']
+                                   for yr in years}
+            the_cost['units'] = orig_cost_units
+            the_cost['source'] = specific_cpl_data['cost']['source']
+
+        # Output the cost data as-is for for cases where no cost
+        # data are reported (i.e., orig_cost_units == None)
+        else:
+            the_cost = specific_cpl_data['cost']
+
+        # Obtain the performance data depending on whether or not a
+        # second word appears in the envelope_type list, as with
+        # 'windows conduction' and 'windows solar'; other types that
+        # will have two or more entries in the envelope_type list
+        # include people gain, equipment gain, other heat gain, and
+        # lighting gain
+        if len(envelope_type) > 1:
+            # For windows data, the performance data are specified by
+            # 'solar' or 'conduction'; the other envelope types that
+            # are not relevant will be ignored per this if statement
+            if envelope_type[1] in specific_cpl_data['performance'].keys():
+                # Simplify the cost, performance, lifetime dict to only
+                # the relevant performance data (this step shortens later
+                # lines of code to make it easier to comply with the PEP 8
+                # line length requirement)
+                env_s_data = specific_cpl_data['performance'][envelope_type[1]]
+
+                # Extract the performance value, first trying for if it
+                # is specified to the climate zone level
+                try:
+                    perf_val = env_s_data['typical'][cz]
+                except TypeError:
+                    perf_val = env_s_data['typical']
+
+                # Add the units and source information to the dict
+                # (note that this step can't move outside this if
+                # statement because these data are in a different
+                # location for this case where the performance
+                # specification is more detailed)
+                the_perf['units'] = env_s_data['units']
+                the_perf['source'] = env_s_data['source']
+
+        # For the cases where the performance data are accessible from
+        # the existing cost, performance, and lifetime data dict without
+        # providing further levels of specificity
+        else:
+            # Extract the performance value, again first trying for if
+            # it is specified to the climate zone level
+            try:
+                perf_val = specific_cpl_data['performance']['typical'][cz]
+            except TypeError:
+                perf_val = specific_cpl_data['performance']['typical']
+            the_perf['units'] = specific_cpl_data['performance']['units']
+            the_perf['source'] = specific_cpl_data['performance']['source']
+
+        # Record the performance value identified in the above rigmarole
+        the_perf['typical'] = {str(yr): perf_val for yr in years}
+
+        # Transfer the lifetime data as-is (the lifetime data has a
+        # uniform format across all of the envelope components) except
+        # for the average, which is updated to be reported by year
+        the_life['average'] = {str(yr):
+                               specific_cpl_data['lifetime']['average']
+                               for yr in years}
+        the_life['range'] = specific_cpl_data['lifetime']['range']
+        the_life['units'] = specific_cpl_data['lifetime']['units']
+        the_life['source'] = specific_cpl_data['lifetime']['source']
+
+        # Add the cost, performance, and lifetime dicts into a master dict
+        # for the microsegment and envelope component specified by key_list
+        tech_data_dict = {'installed cost': the_cost,
+                          'performance': the_perf,
+                          'lifetime': the_life}
+
+        # If the building type is residential, add envelope component
+        # consumer choice parameters for each year in the modeling time
+        # horizon (these parameters are based on AEO consumer choice
+        # data for the residential heating and cooling end uses in
+        # 'rsmeqp.txt')
+        if bldg_class == 'residential':
+            tech_data_dict['consumer choice'] = {
+                'competed market share': {
+                    'parameters': {'b1': {str(yr): -0.003 for yr in years},
+                                   'b2': {str(yr): -0.012 for yr in years}},
+                    'source': ('EIA AEO choice model parameters for heating' +
+                               ' and cooling equipment')
+                }
+            }
+
+    # If no data were found, which is expected for envelope components
+    # that are not representative of building products (e.g., people
+    # gain, equipment gain), simply return 0
+    else:
+        tech_data_dict = 0
+
+    return tech_data_dict
+
+
+def cost_converter(cost, units, bldg_class, bldg_type, conversions):
+    """Convert envelope cost data to uniform units of $/ft^2 floor.
+
+    The envelope cost data are provided in the units of the
+    original source of the data, To ensure that the conversion from
+    the original data to the desired cost units of dollars per square
+    foot floor area is always consistent across all envelope data,
+    the conversion from the original units to the common and desired
+    units is performed by this function. The cost in its original
+    form is input to this function and the relationships between e.g.,
+    window area and wall area (i.e., window-wall ratio) are used to
+    convert from the original form to the final desired units.
+
+    In some cases, the conversion data are specified for EnergyPlus
+    building types, and then the conversion must incorporate both
+    the units conversion and applying the appropriate weights to
+    convert from EnergyPlus to Annual Energy Outlook building types.
+
+    Additionally, some data require multiple conversions, thus this
+    function might call itself again to complete the conversion
+    process. For example, window data must be converted from window
+    area to wall area, and then from wall area to floor area.
+
+    Args:
+        cost (float): The cost value that requires conversion.
+        units (str): The units of the cost indicated.
+        bldg_class (str): The applicable building class (i.e., either
+            "residential" or "commercial").
+        bldg_type (str): THe applicable specific building type (i.e.,
+            "single family home" or "small office") from the building
+            types used in the AEO.
+        conversions (dict): Cost unit conversions for envelope (and
+            heating and cooling equipment, though those conversions are
+            not used in this function) components, as well as the
+            mapping from EnergyPlus building prototypes to AEO building
+            types (as used in the microsegments file) to convert cost
+            data from sources that use the EnergyPlus building types
+            to the AEO building types.
+
+    Outputs:
+        The updated cost in the final desired units of $/ft^2 floor and
+        the revised units to verify that the conversion is complete.
+    """
+
+    # Record the year (as YYYY) in the cost units for later addition to
+    # the adjusted cost units and then strip the year off the units
+    the_year = units[:4]
+    units = units[4:]
+
+    # Obtain the dict of cost conversion factors for the envelope
+    # components (for those components for which a conversion factor is
+    # provided); note that the keys for the desired level of the dict
+    # are specified separately and the functools.reduce function is
+    # used to extract the dict at the specified level
+    dict_keys = ['cost unit conversions', 'heating and cooling', 'demand']
+    env_cost_factors = ft.reduce(dict.get, dict_keys, conversions)
+
+    # Obtain the dict of building type conversion factors specified
+    # for the particular building type passed to the function; these
+    # data might be needed later contingent on the particular cost
+    # being converted; note the same method as above for extracting
+    # the data from a deeply nested dict
+    dict_keys = ['building type conversions', 'conversion data', 'value',
+                 bldg_class, bldg_type]
+    bldg_type_conversions = ft.reduce(dict.get, dict_keys, conversions)
+
+    # Loop through the cost conversion factors and compare their
+    # specified "original units" with the units passed to this
+    # function to determine the relevant envelope component; the
+    # approach applied here yields the last match, so if multiple
+    # data requiring conversion are specified with the same units,
+    # this matching approach might not work as expected
+    for key in env_cost_factors.keys():
+        if env_cost_factors[key]['original units'] == units:
+            env_component = key
+
+    # Extract the conversion factors associated with the particular
+    # envelope component identified in the previous step and for the
+    # building class passed to this function; this function will
+    # trigger an error if no matching envelope component was
+    # identified by the previous step
+    dict_keys = [env_component, 'conversion factor', 'value', bldg_class]
+    bldg_specific_cost_conv = ft.reduce(dict.get, dict_keys, env_cost_factors)
+
+    # Identify the units for the forthcoming adjusted cost
+    adj_cost_units = env_cost_factors[env_component]['revised units']
+
+    # Add the year onto the anticipated revised units from the conversion
+    adj_cost_units = the_year + adj_cost_units
+
+    # Preallocate a variable for the adjusted cost value
+    adj_cost = 0
+
+    # Explore any remaining structure in env_cost_factors based on the
+    # structure of the data and the specific data provided, which
+    # varies by building type, to calculate the correct adjusted cost
+    # (though this function does not explicitly  use building type to
+    # determine the appropriate approach for the calculation)
+
+    # If there is any additional structure beyond the building class
+    # (i.e., residential or commercial) level, calculate the adjusted
+    # cost depending on whether any building type conversions (i.e.,
+    # conversions from EnergyPlus to AEO building types) are specified
+    if isinstance(bldg_specific_cost_conv, dict):
+        # if the cost unit conversions for the current envelope
+        # component are specified by building class but do not require
+        # conversion from the EnergyPlus reference buildings to the AEO
+        # buildings, complete the calculation accordingly
+        if bldg_type_conversions is None:
+            adj_cost = cost * bldg_specific_cost_conv[bldg_type]
+        # If building type conversion is required, loop through the
+        # EnergyPlus building types associated with the AEO building
+        # type specified by 'bldg_type' and add the applicable cost
+        # to the adjusted cost total
+        else:
+            for key in bldg_specific_cost_conv[bldg_type].keys():
+                adj_cost += (cost * bldg_type_conversions[key] *
+                             bldg_specific_cost_conv[bldg_type][key])
+    # Specific to the case where the building type is sufficient to
+    # identify the cost conversion factor
+    else:
+        adj_cost = cost*bldg_specific_cost_conv
+
+    # If the units following the above conversion are still not the
+    # final desired units on a per square foot floor area basis,
+    # call this function again
+    if adj_cost_units != '2016$/ft^2 floor':
+        adj_cost, adj_cost_units = cost_converter(adj_cost,
+                                                  adj_cost_units,
+                                                  bldg_class,
+                                                  bldg_type,
+                                                  conversions)
+
+    return adj_cost, adj_cost_units
+
+
+def walk(cpl_data, conversions, years, json_db, key_list=[]):
+    """Recursively explore JSON data structure to populate data at leaf nodes.
+
+    This function recursively traverses the microsegment data structure
+    (formatted as a nested dict) to each leaf/terminal node, assembling
+    a list of the keys that define the location of the terminal node.
+    Once a terminal node is reached (i.e., a dict is not found at the
+    given location in the data structure), call the desired function to
+    process the cost, performance, and lifetime (and consumer choice
+    parameters for residential buildings) data for the envelope
+    components. These data are added at this step because their original
+    sources provide the data on a climate zone and not census division
+    basis, so the data must be added to the baseline cost, performance,
+    and lifetime database after the data from the EIA AEO have been
+    converted to a climate zone basis.
+
+    Args:
+        cpl_data (dict): Cost, performance, and lifetime data for
+            building envelope components (e.g., roofs, walls) including
+            units and source information.
+        conversions (dict): Cost unit conversions for envelope (and
+            heating and cooling equipment, though those conversions are
+            not used in this function) components, as well as the
+            mapping from EnergyPlus building prototypes to AEO building
+            types (as used in the microsegments file) to convert cost
+            data from sources that use the EnergyPlus building types
+            to the AEO building types.
+        years (list): A list of integers representing the range of years
+            in the data that are desired to be included in the output.
+        json_db (dict): The dict structure to be modified with additional data.
+        key_list (list): Keys that specify the current location in the
+            microsegments database structure and thus indicate what
+            data should be returned by this function. Since this
+            function operates recursively, the entries in and length
+            of this list will change as the function traverses the
+            nested structure in json_db.
+
+    Returns:
+        An updated dict structure with additional data, described
+        above, inserted in the appropriate locations, and ready for
+        further updating or output as a complete JSON database.
+    """
+
+    # Explore data structure from current level
+    for key, item in json_db.items():
+
+        # If there are additional levels in the dict, call the function
+        # again to advance another level deeper into the data structure
+        if isinstance(item, dict):
+            walk(cpl_data, conversions, years, item, key_list + [key])
+
+        # If a leaf node has been reached, check if the final entry in
+        # the list is 'demand', indicating that the current node is an
+        # envelope component with no data currently stored, and if
+        # so, finish constructing the key list for the current location
+        # and obtain the data to update the dict
+        else:
+            if key_list[-1] == 'demand':
+                leaf_node_keys = key_list + [key]
+
+                # Extract and neatly format the envelope component cost,
+                # performance, and lifetime data into a complete dict
+                # for the specified microsegment and envelope component
+                data_dict = env_cpl_data_handler(
+                    cpl_data, conversions, years, leaf_node_keys)
+
+                # Set dict key to extracted data
+                json_db[key] = data_dict
+
+    # Return filled database structure
+    return json_db
+
+
 def main():
     """Import external data files, process data, and produce desired output.
 
@@ -317,8 +774,8 @@ def main():
     # Obtain user input regarding what data are to be processed
     input_var = 0
     while input_var not in ['1', '2']:
-        input_var = input(
-            "Enter 1 for energy data or 2 for cost, performance, lifetime data: ")
+        input_var = input("Enter 1 for energy, stock, and square footage" +
+                          " data\nor 2 for cost, performance, lifetime data: ")
         if input_var not in ['1', '2']:
             print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
 
@@ -337,12 +794,32 @@ def main():
     com_cd_cz_conv = np.genfromtxt(handyvars.com_climate_convert, names=True,
                                    delimiter='\t', dtype=None)
 
-    # Import microsegments JSON file with and traverse database structure
+    # Define years vector
+    years = list(range(2009, 2041))
+
+    # Open the microsegments JSON file that has data on a census
+    # division basis and traverse the database to convert it to
+    # a climate zone basis
     with open(handyvars.json_in, 'r') as jsi:
         msjson_cdiv = json.load(jsi)
 
         # Convert data
         result = clim_converter(msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
+
+        # If cost, performance, and lifetime data are indicated based
+        # on user input, open the envelope cost, performance, and
+        # lifetime database and the cost conversion factors database,
+        # then add those data to the microsegments data that were just
+        # converted to a climate zone basis
+        if input_var is '2':
+            with open(handyvars.addl_cpl_data, 'r') as jscpl, open(
+                 handyvars.conv_factors, 'r') as jsconv:
+                jscpl_data = json.load(jscpl)
+                jsconv_data = json.load(jsconv)
+
+                # Add envelope components' cost, performance and
+                # lifetime data to the result dict
+                result = walk(jscpl_data, jsconv_data, years, result)
 
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:

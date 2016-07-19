@@ -1715,6 +1715,607 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                self.com_cd_cz_array)
 
 
+class EnvelopeDataUnitTest(CommonUnitTest):
+    """ Set up a CommonUnitTest subclass with additional data to be
+    used for testing the functions that restructure the envelope cost,
+    performance, and lifetime data. """
+
+    # Define a dict for the envelope cost, performance, and lifetime
+    # data with a structure comparable to the full data set but with
+    # only a few parameters specified.
+    envelope_cpl_data = {
+        "envelope": {
+            "windows": {
+                "residential": {
+                    "cost": {
+                        "typical": 48.40,
+                        "units": "2016$/ft^2 glazing",
+                        "source": "Source A"},
+                    "performance": {
+                        "conduction": {
+                            "typical": {
+                                "sub arctic": 3.13,
+                                "very cold": 3.13,
+                                "cold": 3.13,
+                                "marine": 2.86,
+                                "mixed humid": 2.86,
+                                "mixed dry": 2.86,
+                                "hot dry": 2.5,
+                                "hot humid": 2.5},
+                            "units": "R value",
+                            "source": "Source A"},
+                        "solar": {
+                            "typical": {
+                                "sub arctic": 0.4,
+                                "very cold": 0.4,
+                                "cold": 0.4,
+                                "marine": 0.4,
+                                "mixed humid": 0.4,
+                                "mixed dry": 0.4,
+                                "hot dry": 0.25,
+                                "hot humid": 0.25},
+                            "units": "SHGC",
+                            "source": "Source A"}},
+                    "lifetime": {
+                        "average": 30,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source B"}},
+                "commercial": {
+                    "cost": {
+                        "typical": 56.20,
+                        "units": "2016$/ft^2 glazing",
+                        "source": "Source C"},
+                    "performance": {
+                        "conduction": {
+                            "typical": {
+                                "sub arctic": 2.86,
+                                "very cold": 2.86,
+                                "cold": 2.86,
+                                "marine": 1.75,
+                                "mixed humid": 1.75,
+                                "mixed dry": 1.75,
+                                "hot dry": 0.82,
+                                "hot humid": 0.82},
+                            "units": "R value",
+                            "source": "Source B"},
+                        "solar": {
+                            "typical": {
+                                "sub arctic": 0.49,
+                                "very cold": 0.49,
+                                "cold": 0.39,
+                                "marine": 0.39,
+                                "mixed humid": 0.39,
+                                "mixed dry": 0.39,
+                                "hot dry": 0.25,
+                                "hot humid": 0.25},
+                            "units": "SHGC",
+                            "source": "Source B"}},
+                    "lifetime": {
+                        "average": 25,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source C"}}},
+            "infiltration": {
+                "residential": {
+                    "cost": "NA",
+                    "performance": {
+                        "typical": {
+                            "sub arctic": 3,
+                            "very cold": 3,
+                            "cold": 3,
+                            "marine": 3,
+                            "mixed humid": 3,
+                            "mixed dry": 3,
+                            "hot dry": 5,
+                            "hot humid": 5},
+                        "units": "ACH",
+                        "source": "Source D"},
+                    "lifetime": {
+                        "average": 100,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source E"}},
+                "commercial": {
+                    "cost": "NA",
+                    "performance": {
+                        "typical": 1.5,
+                        "units": "CFM/ft^2 @ 0.3 in. w.c.",
+                        "source": "Source D"},
+                    "lifetime": {
+                        "average": 100,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source E"}}},
+            "ground": {
+                "residential": {
+                    "cost": {
+                        "typical": 5.03,
+                        "units": "2016$/ft^2 footprint",
+                        "source": "Source G"},
+                    "performance": {
+                        "typical": {
+                            "sub arctic": 10,
+                            "very cold": 10,
+                            "cold": 10,
+                            "marine": 10,
+                            "mixed humid": 10,
+                            "mixed dry": 0,
+                            "hot dry": 0,
+                            "hot humid": 0},
+                        "units": "R value",
+                        "source": "Source H"},
+                    "lifetime": {
+                        "average": 100,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source H"}},
+                "commercial": {
+                    "cost": {
+                        "typical": 5.03,
+                        "units": "2016$/ft^2 footprint",
+                        "source": "Source J"},
+                    "performance": {
+                        "typical": {
+                            "sub arctic": 8,
+                            "very cold": 8,
+                            "cold": 8,
+                            "marine": 6,
+                            "mixed humid": 6,
+                            "mixed dry": 0,
+                            "hot dry": 0,
+                            "hot humid": 0},
+                        "units": "R value",
+                        "source": "Source D"},
+                    "lifetime": {
+                        "average": 100,
+                        "range": 10,
+                        "units": "years",
+                        "source": "Source H"}}}}}
+
+    # Define a dict with the cost unit conversion data needed to update
+    # the cost data from their original/source units to a common per
+    # square foot floor area basis
+    conversions_data = {
+        "building type conversions": {
+            "original type": "EnergyPlus reference buildings",
+            "revised type": "Annual Energy Outlook (AEO) buildings",
+            "conversion data": {
+                "description": "Some text.",
+                "value": {
+                    "residential": {
+                        "single family home": {
+                            "Single-Family": 1},
+                        "mobile home": {
+                            "Single-Family": 1},
+                        "multi family home": {
+                            "Multifamily": 1}},
+                    "commercial": {
+                        "assembly": {
+                            "Hospital": 1},
+                        "education": {
+                            "PrimarySchool": 0.26,
+                            "SecondarySchool": 0.74},
+                        "food sales": {
+                            "Supermarket": 1},
+                        "food service": {
+                            "QuickServiceRestaurant": 0.31,
+                            "FullServiceRestaurant": 0.69},
+                        "healthcare": None,
+                        "lodging": {
+                            "SmallHotel": 0.26,
+                            "LargeHotel": 0.74},
+                        "large office": {
+                            "LargeOffice": 0.9,
+                            "MediumOffice": 0.1},
+                        "small office": {
+                            "SmallOffice": 0.12,
+                            "OutpatientHealthcare": 0.88},
+                        "mercantile and service": {
+                            "RetailStandalone": 0.53,
+                            "RetailStripmall": 0.47},
+                        "warehouse": {
+                            "Warehouse": 1},
+                        "other": None}},
+                "source": {
+                    "residential": "Source G",
+                    "commercial": "1) Source F, 2) Source K, 3) Source L"},
+                "notes": {
+                    "residential": "Explanatory text.",
+                    "commercial": "Explanatory text."}}},
+        "cost unit conversions": {
+            "heating and cooling": {
+                "supply": {
+                    "heating equipment": {
+                        "original units": "$/kBtuh",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": 0.020,
+                            "units": "kBtuh/ft^2 floor",
+                            "source": "Rule of thumb",
+                            "notes": "Explanatory text."}},
+                    "cooling equipment": {
+                        "original units": "$/kBtuh",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": 0.036,
+                            "units": "kBtuh/ft^2 floor",
+                            "source": "Rule of thumb",
+                            "notes": "Explanatory text."}}},
+                "demand": {
+                    "windows": {
+                        "original units": "$/ft^2 glazing",
+                        "revised units": "$/ft^2 wall",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": {
+                                "residential": {
+                                    "single family home": {
+                                        "Single-Family": 0.15},
+                                    "mobile home": {
+                                        "Single-Family": 0.15},
+                                    "multi family home": {
+                                        "Multifamily": 0.10}},
+                                "commercial": {
+                                    "assembly": {
+                                        "Hospital": 0.15},
+                                    "education": {
+                                        "PrimarySchool": 0.35,
+                                        "SecondarySchool": 0.33},
+                                    "food sales": {
+                                        "Supermarket": 0.11},
+                                    "food service": {
+                                        "QuickServiceRestaurant": 0.14,
+                                        "FullServiceRestaurant": 0.17},
+                                    "healthcare": 0.2,
+                                    "lodging": {
+                                        "SmallHotel": 0.11,
+                                        "LargeHotel": 0.27},
+                                    "large office": {
+                                        "LargeOffice": 0.38,
+                                        "MediumOffice": 0.33},
+                                    "small office": {
+                                        "SmallOffice": 0.21,
+                                        "OutpatientHealthcare": 0.19},
+                                    "mercantile and service": {
+                                        "RetailStandalone": 0.07,
+                                        "RetailStripmall": 0.11},
+                                    "warehouse": {
+                                        "Warehouse": 0.006},
+                                    "other": 0.2}},
+                            "units": None,
+                            "source": {
+                                "residential": "Source G",
+                                "commercial": "Source J"},
+                            "notes": "Explanatory text."}},
+                    "walls": {
+                        "original units": "$/ft^2 wall",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": {
+                                "residential": {
+                                    "single family home": {
+                                        "Single-Family": 1},
+                                    "mobile home": {
+                                        "Single-Family": 1},
+                                    "multi family home": {
+                                        "Multifamily": 1}},
+                                "commercial": {
+                                    "assembly": {
+                                        "Hospital": 0.26},
+                                    "education": {
+                                        "PrimarySchool": 0.20,
+                                        "SecondarySchool": 0.16},
+                                    "food sales": {
+                                        "Supermarket": 0.38},
+                                    "food service": {
+                                        "QuickServiceRestaurant": 0.80,
+                                        "FullServiceRestaurant": 0.54},
+                                    "healthcare": 0.4,
+                                    "lodging": {
+                                        "SmallHotel": 0.40,
+                                        "LargeHotel": 0.38},
+                                    "large office": {
+                                        "LargeOffice": 0.26,
+                                        "MediumOffice": 0.40},
+                                    "small office": {
+                                        "SmallOffice": 0.55,
+                                        "OutpatientHealthcare": 0.35},
+                                    "mercantile and service": {
+                                        "RetailStandalone": 0.51,
+                                        "RetailStripmall": 0.57},
+                                    "warehouse": {
+                                        "Warehouse": 0.53},
+                                    "other": 0.4}},
+                            "units": None,
+                            "source": {
+                                "residential": "Source H",
+                                "commercial": "Source F"},
+                            "notes": "Explanatory text."}},
+                    "footprint": {
+                        "original units": "$/ft^2 footprint",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": {
+                                "residential": {
+                                    "single family home": {
+                                        "Single-Family": 0.5},
+                                    "mobile home": {
+                                        "Single-Family": 0.5},
+                                    "multi family home": {
+                                        "Multifamily": 0.33}},
+                                "commercial": {
+                                    "assembly": {
+                                        "Hospital": 0.20},
+                                    "education": {
+                                        "PrimarySchool": 1,
+                                        "SecondarySchool": 0.5},
+                                    "food sales": {"Supermarket": 1},
+                                    "food service": {
+                                        "QuickServiceRestaurant": 1,
+                                        "FullServiceRestaurant": 1},
+                                    "healthcare": 0.2,
+                                    "lodging": {
+                                        "SmallHotel": 0.25,
+                                        "LargeHotel": 0.17},
+                                    "large office": {
+                                        "LargeOffice": 0.083,
+                                        "MediumOffice": 0.33},
+                                    "small office": {
+                                        "SmallOffice": 1,
+                                        "OutpatientHealthcare": 0.33},
+                                    "mercantile and service": {
+                                        "RetailStandalone": 1,
+                                        "RetailStripmall": 1},
+                                    "warehouse": {
+                                        "Warehouse": 1},
+                                    "other": 1}},
+                            "units": None,
+                            "source": {
+                                "residential": "Source G",
+                                "commercial": "Source F"},
+                            "notes": "Explanatory text."}},
+                    "roof": {
+                        "original units": "$/ft^2 roof",
+                        "revised units": "$/ft^2 footprint",
+                        "conversion factor": {
+                            "description": "Some text.",
+                            "value": {
+                                "residential": 1.05,
+                                "commercial": 1},
+                            "units": None,
+                            "source": "Rule of thumb",
+                            "notes": "Explanatory text."}}}}}}
+
+
+class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
+    """ Test the function that extracts the cost, performance, and
+    lifetime data of envelope components and restructures it into a
+    form similar to the existing cost, performance, and lifetime data
+    obtained from the EIA Annual Energy Outlook (AEO). """
+
+    # Test key lists (microsegment and envelope component type
+    # specifications), covering a variety of cost conversions, cases
+    # with no costs (i.e., infiltration), both residential and
+    # commercial building types, and demand types that have no
+    # associated cost, performance, and lifetime data
+    sample_keys = [['AIA_CZ2', 'warehouse', 'natural gas',
+                    'heating', 'demand', 'windows solar'],
+                   ['AIA_CZ3', 'health care', 'electricity',
+                    'cooling', 'demand', 'people gain'],
+                   ['AIA_CZ4', 'single family home', 'electricity',
+                    'heating', 'demand', 'windows conduction'],
+                   ['AIA_CZ5', 'mobile home', 'electricity',
+                    'cooling', 'demand', 'infiltration'],
+                   ['AIA_CZ1', 'large office', 'electricity',
+                    'cooling', 'demand', 'ground']]
+
+    # Create a list that indicates for each entry in the sample_keys
+    # list whether a dict should be produced or if the function under
+    # test should return '0' because there will not be any associated
+    # cost, performance, or lifetime data
+    dict_expected = [True, False, True, True, True]
+
+    # Provide a list of years (as integers) over which the cost,
+    # performance, and lifetime data should be produced
+    the_years = list(range(2009, 2021))
+
+    # The expected cost, performance, and lifetime data structures
+    # for each of the sample key lists tested
+    cpl_results = [
+        {'installed cost': {
+            'typical': {'2009': 0.178716, '2010': 0.178716, '2011': 0.178716,
+                        '2012': 0.178716, '2013': 0.178716, '2014': 0.178716,
+                        '2015': 0.178716, '2016': 0.178716, '2017': 0.178716,
+                        '2018': 0.178716, '2019': 0.178716, '2020': 0.178716},
+            'units': '2016$/ft^2 floor',
+            'source': 'Source C'},
+         'performance': {
+            'typical': {'2009': 0.39, '2010': 0.39, '2011': 0.39,
+                        '2012': 0.39, '2013': 0.39, '2014': 0.39,
+                        '2015': 0.39, '2016': 0.39, '2017': 0.39,
+                        '2018': 0.39, '2019': 0.39, '2020': 0.39},
+            'units': 'SHGC',
+            'source': 'Source B'},
+         'lifetime': {
+            'average': {'2009': 25, '2010': 25, '2011': 25,
+                        '2012': 25, '2013': 25, '2014': 25,
+                        '2015': 25, '2016': 25, '2017': 25,
+                        '2018': 25, '2019': 25, '2020': 25},
+            'range': 10,
+            'units': 'years',
+            'source': 'Source C'}},
+        0,
+        {'installed cost': {
+            'typical': {'2009': 7.26, '2010': 7.26, '2011': 7.26,
+                        '2012': 7.26, '2013': 7.26, '2014': 7.26,
+                        '2015': 7.26, '2016': 7.26, '2017': 7.26,
+                        '2018': 7.26, '2019': 7.26, '2020': 7.26},
+            'units': '2016$/ft^2 floor',
+            'source': 'Source A'},
+         'performance': {
+            'typical': {'2009': 2.86, '2010': 2.86, '2011': 2.86,
+                        '2012': 2.86, '2013': 2.86, '2014': 2.86,
+                        '2015': 2.86, '2016': 2.86, '2017': 2.86,
+                        '2018': 2.86, '2019': 2.86, '2020': 2.86},
+            'units': 'R value',
+            'source': 'Source A'},
+         'lifetime': {
+            'average': {'2009': 30, '2010': 30, '2011': 30,
+                        '2012': 30, '2013': 30, '2014': 30,
+                        '2015': 30, '2016': 30, '2017': 30,
+                        '2018': 30, '2019': 30, '2020': 30},
+            'range': 10,
+            'units': 'years',
+            'source': 'Source B'},
+         'consumer choice': {
+            'competed market share': {
+                'parameters': {
+                    'b1': {'2009': -0.003, '2010': -0.003, '2011': -0.003,
+                           '2012': -0.003, '2013': -0.003, '2014': -0.003,
+                           '2015': -0.003, '2016': -0.003, '2017': -0.003,
+                           '2018': -0.003, '2019': -0.003, '2020': -0.003},
+                    'b2': {'2009': -0.012, '2010': -0.012, '2011': -0.012,
+                           '2012': -0.012, '2013': -0.012, '2014': -0.012,
+                           '2015': -0.012, '2016': -0.012, '2017': -0.012,
+                           '2018': -0.012, '2019': -0.012, '2020': -0.012}},
+                'source': ('EIA AEO choice model parameters for heating' +
+                           ' and cooling equipment')}}},
+        {'installed cost': 'NA',
+         'performance': {
+            'typical': {'2009': 5, '2010': 5, '2011': 5,
+                        '2012': 5, '2013': 5, '2014': 5,
+                        '2015': 5, '2016': 5, '2017': 5,
+                        '2018': 5, '2019': 5, '2020': 5},
+            'units': 'ACH',
+            'source': 'Source D'},
+         'lifetime': {
+            'average': {'2009': 100, '2010': 100, '2011': 100,
+                        '2012': 100, '2013': 100, '2014': 100,
+                        '2015': 100, '2016': 100, '2017': 100,
+                        '2018': 100, '2019': 100, '2020': 100},
+            'range': 10,
+            'units': 'years',
+            'source': 'Source E'},
+         'consumer choice': {
+            'competed market share': {
+                'parameters': {
+                    'b1': {'2009': -0.003, '2010': -0.003, '2011': -0.003,
+                           '2012': -0.003, '2013': -0.003, '2014': -0.003,
+                           '2015': -0.003, '2016': -0.003, '2017': -0.003,
+                           '2018': -0.003, '2019': -0.003, '2020': -0.003},
+                    'b2': {'2009': -0.012, '2010': -0.012, '2011': -0.012,
+                           '2012': -0.012, '2013': -0.012, '2014': -0.012,
+                           '2015': -0.012, '2016': -0.012, '2017': -0.012,
+                           '2018': -0.012, '2019': -0.012, '2020': -0.012}},
+                'source': ('EIA AEO choice model parameters for heating' +
+                           ' and cooling equipment')}}},
+        {'installed cost': {
+            'typical': {'2009': 0.541731, '2010': 0.541731, '2011': 0.541731,
+                        '2012': 0.541731, '2013': 0.541731, '2014': 0.541731,
+                        '2015': 0.541731, '2016': 0.541731, '2017': 0.541731,
+                        '2018': 0.541731, '2019': 0.541731, '2020': 0.541731},
+            'units': '2016$/ft^2 floor',
+            'source': 'Source J'},
+         'performance': {
+            'typical': {'2009': 8, '2010': 8, '2011': 8,
+                        '2012': 8, '2013': 8, '2014': 8,
+                        '2015': 8, '2016': 8, '2017': 8,
+                        '2018': 8, '2019': 8, '2020': 8},
+            'units': 'R value',
+            'source': 'Source D'},
+         'lifetime': {
+            'average': {'2009': 100, '2010': 100, '2011': 100,
+                        '2012': 100, '2013': 100, '2014': 100,
+                        '2015': 100, '2016': 100, '2017': 100,
+                        '2018': 100, '2019': 100, '2020': 100},
+            'range': 10,
+            'units': 'years',
+            'source': 'Source H'}}]
+
+    # Test the envelope cost, performance, and lifetime data processing
+    # function using the common envelope data dict, cost conversion
+    # factors, and test microsegment keys specified above
+    def test_complete_envelope_cost_performance_lifetime_output(self):
+        for idx, keys in enumerate(self.sample_keys):
+            output = fmc.env_cpl_data_handler(self.envelope_cpl_data,
+                                              self.conversions_data,
+                                              self.the_years,
+                                              keys)
+
+            # Call the appropriate test based on the expectation of a dict
+            if self.dict_expected[idx]:
+                self.dict_check(output, self.cpl_results[idx])
+            else:
+                self.assertEqual(output, self.cpl_results[idx])
+
+
+class CostUnitsConversionTest(EnvelopeDataUnitTest):
+    """ Test the cost conversion function that takes envelope cost data
+    specified on some area basis and converts it to a per square foot
+    floor area basis. """
+
+    # List of test inputs to the envelope cost conversion function
+    cost_convert_input = [
+        [6.33, '2016$/ft^2 roof', 'commercial', 'large office'],
+        [6.33, '2016$/ft^2 roof', 'commercial', 'healthcare'],
+        [2.14, '2016$/ft^2 roof', 'residential', 'single family home'],
+        [27.35, '2016$/ft^2 wall', 'commercial', 'large office'],
+        [27.35, '2016$/ft^2 wall', 'commercial', 'other'],
+        [8.86, '2016$/ft^2 wall', 'residential', 'single family home'],
+        [56.2, '2016$/ft^2 glazing', 'commercial', 'large office'],
+        [56.2, '2016$/ft^2 glazing', 'commercial', 'food sales'],
+        [48.4, '2016$/ft^2 glazing', 'residential', 'single family home']]
+
+    # List of expected costs and units output from the conversion function
+    cost_convert_output = [
+        [0.682, '2016$/ft^2 floor'],
+        [1.266, '2016$/ft^2 floor'],
+        [1.124, '2016$/ft^2 floor'],
+        [7.494, '2016$/ft^2 floor'],
+        [10.94, '2016$/ft^2 floor'],
+        [8.86, '2016$/ft^2 floor'],
+        [5.775, '2016$/ft^2 floor'],
+        [2.349, '2016$/ft^2 floor'],
+        [7.26, '2016$/ft^2 floor']]
+
+    # List of inputs to the cost conversion function that are intended
+    # to trigger errors or exceptions:
+    # 1. Units specified are not in the correct/expected form
+    # 2. Data are already in $/ft^2 floor and do not require conversion
+    cost_convert_input_err = [
+        [5.34, '2016$/sq.ft. roof', 'commercial', 'small office'],
+        [92.3, '2016$/ft^2 floor', 'residential', 'multi family home']]
+
+    # Test the cost conversion function by comparing the output from the
+    # function for the specified inputs to the expected function output
+    def test_units_conversion_of_envelope_cost_data(self):
+        for idx, conv_inp in enumerate(self.cost_convert_input):
+            exc_cost, exc_units = fmc.cost_converter(conv_inp[0], conv_inp[1],
+                                                     conv_inp[2], conv_inp[3],
+                                                     self.conversions_data)
+            # Check the cost values
+            self.assertAlmostEqual(exc_cost,
+                                   self.cost_convert_output[idx][0], places=3)
+
+            # Check the cost units
+            self.assertEqual(exc_units, self.cost_convert_output[idx][1])
+
+    # Test the cost conversion function for an exception caused by the
+    # failure to successfully identify any cost conversion factors with
+    # units that match those passed to the function
+    def test_cost_units_conversion_function_match_error(self):
+        with self.assertRaises(UnboundLocalError):
+            for conv_inp in self.cost_convert_input_err:
+                fmc.cost_converter(conv_inp[0], conv_inp[1],
+                                   conv_inp[2], conv_inp[3],
+                                   self.conversions_data)
+
+
 # Offer external code execution (include all lines below this point in all
 # test files)
 def main():
