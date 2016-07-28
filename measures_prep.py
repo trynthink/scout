@@ -17,11 +17,16 @@ class UsefulInputFiles(object):
     """Class of input files to be opened by this routine.
 
     Attributes:
-        measures_in (JSON): A database of initial measure definitions.
-        msegs_in (JSON): A database of baseline microsegment stock/energy.
-        msegs_cpl_in (JSON): A database of baseline technology characteristics.
-        packages_in (JSON): A database of measure names to package.
-        convert_data (JSON): A database of measure cost unit conversions.
+        measures_in (string): File name for database of initial measure
+            definitions.
+        msegs_in (string): File name for database of baseline microsegment
+            stock/energy.
+        msegs_cpl_in (string): File name for database of baseline technology
+            characteristics.
+        packages_in (string): File name for database of measure names to
+            package.
+        convert_data (string): File name for database of measure cost unit
+            conversions.
     """
 
     def __init__(self):
@@ -36,6 +41,7 @@ class UsefulVars(object):
     """Class of variables that are used globally across functions.
 
     Attributes:
+        adopt_schemes (list): Possible consumer adoption scenarios.
         discount_rate (float): Rate to use in discounting costs/savings.
         retro_rate (float): Rate at which existing stock is retrofitted.
         aeo_years (list) = Modeling time horizon.
@@ -81,28 +87,31 @@ class UsefulVars(object):
         self.consumer_price_ind = numpy.genfromtxt(
             'CPI.csv', names=True, delimiter=',', dtype=[
                 ('DATE', 'U10'), ('VALUE', '<f8')])
-        #######################################################################
-        # MAKE RES/COM MSEG ELECTRICITY DEFINITIONS CONSISTENT
         cost_ss_carb = numpy.genfromtxt(
             "Cost_S-S_CO2.txt", names=True, delimiter='\t', dtype=None)
         self.ss_conv = {
-            "electricity (grid)": cost_ss_carb[7],
             "electricity": cost_ss_carb[7], "natural gas": cost_ss_carb[8],
             "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
-        self.carb_int = {
-            "electricity (grid)": cost_ss_carb[10],
+        # Import fuel type carbon intensity data
+        carb_int = {
             "electricity": cost_ss_carb[10], "natural gas": cost_ss_carb[11],
             "distillate": cost_ss_carb[12], "other fuel": cost_ss_carb[12]}
+        # Divide fuel type carbon intensity data by 1000000000 to reflect
+        # conversion from import units of MMTon/quad to MMTon/MMBtu
+        self.carb_int = {}
+        for k in carb_int.keys():
+            self.carb_int[k] = {
+                yr_key: (carb_int[k][yr_key] / 1000000000) for
+                yr_key in self.aeo_years}
         self.ecosts = {
             "residential": {
-                "electricity (grid)": cost_ss_carb[0],
+                "electricity": cost_ss_carb[0],
                 "natural gas": cost_ss_carb[1], "distillate": cost_ss_carb[2],
                 "other fuel": cost_ss_carb[2]},
             "commercial": {
                 "electricity": cost_ss_carb[3],
                 "natural gas": cost_ss_carb[4], "distillate": cost_ss_carb[5],
                 "other fuel": cost_ss_carb[5]}}
-        ######################################################################
         self.ccosts = cost_ss_carb[6]
         self.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -835,13 +844,6 @@ class Measure(object):
                         # Restrict stock/energy dict to key chain info.
                         mseg = mseg[mskeys[i]]
 
-                        ######################################################
-                        # FORMAT RES/COM MSEG TERMINAL LEAF NODES CONSISTENTLY
-                        if any([isinstance(x, dict) for x in mseg.values()]) \
-                                is False and bldg_sect == "commercial":
-                            mseg = {"stock": "NA", "energy": mseg}
-                        ######################################################
-
                         # Restrict ft^2 floor area dict to key chain info.
                         if i < 3:  # Note: ft^2 floor area broken out 2 levels
                             mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
@@ -894,24 +896,12 @@ class Measure(object):
                         # and fuel type, heating/cooling supply and demand
                         # energy should be equal.
                         for ind, ks in enumerate(mseg.keys()):
-                            ##########################################
-                            # FORMAT RES/COM MSEG TERMINAL LEAF NODES
-                            # CONSISTENTLY
-                            if bldg_sect == "residential":
-                                if ind == 0:
-                                    adj_vals = copy.deepcopy(mseg[ks][
-                                        "energy"])
-                                else:
-                                    adj_vals = self.add_keyvals(
-                                        adj_vals, mseg[ks]["energy"])
+                            if ind == 0:
+                                adj_vals = copy.deepcopy(mseg[ks][
+                                    "energy"])
                             else:
-                                if ind == 0:
-                                    adj_vals = copy.deepcopy(mseg[ks])
-                                else:
-                                    adj_vals = self.add_keyvals(
-                                        adj_vals, mseg[ks])
-                            ###########################################
-
+                                adj_vals = self.add_keyvals(
+                                    adj_vals, mseg[ks]["energy"])
                         for adopt_scheme in self.handyvars.adopt_schemes:
                             # Case with no existing 'windows' contributing
                             # microsegment for the current climate zone,
@@ -925,27 +915,13 @@ class Measure(object):
                                 # values by appropriate site-source conversion
                                 # factor and record as the measure's
                                 # 'supply-demand adjustment' information
-
-                                ###############################################
-                                # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
-                                if bldg_sect == "residential":
-                                    self.markets[adopt_scheme]["mseg_adjust"][
-                                        "supply-demand adjustment"][
-                                        "total"][str(contrib_mseg_key)] = {
-                                            key: val * site_source_conv_base[
-                                                key] for key, val in
-                                        adj_vals.items() if key in
-                                        self.handyvars.aeo_years}
-                                else:
-                                    self.markets[adopt_scheme]["mseg_adjust"][
-                                        "supply-demand adjustment"][
-                                        "total"][str(contrib_mseg_key)] = {
-                                            key: val * site_source_conv_base[
-                                                key] * 1000000 for key, val in
-                                        adj_vals.items() if key in
-                                        self.handyvars.aeo_years}
-                                ###############################################
-
+                                self.markets[adopt_scheme]["mseg_adjust"][
+                                    "supply-demand adjustment"][
+                                    "total"][str(contrib_mseg_key)] = {
+                                        key: val * site_source_conv_base[
+                                            key] for key, val in
+                                    adj_vals.items() if key in
+                                    self.handyvars.aeo_years}
                                 # Set overlapping energy savings values to zero
                                 # in the measure's 'supply-demand adjustment'
                                 # information for now (updated as necessary in
@@ -964,22 +940,11 @@ class Measure(object):
                                 # factor and add to existing 'supply-demand
                                 # adjustment' information for the current
                                 # windows microsegment
-
-                                ###############################################
-                                # FORMAT RES/COM MSEG ENERGY UNITS CONSISTENTLY
-                                if bldg_sect == "residential":
-                                    add_adjust = {
-                                        key: val * site_source_conv_base[
-                                            key] for key, val in
-                                        adj_vals.items() if key in
-                                        self.handyvars.aeo_years}
-                                else:
-                                    add_adjust = {
-                                        key: val * site_source_conv_base[
-                                            key] * 1000000 for key, val in
-                                        adj_vals.items() if key in
-                                        self.handyvars.aeo_years}
-                                ###############################################
+                                add_adjust = {
+                                    key: val * site_source_conv_base[
+                                        key] for key, val in
+                                    adj_vals.items() if key in
+                                    self.handyvars.aeo_years}
                                 self.markets[adopt_scheme]["mseg_adjust"][
                                     "supply-demand adjustment"][
                                     "total"][str(contrib_mseg_key)] = \
@@ -1409,45 +1374,23 @@ class Measure(object):
                 # Total stock
                 if mskeys[0] == 'secondary':
                     add_stock = dict.fromkeys(self.handyvars.aeo_years, 0)
-                elif sqft_subst == 1:  # Use ft^2 floor area in absence of # units
-                    ##########################################################
-                    # FORMAT RES/COM MSEG TOTAL SF KEYS CONSISTENTLY
-                    # * Note: multiply AEO square footages by 1 million (AEO
-                    # reports in million square feet)
-                    if bldg_sect == "residential":
-                        add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 for
-                            key, val in mseg_sqft_stock[
-                                "square footage"].items() if key in
-                            self.handyvars.aeo_years}
-                    else:
-                        add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 for
-                            key, val in mseg_sqft_stock[
-                                "total square footage"].items()
-                            if key in self.handyvars.aeo_years}
-                    ##########################################################
+                elif sqft_subst == 1:  # Use ft^2 floor area in lieu of # units
+                    add_stock = {
+                        key: val * new_existing_frac[key] * 1000000 for
+                        key, val in mseg_sqft_stock[
+                            "total square footage"].items()
+                        if key in self.handyvars.aeo_years}
                 else:
                     add_stock = {
                         key: val * new_existing_frac[key] for key, val in
                         mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
-                #############################################################
-                # FORMAT RES/COM MSEG TOTAL ENERGY UNITS CONSISTENTLY
                 # Total energy use (primary)
-                if bldg_sect == "residential":
-                    add_energy = {
-                        key: val * site_source_conv_base[key] *
-                        new_existing_frac[key] for key, val in mseg[
-                            "energy"].items() if key in
-                        self.handyvars.aeo_years}
-                else:
-                    add_energy = {
-                        key: val * site_source_conv_base[key] *
-                        new_existing_frac[key] * 1000000 for key, val in mseg[
-                            "energy"].items() if key in
-                        self.handyvars.aeo_years}
-                ##############################################################
+                add_energy = {
+                    key: val * site_source_conv_base[key] *
+                    new_existing_frac[key] for key, val in mseg[
+                        "energy"].items() if key in
+                    self.handyvars.aeo_years}
                 # Total carbon emissions
                 add_carb = {key: val * intensity_carb_base[key]
                             for key, val in add_energy.items()
@@ -1677,9 +1620,8 @@ class Measure(object):
                         structure_types = 1
                     # Create a factor for reduction of msegs with ft^2 floor
                     # area stock
-                    reduce_num = key_chain_ct / (len(ms_lists[0]) *
-                                                    len(ms_lists[1]) *
-                                                    structure_types)
+                    reduce_num = key_chain_ct / (
+                        len(ms_lists[0]) * len(ms_lists[1]) * structure_types)
                     # Adjust master microsegment by above factor
                     self.markets[adopt_scheme]["master_mseg"] = \
                         self.div_keyvals_float_restrict(self.markets[
@@ -3508,7 +3450,7 @@ def main(argv):
         argv (string): Directory for EnergyPlus simulation data files.
 
     Returns:
-        An finalized measures JSON for use in analysis engine.
+        A finalized measures JSON for use in analysis engine.
     """
     # Custom format all warning messages (ignore everything but message itself)
     warnings.formatwarning = custom_formatwarning
@@ -3547,6 +3489,8 @@ def main(argv):
         json.dump(measures, jso, indent=4)
 
 if __name__ == "__main__":
+    import time
+    start_time = time.time()
     # Allow either user-defined or standard EnergyPlus performance file
     # directory
     if len(sys.argv) == 2:
@@ -3554,3 +3498,4 @@ if __name__ == "__main__":
     else:
         base_dir = getcwd()
         main(base_dir + "/eplus")
+    print("--- Runtime: %s seconds ---" % round((time.time() - start_time), 2))

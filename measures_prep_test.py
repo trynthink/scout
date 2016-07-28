@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Tests for running the EnergyPlus data import """
+""" Tests for running the measure preparation routine """
 
 # Import code to be tested
 import measures_prep
@@ -678,9 +678,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
     for a series of sample measures.
 
     Attributes:
-        handyvars (object): Global variables to use across measures.
-        handyvars.aeo_years (list): Abbreviated modeling time horizon to use
-            for testing.
         sample_mseg_in (dict): Sample baseline microsegment stock/energy.
         sample_cpl_in (dict): Sample baseline technology cost, performance,
             and lifetime.
@@ -735,6 +732,12 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         handyvars = measures_prep.UsefulVars()
         handyvars.aeo_years = ["2009", "2010"]
+        # Adjust carbon intensity data to reflect units originally used for
+        # tests (* Note: test outcome units to be adjusted later)
+        for k in handyvars.carb_int.keys():
+            handyvars.carb_int[k] = {
+                yr_key: (handyvars.carb_int[k][yr_key] * 1000000000) for
+                yr_key in handyvars.aeo_years}
         cls.sample_mseg_in = {
             "AIA_CZ1": {
                 "assembly": {
@@ -744,34 +747,41 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "heating": {
                             "demand": {
                                 "windows conduction": {
-                                    "2009": 0 / 1000000,
-                                    "2010": 0 / 1000000},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": 0, "2010": 0}},
                                 "windows solar": {
-                                    "2009": 1 / 1000000,
-                                    "2010": 1 / 1000000},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": 1, "2010": 1}},
                                 "lighting gain": {
-                                    "2009": -7 / 1000000,
-                                    "2010": -7 / 1000000}}},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": -7, "2010": -7}}}},
                         "cooling": {
                             "demand": {
                                 "windows conduction": {
-                                    "2009": 5 / 1000000,
-                                    "2010": 5 / 1000000},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": 5, "2010": 5}},
                                 "windows solar": {
-                                    "2009": 6 / 1000000,
-                                    "2010": 6 / 1000000},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": 6, "2010": 6}},
                                 "lighting gain": {
-                                    "2009": 6 / 1000000,
-                                    "2010": 6 / 1000000}}},
+                                    "stock": "NA",
+                                    "energy": {
+                                        "2009": 6, "2010": 6}}}},
                         "lighting": {
                             "commercial light type X": {
-                                "2009": 11 / 1000000,
-                                "2010": 11 / 1000000}}}},
+                                "stock": "NA",
+                                "energy": {
+                                    "2009": 11, "2010": 11}}}}},
                 "single family home": {
-                    "square footage": {"2009": 100, "2010": 200},
+                    "total square footage": {"2009": 100, "2010": 200},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -897,10 +907,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "energy": {
                                         "2009": 10, "2010": 10}}}}}},
                 "multi family home": {
-                    "square footage": {"2009": 300, "2010": 400},
+                    "total square footage": {"2009": 300, "2010": 400},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -934,10 +944,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 14, "2010": 14}}}}}},
             "AIA_CZ2": {
                 "single family home": {
-                    "square footage": {"2009": 500, "2010": 600},
+                    "total square footage": {"2009": 500, "2010": 600},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -1012,10 +1022,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "stock": {"2009": 15, "2010": 15},
                                     "energy": {"2009": 15, "2010": 15}}}},
                 "multi family home": {
-                    "square footage": {"2009": 700, "2010": 800},
+                    "total square footage": {"2009": 700, "2010": 800},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -1048,10 +1058,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 14, "2010": 14}}}}}},
             "AIA_CZ4": {
                 "multi family home": {
-                    "square footage": {"2009": 900, "2010": 1000},
+                    "total square footage": {"2009": 900, "2010": 1000},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
-                    "electricity (grid)": {
+                    "electricity": {
                         "lighting": {
                             "linear fluorescent (LED)": {
                                 "stock": {"2009": 11, "2010": 11},
@@ -1274,7 +1284,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}},
                 "single family home": {
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -2412,7 +2422,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}}},
                 "multi family home": {
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -2716,7 +2726,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "q": "NA"}}}}}}}},
             "AIA_CZ2": {
                 "single family home": {
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -3455,7 +3465,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}}},
                 "multi family home": {
-                    "electricity (grid)": {
+                    "electricity": {
                         "heating": {
                             "demand": {
                                 "windows conduction": {
@@ -3759,7 +3769,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "q": "NA"}}}}}}}},
             "AIA_CZ4": {
                 "multi family home": {
-                    "electricity (grid)": {
+                    "electricity": {
                         "lighting": {
                             "linear fluorescent (LED)": {
                                     "performance": {
@@ -3916,7 +3926,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "cooling"],
@@ -3978,7 +3988,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4012,8 +4022,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)",
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity",
                                         "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -4053,7 +4063,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating"],
@@ -4081,7 +4091,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating"],
@@ -4113,7 +4123,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "secondary heating",
@@ -4148,7 +4158,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "secondary heating",
@@ -4271,8 +4281,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)",
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity",
                                         "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -4311,8 +4321,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)",
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity",
                                         "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -4352,8 +4362,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)",
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity",
                                         "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -4391,7 +4401,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "fuel_type": {"primary": ["natural gas"],
                           "secondary": None},
-            "fuel_switch_to": "electricity (grid)",
+            "fuel_switch_to": "electricity",
             "end_use": {"primary": ["water heating"],
                         "secondary": None},
             "technology_type": {"primary": "supply",
@@ -4521,8 +4531,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)",
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity",
                                         "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -4605,7 +4615,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4677,7 +4687,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4713,7 +4723,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4746,7 +4756,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4784,7 +4794,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["cooling"],
@@ -4818,7 +4828,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4955,9 +4965,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": [
-                    "electricity (grid)",
+                    "electricity",
                     "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {
@@ -5019,9 +5029,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": [
-                    "electricity (grid)",
+                    "electricity",
                     "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {
@@ -5083,9 +5093,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": [
-                    "electricity (grid)",
+                    "electricity",
                     "natural gas"]},
             "fuel_switch_to": None,
             "end_use": {
@@ -5251,76 +5261,76 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "b2": {"2009": None, "2010": None}}
         cls.ok_tpmeas_fullchk_competechoiceout = [{
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'boiler (electric)', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'GSHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'GSHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'boiler (electric)', 'new'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'GSHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'GSHP', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)',   'heating', 'supply', "
+             "'electricity',   'heating', 'supply', "
              "'boiler (electric)',existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', heating', 'supply', "
+             "'electricity', heating', 'supply', "
              "'ASHP', 'existing'"): compete_choice_val,
             ("'primary', 'AIA_CZ1 'single family home', "
-             "'electricity (grid)', heating', 'supply', "
+             "'electricity', heating', 'supply', "
              "'GSHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity (grid)', cooling', 'supply', "
+             "'electricity', cooling', 'supply', "
              "'ASHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity (grid)', cooling', 'supply', "
+             "'electricity', cooling', 'supply', "
              "'GSHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity (grid)', cooling', 'supply', "
+             "'electricity', cooling', 'supply', "
              "'room AC', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'boiler (electric)', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'ASHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'heating', 'supply', "
+             "'electricity', 'heating', 'supply', "
              "'GSHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'ASHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'GSHP', 'existing'"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
-             "'electricity (grid)', 'cooling', 'supply', "
+             "'electricity', 'cooling', 'supply', "
              "'room AC', 'existing'"): compete_choice_val},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
@@ -5328,16 +5338,16 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'','new'"): compete_choice_val},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'other (grid electric)', "
+             "'electricity', 'other (grid electric)', "
              "'freezers', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'other (grid electric)', "
+             "'electricity', 'other (grid electric)', "
              "'freezers', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'refrigeration', None, "
+             "'electricity', 'refrigeration', None, "
              "'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity (grid)', 'refrigeration', None, "
+             "'electricity', 'refrigeration', None, "
              "'new')"): compete_choice_val}]
         cls.ok_tpmeas_fullchk_msegadjout = [{
             "stock-and-flow": {
@@ -5375,153 +5385,153 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         cls.ok_tpmeas_fullchk_supplydemandout = [{
             "savings": {
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'existing')"): {"2009": 0, "2010": 0}},
             "total": {
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'new')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'new')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'new')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'new')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'existing')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'boiler (electric)', 'existing')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'heating', 'supply', "
+                 "'electricity', 'heating', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'GSHP', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
-                 "'electricity (grid)', 'cooling', 'supply', "
+                 "'electricity', 'cooling', 'supply', "
                  "'room AC', 'existing')"): {"2009": 108.46, "2010": 108.8}}},
             {"savings": {}, "total": {}},
             {"savings": {}, "total": {}}]
@@ -6781,7 +6791,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -6799,10 +6809,10 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         cls.ok_diffuse_params_in = None
         cls.ok_mskeys_in = [
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'boiler (electric)',
+             'electricity', 'heating', 'supply', 'boiler (electric)',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'boiler (electric)',
+             'electricity', 'heating', 'supply', 'boiler (electric)',
              'existing')]
         cls.ok_mkt_scale_frac_in = 1
         cls.ok_new_bldg_frac_in = [{
@@ -7235,8 +7245,8 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
-                "secondary": ["electricity (grid)"]},
+                "primary": ["electricity"],
+                "secondary": ["electricity"]},
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["heating", "cooling"],
@@ -7273,113 +7283,113 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
             handyvars, **sample_measure)
         cls.ok_out_primary = [
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply',
+             'electricity', 'heating', 'supply',
              'boiler (electric)', 'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'ASHP',
+             'electricity', 'heating', 'supply', 'ASHP',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'GSHP',
+             'electricity', 'heating', 'supply', 'GSHP',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'room AC',
+             'electricity', 'heating', 'supply', 'room AC',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply',
+             'electricity', 'cooling', 'supply',
              'boiler (electric)', 'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'ASHP',
+             'electricity', 'cooling', 'supply', 'ASHP',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'GSHP',
+             'electricity', 'cooling', 'supply', 'GSHP',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'room AC',
+             'electricity', 'cooling', 'supply', 'room AC',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply',
+             'electricity', 'heating', 'supply',
              'boiler (electric)', 'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'ASHP',
+             'electricity', 'heating', 'supply', 'ASHP',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'GSHP',
+             'electricity', 'heating', 'supply', 'GSHP',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'room AC',
+             'electricity', 'heating', 'supply', 'room AC',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply',
+             'electricity', 'cooling', 'supply',
              'boiler (electric)', 'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'ASHP',
+             'electricity', 'cooling', 'supply', 'ASHP',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'GSHP',
+             'electricity', 'cooling', 'supply', 'GSHP',
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'room AC',
+             'electricity', 'cooling', 'supply', 'room AC',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply',
+             'electricity', 'heating', 'supply',
              'boiler (electric)', 'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'ASHP',
+             'electricity', 'heating', 'supply', 'ASHP',
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'GSHP',
+             'electricity', 'heating', 'supply', 'GSHP',
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'room AC',
+             'electricity', 'heating', 'supply', 'room AC',
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply',
+             'electricity', 'cooling', 'supply',
              'boiler (electric)', 'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'ASHP',
+             'electricity', 'cooling', 'supply', 'ASHP',
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'GSHP',
+             'electricity', 'cooling', 'supply', 'GSHP',
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'room AC',
+             'electricity', 'cooling', 'supply', 'room AC',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply',
+             'electricity', 'heating', 'supply',
              'boiler (electric)', 'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'ASHP',
+             'electricity', 'heating', 'supply', 'ASHP',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'GSHP',
+             'electricity', 'heating', 'supply', 'GSHP',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'heating', 'supply', 'room AC',
+             'electricity', 'heating', 'supply', 'room AC',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply',
+             'electricity', 'cooling', 'supply',
              'boiler (electric)', 'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'ASHP',
+             'electricity', 'cooling', 'supply', 'ASHP',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'GSHP',
+             'electricity', 'cooling', 'supply', 'GSHP',
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'cooling', 'supply', 'room AC',
+             'electricity', 'cooling', 'supply', 'room AC',
              'existing')]
         cls.ok_out_secondary = [
             ('secondary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'lighting',
+             'electricity', 'lighting',
              'general service (LED)', 'new'),
             ('secondary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'lighting',
+             'electricity', 'lighting',
              'general service (LED)', 'new'),
             ('secondary', 'AIA_CZ1', 'single family home',
-             'electricity (grid)', 'lighting',
+             'electricity', 'lighting',
              'general service (LED)', 'existing'),
             ('secondary', 'AIA_CZ2', 'single family home',
-             'electricity (grid)', 'lighting',
+             'electricity', 'lighting',
              'general service (LED)', 'existing')]
 
     def test_primary(self):
@@ -7449,7 +7459,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -7567,7 +7577,7 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -7657,7 +7667,7 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -7804,8 +7814,8 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
-                "secondary": ["electricity (grid)"]},
+                "primary": ["electricity"],
+                "secondary": ["electricity"]},
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["heating", "cooling"],
@@ -8130,8 +8140,6 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
 
     Attributes:
         handyvars (object): Global variables to use across measures.
-        handyvars.aeo_years (list): Abbreviated modeling time horizon to use
-            for testing.
         sample_mseg_in (dict): Sample baseline microsegment stock/energy.
         sample_cpl_in (dict): Sample baseline technology cost, performance,
             and lifetime.
@@ -8154,10 +8162,19 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
+        cls.handyvars = measures_prep.UsefulVars()
+        # Adjust aeo_years to fit test years
+        cls.handyvars.aeo_years = ["2009", "2010"]
+        # Adjust carbon intensity data to reflect units originally used for
+        # tests (* Note: test outcome units to be adjusted later)
+        for k in cls.handyvars.carb_int.keys():
+            cls.handyvars.carb_int[k] = {
+                yr_key: (cls.handyvars.carb_int[k][yr_key] * 1000000000) for
+                yr_key in cls.handyvars.aeo_years}
         cls.sample_mseg_in = {
             "AIA_CZ1": {
                 "single family home": {
-                    "square footage": {"2009": 100, "2010": 200},
+                    "total square footage": {"2009": 100, "2010": 200},
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
                     "natural gas": {
@@ -8200,8 +8217,6 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
                                         "p": "NA",
                                         "q": "NA"}}}}}}}}
         cls.convert_data = {}  # Blank for now
-        cls.handyvars = measures_prep.UsefulVars()
-        cls.handyvars.aeo_years = ["2009", "2010"]
         cls.measures_ok_in = [{
             "name": "sample measure to update (user-flagged)",
             "status": {"active": True, "finalized": False},
@@ -9286,7 +9301,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             "structure_type": ["existing"],
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -9348,7 +9363,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -9414,7 +9429,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 1, "2010": 1},
                                     "measure": 20}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "stock": {
@@ -9481,13 +9496,13 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 15}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
                                 "b2": {"2009": 0.25, "2010": 0.25}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -9636,7 +9651,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -9702,7 +9717,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 1, "2010": 1},
                                     "measure": 20}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "stock": {
@@ -9769,13 +9784,13 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 15}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
                                 "b2": {"2009": 0.25, "2010": 0.25}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -9884,7 +9899,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new"],
             "climate_zone": ["AIA_CZ5"],
             "bldg_type": ["multi family home"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -9950,7 +9965,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -10016,7 +10031,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 1, "2010": 1},
                                     "measure": 20}},
                             ("('primary', AIA_CZ5', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "stock": {
                                     "total": {
@@ -10087,12 +10102,12 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 18}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ5', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "b1": {"2009": 0.75, "2010": 0.75},
                                 "b2": {"2009": 0.75, "2010": 0.75}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -10242,7 +10257,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -10308,7 +10323,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 1, "2010": 1},
                                     "measure": 20}},
                             ("('primary', AIA_CZ5', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "stock": {
                                     "total": {
@@ -10379,12 +10394,12 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 18}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ5', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
                                 "b1": {"2009": 0.75, "2010": 0.75},
                                 "b2": {"2009": 0.75, "2010": 0.75}},
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (halogen)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -10495,7 +10510,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "fuel_type": {
-                "primary": ["electricity (grid)"],
+                "primary": ["electricity"],
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -10573,7 +10588,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -10640,7 +10655,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 20}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -10805,7 +10820,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "stock": {
@@ -10872,7 +10887,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "measure": 20}}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
-                             "'electricity (grid)',"
+                             "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
                                 "b1": {"2009": 0.25, "2010": 0.25},
@@ -10978,7 +10993,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
             ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ5'],
             ['single family home', 'multi family home'],
             ['new', 'existing'],
-            ['electricity (grid)', 'natural gas'],
+            ['electricity', 'natural gas'],
             ['water heating', 'lighting', 'cooling']]
         cls.markets_ok_out = {
             "Technical potential": {
@@ -11230,7 +11245,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 5, "2010": 5},
                                 "measure": 10}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (incandescent)', "
                          "'existing')"): {
                             "stock": {
@@ -11287,7 +11302,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 1, "2010": 1},
                                 "measure": 20}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (halogen)', 'existing')"): {
                             "stock": {
                                 "total": {
@@ -11342,7 +11357,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 2, "2010": 2},
                                 "measure": 15}},
                         ("('primary', AIA_CZ5', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
                             "stock": {
                                 "total": {
@@ -11416,19 +11431,19 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "b1": {"2009": 0.5, "2010": 0.5},
                             "b2": {"2009": 0.5, "2010": 0.5}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (incandescent)', "
                          "'existing')"): {
                             "b1": {"2009": 0.25, "2010": 0.25},
                             "b2": {"2009": 0.25, "2010": 0.25}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (halogen)', "
                          "'existing')"): {
                             "b1": {"2009": 0.25, "2010": 0.25},
                             "b2": {"2009": 0.25, "2010": 0.25}},
                         ("('primary', AIA_CZ5', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
                             "b1": {"2009": 0.75, "2010": 0.75},
                             "b2": {"2009": 0.75, "2010": 0.75}}},
@@ -11756,7 +11771,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 5, "2010": 5},
                                 "measure": 10}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (incandescent)', "
                          "'existing')"): {
                             "stock": {
@@ -11813,7 +11828,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 1, "2010": 1},
                                 "measure": 20}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (halogen)', 'existing')"): {
                             "stock": {
                                 "total": {
@@ -11868,7 +11883,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 "baseline": {"2009": 2, "2010": 2},
                                 "measure": 15}},
                         ("('primary', AIA_CZ5', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
                             "stock": {
                                 "total": {
@@ -11942,19 +11957,19 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "b1": {"2009": 0.5, "2010": 0.5},
                             "b2": {"2009": 0.5, "2010": 0.5}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (incandescent)', "
                          "'existing')"): {
                             "b1": {"2009": 0.25, "2010": 0.25},
                             "b2": {"2009": 0.25, "2010": 0.25}},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'lighting', 'reflector (halogen)', "
                          "'existing')"): {
                             "b1": {"2009": 0.25, "2010": 0.25},
                             "b2": {"2009": 0.25, "2010": 0.25}},
                         ("('primary', AIA_CZ5', 'single family home', "
-                         "'electricity (grid)',"
+                         "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
                             "b1": {"2009": 0.75, "2010": 0.75},
                             "b2": {"2009": 0.75, "2010": 0.75}}},
