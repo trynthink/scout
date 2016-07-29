@@ -1117,9 +1117,8 @@ class Measure(object):
 
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
-                if mskeys[0] == "primary" and (
-                    (sqft_subst == 1 and '$/ft^2 floor' not in cost_units) or
-                        (sqft_subst == 0 and '$/unit' not in cost_units)):
+                if mskeys[0] == "primary" and base_costperflife[
+                        "installed cost"]["units"] != cost_units:
                     cost_meas, cost_units = self.convert_costs(
                         convert_data, bldg_sect, mskeys, cost_meas,
                         cost_units, base_costperflife[
@@ -1681,79 +1680,95 @@ class Measure(object):
             ValueError: If initial user-defined measure cost units are
                 determined to be invalid/unsupported.
         """
-        # Set dictionaries that are used to map the market
-        # microsegment definition to input cost translation data
-        map_euse = self.handyvars.costconvert_enduses
-        map_htcl = self.handyvars.costconvert_htcl
+        # Separate cost units into the cost year and everything else
+        cost_meas_units_unpack, cost_base_units_unpack = [re.search(
+            '(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
+        # Establish measure and baseline cost year
+        cost_meas_yr, cost_base_yr = [
+            cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)]
+        # Establish measure and baseline cost units (excluding cost year)
+        cost_meas_noyr, cost_base_noyr = [
+            cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)]
 
-        # Retrieve cost unit conversion data for the market microsegment
-        # end use and technology type. Conversion data should be formatted
-        # in a list to simplify its handling in subsequent operations.
-        if mskeys[4] in map_euse.keys():
-            convert_vals = convert_data['cost unit conversions'][
-                map_euse[mskeys[4]]]
-            # For special case of a heating/cooling end use, retrieve
-            # cost unit conversion data under 'supply' or 'demand' keys
-            if any([x in convert_vals.keys() for x in ['supply', 'demand']]):
-                if mskeys[5] == "supply":
-                    convert_vals = [convert_vals[mskeys[5]][
-                        map_htcl[mskeys[5]][mskeys[4]]]]
-                # For a demand-side heating/cooling microsegment, multiple
-                # stages of cost conversion may be required (for example,
-                # convert from ft^2 glazing -> ft^2 wall, then from
-                # ft^2 wall -> ft^2 floor). In such cases, cost conversion
-                # values will be retrieved as lists, where each element
-                # in the list represents a stage of the conversion.
-                elif mskeys[5] == "demand" and not isinstance(
-                        map_htcl[mskeys[5]][mskeys[6]], list):
-                    convert_vals = [convert_vals[mskeys[5]][
-                        map_htcl[mskeys[5]][mskeys[6]]]]
-                elif mskeys[5] == "demand":
-                    convert_vals = [convert_vals[mskeys[5]][x] for x in
-                                    map_htcl[mskeys[5]][mskeys[6]]]
-            else:
-                convert_vals = [convert_vals]
-        else:
-            raise KeyError('No cost unit conversion data for end use!')
+        # If the cost units of the measure are inconsistent with the baseline
+        # cost units (with the cost year removed), map measure cost units to
+        # baseline cost units
+        if cost_meas_noyr != cost_base_noyr:
+            # Set dictionaries that are used to map the market
+            # microsegment definition to input cost translation data
+            map_euse = self.handyvars.costconvert_enduses
+            map_htcl = self.handyvars.costconvert_htcl
 
-        # Finalize cost conversion information retrieved above
-
-        # Initialize a final cost conversion value for the microsegment
-        convert_val = 1
-        if convert_vals[0]['original units'] in cost_meas_units:
-            # Loop through list of conversion data, multiplying initial
-            # conversion value by successive list elements and weighting
-            # results as needed to map conversion factors for multiple
-            # non-Scout building types to the single Scout building type of
-            # the current microsegment
-            for cval in convert_vals:
-                if isinstance(cval['conversion factor']['value'], dict):
-                    cval_bldgtyp = \
-                        cval['conversion factor']['value'][bldg_sect]
-                    if isinstance(cval_bldgtyp, dict):
-                        # Develop weighting factors to map conversion data
-                        # from multiple non-Scout building types to the single
-                        # Scout building type of the current microsegment
-                        cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
-                        bldgtyp_wts = convert_data[
-                            'building type conversions']['conversion data'][
-                            'value'][bldg_sect][mskeys[2]].values()
-                        convert_val *= sum([a * b for a, b in zip(
-                            cval_bldgtyp, bldgtyp_wts)])
-                    else:
-                        convert_val *= cval_bldgtyp
+            # Retrieve cost unit conversion data for the market microsegment
+            # end use and technology type. Conversion data should be formatted
+            # in a list to simplify its handling in subsequent operations.
+            if mskeys[4] in map_euse.keys():
+                convert_units_data = convert_data['cost unit conversions'][
+                    map_euse[mskeys[4]]]
+                # For special case of a heating/cooling end use, retrieve
+                # cost unit conversion data under 'supply' or 'demand' keys
+                if any([x in convert_units_data.keys() for x in [
+                        'supply', 'demand']]):
+                    if mskeys[5] == "supply":
+                        convert_units_data = [convert_units_data[mskeys[5]][
+                            map_htcl[mskeys[5]][mskeys[4]]]]
+                    # For a demand-side heating/cooling microsegment, multiple
+                    # stages of cost conversion may be required (for example,
+                    # convert from ft^2 glazing -> ft^2 wall, then from
+                    # ft^2 wall -> ft^2 floor). In such cases, cost conversion
+                    # values will be retrieved as lists, where each element
+                    # in the list represents a stage of the conversion.
+                    elif mskeys[5] == "demand" and not isinstance(
+                            map_htcl[mskeys[5]][mskeys[6]], list):
+                        convert_units_data = [convert_units_data[mskeys[5]][
+                            map_htcl[mskeys[5]][mskeys[6]]]]
+                    elif mskeys[5] == "demand":
+                        convert_units_data = [
+                            convert_units_data[mskeys[5]][x] for x in
+                            map_htcl[mskeys[5]][mskeys[6]]]
                 else:
-                    convert_val *= cval['conversion factor']['value']
+                    convert_units_data = [convert_units_data]
+            else:
+                raise KeyError('No cost unit conversion data for end use!')
+
+            # Finalize cost conversion information retrieved above
+
+            # Initialize a final cost conversion value for the microsegment
+            convert_units = 1
+            if convert_units_data[0]['original units'] in cost_meas_units:
+                # Loop through list of conversion data, multiplying initial
+                # conversion value by successive list elements and weighting
+                # results as needed to map conversion factors for multiple
+                # non-Scout building types to the single Scout building type of
+                # the current microsegment
+                for cval in convert_units_data:
+                    if isinstance(cval['conversion factor']['value'], dict):
+                        cval_bldgtyp = \
+                            cval['conversion factor']['value'][bldg_sect]
+                        if isinstance(cval_bldgtyp, dict):
+                            # Develop weighting factors to map conversion data
+                            # from multiple non-Scout building types to the
+                            # single Scout building type of the current
+                            # microsegment
+                            cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
+                            bldgtyp_wts = convert_data[
+                                'building type conversions'][
+                                'conversion data']['value'][bldg_sect][
+                                mskeys[2]].values()
+                            convert_units *= sum([a * b for a, b in zip(
+                                cval_bldgtyp, bldgtyp_wts)])
+                        else:
+                            convert_units *= cval_bldgtyp
+                    else:
+                        convert_units *= cval['conversion factor']['value']
+            else:
+                raise ValueError(
+                    'Cost units ' + cost_meas_units + ' are invalid!')
         else:
-            raise ValueError('Cost units ' + cost_meas_units + ' are invalid!')
+            convert_units = 1
 
         # Map the year of measure cost units to the year of baseline cost units
 
-        # Establish the year of measure and baseline cost units
-        cost_meas_units_unpack, cost_base_units_unpack = [re.search(
-            '(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
-        cost_meas_yr, cost_base_yr = [
-            cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)]
         # If measure and baseline cost years are inconsistent, map measure
         # to baseline cost year using Consumer Price Index (CPI) data
         if cost_meas_yr != cost_base_yr:
@@ -1777,15 +1792,24 @@ class Measure(object):
 
         # Apply finalized cost conversion and year conversion factors
         # to measure costs to map to baseline cost units
-        cost_meas_fin = cost_meas * convert_val * convert_yr
+        cost_meas_fin = cost_meas * convert_units * convert_yr
+
         # Adjust initial measure cost units to reflect the conversion (should
         # now be consistent with baseline cost units, this is checked in
         # a subsequent step of the 'fill_mkts' routine)
-        if isinstance(convert_vals, list):
-            cost_meas_units_fin = \
-                cost_base_yr + convert_vals[-1]['revised units']
+
+        # Cost year/unit adjustment involving multiple conversion stages
+        # (use the revised measure units for the final conversion stage)
+        if convert_units != 1 and isinstance(convert_units_data, list):
+            cost_meas_units_fin = cost_base_yr + \
+                convert_units_data[-1]['revised units']
+        # Cost year/unit adjustments involving a single stage of conversion
+        elif convert_units != 1:
+            cost_meas_units_fin = cost_base_yr + \
+                convert_units_data['revised units']
+        # Cost year adjustment only
         else:
-            cost_meas_units_fin = cost_base_yr + convert_vals['revised units']
+            cost_meas_units_fin = cost_base_yr + cost_base_noyr
 
         return cost_meas_fin, cost_meas_units_fin
 

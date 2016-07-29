@@ -7787,15 +7787,19 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         sample_mskeys_fail_in (list): List of microsegment information for
             sample measure cost that should cause function to fail.
         cost_meas_ok_in (int): Sample measure cost.
-        cost_meas_units_ok_in (list): List of valid sample measure cost units.
+        cost_meas_units_ok_in_yronly (string): List of valid sample measure
+            cost units where only the cost year needs adjustment.
+        cost_meas_units_ok_in_all (list): List of valid sample measure cost
+            units where the cost year and/or units need adjustment.
         cost_meas_units_fail_in (string): List of sample measure cost units
             that should cause the function to fail.
         cost_base_units_ok_in (string): List of valid baseline cost units.
-        ok_out_costs (list): Converted measure costs that should be yielded
-            given valid inputs to the function.
+        ok_out_costs_yronly (float): Converted measure costs that should be
+            yielded given 'cost_meas_units_ok_in_yronly' measure cost units.
+        ok_out_costs_all (list): Converted measure costs that should be
+            yielded given 'cost_meas_units_ok_in_all' measure cost units.
         ok_out_cost_units (string): Converted measure cost units that should
             be yielded given valid inputs to the function.
-
     """
 
     @classmethod
@@ -8095,23 +8099,35 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             ('primary', 'marine', 'assembly', 'electricity', 'PCs',
              None, 'new')]
         cls.cost_meas_ok_in = 10
-        cls.cost_meas_units_ok_in = [
+        cls.cost_meas_units_ok_in_yronly = '2008$/ft^2 floor'
+        cls.cost_meas_units_ok_in_all = [
             '$/ft^2 glazing', '2013$/kBtuh', '2010$/ft^2 footprint',
             '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM']
         cls.cost_meas_units_fail_in = '$/ft^2 facade'
         cls.cost_base_units_ok_in = '2013$/ft^2 floor'
-        cls.ok_out_costs = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015]
+        cls.ok_out_costs_yronly = 11.11
+        cls.ok_out_costs_all = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015]
         cls.ok_out_cost_units = '2013$/ft^2 floor'
 
-    def test_convertcost_ok(self):
-        """Test 'convert_costs' function given valid inputs."""
+    def test_convertcost_ok_yronly(self):
+        """Test 'convert_costs' function for year only conversion."""
+        func_output = self.sample_measure_in.convert_costs(
+            self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in,
+            self.sample_mskeys_ok_in, self.cost_meas_ok_in,
+            self.cost_meas_units_ok_in_yronly, self.cost_base_units_ok_in)
+        numpy.testing.assert_almost_equal(
+            func_output[0], self.ok_out_costs_yronly, decimal=2)
+        self.assertEqual(func_output[1], self.ok_out_cost_units)
+
+    def test_convertcost_ok_all(self):
+        """Test 'convert_costs' function for year/units conversion."""
         for k in range(0, len(self.sample_mskeys_ok_in)):
             func_output = self.sample_measure_in.convert_costs(
                 self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
                 self.sample_mskeys_ok_in[k], self.cost_meas_ok_in,
-                self.cost_meas_units_ok_in[k], self.cost_base_units_ok_in)
+                self.cost_meas_units_ok_in_all[k], self.cost_base_units_ok_in)
             numpy.testing.assert_almost_equal(
-                func_output[0], self.ok_out_costs[k], decimal=2)
+                func_output[0], self.ok_out_costs_all[k], decimal=2)
             self.assertEqual(func_output[1], self.ok_out_cost_units)
 
     def test_convertcost_fail(self):
@@ -8123,7 +8139,8 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     self.sample_convertdata_ok_in,
                     self.sample_bldgsect_ok_in[k],
                     self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
-                    self.cost_meas_units_ok_in[k], self.cost_base_units_ok_in)
+                    self.cost_meas_units_ok_in_all[k],
+                    self.cost_base_units_ok_in)
         # Test for ValueError
         with self.assertRaises(ValueError):
             self.sample_measure_in.convert_costs(
