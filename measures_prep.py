@@ -57,10 +57,13 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         out_break_in (dict): Breakouts of measure energy/carbon markets/savings
             for eventual use in plotting of analysis results.
-        costconvert_enduses (dict): Maps end use key names of baseline
+        cconv_whlbldg (dict): Flags cost unit conversions that apply to a
+            whole building rather than a specific end use (for example,
+            $/node -> $/ft^2 floor for a sensors and controls measure).
+        cconv_euses (dict): Maps end use key names of baseline
             microsegment database to end use key names in measure cost unit
             translation database.
-        costconvert_htcl (dict): Maps thermal load component key names
+        cconv_htcl (dict): Maps thermal load component key names
             used in baseline microsegment database to component key(s) names in
             measure cost unit translation database.
     """
@@ -177,7 +180,10 @@ class UsefulVars(object):
                 if elem not in current_level:
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
-        self.costconvert_enduses = {
+        self.cconv_whlbldg = {
+            "$/node": "wireless sensor network",
+            "$/occupant": "occupant-centered sensing and controls"}
+        self.cconv_euses = {
             "heating": "heating and cooling",
             "cooling": "heating and cooling",
             "ventilation": "ventilation",
@@ -186,7 +192,7 @@ class UsefulVars(object):
             "refrigeration": "refrigeration",
             "cooking": "cooking",
             "MELs": "MELs"}
-        self.costconvert_htcl = {
+        self.cconv_htcl = {
             "supply": {
                 "heating": "heating equipment",
                 "cooling": "cooling equipment"},
@@ -1684,11 +1690,11 @@ class Measure(object):
         cost_meas_units_unpack, cost_base_units_unpack = [re.search(
             '(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
         # Establish measure and baseline cost year
-        cost_meas_yr, cost_base_yr = [
-            cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)]
+        cost_meas_yr, cost_base_yr = \
+            cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)
         # Establish measure and baseline cost units (excluding cost year)
-        cost_meas_noyr, cost_base_noyr = [
-            cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)]
+        cost_meas_noyr, cost_base_noyr = \
+            cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)
 
         # If the cost units of the measure are inconsistent with the baseline
         # cost units (with the cost year removed), map measure cost units to
@@ -1696,13 +1702,17 @@ class Measure(object):
         if cost_meas_noyr != cost_base_noyr:
             # Set dictionaries that are used to map the market
             # microsegment definition to input cost translation data
-            map_euse = self.handyvars.costconvert_enduses
-            map_htcl = self.handyvars.costconvert_htcl
+            map_whlbldg = self.handyvars.cconv_whlbldg
+            map_euse = self.handyvars.cconv_euses
+            map_htcl = self.handyvars.cconv_htcl
 
-            # Retrieve cost unit conversion data for the market microsegment
-            # end use and technology type. Conversion data should be formatted
-            # in a list to simplify its handling in subsequent operations.
-            if mskeys[4] in map_euse.keys():
+            # Retrieve whole building or end use-specific cost unit conversion
+            # data. Conversion data should be formatted in a list to simplify
+            # its handling in subsequent operations
+            if any([x == cost_meas_noyr for x in map_whlbldg.keys()]):
+                convert_units_data = [convert_data['cost unit conversions'][
+                    'whole building'][map_whlbldg[cost_meas_noyr]]]
+            elif mskeys[4] in map_euse.keys():
                 convert_units_data = convert_data['cost unit conversions'][
                     map_euse[mskeys[4]]]
                 # For special case of a heating/cooling end use, retrieve
@@ -1729,7 +1739,7 @@ class Measure(object):
                 else:
                     convert_units_data = [convert_units_data]
             else:
-                raise KeyError('No cost unit conversion data for end use!')
+                raise KeyError('No conversion data for measure cost units!')
 
             # Finalize cost conversion information retrieved above
 

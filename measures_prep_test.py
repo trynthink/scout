@@ -7902,6 +7902,61 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "residential": "sample",
                         "commercial": "sample"}}},
             "cost unit conversions": {
+                "whole building": {
+                    "wireless sensor network": {
+                        "original units": "$/node",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "sample",
+                            "value": 0.0005,
+                            "units": "nodes/ft^2 floor",
+                            "source": "sample",
+                            "notes": "sample"}},
+                    "occupant-centered sensing and controls": {
+                        "original units": "$/occupant",
+                        "revised units": "$/ft^2 floor",
+                        "conversion factor": {
+                            "description": "sample",
+                            "value": {
+                                "residential": {
+                                    "single family home": {
+                                        "Single-Family": 0.001},
+                                    "mobile home": {
+                                        "Single-Family": 0.001},
+                                    "multi family home": {
+                                        "Multifamily": 0.002}},
+                                "commercial": {
+                                    "assembly": {
+                                        "Hospital": 0.005},
+                                    "education": {
+                                        "PrimarySchool": 0.02,
+                                        "SecondarySchool": 0.02},
+                                    "food sales": {
+                                        "Supermarket": 0.008},
+                                    "food service": {
+                                        "QuickServiceRestaurant": 0.07,
+                                        "FullServiceRestaurant": 0.07},
+                                    "health care": 0.005,
+                                    "lodging": {
+                                        "SmallHotel": 0.005,
+                                        "LargeHotel": 0.005},
+                                    "large office": {
+                                        "LargeOffice": 0.005,
+                                        "MediumOffice": 0.005},
+                                    "small office": {
+                                        "SmallOffice": 0.005,
+                                        "OutpatientHealthcare": 0.02},
+                                    "mercantile/service": {
+                                        "RetailStandalone": 0.01,
+                                        "RetailStripmall": 0.01},
+                                    "warehouse": {
+                                        "Warehouse": 0.0001},
+                                    "other": 0.005}},
+                            "units": "occupants/ft^2 floor",
+                            "source": {
+                                "residential": "sample",
+                                "commercial": "sample"},
+                            "notes": ""}}},
                 "heating and cooling": {
                     "supply": {
                         "heating equipment": {
@@ -8079,7 +8134,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "notes": "sample"}}}}
         cls.sample_bldgsect_ok_in = [
             "residential", "commercial", "commercial", "commercial",
-            "commercial", "commercial"]
+            "commercial", "commercial", "commercial"]
         cls.sample_mskeys_ok_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -8092,7 +8147,9 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             ('primary', 'marine', 'lodging', 'electricity', 'cooling',
              'demand', 'wall', 'new'),
             ('primary', 'marine', 'food service', 'electricity', 'ventilation',
-             'CAV_Vent', 'existing')]
+             'CAV_Vent', 'existing'),
+            ('primary', 'marine', 'small office', 'electricity', 'cooling',
+             'reciprocating_chiller', 'existing')]
         cls.sample_mskeys_fail_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'people gain', 'existing'),
@@ -8102,18 +8159,19 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         cls.cost_meas_units_ok_in_yronly = '2008$/ft^2 floor'
         cls.cost_meas_units_ok_in_all = [
             '$/ft^2 glazing', '2013$/kBtuh', '2010$/ft^2 footprint',
-            '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM']
+            '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM',
+            '2013$/occupant']
         cls.cost_meas_units_fail_in = '$/ft^2 facade'
         cls.cost_base_units_ok_in = '2013$/ft^2 floor'
         cls.ok_out_costs_yronly = 11.11
-        cls.ok_out_costs_all = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015]
+        cls.ok_out_costs_all = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182]
         cls.ok_out_cost_units = '2013$/ft^2 floor'
 
     def test_convertcost_ok_yronly(self):
         """Test 'convert_costs' function for year only conversion."""
         func_output = self.sample_measure_in.convert_costs(
-            self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in,
-            self.sample_mskeys_ok_in, self.cost_meas_ok_in,
+            self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[0],
+            self.sample_mskeys_ok_in[0], self.cost_meas_ok_in,
             self.cost_meas_units_ok_in_yronly, self.cost_base_units_ok_in)
         numpy.testing.assert_almost_equal(
             func_output[0], self.ok_out_costs_yronly, decimal=2)
