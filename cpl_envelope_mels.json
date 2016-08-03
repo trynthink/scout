@@ -90,7 +90,11 @@
 		},
 		"infiltration": {
 			"residential": {
-				"cost": 0,
+				"cost": {
+					"typical": 0,
+					"units": "2016$/ft^2 wall",
+					"source": "NA"
+				},
 				"performance": {
 					"typical": {
 						"sub arctic": 3,
@@ -113,7 +117,11 @@
 				}
 			},
 			"commercial": {
-				"cost": 0,
+				"cost": {
+					"typical": 0,
+					"units": "2016$/ft^2 wall",
+					"source": "NA"
+				},
 				"performance": {
 					"typical": 1.5,
 					"units": "CFM/ft^2 @ 0.3 in. w.c.",
