@@ -4,7 +4,7 @@
 			"residential": {
 				"cost": {
 					"typical": 48.40,
-					"units": "$/ft^2 glazing",
+					"units": "2016$/ft^2 glazing",
 					"source": "RSMeans 2016 Building Construction Data, 2'x3' wood double hung window (#085210500010)"
 				},
 				"performance": {
@@ -47,7 +47,7 @@
 			"commercial": {
 				"cost": {
 					"typical": 56.20,
-					"units": "$/ft^2 glazing",
+					"units": "2016$/ft^2 glazing",
 					"source": "RSMeans 2016 Building Construction Data, 3'x4' aluminum window assembly (#B20201066400)"
 				},
 				"performance": {
@@ -131,7 +131,7 @@
 			"residential": {
 				"cost": {
 					"typical": 8.86,
-					"units": "$/ft^2 wall",
+					"units": "2016$/ft^2 wall",
 					"source": "RSMeans 2016 Building Construction Data, panel, shingle wall assembly (#B20101483150)"
 				},
 				"performance": {
@@ -158,7 +158,7 @@
 			"commercial": {
 				"cost": {
 					"typical": 27.35,
-					"units": "$/ft^2 wall",
+					"units": "2016$/ft^2 wall",
 					"source": "RSMeans 2016 Building Construction Data, standard brick veneer wall assembly (#B20101305000)"
 				},
 				"performance": {
@@ -187,7 +187,7 @@
 			"residential": {
 				"cost": {
 					"typical": 5.03,
-					"units": "$/ft^2 footprint",
+					"units": "2016$/ft^2 footprint",
 					"source": "RSMeans 2016 Building Construction Data, 4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)"
 				},
 				"performance": {
@@ -214,7 +214,7 @@
 			"commercial": {
 				"cost": {
 					"typical": 5.03,
-					"units": "$/ft^2 footprint",
+					"units": "2016$/ft^2 footprint",
 					"source": "RSMeans 2016 Building Construction Data, 4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)"
 				},
 				"performance": {
@@ -243,7 +243,7 @@
 			"residential": {
 				"cost": {
 					"typical": 2.14,
-					"units": "$/ft^2 roof",
+					"units": "2016$/ft^2 roof",
 					"source": "RSMeans 2016 Building Construction Data, shingle and tile, asphalt roofing assembly (#B30101401100)"
 				},
 				"performance": {
@@ -270,10 +270,11 @@
 			"commercial": {
 				"cost": {
 					"typical": 6.33,
-					"units": "$/ft^2 roof",
+					"units": "2016$/ft^2 roof",
 					"source": "RSMeans 2016 Building Construction Data, built-up roofing systems (#075113200350) + 4'x8' 4 in. thick isocyanurate insulation (#072113101680)"
 				},
-				"performance": 15.9,
+				"performance": { 
+					"typical": 15.9,
 					"units": "R value",
 					"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 19 (new construction)"
 				},
@@ -286,4 +287,5 @@
 			}
 		},
 	"MELs": {}
+	}
 }
