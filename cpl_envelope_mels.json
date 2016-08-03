@@ -90,7 +90,7 @@
 		},
 		"infiltration": {
 			"residential": {
-				"cost": "NA",
+				"cost": 0,
 				"performance": {
 					"typical": {
 						"sub arctic": 3,
@@ -113,7 +113,7 @@
 				}
 			},
 			"commercial": {
-				"cost": "NA",
+				"cost": 0,
 				"performance": {
 					"typical": 1.5,
 					"units": "CFM/ft^2 @ 0.3 in. w.c.",
