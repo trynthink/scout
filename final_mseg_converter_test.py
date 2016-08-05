@@ -1798,7 +1798,10 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "source": "Source C"}}},
             "infiltration": {
                 "residential": {
-                    "cost": "NA",
+                    "cost": {
+                        "typical": 0,
+                        "units": "2016$/ft^2 wall",
+                        "source": "NA"},
                     "performance": {
                         "typical": {
                             "sub arctic": 3,
@@ -1817,7 +1820,10 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "units": "years",
                         "source": "Source E"}},
                 "commercial": {
-                    "cost": "NA",
+                    "cost": {
+                        "typical": 0,
+                        "units": "2016$/ft^2 wall",
+                        "source": "NA"},
                     "performance": {
                         "typical": 1.5,
                         "units": "CFM/ft^2 @ 0.3 in. w.c.",
@@ -2149,7 +2155,7 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
             'range': 10,
             'units': 'years',
             'source': 'Source C'}},
-        0,
+        0,  # This microsegment should not yield any data
         {'installed cost': {
             'typical': {'2009': 7.26, '2010': 7.26, '2011': 7.26,
                         '2012': 7.26, '2013': 7.26, '2014': 7.26,
@@ -2185,7 +2191,13 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
                            '2018': -0.012, '2019': -0.012, '2020': -0.012}},
                 'source': ('EIA AEO choice model parameters for heating' +
                            ' and cooling equipment')}}},
-        {'installed cost': 'NA',
+        {'installed cost': {
+            'typical': {'2009': 0, '2010': 0, '2011': 0,
+                        '2012': 0, '2013': 0, '2014': 0,
+                        '2015': 0, '2016': 0, '2017': 0,
+                        '2018': 0, '2019': 0, '2020': 0},
+            'units': '2016$/ft^2 floor',
+            'source': 'NA'},
          'performance': {
             'typical': {'2009': 5, '2010': 5, '2011': 5,
                         '2012': 5, '2013': 5, '2014': 5,

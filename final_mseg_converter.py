@@ -414,8 +414,7 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
     # appropriate dict created for those data
     if specific_cpl_data:
         # Extract cost data units, if available (since some envelope
-        # components, such as infiltration, have costs reported simply as
-        # 'NA' without a dict structure)
+        # components might have costs reported without a dict structure)
         try:
             orig_cost_units = specific_cpl_data['cost']['units']
         except TypeError:
