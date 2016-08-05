@@ -4,15 +4,53 @@ import re
 import numpy
 import json
 
-# Set AEO time horizon in years (used in list_generator function
-# to check for correct length of microsegment value lists)
-aeo_years = 32
 
-# Identify files to import for conversion
-EIA_res_file = 'RESDBOUT.txt'
-json_in = 'microsegments.json'
-json_out = 'mseg_res_cdiv.json'
-res_tloads = 'Res_TLoads_Final.txt'
+class EIAData(object):
+    """Class of variables naming the EIA data files to be imported.
+
+    Attributes:
+        res_energy (str): The file name for the AEO residential energy
+            and stock data.
+    """
+    def __init__(self):
+        self.res_energy = 'RESDBOUT.txt'
+
+
+class UsefulVars(object):
+    """Class of variables that would otherwise be global.
+
+    Attributes:
+        json_in (str): JSON file containing the structure to be populated
+            with AEO data.
+        json_out (str): FIlename of the JSON file to be produced with
+            residential energy use, building stock, and equipment stock
+            data added.
+        res_tloads (str): Filename for the residential building thermal
+            load components data.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
+        unused_supply_re (str): A string usable as a regular expression
+            defining the parameters (and thus the corresponding rows)
+            from the AEO data that are not needed for the "supply"
+            (i.e., equipment) energy and stock data. The two letter
+            codes represent: (Switch From | Switch To | Fuel Pumps).
+        unused_demand_re (str): A string usable as a regular expression
+            defining the parameters (and thus the corresponding rows)
+            from the AEO data that should be retained to calculate the
+            demand (i.e., envelope) energy and stock data. Because the
+            demand only applies to heating and cooling, this regex is
+            configured to exclude every row not coded with one of the
+            two letter codes given. These codes represent:
+            (Heating | Cooling | Secondary Heating).
+    """
+
+    def __init__(self):
+        self.json_in = 'microsegments.json'
+        self.json_out = 'mseg_res_cdiv.json'
+        self.res_tloads = 'Res_TLoads_Final.txt'
+        self.aeo_metadata = 'metadata.json'
+        self.unused_supply_re = '^\(b\'(SF|ST |FP).*'
+        self.unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
+
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
@@ -134,17 +172,6 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 # Form residential dictlist for use in JSON translator
 res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
                 technology_supplydict, technology_demanddict]
-
-# Define a series of regex comparison inputs that determines what we don't need
-# in the imported RESDBOUT.txt file for the "supply" and "demand" portions of
-# the microsegment updating routine
-
-# Unused rows in the supply portion of the analysis
-# Exclude: (Switch From | Switch To | Fuel Pumps)
-unused_supply_re = '^\(b\'(SF|ST |FP).*'
-# Unused rows in the demand portion of the analysis
-# Exclude everything except: (Heating | Cooling | Secondary Heating)
-unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
 
 
 def json_translator(dictlist, filterformat):
@@ -506,7 +533,7 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         return [{'stock': group_stock, 'energy': group_energy}, ms_supply]
 
 
-def walk(supply, demand, loads, json_dict, key_list=[]):
+def walk(supply, demand, loads, json_dict, yrs_range, key_list=[]):
     """ Proceed recursively through data stored in dict-type structure
     and perform calculations at each leaf/terminal node in the data """
 
@@ -515,7 +542,7 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(supply, demand, loads, item, key_list + [key])
+            walk(supply, demand, loads, item, yrs_range, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types, and if
@@ -526,7 +553,7 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
                 leaf_node_keys = key_list + [key]
                 # Extract data from original data sources
                 [data_dict, supply] = list_generator(supply, demand, loads,
-                                                     leaf_node_keys, aeo_years)
+                                                     leaf_node_keys, yrs_range)
                 # Set dict key to extracted data
                 json_dict[key] = data_dict
 
@@ -565,20 +592,34 @@ def main():
     """ Import text and JSON files; run through JSON objects; find
     analogous text information; replace JSON values; update JSON """
 
+    # Instantiate objects that contain useful variables
+    handyvars = UsefulVars()
+    eiadata = EIAData()
+
     # Import EIA RESDBOUT.txt file
-    supply = numpy.genfromtxt(EIA_res_file, names=True,
+    supply = numpy.genfromtxt(eiadata.res_energy, names=True,
                               delimiter='\t', dtype=None)
     # Reduce supply array to only needed rows
-    supply = array_row_remover(supply, unused_supply_re)
+    supply = array_row_remover(supply, handyvars.unused_supply_re)
 
     # Set RESDBOUT.txt data for separate use in "demand" microsegments
     demand = supply
     # Reduce demand array to only needed rows
-    demand = array_row_remover(demand, unused_demand_re)
+    demand = array_row_remover(demand, handyvars.unused_demand_re)
 
-    # Set thermal loads .txt file (*currently residential)
-    loads = numpy.genfromtxt(res_tloads, names=True,
+    # Import residential thermal load components data
+    loads = numpy.genfromtxt(handyvars.res_tloads, names=True,
                              delimiter='\t', dtype=None)
+
+    # Import metadata generated based on EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Calculate number of years in the AEO data; expecting 32 years
+    # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
+    # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA
+    # IN THE RANGE OF YEARS OF THE DATA REPORTED
+    yrs_range = metajson['max year'] - metajson['min year'] + 1
 
     # json.dump cannot convert ("serialize") numbers of the type
     # np.int64 to integers, but all of the integers in 'result' are
@@ -591,12 +632,13 @@ def main():
             raise TypeError
 
     # Import JSON file and run through updating scheme
-    with open(json_in, 'r') as jsi, open(json_out, 'w') as jso:
+    with open(handyvars.json_in, 'r') as jsi, open(
+         handyvars.json_out, 'w') as jso:
         msjson = json.load(jsi)
 
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
-        result = walk(supply, demand, loads, msjson)
+        result = walk(supply, demand, loads, msjson, yrs_range)
 
         # Write the updated dict of data to a new JSON file
         json.dump(result, jso, indent=2, default=fix_ints)

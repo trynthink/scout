@@ -20,13 +20,14 @@ class EIADataFileIntegrityTest(unittest.TestCase):
 
     @classmethod  # so that set up is run once for the entire class
     def setUpClass(self):
-        # Instantiate object from com_mseg_tech that contains useful variables
+        # Instantiate objects from com_mseg_tech that contain useful variables
         self.usefulvars = cmt.UsefulVars()
+        self.eiafiles = cmt.EIAData()
 
         # Open the EIA data file, extract the header row, and reformat
         # the text in each entry for easier handling, producing a list
         # of strings for the column titles
-        with open(self.usefulvars.cpl_data, 'r') as tech:
+        with open(self.eiafiles.cpl_data, 'r') as tech:
             tech_fl = csv.reader(tech)
 
             # Skip content preceding header row
@@ -40,7 +41,7 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         # correct number of lines were skipped and, as best as possible
         # considering no header row is provided, that the data are in
         # the expected order and format
-        with open(self.usefulvars.tpp_data, 'r') as tpp:
+        with open(self.eiafiles.tpp_data, 'r') as tpp:
             tpp_fl = csv.reader(tpp, delimiter='\t')
 
             # Skip content preceding header row

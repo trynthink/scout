@@ -6,20 +6,40 @@ import json
 import mseg
 import copy
 
-# Set microsegments JSON as the file that provides the structure for
-# the technology performance, cost, and lifetime information output JSON
-json_in = "microsegments.json"
 
-# Set technology performance, cost, and lifetime information output JSON
-# file name
-json_out = "cpl_res_cdiv.json"
+class EIAData(object):
+    """Class of variables naming the EIA data files to be imported.
 
-# Set the file names for the EIA information on the performance,
-# cost, and lifetime of non-lighting and lighting technologies in the
-# residential sector
-r_nlt_costperf = "rsmeqp.txt"  # EIA non-lighting cost and performance info
-r_nlt_life = "rsclass.txt"  # EIA non-lighting lifetime info
-r_lt_all = "rsmlgt.txt"  # EIA lighting cost, performance, and lifetime info
+    Attributes:
+        r_nlt_costperf (str): Filename of AEO residential non-lighting
+            equipment cost and performance data.
+        r_nlt_life (str): Filename of AEO residential non-lighting
+            equipment lifetime data.
+        r_lt_all (str): Filename for AEO residential lighting
+            technology cost, performance, and lifetime data.
+    """
+
+    def __init__(self):
+        self.r_nlt_costperf = "rsmeqp.txt"
+        self.r_nlt_life = "rsclass.txt"
+        self.r_lt_all = "rsmlgt.txt"
+
+
+class UsefulVars(object):
+    """Class of variables that would otherwise be global.
+
+    Attributes:
+        json_in (str): Filename for empty input JSON with the structure
+            to be populated with AEO data.
+        json_out (str): Filename for JSON with residential building data added.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
+    """
+
+    def __init__(self):
+        self.json_in = 'microsegments.json'
+        self.json_out = 'cpl_res_cdiv.json'
+        self.aeo_metadata = 'metadata.json'
+
 
 # Pre-specify the numpy field names to be used in importing the EIA
 # information on the cost performance, and lifetime of of non-lighting and
@@ -924,24 +944,31 @@ def main():
     exporting updated dict to a JSON, translate the dict from a census division
     breakdown to a climate zone breakdown """
 
+    # Instantiate objects that contain useful variables
+    handyvars = UsefulVars()
+    eiadata = EIAData()
+
     # Import EIA non-lighting residential cost and performance data
-    eia_nlt_cp = numpy.genfromtxt(r_nlt_costperf, names=r_nlt_cp_names,
+    eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,
                                   dtype=None, skip_header=20, comments=None)
 
     # Import EIA non-lighting residential lifetime data
-    eia_nlt_l = numpy.genfromtxt(r_nlt_life, names=r_nlt_l_names,
+    eia_nlt_l = numpy.genfromtxt(eiadata.r_nlt_life, names=r_nlt_l_names,
                                  dtype=None, skip_header=19, comments=None)
 
     # Import EIA lighting residential cost, performance and lifetime data
-    eia_lt = numpy.genfromtxt(r_lt_all, names=r_lt_names, dtype=None,
+    eia_lt = numpy.genfromtxt(eiadata.r_lt_all, names=r_lt_names, dtype=None,
                               skip_header=35, skip_footer=54, comments=None)
 
-    # Establish the modeling time horizon to be consistent with the "mseg.py"
-    # routine
-    aeo_min = 2009  # mseg.aeo_years_min
-    aeo_max = 2040  # aeo_min + (mseg.aeo_years - 1)
-    aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
-    project_dict = dict.fromkeys(aeo_years)
+    # Establish the modeling time horizon based on metadata generated
+    # from EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Define years vector using year data from metadata and convert
+    # the resulting list into a dict with the years as keys
+    years = list(range(metajson['min year'], metajson['max year'] + 1))
+    project_dict = dict.fromkeys(years)
 
     # Establish residential lighting technology consumer choice parameters for
     # each year in the modeling time horizon (these parameters will later be
@@ -954,7 +981,7 @@ def main():
                             for k in project_dict.keys()}}
 
     # Import microsegments JSON file as a dictionary structure
-    with open(json_in, "r") as jsi:
+    with open(handyvars.json_in, "r") as jsi:
         msjson = json.load(jsi)
 
     # Run through microsegment JSON levels, determine technology leaf node
@@ -964,7 +991,7 @@ def main():
                            tech_non_eia, msjson, project_dict)
 
     # Write the updated dict of data to a new JSON file
-    with open(json_out, "w") as jso:
+    with open(handyvars.json_out, "w") as jso:
         json.dump(result, jso, indent=2)
 
 

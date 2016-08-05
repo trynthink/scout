@@ -12,14 +12,26 @@ import json
 import csv
 
 
-class UsefulVars(object):
-    """Set up class to contain what would otherwise be global variables.
+class EIAData(object):
+    """Class of variables naming the EIA data files to be imported.
 
     Attributes:
         cpl_data (str): File name for the EIA AEO technology data.
         tpp_data (str): File name for the EIA AEO time preference premium data.
+    """
+
+    def __init__(self):
+        self.cpl_data = 'ktek.csv'
+        self.tpp_data = 'kprem.txt'
+
+
+class UsefulVars(object):
+    """Set up class to contain what would otherwise be global variables.
+
+    Attributes:
         json_in (str): File name for the input JSON database.
         json_out (str): File name for the JSON output from this script.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
         cpl_data_skip_lines (int): The number of lines of preamble that
             must be skipped at the beginning of the EIA AEO technology
             data file.
@@ -28,19 +40,23 @@ class UsefulVars(object):
         tpp_data_skip_lines (int): The number of lines of preamble
             that must be skipped before finding data in the EIA AEO
             time preference premium data file.
+        tpp_dtypes (list): A list of tuples in the format of a numpy
+            dtype definition, specifying the expected dtype and desired
+            column headings for the time preference premium data.
     """
 
     def __init__(self):
-        self.cpl_data = 'ktek.csv'
-        self.tpp_data = 'kprem.txt'
         self.json_in = 'cpl_res_cdiv.json'
         self.json_out = 'cpl_res_com_cdiv.json'
+        self.aeo_metadata = 'metadata.json'
 
         self.cpl_data_skip_lines = 100
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
                                 'Life', 'y1', 'y2', 'technology name']
 
         self.tpp_data_skip_lines = 100
+        self.tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
+                           ('Year', 'i4'), ('End Use', 'U32')]
 
 
 class UsefulDicts(object):
@@ -566,8 +582,8 @@ def cost_conversion_factor(sf_data, sd_data, sel, years):
 
     # Extract the square footage data for existing and new buildings
     # for the microsegment identified by 'sel'
-    sqft_surv = cm.catg_data_selector(sf_data, sel, 'SurvFloorTotal')
-    sqft_new = cm.catg_data_selector(sf_data, sel, 'CMNewFloorSpace')
+    sqft_surv = cm.catg_data_selector(sf_data, sel, 'SurvFloorTotal', years)
+    sqft_new = cm.catg_data_selector(sf_data, sel, 'CMNewFloorSpace', years)
 
     # Calculate the total square footage for each year by joining
     # the square footage on a common year vector and then summing
@@ -1047,38 +1063,41 @@ def main():
     and is specific to commercial buildings.
     """
 
-    # Instantiate object that contains useful variables
+    # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
+    eiadata = EIAData()
 
     # Import technology cost, performance, and lifetime data in
     # EIA AEO 'KTEK' data file
-    tech_dtypes = cm.dtype_array(handyvars.cpl_data, ',',
+    tech_dtypes = cm.dtype_array(eiadata.cpl_data, ',',
                                  handyvars.cpl_data_skip_lines)
     col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
                                              handyvars.columns_to_keep)
     tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
-    tech_data = cm.data_import(handyvars.cpl_data, tech_dtypes, ',',
+    tech_data = cm.data_import(eiadata.cpl_data, tech_dtypes, ',',
                                handyvars.cpl_data_skip_lines, col_indices)
     tech_data = cm.str_cleaner(tech_data, 'technology name')
 
     # Import EIA AEO 'KSDOUT' service demand data
-    serv_dtypes = cm.dtype_array(cm.UsefulVars().serv_dmd)
-    serv_data = cm.data_import(cm.UsefulVars().serv_dmd, serv_dtypes)
+    serv_dtypes = cm.dtype_array(cm.EIAData().serv_dmd)
+    serv_data = cm.data_import(cm.EIAData().serv_dmd, serv_dtypes)
     serv_data = cm.str_cleaner(serv_data, 'Description')
 
     # Import EIA AEO 'KDBOUT' additional data file
-    catg_dtypes = cm.dtype_array(cm.UsefulVars().catg_dmd)
-    catg_data = cm.data_import(cm.UsefulVars().catg_dmd, catg_dtypes)
+    catg_dtypes = cm.dtype_array(cm.EIAData().catg_dmd)
+    catg_data = cm.data_import(cm.EIAData().catg_dmd, catg_dtypes)
     catg_data = cm.str_cleaner(catg_data, 'Label')
 
     # Import EIA AEO 'kprem' time preference premium data
-    tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
-                  ('Year', 'i4'), ('End Use', 'U32')]
-    tpp_data = kprem_import(handyvars.tpp_data, tpp_dtypes,
+    tpp_data = kprem_import(eiadata.tpp_data, handyvars.tpp_dtypes,
                             handyvars.tpp_data_skip_lines)
 
-    # Define years vector
-    years = list(range(2009, 2041))
+    # Import metadata generated based on EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Define years vector using year data from metadata
+    years = list(range(metajson['min year'], metajson['max year'] + 1))
 
     # Import empty microsegments JSON file and traverse database structure
     try:

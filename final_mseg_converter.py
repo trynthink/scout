@@ -69,6 +69,7 @@ class UsefulVars(object):
             electric loads.
         conv_factors (str): File name for database of unit conversion
             factors (principally costs) for a range of equipment types.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
 
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
@@ -84,6 +85,7 @@ class UsefulVars(object):
     def __init__(self):
         self.addl_cpl_data = 'cpl_envelope_mels.json'
         self.conv_factors = 'meas_costconvert.json'
+        self.aeo_metadata = 'metadata.json'
 
     def configure_for_energy_square_footage_stock_data(self):
         self.res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
@@ -793,8 +795,12 @@ def main():
     com_cd_cz_conv = np.genfromtxt(handyvars.com_climate_convert, names=True,
                                    delimiter='\t', dtype=None)
 
-    # Define years vector
-    years = list(range(2009, 2041))
+    # Import metadata generated based on EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Define years vector using year data from metadata
+    years = list(range(metajson['min year'], metajson['max year'] + 1))
 
     # Open the microsegments JSON file that has data on a census
     # division basis and traverse the database to convert it to

@@ -6,27 +6,38 @@ import csv
 import json
 
 
+class EIAData(object):
+    """Class of variables naming the EIA data files to be imported.
+
+    Attributes:
+        serv_dmd (str): Filename for the commercial service demand data.
+        catg_dmd (str): Filename for the commercial energy and stock data.
+    """
+
+    def __init__(self):
+        self.serv_dmd = 'KSDOUT.txt'
+        self.catg_dmd = 'KDBOUT.txt'
+
+
 class UsefulVars(object):
     """Class of variables that would otherwise be global.
 
     Attributes:
+        json_in (str): Filename for input JSON that has only residential data.
+        json_out (str): Filename for JSON with commercial building data added.
+        com_tloads (str): Filename for the commercial thermal load components.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
         pivot_year (int): The pivot year is the value that should be
             added to the year numbers reported in KDBOUT to convert
             the values to actual calendar years.
-        serv_dmd (str): Filename for the commercial service demand data.
-        catg_dmd (str): Filename for the commercial energy and stock data.
-        com_tloads (str): Filename for the commercial thermal load components.
-        json_in (str): Filename for input JSON that has only residential data.
-        json_out (str): Filename for JSON with commercial building data added.
     """
 
     def __init__(self):
-        self.pivot_year = 1989
-        self.serv_dmd = 'KSDOUT.txt'
-        self.catg_dmd = 'KDBOUT.txt'
-        self.com_tloads = 'Com_TLoads_Final.txt'
         self.json_in = 'mseg_res_cdiv.json'
         self.json_out = 'mseg_res_com_cdiv.json'
+        self.com_tloads = 'Com_TLoads_Final.txt'
+        self.aeo_metadata = 'metadata.json'
+        self.pivot_year = 1989
 
 
 class CommercialTranslationDicts(object):
@@ -207,18 +218,40 @@ def json_interpreter(key_series):
     return interpreted_values
 
 
-def sd_mseg_percent(sd_array, sel):
-    """ Convert technology type, vintage, and construction status/type
-    reported in KSDOUT into percentage energy use each year associated
-    with each technology type. Technology type is determined not using
-    the technology type numbers but rather using a regex search of the
-    'Description' field in the data, since the technology type numbers
-    are sometimes used for multiple technologies (this is especially
-    true with lighting). This function is run for unique combinations
-    of census divisions, building types, end uses, and fuel types. """
+def sd_mseg_percent(sd_array, sel, yrs):
+    """Calculate technology-specific fractions of energy use in a microsegment.
 
-    # Assume as input the dict strings converted to numbers in
-    # a list called 'sel'
+    This function uses the technology type, vintage, and construction
+    status/type reported in KSDOUT into percentage energy use each year
+    associated with each technology type. Technology types are not
+    determined using the technology type numbers provided in KSDOUT,
+    but rather using a regex search of the 'Description' field in the
+    data, since the technology type numbers are sometimes used for
+    multiple technologies, based on an inspection of the technology
+    description text (this is especially true with lighting). This
+    function is called for unique combinations of census divisions,
+    building types, end uses, and fuel types, but only in the cases
+    where the end use has available service demand data.
+
+    Args:
+        sd_array (numpy.ndarray): Service demand data for commercial
+            building equipment, specified by technology, building
+            vintage, performance level, and the other microsegment
+            parameters that appear in 'sel'.
+        sel (list): A list of integers that specifies the desired
+            census division, building type, end use, and fuel type.
+        yrs (list): A list of integers representing the range of years
+            common to all of the AEO data, precalculated for speed.
+
+    Returns:
+        A numpy array of the fractional contribution to energy in the
+        specified microsegment from each technology (row in the array)
+        for each year (column in the array) in 'yrs'. Also, a list of
+        technology names in the same order as the rows in the numpy array.
+    """
+
+    # Convert the years list from a list of integers to a list of strings
+    yrs = [str(yr) for yr in yrs]
 
     # Filter service demand data based on the specified census
     # division, building type, end use, and fuel type
@@ -226,11 +259,6 @@ def sd_mseg_percent(sd_array, sel):
                                 sd_array['b'] == sel[1],
                                 sd_array['s'] == sel[2],
                                 sd_array['f'] == sel[3]], axis=0)]
-
-    # Identify column names that correspond to years
-    # THIS LIST SHOULD PERHAPS BE PASSED THROUGH TO THIS FUNCTION,
-    # NOT REDONE ALL THE TIME
-    years = [a for a in sd_array.dtype.names if re.search('^2[0-9]{3}$', a)]
 
     # Initialize list of rows to remove from 'filtered' based on a
     # regex search of the 'Description' text
@@ -273,7 +301,7 @@ def sd_mseg_percent(sd_array, sel):
 
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
-    tval = np.zeros((len(technames), len(years)))
+    tval = np.zeros((len(technames), len(yrs)))
 
     # Combine the data recorded for each unique technology
     for idx, name in enumerate(technames):
@@ -285,7 +313,7 @@ def sd_mseg_percent(sd_array, sel):
         # appropriate row in the tval array (note that the .view()
         # function converts the structured array into a standard
         # numpy array, which allows the use of the .sum() function)
-        tval[idx, ] = np.sum(entries[years].view(('<f8', len(years))), axis=0)
+        tval[idx, ] = np.sum(entries[yrs].view(('<f8', len(yrs))), axis=0)
 
     # If at least one entry in tval is non-zero (tval.any() == True),
     # suppress any divide by zero warnings and calculate the percentage
@@ -296,12 +324,10 @@ def sd_mseg_percent(sd_array, sel):
             tval = tval/np.sum(tval, axis=0)
             tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
 
-    # Note that each row in tval corresponds to a single technology and
-    # the rows are in the same order as the technames list
     return (tval, technames)
 
 
-def catg_data_selector(db_array, sel, section_label):
+def catg_data_selector(db_array, sel, section_label, yrs):
     """Extracts a specified subset from the commercial building data array.
 
     This function generally extracts a subset of the data available in
@@ -319,10 +345,13 @@ def catg_data_selector(db_array, sel, section_label):
         sel (list): A list of integers that specifies the desired
             census division, building type, end use, and fuel type.
         section_label (str): The name of the particular data to be extracted.
+        yrs (list): A list of integers representing the range of years
+            common to all of the AEO data, precalculated for speed.
 
     Returns:
         A numpy structured array with columns for only the year and
         magnitude of the data corresponding to 'sel' and 'section_label'.
+        The years are limited to only those that appear in 'yrs'.
     """
 
     # Filter main EIA commercial data array based on the relevant
@@ -344,6 +373,10 @@ def catg_data_selector(db_array, sel, section_label):
     # Adjust years reported based on the pivot year
     filtered['Year'] = filtered['Year'] + UsefulVars().pivot_year
 
+    # Further reduce the data by including only those years that are
+    # common to all AEO data (based on the custom AEO metadata JSON)
+    filtered = filtered[np.in1d(filtered['Year'], yrs)]
+
     # From the filtered data, select only the two needed columns,
     # the year and the data
     desired_cols = filtered[['Year', 'Amount']]
@@ -356,7 +389,7 @@ def catg_data_selector(db_array, sel, section_label):
     return desired_cols
 
 
-def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
+def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
     """Restructure data for each terminal node in the microsegments JSON.
 
     At each leaf/terminal node in the microsegments JSON, this
@@ -389,6 +422,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
             should be generated.
         sd_end_uses (list): The numbers corresponding to the end uses
             that have service demand data.
+        yrs (list): A list of integers representing the range of years
+            common to all of the AEO data, precalculated for speed.
 
     Returns:
         A dict with data appropriate for the current location in the
@@ -397,7 +432,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
 
     # Convert the list of keys into a list of numeric indices that can
     # be used to select the appropriate data
-    index_series = json_interpreter(key_series)
+    idx_series = json_interpreter(key_series)
 
     # Factor to convert commercial energy data from TBTU to MMBTU
     to_mmbtu = 1000000  # 1e6
@@ -410,29 +445,29 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
     # desired final format
     if 'demand' in key_series:
         # Get the data from KDBOUT
-        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # The thermal load data end uses are coded as text strings 'HT'
-        # and 'CL' instead of numbers; the numbers in index_series are
+        # and 'CL' instead of numbers; the numbers in idx_series are
         # thus converted to the appropriate strings
-        if index_series[2] == 1:
-            index_series[2] = 'HT'
-        elif index_series[2] == 2:
-            index_series[2] = 'CL'
+        if idx_series[2] == 1:
+            idx_series[2] = 'HT'
+        elif idx_series[2] == 2:
+            idx_series[2] = 'CL'
         else:
             raise ValueError(
-                'No thermal load data for end use ' + str(index_series[2]))
+                'No thermal load data for end use ' + str(idx_series[2]))
 
         # Get the contribution of the particular thermal load component
         # for the current end use (heating or cooling), census division,
         # and building type (note that in the case of these thermal
-        # load microsegments, the final field in index_series has the
+        # load microsegments, the final field in idx_series has the
         # text to select the correct thermal load component column)
         tl_multiplier = load_array[np.all([
-            load_array['CDIV'] == index_series[0],
-            load_array['BLDG'] == index_series[1],
-            load_array['ENDUSE'] == index_series[2]],
-                                 axis=0)][index_series[-1]]
+            load_array['CDIV'] == idx_series[0],
+            load_array['BLDG'] == idx_series[1],
+            load_array['ENDUSE'] == idx_series[2]],
+                                 axis=0)][idx_series[-1]]
         # N.B. tl_multiplier is a 1x1 numpy array
 
         # Multiply together the thermal load multiplier and energy use
@@ -447,11 +482,11 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         # coded in the 'EndUse' column. Since the MEL end use number
         # in the 'EndUseConsump' section is 10, but technology specific
         # in the 'MiscElConsump' section, the MEL-specific number is
-        # written over the 10 in the 'EndUse' position in index_series
-        index_series[2] = index_series[4]
+        # written over the 10 in the 'EndUse' position in idx_series
+        idx_series[2] = idx_series[4]
 
         # Extract the data from KDBOUT
-        subset = catg_data_selector(db_array, index_series, 'MiscElConsump')
+        subset = catg_data_selector(db_array, idx_series, 'MiscElConsump', yrs)
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
@@ -459,27 +494,28 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
                       'stock': 'NA'}
     elif 'new square footage' in key_series:
         # Extract the relevant data from KDBOUT
-        subset = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
+        subset = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace',
+                                    yrs)
 
         # Convert into dict with years as keys and new square footage as values
         final_dict = dict(zip(subset['Year'],
                               subset['Amount']))
     elif 'total square footage' in key_series:
         # Extract the relevant data from KDBOUT
-        sub1 = catg_data_selector(db_array, index_series, 'CMNewFloorSpace')
-        sub2 = catg_data_selector(db_array, index_series, 'SurvFloorTotal')
+        sub1 = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace', yrs)
+        sub2 = catg_data_selector(db_array, idx_series, 'SurvFloorTotal', yrs)
 
         # Combine the surviving floor space and new floor space
         # quantities and construct into final dict
         final_dict = dict(zip(sub1['Year'],
                               sub1['Amount'] + sub2['Amount']))
-    elif index_series[2] in sd_end_uses:
+    elif idx_series[2] in sd_end_uses:
         # Extract the relevant data from KDBOUT
-        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # Get percentage contributions for each equipment type that
         # appears in the service demand data
-        [tech_pct, tech_names] = sd_mseg_percent(sd_array, index_series)
+        [tech_pct, tech_names] = sd_mseg_percent(sd_array, idx_series, yrs)
 
         # Declare empty list to store dicts generated for each technology
         tech_dict_list = []
@@ -502,7 +538,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
         # Regular case with no supply/demand separation or service demand data
 
         # Extract the desired data from the KDBOUT array
-        subset = catg_data_selector(db_array, index_series, 'EndUseConsump')
+        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
@@ -513,7 +549,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses):
     return final_dict
 
 
-def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
+def walk(db_array, sd_array, load_array, sd_end_uses, json_db,
+         years, key_list=[]):
     """ Proceed recursively through the microsegment data structure
     (formatted as a nested dict) to each leaf/terminal node in the
     structure, constructing a list of the applicable keys that define
@@ -527,7 +564,7 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk(db_array, sd_array, load_array,
-                 sd_end_uses, item, key_list + [key])
+                 sd_end_uses, item, years, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types, and if
@@ -539,7 +576,7 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, key_list=[]):
 
                 # Extract data from original data sources
                 data_dict = data_handler(db_array, sd_array, load_array,
-                                         leaf_node_keys, sd_end_uses)
+                                         leaf_node_keys, sd_end_uses, years)
 
                 # Set dict key to extracted data
                 json_db[key] = data_dict
@@ -803,17 +840,18 @@ def str_cleaner(data_array, column_name):
 def main():
     """ Import input data files and do other things """
 
-    # Create a UsefulVars object instance for repeated use in this function
+    # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
+    eiadata = EIAData()
 
     # Import EIA AEO 'KSDOUT' service demand file
-    serv_dtypes = dtype_array(handyvars.serv_dmd)
-    serv_data = data_import(handyvars.serv_dmd, serv_dtypes)
+    serv_dtypes = dtype_array(eiadata.serv_dmd)
+    serv_data = data_import(eiadata.serv_dmd, serv_dtypes)
     serv_data = str_cleaner(serv_data, 'Description')
 
     # Import EIA AEO 'KDBOUT' additional data file
-    catg_dtypes = dtype_array(handyvars.catg_dmd)
-    catg_data = data_import(handyvars.catg_dmd, catg_dtypes)
+    catg_dtypes = dtype_array(eiadata.catg_dmd)
+    catg_data = data_import(eiadata.catg_dmd, catg_dtypes)
     catg_data = str_cleaner(catg_data, 'Label')
 
     # Import thermal loads data
@@ -826,6 +864,13 @@ def main():
     # available for a particular end use
     serv_data_end_uses = np.unique(serv_data['s'])
 
+    # Import metadata generated based on EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Define years vector using year data from metadata
+    years = list(range(metajson['min year'], metajson['max year'] + 1))
+
     # Import empty microsegments JSON file and traverse database structure
     try:
         with open(handyvars.json_in, 'r') as jsi, open(
@@ -834,7 +879,7 @@ def main():
 
             # Proceed recursively through database structure
             result = walk(catg_data, serv_data, load_data,
-                          serv_data_end_uses, msjson)
+                          serv_data_end_uses, msjson, years)
 
             # Write the updated dict of data to a new JSON file
             json.dump(result, jso, indent=2)

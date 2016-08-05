@@ -23,7 +23,7 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
 
     def setUp(self):
         # Open the EIA data file for use by all tests
-        f = open(mseg.EIA_res_file, 'r')
+        f = open(mseg.EIAData().res_energy, 'r')
 
         # Read in header line
         self.header = f.readline()
@@ -35,36 +35,36 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
     # header; test for the presence of that header
     def test_for_presence_of_housing_stock_column(self):
         chk_eqstock = re.search('HOUSEHOLDS', self.header, re.IGNORECASE)
-        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
-                        search, the HOUSEHOLDS column header was not \
-                        found in the EIA data file.')
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive' +
+                        'search, the HOUSEHOLDS column header was not' +
+                        'found in the EIA data file.')
 
     # The function that parses and assigns the data from the EIA data
     # to the JSON file expects consumption data with specific header;
     # test for the presence of that header
     def test_for_presence_of_consumption_column(self):
         chk_consumption = re.search('CONSUMPTION', self.header, re.IGNORECASE)
-        self.assertTrue(chk_consumption, msg='In a case-insensitive \
-                        search, the CONSUMPTION column header was not \
-                        found in the EIA data file.')
+        self.assertTrue(chk_consumption, msg='In a case-insensitive' +
+                        'search, the CONSUMPTION column header was not' +
+                        'found in the EIA data file.')
 
     # The function that parses and assigns the data from the EIA data
     # to the JSON file expects equipment stock data with specific
     # header; test for the presence of that header
     def test_for_presence_of_equipment_stock_column(self):
         chk_eqstock = re.search('EQSTOCK', self.header, re.IGNORECASE)
-        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
-                        search, the EQSTOCK column header was not \
-                        found in the EIA data file.')
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive' +
+                        'search, the EQSTOCK column header was not' +
+                        'found in the EIA data file.')
 
     # The function that parses and assigns the data from the EIA data
     # to the JSON file expects bulb type data with specific
     # header; test for the presence of that header
     def test_for_presence_of_bulb_type_column(self):
         chk_eqstock = re.search('BULBTYPE', self.header, re.IGNORECASE)
-        self.assertTrue(chk_eqstock, msg='In a case-insensitive \
-                        search, the BULBTYPE column header was not \
-                        found in the EIA data file.')
+        self.assertTrue(chk_eqstock, msg='In a case-insensitive' +
+                        'search, the BULBTYPE column header was not' +
+                        'found in the EIA data file.')
 
     # Test for the order of the headers in the EIA data file
     def test_order_of_columns_in_header_line(self):
@@ -90,8 +90,8 @@ class ResidentialDataIntegrityTest(unittest.TestCase):
             print("Header Line: " + self.header)
 
         # Run assertTrue to check for match and complete unit test
-        self.assertTrue(match, msg="Column headers in the EIA data file \
-                        are different than expected")
+        self.assertTrue(match, msg="Column headers in the EIA data file" +
+                        "are different than expected")
 
 
 class NumpyArrayReductionTest(unittest.TestCase):
@@ -360,13 +360,17 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Test removal of rows based on the supply regex in mseg
     def test_removal_of_rows_using_supply_regex_filter(self):
-        self.assertCountEqual(mseg.array_row_remover(self.EIA_example,
-                              mseg.unused_supply_re), self.supply_filtered)
+        self.assertCountEqual(
+            mseg.array_row_remover(self.EIA_example,
+                                   mseg.UsefulVars().unused_supply_re),
+            self.supply_filtered)
 
     # Test removal of rows based on the demand regex in mseg
     def test_removal_of_rows_using_demand_regex_filter(self):
-        self.assertCountEqual(mseg.array_row_remover(self.EIA_example,
-                              mseg.unused_demand_re), self.demand_filtered)
+        self.assertCountEqual(
+            mseg.array_row_remover(self.EIA_example,
+                                   mseg.UsefulVars().unused_demand_re),
+            self.demand_filtered)
 
     # Test restructuring of EIA data into stock and consumption lists
     # using the EIA_Supply option to confirm that both the reported
@@ -531,7 +535,8 @@ class DataToListFormatTest(unittest.TestCase):
                   ['mid atlantic', 'mobile home',
                    'natural gas', 'cooling', 'demand',
                    'windows solar'],
-                  ['new england', 'single family home', 'total square footage'],
+                  ['new england', 'single family home',
+                   'total square footage'],
                   ['east north central', 'single family home',
                    'other fuel', 'secondary heating', 'supply',
                    'secondary heating (wood)'],
@@ -744,7 +749,8 @@ class JSONTranslatorTest(unittest.TestCase):
                    'secondary heating', 'supply', 'secondary heating (coal)'],
                   ['new england', 'single family home', 'natural gas',
                    'water heating'],
-                  ['new england', 'single family home', 'total square footage'],
+                  ['new england', 'single family home',
+                   'total square footage'],
                   ['new england', 'single family home', 'other fuel',
                    'secondary heating', 'secondary heating (kerosene)',
                    'demand', 'windows conduction'],
@@ -787,7 +793,8 @@ class JSONTranslatorTest(unittest.TestCase):
                     ['west north central', 'mobile home',
                      'heating', 'electricity', 'demand', 'room AC'],
                     ['mountain', 'mobile home', 'sq ft'],
-                    ['west north central', 'mobile home', 'total square footage',
+                    ['west north central', 'mobile home',
+                     'total square footage',
                      'water heating', 'room AC'],
                     ['new england', 'single family home', 'other fuel',
                      'secondary heating', 'supply',

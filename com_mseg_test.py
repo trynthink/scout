@@ -29,11 +29,11 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         # Open each EIA data file, extract the header row, and reformat
         # the text in each entry for easier handling, producing a list
         # of strings for the column titles
-        with open(cm.UsefulVars().serv_dmd, 'r') as sd:
+        with open(cm.EIAData().serv_dmd, 'r') as sd:
             sd_fl = csv.reader(sd)
             self.sd_head = [entry.strip() for entry in next(sd_fl)]
 
-        with open(cm.UsefulVars().catg_dmd, 'r') as db:
+        with open(cm.EIAData().catg_dmd, 'r') as db:
             db_fl = csv.reader(db)
             self.db_head = [entry.strip() for entry in next(db_fl)]
 
@@ -69,7 +69,7 @@ class EIADataFileIntegrityTest(unittest.TestCase):
 
         # Read the first 100 data lines to (subsequently) create a
         # unique list of year numbers in the data
-        with open(cm.UsefulVars().catg_dmd, 'r') as db:
+        with open(cm.EIAData().catg_dmd, 'r') as db:
             db_fl = csv.reader(db)
             next(db_fl)  # Skip first line
             for row in itertools.islice(db_fl, 100):
@@ -604,6 +604,9 @@ class CommonUnitTest(unittest.TestCase):
                ('2019', '<f8'), ('2020', '<f8'), ('2021', '<f8'),
                ('Description', '<U50'), ('Eff', '<f8')])
 
+    # Define list of years over which service demand data are reported
+    years = list(range(2019, 2022))
+
     # Define array similar to the thermal loads data, but with only the
     # data required to test the sample cases explored here (plus an
     # extra that can be added later, if desired)
@@ -815,11 +818,11 @@ class PercentageCalculationTest(CommonUnitTest):
     @classmethod
     def setUpClass(self):  # so that set up is run once for the entire class
         (self.a, self.b) = cm.sd_mseg_percent(
-            self.sample_sd_array, self.selections[0])
+            self.sample_sd_array, self.selections[0], self.years)
         (self.c, self.d) = cm.sd_mseg_percent(
-            self.sample_sd_array, self.selections[1])
+            self.sample_sd_array, self.selections[1], self.years)
         (self.e, self.f) = cm.sd_mseg_percent(
-            self.sample_sd_array, self.selections[2])
+            self.sample_sd_array, self.selections[2], self.years)
 
     # Test technology type name capture/identification
     def test_service_demand_name_identification(self):
@@ -877,7 +880,8 @@ class CommercialDataSelectionTest(CommonUnitTest):
             self.assertCountEqual(
                 cm.catg_data_selector(self.sample_db_array,
                                       select_indices,
-                                      correct_label_str),
+                                      correct_label_str,
+                                      self.years),
                 self.expected_selection[idx])
 
 
@@ -903,7 +907,8 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                                             self.sample_sd_array,
                                             self.sample_tl_array,
                                             self.sample_keys[i],
-                                            self.sd_end_uses),
+                                            self.sd_end_uses,
+                                            self.years),
                             self.dict_list[i])
 
     def test_restructuring_cases_with_miscellaneous_electric_loads(self):
@@ -912,7 +917,8 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                                             self.sample_sd_array,
                                             self.sample_tl_array,
                                             self.sample_keys[i],
-                                            self.sd_end_uses),
+                                            self.sd_end_uses,
+                                            self.years),
                             self.dict_list[i])
 
     def test_restructuring_cases_with_service_demand_data(self):
@@ -921,7 +927,8 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                                             self.sample_sd_array,
                                             self.sample_tl_array,
                                             self.sample_keys[i],
-                                            self.sd_end_uses),
+                                            self.sd_end_uses,
+                                            self.years),
                             self.dict_list[i])
 
     def test_restructuring_all_other_cases(self):
@@ -930,7 +937,8 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                                             self.sample_sd_array,
                                             self.sample_tl_array,
                                             self.sample_keys[i],
-                                            self.sd_end_uses),
+                                            self.sd_end_uses,
+                                            self.years),
                             self.dict_list[i])
 
     def test_restructuring_square_footage_data(self):
@@ -939,7 +947,8 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                                             self.sample_sd_array,
                                             self.sample_tl_array,
                                             self.sample_keys[i],
-                                            self.sd_end_uses),
+                                            self.sd_end_uses,
+                                            self.years),
                             self.dict_list[i])
 
 
