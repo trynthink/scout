@@ -35,8 +35,10 @@ def extract_year_range(data_array, colnames, min_years, max_years, pivot_yr=0):
             equipment characteristic data.
         colnames (list): List of strings specifying the name(s) of the
             column(s) containing year data.
-        min_years (list): The earliest years found from imported data.
-        max_years (list): The latest years found from imported data.
+        min_years (list): The earliest years found in the imported data.
+        max_years (list): The latest years found in the imported data.
+        pivot_yr (int): Optional pivot year needed for some data that
+            must be adjusted to be in the form YYYY.
 
     Returns:
         Updated lists of minimum and maximum years with the minimum
@@ -82,8 +84,8 @@ def dtype_ripper(the_dtype, min_years, max_years):
         the_dtype (list): A list of tuples with each tuple containing two
             entries, a column heading string, and a string defining the
             data type for that column. Formatted as a numpy dtype list.
-        min_years (list): The earliest years found from imported data.
-        max_years (list): The latest years found from imported data.
+        min_years (list): The earliest years found in the imported data.
+        max_years (list): The latest years found in the imported data.
 
     Returns:
         Updated lists of minimum and maximum years with the minimum
@@ -155,6 +157,52 @@ def EIA_filename_identifier():
     return filenames
 
 
+def file_processor(file_name, func_name, col_index, files_list,
+                   min_yrs, max_yrs, pivot_yr=0):
+    """Import and process data to obtain the year range from a data file.
+
+    To ensure that the EIA data files that are imported are also
+    removed from the list of files that should be imported and
+    processed in a single step, this function combines those tasks.
+
+    Args:
+        file_name (str): The name of the file to be imported.
+        func_name (str): The name of the function that contains
+            the steps required to import and prepare the named
+            file for processing.
+        col_index (list): List of strings specifying the name(s)
+            of the column(s) containing year data.
+        files_list (list): A list of the files that should be
+            imported and checked and have not yet been.
+        min_years (list): The earliest years found in the imported data.
+        max_years (list): The latest years found in the imported data.
+        pivot_yr (int): Optional pivot year needed for some data
+            that must be adjusted to be in the form YYYY.
+
+    """
+
+    # Call the external function that imports the data at file_name
+    data_object = func_name(file_name)
+
+    # Extract the years from the imported data, using the function
+    # appropriate for the location of the years in the data, and
+    # remove the name of the file with those data from the list
+    if type(data_object) is list:
+        # For the case where the range of years are reported in the
+        # header of the data, scan the dtype to identify the year
+        # range for those data
+        min_yrs, max_yrs = dtype_ripper(data_object, min_yrs, max_yrs)
+
+    else:
+        min_yrs, max_yrs = extract_year_range(data_object, col_index,
+                                              min_yrs, max_yrs, pivot_yr)
+
+    # Update the list of files that have yet to be examined
+    files_list.remove(file_name)
+
+    return min_yrs, max_yrs
+
+
 def main():
     """ Each of the AEO data files includes data reported over a range
     of calendar years. These data should ultimately be reported over a
@@ -175,102 +223,85 @@ def main():
     # have any data reported by year
     files_ = [file_ for file_ in files_ if file_ != 'rsclass.txt']
 
-    # # Import residential stock and energy data
-    # supply = np.genfromtxt(rm.EIAData().res_energy, names=True,
-    #                        delimiter='\t', dtype=None)
-    # supply = rm.array_row_remover(supply, rm.UsefulVars().unused_supply_re)
-
-    # # Extract years from imported residential stock and energy data
-    # # and remove the name of the file with those data from the list
-    # min_yrs, max_yrs = extract_year_range(supply, ['YEAR'], min_yrs, max_yrs)
-    # files_.remove(rm.EIAData().res_energy)
-
-    # TEMPORARY
-    # IS THERE A WAY TO MODULARIZE THIS SO THAT THE FUNCTION CALL TO IMPORT
-    # AND UPDATE THE DATA CAN BE PASSED TO THAT FUNCTION AND THE FILE CAN
-    # BE REMOVED FROM THE LIST AT THE SAME TIME?
-    def file_remover(file_name, col_index, func_name, files_list,
-                     min_yrs, max_yrs):
-        data_object = func_name(file_name)
-        # Extract years from imported residential stock and energy data
-        # and remove the name of the file with those data from the list
-        min_yrs, max_yrs = extract_year_range(data_object, col_index,
-                                              min_yrs, max_yrs)
-
-        files_.remove(file_name)
-
-        return min_yrs, max_yrs
-
-    def residential(file_name):
-        # Import residential stock and energy data
+    def import_residential_energy_stock_data(file_name):
         supply = np.genfromtxt(file_name, names=True,
                                delimiter='\t', dtype=None)
         supply = rm.array_row_remover(supply, rm.UsefulVars().unused_supply_re)
-
         return supply
 
-    min_yrs, max_yrs = file_remover(rm.EIAData().res_energy, ['YEAR'],
-                                    residential, files_, min_yrs, max_yrs)
+    def import_residential_cpl_non_lighting_data(file_name):
+        eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
+                                   dtype=None, skip_header=20, comments=None)
+        return eia_nlt_cp
 
-    # mseg_techdata (res_mseg_tech) -----------------------------------
+    def import_residential_cpl_lighting_data(file_name):
+        eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names, dtype=None,
+                               skip_header=35, skip_footer=54, comments=None)
+        return eia_lt
 
-    # Import EIA non-lighting residential cost and performance data
-    eia_nlt_cp = np.genfromtxt(rmt.EIAData().r_nlt_costperf,
-                               names=rmt.r_nlt_cp_names,
-                               dtype=None, skip_header=20, comments=None)
+    def import_commercial_service_demand_data(file_name):  # KSDOUT.txt
+        serv_dtypes = cm.dtype_array(file_name)
+        return serv_dtypes
 
-    min_yrs, max_yrs = extract_year_range(eia_nlt_cp,
-                                          ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                          min_yrs, max_yrs)
+    def import_commercial_energy_stock_data(file_name):  # KDBOUT.txt
+        catg_dtypes = cm.dtype_array(file_name)
+        catg_data = cm.data_import(file_name, catg_dtypes)
+        return catg_data
 
-    # Import EIA lighting residential cost, performance and lifetime data
-    eia_lt = np.genfromtxt(rmt.EIAData().r_lt_all,
-                           names=rmt.r_lt_names, dtype=None,
-                           skip_header=35, skip_footer=54, comments=None)
+    def import_commercial_cpl_data(file_name):  # ktek.csv
+        tech_dtypes = cm.dtype_array(file_name, ',',
+                                     cmt.UsefulVars().cpl_data_skip_lines)
+        col_indices, tech_dtypes = cmt.dtype_reducer(
+                                        tech_dtypes,
+                                        cmt.UsefulVars().columns_to_keep)
+        # Manual correction of lifetime data type
+        tech_dtypes[8] = ('Life', 'f8')
+        tech_data = cm.data_import(file_name, tech_dtypes, ',',
+                                   cmt.UsefulVars().cpl_data_skip_lines,
+                                   col_indices)
+        return tech_data
 
-    min_yrs, max_yrs = extract_year_range(eia_lt,
-                                          ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                          min_yrs, max_yrs)
+    def import_commercial_time_preference_data(file_name):  # kprem.txt
+        tpp_data = cmt.kprem_import(file_name,
+                                    cmt.UsefulVars().tpp_dtypes,
+                                    cmt.UsefulVars().tpp_data_skip_lines)
+        return tpp_data
 
-    # com_mseg --------------------------------------------------------
+    min_yrs, max_yrs = file_processor(rm.EIAData().res_energy,
+                                      import_residential_energy_stock_data,
+                                      ['YEAR'],
+                                      files_, min_yrs, max_yrs)
 
-    # Import EIA AEO 'KSDOUT' service demand file
-    serv_dtypes = cm.dtype_array(cm.EIAData().serv_dmd)
+    min_yrs, max_yrs = file_processor(rmt.EIAData().r_nlt_costperf,
+                                      import_residential_cpl_non_lighting_data,
+                                      ['START_EQUIP_YR', 'END_EQUIP_YR'],
+                                      files_, min_yrs, max_yrs)
 
-    # A different thing entirely because the years are in the header TEMPORARY
-    min_yrs, max_yrs = dtype_ripper(serv_dtypes, min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(rmt.EIAData().r_lt_all,
+                                      import_residential_cpl_lighting_data,
+                                      ['START_EQUIP_YR', 'END_EQUIP_YR'],
+                                      files_, min_yrs, max_yrs)
 
-    # Import EIA AEO 'KDBOUT' additional data file
-    catg_dtypes = cm.dtype_array(cm.EIAData().catg_dmd)
-    catg_data = cm.data_import(cm.EIAData().catg_dmd, catg_dtypes)
+    min_yrs, max_yrs = file_processor(cm.EIAData().serv_dmd,
+                                      import_commercial_service_demand_data,
+                                      '',
+                                      files_, min_yrs, max_yrs)
 
-    min_yrs, max_yrs = extract_year_range(catg_data, ['Year'],
-                                          min_yrs, max_yrs,
-                                          cm.UsefulVars().pivot_year)
+    min_yrs, max_yrs = file_processor(cm.EIAData().catg_dmd,
+                                      import_commercial_energy_stock_data,
+                                      ['Year'],
+                                      files_, min_yrs, max_yrs,
+                                      cm.UsefulVars().pivot_year)
 
-    # com_mseg_tech ---------------------------------------------------
+    min_yrs, max_yrs = file_processor(cmt.EIAData().cpl_data,
+                                      import_commercial_cpl_data,
+                                      ['y1', 'y2'],
+                                      files_, min_yrs, max_yrs)
 
-    # Import technology cost, performance, and lifetime data in
-    # EIA AEO 'KTEK' data file
-    tech_dtypes = cm.dtype_array(cmt.EIAData().cpl_data, ',',
-                                 cmt.UsefulVars().cpl_data_skip_lines)
-    col_indices, tech_dtypes = cmt.dtype_reducer(
-                                    tech_dtypes,
-                                    cmt.UsefulVars().columns_to_keep)
-    tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
-    tech_data = cm.data_import(cmt.EIAData().cpl_data, tech_dtypes, ',',
-                               cmt.UsefulVars().cpl_data_skip_lines,
-                               col_indices)
-
-    min_yrs, max_yrs = extract_year_range(tech_data, ['y1', 'y2'],
-                                          min_yrs, max_yrs)
-
-    # Import EIA AEO 'kprem' time preference premium data
-    tpp_data = cmt.kprem_import(cmt.EIAData().tpp_data,
-                                cmt.UsefulVars().tpp_dtypes,
-                                cmt.UsefulVars().tpp_data_skip_lines)
-
-    min_yrs, max_yrs = extract_year_range(tpp_data, ['Year'], min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(cmt.EIAData().tpp_data,
+                                      import_commercial_time_preference_data,
+                                      ['Year'],
+                                      files_, min_yrs, max_yrs)
 
     # Check that all of the expected files have been imported, and if
     # any files remain, print the filenames to the console

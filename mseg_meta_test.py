@@ -232,19 +232,65 @@ class YearRangeExtractionFromArrayColumnHeadingsTest(unittest.TestCase):
         self.assertEqual(self.expected_max_years, max_out)
 
 
-# class EIADataFilenameIdentificationTest(unittest.TestCase):
-#     """ TEMPORARY
-#     """
+class FileProcessorCombinedFunctionTest(unittest.TestCase):
+    """ Test the operation of the function that is intended to import
+    data using a provided function, call the appropriate function,
+    and update the list of imported files """
 
-#     # Define expected list of files output by the function
-#     files_to_check = ['RESDBOUT.txt', 'rsmeqp.txt', 'rsmlgt.txt',
-#                       'KSDOUT.txt', 'KDBOUT.txt',
-#                       'ktek.csv', 'kprem.txt']
+    # Define expected list of files input to the function
+    files_to_check = ['RESDBOUT.txt', 'rsmeqp.txt', 'rsmlgt.txt',
+                      'KSDOUT.txt', 'KDBOUT.txt', 'ktek.csv', 'kprem.txt']
 
-#     # Compare the expected list to the output of the function
-#     def test_identification_of_EIA_input_files(self):
-#         pass
-#         # self.assertEqual(self.files_to_check, mm.EIA_filename_identifier())
+    # Define expected list of files output by the function
+    files_as_output = ['RESDBOUT.txt', 'rsmeqp.txt', 'rsmlgt.txt',
+                       'KSDOUT.txt', 'KDBOUT.txt', 'kprem.txt']
+
+    # Define input lists of minimum and maximum years for the function tests
+    # since the function is configured to read in a list (possibly empty) of
+    # minimum and maximum years obtained from the data; these samples are
+    # populated with dummy years
+    min_yrs_input_list = [1990, 2009]
+    max_yrs_input_list = [2052, 2040]
+
+    # Define expected minimum and maximum years for each of the
+    # structured arrays tested (with separate lists for minimum and
+    # maximum data)
+    expected_min_years = [1990, 2009, 2004]
+    expected_max_years = [2052, 2040, 2020]
+
+    # Check the expected years and updated file list output by the function
+    def test_combined_data_processor_function(self):
+
+        # Create a function for testing purposes that approximates
+        # the operation of a function that would import data from
+        # an external file (though the file name is not used here)
+        def dummy_file_import_function(file_name):
+            # Define a dtype in the format consistent with
+            # the service demand data
+            example_dtype = [('r', '<i4'), ('b', '<i4'), ('s', '<i4'),
+                             ('f', '<i4'), ('d', '<i4'), ('t', '<i4'),
+                             ('v', '<i4'), ('2004', '<f8'), ('2005', '<f8'),
+                             ('2006', '<f8'), ('2007', '<f8'), ('2008', '<f8'),
+                             ('2009', '<f8'), ('2010', '<f8'), ('2011', '<f8'),
+                             ('2012', '<f8'), ('2013', '<f8'), ('2014', '<f8'),
+                             ('2015', '<f8'), ('2016', '<f8'), ('2017', '<f8'),
+                             ('2018', '<f8'), ('2019', '<f8'), ('2020', '<f8'),
+                             ('Description', '<U50'), ('Eff', '<f8')]
+
+            return example_dtype
+
+        a, b = mm.file_processor('ktek.csv', dummy_file_import_function,
+                                 '', self.files_to_check,
+                                 self.min_yrs_input_list,
+                                 self.max_yrs_input_list)
+        # Compare the minimum year and maximum year lists to those
+        # output by the function
+        self.assertEqual(self.expected_min_years, a)
+        self.assertEqual(self.expected_max_years, b)
+
+        # Compare the in-place edited list of files with the
+        # anticipated list
+        self.assertEqual(self.files_as_output, self.files_to_check)
 
 
 # Offer external code execution (include all lines below this point in all
