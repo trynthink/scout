@@ -1549,16 +1549,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance.calc_savings_metrics(
             self.ok_adopt_scheme, "uncompeted")
         # Verify test measure results update status
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist1[0])
         # Verify test measure savings
-        self.dict_check_list(engine_instance.measures[0].savings[
+        self.dict_check(engine_instance.measures[0].savings[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist1[1])
         # Verify test measure portfolio-level financial metrics
-        self.dict_check_list(engine_instance.measures[0].portfolio_metrics[
+        self.dict_check(engine_instance.measures[0].portfolio_metrics[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist1[2])
         # Verify test measure consumer-level metrics
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist1[3])
 
     def test_metrics_ok_distrib2(self):
@@ -1573,16 +1573,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance.calc_savings_metrics(
             self.ok_adopt_scheme, "uncompeted")
         # Verify test measure results update status
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist2[0])
         # Verify test measure savings
-        self.dict_check_list(engine_instance.measures[0].savings[
+        self.dict_check(engine_instance.measures[0].savings[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist2[1])
         # Verify test measure portfolio-level financial metrics
-        self.dict_check_list(engine_instance.measures[0].portfolio_metrics[
+        self.dict_check(engine_instance.measures[0].portfolio_metrics[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist2[2])
         # Verify test measure consumer-level metrics
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist2[3])
 
     def test_metrics_ok_distrib3(self):
@@ -1597,16 +1597,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance.calc_savings_metrics(
             self.ok_adopt_scheme, "uncompeted")
         # Verify test measure results update status
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist3[0])
         # Verify test measure savings
-        self.dict_check_list(engine_instance.measures[0].savings[
+        self.dict_check(engine_instance.measures[0].savings[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist3[1])
         # Verify test measure portfolio-level financial metrics
-        self.dict_check_list(engine_instance.measures[0].portfolio_metrics[
+        self.dict_check(engine_instance.measures[0].portfolio_metrics[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist3[2])
         # Verify test measure consumer-level metrics
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist3[3])
 
     def test_metrics_ok_distrib4(self):
@@ -1621,16 +1621,16 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance.calc_savings_metrics(
             self.ok_adopt_scheme, "uncompeted")
         # Verify test measure results update status
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist4[0])
         # Verify test measure savings
-        self.dict_check_list(engine_instance.measures[0].savings[
+        self.dict_check(engine_instance.measures[0].savings[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist4[1])
         # Verify test measure portfolio-level financial metrics
-        self.dict_check_list(engine_instance.measures[0].portfolio_metrics[
+        self.dict_check(engine_instance.measures[0].portfolio_metrics[
             self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist4[2])
         # Verify test measure consumer-level metrics
-        self.dict_check_list(engine_instance.measures[
+        self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist4[3])
 
 
@@ -5134,7 +5134,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         # Check updated competed master microsegments for each sample measure
         # following competition/supply-demand overlap adjustments
         for ind, d in enumerate(self.a_run_dist.measures):
-            self.dict_check_list(
+            self.dict_check(
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.ok_adopt_scheme][
                     "competed"]["master_mseg"])
@@ -7711,7 +7711,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         # Check updated competed master microsegments for each sample measure
         # following competition/secondary microsegment adjustments
         for ind, d in enumerate(self.a_run_dist.measures):
-            self.dict_check_list(
+            self.dict_check(
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.ok_adopt_scheme][
                     "competed"]["master_mseg"])
