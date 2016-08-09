@@ -1913,6 +1913,7 @@ class Measure(object):
             # Determine a dictionary key indicating the climate zone, building
             # type, and structure type that is shared by the primary lighting
             # microsegment and secondary heating/cooling microsegment
+            secnd_mseg_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
             secnd_mseg_adjkey = (mskeys[1], mskeys[2], mskeys[-1])
             # If no year-by-year secondary microsegment adjustment information
             # exists for the given climate zone, building type, and structure

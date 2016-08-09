@@ -9,6 +9,7 @@ import run
 import unittest
 import numpy
 import copy
+import itertools
 
 
 class CommonTestMeasures(object):
@@ -236,42 +237,64 @@ class CommonTestMeasures(object):
 class CommonMethods(object):
     """Define common methods for use in all tests below."""
 
-    def dict_check(self, dict1, dict2, msg=None):
-        """Check equality of a dict with point values at terminal nodes."""
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
+    def dict_check(self, dict1, dict2):
+        """Check the equality of two dicts.
+
+        Args:
+            dict1 (dict): First dictionary to be compared
+            dict2 (dict): Second dictionary to be compared
+
+        Raises:
+            AssertionError: If dictionaries are not equal.
+        """
+        # zip() and zip_longest() produce tuples for the items
+        # identified, where in the case of a dict, the first item
+        # in the tuple is the key and the second item is the value;
+        # in the case where the dicts are not of identical size,
+        # zip_longest() will use the fill value created below as a
+        # substitute in the dict that has missing content; this
+        # value is given as a tuple to be of comparable structure
+        # to the normal output from zip_longest()
+        fill_val = ('substituted entry', 5.2)
+
+        # In this structure, k and k2 are the keys that correspond to
+        # the dicts or unitary values that are found in i and i2,
+        # respectively, at the current level of the recursive
+        # exploration of dict1 and dict2, respectively
+        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
+                                                      sorted(dict2.items()),
+                                                      fillvalue=fill_val):
+
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal; this should fail if one of the dicts
+            # is empty, is missing section(s), or has different key names
+            self.assertEqual(k, k2)
+
+            # If the recursion has not yet reached the terminal/leaf node
             if isinstance(i, dict):
+                # Test that the dicts from the current keys are equal
                 self.assertCountEqual(i, i2)
+                # Continue to recursively traverse the dict
                 self.dict_check(i, i2)
+
+            # At the terminal/leaf node, formatted as a numpy array
+            # (for input uncertainty test cases)
+            elif isinstance(i, numpy.ndarray):
+                # Additional check for dict elements in the numpy array is
+                # needed to accomodate the current structure of measure
+                # Annuity Net Present Value information when distributions
+                # are placed on measure inputs (see ok_out_dist test dicts
+                # in PrioritizationMetricsTest below)
+                if isinstance(i[0], dict):
+                    for ind in range(0, len(i)):
+                        self.assertCountEqual(i[ind], i2[ind])
+                        self.dict_check(i[ind], i2[ind])
+                else:
+                    numpy.testing.assert_array_almost_equal(i, i2, decimal=2)
+
+            # At the terminal/leaf node, formatted as a point value
             else:
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-
-    def dict_check_list(self, dict1, dict2, msg=None):
-        """Check equality of a dict with lists at terminal nodes."""
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
-            if isinstance(i, dict):
-                self.assertCountEqual(i, i2)
-                self.dict_check_list(i, i2)
-            else:
-                # Expect numpy arrays and/or point values
-                if type(i) == numpy.ndarray:
-                    # Additional check for dict elements in the numpy
-                    # array is needed to accomodate the current structure
-                    # of measure Annualized Net Present Value information
-                    # when distributions are placed on measure inputs
-                    # (see ok_out_dist test dicts in PrioritizationMetricsTest
-                    # below)
-                    if isinstance(i[0], dict):
-                        for ind in range(0, len(i)):
-                            self.assertCountEqual(i[ind], i2[ind])
-                            self.dict_check_list(i[ind], i2[ind])
-                    else:
-                        numpy.testing.assert_array_almost_equal(
-                            i, i2, decimal=2)
-                else:
-                    self.assertAlmostEqual(dict1[k], dict2[k2],
-                                           places=2)
 
 
 class TestMeasureInit(unittest.TestCase):

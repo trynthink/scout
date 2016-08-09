@@ -12,6 +12,7 @@ import os
 from collections import OrderedDict
 import warnings
 import copy
+import itertools
 
 
 class CommonMethods(object):
@@ -27,12 +28,39 @@ class CommonMethods(object):
         Raises:
             AssertionError: If dictionaries are not equal.
         """
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
+        # zip() and zip_longest() produce tuples for the items
+        # identified, where in the case of a dict, the first item
+        # in the tuple is the key and the second item is the value;
+        # in the case where the dicts are not of identical size,
+        # zip_longest() will use the fill value created below as a
+        # substitute in the dict that has missing content; this
+        # value is given as a tuple to be of comparable structure
+        # to the normal output from zip_longest()
+        fill_val = ('substituted entry', 5.2)
+
+        # In this structure, k and k2 are the keys that correspond to
+        # the dicts or unitary values that are found in i and i2,
+        # respectively, at the current level of the recursive
+        # exploration of dict1 and dict2, respectively
+        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
+                                                      sorted(dict2.items()),
+                                                      fillvalue=fill_val):
+
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal; this should fail if one of the dicts
+            # is empty, is missing section(s), or has different key names
+            self.assertEqual(k, k2)
+
+            # If the recursion has not yet reached the terminal/leaf node
             if isinstance(i, dict):
+                # Test that the dicts from the current keys are equal
                 self.assertCountEqual(i, i2)
+                # Continue to recursively traverse the dict
                 self.dict_check(i, i2)
+
+            # At the terminal/leaf node
             else:
+                # Compare the values, allowing for floating point inaccuracy
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
 
@@ -5280,7 +5308,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'new'"): compete_choice_val,
+             "'boiler (electric)', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
@@ -5297,45 +5325,48 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'electricity', 'cooling', 'supply', "
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity',   'heating', 'supply', "
-             "'boiler (electric)',existing'"): compete_choice_val,
+             "'electricity', 'heating', 'supply', "
+             "'boiler (electric)', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'electricity', heating', 'supply', "
-             "'ASHP', 'existing'"): compete_choice_val,
-            ("'primary', 'AIA_CZ1 'single family home', "
-             "'electricity', heating', 'supply', "
-             "'GSHP', 'existing'"): compete_choice_val,
-            ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity', cooling', 'supply', "
-             "'ASHP', 'existing'"): compete_choice_val,
-            ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity', cooling', 'supply', "
-             "'GSHP', 'existing'"): compete_choice_val,
-            ("('primary', 'AIA_CZ1 'single family home', "
-             "'electricity', cooling', 'supply', "
-             "'room AC', 'existing'"): compete_choice_val,
+             "'electricity', 'heating', 'supply', "
+             "'ASHP', 'existing')"): compete_choice_val,
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'heating', 'supply', "
+             "'GSHP', 'existing')"): compete_choice_val,
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'cooling', 'supply', "
+             "'ASHP', 'existing')"): compete_choice_val,
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'cooling', 'supply', "
+             "'GSHP', 'existing')"): compete_choice_val,
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'cooling', 'supply', "
+             "'room AC', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'existing'"): compete_choice_val,
+             "'boiler (electric)', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'ASHP', 'existing'"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'GSHP', 'existing'"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'ASHP', 'existing'"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'GSHP', 'existing'"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'room AC', 'existing'"): compete_choice_val},
+             "'room AC', 'existing')"): compete_choice_val},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
-             "'natural gas', 'water heating', 'supply', "
-             "'','new'"): compete_choice_val},
+             "'natural gas', 'water heating', "
+             "None, 'new')"): compete_choice_val,
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'natural gas', 'water heating', "
+             "None, 'existing')"): compete_choice_val},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'other (grid electric)', "
@@ -5350,6 +5381,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'electricity', 'refrigeration', None, "
              "'new')"): compete_choice_val}]
         cls.ok_tpmeas_fullchk_msegadjout = [{
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
             "stock-and-flow": {
                 "original stock (total)": {},
                 "adjusted stock (previously captured)": {},
@@ -5361,6 +5395,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "adjusted stock (total captured)": {},
                 "adjusted stock (competed and captured)": {}}},
             {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
             "stock-and-flow": {
                 "original stock (total)": {},
                 "adjusted stock (previously captured)": {},
@@ -5372,6 +5409,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "adjusted stock (total captured)": {},
                 "adjusted stock (competed and captured)": {}}},
             {
+            "sub-market": {
+                "original stock (total)": {},
+                "adjusted stock (sub-market)": {}},
             "stock-and-flow": {
                 "original stock (total)": {},
                 "adjusted stock (previously captured)": {},
