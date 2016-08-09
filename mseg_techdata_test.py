@@ -8,6 +8,7 @@ import mseg_techdata
 # Import needed packages
 import unittest
 import numpy
+import itertools
 
 
 class SimpleWalkTest(unittest.TestCase):
@@ -96,8 +97,18 @@ class SimpleWalkTest(unittest.TestCase):
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
+        # Check that both dicts are populated (if not, the loop below
+        # will not start and thus the tests will not be run and the
+        # tests will appear to pass when in fact they were never run)
+        self.assertTrue(dict1, msg='dict1 is empty')
+        self.assertTrue(dict2, msg='dict2 is empty')
+
         for (k, i), (k2, i2) in zip(sorted(dict1.items()),
                                     sorted(dict2.items())):
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal
+            self.assertEqual(k, k2)
+
             if isinstance(i, dict):
                 self.assertCountEqual(i, i2)
                 self.dict_check(i, i2)
@@ -708,21 +719,48 @@ class ListGeneratorTest(unittest.TestCase):
                                 "2012": 6, "2013": 6}},
                               "source": "EIA AEO"}}}]
 
-    # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
+        """Compare two dicts for equality, allowing for floating point error.
+        """
+
+        # zip() and zip_longest() produce tuples for the items
+        # identified, where in the case of a dict, the first item
+        # in the tuple is the key and the second item is the value;
+        # in the case where the dicts are not of identical size,
+        # zip_longest() will use the fillvalue created below as a
+        # substitute in the dict that has missing content; this
+        # value is given as a tuple to be of comparable structure
+        # to the normal output from zip_longest()
+        fill_val = ('substituted entry', 5.2)
+
+        # In this structure, k and k2 are the keys that correspond to
+        # the dicts or unitary values that are found in i and i2,
+        # respectively, at the current level of the recursive
+        # exploration of dict1 and dict2, respectively
+        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
+                                                      sorted(dict2.items()),
+                                                      fillvalue=fill_val):
+
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal; this should fail if one of the dicts
+            # is empty, is missing section(s), or has different key names
+            self.assertEqual(k, k2)
+
+            # If the recursion has not yet reached the terminal/leaf node
             if isinstance(i, dict):
+                # Test that the dicts from the current keys are equal
                 self.assertCountEqual(i, i2)
+                # Continue to recursively traverse the dict
                 self.dict_check(i, i2)
+
+            # At the terminal/leaf node, if the value is a string
+            elif isinstance(i, str):
+                self.assertEqual(dict1[k], dict2[k2])
+
+            # At the terminal/leaf node
             else:
-                # In the use of this function to compare dicts below,
-                # certain leaf node values will be strings (the info.
-                # units and sources) while others will be float values
-                if not isinstance(dict1[k], str):
-                    self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-                else:
-                    self.assertEqual(dict1[k], dict2[k])
+                # Compare the values, allowing for floating point inaccuracy
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
     # Test that the walk_techdata function yields a correct output dict
     # given the valid key chain input along with the other sample inputs

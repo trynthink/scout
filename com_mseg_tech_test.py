@@ -8,6 +8,7 @@ import unittest
 import numpy as np
 import os
 import csv
+import itertools
 
 
 # Skip this test if running on Travis-CI and print the given skip statement
@@ -3823,16 +3824,47 @@ class CommonUnitTest(unittest.TestCase):
                  'source': 'EIA AEO',
                  'units': 'years'}}}]
 
-    # Create a function for checking equality of a dict with point values
     def dict_check(self, dict1, dict2):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
+        """Compare two dicts for equality, allowing for floating point error.
+        """
+
+        # zip() and zip_longest() produce tuples for the items
+        # identified, where in the case of a dict, the first item
+        # in the tuple is the key and the second item is the value;
+        # in the case where the dicts are not of identical size,
+        # zip_longest() will use the fillvalue created below as a
+        # substitute in the dict that has missing content; this
+        # value is given as a tuple to be of comparable structure
+        # to the normal output from zip_longest()
+        fill_val = ('substituted entry', 5.2)
+
+        # In this structure, k and k2 are the keys that correspond to
+        # the dicts or unitary values that are found in i and i2,
+        # respectively, at the current level of the recursive
+        # exploration of dict1 and dict2, respectively
+        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
+                                                      sorted(dict2.items()),
+                                                      fillvalue=fill_val):
+
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal; this should fail if one of the dicts
+            # is empty, is missing section(s), or has different key names
+            self.assertEqual(k, k2)
+
+            # If the recursion has not yet reached the terminal/leaf node
             if isinstance(i, dict):
+                # Test that the dicts from the current keys are equal
                 self.assertCountEqual(i, i2)
+                # Continue to recursively traverse the dict
                 self.dict_check(i, i2)
+
+            # At the terminal/leaf node, if the value is a string
             elif isinstance(i, str):
                 self.assertEqual(dict1[k], dict2[k2])
+
+            # At the terminal/leaf node
             else:
+                # Compare the values, allowing for floating point inaccuracy
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
 
