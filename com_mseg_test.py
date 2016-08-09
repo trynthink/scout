@@ -170,19 +170,19 @@ class StructuredArrayStringProcessingTest(unittest.TestCase):
 
     # Test processing of strings that have double quotes
     def test_string_processing_with_double_quotes(self):
-        self.assertCountEqual(
+        np.testing.assert_array_equal(
             cm.str_cleaner(self.string_format1, 'Column Name'),
             self.string_format1_clean)
 
     # Test processing of strings that only have extra spaces
     def test_string_processing_with_no_extraneous_quotes(self):
-        self.assertCountEqual(
+        np.testing.assert_array_equal(
             cm.str_cleaner(self.string_format2, 'The Column'),
             self.string_format2_clean)
 
     # Test processing of strings with HTML character encodings
     def test_string_processing_with_HTML_characters(self):
-        self.assertCountEqual(
+        np.testing.assert_array_equal(
             cm.str_cleaner(self.string_format3, 'Column to Test'),
             self.string_format3_clean)
 
@@ -877,7 +877,7 @@ class CommercialDataSelectionTest(CommonUnitTest):
                 correct_label_str = 'EndUseConsump'
                 select_indices = catg_code
 
-            self.assertCountEqual(
+            np.testing.assert_array_equal(
                 cm.catg_data_selector(self.sample_db_array,
                                       select_indices,
                                       correct_label_str,

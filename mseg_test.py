@@ -9,7 +9,7 @@ import mseg
 import unittest
 import re
 import copy
-import numpy
+import numpy as np
 import os
 
 
@@ -100,7 +100,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Define sample structured array with the same form as the
     # EIA data and that includes some of the rows to be removed
-    EIA_example = numpy.array([
+    EIA_example = np.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, ''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, ''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, ''),
@@ -133,7 +133,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])
 
     # Define reduced version of EIA data after applying the supply filter
-    supply_filtered = numpy.array([
+    supply_filtered = np.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -160,7 +160,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])
 
     # Define reduced version of EIA data after applying the demand filter
-    demand_filtered = numpy.array([
+    demand_filtered = np.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -175,7 +175,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Define supply_filtered array after having some of the data recorded
     # in separate consumption and equipment stock vectors and then
     # removed from the main/data array
-    supply_reduced = [numpy.array([
+    supply_reduced = [np.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -196,7 +196,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), np.array(
         [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -222,7 +222,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
                ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')])]
 
-    sqft_reduced = [numpy.array([
+    sqft_reduced = [np.array([
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
         (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -243,7 +243,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), np.array(
         [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -266,7 +266,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
         dtype=[('ENDUSE', 'S3'), ('CDIV', '<i8'), ('BLDG', '<i8'),
                ('FUEL', 'S2'), ('EQPCLASS', 'S8'), ('YEAR', '<i8'),
                ('EQSTOCK', '<f8'), ('CONSUMPTION', '<i8'),
-               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), numpy.array(
+               ('HOUSEHOLDS', '<i8'), ('BULB TYPE', 'S5')]), np.array(
         [(b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2010, 126007.0, 1452680, 3, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2011, 125784.0, 1577350, 4, b''),
          (b'HT ', 1, 1, b'EL', b'ELEC_RAD', 2012, 125386.0, 1324963, 5, b''),
@@ -331,7 +331,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # Define sample structured array comparable in form to the thermal
     # loads data (note that the numeric data here do not represent
     # realistic values for these data)
-    tloads_example = numpy.array([
+    tloads_example = np.array([
         (b'HT', 1, 1, 394.8, 0.28, 0.08, 0.08, 0.25, 0.38, -0.02, 0.22, -0.12),
         (b'CL', 1, 1, 394.8, -0.01, 0.51, 0.10, 0.15, 0.14, 0.03, -0.12, 0.19),
         (b'HT', 2, 1, 813.3, 0.29, -0.07, 0.10, 0.24, 0.38, 0.01, 0.20, -0.13),
@@ -360,14 +360,14 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Test removal of rows based on the supply regex in mseg
     def test_removal_of_rows_using_supply_regex_filter(self):
-        self.assertCountEqual(
+        np.testing.assert_array_equal(
             mseg.array_row_remover(self.EIA_example,
                                    mseg.UsefulVars().unused_supply_re),
             self.supply_filtered)
 
     # Test removal of rows based on the demand regex in mseg
     def test_removal_of_rows_using_demand_regex_filter(self):
-        self.assertCountEqual(
+        np.testing.assert_array_equal(
             mseg.array_row_remover(self.EIA_example,
                                    mseg.UsefulVars().unused_demand_re),
             self.demand_filtered)
@@ -385,7 +385,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
             # Compare consumption
             self.assertEqual(b, self.EIA_supply_sample[n][1])
             # Compare remaining data
-            self.assertCountEqual(c, self.EIA_supply_sample[n][2])
+            np.testing.assert_array_equal(c, self.EIA_supply_sample[n][2])
 
     # Test restructuring of EIA data into a sq. footage list, confirming
     # that both the reported data and the reduced array with the remaining
@@ -397,7 +397,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
             # Compare sq. footage
             self.assertEqual(a, self.EIA_sqft_homes_sample[n][0])
             # Compare remaining data
-            self.assertCountEqual(b, self.EIA_sqft_homes_sample[n][1])
+            np.testing.assert_array_equal(b, self.EIA_sqft_homes_sample[n][1])
 
     # Test restructuring of EIA data into stock and consumption lists
     # using an option besides 'EIA_Supply' to confirm that for all
@@ -411,7 +411,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
         # Compare consumption
         self.assertEqual(b, self.EIA_demand_sample[1])
         # Compare remaining data
-        self.assertCountEqual(c, self.EIA_demand_sample[2])
+        np.testing.assert_array_equal(c, self.EIA_demand_sample[2])
 
     # Test extraction of the correct value from the thermal load
     # components data
@@ -469,16 +469,16 @@ class DataToListFormatTest(unittest.TestCase):
                    ]
 
     # Convert supply data into numpy array with column names
-    supply_array = numpy.array(supply_data, dtype=[('ENDUSE', 'S3'),
-                                                   ('CDIV', 'i8'),
-                                                   ('BLDG', 'i8'),
-                                                   ('FUEL', 'S2'),
-                                                   ('EQPCLASS', 'S8'),
-                                                   ('YEAR', 'i8'),
-                                                   ('EQSTOCK', 'f8'),
-                                                   ('CONSUMPTION', 'i8'),
-                                                   ('HOUSEHOLDS', 'i8'),
-                                                   ('BULB TYPE', 'S5')])
+    supply_array = np.array(supply_data, dtype=[('ENDUSE', 'S3'),
+                                                ('CDIV', 'i8'),
+                                                ('BLDG', 'i8'),
+                                                ('FUEL', 'S2'),
+                                                ('EQPCLASS', 'S8'),
+                                                ('YEAR', 'i8'),
+                                                ('EQSTOCK', 'f8'),
+                                                ('CONSUMPTION', 'i8'),
+                                                ('HOUSEHOLDS', 'i8'),
+                                                ('BULB TYPE', 'S5')])
 
     # Demand array is the same as the supply array at the start of the tests
     demand_array = copy.deepcopy(supply_array)
@@ -492,18 +492,18 @@ class DataToListFormatTest(unittest.TestCase):
                   ('CL', 1, 1, 400, -0.3, 0.5, 0.1, 0.1, 0.2, 0, 0.4, 0)]
 
     # Convert thermal loads data into numpy array with column names
-    loads_array = numpy.array(loads_data, dtype=[('ENDUSE', 'S2'),
-                                                 ('CDIV', 'i8'),
-                                                 ('BLDG', 'i8'),
-                                                 ('NBLDGS', 'f8'),
-                                                 ('WIND_COND', 'f8'),
-                                                 ('WIND_SOL', 'f8'),
-                                                 ('ROOF', 'f8'),
-                                                 ('WALL', 'f8'),
-                                                 ('INFIL', 'f8'),
-                                                 ('PEOPLE', 'f8'),
-                                                 ('GRND', 'f8'),
-                                                 ('EQUIP', 'f8')])
+    loads_array = np.array(loads_data, dtype=[('ENDUSE', 'S2'),
+                                              ('CDIV', 'i8'),
+                                              ('BLDG', 'i8'),
+                                              ('NBLDGS', 'f8'),
+                                              ('WIND_COND', 'f8'),
+                                              ('WIND_SOL', 'f8'),
+                                              ('ROOF', 'f8'),
+                                              ('WALL', 'f8'),
+                                              ('INFIL', 'f8'),
+                                              ('PEOPLE', 'f8'),
+                                              ('GRND', 'f8'),
+                                              ('EQUIP', 'f8')])
 
     # Define a set of filters that should yield matched microsegment
     # stock/energy data
@@ -597,22 +597,22 @@ class DataToListFormatTest(unittest.TestCase):
                supply_array],
               [{'stock': {"2010": 10, "2011": 10},
                 'energy': {"2010": 11, "2011": 11}},
-               numpy.hstack([supply_array[0:10], supply_array[12:]])],
+               np.hstack([supply_array[0:10], supply_array[12:]])],
               [{'stock': {"2010": 12, "2011": 12},
                 'energy': {"2010": 13, "2011": 13}},
-               numpy.hstack([supply_array[0:12], supply_array[14:]])],
+               np.hstack([supply_array[0:12], supply_array[14:]])],
               [{'stock': {"2010": 18, "2011": 18},
                 'energy': {"2010": 19, "2011": 19}},
-               numpy.hstack([supply_array[0:16], supply_array[18:]])],
+               np.hstack([supply_array[0:16], supply_array[18:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               numpy.hstack([supply_array[:-15], supply_array[-13:]])],
+               np.hstack([supply_array[:-15], supply_array[-13:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               numpy.hstack([supply_array[:-13], supply_array[-11:]])],
+               np.hstack([supply_array[:-13], supply_array[-11:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               numpy.hstack([supply_array[:-11], supply_array[-9:]])],
+               np.hstack([supply_array[:-11], supply_array[-9:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -623,13 +623,13 @@ class DataToListFormatTest(unittest.TestCase):
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
               [{"2010": 101, "2011": 101},
-               numpy.hstack([supply_array[0:-9], supply_array[-7:]])],
+               np.hstack([supply_array[0:-9], supply_array[-7:]])],
               [{'stock': {"2010": 20, "2011": 20},
                 'energy': {"2010": 21, "2011": 21}},
-               numpy.hstack([supply_array[0:18], supply_array[20:]])],
+               np.hstack([supply_array[0:18], supply_array[20:]])],
               [{'stock': {"2010": 102, "2011": 103},
                 'energy': {"2010": 103, "2011": 104}},
-               numpy.hstack([supply_array[0:-7], supply_array[-5:]])],
+               np.hstack([supply_array[0:-7], supply_array[-5:]])],
               [{"2010": 299, "2011": 299}, supply_array[0:-2]],
               [{"2010": 3, "2011": 4}, supply_array]]
 
@@ -650,13 +650,13 @@ class DataToListFormatTest(unittest.TestCase):
                              self.aeo_years)[0],
                              self.ok_out[idx][0])
             # Assert second output (reduced "supply" numpy array) is correct
-            numpy.testing.assert_array_equal(mseg.list_generator(
-                                             self.supply_array,
-                                             self.demand_array,
-                                             self.loads_array,
-                                             afilter,
-                                             self.aeo_years)[1],
-                                             self.ok_out[idx][1])
+            np.testing.assert_array_equal(mseg.list_generator(
+                                          self.supply_array,
+                                          self.demand_array,
+                                          self.loads_array,
+                                          afilter,
+                                          self.aeo_years)[1],
+                                          self.ok_out[idx][1])
 
     # Test filters that should match but ultimately do not make sense
     def test_nonsense_filters(self):
@@ -669,13 +669,13 @@ class DataToListFormatTest(unittest.TestCase):
                              self.aeo_years)[0],
                              self.nonsense_out[idx][0])
             # Assert second output (reduced "supply" numpy array) is correct
-            numpy.testing.assert_array_equal(mseg.list_generator(
-                                             self.supply_array,
-                                             self.demand_array,
-                                             self.loads_array,
-                                             afilter,
-                                             self.aeo_years)[1],
-                                             self.nonsense_out[idx][1])
+            np.testing.assert_array_equal(mseg.list_generator(
+                                          self.supply_array,
+                                          self.demand_array,
+                                          self.loads_array,
+                                          afilter,
+                                          self.aeo_years)[1],
+                                          self.nonsense_out[idx][1])
 
     # Test filters that should raise an error
     def test_fail_filters(self):

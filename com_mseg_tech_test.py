@@ -3859,8 +3859,9 @@ class TechnologyDataSelectionTest(CommonUnitTest):
     # Test that the correct data are returned
     def test_selection_from_technology_data(self):
         for idx, sel in enumerate(self.data_to_select):
-            self.assertCountEqual(cmt.tech_data_selector(self.tech_data, sel),
-                                  self.selected_tech_data[idx])
+            np.testing.assert_array_equal(
+                cmt.tech_data_selector(self.tech_data, sel),
+                self.selected_tech_data[idx])
 
 
 class ServiceDemandDataSelectionTest(CommonUnitTest):
@@ -3901,7 +3902,7 @@ class SingleTechnologySelectionTest(CommonUnitTest):
 
     def test_selection_of_single_technology(self):
         for idx, tech_array in enumerate(self.selected_tech_data):
-            self.assertCountEqual(
+            np.testing.assert_array_equal(
                 cmt.single_tech_selector(tech_array, self.tmp_names[idx]),
                 self.reduced_tech_data[idx])
 
