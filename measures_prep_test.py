@@ -8506,8 +8506,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 20343.64, "2010": 19768.37}}}},
             "lifetime": {"baseline": {"2009": 180, "2010": 180},
                          "measure": 1}},
-            {"master_mseg": {}, "mseg_adjust": {},
-             "mseg_out_break": {}}]
+            {}]
         cls.ok_warnmeas_out = \
             [("WARNING: Incomplete 'markets' attribute for active "
               "measure 'sample measure to update (not flagged)'; this "
