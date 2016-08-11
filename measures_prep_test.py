@@ -8000,21 +8000,21 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                 "heating and cooling": {
                     "supply": {
                         "heating equipment": {
-                            "original units": "$/kBtuh",
+                            "original units": "$/kBtu/h heating",
                             "revised units": "$/ft^2 floor",
                             "conversion factor": {
                                 "description": "sample",
                                 "value": 0.020,
-                                "units": "kBtuh/ft^2 floor",
+                                "units": "kBtu/h heating/ft^2 floor",
                                 "source": "Rule of thumb",
                                 "notes": "sample"}},
                         "cooling equipment": {
-                            "original units": "$/kBtuh",
+                            "original units": "$/kBtu/h cooling",
                             "revised units": "$/ft^2 floor",
                             "conversion factor": {
                                 "description": "sample",
                                 "value": 0.036,
-                                "units": "kBtuh/ft^2 floor",
+                                "units": "kBtu/h cooling/ft^2 floor",
                                 "source": "Rule of thumb",
                                 "notes": "sample"}}},
                     "demand": {
@@ -8171,6 +8171,24 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "value": 0.001,
                         "units": "1000 CFM/ft^2 floor",
                         "source": "Rule of thumb",
+                        "notes": "sample"}},
+                "water heating": {
+                    "original units": "$/kBtu/h water heating",
+                    "revised units": "$/ft^2 floor",
+                    "conversion factor": {
+                        "description": "sample",
+                        "value": 0.04,
+                        "units": "kBtu/h water heating/ft^2 floor",
+                        "source": "sample",
+                        "notes": "sample"}},
+                "refrigeration": {
+                    "original units": "$/kBtu/h refrigeration",
+                    "revised units": "$/ft^2 floor",
+                    "conversion factor": {
+                        "description": "sample",
+                        "value": 0.007,
+                        "units": "kBtu/h refrigeration/ft^2 floor",
+                        "source": "sample",
                         "notes": "sample"}}}}
         cls.sample_bldgsect_ok_in = [
             "residential", "commercial", "commercial", "commercial",
@@ -8192,16 +8210,17 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
              'reciprocating_chiller', 'existing')]
         cls.sample_mskeys_fail_in = [
             ('primary', 'marine', 'single family home', 'electricity',
-             'cooling', 'demand', 'people gain', 'existing'),
+             'cooling', 'demand', 'windows conduction', 'existing'),
             ('primary', 'marine', 'assembly', 'electricity', 'PCs',
              None, 'new')]
         cls.cost_meas_ok_in = 10
         cls.cost_meas_units_ok_in_yronly = '2008$/ft^2 floor'
         cls.cost_meas_units_ok_in_all = [
-            '$/ft^2 glazing', '2013$/kBtuh', '2010$/ft^2 footprint',
+            '$/ft^2 glazing', '2013$/kBtu/h heating', '2010$/ft^2 footprint',
             '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM',
             '2013$/occupant']
-        cls.cost_meas_units_fail_in = '$/ft^2 facade'
+        cls.cost_meas_units_fail_in = [
+            '$/ft^2 facade', '$/kWh']
         cls.cost_base_units_ok_in = '2013$/ft^2 floor'
         cls.ok_out_costs_yronly = 11.11
         cls.ok_out_costs_all = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182]
@@ -8230,21 +8249,14 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
 
     def test_convertcost_fail(self):
         """Test 'convert_costs' function given invalid inputs."""
-        # Test for KeyError
         for k in range(0, len(self.sample_mskeys_fail_in)):
             with self.assertRaises(KeyError):
                 self.sample_measure_in.convert_costs(
                     self.sample_convertdata_ok_in,
                     self.sample_bldgsect_ok_in[k],
                     self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
-                    self.cost_meas_units_ok_in_all[k],
+                    self.cost_meas_units_fail_in[k],
                     self.cost_base_units_ok_in)
-        # Test for ValueError
-        with self.assertRaises(ValueError):
-            self.sample_measure_in.convert_costs(
-                self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
-                self.sample_mskeys_ok_in[0], self.cost_meas_ok_in,
-                self.cost_meas_units_fail_in[k], self.cost_base_units_ok_in)
 
 
 class FillMeasuresTest(unittest.TestCase, CommonMethods):

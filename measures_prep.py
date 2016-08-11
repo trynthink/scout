@@ -57,15 +57,21 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         out_break_in (dict): Breakouts of measure energy/carbon markets/savings
             for eventual use in plotting of analysis results.
-        cconv_whlbldg (dict): Flags cost unit conversions that apply to a
-            whole building rather than a specific end use (for example,
-            $/node -> $/ft^2 floor for a sensors and controls measure).
-        cconv_euses (dict): Maps end use key names of baseline
-            microsegment database to end use key names in measure cost unit
-            translation database.
-        cconv_htcl (dict): Maps thermal load component key names
-            used in baseline microsegment database to component key(s) names in
-            measure cost unit translation database.
+        cconv_bybldg_units (list): Flags cost unit conversions that must
+            be re-initiated for each new microsegment building type.
+        cconv_topkeys_map (dict): Maps measure cost units to top-level keys in
+            an input cost conversion data dict.
+        cconv_whlbldgkeys_map (dict): Maps measure cost units to whole
+            building-level cost conversion dict keys.
+        cconv_htclkeys_map (dict): Maps measure cost units to cost conversion
+            dict keys for the heating and cooling end uses.
+        cconv_htclkeys_supply_map (dict): Maps measure cost units to cost
+            conversion dict keys for supply-side heating/cooling technologies.
+        cconv_htclkeys_demand_map (dict): Maps measure cost units to cost
+            conversion dict keys for demand-side heating/cooling technologies.
+            Includes information on the multiple stages of data conversion
+            sometimes required for demand-side costs (e.g., ft^2 glazing ->
+            ft^2 wall -> ft^2 floor).
     """
 
     def __init__(self):
@@ -180,27 +186,43 @@ class UsefulVars(object):
                 if elem not in current_level:
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
-        self.cconv_whlbldg = {
-            "$/node": "wireless sensor network",
-            "$/occupant": "occupant-centered sensing and controls"}
-        self.cconv_euses = {
-            "heating": "heating and cooling",
-            "cooling": "heating and cooling",
-            "ventilation": "ventilation",
-            "lighting": "lighting",
-            "water heating": "water heating",
-            "refrigeration": "refrigeration",
-            "cooking": "cooking",
-            "MELs": "MELs"}
-        self.cconv_htcl = {
-            "supply": {
-                "heating": "heating equipment",
-                "cooling": "cooling equipment"},
-            "demand": {
-                "windows conduction": ["windows", "walls"],
-                "windows solar": ["windows", "walls"],
-                "wall": "walls", "infiltration": "walls",
-                "ground": "footprint", "roof": ["roof", "footprint"]}}
+        self.cconv_bybldg_units = [
+            "$/occupant", "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
+            "$/ft^2 footprint"]
+        self.cconv_topkeys_map = {
+            "whole building": ["$/node", "$/occupant"],
+            "heating and cooling": [
+                "$/kBtu/h heating", "$/kBtu/h cooling", "$/ft^2 glazing",
+                "$/ft^2 roof", "$/ft^2 wall", "$/ft^2 footprint"],
+            "ventilation": ["$/1000 CFM"],
+            "lighting": ["$/1000 lm"],
+            "water heating": ["$/kBtu/h water heating"],
+            "refrigeration": ["$/kBtu/h refrigeration"]}
+        self.cconv_whlbldgkeys_map = {
+            "wireless sensor network": ["$/node"],
+            "occupant-centered sensing and controls": ["$/occupant"]}
+        self.cconv_htclkeys_map = {
+            "supply": [
+                "$/kBtu/h heating", "$/kBtu/h cooling"],
+            "demand": [
+                "$/ft^2 glazing", "$/ft^2 roof",
+                "$/ft^2 wall", "$/ft^2 footprint"]}
+        self.cconv_htclkeys_supply_map = {
+            "heating equipment": ["$/kBtu/h heating"],
+            "cooling equipment": ["$/kBtu/h cooling"]}
+        self.cconv_htclkeys_demand_map = {
+            "windows": {
+                "key": ["$/ft^2 glazing"],
+                "conversion stages": ["windows", "walls"]},
+            "roof": {
+                "key": ["$/ft^2 roof"],
+                "conversion stages": ["roof", "footprint"]},
+            "walls": {
+                "key": ["$/ft^2 wall"],
+                "conversion stages": ["walls"]},
+            "footprint": {
+                "key": ["$/ft^2 footprint"],
+                "conversion stages": ["footprint"]}}
 
 
 class EPlusMapDicts(object):
@@ -774,11 +796,15 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                if ind == 0 or isinstance(
-                        self.installed_cost, dict):
+                if ind == 0 or (
+                    (ms_iterable[ind][2] != ms_iterable[ind - 1][2]) and
+                    self.cost_units in self.handyvars.cconv_bybldg_units) \
+                        or isinstance(self.installed_cost, dict):
                     cost_meas = self.installed_cost
-                if ind == 0 or isinstance(
-                        self.cost_units, dict):
+                if ind == 0 or (
+                    (ms_iterable[ind][2] != ms_iterable[ind - 1][2]) and
+                    self.cost_units in self.handyvars.cconv_bybldg_units) \
+                        or isinstance(self.cost_units, dict):
                     cost_units = self.cost_units
                 if ind == 0 or isinstance(
                         self.product_lifetime, dict):
@@ -1700,80 +1726,104 @@ class Measure(object):
         # cost units (with the cost year removed), map measure cost units to
         # baseline cost units
         if cost_meas_noyr != cost_base_noyr:
-            # Set dictionaries that are used to map the market
-            # microsegment definition to input cost translation data
-            map_whlbldg = self.handyvars.cconv_whlbldg
-            map_euse = self.handyvars.cconv_euses
-            map_htcl = self.handyvars.cconv_htcl
-
             # Retrieve whole building or end use-specific cost unit conversion
             # data. Conversion data should be formatted in a list to simplify
             # its handling in subsequent operations
-            if any([x == cost_meas_noyr for x in map_whlbldg.keys()]):
-                convert_units_data = [convert_data['cost unit conversions'][
-                    'whole building'][map_whlbldg[cost_meas_noyr]]]
-            elif mskeys[4] in map_euse.keys():
-                convert_units_data = convert_data['cost unit conversions'][
-                    map_euse[mskeys[4]]]
-                # For special case of a heating/cooling end use, retrieve
-                # cost unit conversion data under 'supply' or 'demand' keys
-                if any([x in convert_units_data.keys() for x in [
-                        'supply', 'demand']]):
-                    if mskeys[5] == "supply":
-                        convert_units_data = [convert_units_data[mskeys[5]][
-                            map_htcl[mskeys[5]][mskeys[4]]]]
-                    # For a demand-side heating/cooling microsegment, multiple
-                    # stages of cost conversion may be required (for example,
-                    # convert from ft^2 glazing -> ft^2 wall, then from
-                    # ft^2 wall -> ft^2 floor). In such cases, cost conversion
-                    # values will be retrieved as lists, where each element
-                    # in the list represents a stage of the conversion.
-                    elif mskeys[5] == "demand" and not isinstance(
-                            map_htcl[mskeys[5]][mskeys[6]], list):
-                        convert_units_data = [convert_units_data[mskeys[5]][
-                            map_htcl[mskeys[5]][mskeys[6]]]]
-                    elif mskeys[5] == "demand":
-                        convert_units_data = [
-                            convert_units_data[mskeys[5]][x] for x in
-                            map_htcl[mskeys[5]][mskeys[6]]]
-                else:
-                    convert_units_data = [convert_units_data]
-            else:
+
+            # Find top-level key for retrieving data from cost translation
+            # dictionary
+            top_keys = self.handyvars.cconv_topkeys_map
+            try:
+                top_key = next(x for x in top_keys.keys() if
+                               cost_meas_noyr in top_keys[x])
+            except StopIteration:
                 raise KeyError('No conversion data for measure cost units!')
+
+            if top_key == "whole building":
+                # Retrieve whole building-level cost conversion data
+                whlbldg_keys = self.handyvars.cconv_whlbldgkeys_map
+                try:
+                    whlbldg_key = next(
+                        x for x in whlbldg_keys.keys() if
+                        cost_meas_noyr in whlbldg_keys[x])
+                except StopIteration:
+                    raise KeyError(
+                        'No conversion data for measure cost units!')
+                convert_units_data = [
+                    convert_data['cost unit conversions'][top_key][
+                        whlbldg_key]]
+            elif top_key == "heating and cooling":
+                # Retrieve heating/cooling cost conversion data
+                htcl_keys = self.handyvars.cconv_htclkeys_map
+                try:
+                    htcl_key = next(
+                        x for x in htcl_keys.keys() if
+                        cost_meas_noyr in htcl_keys[x])
+                except StopIteration:
+                    raise KeyError(
+                        'No conversion data for measure cost units!')
+                if htcl_key == "supply":
+                    # Retrieve supply-side heating/cooling conversion data
+                    supply_keys = self.handyvars.cconv_htclkeys_supply_map
+                    try:
+                        supply_key = next(
+                            x for x in supply_keys.keys() if
+                            cost_meas_noyr in supply_keys[x])
+                    except StopIteration:
+                        raise KeyError(
+                            'No conversion data for measure cost units!')
+                    convert_units_data = [
+                        convert_data['cost unit conversions'][top_key][
+                            htcl_key][supply_key]]
+                else:
+                    # Retrieve demand-side heating/cooling conversion data
+                    demand_keys = self.handyvars.cconv_htclkeys_demand_map
+                    try:
+                        demand_key = next(
+                            x for x in demand_keys.keys() if
+                            cost_meas_noyr in demand_keys[x]['key'])
+                    except StopIteration:
+                        raise KeyError(
+                            'No conversion data for measure cost units!')
+                    convert_units_data = [
+                        convert_data['cost unit conversions'][top_key][
+                            htcl_key][x] for x in
+                        demand_keys[demand_key]["conversion stages"]]
+            else:
+                # Retrieve conversion data for costs outside of the
+                # whole building or heating/cooling cases
+                convert_units_data = [
+                    convert_data['cost unit conversions'][top_key]]
 
             # Finalize cost conversion information retrieved above
 
             # Initialize a final cost conversion value for the microsegment
             convert_units = 1
-            if convert_units_data[0]['original units'] in cost_meas_units:
-                # Loop through list of conversion data, multiplying initial
-                # conversion value by successive list elements and weighting
-                # results as needed to map conversion factors for multiple
-                # non-Scout building types to the single Scout building type of
-                # the current microsegment
-                for cval in convert_units_data:
-                    if isinstance(cval['conversion factor']['value'], dict):
-                        cval_bldgtyp = \
-                            cval['conversion factor']['value'][bldg_sect]
-                        if isinstance(cval_bldgtyp, dict):
-                            # Develop weighting factors to map conversion data
-                            # from multiple non-Scout building types to the
-                            # single Scout building type of the current
-                            # microsegment
-                            cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
-                            bldgtyp_wts = convert_data[
-                                'building type conversions'][
-                                'conversion data']['value'][bldg_sect][
-                                mskeys[2]].values()
-                            convert_units *= sum([a * b for a, b in zip(
-                                cval_bldgtyp, bldgtyp_wts)])
-                        else:
-                            convert_units *= cval_bldgtyp
+            # Loop through list of conversion data, multiplying initial
+            # conversion value by successive list elements and weighting
+            # results as needed to map conversion factors for multiple
+            # non-Scout building types to the single Scout building type of
+            # the current microsegment
+            for cval in convert_units_data:
+                if isinstance(cval['conversion factor']['value'], dict):
+                    cval_bldgtyp = \
+                        cval['conversion factor']['value'][bldg_sect]
+                    if isinstance(cval_bldgtyp, dict):
+                        # Develop weighting factors to map conversion data
+                        # from multiple non-Scout building types to the
+                        # single Scout building type of the current
+                        # microsegment
+                        cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
+                        bldgtyp_wts = convert_data[
+                            'building type conversions'][
+                            'conversion data']['value'][bldg_sect][
+                            mskeys[2]].values()
+                        convert_units *= sum([a * b for a, b in zip(
+                            cval_bldgtyp, bldgtyp_wts)])
                     else:
-                        convert_units *= cval['conversion factor']['value']
-            else:
-                raise ValueError(
-                    'Cost units ' + cost_meas_units + ' are invalid!')
+                        convert_units *= cval_bldgtyp
+                else:
+                    convert_units *= cval['conversion factor']['value']
         else:
             convert_units = 1
 
