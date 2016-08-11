@@ -6761,9 +6761,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 # warning message is yielded
                 if any(['CRITICAL' in x for x in self.ok_warnmeas_out[
                         idx]]):
-                    self.assertEqual(mw.active, 0)
+                    self.assertTrue(mw.remove is True)
                 else:
-                    self.assertEqual(mw.active, 1)
+                    self.assertTrue(mw.remove is False)
 
 
 class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
@@ -11006,6 +11006,11 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}}}}}}}]
+        cls.sample_measures_in = [measures_prep.Measure(
+            handyvars, **x) for x in sample_measures_in]
+        # Reset sample measure markets (initialized to None)
+        for ind, m in enumerate(cls.sample_measures_in):
+            m.markets = sample_measures_in[ind]["markets"]
         cls.sample_package_name = "CAC + CFLs + NGWH"
         cls.sample_package_in = measures_prep.MeasurePackage(
             cls.sample_measures_in, cls.sample_package_name, handyvars)
@@ -12085,6 +12090,242 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                              sorted(output_lists[ind]))
         # Check for correct markets for packaged measure
         self.dict_check(self.sample_package_in.markets, self.markets_ok_out)
+
+
+class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
+    """Test 'add_uncovered_pkgupdates' function.
+
+    Ensure the function properly identifies existing packaged measures
+    that require updating but have not been flagged by the user, and
+    adds all data needed to update this measure to list of packaged
+    measures to update and updated individual measures, respectively.
+
+    Attributes:
+        handyvars (object): Global variables to use for the test measure.
+        sample_meas_toupdate_package (list): User-defined list of
+            packaged measures to update.
+        sample_meas_updated_objs (list): Already-updated individual measure
+            objects.
+        sample_meas_summary (list): Summary data for all existing measures.
+        sample_ok_meas_toupdate_package_out (list): Updated list of
+            packaged measures to update (should include omitted package(s)).
+        sample_ok_meas_updated_objnames_out (list): Update list of
+            individual measure objects (should include those related
+            to omitted package(s)).
+        ok_warn_out (list): Warning messages that should be shown to the
+            user given the above inputs to the function.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        # Base directory
+        base_dir = os.getcwd()
+        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.sample_meas_toupdate_package = [{
+            "sample package 1": [
+                "sample indiv measure 1",
+                "sample indiv measure 2"]}]
+        sample_meas_updated_objs = [
+            {"name": "sample indiv measure 1"},
+            {"name": "sample indiv measure 2"}]
+        cls.sample_meas_updated_objs = [
+            measures_prep.Measure(cls.handyvars, **x) for
+            x in sample_meas_updated_objs]
+        cls.sample_meas_summary = [
+            {"name": "sample indiv measure 1"},
+            {"name": "sample indiv measure 2"},
+            {"name": "sample indiv measure 3"},
+            {"name": "sample package 2",
+             "measures_to_package": [
+                 "sample indiv measure 1",
+                 "sample indiv measure 2",
+                 "sample indiv measure 3"]}]
+        cls.sample_ok_meas_toupdate_package_out = [{
+            "sample package 1": [
+                "sample indiv measure 1",
+                "sample indiv measure 2"]},
+            {
+            "sample package 2": [
+                "sample indiv measure 1",
+                "sample indiv measure 2",
+                "sample indiv measure 3"]}]
+        cls.sample_ok_meas_updated_objnames_out = [
+            "sample indiv measure 1",
+            "sample indiv measure 2",
+            "sample indiv measure 3"]
+        cls.ok_warn_out = [(
+            "WARNING: Existing package 'sample package 2'"
+            " added to measure update list")]
+
+    def test_adduncovered(self):
+        """Test 'add_uncovered_pkgupdates' function given valid inputs."""
+        # Catch and test warnings yielded by executing the function.
+        with warnings.catch_warnings(record=True) as w:
+            # Execute the function
+            meas_toupdate_package, meas_updated_objs = \
+                measures_prep.add_uncovered_pkgupdates(
+                    self.sample_meas_toupdate_package,
+                    self.sample_meas_updated_objs,
+                    self.sample_meas_summary, self.handyvars)
+
+            # Check that correct number of warnings is yielded
+            self.assertEqual(len(w), len(self.ok_warn_out))
+            # Check that correct type of warnings is yielded
+            self.assertTrue(issubclass(w[0].category, UserWarning))
+            # Check that warning message is correct
+            self.assertTrue(self.ok_warn_out[0] in str(w[0].message))
+            # Check that the list of packaged measures to update has
+            # been properly updated
+            self.assertEqual(meas_toupdate_package,
+                             self.sample_ok_meas_toupdate_package_out)
+            # Check that the list of individual measure objects
+            # has been properly updated
+            self.assertEqual([x.name for x in meas_updated_objs],
+                             self.sample_ok_meas_updated_objnames_out)
+
+
+class CleanUpTest(unittest.TestCase, CommonMethods):
+    """Test 'split_clean_data' function.
+
+    Ensure building vintage square footages are read in properly from a
+    cbecs data file and that the proper weights are derived for mapping
+    EnergyPlus building vintages to Scout's 'new' and 'retrofit' building
+    structure types.
+
+    Attributes:
+        handyvars (object): Global variables to use for the test measure.
+        sample_measlist_in (list): List of individual and packaged measure
+            objects to clean up.
+        sample_measlist_out_comp_data (list): Measure competition data that
+            should be yielded by function given sample measures as input.
+        sample_measlist_out_mkt_keys (list): High level measure summary data
+            keys that should be yielded by function given sample measures as
+            input.
+        sample_measlist_out_highlev_keys (list): Measure 'markets' keys that
+            should be yielded by function given sample measures as input.
+        sample_pkg_meas_names (list): Updated 'measures_to_package'
+            attribute that should be yielded by function for sample
+            packaged measure.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        # Base directory
+        base_dir = os.getcwd()
+        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        sample_measindiv_dicts = [{
+            "name": "cleanup 1"}, {"name": "cleanup 2"}]
+        cls.sample_measlist_in = [measures_prep.Measure(
+            cls.handyvars, **x) for x in sample_measindiv_dicts]
+        sample_measpackage = measures_prep.MeasurePackage(
+            copy.deepcopy(cls.sample_measlist_in), "cleanup 3", cls.handyvars)
+        cls.sample_measlist_in.append(sample_measpackage)
+        cls.sample_measlist_out_comp_data = [{
+            "Technical potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}},
+            "Max adoption potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}}},
+            {
+            "Technical potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}},
+            "Max adoption potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}}},
+            {
+            "Technical potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}},
+            "Max adoption potential": {
+                "contributing mseg keys and values": {},
+                "competed choice parameters": {},
+                "secondary mseg adjustments": {
+                    "market share": {
+                        "original stock (total captured)": {},
+                        "original stock (competed and captured)": {},
+                        "adjusted stock (total captured)": {},
+                        "adjusted stock (competed and captured)": {}}},
+                "supply-demand adjustment": {
+                    "savings": {},
+                    "total": {}}}}]
+        cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
+        cls.sample_measlist_out_highlev_keys = [
+            ["markets", "name", "remove"], ["markets", "name", "remove"],
+            ['bldg_type', 'climate_zone', 'end_use', 'fuel_type', 'markets',
+             'measures_to_package', 'name', 'structure_type']]
+        cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
+
+    def test_cleanup(self):
+        """Test 'split_clean_data' function given valid inputs."""
+        # Execute the function
+        measures_comp_data, measures_summary_data = \
+            measures_prep.split_clean_data(self.sample_measlist_in)
+        # Check function outputs
+        for ind in range(0, len(self.sample_measlist_in)):
+            # Check measure competition data
+            self.dict_check(self.sample_measlist_out_comp_data[ind],
+                            measures_comp_data[ind])
+            # Check measure summary data
+            for adopt_scheme in self.handyvars.adopt_schemes:
+                self.assertEqual(sorted(list(measures_summary_data[
+                    ind].keys())), self.sample_measlist_out_highlev_keys[ind])
+                self.assertEqual(sorted(list(measures_summary_data[
+                    ind]["markets"][adopt_scheme].keys())),
+                    self.sample_measlist_out_mkt_keys)
+                # Verify correct updating of 'measures_to_package'
+                # MeasurePackage attribute
+                if "Package: " in measures_summary_data[ind]["name"]:
+                    self.assertEqual(measures_summary_data[ind][
+                        "measures_to_package"], self.sample_pkg_meas_names)
 
 
 # Offer external code execution (include all lines below this point in all

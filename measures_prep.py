@@ -8,9 +8,9 @@ from collections import OrderedDict
 from os import listdir, getcwd
 from os.path import isfile, join
 import copy
-import sys
 import warnings
 from urllib.parse import urlparse
+import bz2
 
 
 class UsefulInputFiles(object):
@@ -503,6 +503,8 @@ class Measure(object):
     Attributes:
         **kwargs: Arbitrary keyword arguments used to fill measure attributes
             from an input dictionary.
+        remove (boolean): Determines whether measure should be removed from
+            analysis engine due to insufficient market source data.
         handyvars (object): Global variables useful across class methods.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
@@ -517,27 +519,31 @@ class Measure(object):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
+        self.remove = False
         self.handyvars = handyvars
         self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
-            self.markets[adopt_scheme] = {
-                "master_mseg": {
-                    "stock": {
+            self.markets[adopt_scheme] = OrderedDict([(
+                "master_mseg", OrderedDict([(
+                    "stock", {
                         "total": {
                             "all": None, "measure": None},
                         "competed": {
-                            "all": None, "measure": None}},
-                    "energy": {
+                            "all": None, "measure": None}}),
+                    (
+                    "energy", {
                         "total": {
                             "baseline": None, "efficient": None},
                         "competed": {
-                            "baseline": None, "efficient": None}},
-                    "carbon": {
+                            "baseline": None, "efficient": None}}),
+                    (
+                    "carbon", {
                         "total": {
                             "baseline": None, "efficient": None},
                         "competed": {
-                            "baseline": None, "efficient": None}},
-                    "cost": {
+                            "baseline": None, "efficient": None}}),
+                    (
+                    "cost", {
                         "stock": {
                             "total": {
                                 "baseline": None, "efficient": None},
@@ -552,9 +558,11 @@ class Measure(object):
                             "total": {
                                 "baseline": None, "efficient": None},
                             "competed": {
-                                "baseline": None, "efficient": None}}},
-                    "lifetime": {"baseline": None, "measure": None}},
-                "mseg_adjust": {
+                                "baseline": None, "efficient": None}}}),
+                    (
+                    "lifetime", {"baseline": None, "measure": None})])),
+                (
+                "mseg_adjust", {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
                     "secondary mseg adjustments": {
@@ -573,9 +581,10 @@ class Measure(object):
                             "adjusted stock (competed and captured)": {}}},
                     "supply-demand adjustment": {
                         "savings": {},
-                        "total": {}}},
-                "mseg_out_break": copy.deepcopy(
-                    self.handyvars.out_break_in)}
+                        "total": {}}}),
+                (
+                "mseg_out_break", copy.deepcopy(
+                    self.handyvars.out_break_in))])
 
     def fill_eplus(self, msegs, eplus_dir, eplus_files, vintage_weights):
         """Fill in measure performance with EnergyPlus simulation results.
@@ -1093,7 +1102,7 @@ class Measure(object):
                         # Reset valid key chain count to 999 flag
                         key_chain_ct = 999
                         # Reset measure 'active' attribute to zero
-                        self.active = 0
+                        self.remove = True
                         # Break from all further baseline stock/energy/carbon
                         # and cost information updates for the measure
                         break
@@ -1319,9 +1328,17 @@ class Measure(object):
                     # technology cost, performance, and lifetime JSON
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
-                    else:
+                    elif "consumer choice" in base_costperflife.keys():
                         choice_params = base_costperflife["consumer choice"][
                             "competed market share"]["parameters"]
+                    # For uncovered end uses (e.g., envelope components),
+                    # default to choice parameters for the heating end use
+                    else:
+                        choice_params = {
+                            "b1": {key: -0.003 for
+                                   key in self.handyvars.aeo_years},
+                            "b2": {key: -0.012 for
+                                   key in self.handyvars.aeo_years}}
                 else:
                     # Update commercial baseline and measure energy cost
                     # information, accounting for any fuel switching from
@@ -1359,8 +1376,8 @@ class Measure(object):
                         choice_params = {
                             "rate distribution": self.handyvars.com_timeprefs[
                                 "distributions"][mskeys[4]]}
-                    # For uncovered end uses, default to choice parameters for
-                    # the heating end use
+                    # For uncovered end uses (e.g., envelope components),
+                    # default to choice parameters for the heating end use
                     else:
                         choice_params = {
                             "rate distribution": self.handyvars.com_timeprefs[
@@ -1660,9 +1677,9 @@ class Measure(object):
                     # master microsegment by above factor
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"] = \
-                        self.div_keyvals_float_restrict(copy.deepcopy(
+                        self.div_keyvals_float_restrict(
                             self.markets[adopt_scheme]["mseg_adjust"][
-                                "contributing mseg keys and values"]),
+                                "contributing mseg keys and values"],
                         reduce_num)
                 else:
                     reduce_num = 1
@@ -1684,8 +1701,8 @@ class Measure(object):
             raise KeyError(
                 "No valid baseline market microsegments found for measure!")
 
-        # Update measure attribute update flag to 'False'
-        self.status['finalize attributes'] = False
+        # Print update on measure status
+        print("Measure '" + self.name + "' successfully updated")
 
     def convert_costs(self, convert_data, bldg_sect, mskeys,
                       cost_meas, cost_meas_units, cost_base_units):
@@ -1944,14 +1961,12 @@ class Measure(object):
         captured_eff_frac = 0
         captured_base_frac = 1
 
-        # In cases where secondary heating/cooling microsegments are present
-        # for a lighting efficiency measure, initialize a dict of year-by-year
-        # secondary microsegment adjustment information that will be used
-        # to scale down the secondary heating/cooling microsegment(s) in
-        # accordance with the portion of the total applicable lighting stock
+        # In cases where secondary microsegments are present, initialize a
+        # dict of year-by-year secondary microsegment adjustment information
+        # that will be used to scale down the secondary microsegment(s) in
+        # accordance with the portion of the total applicable primary stock
         # that is captured by the measure in each year
-        if self.end_use["secondary"] is not None and mskeys[4] in ["lighting",
-           "heating", "secondary heating", "cooling"]:
+        if self.end_use["secondary"] is not None:
             # Set short names for secondary adjustment information dicts
             secnd_adj_sbmkt = self.markets[adopt_scheme]["mseg_adjust"][
                 "secondary mseg adjustments"]["sub-market"]
@@ -1960,10 +1975,9 @@ class Measure(object):
             secnd_adj_mktshr = self.markets[adopt_scheme]["mseg_adjust"][
                 "secondary mseg adjustments"]["market share"]
             # Determine a dictionary key indicating the climate zone, building
-            # type, and structure type that is shared by the primary lighting
-            # microsegment and secondary heating/cooling microsegment
+            # type, and structure type that is shared by the primary
+            # microsegment and secondary microsegment
             secnd_mseg_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
-            secnd_mseg_adjkey = (mskeys[1], mskeys[2], mskeys[-1])
             # If no year-by-year secondary microsegment adjustment information
             # exists for the given climate zone, building type, and structure
             # type, initialize all year-by-year adjustment values as 0
@@ -3091,7 +3105,6 @@ class MeasurePackage(Measure):
         self.handyvars = handyvars
         self.measures_to_package = measure_list_package
         self.name = "Package: " + p
-        self.status = {"active": True, "finalized": False}
         self.climate_zone, self.bldg_type, self.structure_type = (
             [] for n in range(3))
         self.fuel_type, self.end_use = ({"primary": []} for n in range(2))
@@ -3134,8 +3147,23 @@ class MeasurePackage(Measure):
                 "mseg_adjust": {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
-                    "secondary mseg adjustments": {},
-                    "supply-demand adjustment": {}},
+                    "secondary mseg adjustments": {
+                        "sub-market": {
+                            "original stock (total)": {},
+                            "adjusted stock (sub-market)": {}},
+                        "stock-and-flow": {
+                            "original stock (total)": {},
+                            "adjusted stock (previously captured)": {},
+                            "adjusted stock (competed)": {},
+                            "adjusted stock (competed and captured)": {}},
+                        "market share": {
+                            "original stock (total captured)": {},
+                            "original stock (competed and captured)": {},
+                            "adjusted stock (total captured)": {},
+                            "adjusted stock (competed and captured)": {}}},
+                    "supply-demand adjustment": {
+                        "savings": {},
+                        "total": {}}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
 
     def merge_measures(self):
@@ -3143,9 +3171,7 @@ class MeasurePackage(Measure):
 
         Notes:
             Combines the 'markets' attributes of each individual measure into
-            a packaged 'markets' attribute; assumes that any overlaps between
-            the 'markets' of individual measures have alredy been removed via
-            the 'remove_pkg_overlaps' function.
+            a packaged 'markets' attribute.
 
         Returns:
             Updated 'markets' attribute for a packaged measure that combines
@@ -3156,20 +3182,20 @@ class MeasurePackage(Measure):
         for ind, m in enumerate(self.measures_to_package):
             # Add measure climate zones
             self.climate_zone.extend(
-                list(set(m["climate_zone"]) - set(self.climate_zone)))
+                list(set(m.climate_zone) - set(self.climate_zone)))
             # Add measure building types
             self.bldg_type.extend(
-                list(set(m["bldg_type"]) - set(self.bldg_type)))
+                list(set(m.bldg_type) - set(self.bldg_type)))
             # Add measure structure types
             self.structure_type.extend(
-                list(set(m["structure_type"]) - set(self.structure_type)))
+                list(set(m.structure_type) - set(self.structure_type)))
             # Add measure fuel types
             self.fuel_type["primary"].extend(
-                list(set(m["fuel_type"]["primary"]) -
+                list(set(m.fuel_type["primary"]) -
                      set(self.fuel_type["primary"])))
             # Add measure end uses
             self.end_use["primary"].extend(
-                list(set(m["end_use"]["primary"]) -
+                list(set(m.end_use["primary"]) -
                      set(self.end_use["primary"])))
 
             # Generate a dictionary with data about all the
@@ -3177,7 +3203,7 @@ class MeasurePackage(Measure):
             # master microsegment
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Set contributing microsegment data for package measure
-                msegs_meas = m["markets"][adopt_scheme]["mseg_adjust"]
+                msegs_meas = m.markets[adopt_scheme]["mseg_adjust"]
                 # Set contributing microsegment data to update for package
                 msegs_pkg = self.markets[adopt_scheme]["mseg_adjust"]
                 # Loop through all measures in package and add contributing
@@ -3189,7 +3215,7 @@ class MeasurePackage(Measure):
                             msegs_pkg[k], msegs_meas[k][cm] = \
                                 self.merge_contrib_msegs(
                                     msegs_pkg[k], msegs_meas[k][cm],
-                                    cm, m["measure_type"], adopt_scheme)
+                                    cm, m.measure_type, adopt_scheme)
                     # Add all other contributing microsegment data for
                     # the measure
                     elif k in ["competed choice parameters",
@@ -3206,8 +3232,8 @@ class MeasurePackage(Measure):
                 self.markets[adopt_scheme]["mseg_out_break"] = \
                     self.merge_out_break(
                     self.markets[adopt_scheme]["mseg_out_break"],
-                    m["markets"][adopt_scheme]["mseg_out_break"],
-                    m["markets"][adopt_scheme]["master_mseg"][
+                    m.markets[adopt_scheme]["mseg_out_break"],
+                    m.markets[adopt_scheme]["master_mseg"][
                         'energy']['total']['baseline'])
 
         # Generate a packaged master microsegment based on the contributing
@@ -3272,18 +3298,19 @@ class MeasurePackage(Measure):
         """
         # Determine what other measures in the package share the current
         # contributing microsegment for the individual measure
-        overlap_meas = [x for x in self.measures_to_package if cm_key in x[
-            "markets"][adopt_scheme]["mseg_adjust"][
-            "contributing mseg keys and values"].keys()]
+        overlap_meas = [
+            x for x in self.measures_to_package if cm_key in x.markets[
+                adopt_scheme]["mseg_adjust"][
+                "contributing mseg keys and values"].keys()]
         # Determine which overlapping measures are of the full service and
         # add-on types (handled differently below)
         if len(overlap_meas) > 0:
             # Full service subset of overlapping measures
             overlap_meas_fserv = [
-                x for x in overlap_meas if x["measure_type"] == "full service"]
+                x for x in overlap_meas if x.measure_type == "full service"]
             # Add-on subset of overlapping measures
             overlap_meas_add = [
-                x for x in overlap_meas if x["measure_type"] == "add-on"]
+                x for x in overlap_meas if x.measure_type == "add-on"]
         else:
             overlap_meas_fserv, overlap_meas_add = ([] for n in range(2))
 
@@ -3454,7 +3481,7 @@ def update_measures(
     return meas_update_objs
 
 
-def add_packages(packages, measures):
+def add_packages(packages, meas_update_objs, handyvars):
     """Combine multiple measures into a single packaged measure.
 
     Args:
@@ -3471,23 +3498,152 @@ def add_packages(packages, measures):
         # Establish a list of names for measures that contribute to the
         # package
         package_measures = packages[p]
-        # Determine the subset of all active measures that belong
+        # Determine the subset of all measure objects that belong
         # to the current package
         measure_list_package = [
-            x for x in measures if x["name"] in package_measures]
-        # Instantiate measure package object based on packaged measure
-        # subset above
-        packaged_measure = MeasurePackage(measure_list_package, p)
-        # Remove overlapping markets/savings between individual
-        # measures in the package object
-        packaged_measure.remove_pkg_overlaps()
-        # Merge measures in the package object
-        packaged_measure.merge_measures()
-        # Mark packaged measure attributes as finalized
-        packaged_measure.status['finalized'] = True
-        # Add the new packaged measure to the measure list for
-        # further evaluation like any other regular measure
-        measures.append(packaged_measure)
+            x for x in meas_update_objs if x.name in package_measures]
+        # Determine which (if any) measure objects that contribute to
+        # the package are invalid due to unacceptable input data sourcing
+        measure_list_package_rmv = [
+            x for x in measure_list_package if x.remove is True]
+
+        # Warn user of no valid measures to package
+        if len(measure_list_package_rmv) > 0:
+            warnings.warn("WARNING (CRITICAL): Package '" + p + "' removed"
+                          "due to invalid contributing measure(s)")
+            packaged_measure = False
+        # Warn user of no available measures to package
+        elif len(measure_list_package) == 0:
+            warnings.warn("WARNING (CRITICAL): Package '" + p + "' removed"
+                          "due to no available contributing measures")
+            packaged_measure = False
+        # Update package if valid contributing measures are available
+        else:
+            # Instantiate measure package object based on packaged measure
+            # subset above
+            packaged_measure = MeasurePackage(
+                measure_list_package, p, handyvars)
+            # Merge measures in the package object
+            packaged_measure.merge_measures()
+            # Print update on measure status
+            print("Measure '" + p + "' successfully updated")
+
+        # Add the new packaged measure to the measure list (if it exists)
+        # for further evaluation like any other regular measure
+        if packaged_measure is not False:
+            meas_update_objs.append(packaged_measure)
+
+    return meas_update_objs
+
+
+def add_uncovered_pkgupdates(
+        meas_toupdate_package, meas_updated_objs, meas_summary, handyvars):
+    """Add uncovered measure package updates to list of packages to update.
+
+    Notes:
+        This function covers the case where a user has updated individual
+        measures that contribute to a packaged measure in the existing
+        'measures_summary_data' JSON, but has not flagged this packaged measure
+        for an update in the 'meas_toupdate_in' JSON.
+
+    Args:
+        meas_toupdate_package (list): Initial packaged measures to update.
+        meas_updated_objs (list): Initial updated measure objects.
+        meas_summary (list): Existing measures summary database.
+        handyvars (object): Global variables useful across class methods.
+
+    Returns:
+        Updated list of packaged measures that includes the omitted package(s);
+        updated list of measure objects that includes all individual
+        measures that contribute to the omitted package(s).
+    """
+    # Determine which (if any) existing measure packages are affected by
+    # individual measure updates but are not named in the package update list
+    uncovered_packageupdates = [
+        x for x in meas_summary if ("measures_to_package" in x.keys()) and
+        any([y.name in x[
+            "measures_to_package"] for y in meas_updated_objs]) and
+        x["name"] not in [p.keys() for p in meas_toupdate_package]]
+    # Loop through uncovered package information; add uncovered packages to
+    # list of packaged measures to update; ensure that all individual measures
+    # that contribute to the package are included in the list of updated
+    # individual measure objects
+    for pkg in uncovered_packageupdates:
+        # Ensure that all individual measures that contribute to the package
+        # are included in the updated list of individual measure objects
+        indiv_meas_to_add = [
+            Measure(handyvars, **m) for m in meas_summary if any([
+                m["name"] in r for r in [y["measures_to_package"] for
+                                         y in uncovered_packageupdates]]) and
+            m["name"] not in [z.name for z in meas_updated_objs]]
+        meas_updated_objs.extend(indiv_meas_to_add)
+        # Add package to update list
+        meas_toupdate_package.append(
+            {pkg["name"]: pkg["measures_to_package"]})
+        # Inform user of addition of package to measure update list
+        warnings.warn(("WARNING: Existing package '" + pkg["name"] +
+                       "' added to measure update list"))
+
+    return meas_toupdate_package, meas_updated_objs
+
+
+def split_clean_data(meas_updated_objs):
+    """Reorganize and remove data from input Measure objects.
+
+    Notes:
+        The input Measure objects have updated data, which must
+        be reorganized/condensed for the purposes of writing out
+        to JSON files.
+
+    Args:
+        meas_updated_objs (object): Measure objects with data to
+            be split in to separate dicts or removed.
+
+    Returns:
+        Two lists of dicts, one containing competition data for
+        each updated measure, and one containing high level summary
+        data for each updated measure.
+    """
+    # Initialize lists of measure competition/summary data
+    meas_updated_compete = []
+    meas_updated_summary = []
+    # Loop through all Measure objects and reorganize/remove the
+    # needed data.
+    for m in meas_updated_objs:
+        # Initialize a reorganized measure competition data dict
+        comp_data_dict = {}
+        # Retrieve measure contributing microsegment data that
+        # is relevant to markets competition in the analysis
+        # engine, then remove these data from measure object
+        for adopt_scheme in m.handyvars.adopt_schemes:
+            # Delete contributing microsegment data that are
+            # not relevant to competition in the analysis engine
+            del m.markets[adopt_scheme]["mseg_adjust"][
+                "secondary mseg adjustments"]["sub-market"]
+            del m.markets[adopt_scheme]["mseg_adjust"][
+                "secondary mseg adjustments"]["stock-and-flow"]
+            # Add remaining contributing microsegment data to
+            # competition data dict, then delete from measure
+            comp_data_dict[adopt_scheme] = \
+                m.markets[adopt_scheme]["mseg_adjust"]
+            del m.markets[adopt_scheme]["mseg_adjust"]
+        # Append updated competition data from measure to
+        # list of competition data across all measures
+        meas_updated_compete.append(comp_data_dict)
+        # Delete 'handyvars' measure attribute (not relevant to
+        # analysis engine)
+        del m.handyvars
+        # For measure packages, replace 'measures_to_package'
+        # objects list with a list of these measures' names
+        # (useful for 'add_uncovered_pkgupdates' function)
+        if isinstance(m, MeasurePackage):
+            m.measures_to_package = [
+                x.name for x in m.measures_to_package]
+        # Append updated measure __dict__ attribute to list of
+        # summary data across all measures
+        meas_updated_summary.append(m.__dict__)
+
+    return meas_updated_compete, meas_updated_summary
 
 
 def custom_formatwarning(msg, *a):
@@ -3541,10 +3697,38 @@ def main(base_dir):
     meas_updated_objs = update_measures(meas_toupdate_indiv, convert_data,
                                         msegs, msegs_cpl, handyvars, base_dir)
 
-    # Write the updated dict of measure performance data over the existing
-    # measures JSON file
-    with open(handyfiles.measures_in, "w") as jso:
-        json.dump(measures, jso, indent=4)
+    # Add any packages affected by individual measure updates that were not
+    # included in the user-defined list of measure packages to update
+    meas_toupdate_package, meas_updated_objs = add_uncovered_pkgupdates(
+        meas_toupdate_package, meas_updated_objs, meas_summary, handyvars)
+
+    # Update measure packages (if needed)
+    if meas_toupdate_package:
+        meas_updated_objs = add_packages(
+            meas_toupdate_package, meas_updated_objs, handyvars)
+
+    # Split updated measure data into subsets needed for detailed
+    # measure market competition and for high-level measure summaries
+    meas_updated_compete, meas_updated_summary = split_clean_data(
+        meas_updated_objs)
+
+    # Add all updated measure information to existing measure summaries
+    for m in meas_updated_summary:
+        # Measure has been updated from existing case (replace)
+        if m["name"] in [x["name"] for x in meas_summary]:
+            [x.update(m) for x in meas_summary if x["name"] == m["name"]]
+        # Measure is new (add)
+        else:
+            meas_summary.append(m)
+
+    # Write updated measure competition data to zipped JSONs
+    for ind, m in enumerate(meas_updated_objs):
+        with bz2.open((base_dir + handyfiles.meas_compete_data + '/' +
+                      m.name + ".json.bz2"), 'wt') as zp:
+            json.dump(meas_updated_compete[ind], zp, indent=2)
+    # Write measure summary data to JSON
+    with open((base_dir + handyfiles.meas_summary_data), "w") as jso:
+        json.dump(meas_summary, jso, indent=2)
 
 if __name__ == "__main__":
     import time
