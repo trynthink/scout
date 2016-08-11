@@ -14,27 +14,27 @@ from urllib.parse import urlparse
 
 
 class UsefulInputFiles(object):
-    """Class of input files to be opened by this routine.
+    """Class of input file paths to be used by this routine.
 
     Attributes:
-        measures_in (string): File name for database of initial measure
-            definitions.
-        msegs_in (string): File name for database of baseline microsegment
-            stock/energy.
-        msegs_cpl_in (string): File name for database of baseline technology
-            characteristics.
-        packages_in (string): File name for database of measure names to
-            package.
-        convert_data (string): File name for database of measure cost unit
-            conversions.
+        meas_toupdate_in (string): Database of initial measure definitions.
+        msegs_in (string): Database of baseline microsegment stock/energy.
+        msegs_cpl_in (string): Database of baseline technology characteristics.
+        convert_data (string): Database of measure cost unit conversions.
+        meas_summary_data (string): High-level measure summary data.
+        meas_compete_data (string): Contributing microsegment data needed
+            for measure competition.
     """
 
     def __init__(self):
-        self.measures_in = "measures_test.json"
-        self.msegs_in = "mseg_res_com_cz.json"
-        self.msegs_cpl_in = "cpl_res_com_cz.json"
-        self.packages_in = "measure_packages_test.json"
-        self.cost_convert_in = "convert_data.json"
+        self.meas_toupdate_in = \
+            "/measures_data/to_update/meas_toupdate_in.json"
+        self.msegs_in = "/markets_data/mseg_res_com_cz.json"
+        self.msegs_cpl_in = "/markets_data/cpl_res_com_cz.json"
+        self.cost_convert_in = "/convert_data/meas_costconvert.json"
+        self.meas_summary_data = \
+            "/measures_data/summary_data/meas_summary_data.json"
+        self.meas_compete_data = "/measures_data/competition_data"
 
 
 class UsefulVars(object):
@@ -74,7 +74,7 @@ class UsefulVars(object):
             ft^2 wall -> ft^2 floor).
     """
 
-    def __init__(self):
+    def __init__(self, base_dir):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.02
@@ -94,10 +94,11 @@ class UsefulVars(object):
             '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
             'www.navigantresearch.com']
         self.consumer_price_ind = numpy.genfromtxt(
-            'CPI.csv', names=True, delimiter=',', dtype=[
-                ('DATE', 'U10'), ('VALUE', '<f8')])
+            (base_dir + '/convert_data/CPI.csv'), names=True,
+            delimiter=',', dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
         cost_ss_carb = numpy.genfromtxt(
-            "Cost_S-S_CO2.txt", names=True, delimiter='\t', dtype=None)
+            (base_dir + "/convert_data/Cost_S-S_CO2.txt"), names=True,
+            delimiter='\t', dtype=None)
         self.ss_conv = {
             "electricity": cost_ss_carb[7], "natural gas": cost_ss_carb[8],
             "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
@@ -326,22 +327,20 @@ class EPlusGlobals(object):
             for EnergyPlus vintages.
     """
 
-    def __init__(self, argv):
-        # Set local directory for EnergyPlus measure performance files
-        self.eplus_dir = argv
+    def __init__(self, eplus_dir):
         # Import CBECs XLSX
         cbecs_in = "b34.xlsx"
-        cbecs = xlrd.open_workbook(self.eplus_dir + '/' + cbecs_in)
+        cbecs = xlrd.open_workbook(eplus_dir + '/' + cbecs_in)
         self.cbecs_sh = cbecs.sheet_by_index(0)
         # Pull out building vintage square footage data
         self.vintage_sf = self.cbecs_vintage_sf()
         # Set EnergyPlus data file name list, given local directory
         self.eplus_perf_files = [
-            f for f in listdir(self.eplus_dir) if
-            isfile(join(self.eplus_dir, f)) and f != cbecs_in and 'xlsx' in f]
+            f for f in listdir(eplus_dir) if
+            isfile(join(eplus_dir, f)) and f != cbecs_in and 'xlsx' in f]
         # Import first EnergyPlus measure performance XLSX
         eplus_file = xlrd.open_workbook(
-            self.eplus_dir + '/' + self.eplus_perf_files[0])
+            eplus_dir + '/' + self.eplus_perf_files[0])
         eplus_file_sh = eplus_file.sheet_by_index(2)
         # Determine appropriate weights for mapping EnergyPlus vintages to the
         # 'new' and 'retrofit' building structure types of Scout
@@ -3408,11 +3407,11 @@ class MeasurePackage(Measure):
         return pkg_brk
 
 
-def fill_measures(
-        measures, convert_data, msegs, msegs_cpl, handyvars, eplus_dir):
+def update_measures(
+        measures, convert_data, msegs, msegs_cpl, handyvars, base_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
 
-    Note:
+    Notes:
         Determine which in a list of measures require updates to finalize
         stock, energy, carbon, and cost markets for further use in the
         analysis engine; instantiate these measures as Measure objects;
@@ -3425,8 +3424,7 @@ def fill_measures(
         msegs (dict): Baseline microsegment stock and energy use.
         msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
         handyvars (object): Global variables of use across Measure methods.
-        eplus_dir (string): Directory for EnergyPlus simulation output files to
-            use in updating measure performance inputs.
+        base_dir (string): Base directory.
 
     Returns:
         A list of dicts, each including a finalized set of measure attributes.
@@ -3435,51 +3433,25 @@ def fill_measures(
         ValueError: If more than one Measure object matches the name of a
             given input efficiency measure.
     """
-    # Determine subset of measures flagged by user for attribute updates
-    # (via a False value for the measure's 'status->finalized' attribute)
-    measures_update = [m for m in measures if (
-        m['status']['active'] is True and m['status']['finalized'] is False)]
-    # Determine subset of measures not flagged by user for attribute updates,
-    # but with incomplete 'markets' information
-    measures_update_warn = [m for m in measures if (
-        m['status']['active'] is True and m['status']['finalized']
-        is True and m['markets'] is None)]
-    # Warn user about need to update unflagged but incomplete measures;
-    # add these measures to those requiring user-defined attribute updates
-    if len(measures_update_warn) > 0:
-        [warnings.warn("WARNING: Incomplete 'markets' attribute for active "
-                       "measure '" + m["name"] + "'; this information will "
-                       "be added automatically") for m in measures_update_warn]
-        measures_update.extend(measures_update_warn)
     # Initialize Measure() objects based on 'measures_update' list
-    measures_update_objs = [Measure(handyvars, **m) for m in measures_update]
+    meas_update_objs = [Measure(handyvars, **m) for m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with an 'EnergyPlus file' flag in their 'energy_efficiency' attribute
     if any(['EnergyPlus file' in m.energy_efficiency.keys() for
-            m in measures_update_objs]):
+            m in meas_update_objs]):
         # Set EnergyPlus global variables
-        handyeplusvars = EPlusGlobals(eplus_dir)
+        handyeplusvars = EPlusGlobals(base_dir + '/ePlus')
         # Fill in EnergyPlus-based measure performance information
         [m.fill_eplus(
             msegs, handyeplusvars.eplus_dir, handyeplusvars.eplus_files,
-            handyeplusvars.eplus_vintage_weights) for m in measures_update_objs
+            handyeplusvars.eplus_vintage_weights) for m in meas_update_objs
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, convert_data) for m in
-     measures_update_objs]
+    [m.fill_mkts(msegs, msegs_cpl, convert_data) for m in meas_update_objs]
 
-    # Add all updated Measure information to original list of measure dicts
-    for m in [x for x in measures if x["name"] in [
-            y.name for y in measures_update_objs]]:
-        m_new = [mn for mn in measures_update_objs if mn.name == m["name"]]
-        if len(m_new) == 1:
-            m.update(m_new[0].__dict__)
-        else:
-            raise ValueError('Unique Measures object needed for updates!')
-
-    return measures
+    return meas_update_objs
 
 
 def add_packages(packages, measures):
@@ -3523,7 +3495,7 @@ def custom_formatwarning(msg, *a):
     return str(msg) + '\n'
 
 
-def main(argv):
+def main(base_dir):
     """Import and finalize measures input data for analysis engine.
 
     Note:
@@ -3543,30 +3515,31 @@ def main(argv):
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
     # Instantiate useful variables object
-    handyvars = UsefulVars()
+    handyvars = UsefulVars(base_dir)
 
-    # Import measures
-    with open(handyfiles.measures_in, 'r') as mjs:
+    # Import measures/measure packages to update
+    with open((base_dir + handyfiles.meas_toupdate_in), 'r') as mjs:
         measures = json.load(mjs, object_pairs_hook=OrderedDict)
-    # Import measure packages
-    with open(handyfiles.packages_in, 'r') as pkg:
-        packages = json.load(pkg)
+        # Set individual measures
+        meas_toupdate_indiv = measures["individual measures"]
+        # Set measure packages
+        meas_toupdate_package = measures["measure packages"]
+    # Import existing measure summaries
+    with open((base_dir + handyfiles.meas_summary_data), 'r') as es:
+        meas_summary = json.load(es, object_pairs_hook=OrderedDict)
     # Import baseline microsegments
-    with open(handyfiles.msegs_in, 'r') as msi:
+    with open((base_dir + handyfiles.msegs_in), 'r') as msi:
         msegs = json.load(msi)
     # Import baseline cost, performance, and lifetime data
-    with open(handyfiles.msegs_cpl_in, 'r') as bjs:
+    with open((base_dir + handyfiles.msegs_cpl_in), 'r') as bjs:
         msegs_cpl = json.load(bjs)
     # Import measure cost unit conversion data
-    with open(handyfiles.cost_convert_in, 'r') as cc:
+    with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
         convert_data = json.load(cc)
 
-    # Run through each measure and fill in any missing attributes
-    measures = fill_measures(
-        measures, convert_data, msegs, msegs_cpl, handyvars, argv)
-    # Add measure packages
-    if packages:
-        measures = add_packages(packages, measures)
+    # Update individual measures
+    meas_updated_objs = update_measures(meas_toupdate_indiv, convert_data,
+                                        msegs, msegs_cpl, handyvars, base_dir)
 
     # Write the updated dict of measure performance data over the existing
     # measures JSON file
@@ -3578,9 +3551,6 @@ if __name__ == "__main__":
     start_time = time.time()
     # Allow either user-defined or standard EnergyPlus performance file
     # directory
-    if len(sys.argv) == 2:
-        main(sys.argv[1])
-    else:
-        base_dir = getcwd()
-        main(base_dir + "/eplus")
+    base_dir = getcwd()
+    main(base_dir)
     print("--- Runtime: %s seconds ---" % round((time.time() - start_time), 2))

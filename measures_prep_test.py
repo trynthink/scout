@@ -93,9 +93,11 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
         """Define variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.eplus_globals_ok = measures_prep.EPlusGlobals(
-            base_dir + "/ePlus_test_ok")
-        cls.cbecs_failpath = base_dir + "/ePlus_test_fail/vintagessf_fail"
-        cls.eplus_failpath = base_dir + "/ePlus_test_fail/vintageweights_fail"
+            base_dir + "/ePlus_data/ePlus_test_ok")
+        cls.cbecs_failpath = base_dir + \
+            "/ePlus_data/ePlus_test_fail/vintagessf_fail"
+        cls.eplus_failpath = base_dir + \
+            "/ePlus_data/ePlus_test_fail/vintageweights_fail"
         cls.ok_out_sf = {
             '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
             '1946 to 1959': 7381.0, '1970 to 1979': 10846.0,
@@ -244,12 +246,12 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                 ("primary", [
                     "technology A", "technology B", "technology C"]),
                 ("secondary", ["windows conduction", "windows solar"])]))])
-        # Useful global variables for the sample measure object
-        handyvars = measures_prep.UsefulVars()
-        cls.meas = measures_prep.Measure(handyvars, **sample_measure_in)
-        # Base directory for EnergyPlus files
+        # Base directory
         base_dir = os.getcwd()
-        cls.eplus_dir = base_dir + "/ePlus_test_ok"
+        # Useful global variables for the sample measure object
+        handyvars = measures_prep.UsefulVars(base_dir)
+        cls.meas = measures_prep.Measure(handyvars, **sample_measure_in)
+        cls.eplus_dir = base_dir + "/ePlus_data/ePlus_test_ok"
         cls.mseg_in = {
             'hot dry': {
                 'education': {
@@ -758,7 +760,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         handyvars.aeo_years = ["2009", "2010"]
         # Adjust carbon intensity data to reflect units originally used for
         # tests (* Note: test outcome units to be adjusted later)
@@ -6811,7 +6815,9 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         cls.time_horizons = [
             ["2009", "2010", "2011"], ["2025", "2026", "2027"],
             ["2020", "2021", "2022"]]
-        cls.handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        cls.handyvars = measures_prep.UsefulVars(base_dir)
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3), dtype=[
                 ('Category', 'S11'), ('2009', '<f8'),
@@ -7272,7 +7278,9 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure = {
             "name": "sample measure 2",
             "active": 1,
@@ -7486,7 +7494,9 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -7604,7 +7614,9 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -7694,7 +7706,9 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -7845,7 +7859,9 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 2",
             "active": 1,
@@ -8259,8 +8275,8 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     self.cost_base_units_ok_in)
 
 
-class FillMeasuresTest(unittest.TestCase, CommonMethods):
-    """Test 'fill_measures' function.
+class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
+    """Test 'update_measures' function.
 
     Ensure that function properly identifies which measures need attribute
     updates and executes these updates.
@@ -8279,7 +8295,7 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             user-defined measure cost units to cost units required by Scout
             analysis engine.
         ok_out (list): List of measure master microsegment dicts that
-            should be generated by 'fill_measures' given sample input measure
+            should be generated by 'update_measures' given sample input measure
             information to update and an assumed technical potential adoption
             scenario.
         ok_warnmeas_out (list): Warnings that should be yielded when running
@@ -8289,7 +8305,9 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        cls.handyvars = measures_prep.UsefulVars()
+        # Base directory
+        cls.base_dir = os.getcwd()
+        cls.handyvars = measures_prep.UsefulVars(cls.base_dir)
         # Adjust aeo_years to fit test years
         cls.handyvars.aeo_years = ["2009", "2010"]
         # Adjust carbon intensity data to reflect units originally used for
@@ -8372,105 +8390,6 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": None,
-                           "secondary": None}},
-            {
-            "name": "sample measure to not update",
-            "status": {"active": True, "finalized": True},
-            "markets": {
-                "Technical potential": {
-                    "master_mseg": {}, "mseg_adjust": {},
-                    "mseg_out_break": {}},
-                "Max adoption potential": {
-                    "master_mseg": {}, "mseg_adjust": {},
-                    "mseg_out_break": {}}},
-            "installed_cost": 25,
-            "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
-            "market_entry_year": None,
-            "market_exit_year": None,
-            "product_lifetime": 1,
-            "market_scaling_fractions": None,
-            "market_scaling_fractions_source": None,
-            "measure_type": "full service",
-            "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
-            "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": ["natural gas"],
-                          "secondary": None},
-            "fuel_switch_to": None,
-            "end_use": {"primary": ["water heating"],
-                        "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}}]
-        cls.measures_warn_in = [{
-            "name": "sample measure to update (not flagged)",
-            "status": {"active": True, "finalized": True},
-            "markets": None,
-            "installed_cost": 25,
-            "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
-            "market_entry_year": None,
-            "market_exit_year": None,
-            "product_lifetime": 1,
-            "market_scaling_fractions": None,
-            "market_scaling_fractions_source": None,
-            "measure_type": "full service",
-            "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
-            "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": ["natural gas"],
-                          "secondary": None},
-            "fuel_switch_to": None,
-            "end_use": {"primary": ["water heating"],
-                        "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}},
-            {
-            "name": "sample measure to not update",
-            "status": {"active": True, "finalized": True},
-            "markets": {
-                "Technical potential": {
-                    "master_mseg": {}, "mseg_adjust": {},
-                    "mseg_out_break": {}},
-                "Max adoption potential": {
-                    "master_mseg": {}, "mseg_adjust": {},
-                    "mseg_out_break": {}}},
-            "installed_cost": 25,
-            "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
-            "market_entry_year": None,
-            "market_exit_year": None,
-            "product_lifetime": 1,
-            "market_scaling_fractions": None,
-            "market_scaling_fractions_source": None,
-            "measure_type": "full service",
-            "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
-            "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": ["natural gas"],
-                          "secondary": None},
-            "fuel_switch_to": None,
-            "end_use": {"primary": ["water heating"],
-                        "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
-            "technology": {"primary": None,
                            "secondary": None}}]
         cls.ok_out = [{
             "stock": {
@@ -8517,49 +8436,23 @@ class FillMeasuresTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 28255.06, "2010": 27456.07},
                         "efficient": {"2009": 20343.64, "2010": 19768.37}}}},
             "lifetime": {"baseline": {"2009": 180, "2010": 180},
-                         "measure": 1}},
-            {}]
-        cls.ok_warnmeas_out = \
-            [("WARNING: Incomplete 'markets' attribute for active "
-              "measure 'sample measure to update (not flagged)'; this "
-              "information will be added automatically")]
+                         "measure": 1}}]
 
     def test_fillmeas_ok(self):
-        """Test 'fill_measures' function given valid measure inputs.
+        """Test 'update_measures' function given valid measure inputs.
 
         Note:
             Ensure that function properly identifies which input measures
             require updating and that the updates are performed correctly.
         """
-        measures_out = measures_prep.fill_measures(
+        measures_out = measures_prep.update_measures(
             self.measures_ok_in, self.convert_data,
-            self.sample_mseg_in, self.sample_cpl_in, self.handyvars,
-            eplus_dir=None)
-        for oc in range(0, len(measures_out)):
+            self.sample_mseg_in, self.sample_cpl_in,
+            self.handyvars, self.base_dir)
+        for oc in range(0, len(self.ok_out)):
             self.dict_check(
-                measures_out[oc]["markets"][
+                measures_out[oc].markets[
                     "Technical potential"]["master_mseg"], self.ok_out[oc])
-
-    def test_fillmeas_warn(self):
-        """Test 'fill_measures' function given incomplete measure inputs.
-
-        Raises:
-            AssertionError: If function yields unexpected results or
-            UserWarning is not raised.
-        """
-        with warnings.catch_warnings(record=True) as w:
-            measures_prep.fill_measures(
-                self.measures_warn_in, self.convert_data,
-                self.sample_mseg_in, self.sample_cpl_in, self.handyvars,
-                eplus_dir=None)
-            # Check correct number of warnings is yielded
-            self.assertEqual(len(w), len(self.ok_warnmeas_out))
-            # Check correct type of warnings is yielded
-            self.assertTrue(all([
-                issubclass(wn.category, UserWarning) for wn in w]))
-            # Check correct warning messages are yielded
-            [self.assertTrue(wm in str([wmt.message for wmt in w])) for
-                wm in self.ok_warnmeas_out]
 
 
 class MergeMeasuresTest(unittest.TestCase, CommonMethods):
@@ -8583,9 +8476,11 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
-        handyvars = measures_prep.UsefulVars()
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
         handyvars.aeo_years = ["2009", "2010"]
-        cls.sample_measures_in = [{
+        sample_measures_in = [{
             "name": "sample measure pkg 1",
             "status": {"active": True, "finalized": True},
             "market_entry_year": None,
