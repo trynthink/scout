@@ -65,8 +65,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -89,8 +88,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}}}}
         self.sample_measure2 = {
             "name": "sample measure 2",
@@ -135,8 +133,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -159,8 +156,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}}}}
         self.sample_measure3 = {
             "name": "sample measure 3 (commercial)",
@@ -205,8 +201,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -229,8 +224,7 @@ class CommonTestMeasures(object):
                                 "adjusted stock (competed and captured)": {}}},
                         "supply-demand adjustment": {
                             "savings": {},
-                            "total": {}},
-                        "savings updated": False},
+                            "total": {}}},
                     "mseg_out_break": {}}}}
 
 
@@ -391,7 +385,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         handyvars (object): Useful variables across the class.
         sample_measure_res (object): Sample residential measure data.
         sample_measure_com (object): Sample commercial measure data.
-        ok_adopt_scheme (string): Sample consumer adoption scheme.
+        test_adopt_scheme (string): Sample consumer adoption scheme.
         ok_rate (float): Sample discount rate.
         ok_master_mseg_point (dict): Sample measure master microsegment
             including all point values at terminal leaf nodes.
@@ -437,7 +431,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure
         cls.sample_measure_com = CommonTestMeasures().sample_measure3
-        cls.ok_adopt_scheme = 'Max adoption potential'
+        cls.test_adopt_scheme = 'Max adoption potential'
         cls.ok_rate = 0.07
         cls.ok_master_mseg_point = {
             "stock": {
@@ -713,9 +707,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
         cls.ok_out_point_res = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -770,9 +766,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "payback (w/ energy and carbon costs)": {
                 "2009": 0.2, "2010": 0.22}}]
         cls.ok_out_point_com = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -869,9 +867,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 "payback (w/ energy and carbon costs)": {
                     "2009": 0.2, "2010": 0.22}}]
         cls.ok_out_dist1 = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -1034,9 +1034,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "2009": [0.19, 0.19, 0.17, 0.28, 0.17],
                     "2010": [0.20, 0.19, 0.21, 0.21, 0.22]}}]
         cls.ok_out_dist2 = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -1187,9 +1189,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [0.20, 0.11, 0.16, 0.17, 0.22],
                  "2010": [0.11, 0.08, 0.15, 0.09, 0.12]}}]
         cls.ok_out_dist3 = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -1336,9 +1340,11 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": [0.33, 0.33, 0.20, 0.20, 0.20],
                  "2010": [0.33, 0.33, 0.22, 0.22, 0.22]}}]
         cls.ok_out_dist4 = [{
-            "markets": False,
             "savings and portfolio metrics": {
-                "uncompeted": False, "competed": True},
+                "Technical potential": {
+                    "uncompeted": True, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": False, "competed": True}},
             "consumer metrics": False},
             {
             "stock": {
@@ -1488,27 +1494,43 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "payback (w/ energy and carbon costs)":
                 {"2009": [0.34, 0.18, 0.16, 0.17, 0.22],
                  "2010": [0.17, 0.12, 0.15, 0.09, 0.12]}}]
+        cls.ok_savings_mkts_comp_schemes = ["competed", "uncompeted"]
 
     def test_metrics_ok_point_res(self):
         """Test output given residential measure with point value inputs."""
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_point'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_res)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
+        # For first test case, verify correct adoption/competition scenario
+        # keys for measure markets/savings/portfolio metrics
+        for adopt_scheme in self.handyvars.adopt_schemes:
+            # Markets
+            self.assertEqual(list(sorted(
+                engine_instance.measures[0].markets[adopt_scheme].keys())),
+                self.ok_savings_mkts_comp_schemes)
+            # Savings
+            self.assertEqual(list(sorted(
+                engine_instance.measures[0].savings[adopt_scheme].keys())),
+                self.ok_savings_mkts_comp_schemes)
+            # Portfolio metrics
+            self.assertEqual(list(sorted(engine_instance.measures[
+                0].portfolio_metrics[adopt_scheme].keys())),
+                self.ok_savings_mkts_comp_schemes)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_point_res[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_point_res[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_res[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_point_res[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_res[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_point_res[3])
@@ -1518,21 +1540,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_point'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_com)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_point_com[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_point_com[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_com[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_point_com[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_com[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_point_com[3])
@@ -1542,21 +1564,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_dist1'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_res)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist1
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist1[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist1[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist1[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist1[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist1[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist1[3])
@@ -1566,21 +1588,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_dist2'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_res)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist2
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist2[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist2[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist2[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist2[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist2[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist2[3])
@@ -1590,21 +1612,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_dist3'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_res)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist3
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist3[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist3[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist3[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist3[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist3[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist3[3])
@@ -1614,21 +1636,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Initialize test measure and assign it a sample 'uncompeted'
         # market ('ok_master_mseg_dist4'), the focus of this test suite
         test_meas = run.Measure(self.handyvars, **self.sample_measure_res)
-        test_meas.markets[self.ok_adopt_scheme]["uncompeted"][
+        test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist4
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(self.handyvars, [test_meas])
         engine_instance.calc_savings_metrics(
-            self.ok_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist4[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist4[1])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist4[1])
         # Verify test measure portfolio-level financial metrics
         self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.ok_adopt_scheme]["uncompeted"], self.ok_out_dist4[2])
+            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist4[2])
         # Verify test measure consumer-level metrics
         self.dict_check(engine_instance.measures[
             0].consumer_metrics, self.ok_out_dist4[3])
@@ -1750,7 +1772,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
 
     Attributes:
         handyvars (object): Useful variables across the class.
-        ok_adopt_scheme (string): Sample consumer adoption scheme.
+        test_adopt_scheme (string): Sample consumer adoption scheme.
         adjust_key1 (string): First sample string for competed demand-side and
             supply-side market microsegment key chain being tested.
         adjust_key2 (string): Second sample string for competed demand-side and
@@ -1804,7 +1826,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars()
         cls.handyvars.aeo_years = ["2009", "2010"]
-        cls.ok_adopt_scheme = "Max adoption potential"
+        cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
             ('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
              'cooling', 'demand', 'windows', 'existing'))
@@ -5077,66 +5099,66 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         """Test outcomes given valid sample measures w/ point value inputs."""
         # Run the measure competition routine on sample demand-side measures
         self.a_run.compete_res_primary(
-            self.measures_demand, self.adjust_key1, self.ok_adopt_scheme)
+            self.measures_demand, self.adjust_key1, self.test_adopt_scheme)
         # Record any demand-side savings overlaps with sample supply-side
         # measures
         self.a_run.rec_htcl_overlaps(
             self.measures_demand, self.measures_overlap1, self.adjust_key1,
-            self.ok_adopt_scheme)
+            self.test_adopt_scheme)
         # Run the measure competition routine on sample supply-side measures
         self.a_run.compete_res_primary(
-            self.measures_supply, self.adjust_key2, self.ok_adopt_scheme)
+            self.measures_supply, self.adjust_key2, self.test_adopt_scheme)
         # Record any supply-side savings overlaps with sample demand-side
         # measures
         self.a_run.rec_htcl_overlaps(
             self.measures_supply, self.measures_overlap2, self.adjust_key2,
-            self.ok_adopt_scheme)
+            self.test_adopt_scheme)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         meas_overlap_adj = [x for x in self.a_run.measures if len(
-            x.markets[self.ok_adopt_scheme]["competed"]["mseg_adjust"][
+            x.markets[self.test_adopt_scheme]["competed"]["mseg_adjust"][
                 "supply-demand adjustment"]["savings"].keys()) > 0]
-        self.a_run.rmv_htcl_overlaps(meas_overlap_adj, self.ok_adopt_scheme)
+        self.a_run.rmv_htcl_overlaps(meas_overlap_adj, self.test_adopt_scheme)
 
         # Check updated competed master microsegments for each sample measure
         # following competition/supply-demand overlap adjustments
         for ind, d in enumerate(self.a_run.measures):
             self.dict_check(
                 self.measures_master_msegs_out[ind],
-                self.a_run.measures[ind].markets[self.ok_adopt_scheme][
+                self.a_run.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
 
     def test_compete_res_dist(self):
         """Test outcomes given valid sample measures w/ some array inputs."""
         # Run the measure competition routine on sample demand-side measures
         self.a_run_dist.compete_res_primary(
-            self.measures_demand_dist, self.adjust_key1, self.ok_adopt_scheme)
+            self.measures_demand_dist, self.adjust_key1, self.test_adopt_scheme)
         # Record any demand-side savings overlaps with sample supply-side
         # measures
         self.a_run.rec_htcl_overlaps(
             self.measures_demand_dist, self.measures_overlap1_dist,
-            self.adjust_key1, self.ok_adopt_scheme)
+            self.adjust_key1, self.test_adopt_scheme)
         # Run the measure competition routine on sample supply-side measures
         self.a_run_dist.compete_res_primary(
-            self.measures_supply_dist, self.adjust_key2, self.ok_adopt_scheme)
+            self.measures_supply_dist, self.adjust_key2, self.test_adopt_scheme)
         # Record any supply-side savings overlaps with sample demand-side
         # measures
         self.a_run.rec_htcl_overlaps(
             self.measures_supply_dist, self.measures_overlap2_dist,
-            self.adjust_key2, self.ok_adopt_scheme)
+            self.adjust_key2, self.test_adopt_scheme)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         meas_overlap_adj = [x for x in self.a_run_dist.measures if len(
-            x.markets[self.ok_adopt_scheme]["competed"]["mseg_adjust"][
+            x.markets[self.test_adopt_scheme]["competed"]["mseg_adjust"][
                 "supply-demand adjustment"]["savings"].keys()) > 0]
         self.a_run_dist.rmv_htcl_overlaps(
-            meas_overlap_adj, self.ok_adopt_scheme)
+            meas_overlap_adj, self.test_adopt_scheme)
         # Check updated competed master microsegments for each sample measure
         # following competition/supply-demand overlap adjustments
         for ind, d in enumerate(self.a_run_dist.measures):
             self.dict_check(
                 self.measures_master_msegs_out_dist[ind],
-                self.a_run_dist.measures[ind].markets[self.ok_adopt_scheme][
+                self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
 
 
@@ -5151,12 +5173,12 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     Attributes:
         handyvars (object): Useful variables across the class.
-        ok_adopt_scheme (string): Sample consumer adoption scheme.
+        test_adopt_scheme (string): Sample consumer adoption scheme.
         overlap_key (string): First sample string for competed primary market
             microsegment key chain being tested.
         overlap_key_scnd (string): Second sample string for secondary market
             microsegment key chain being tested.
-        secnd_adj_key (tuple): Key used to link primary and secondary market
+        secnd_adj_key (string): Key used to link primary and secondary market
             microsegments (by climate, building type, structure type).
         compete_meas1 (dict): Sample commercial supply-side lighting measure 1.
         compete_meas1_dist (dict): Alternative version of sample commercial
@@ -5193,14 +5215,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars()
         cls.handyvars.aeo_years = ["2009", "2010"]
-        cls.ok_adopt_scheme = "Max adoption potential"
+        cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
             ('primary', 'AIA_CZ1', 'assembly', 'electricity (grid)',
              'lighting', 'reflector (LED)', 'existing'))
         cls.overlap_key_scnd = str(
             ('secondary', 'AIA_CZ1', 'assembly', 'electricity (grid)',
              'cooling', 'demand', 'lighting gain', 'existing'))
-        cls.secnd_adj_key = ('AIA_CZ1', 'assembly', 'existing')
+        cls.secnd_adj_key = str(('AIA_CZ1', 'assembly', 'existing'))
         cls.compete_meas1 = {
             "name": "sample compete measure c1",
             "end_use": {
@@ -7686,34 +7708,34 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Test outcomes given sample measures w/ point value inputs."""
         # Run measure competition routine on sample measures
         self.a_run.compete_com_primary(
-            self.measures_all, self.overlap_key, self.ok_adopt_scheme)
+            self.measures_all, self.overlap_key, self.test_adopt_scheme)
         # Run secondary microsegment adjustments on sample measure
         self.a_run.adj_secondary(
             self.measures_secondary, self.overlap_key_scnd,
-            self.ok_adopt_scheme)
+            self.test_adopt_scheme)
         # Check updated competed master microsegments for each sample measure
         # following competition/secondary microsegment adjustments
         for ind, d in enumerate(self.a_run.measures):
             self.dict_check(
                 self.measures_master_msegs_out[ind],
-                self.a_run.measures[ind].markets[self.ok_adopt_scheme][
+                self.a_run.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
 
     def test_compete_com_dist(self):
         """Test outcomes given valid sample measures w/ some array inputs."""
         # Run measure competition routine on sample measures
         self.a_run_dist.compete_com_primary(
-            self.measures_all_dist, self.overlap_key, self.ok_adopt_scheme)
+            self.measures_all_dist, self.overlap_key, self.test_adopt_scheme)
         # Run secondary microsegment adjustments on sample measure
         self.a_run_dist.adj_secondary(
             self.measures_secondary_dist, self.overlap_key_scnd,
-            self.ok_adopt_scheme)
+            self.test_adopt_scheme)
         # Check updated competed master microsegments for each sample measure
         # following competition/secondary microsegment adjustments
         for ind, d in enumerate(self.a_run_dist.measures):
             self.dict_check(
                 self.measures_master_msegs_out_dist[ind],
-                self.a_run_dist.measures[ind].markets[self.ok_adopt_scheme][
+                self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
 
 
