@@ -318,8 +318,8 @@ class Engine(object):
 
                 # Check whether number of adopted units for a measure is zero,
                 # in which case all financial metrics are set to 999
-                if type(num_units) != numpy.ndarray and num_units == 0 or \
-                   type(num_units) == numpy.ndarray and all(num_units) == 0:
+                if type(num_units) != numpy.ndarray and num_units < 1 or \
+                   type(num_units) == numpy.ndarray and all(num_units) < 1:
                     stock_anpv[yr], energy_anpv[yr], carb_anpv[yr] = [
                         {"residential": 999, "commercial": 999} for n in
                         range(3)]
@@ -589,14 +589,14 @@ class Engine(object):
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
         # benefits.  Check to ensure energy savings NPV in the denominator
         # is not zero
-        if npv_esave != 0:
+        if npv_esave > 0:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
         # benefits.  Check to ensure carbon savings NPV in the denominator
         # is not zero.
-        if npv_csave != 0:
+        if npv_csave > 0:
             ccc = (-npv_s / npv_csave)
             ccc_bens = (-(npv_s + npv_e) / npv_csave)
 
@@ -1956,6 +1956,7 @@ def main(base_dir):
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
+        print("Imported measure '" + m.name + "' competition data")
     print('Measure competition data load complete')
 
     # Instantiate an Engine object using active measures list
@@ -1966,18 +1967,18 @@ def main(base_dir):
     for adopt_scheme in handyvars.adopt_schemes:
         # Calculate each measure's uncompeted savings and metrics
         a_run.calc_savings_metrics(adopt_scheme, "uncompeted")
-        print('Uncompeted "' + adopt_scheme +
-              '" savings/metrics calculations complete')
+        print("Uncompeted '" + adopt_scheme +
+              "' savings/metrics calculations complete")
         # Update each measure's competed markets to reflect the
         # removal of savings overlaps with competing measures
         a_run.compete_measures(adopt_scheme)
-        print('Measure competition complete for "' +
-              adopt_scheme + '" scenario')
+        print("Measure competition complete for '" +
+              adopt_scheme + "' scenario")
         # Calculate each measure's competed measure savings and metrics
         # using updated competed markets
         a_run.calc_savings_metrics(adopt_scheme, "competed")
-        print('Competed "' + adopt_scheme +
-              '" savings/metrics calculations complete')
+        print("Competed '" + adopt_scheme +
+              "' savings/metrics calculations complete")
         # Write selected outputs to a summary JSON file for post-processing
         a_run.finalize_outputs(adopt_scheme)
 
