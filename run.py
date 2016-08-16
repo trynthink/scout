@@ -5,7 +5,7 @@ import copy
 import re
 from numpy.linalg import LinAlgError
 from collections import OrderedDict
-import bz2
+import gzip
 from os import getcwd
 
 
@@ -1948,8 +1948,8 @@ def main(base_dir):
 
     # Load and set competition data for active measure objects
     for m in measures_objlist:
-        with bz2.open((base_dir + handyfiles.meas_compete_data + '/' +
-                       m.name + ".json.bz2"), 'rt') as zp:
+        with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
+                       m.name + ".json.gz"), 'rt') as zp:
             meas_comp_data = json.load(zp)
         for adopt_scheme in handyvars.adopt_schemes:
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \

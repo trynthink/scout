@@ -10,7 +10,7 @@ from os.path import isfile, join
 import copy
 import warnings
 from urllib.parse import urlparse
-import bz2
+import gzip
 
 
 class UsefulInputFiles(object):
@@ -805,13 +805,15 @@ class Measure(object):
                     None for n in range(2))
             else:
                 if ind == 0 or (
-                    (ms_iterable[ind][2] != ms_iterable[ind - 1][2]) and
-                    self.cost_units in self.handyvars.cconv_bybldg_units) \
+                    any([x in self.cost_units for x in
+                         self.handyvars.cconv_bybldg_units]) and
+                    ms_iterable[ind][2] != ms_iterable[ind - 1][2]) \
                         or isinstance(self.installed_cost, dict):
                     cost_meas = self.installed_cost
                 if ind == 0 or (
-                    (ms_iterable[ind][2] != ms_iterable[ind - 1][2]) and
-                    self.cost_units in self.handyvars.cconv_bybldg_units) \
+                    any([x in self.cost_units for x in
+                         self.handyvars.cconv_bybldg_units]) and
+                    ms_iterable[ind][2] != ms_iterable[ind - 1][2]) \
                         or isinstance(self.cost_units, dict):
                     cost_units = self.cost_units
                 if ind == 0 or isinstance(
@@ -1824,7 +1826,8 @@ class Measure(object):
                 if isinstance(cval['conversion factor']['value'], dict):
                     cval_bldgtyp = \
                         cval['conversion factor']['value'][bldg_sect]
-                    if isinstance(cval_bldgtyp, dict):
+                    if isinstance(cval_bldgtyp, dict) and isinstance(
+                            cval_bldgtyp[mskeys[2]], dict):
                         # Develop weighting factors to map conversion data
                         # from multiple non-Scout building types to the
                         # single Scout building type of the current
@@ -1836,6 +1839,8 @@ class Measure(object):
                             mskeys[2]].values()
                         convert_units *= sum([a * b for a, b in zip(
                             cval_bldgtyp, bldgtyp_wts)])
+                    elif isinstance(cval_bldgtyp, dict):
+                        convert_units *= cval_bldgtyp[mskeys[2]]
                     else:
                         convert_units *= cval_bldgtyp
                 else:
@@ -3723,8 +3728,8 @@ def main(base_dir):
 
     # Write updated measure competition data to zipped JSONs
     for ind, m in enumerate(meas_updated_objs):
-        with bz2.open((base_dir + handyfiles.meas_compete_data + '/' +
-                      m.name + ".json.bz2"), 'wt') as zp:
+        with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
+                       m.name + ".json.gz"), 'wt') as zp:
             json.dump(meas_updated_compete[ind], zp, indent=2)
     # Write measure summary data to JSON
     with open((base_dir + handyfiles.meas_summary_data), "w") as jso:

@@ -764,6 +764,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         handyvars = measures_prep.UsefulVars(base_dir)
         handyvars.aeo_years = ["2009", "2010"]
+        handyvars.retro_rate = 0.02
         # Adjust carbon intensity data to reflect units originally used for
         # tests (* Note: test outcome units to be adjusted later)
         for k in handyvars.carb_int.keys():
@@ -6777,7 +6778,6 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         time_horizons (list): A series of modeling time horizons to use
             in the various test functions of the class.
         handyvars (object): Global variables to use for the test measure.
-        handyvars.ccosts (numpy.ndarray): Sample carbon costs.
         sample_measure_in (dict): Sample measure attributes.
         ok_diffuse_params_in (NoneType): Placeholder for eventual technology
             diffusion parameters to be used in 'adjusted adoption' scenario.
@@ -6818,6 +6818,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.handyvars.retro_rate = 0.02
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3), dtype=[
                 ('Category', 'S11'), ('2009', '<f8'),
@@ -7935,7 +7936,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                             "food service": {
                                 "QuickServiceRestaurant": 0.31,
                                 "FullServiceRestaurant": 0.69},
-                            "healthcare": None,
+                            "health care": None,
                             "lodging": {
                                 "SmallHotel": 0.26,
                                 "LargeHotel": 0.74},
@@ -7945,7 +7946,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                             "small office": {
                                 "SmallOffice": 0.12,
                                 "OutpatientHealthcare": 0.88},
-                            "mercantile and service": {
+                            "mercantile/service": {
                                 "RetailStandalone": 0.53,
                                 "RetailStripmall": 0.47},
                             "warehouse": {
@@ -8058,7 +8059,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "food service": {
                                             "QuickServiceRestaurant": 0.14,
                                             "FullServiceRestaurant": 0.17},
-                                        "healthcare": 0.2,
+                                        "health care": 0.2,
                                         "lodging": {
                                             "SmallHotel": 0.11,
                                             "LargeHotel": 0.27},
@@ -8068,7 +8069,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "small office": {
                                             "SmallOffice": 0.21,
                                             "OutpatientHealthcare": 0.19},
-                                        "mercantile and service": {
+                                        "mercantile/service": {
                                             "RetailStandalone": 0.07,
                                             "RetailStripmall": 0.11},
                                         "warehouse": {
@@ -8103,7 +8104,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "food service": {
                                             "QuickServiceRestaurant": 0.80,
                                             "FullServiceRestaurant": 0.54},
-                                        "healthcare": 0.4,
+                                        "health care": 0.4,
                                         "lodging": {
                                             "SmallHotel": 0.40,
                                             "LargeHotel": 0.38},
@@ -8113,7 +8114,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "small office": {
                                             "SmallOffice": 0.55,
                                             "OutpatientHealthcare": 0.35},
-                                        "mercantile and service": {
+                                        "mercantile/service": {
                                             "RetailStandalone": 0.51,
                                             "RetailStripmall": 0.57},
                                         "warehouse": {
@@ -8147,7 +8148,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "food service": {
                                             "QuickServiceRestaurant": 1,
                                             "FullServiceRestaurant": 1},
-                                        "healthcare": 0.2,
+                                        "health care": 0.2,
                                         "lodging": {
                                             "SmallHotel": 0.25,
                                             "LargeHotel": 0.17},
@@ -8157,7 +8158,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                         "small office": {
                                             "SmallOffice": 1,
                                             "OutpatientHealthcare": 0.33},
-                                        "mercantile and service": {
+                                        "mercantile/service": {
                                             "RetailStandalone": 1,
                                             "RetailStripmall": 1},
                                         "warehouse": {
@@ -8208,7 +8209,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "notes": "sample"}}}}
         cls.sample_bldgsect_ok_in = [
             "residential", "commercial", "commercial", "commercial",
-            "commercial", "commercial", "commercial"]
+            "commercial", "commercial", "commercial", "commercial"]
         cls.sample_mskeys_ok_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -8223,7 +8224,9 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             ('primary', 'marine', 'food service', 'electricity', 'ventilation',
              'CAV_Vent', 'existing'),
             ('primary', 'marine', 'small office', 'electricity', 'cooling',
-             'reciprocating_chiller', 'existing')]
+             'reciprocating_chiller', 'existing'),
+            ('primary', 'mixed humid', 'health care', 'electricity', 'cooling',
+             'demand', 'roof', 'existing')]
         cls.sample_mskeys_fail_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -8234,12 +8237,13 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         cls.cost_meas_units_ok_in_all = [
             '$/ft^2 glazing', '2013$/kBtu/h heating', '2010$/ft^2 footprint',
             '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM',
-            '2013$/occupant']
+            '2013$/occupant', '2013$/ft^2 roof']
         cls.cost_meas_units_fail_in = [
             '$/ft^2 facade', '$/kWh']
         cls.cost_base_units_ok_in = '2013$/ft^2 floor'
         cls.ok_out_costs_yronly = 11.11
-        cls.ok_out_costs_all = [1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182]
+        cls.ok_out_costs_all = [
+            1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182, 2]
         cls.ok_out_cost_units = '2013$/ft^2 floor'
 
     def test_convertcost_ok_yronly(self):
