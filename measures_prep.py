@@ -13,6 +13,19 @@ from urllib.parse import urlparse
 import gzip
 
 
+class MyEncoder(json.JSONEncoder):
+    """Convert numpy arrays to list for JSON serializing."""
+
+    def default(self, obj):
+        """Modify 'default' method from JSONEncoder."""
+        # Case where object to be serialized is numpy array
+        if isinstance(obj, numpy.ndarray):
+                return obj.tolist()
+        # All other cases
+        else:
+            return super(MyEncoder, self).default(obj)
+
+
 class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
 
@@ -1221,7 +1234,8 @@ class Measure(object):
                                 # ratio of current year baseline to that of
                                 # an anchor year specified with the measure
                                 # performance units
-                                if isinstance(perf_units, list):
+                                if isinstance(perf_units, list) and \
+                                        perf_base[str(perf_units[1])] != 0:
                                     if base_costperflife["performance"][
                                         "units"] not in self.handyvars.\
                                             inverted_relperf_list:
@@ -3730,10 +3744,10 @@ def main(base_dir):
     for ind, m in enumerate(meas_updated_objs):
         with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
                        m.name + ".json.gz"), 'wt') as zp:
-            json.dump(meas_updated_compete[ind], zp, indent=2)
+            json.dump(meas_updated_compete[ind], zp, indent=2, cls=MyEncoder)
     # Write measure summary data to JSON
     with open((base_dir + handyfiles.meas_summary_data), "w") as jso:
-        json.dump(meas_summary, jso, indent=2)
+        json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
 
 if __name__ == "__main__":
     import time
