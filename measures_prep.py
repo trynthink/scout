@@ -11,6 +11,7 @@ import copy
 import warnings
 from urllib.parse import urlparse
 import gzip
+import pickle
 
 
 class MyEncoder(json.JSONEncoder):
@@ -3743,8 +3744,8 @@ def main(base_dir):
     # Write updated measure competition data to zipped JSONs
     for ind, m in enumerate(meas_updated_objs):
         with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
-                       m.name + ".json.gz"), 'wt') as zp:
-            json.dump(meas_updated_compete[ind], zp, indent=2, cls=MyEncoder)
+                       m.name + ".pkl.gz"), 'w') as zp:
+            pickle.dump(meas_updated_compete[ind], zp, protocol=4)
     # Write measure summary data to JSON
     with open((base_dir + handyfiles.meas_summary_data), "w") as jso:
         json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
