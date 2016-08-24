@@ -1907,6 +1907,11 @@ class Measure(object):
         else:
             cost_meas_units_fin = cost_base_yr + cost_base_noyr
 
+        # Notify user of cost conversion
+        print("Measure '" + self.name + "' installed cost converted from " +
+              str(cost_meas) + " " + cost_meas_units + " to " +
+              str(cost_meas_fin) + " " + cost_meas_units_fin)
+
         return cost_meas_fin, cost_meas_units_fin
 
     def partition_microsegment(
