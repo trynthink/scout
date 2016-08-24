@@ -368,7 +368,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
                     "Cooling": {"2009": 45, "2010": 45}}}}
 
     def test_ok(self):
-        """Test for correction function output given valid inputs."""
+        """Test for correct function output given valid inputs."""
         dict1 = self.a_run.out_break_walk(
             self.ok_partitions, self.ok_total)
         dict2 = self.ok_out
@@ -1836,6 +1836,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas1 = {
             "name": "sample compete measure r1",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2107,6 +2109,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas1_dist = {
             "name": "sample compete measure r1 dist",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2449,6 +2453,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas2 = {
             "name": "sample compete measure r2",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2843,6 +2849,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas3 = {
             "name": "sample compete measure r3",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3115,6 +3123,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas3_dist = {
             "name": "sample compete measure r3 dist",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3407,6 +3417,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas4 = {
             "name": "sample compete measure r4",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3801,6 +3813,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.compete_meas5 = {
             "name": "sample compete measure r5",
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -5228,6 +5242,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": ["heating", "secondary heating", "cooling"]},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -5642,6 +5658,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": ["heating", "secondary heating", "cooling"]},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6083,6 +6101,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6497,6 +6517,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -7737,6 +7759,54 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
+
+
+class NumpyConversionTest(unittest.TestCase, CommonMethods):
+    """Test the operation of the 'convert_to_numpy' function.
+
+    Verify that the function converts terminal/leaf node lists in a dict to
+    numpy arrays.
+
+    Attributes:
+        handyvars (object): Useful variables across the class.
+        sample_measure (object): Sample measure data with lists to convert.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define objects/variables for use across all class functions."""
+        cls.handyvars = run.UsefulVars()
+        cls.sample_measure = {
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "key 1": {
+                        "nested key 1":
+                            [1, 2, 3, 4, 5],
+                        "nested key 2": 5},
+                    "key 2": 10.8},
+                "Max adoption potential": {
+                    "key 1": {
+                        "nested key 1":
+                            [0.5, 0.2, 0.3, 0.4, 0.5],
+                        "nested key 2": 2},
+                    "key 2": 5.8}}}
+
+    def test_numpy_convert(self):
+        """Test for correct function output given valid input"""
+        # Instantiate measure
+        measure_instance = run.Measure(self.handyvars, **self.sample_measure)
+        # Test for correct data types in measure markets attribute
+        for adopt_scheme in self.handyvars.adopt_schemes:
+            for comp_scheme in ["uncompeted", "competed"]:
+                tested_data = \
+                    measure_instance.markets[adopt_scheme][comp_scheme]
+                self.assertTrue(
+                    all([isinstance(x, y) for x, y in zip([
+                        tested_data["key 1"]["nested key 1"],
+                        tested_data["key 1"]["nested key 2"],
+                        tested_data["key 2"]], [numpy.ndarray, int, float])]))
 
 
 # Offer external code execution (include all lines below this point in all

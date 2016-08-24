@@ -6,6 +6,7 @@ import re
 from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import gzip
+import pickle
 from os import getcwd
 
 
@@ -82,6 +83,7 @@ class Measure(object):
             from an input dictionary.
         update_results (dict): Flags markets, savings, and financial metric
             outputs that have yet to be finalized by the analysis engine.
+        yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
@@ -101,11 +103,26 @@ class Measure(object):
         # Read Measure object attributes from measures input JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
+        # Set measure market entry year
+        if self.market_entry_year is None:
+            mkt_entry_yr = int(handyvars.aeo_years[0])
+        else:
+            mkt_entry_yr = self.market_entry_year
+        # Set measure market exit year
+        if self.market_exit_year is None:
+            mkt_exit_yr = int(handyvars.aeo_years[-1]) + 1
+        else:
+            mkt_exit_yr = self.market_exit_year
+        self.yrs_on_mkt = [
+            str(i) for i in range(mkt_entry_yr, mkt_exit_yr)]
         self.savings, self.portfolio_metrics, self.consumer_metrics = (
             {} for n in range(3))
         self.update_results = {
             "savings and portfolio metrics": {},
             "consumer metrics": True}
+        # Convert any master market microsegment data formatted as lists to
+        # numpy arrays
+        self.convert_to_numpy(self.markets)
         for adopt_scheme in handyvars.adopt_schemes:
             # Initialize 'uncompeted' and 'competed' versions of
             # Measure markets (initially, they are identical)
@@ -163,6 +180,20 @@ class Measure(object):
                 "irr (w/ energy and carbon costs)": None,
                 "payback (w/ energy costs)": None,
                 "payback (w/ energy and carbon costs)": None}
+
+    def convert_to_numpy(self, markets):
+        """Convert terminal/leaf node lists in a dict to numpy arrays.
+
+        Args:
+            markets (dict): Input dict with possible lists at terminal/leaf
+                nodes.
+        """
+        for k, i in markets.items():
+            if isinstance(i, dict):
+                self.convert_to_numpy(i)
+            else:
+                if isinstance(markets[k], list):
+                    markets[k] = numpy.array(markets[k])
 
 
 class Engine(object):
@@ -912,17 +943,10 @@ class Engine(object):
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
-            mkts_adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"]
             # # Loop through all years in modeling time horizon
             for yr in self.handyvars.aeo_years:
-                # Ensure measure has captured stock to adjust in given year
-                if (type(mkts["stock"]["competed"][
-                    "measure"][yr]) == numpy.ndarray and all(
-                    mkts["stock"]["competed"]["measure"][yr]) != 0) \
-                    or (type(mkts["stock"]["competed"][
-                        "measure"][yr]) != numpy.ndarray and mkts[
-                        "stock"]["competed"]["measure"][yr] != 0):
+                # Ensure measure is on the market in given year
+                if yr in m.yrs_on_mkt:
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
@@ -948,11 +972,12 @@ class Engine(object):
                     # regression equation that takes capital/operating
                     # costs as inputs
                     mkt_fracs[ind][yr] = numpy.exp(
-                        cap_cost * mkts_adj[
-                            "competed choice parameters"][
+                        cap_cost * m.markets[adopt_scheme]["competed"][
+                            "mseg_adjust"]["competed choice parameters"][
                                 str(mseg_key)]["b1"][yr] + op_cost *
-                        mkts_adj["competed choice parameters"][
-                            str(mseg_key)]["b2"][yr])
+                        m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                            "competed choice parameters"][
+                                str(mseg_key)]["b2"][yr])
                     # Add calculated market fraction to mkt fraction sum
                     mkt_fracs_tot[yr] = \
                         mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
@@ -963,8 +988,6 @@ class Engine(object):
         # microsegment values
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
-            mkts_adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"]
             # Establish starting master microsegment and contributing
             # microsegment information
             base, adj, base_list_eff, adj_list_eff, adj_list_base = \
@@ -972,13 +995,8 @@ class Engine(object):
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
-                # Ensure measure has captured stock to adjust in given year
-                if (type(mkts["stock"]["competed"][
-                    "measure"][yr]) == numpy.ndarray and all(
-                    mkts["stock"]["competed"]["measure"][yr]) != 0) \
-                    or (type(mkts["stock"]["competed"][
-                        "measure"][yr]) != numpy.ndarray and mkts[
-                        "stock"]["competed"]["measure"][yr] != 0):
+                # Ensure measure is on the market in given year
+                if yr in m.yrs_on_mkt:
                     mkt_fracs[ind][yr] = \
                         mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
                     # Make the adjustment to the measure's master microsegment
@@ -1031,17 +1049,10 @@ class Engine(object):
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
-            mkts_adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"]
             # Loop through all years in modeling time horizon
             for yr in self.handyvars.aeo_years:
-                # Ensure measure has captured stock to adjust in given year
-                if (type(mkts["stock"]["competed"][
-                    "measure"][yr]) == numpy.ndarray and all(
-                    mkts["stock"]["competed"]["measure"][yr]) != 0) \
-                    or (type(mkts["stock"]["competed"][
-                        "measure"][yr]) != numpy.ndarray and mkts[
-                        "stock"]["competed"]["measure"][yr] != 0):
+                # Ensure measure is on the market in given year
+                if yr in m.yrs_on_mkt:
                     # Set measure capital and operating cost inputs. * Note:
                     # operating cost is set to just energy costs (for now), but
                     # could be expanded to include maintenance and carbon costs
@@ -1109,8 +1120,6 @@ class Engine(object):
         # adjustments to each measure's master microsegment values
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
-            mkts_adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"]
             # Establish starting master microsegment and contributing
             # microsegment information
             base, adj, base_list_eff, adj_list_eff, adj_list_base = \
@@ -1118,18 +1127,14 @@ class Engine(object):
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
-                # Ensure measure has captured stock to adjust in given year
-                if (type(mkts["stock"]["competed"]["measure"][yr]) ==
-                    numpy.ndarray and all(mkts["stock"]["competed"][
-                        "measure"][yr]) != 0) or (
-                    type(mkts["stock"]["competed"][
-                        "measure"][yr]) != numpy.ndarray and mkts[
-                        "stock"]["competed"]["measure"][yr] != 0):
+                # Ensure measure is on the market in given year
+                if yr in m.yrs_on_mkt:
                     # Set the fractions of commericial adopters who fall into
                     # each discount rate category for this particular
                     # microsegment
-                    mkt_dists = mkts_adj["competed choice parameters"][
-                        str(mseg_key)]["rate distribution"][yr]
+                    mkt_dists = m.markets[adopt_scheme]["competed"][
+                        "mseg_adjust"]["competed choice parameters"][
+                            str(mseg_key)]["rate distribution"][yr]
                     # For each discount rate category, find which measure has
                     # the lowest annualized cost and assign that measure the
                     # share of commercial market adopters defined for that
@@ -1150,7 +1155,8 @@ class Engine(object):
                                 # fraction for that category to zero
                                 if tot_cost[ind][yr][l][ind2] == \
                                    min([tot_cost[x][yr][l][ind2] for x in
-                                        range(0, len(measures_adj))]):
+                                        range(0, len(measures_adj)) if
+                                        yr in tot_cost[x].keys()]):
                                     mkt_fracs[ind][yr][l].append(
                                         mkt_dists[ind2])  # * EQUALS? *
                                 else:
@@ -1949,8 +1955,8 @@ def main(base_dir):
     # Load and set competition data for active measure objects
     for m in measures_objlist:
         with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
-                       m.name + ".json.gz"), 'rt') as zp:
-            meas_comp_data = json.load(zp)
+                       m.name + ".pkl.gz"), 'r') as zp:
+            meas_comp_data = pickle.load(zp)
         for adopt_scheme in handyvars.adopt_schemes:
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
