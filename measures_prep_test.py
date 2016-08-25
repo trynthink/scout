@@ -6,7 +6,6 @@
 import measures_prep
 # Import needed packages
 import unittest
-import xlrd
 import numpy
 import os
 from collections import OrderedDict
@@ -80,7 +79,7 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
             vintage weights attributes to test against expected outputs.
         cbecs_failpath (string): Path to invalid CBECs data file that should
             cause EPlusGlobals object instantiation to fail.
-        cbecs_failpath (string): Path to invalid EnergyPlus simulation data
+        eplus_failpath (string): Path to invalid EnergyPlus simulation data
             file that should cause EPlusGlobals object instantiation to fail.
         ok_out_sf (dict): Correct square footage outputs for
             'cbecs_vintage_sf' function given valid inputs.
@@ -106,8 +105,8 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
             '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
         cls.ok_out_weights = {
             'DOE Ref 1980-2004': 0.42, '90.1-2004': 0.07,
-            '90.1-2007': 0.0, '90.1-2010': 0.07,
-            'DOE Ref Pre-1980': 0.44, '90.1-2013': 1}
+            '90.1-2010': 0.07, 'DOE Ref Pre-1980': 0.44,
+            '90.1-2013': 1}
 
     def test_vintagessf(self):
         """Test cbecs_vintage_sf function given valid inputs.
@@ -171,8 +170,8 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
 class EPlusUpdateTest(unittest.TestCase, CommonMethods):
     """Test the 'fill_eplus' function and its supporting functions.
 
-    Ensure that the 'convert_to_array' function properly converts an input
-    XLSX sheet to a structured array and that the 'create_perf_dict' and
+    Ensure that the 'build_array' function properly assembles a set of input
+    CSVs into a structured array and that the 'create_perf_dict' and
     'fill_perf_dict' functions properly initialize and fill a measure
     performance dictionary with results from an EnergyPlus simulation output
     file.
@@ -181,9 +180,10 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         meas (object): Measure object instantiated based on sample_measure_in
             attributes.
         eplus_dir (string): EnergyPlus simulation output file directory.
+        eplus_coltypes (list): List of expected EnergyPlus output data types.
         mseg_in (dict): Sample baseline microsegment stock/energy data.
         ok_eplus_vintagewts (dict): Sample EnergyPlus vintage weights.
-        ok_eplusfiles_in (list): List of EnergyPlus simulation file names.
+        ok_eplusfiles_in (list): List of all EnergyPlus simulation file names.
         ok_perfarray_in (numpy recarray): Valid structured array of
             EnergyPlus-based relative savings data.
         fail_perfarray_in (numpy recarray): Invalid structured array of
@@ -221,10 +221,11 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             ("installed_cost", 25),
             ("cost_units", "2014$/unit"),
             ("energy_efficiency", OrderedDict([
-                ("EnergyPlus file", "EPlus_test_ok.xlsx")])),
+                ("EnergyPlus file", "eplus_sample_measure")])),
             ("energy_efficiency_units", OrderedDict([
                 ("primary", "relative savings (constant)"),
                 ("secondary", "relative savings (constant)")])),
+            ("energy_efficiency_source", None),
             ("market_entry_year", None),
             ("market_exit_year", None),
             ("product_lifetime", 10),
@@ -252,6 +253,41 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         handyvars = measures_prep.UsefulVars(base_dir)
         cls.meas = measures_prep.Measure(handyvars, **sample_measure_in)
         cls.eplus_dir = base_dir + "/ePlus_data/ePlus_test_ok"
+        cls.eplus_coltypes = [
+            ('building_type', '<U50'), ('climate_zone', '<U50'),
+            ('template', '<U50'), ('measure', '<U50'), ('status', '<U50'),
+            ('ep_version', '<U50'), ('os_version', '<U50'),
+            ('timestamp', '<U50'), ('cooling_electricity', '<f8'),
+            ('cooling_water', '<f8'), ('district_chilled_water', '<f8'),
+            ('district_hot_water_heating', '<f8'),
+            ('district_hot_water_service_hot_water', '<f8'),
+            ('exterior_equipment_electricity', '<f8'),
+            ('exterior_equipment_gas', '<f8'),
+            ('exterior_equipment_other_fuel', '<f8'),
+            ('exterior_equipment_water', '<f8'),
+            ('exterior_lighting_electricity', '<f8'),
+            ('fan_electricity', '<f8'),
+            ('floor_area', '<f8'), ('generated_electricity', '<f8'),
+            ('heat_recovery_electricity', '<f8'),
+            ('heat_rejection_electricity', '<f8'),
+            ('heating_electricity', '<f8'), ('heating_gas', '<f8'),
+            ('heating_other_fuel', '<f8'), ('heating_water', '<f8'),
+            ('humidification_electricity', '<f8'),
+            ('humidification_water', '<f8'),
+            ('interior_equipment_electricity', '<f8'),
+            ('interior_equipment_gas', '<f8'),
+            ('interior_equipment_other_fuel', '<f8'),
+            ('interior_equipment_water', '<f8'),
+            ('interior_lighting_electricity', '<f8'),
+            ('net_site_electricity', '<f8'), ('net_water', '<f8'),
+            ('pump_electricity', '<f8'),
+            ('refrigeration_electricity', '<f8'),
+            ('service_water', '<f8'),
+            ('service_water_heating_electricity', '<f8'),
+            ('service_water_heating_gas', '<f8'),
+            ('service_water_heating_other_fuel', '<f8'), ('total_gas', '<f8'),
+            ('total_other_fuel', '<f8'), ('total_site_electricity', '<f8'),
+            ('total_water', '<f8')]
         cls.mseg_in = {
             'hot dry': {
                 'education': {
@@ -410,33 +446,39 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         # Set EnergyPlus building vintage weights (based on square footage)
         cls.ok_eplus_vintagewts = {
             'DOE Ref Pre-1980': 0.44, '90.1-2004': 0.07, '90.1-2010': 0.07,
-            '90.1-2013': 1, 'DOE Ref 1980-2004': 0.42, '90.1-2007': 0}
+            '90.1-2013': 1, 'DOE Ref 1980-2004': 0.42}
         cls.ok_eplusfiles_in = [
-            "EPlus_test_ok.xlsx", "samplefile2.xlsx", "samplefile3.xlsx"]
-        # Set the name of the EnergyPlus file associated with sample measure
-        eplus_file = xlrd.open_workbook(
-            cls.eplus_dir + '/' +
-            cls.meas.energy_efficiency["EnergyPlus file"])
-        eplus_file_sh = eplus_file.sheet_by_index(2)
-        cls.ok_perfarray_in = cls.meas.convert_to_array(eplus_file_sh)
+            "fullservicerestaurant_scout_2016-07-23-16-25-59.csv",
+            "secondaryschool_scout_2016-07-23-16-25-59.csv",
+            "primaryschool_scout_2016-07-23-16-25-59.csv",
+            "smallhotel_scout_2016-07-23-16-25-59.csv",
+            "hospital_scout_2016-07-23-16-25-59.csv"]
+        # Set full paths for EnergyPlus files that are relevant to the measure
+        eplusfiles_in_fullpaths = [cls.eplus_dir + '/' + x for x in [
+            "secondaryschool_scout_2016-07-23-16-25-59.csv",
+            "primaryschool_scout_2016-07-23-16-25-59.csv",
+            "hospital_scout_2016-07-23-16-25-59.csv"]]
+        # Use 'build_array' to generate test input data for 'fill_eplus'
+        cls.ok_perfarray_in = cls.meas.build_array(
+            cls.eplus_coltypes, eplusfiles_in_fullpaths)
         cls.fail_perfarray_in = numpy.rec.array([
             ('BA-MixedHumid', 'SecondarySchool', '90.1-2013', 'Success',
              0, 0.5, 0.5, 0.25, 0.25, 0, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2),
             ('BA-HotDry', 'PrimarySchool', 'DOE Ref 1980-2004', 'Success',
              0, 0.5, 0.5, 0.25, 0.25, 0, 0.25, 0.75, 0, -0.1, 0.1, 0.5, -0.2)],
-            dtype=[('Climate Zone', '<U13'), ('Building Type', '<U22'),
-                   ('Template', '<U17'), ('Status', 'U7'),
-                   ('Floor Area', '<f8'),
-                   ('Total Site Electricity', '<f8'),
-                   ('Net Site Electricity', '<f8'),
-                   ('Total Gas', '<f8'), ('Total Other Fuel', '<f8'),
-                   ('Total Water', '<f8'), ('Net Water', '<f8'),
-                   ('Interior Lighting Electricity', '<f8'),
-                   ('Interior Equipment Electricity', '<f8'),
-                   ('Heating Electricity', '<f8'),
-                   ('Cooling Electricity', '<f8'),
-                   ('Heating Gas', '<f8'),
-                   ('Heat Recovery Electricity', '<f8')])
+            dtype=[('climate_zone', '<U13'), ('building_type', '<U22'),
+                   ('template', '<U17'), ('status', 'U7'),
+                   ('floor_area', '<f8'),
+                   ('total_site_electricity', '<f8'),
+                   ('net_site_electricity', '<f8'),
+                   ('total_gas', '<f8'), ('total_other_fuel', '<f8'),
+                   ('total_water', '<f8'), ('net_water', '<f8'),
+                   ('interior_lighting_electricity', '<f8'),
+                   ('interior_equipment_electricity', '<f8'),
+                   ('heating_electricity', '<f8'),
+                   ('cooling_electricity', '<f8'),
+                   ('heating_gas', '<f8'),
+                   ('heat_recovery_electricity', '<f8')])
         cls.fail_perfdictempty_in = {
             "primary": {
                 'blazing hot': {
@@ -480,27 +522,8 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                             'cooling': {'retrofit': 0, 'new': 0}},
                         'natural gas': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
-        cls.ok_array_type_out = numpy.ndarray
-        cls.ok_array_length_out = 192
-        cls.ok_arraynames_out = (
-            'Climate Zone', 'Building Type', 'Template', 'Status',
-            'Floor Area', 'Total Site Electricity', 'Net Site Electricity',
-            'Total Gas', 'Total Other Fuel', 'Total Water', 'Net Water',
-            'Interior Lighting Electricity', 'Exterior Lighting Electricity',
-            'Interior Equipment Electricity', 'Exterior Equipment Electricity',
-            'Heating Electricity', 'Cooling Electricity',
-            'Service Water Heating Electricity', 'Fan Electricity',
-            'Pump Electricity', 'Heat Recovery Electricity',
-            'Heat Rejection Electricity', 'Humidification Electricity',
-            'Refrigeration Electricity', 'Generated Electricity',
-            'Interior Equipment Gas', 'Exterior Equipment Gas', 'Heating Gas',
-            'Service Water Heating Gas', 'Interior Equipment Other Fuel',
-            'Exterior Equipment Other Fuel', 'Heating Other Fuel',
-            'Service Water Heating Other Fuel', 'District Hot Water Heating',
-            'District Hot Water Service Hot Water', 'District Chilled Water',
-            'Interior Equipment Water', 'Exterior Equipment Water',
-            'Service Water', 'Cooling Water', 'Heating Water',
-            'Humidifcation Water', 'Collected Water')
+        cls.ok_array_length_out = 120
+        cls.ok_arraynames_out = cls.ok_perfarray_in.dtype.names
         cls.ok_perfdictempty_out = {
             "primary": {
                 'hot dry': {
@@ -610,18 +633,16 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
 
-    def test_array_conversion(self):
-        """Test 'convert_to_array' function given valid inputs.
+    def test_array_build(self):
+        """Test 'build_array' function given valid inputs.
 
         Note:
-            Ensure correct conversion of an input Excel sheet to structured
-            array.
+            Ensure correct assembly of numpy arrays from all EnergyPlus
+            files that are relevant to a test measure.
 
         Raises:
             AssertionError: If function yields unexpected results.
         """
-        # Check for correct type of converted array
-        self.assertIsInstance(self.ok_perfarray_in, self.ok_array_type_out)
         # Check for correct column names and length of the converted array
         self.assertEqual(
             [self.ok_perfarray_in.dtype.names, len(self.ok_perfarray_in)],
@@ -671,7 +692,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             self.meas.fill_perf_dict(
                 self.fail_perfdictempty_in, self.ok_perfarray_in,
                 self.ok_eplus_vintagewts, eplus_bldg_types={})
-            # Case with invalid input array of EnergyPlus information
+            # Case with incomplete input array of EnergyPlus information
             self.meas.fill_perf_dict(
                 self.ok_perfdictempty_out, self.fail_perfarray_in,
                 self.ok_eplus_vintagewts, eplus_bldg_types={})
@@ -688,17 +709,15 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             AssertionError: If function yields unexpected results.
         """
         self.meas.fill_eplus(
-            self.mseg_in, self.eplus_dir, self.ok_eplusfiles_in,
-            self.ok_eplus_vintagewts)
+            self.mseg_in, self.eplus_dir, self.eplus_coltypes,
+            self.ok_eplusfiles_in, self.ok_eplus_vintagewts)
         # Check for properly updated measure energy_efficiency,
         # energy_efficiency_source, and energy_efficiency_source_quality
         # attributes.
         self.dict_check(
             self.meas.energy_efficiency, self.ok_perfdictfill_out)
         self.assertEqual(
-            [self.meas.energy_efficiency_source,
-             self.meas.energy_efficiency_source_quality],
-            ['EnergyPlus/OpenStudio', 5])
+            self.meas.energy_efficiency_source, 'EnergyPlus/OpenStudio')
 
 
 class MarketUpdatesTest(unittest.TestCase, CommonMethods):

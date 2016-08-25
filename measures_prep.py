@@ -58,6 +58,8 @@ class UsefulVars(object):
         adopt_schemes (list): Possible consumer adoption scenarios.
         discount_rate (float): Rate to use in discounting costs/savings.
         retro_rate (float): Rate at which existing stock is retrofitted.
+        nsamples (int): Number of samples to draw from probability distribution
+            on measure inputs.
         aeo_years (list) = Modeling time horizon.
         inverted_relperf_list (list) = Performance units that require
             an inverted relative performance calculation (e.g., an air change
@@ -293,36 +295,34 @@ class EPlusMapDicts(object):
                 "Warehouse": 1},
             "other": None}
         self.fuel = {
-            'electricity': 'Electricity',
-            'natural gas': 'Gas',
-            'distillate': 'Other Fuel'}
+            'electricity': 'electricity',
+            'natural gas': 'gas',
+            'distillate': 'other_fuel'}
         self.enduse = {
             'heating': [
-                'Heating Electricity', 'Heat Recovery Electricity',
-                'Pump Electricity', 'Heating Gas',
-                'Heating Other Fuel'],
+                'heating_electricity', 'heat_recovery_electricity',
+                'humidification_electricity', 'pump_electricity',
+                'heating_gas', 'heating_other_fuel'],
             'cooling': [
-                'Cooling Electricity', 'Humidification Electricity',
-                'Heat Recovery Electricity', 'Heat Rejection Electricity',
-                'Pump Electricity'],
+                'cooling_electricity', 'pump_electricity',
+                'heat_rejection_electricity'],
             'water heating': [
-                'Service Water Heating Electricity',
-                'Service Water Heating Gas',
-                'Service Water Heating Other Fuel'],
-            'ventilation': ['Fan Electricity'],
+                'service_water_heating_electricity',
+                'service_water_heating_gas',
+                'service_water_heating_other_fuel'],
+            'ventilation': ['fan_electricity'],
             'cooking': [
-                'Interior Equipment Gas', 'Interior Equipment Other Fuel'],
-            'lighting': ['Interior Lighting Electricity'],
-            'refrigeration': ['Refrigeration Electricity'],
-            'PCs': ['Interior Equipment Electricity'],
-            'non-PC office equipment': ['Interior Equipment Electricity'],
-            'MELs': ['Interior Equipment Electricity']}
+                'interior_equipment_gas', 'interior_equipment_other_fuel'],
+            'lighting': ['interior_lighting_electricity'],
+            'refrigeration': ['refrigeration_electricity'],
+            'PCs': ['interior_equipment_electricity'],
+            'non-PC office equipment': ['interior_equipment_electricity'],
+            'MELs': ['interior_equipment_electricity']}
         # Note: assumed year range for each structure vintage shown in lists
         self.structure_type = {
             "new": '90.1-2013',
             "retrofit": {
-                '90.1-2004': [2004, 2006],
-                '90.1-2007': [2007, 2009],
+                '90.1-2004': [2004, 2009],
                 '90.1-2010': [2010, 2012],
                 'DOE Ref 1980-2004': [1980, 2003],
                 'DOE Ref Pre-1980': [0, 1979]}}
@@ -332,9 +332,9 @@ class EPlusGlobals(object):
     """Class of global variables used in parsing EnergyPlus results file.
 
     Attributes:
-        eplus_dir (string): Directory for EnergyPlus simulation output files.
         cbecs_sh (xlrd sheet object): CBECs square footages Excel sheet.
         vintage_sf (dict): Summary of CBECs square footages by vintage.
+        eplus_coltypes (list): Expected EnergyPlus variable data types.
         eplus_perf_files (list): EnergyPlus simulation output file names.
         eplus_vintages (list): EnergyPlus building vintage types.
         eplus_vintage_weights (dicts): Square-footage-based weighting factors
@@ -348,19 +348,53 @@ class EPlusGlobals(object):
         self.cbecs_sh = cbecs.sheet_by_index(0)
         # Pull out building vintage square footage data
         self.vintage_sf = self.cbecs_vintage_sf()
+        self.eplus_coltypes = [
+            ('building_type', '<U50'), ('climate_zone', '<U50'),
+            ('template', '<U50'), ('measure', '<U50'), ('status', '<U50'),
+            ('ep_version', '<U50'), ('os_version', '<U50'),
+            ('timestamp', '<U50'), ('cooling_electricity', '<f8'),
+            ('cooling_water', '<f8'), ('district_chilled_water', '<f8'),
+            ('district_hot_water_heating', '<f8'),
+            ('district_hot_water_service_hot_water', '<f8'),
+            ('exterior_equipment_electricity', '<f8'),
+            ('exterior_equipment_gas', '<f8'),
+            ('exterior_equipment_other_fuel', '<f8'),
+            ('exterior_equipment_water', '<f8'),
+            ('exterior_lighting_electricity', '<f8'),
+            ('fan_electricity', '<f8'),
+            ('floor_area', '<f8'), ('generated_electricity', '<f8'),
+            ('heat_recovery_electricity', '<f8'),
+            ('heat_rejection_electricity', '<f8'),
+            ('heating_electricity', '<f8'), ('heating_gas', '<f8'),
+            ('heating_other_fuel', '<f8'), ('heating_water', '<f8'),
+            ('humidification_electricity', '<f8'),
+            ('humidification_water', '<f8'),
+            ('interior_equipment_electricity', '<f8'),
+            ('interior_equipment_gas', '<f8'),
+            ('interior_equipment_other_fuel', '<f8'),
+            ('interior_equipment_water', '<f8'),
+            ('interior_lighting_electricity', '<f8'),
+            ('net_site_electricity', '<f8'), ('net_water', '<f8'),
+            ('pump_electricity', '<f8'),
+            ('refrigeration_electricity', '<f8'),
+            ('service_water', '<f8'),
+            ('service_water_heating_electricity', '<f8'),
+            ('service_water_heating_gas', '<f8'),
+            ('service_water_heating_other_fuel', '<f8'), ('total_gas', '<f8'),
+            ('total_other_fuel', '<f8'), ('total_site_electricity', '<f8'),
+            ('total_water', '<f8')]
         # Set EnergyPlus data file name list, given local directory
         self.eplus_perf_files = [
             f for f in listdir(eplus_dir) if
-            isfile(join(eplus_dir, f)) and f != cbecs_in and 'xlsx' in f]
-        # Import first EnergyPlus measure performance XLSX
-        eplus_file = xlrd.open_workbook(
-            eplus_dir + '/' + self.eplus_perf_files[0])
-        eplus_file_sh = eplus_file.sheet_by_index(2)
+            isfile(join(eplus_dir, f)) and '_scout_' in f]
+        # Import the first of the EnergyPlus measure performance files and use
+        # it to establish EnergyPlus vintage categories
+        eplus_file = numpy.genfromtxt(
+            (eplus_dir + '/' + self.eplus_perf_files[0]), names=True,
+            dtype=self.eplus_coltypes, delimiter=",", missing_values='')
+        self.eplus_vintages = numpy.unique(eplus_file['template'])
         # Determine appropriate weights for mapping EnergyPlus vintages to the
         # 'new' and 'retrofit' building structure types of Scout
-        self.eplus_vintages = numpy.unique(
-            [eplus_file_sh.cell(x, 2).value for x in range(
-                1, eplus_file_sh.nrows)])
         self.eplus_vintage_weights = self.find_vintage_weights()
 
     def cbecs_vintage_sf(self):
@@ -423,13 +457,13 @@ class EPlusGlobals(object):
             KeyError: If unexpected vintage names are discovered in the
                 EnergyPlus file.
         """
-        eplsdicts = EPlusMapDicts()
+        handydicts = EPlusMapDicts()
 
         # Set the expected names of the EnergyPlus building vintages and the
         # low and high year limits of each building vintage category
         expected_eplus_vintage_yr_bins = [
-            eplsdicts.structure_type['new']] + \
-            list(eplsdicts.structure_type['retrofit'].keys())
+            handydicts.structure_type['new']] + \
+            list(handydicts.structure_type['retrofit'].keys())
         # Initialize a variable meant to translate the summed square footages
         # of multiple 'retrofit' building vintages into weights that sum to 1;
         # also initialize a variable used to check that these weights indeed
@@ -449,7 +483,7 @@ class EPlusGlobals(object):
                 # If looping through the EnergyPlus vintage associated with the
                 # 'new' Scout structure type, set vintage weight to 1 (only one
                 # vintage category will be associated with this structure type)
-                if k == eplsdicts.structure_type['new']:
+                if k == handydicts.structure_type['new']:
                     eplus_vintage_weights[k] = 1
                 # Otherwise, set EnergyPlus vintage weight initially to the
                 # square footage that corresponds to that vintage in cbecs
@@ -472,9 +506,9 @@ class EPlusGlobals(object):
                         # the current EnergyPlus vintage bin, add the
                         # associated cbecs ft^2 data to the EnergyPlus
                         # vintage weight value
-                        if cbecs_yr >= eplsdicts.structure_type[
+                        if cbecs_yr >= handydicts.structure_type[
                             'retrofit'][k][0] and \
-                           cbecs_yr < eplsdicts.structure_type[
+                           cbecs_yr < handydicts.structure_type[
                            'retrofit'][k][1]:
                             eplus_vintage_weights[k] += self.vintage_sf[k2]
                             total_retro_sf += self.vintage_sf[k2]
@@ -485,7 +519,7 @@ class EPlusGlobals(object):
             for k in eplus_vintage_weights.keys():
                 # If running through the 'new' EnergyPlus vintage bin, register
                 # the value of its weight (should be 1)
-                if k == eplsdicts.structure_type['new']:
+                if k == handydicts.structure_type['new']:
                     new_weight_sum = eplus_vintage_weights[k]
                 # If running through a 'retrofit' EnergyPlus vintage bin,
                 # normalize the square footage for that vintage by total
@@ -600,7 +634,8 @@ class Measure(object):
                 "mseg_out_break", copy.deepcopy(
                     self.handyvars.out_break_in))])
 
-    def fill_eplus(self, msegs, eplus_dir, eplus_files, vintage_weights):
+    def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
+                   eplus_files, vintage_weights):
         """Fill in measure performance with EnergyPlus simulation results.
 
         Note:
@@ -612,6 +647,7 @@ class Measure(object):
             msegs (dict): Baseline microsegment stock/energy data to use in
                 validating categorization of measure performance information.
             eplus_dir (string): Directory of EnergyPlus performance files.
+            eplus_coltypes (list): Expected EnergyPlus variable data types.
             eplus_files (list): EnergyPlus performance file names.
             vintage_weights (dict): Square-footage-derived weighting factors
                 for each EnergyPlus building vintage type.
@@ -625,19 +661,24 @@ class Measure(object):
                 definition or more than one EnergyPlus file matches the
                 Measure definition.
         """
-        # Determine the appropriate EnergyPlus input XLSX file name
-        eplus_perf_in = [x for x in eplus_files if
-                         x == self.energy_efficiency['EnergyPlus file']]
-        # Import EnergyPlus input XLSX and translate to structured
-        # array for future operations
-        if len(eplus_perf_in) == 1:
-            eplus_file = xlrd.open_workbook(
-                eplus_dir + '/' + eplus_perf_in[0])
-            eplus_file_sh = eplus_file.sheet_by_index(2)
-            # Convert Excel sheet data into numpy array
-            eplus_perf_array = self.convert_to_array(eplus_file_sh)
+        # Instantiate useful EnergyPlus-Scout mapping dicts
+        handydicts = EPlusMapDicts()
+        # Determine the relevant EnergyPlus building type name(s)
+        bldg_type_names = []
+        for x in self.bldg_type:
+            bldg_type_names.extend(handydicts.bldgtype[x].keys())
+        # Find all EnergyPlus files including the relevant building type
+        # name(s)
+        eplus_perf_in = [(eplus_dir + '/' + x) for x in eplus_files if any([
+            y.lower() in x for y in bldg_type_names])]
+
+        # Import EnergyPlus input file as array and use it to fill a dict
+        # of measure performance data
+        if len(eplus_perf_in) > 0:
+            # Assemble the EnergyPlus data into a record array
+            eplus_perf_array = self.build_array(eplus_coltypes, eplus_perf_in)
             # Create a measure performance dictionary, zeroed out, to
-            # be updated with information from EnergyPlus outputs
+            # be updated with data from EnergyPlus array
             perf_dict_empty = self.create_perf_dict(msegs)
 
             # Update measure performance based on EnergyPlus data
@@ -654,12 +695,9 @@ class Measure(object):
             # Set the energy efficiency data source for the measure to
             # EnergyPlus and set to highest data quality rating
             self.energy_efficiency_source = 'EnergyPlus/OpenStudio'
-            self.energy_efficiency_source_quality = 5
-        elif len(eplus_perf_in) > 1:
-            raise ValueError('> 1 applicable eplus file for measure!')
         else:
             raise ValueError(
-                'Failure to match measure name to eplus files!')
+                'Failure to find relevant EPlus files for Scout building type')
 
     def fill_mkts(self, msegs, msegs_cpl, convert_data):
         """Fill in a measure's market microsegments using EIA baseline data.
@@ -2844,7 +2882,7 @@ class Measure(object):
                     # currently being updated in the performance dictionary
                     updated_perf_array = eplus_perf_array[numpy.where(
                         eplus_perf_array[
-                            'Climate Zone'] == handydicts.czone[key])].copy()
+                            'climate_zone'] == handydicts.czone[key])].copy()
                     if len(updated_perf_array) == 0:
                         raise KeyError('eplus climate zone name not found!')
                 # Building type level
@@ -2858,7 +2896,7 @@ class Measure(object):
                     # Reduce EnergyPlus array to only rows with building type
                     # relevant to current Scout building type
                     updated_perf_array = eplus_perf_array[numpy.in1d(
-                        eplus_perf_array['Building Type'],
+                        eplus_perf_array['building_type'],
                         list(eplus_bldg_types.keys()))].copy()
                     if len(updated_perf_array) == 0:
                         raise KeyError('eplus building type name not found!')
@@ -2901,21 +2939,21 @@ class Measure(object):
                     # EnergyPlus building vintage names
                     if key == "new":
                         updated_perf_array = eplus_perf_array[numpy.where(
-                            eplus_perf_array['Template'] ==
+                            eplus_perf_array['template'] ==
                             handydicts.structure_type['new'])].copy()
                     # A 'retrofit' structure type will match multiple
                     # EnergyPlus building vintage names
                     else:
                         updated_perf_array = eplus_perf_array[numpy.in1d(
-                            eplus_perf_array['Template'], list(
+                            eplus_perf_array['template'], list(
                                 handydicts.structure_type[
                                     'retrofit'].keys()))].copy()
                     if len(updated_perf_array) == 0 or \
                        (key == "new" and
                         len(numpy.unique(updated_perf_array[
-                            'Template'])) != 1 or key == "retrofit" and
+                            'template'])) != 1 or key == "retrofit" and
                         len(numpy.unique(updated_perf_array[
-                            'Template'])) != len(
+                            'template'])) != len(
                             handydicts.structure_type["retrofit"].keys())):
                         raise ValueError(
                             'eplus vintage name not found in data file!')
@@ -2934,10 +2972,10 @@ class Measure(object):
                     for n in eplus_header:
                         if r[n].dtype.char != 'S' and r[n].dtype.char != 'U':
                             eplus_bldg_type_wt_row = \
-                                eplus_bldg_types[r['Building Type']]
+                                eplus_bldg_types[r['building_type']]
                             r[n] = r[n] * eplus_bldg_type_wt_row * \
                                 vintage_weights[
-                                r['Template'].copy()]
+                                r['template'].copy()]
                             end_key_val += r[n]
 
                 # Update the current dictionary branch value to the final
@@ -3070,33 +3108,34 @@ class Measure(object):
 
         return output_dict
 
-    def convert_to_array(self, eplus_perf_sh):
-        """Convert a sheet from an XLSX file to a structured array.
+    def build_array(self, eplus_coltyp, files_to_build):
+        """Assemble EnergyPlus data from one or more CSVs into a record array.
 
         Args:
-            eplus_perf_sh (xlrd sheet object): XLSX sheet of EnergyPlus
-                measure relative savings information.
+            eplus_coltypes (list): Expected EnergyPlus variable data types.
+            files_to_build (CSV objects): CSV files of EnergyPlus energy
+                consumption information under measure and baseline cases.
 
         Returns:
             Structured array of EnergyPlus energy savings information for the
             Measure.
         """
-        # Set the XLSX sheet headers
-        headers = [str(cell.value) for cell in eplus_perf_sh.row(0)]
-        # Initialize list to be converted to structured array
-        arr = []
-
-        # Loop through all the rows in the Excel file and append to the
-        # list to be converted to the structured array
-        for r in range(eplus_perf_sh.nrows)[1:]:
-            arr.append([cell.value for cell in eplus_perf_sh.row(r)])
-
-        # Convert the list to the structured array, using column headers
-        # as the variable names
-        eplus_perf_array = numpy.rec.fromrecords(arr, names=headers)
-        # Remove any rows in array that measure does not apply to
-        eplus_perf_array = eplus_perf_array[numpy.where(
-            eplus_perf_array['Status'] != 'Measure Not Applicable')]
+        # Loop through CSV file objects and import/add to record array
+        for ind, f in enumerate(files_to_build):
+            # Read in CSV file to array
+            eplus_file = numpy.genfromtxt(f, names=True, dtype=eplus_coltyp,
+                                          delimiter=",", missing_values='')
+            # Find only those rows in the array that represent
+            # completed simulation runs for the measure of interest
+            eplus_file = eplus_file[(eplus_file[
+                'measure'] == self.energy_efficiency['EnergyPlus file']) &
+                (eplus_file['status'] == 'completed normal')]
+            # Initialize or add to a master array that covers all CSV data
+            if ind == 0:
+                eplus_perf_array = eplus_file
+            else:
+                eplus_perf_array = \
+                    numpy.concatenate((eplus_perf_array, eplus_file))
 
         return eplus_perf_array
 
@@ -3492,11 +3531,14 @@ def update_measures(
     # with an 'EnergyPlus file' flag in their 'energy_efficiency' attribute
     if any(['EnergyPlus file' in m.energy_efficiency.keys() for
             m in meas_update_objs]):
+        # Set default directory for EnergyPlus simulation output files
+        eplus_dir = base_dir + '/ePlus_data'
         # Set EnergyPlus global variables
-        handyeplusvars = EPlusGlobals(base_dir + '/ePlus')
+        handyeplusvars = EPlusGlobals(eplus_dir)
         # Fill in EnergyPlus-based measure performance information
         [m.fill_eplus(
-            msegs, handyeplusvars.eplus_dir, handyeplusvars.eplus_files,
+            msegs, eplus_dir, handyeplusvars.eplus_coltypes,
+            handyeplusvars.eplus_files,
             handyeplusvars.eplus_vintage_weights) for m in meas_update_objs
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
