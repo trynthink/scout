@@ -335,6 +335,7 @@ class EPlusGlobals(object):
         cbecs_sh (xlrd sheet object): CBECs square footages Excel sheet.
         vintage_sf (dict): Summary of CBECs square footages by vintage.
         eplus_coltypes (list): Expected EnergyPlus variable data types.
+        eplus_basecols (list): Variable columns that should never be removed.
         eplus_perf_files (list): EnergyPlus simulation output file names.
         eplus_vintages (list): EnergyPlus building vintage types.
         eplus_vintage_weights (dicts): Square-footage-based weighting factors
@@ -383,6 +384,8 @@ class EPlusGlobals(object):
             ('service_water_heating_other_fuel', '<f8'), ('total_gas', '<f8'),
             ('total_other_fuel', '<f8'), ('total_site_electricity', '<f8'),
             ('total_water', '<f8')]
+        self.eplus_basecols = [
+            'building_type', 'climate_zone', 'template', 'measure']
         # Set EnergyPlus data file name list, given local directory
         self.eplus_perf_files = [
             f for f in listdir(eplus_dir) if
@@ -635,7 +638,7 @@ class Measure(object):
                     self.handyvars.out_break_in))])
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
-                   eplus_files, vintage_weights):
+                   eplus_files, vintage_weights, base_cols):
         """Fill in measure performance with EnergyPlus simulation results.
 
         Note:
@@ -687,11 +690,11 @@ class Measure(object):
             if perf_dict_empty['secondary'] is not None:
                 self.energy_efficiency = self.fill_perf_dict(
                     perf_dict_empty, eplus_perf_array,
-                    vintage_weights, eplus_bldg_types={})
+                    vintage_weights, base_cols, eplus_bldg_types={})
             else:
                 self.energy_efficiency = self.fill_perf_dict(
                     perf_dict_empty['primary'], eplus_perf_array,
-                    vintage_weights, eplus_bldg_types={})
+                    vintage_weights, base_cols, eplus_bldg_types={})
             # Set the energy efficiency data source for the measure to
             # EnergyPlus and set to highest data quality rating
             self.energy_efficiency_source = 'EnergyPlus/OpenStudio'
@@ -2826,7 +2829,7 @@ class Measure(object):
 
     def fill_perf_dict(
             self, perf_dict, eplus_perf_array, vintage_weights,
-            eplus_bldg_types):
+            base_cols, eplus_bldg_types):
         """Fill an empty dict with updated measure performance information.
 
         Note:
@@ -2903,22 +2906,22 @@ class Measure(object):
                 # Fuel type level
                 elif key in handydicts.fuel.keys():
                     # Reduce EnergyPlus array to only columns with fuel type
-                    # currently being updated in the performance dictionary.
-                    colnames = eplus_header[0:3]
-                    colnames.extend([
-                        x for x in eplus_header if handydicts.fuel[key] in x])
-                    if len(colnames) == 3:
+                    # currently being updated in the performance dictionary,
+                    # plus bldg. type/vintage, climate, and measure columns
+                    colnames = base_cols + [
+                        x for x in eplus_header if handydicts.fuel[key] in x]
+                    if len(colnames) == len(base_cols):
                         raise KeyError('eplus fuel type name not found!')
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 # End use level
                 elif key in handydicts.enduse.keys():
                     # Reduce EnergyPlus array to only columns with end use
-                    # currently being updated in the performance dictionary.
-                    colnames = eplus_header[0:3]
-                    colnames.extend([
+                    # currently being updated in the performance dictionary,
+                    # plus bldg. type/vintage, climate, and measure columns
+                    colnames = base_cols + [
                         x for x in eplus_header if x in handydicts.enduse[
-                            key]])
-                    if len(colnames) == 3:
+                            key]]
+                    if len(colnames) == len(base_cols):
                         raise KeyError('eplus end use name not found!')
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 else:
@@ -2929,7 +2932,7 @@ class Measure(object):
                 # dict level hierarchy
                 self.fill_perf_dict(
                     item, updated_perf_array, vintage_weights,
-                    eplus_bldg_types)
+                    base_cols, eplus_bldg_types)
             else:
                 # Reduce EnergyPlus array to only rows with structure type
                 # currently being updated in the performance dictionary
@@ -2961,25 +2964,60 @@ class Measure(object):
                     raise KeyError(
                         'Invalid measure performance dictionary key!')
 
-                # Initialize the final relative savings value for the current
-                # measure performance dictionary branch as 0
-                end_key_val = 0
+                # Separate filtered array into the rows representing measure
+                # consumption and those representing baseline consumption
+                updated_perf_array_m, updated_perf_array_b = [
+                    updated_perf_array[updated_perf_array[
+                        'measure'] != 'none'],
+                    updated_perf_array[updated_perf_array[
+                        'measure'] == 'none']]
+                # Ensure that a baseline consumption row exists for every
+                # measure consumption row retrieved
+                if len(updated_perf_array_m) != len(updated_perf_array_b):
+                    raise ValueError('Lengths of measure and baseline'
+                                     'EnergyPlus data arrays are unequal')
+                # Initialize total measure and baseline consumption values
+                val_m, val_b = (0 for n in range(2))
 
-                # Weight and combine the relative savings values left in the
-                # EnergyPlus array to arrive at the final measure relative
-                # savings value for the current dictionary branch
-                for r in updated_perf_array:
+                # Weight and combine the measure/baseline consumption values
+                # left in the EnergyPlus arrays; subtract total measure
+                # consumption from baseline consumption and divide by baseline
+                # consumption to reach relative savings value for the current
+                # dictionary branch
+                for ind in range(0, len(updated_perf_array_m)):
+                    row_m, row_b = [
+                        updated_perf_array_m[ind], updated_perf_array_b[ind]]
+                    # Loop through remaining columns with consumption data
                     for n in eplus_header:
-                        if r[n].dtype.char != 'S' and r[n].dtype.char != 'U':
-                            eplus_bldg_type_wt_row = \
-                                eplus_bldg_types[r['building_type']]
-                            r[n] = r[n] * eplus_bldg_type_wt_row * \
-                                vintage_weights[
-                                r['template'].copy()]
-                            end_key_val += r[n]
+                        if row_m[n].dtype.char != 'S' and \
+                                row_m[n].dtype.char != 'U':
+                            # Find appropriate building type to weight
+                            # consumption data points by
+                            eplus_bldg_type_wt_row_m, \
+                                eplus_bldg_type_wt_row_b = [
+                                    eplus_bldg_types[row_m['building_type']],
+                                    eplus_bldg_types[row_b['building_type']]]
+                            # Weight consumption data points by factors for
+                            # appropriate building type and vintage
+                            row_m_val, row_b_val = [(
+                                row_m[n] * eplus_bldg_type_wt_row_m *
+                                vintage_weights[row_m['template'].copy()]),
+                                (row_b[n] * eplus_bldg_type_wt_row_b *
+                                 vintage_weights[row_b['template'].copy()])]
+                            # Add weighted measure consumption data point to
+                            # total measure consumption
+                            val_m += row_m_val
+                            # Add weighted baseline consumption data point to
+                            # total base consumption
+                            val_b += row_b_val
+                    # Find relative savings if total baseline use != zero
+                    if val_b != 0:
+                        end_key_val = (val_b - val_m) / val_b
+                    else:
+                        end_key_val = 0
 
                 # Update the current dictionary branch value to the final
-                # relative savings value derived above
+                # measure relative savings value derived above
                 perf_dict[key] = round(end_key_val, 3)
 
         return perf_dict
@@ -3128,7 +3166,8 @@ class Measure(object):
             # Find only those rows in the array that represent
             # completed simulation runs for the measure of interest
             eplus_file = eplus_file[(eplus_file[
-                'measure'] == self.energy_efficiency['EnergyPlus file']) &
+                'measure'] == self.energy_efficiency['EnergyPlus file']) |
+                (eplus_file['measure'] == 'none') &
                 (eplus_file['status'] == 'completed normal')]
             # Initialize or add to a master array that covers all CSV data
             if ind == 0:
@@ -3538,8 +3577,8 @@ def update_measures(
         # Fill in EnergyPlus-based measure performance information
         [m.fill_eplus(
             msegs, eplus_dir, handyeplusvars.eplus_coltypes,
-            handyeplusvars.eplus_files,
-            handyeplusvars.eplus_vintage_weights) for m in meas_update_objs
+            handyeplusvars.eplus_files, handyeplusvars.eplus_vintage_weights,
+            handyeplusvars.eplus_basecols) for m in meas_update_objs
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
     # Finalize 'markets' attribute for all Measure objects

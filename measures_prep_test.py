@@ -181,6 +181,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             attributes.
         eplus_dir (string): EnergyPlus simulation output file directory.
         eplus_coltypes (list): List of expected EnergyPlus output data types.
+        eplus_basecols (list): Variable columns that should never be removed.
         mseg_in (dict): Sample baseline microsegment stock/energy data.
         ok_eplus_vintagewts (dict): Sample EnergyPlus vintage weights.
         ok_eplusfiles_in (list): List of all EnergyPlus simulation file names.
@@ -288,6 +289,8 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             ('service_water_heating_other_fuel', '<f8'), ('total_gas', '<f8'),
             ('total_other_fuel', '<f8'), ('total_site_electricity', '<f8'),
             ('total_water', '<f8')]
+        cls.eplus_basecols = [
+            'building_type', 'climate_zone', 'template', 'measure']
         cls.mseg_in = {
             'hot dry': {
                 'education': {
@@ -522,7 +525,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                             'cooling': {'retrofit': 0, 'new': 0}},
                         'natural gas': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
-        cls.ok_array_length_out = 120
+        cls.ok_array_length_out = 240
         cls.ok_arraynames_out = cls.ok_perfarray_in.dtype.names
         cls.ok_perfdictempty_out = {
             "primary": {
@@ -588,48 +591,48 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
                     'education': {
                         'electricity': {
                             'lighting': {
-                                'retrofit': 0.25, 'new': 0.065}}},
+                                'retrofit': 0.75, 'new': 0.935}}},
                     'assembly': {
                         'electricity': {
                             'lighting': {
-                                'retrofit': 0.25, 'new': 0}}}}},
+                                'retrofit': 0.75, 'new': 1}}}}},
             "secondary": {
                 'hot dry': {
                     'education': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.25, 'new': 0.25}},
+                            'cooling': {'retrofit': 0.75, 'new': 0.555}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.25, 'new': -0.25}},
+                                'retrofit': 1.25, 'new': 1.25}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}},
                     'assembly': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.25, 'new': 0.25}},
+                            'cooling': {'retrofit': 0.75, 'new': 0.75}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.25, 'new': -0.25}},
+                                'retrofit': 1.25, 'new': 1.25}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}}},
                 'mixed humid': {
                     'education': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.5, 'new': 0.13}},
+                            'cooling': {'retrofit': 0.5, 'new': 0.87}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.5, 'new': -0.13}},
+                                'retrofit': 1.5, 'new': 1.13}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}},
                     'assembly': {
                         'electricity': {
                             'heating': {'retrofit': 0, 'new': 0},
-                            'cooling': {'retrofit': 0.5, 'new': 0}},
+                            'cooling': {'retrofit': 0.5, 'new': 1}},
                         'natural gas': {
                             'heating': {
-                                'retrofit': -0.5, 'new': 0}},
+                                'retrofit': 1.5, 'new': 1}},
                         'distillate': {
                             'heating': {'retrofit': 0, 'new': 0}}}}}}
 
@@ -673,7 +676,8 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         self.dict_check(
             self.meas.fill_perf_dict(
                 self.ok_perfdictempty_out, self.ok_perfarray_in,
-                self.ok_eplus_vintagewts, eplus_bldg_types={}),
+                self.ok_eplus_vintagewts, self.eplus_basecols,
+                eplus_bldg_types={}),
             self.ok_perfdictfill_out)
 
     def test_dict_fill_fail(self):
@@ -691,11 +695,13 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             # Case with invalid input dictionary
             self.meas.fill_perf_dict(
                 self.fail_perfdictempty_in, self.ok_perfarray_in,
-                self.ok_eplus_vintagewts, eplus_bldg_types={})
+                self.ok_eplus_vintagewts, self.eplus_basecols,
+                eplus_bldg_types={})
             # Case with incomplete input array of EnergyPlus information
             self.meas.fill_perf_dict(
                 self.ok_perfdictempty_out, self.fail_perfarray_in,
-                self.ok_eplus_vintagewts, eplus_bldg_types={})
+                self.ok_eplus_vintagewts, self.eplus_basecols,
+                eplus_bldg_types={})
 
     def test_fill_eplus(self):
         """Test 'fill_eplus' function given valid inputs.
@@ -710,7 +716,8 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         """
         self.meas.fill_eplus(
             self.mseg_in, self.eplus_dir, self.eplus_coltypes,
-            self.ok_eplusfiles_in, self.ok_eplus_vintagewts)
+            self.ok_eplusfiles_in, self.ok_eplus_vintagewts,
+            self.eplus_basecols)
         # Check for properly updated measure energy_efficiency,
         # energy_efficiency_source, and energy_efficiency_source_quality
         # attributes.
