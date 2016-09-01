@@ -750,6 +750,10 @@ class Measure(object):
         # loads and 40% decrease in cooling load)
         light_scnd_autoperf = False
 
+        # Initialize a list that tracks completed cost conversions for cases
+        # where conversion need occur only once per microsegment building type
+        bldgs_costconverted = []
+
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
         # baseline microsegment(s) directly affected by a measure (e.g.,
@@ -862,13 +866,13 @@ class Measure(object):
                 if ind == 0 or (
                     any([x in self.cost_units for x in
                          self.handyvars.cconv_bybldg_units]) and
-                    ms_iterable[ind][2] != ms_iterable[ind - 1][2]) \
+                    ms_iterable[ind][2] not in bldgs_costconverted) \
                         or isinstance(self.installed_cost, dict):
                     cost_meas = self.installed_cost
                 if ind == 0 or (
                     any([x in self.cost_units for x in
                          self.handyvars.cconv_bybldg_units]) and
-                    ms_iterable[ind][2] != ms_iterable[ind - 1][2]) \
+                    ms_iterable[ind][2] not in bldgs_costconverted) \
                         or isinstance(self.cost_units, dict):
                     cost_units = self.cost_units
                 if ind == 0 or isinstance(
@@ -1220,6 +1224,10 @@ class Measure(object):
                         convert_data, bldg_sect, mskeys, cost_meas,
                         cost_units, base_costperflife[
                             "installed cost"]["units"])
+                    # Add microsegment building type to cost conversion
+                    # tracking list for cases where cost conversion need
+                    # occur only once per building type
+                    bldgs_costconverted.append(mskeys[2])
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -1949,9 +1957,17 @@ class Measure(object):
             cost_meas_units_fin = cost_base_yr + cost_base_noyr
 
         # Notify user of cost conversion
-        print("Measure '" + self.name + "' installed cost converted from " +
-              str(cost_meas) + " " + cost_meas_units + " to " +
-              str(cost_meas_fin) + " " + cost_meas_units_fin)
+
+        # Set base user message
+        user_message = "Measure '" + self.name + "' cost converted from " + \
+            str(cost_meas) + " " + cost_meas_units + " to " + \
+            str(round(cost_meas_fin, 2)) + " " + cost_meas_units_fin
+        # Add building type information to base message in cases where cost
+        # conversion depends on building type (e.g., for envelope components)
+        if cost_meas_noyr in self.handyvars.cconv_bybldg_units:
+            user_message += " for '" + mskeys[2] + "'"
+        # Print user message
+        print(user_message)
 
         return cost_meas_fin, cost_meas_units_fin
 
