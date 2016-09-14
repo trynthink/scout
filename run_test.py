@@ -1712,10 +1712,10 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         # Record the output for the test run of the 'metric_update'
         # function
         function_output = engine_instance.metric_update(
-            self.measure_list[0], self.ok_num_units, self.ok_base_life,
-            int(self.ok_product_lifetime), int(self.ok_life_ratio),
-            self.ok_base_scost, self.ok_scostsave, self.ok_esave,
-            self.ok_ecostsave, self.ok_csave, self.ok_ccostsave)
+            self.measure_list[0], self.ok_num_units, self.ok_num_units,
+            self.ok_base_life, int(self.ok_product_lifetime),
+            int(self.ok_life_ratio), self.ok_base_scost, self.ok_scostsave,
+            self.ok_esave, self.ok_ecostsave, self.ok_csave, self.ok_ccostsave)
 
         # Test that valid inputs yield correct annuity equivalent
         # NPV dict outputs
@@ -7794,7 +7794,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
                     "key 2": 5.8}}}
 
     def test_numpy_convert(self):
-        """Test for correct function output given valid input"""
+        """Test for correct function output given valid input."""
         # Instantiate measure
         measure_instance = run.Measure(self.handyvars, **self.sample_measure)
         # Test for correct data types in measure markets attribute

@@ -321,9 +321,11 @@ class Engine(object):
                 # for a technical potential scenario, all stock units are
                 # captured in each year
                 if adopt_scheme != "Technical potential":
-                    num_units = markets["stock"]["competed"]["measure"][yr]
+                    nunits_tot = markets["stock"]["competed"]["all"][yr]
+                    nunits_meas = markets["stock"]["competed"]["measure"][yr]
                 else:
-                    num_units = markets["stock"]["total"]["measure"][yr]
+                    nunits_tot = markets["stock"]["total"]["all"][yr]
+                    nunits_meas = markets["stock"]["total"]["measure"][yr]
 
                 # Set the lifetime of the baseline technology for comparison
                 # with measure lifetime
@@ -349,8 +351,8 @@ class Engine(object):
 
                 # Check whether number of adopted units for a measure is zero,
                 # in which case all financial metrics are set to 999
-                if type(num_units) != numpy.ndarray and num_units < 1 or \
-                   type(num_units) == numpy.ndarray and all(num_units) < 1:
+                if type(nunits_meas) != numpy.ndarray and nunits_meas < 1 or \
+                   type(nunits_meas) == numpy.ndarray and all(nunits_meas) < 1:
                     stock_anpv[yr], energy_anpv[yr], carb_anpv[yr] = [
                         {"residential": 999, "commercial": 999} for n in
                         range(3)]
@@ -395,8 +397,9 @@ class Engine(object):
                         life_meas_tmp = numpy.repeat(life_meas_tmp, len_arr)
                         life_ratio_tmp = numpy.repeat(life_ratio_tmp, len_arr)
                     # Check number of units captured by the measure
-                    if type(num_units) != numpy.ndarray:
-                        num_units = numpy.repeat(num_units, len_arr)
+                    if type(nunits_meas) != numpy.ndarray:
+                        nunits_tot = numpy.repeat(nunits_tot, len_arr)
+                        nunits_meas = numpy.repeat(nunits_meas, len_arr)
 
                     # Initialize numpy arrays for financial metrics outputs
 
@@ -421,7 +424,7 @@ class Engine(object):
                         # Check whether number of adopted units for a measure
                         # is zero, in which case all economic outputs are set
                         # to 999
-                        if num_units[x] == 0:
+                        if nunits_meas[x] == 0:
                             stock_anpv[yr][x], energy_anpv[yr][x], \
                                 carb_anpv[yr][x] = [{
                                     "residential": 999, "commercial": 999} for
@@ -437,8 +440,8 @@ class Engine(object):
                                 payback_ec[yr][x], cce[yr][x], \
                                 cce_bens[yr][x], ccc[yr][x], \
                                 ccc_bens[yr][x] = self.metric_update(
-                                    m, num_units[x], life_base,
-                                    int(life_meas_tmp[x]),
+                                    m, nunits_tot[x], nunits_meas[x],
+                                    life_base, int(life_meas_tmp[x]),
                                     int(life_ratio_tmp[x]), markets[
                                         "cost"]["stock"]["competed"][
                                         "baseline"][yr], scostsave_tmp[x],
@@ -452,8 +455,9 @@ class Engine(object):
                         irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
                         self.metric_update(
-                            m, num_units, life_base, int(life_meas),
-                            int(life_ratio), markets["cost"]["stock"][
+                            m, nunits_tot, nunits_meas, life_base,
+                            int(life_meas), int(life_ratio),
+                            markets["cost"]["stock"][
                                 "competed"]["baseline"][yr], scostsave[yr],
                             esave[yr], ecostsave[yr], csave[yr], ccostsave[yr])
 
@@ -511,8 +515,8 @@ class Engine(object):
                 m.update_results["consumer metrics"] = False
 
     def metric_update(
-        self, m, num_units, life_base, life_meas, life_ratio, scost_base,
-            scostsave, esave, ecostsave, csave, ccostsave):
+        self, m, nunits_tot, nunits_meas, life_base, life_meas, life_ratio,
+            scost_base, scostsave, esave, ecostsave, csave, ccostsave):
         """Calculate measure financial metrics for a given year.
 
         Notes:
@@ -522,7 +526,9 @@ class Engine(object):
 
         Args:
             m (object): Measure object.
-            num_units (int): Number of competed baseline units in a given year.
+            nunits_tot (int): Total competed baseline units in a given year.
+            nunits_meas (int): Total competed units captured by measure in
+                given year.
             life_base (float): Baseline technology lifetime.
             life_meas (float): Measure lifetime.
             life_ratio (float): Ratio of measure lifetime to baseline lifetime.
@@ -583,13 +589,13 @@ class Engine(object):
             # as appropriate
             cashflows_s = numpy.append(cashflows_s, scost_life)
 
-        cashflows_s = cashflows_s / num_units
+        cashflows_s = cashflows_s / nunits_meas
 
         # Construct complete energy and carbon cash flows across measure
         # lifetime (normalized by number of captured stock units). First
         # term (reserved for initial investment figure) is zero.
         cashflows_e, cashflows_c = [numpy.append(0, [x] * life_meas) /
-                                    num_units for x in [ecostsave, ccostsave]]
+                                    nunits_tot for x in [ecostsave, ccostsave]]
 
         # Calculate Net Present Value (NPVs) using the above cashflows
         npv_s, npv_e, npv_c = [
@@ -600,8 +606,8 @@ class Engine(object):
         # lifetime (for use in cost of conserved energy and carbon calcs).
         # First term (reserved for initial investment figure) is zero, and
         # each array is normalized by number of captured stock units
-        esave_array = numpy.append(0, [esave] * life_meas) / num_units
-        csave_array = numpy.append(0, [csave] * life_meas) / num_units
+        esave_array = numpy.append(0, [esave] * life_meas) / nunits_tot
+        csave_array = numpy.append(0, [csave] * life_meas) / nunits_tot
 
         # Calculate Net Present Value and annuity equivalent Net Present Value
         # of the above energy and carbon savings
