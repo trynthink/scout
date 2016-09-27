@@ -71,8 +71,14 @@ class UsefulVars(object):
         ecosts (dict): Energy costs by building and fuel type.
         ccosts (dict): Carbon costs.
         com_timeprefs (dict): Commercial adoption time preference premiums.
-        out_break_in (dict): Breakouts of measure energy/carbon markets/savings
-            for eventual use in plotting of analysis results.
+        out_break_czones (OrderedDict): Maps measure climate zone names to
+            the climate zone categories used in summarizing measure outputs.
+        out_break_bldgtypes (OrderedDict): Maps measure building type names to
+            the building sector categories used in summarizing measure outputs.
+        out_break_enduses (OrderedDict): Maps measure end use names to
+            the end use categories used in summarizing measure outputs.
+        out_break_in (OrderedDict): Breaks out key measure results by
+            climate zone, building sector, and end use.
         cconv_bybldg_units (list): Flags cost unit conversions that must
             be re-initiated for each new microsegment building type.
         cconv_topkeys_map (dict): Maps measure cost units to top-level keys in
@@ -93,7 +99,7 @@ class UsefulVars(object):
     def __init__(self, base_dir):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
-        self.retro_rate = 0.02
+        self.retro_rate = 0.01
         self.nsamples = 50
         # Set minimum AEO modeling year
         aeo_min = 2009
@@ -163,12 +169,10 @@ class UsefulVars(object):
                 "refrigeration": {
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
-        # Climate zone breakout mapping
         self.out_break_czones = OrderedDict([
             ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
             ('AIA CZ5', 'AIA_CZ5')])
-        # Building type breakout mapping
         self.out_break_bldgtypes = OrderedDict([
             ('Residential', [
                 'single family home', 'multi family home', 'mobile home']),
@@ -176,7 +180,6 @@ class UsefulVars(object):
                 'assembly', 'education', 'food sales', 'food service',
                 'health care', 'mercantile/service', 'lodging', 'large office',
                 'small office', 'warehouse', 'other'])])
-        # End use breakout mapping
         self.out_break_enduses = OrderedDict([
             ('Heating', ["heating", "secondary heating"]),
             ('Cooling', ["cooling"]),
@@ -750,9 +753,10 @@ class Measure(object):
         # loads and 40% decrease in cooling load)
         light_scnd_autoperf = False
 
-        # Initialize a list that tracks completed cost conversions for cases
-        # where conversion need occur only once per microsegment building type
-        bldgs_costconverted = []
+        # Initialize a list that tracks completed cost conversions - including
+        # converted values and units - for cases where the cost conversion need
+        # occur only once per microsegment building type
+        bldgs_costconverted = {}
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -841,11 +845,12 @@ class Measure(object):
             # all measure mseg key chains is in first iteration, b) A switch
             # has been made from updating "primary" microsegment info. to
             # updating "secondary" microsegment info. (relevant to cost/
-            # lifetime units only), or c) Any of performance/cost/lifetime/
-            # units is a dict which must be parsed further to reach the final
-            # value. * Note: cost/lifetime/sub-market information is not
-            # updated for "secondary" microsegments, which do not pertain to
-            # these variables; lifetime units are assumed to be years
+            # lifetime units only), c) Any of performance/cost/lifetime units
+            # is a dict which must be parsed further to reach the final value,
+            # or d) A new cost conversion is required for the current mseg
+            # (relevant to cost only). * Note: cost/lifetime/sub-market
+            # information is not updated for "secondary" microsegments, which
+            # do not pertain to these variables; lifetime units are in years
             if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
                or isinstance(self.energy_efficiency, dict):
                 perf_meas = self.energy_efficiency
@@ -853,9 +858,8 @@ class Measure(object):
                or isinstance(self.energy_efficiency_units, dict):
                 perf_units = self.energy_efficiency_units
             if mskeys[0] == "secondary":
-                cost_meas = 0
+                cost_meas, life_meas = (0 for n in range(2))
                 cost_units = "NA"
-                life_meas = 0
                 # * Note: no unique sub-market scaling fractions for secondary
                 # microsegments; secondary microsegments are only scaled down
                 # by the sub-market fraction for their associated primary
@@ -863,21 +867,26 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                if ind == 0 or (
-                    any([x in self.cost_units for x in
-                         self.handyvars.cconv_bybldg_units]) and
-                    ms_iterable[ind][2] not in bldgs_costconverted) \
-                        or isinstance(self.installed_cost, dict):
-                    cost_meas = self.installed_cost
-                if ind == 0 or (
-                    any([x in self.cost_units for x in
-                         self.handyvars.cconv_bybldg_units]) and
-                    ms_iterable[ind][2] not in bldgs_costconverted) \
-                        or isinstance(self.cost_units, dict):
-                    cost_units = self.cost_units
+                # Set cost attributes to values previously calculated for
+                # current mseg building type
+                if ms_iterable[ind][2] in bldgs_costconverted.keys():
+                    cost_meas, cost_units = [x for x in bldgs_costconverted[
+                        ms_iterable[ind][2]]]
+                # Set cost attributes to initial values
+                elif ind == 0 or any([x in self.cost_units for x in
+                                     self.handyvars.cconv_bybldg_units]):
+                    cost_meas, cost_units = [
+                        self.installed_cost, self.cost_units]
+                else:
+                    if isinstance(self.installed_cost, dict):
+                        cost_meas = self.installed_cost
+                    if isinstance(self.cost_units, dict):
+                        cost_units = self.cost_units
+                # Set lifetime attribute to initial value
                 if ind == 0 or isinstance(
                         self.product_lifetime, dict):
                     life_meas = self.product_lifetime
+                # Set market scaling attributes to initial values
                 if ind == 0 or isinstance(
                         self.market_scaling_fractions, dict):
                     mkt_scale_frac = self.market_scaling_fractions
@@ -911,7 +920,8 @@ class Measure(object):
             base_costperflife = msegs_cpl
             mseg = msegs
             mseg_sqft_stock = msegs
-            new_bldg_frac = {"added": {}, "total": {}}
+            new_constr = {"annual new": {}, "total new": {},
+                          "total": {}, "new fraction": {}}
 
             # Initialize a variable for measure relative performance (broken
             # out by year in modeling time horizon)
@@ -1227,7 +1237,7 @@ class Measure(object):
                     # Add microsegment building type to cost conversion
                     # tracking list for cases where cost conversion need
                     # occur only once per building type
-                    bldgs_costconverted.append(mskeys[2])
+                    bldgs_costconverted[mskeys[2]] = [cost_meas, cost_units]
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -1379,12 +1389,12 @@ class Measure(object):
                         cost_energy_meas = self.handyvars.ecosts[
                             "residential"][self.fuel_switch_to]
 
-                    # Update new buildings fraction information
+                    # Update new building construction information
                     for yr in self.handyvars.aeo_years:
-                        # Find fraction of total buildings that are
-                        # newly constructed in the current year
-                        new_bldg_frac["added"][yr] = \
-                            mseg_sqft_stock["new homes"][yr] / \
+                        # Find new and total buildings for current year
+                        new_constr["annual new"][yr] = \
+                            mseg_sqft_stock["new homes"][yr]
+                        new_constr["total"][yr] = \
                             mseg_sqft_stock["total homes"][yr]
 
                     # Update technology choice parameters needed to choose
@@ -1419,12 +1429,12 @@ class Measure(object):
                         cost_energy_meas = self.handyvars.ecosts[
                             "commercial"][self.fuel_switch_to]
 
-                    # Update new buildings fraction information
+                    # Update new building construction information
                     for yr in self.handyvars.aeo_years:
-                        # Find fraction of total buildings that are
-                        # newly constructed in the current year
-                        new_bldg_frac["added"][yr] = \
-                            mseg_sqft_stock["new square footage"][yr] / \
+                        # Find new and total square footage for current year
+                        new_constr["annual new"][yr] = \
+                            mseg_sqft_stock["new square footage"][yr]
+                        new_constr["total"][yr] = \
                             mseg_sqft_stock["total square footage"][yr]
 
                     # Update technology choice parameters needed to choose
@@ -1449,16 +1459,22 @@ class Measure(object):
                             "rate distribution": self.handyvars.com_timeprefs[
                                 "distributions"]["heating"]}
 
-                # Find fraction of total buildings that are newly constructed
-                # in all years up through the current modeling year. These data
-                # are used to determine total cumulative new structure markets
-                # for a measure
+                # Find fraction of total new buildings in each year.
+                # Note: in each year, this fraction is calculated by summing
+                # the annual new building/floor space figures for all
+                # preceding years
                 for yr in self.handyvars.aeo_years:
+                    # Find cumulative total of new building/floor space stock
                     if yr == self.handyvars.aeo_years[0]:
-                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][yr]
+                        new_constr["total new"][yr] = \
+                            new_constr["annual new"][yr]
                     else:
-                        new_bldg_frac["total"][yr] = new_bldg_frac["added"][
-                            yr] + new_bldg_frac["total"][str(int(yr) - 1)]
+                        new_constr["total new"][yr] = \
+                            new_constr["annual new"][yr] + \
+                            new_constr["total new"][str(int(yr) - 1)]
+                    # Calculate new vs. existing fraction of stock
+                    new_constr["new fraction"][yr] = \
+                        new_constr["total new"][yr] / new_constr["total"][yr]
 
                 # Determine the fraction to use in scaling down the stock,
                 # energy, and carbon microsegments to the applicable structure
@@ -1466,10 +1482,10 @@ class Measure(object):
                 # structures or existing structures)
                 if mskeys[-1] == "new":
                     new_existing_frac = {key: val for key, val in
-                                         new_bldg_frac["total"].items()}
+                                         new_constr["new fraction"].items()}
                 else:
                     new_existing_frac = {key: (1 - val) for key, val in
-                                         new_bldg_frac["total"].items()}
+                                         new_constr["new fraction"].items()}
 
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microegment that will be captured
@@ -1526,7 +1542,7 @@ class Measure(object):
                      add_carb_cost_compete_eff] = \
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys,
-                            mkt_scale_frac, new_bldg_frac, add_stock,
+                            mkt_scale_frac, new_constr, add_stock,
                             add_energy, add_carb, cost_base, cost_meas,
                             cost_energy_base, cost_energy_meas, rel_perf,
                             life_base, life_meas, site_source_conv_base,
@@ -1973,7 +1989,7 @@ class Measure(object):
 
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, mkt_scale_frac,
-            new_bldg_frac, stock_total_init, energy_total_init,
+            new_constr, stock_total_init, energy_total_init,
             carb_total_init, cost_base, cost_meas, cost_energy_base,
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
@@ -1989,8 +2005,8 @@ class Measure(object):
                 fuel->end use->technology type->structure type)
             mkt_scale_frac (float): Microsegment scaling fraction (used to
                 break market microsegments into more granular sub-markets).
-            new_bldg_frac (dict): Portion of microsegment attributed to new
-                construction, by year.
+            new_constr (dict): Data needed to determine the portion of the
+                total microsegment stock that is added in each year.
             stock_total_init (dict): Baseline technology stock, by year.
             energy_total_init (dict): Baseline microsegment primary energy use,
                 by year.
@@ -2269,9 +2285,9 @@ class Measure(object):
             # Primary microsegment not in the first year where current
             # microsegment applies to new structure type
             elif mskeys[0] == "primary" and mskeys[-1] == "new":
-                if new_bldg_frac["total"][yr] != 0:
-                    new_bldg_add_frac = new_bldg_frac["added"][yr] / \
-                        new_bldg_frac["total"][yr]
+                if new_constr["total new"][yr] != 0:
+                    new_bldg_add_frac = new_constr["annual new"][yr] / \
+                        new_constr["total new"][yr]
                     competed_frac = new_bldg_add_frac + \
                         (1 - new_bldg_add_frac) * \
                         (captured_eff_replace_frac +
@@ -3204,8 +3220,12 @@ class MeasurePackage(Measure):
         handyvars (object): Global variables useful across class methods.
         measures_to_package (list): List of measures to package.
         name (string): Package name.
-        status (dict): Packaged measure analysis status (determines whether
-            measure is active in analysis and attributes are finalized)
+        remove (boolean): Determines whether package should be removed from
+            analysis engine due to insufficient market source data.
+        market_entry_year (int): Earliest year of market entry across all
+            measures in the package.
+        market_exit_year (int): Latest year of market exit across all
+            measures in the package.
         climate_zone (list): Applicable climate zones for package.
         bldg_type (list): Applicable building types for package.
         structure_type (list): Applicable structure types for package.
@@ -3223,7 +3243,21 @@ class MeasurePackage(Measure):
     def __init__(self, measure_list_package, p, handyvars):
         self.handyvars = handyvars
         self.measures_to_package = measure_list_package
-        self.name = "Package: " + p
+        self.name = p
+        self.remove = False
+        # Set market entry year as earliest of all the packaged measures
+        if any([x.market_entry_year is None for x in
+               self.measures_to_package]):
+            self.market_entry_year = None
+        else:
+            self.market_entry_year = min([
+                x.market_entry_year for x in self.measures_to_package])
+        # Set market exit year is latest of all the packaged measures
+        if any([x.market_exit_year is None for x in self.measures_to_package]):
+            self.market_exit_year = None
+        else:
+            self.market_exit_year = max([
+                x.market_entry_year for x in self.measures_to_package])
         self.climate_zone, self.bldg_type, self.structure_type = (
             [] for n in range(3))
         self.fuel_type, self.end_use = ({"primary": []} for n in range(2))
@@ -3685,7 +3719,7 @@ def add_uncovered_pkgupdates(
         x for x in meas_summary if ("measures_to_package" in x.keys()) and
         any([y.name in x[
             "measures_to_package"] for y in meas_updated_objs]) and
-        x["name"] not in [p.keys() for p in meas_toupdate_package]]
+        [x["name"] not in p.keys() for p in meas_toupdate_package]]
     # Loop through uncovered package information; add uncovered packages to
     # list of packaged measures to update; ensure that all individual measures
     # that contribute to the package are included in the list of updated

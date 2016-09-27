@@ -6888,13 +6888,15 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
              'electricity', 'heating', 'supply', 'boiler (electric)',
              'existing')]
         cls.ok_mkt_scale_frac_in = 1
-        cls.ok_new_bldg_frac_in = [{
-            "added": {"2009": 0.1, "2010": 0.05, "2011": 0.1},
-            "total": {"2009": 0.1, "2010": 0.15, "2011": 0.25}},
-            {"added": {"2025": 0.1, "2026": 0.05, "2027": 0.1},
-             "total": {"2025": 0.1, "2026": 0.15, "2027": 0.25}},
-            {"added": {"2020": 0.1, "2021": 0.95, "2022": 0.1},
-             "total": {"2020": 0.1, "2021": 1, "2022": 1}}]
+        cls.ok_new_bldg_constr = [{
+            "annual new": {"2009": 10, "2010": 5, "2011": 10},
+            "total new": {"2009": 10, "2010": 15, "2011": 25}},
+            {
+            "annual new": {"2025": 10, "2026": 5, "2027": 10},
+            "total new": {"2025": 10, "2026": 15, "2027": 25}},
+            {
+            "annual new": {"2020": 10, "2021": 95, "2022": 10},
+            "total new": {"2020": 10, "2021": 100, "2022": 100}}]
         cls.ok_stock_in = [
             {"2009": 100, "2010": 200, "2011": 300},
             {"2025": 400, "2026": 500, "2027": 600},
@@ -7270,7 +7272,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.ok_diffuse_params_in,
                         self.ok_mskeys_in[k],
                         self.ok_mkt_scale_frac_in,
-                        self.ok_new_bldg_frac_in[elem],
+                        self.ok_new_bldg_constr[elem],
                         self.ok_stock_in[elem], self.ok_energy_in[elem],
                         self.ok_carb_in[elem],
                         self.ok_base_cost_in[elem], self.ok_cost_meas_in[elem],
@@ -11041,11 +11043,11 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
         # Reset sample measure markets (initialized to None)
         for ind, m in enumerate(cls.sample_measures_in):
             m.markets = sample_measures_in[ind]["markets"]
-        cls.sample_package_name = "CAC + CFLs + NGWH"
+        cls.sample_package_name = "Package - CAC + CFLs + NGWH"
         cls.sample_package_in = measures_prep.MeasurePackage(
             cls.sample_measures_in, cls.sample_package_name, handyvars)
         cls.genattr_ok_out = [
-            'Package: CAC + CFLs + NGWH',
+            'Package - CAC + CFLs + NGWH',
             ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ5'],
             ['single family home', 'multi family home'],
             ['new', 'existing'],
@@ -12246,7 +12248,13 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         cls.handyvars = measures_prep.UsefulVars(base_dir)
         sample_measindiv_dicts = [{
-            "name": "cleanup 1"}, {"name": "cleanup 2"}]
+            "name": "cleanup 1",
+            "market_entry_year": None,
+            "market_exit_year": None},
+            {
+            "name": "cleanup 2",
+            "market_entry_year": None,
+            "market_exit_year": None}]
         cls.sample_measlist_in = [measures_prep.Measure(
             cls.handyvars, **x) for x in sample_measindiv_dicts]
         sample_measpackage = measures_prep.MeasurePackage(
@@ -12329,9 +12337,13 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                     "total": {}}}}]
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
-            ["markets", "name", "remove"], ["markets", "name", "remove"],
-            ['bldg_type', 'climate_zone', 'end_use', 'fuel_type', 'markets',
-             'measures_to_package', 'name', 'structure_type']]
+            ["market_entry_year", "market_exit_year", "markets",
+             "name", "remove"],
+            ["market_entry_year", "market_exit_year", "markets",
+             "name", "remove"],
+            ['bldg_type', 'climate_zone', 'end_use', 'fuel_type',
+             "market_entry_year", "market_exit_year", 'markets',
+             'measures_to_package', 'name', 'remove', 'structure_type']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
     def test_cleanup(self):
