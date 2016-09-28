@@ -8,6 +8,7 @@ import mseg_techdata
 # Import needed packages
 import unittest
 import numpy
+import itertools
 
 
 class SimpleWalkTest(unittest.TestCase):
@@ -17,17 +18,17 @@ class SimpleWalkTest(unittest.TestCase):
 
     # Define a test dict to walk through
     in_dict = {
-        "cdiv 1": {"bldg 1": {"square footage": None, "fuel 1": {
+        "cdiv 1": {"bldg 1": {"total square footage": None, "fuel 1": {
             "end use 1": {"tech 1": None}}}},
-        "cdiv 2": {"bldg 2": {"square footage": None, "fuel 2": {
+        "cdiv 2": {"bldg 2": {"total square footage": None, "fuel 2": {
             "end use 2": {"tech 2": None}},
             "fuel 3": {
                 "end use 3": {"tech 3": None}}}},
-        "cdiv 3": {"bldg 3": {"square footage": None, "fuel 3": {
+        "cdiv 3": {"bldg 3": {"total square footage": None, "fuel 3": {
             "end use 3": {"tech 4": None}}},
             "bldg 4": {"fuel 4": {
                 "end use 4": {"tech 5": None}}}},
-        "cdiv 4": {"bldg 4": {"square footage": None, "fuel 5": {
+        "cdiv 4": {"bldg 4": {"total square footage": None, "fuel 5": {
             "end use 5": {"tech 6": {"sub tech 1": None,
                                      "sub tech 2": None}}}}}}
 
@@ -36,12 +37,12 @@ class SimpleWalkTest(unittest.TestCase):
     # are set to be the values for those leaf nodes.
     out_dict = {
         "cdiv 1": {"bldg 1": {
-            "square footage": None,
+            "total square footage": None,
             "fuel 1": {"end use 1": {
                 "tech 1":
                 ["cdiv 1", "bldg 1", "fuel 1", "end use 1", "tech 1"]}}}},
         "cdiv 2": {"bldg 2": {
-            "square footage": None,
+            "total square footage": None,
             "fuel 2": {"end use 2": {
                 "tech 2":
                 ["cdiv 2", "bldg 2", "fuel 2", "end use 2", "tech 2"]}},
@@ -50,7 +51,7 @@ class SimpleWalkTest(unittest.TestCase):
                 ["cdiv 2", "bldg 2", "fuel 3", "end use 3", "tech 3"]}}}},
         "cdiv 3": {
             "bldg 3": {
-                "square footage": None,
+                "total square footage": None,
                 "fuel 3": {"end use 3": {
                     "tech 4":
                     ["cdiv 3", "bldg 3", "fuel 3", "end use 3", "tech 4"]}}},
@@ -60,7 +61,7 @@ class SimpleWalkTest(unittest.TestCase):
                     ["cdiv 3", "bldg 4", "fuel 4", "end use 4", "tech 5"]}}}},
         "cdiv 4": {
             "bldg 4": {
-                "square footage": None,
+                "total square footage": None,
                 "fuel 5": {"end use 5": {
                     "tech 6": {
                         "sub tech 1":
@@ -71,7 +72,7 @@ class SimpleWalkTest(unittest.TestCase):
                     }}}}}}
 
     def simple_walk(self, in_dict, key_list=[]):
-        """ This function represents a simpler verison of the walk_techdata
+        """ This function represents a simpler version of the walk_techdata
         function in mseg_techdata_test.py where terminal leaf node values are
         assigned as the key chain that leads to the given leaf node """
         for key, item in sorted(in_dict.items()):
@@ -84,9 +85,10 @@ class SimpleWalkTest(unittest.TestCase):
             else:
                 # Update key chain
                 leaf_node_keys = key_list + [key]
-                # Avoid updating a "square footage" leaf node in the input
-                # dict - square footage is not relevant to mseg_techdata.py
-                if leaf_node_keys[-1] != "square footage":
+                # Avoid updating a "total square footage" leaf node in
+                # the input dict; square footage is not relevant to the
+                # cost, performance, and lifetime data
+                if leaf_node_keys[-1] != "total square footage":
                     # Update dict key value to the updated key chain
                     in_dict[key] = leaf_node_keys
 
@@ -95,8 +97,18 @@ class SimpleWalkTest(unittest.TestCase):
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
+        # Check that both dicts are populated (if not, the loop below
+        # will not start and thus the tests will not be run and the
+        # tests will appear to pass when in fact they were never run)
+        self.assertTrue(dict1, msg='dict1 is empty')
+        self.assertTrue(dict2, msg='dict2 is empty')
+
         for (k, i), (k2, i2) in zip(sorted(dict1.items()),
                                     sorted(dict2.items())):
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal
+            self.assertEqual(k, k2)
+
             if isinstance(i, dict):
                 self.assertCountEqual(i, i2)
                 self.dict_check(i, i2)
@@ -323,24 +335,24 @@ class ListGeneratorTest(unittest.TestCase):
                      "b2": {k: -0.10
                             for k in project_dict.keys()}}
 
-    # Define sample technology choice parameters for residential envelope
-    # component technologies (technology choice information is not included
-    # for envelope component technologies in 'tech_non_eia' above)
-    non_eia_env_choice = {"b1": {k: -0.003
-                                 for k in project_dict.keys()},
-                          "b2": {k: -0.012
-                                 for k in project_dict.keys()}}
+    # # Define sample technology choice parameters for residential envelope
+    # # component technologies (technology choice information is not included
+    # # for envelope component technologies in 'tech_non_eia' above)
+    # non_eia_env_choice = {"b1": {k: -0.003
+    #                              for k in project_dict.keys()},
+    #                       "b2": {k: -0.012
+    #                              for k in project_dict.keys()}}
 
     # Define a sample list of full dictionary key chains that are defined
     # while running through the microsegments JSON structure and which will
     # be used to determine what performance, cost, lifetime, and consumer
     # choice data to look for
     tech_ok_keys = [["new england", "single family home",
-                     "electricity (grid)", "heating", "supply", "ASHP"],
+                     "electricity", "heating", "supply", "ASHP"],
                     ["east north central", "multi family home",
-                     "electricity (grid)", "refrigeration"],
+                     "electricity", "refrigeration"],
                     ["east north central", "multi family home",
-                     "electricity (grid)", "other (grid electric)",
+                     "electricity", "other (grid electric)",
                      "clothes washing"],
                     ["mid atlantic", "single family home",
                      "natural gas", "cooking"],
@@ -349,16 +361,16 @@ class ListGeneratorTest(unittest.TestCase):
                     ["west north central", "mobile home",
                      "natural gas", "water heating"],
                     ["west north central", "mobile home",
-                     "electricity (grid)", "lighting",
+                     "electricity", "lighting",
                      "general service (LED)"],
                     ["mid atlantic", "single family home",
-                     "electricity (grid)", "secondary heating",
+                     "electricity", "secondary heating",
                      "supply", "non-specific"],
                     ["mid atlantic", "single family home",
-                     "electricity (grid)", "secondary heating",
+                     "electricity", "secondary heating",
                      "demand", "windows conduction"],
                     ["west north central", "multi family home",
-                     "electricity (grid)", "cooling",
+                     "electricity", "cooling",
                      "supply", "NGHP"]]
 
     # Define a sample list of full dictionary key chains as above that should
@@ -366,13 +378,13 @@ class ListGeneratorTest(unittest.TestCase):
     tech_fail_keys_ke = [["nengland", "single family home",
                           "electricity", "heating", "supply", "ASHP"],
                          ["east north central", "multi family home",
-                          "electricity (grid)", "other (gas electric)",
+                          "electricity", "other (gas electric)",
                           "cooking"],
                          ["east north central", "multi family home",
-                          "electricity (grid)", "other (gas electric)",
+                          "electricity", "other (gas electric)",
                           "washing device"],
                          ["east north central", "multi family home",
-                          "square footage"]]
+                          "total square footage"]]
 
     # Define a sample list of full dictionary key chains as above that should
     # cause the function to yield a ValueError
@@ -670,42 +682,7 @@ class ListGeneratorTest(unittest.TestCase):
                                       "2011": "NA", "2012": "NA",
                                       "2013": "NA"}},
                               "source": "NA"}}},
-        {"performance": {
-            "typical": {"2009": 7, "2010": 7, "2011": 7, "2012": 7, "2013": 7},
-            "best": {"2009": 10, "2010": 10, "2011": 10, "2012": 10,
-                     "2013": 10},
-            "units": "R Value",
-            "source": "NREL Efficiency DB"},
-         "installed cost": {
-            "typical": {"2009": 20, "2010": 20, "2011": 20, "2012": 20,
-                        "2013": 20},
-            "best": {"2009": 30, "2010": 30, "2011": 30, "2012": 30,
-                     "2013": 30},
-            "units": "2013$/sf",
-            "source": "RS Means"},
-         "lifetime": {
-            "average": {"2009": 25, "2010": 25, "2011": 25, "2012": 25,
-                        "2013": 25},
-            "range": {"2009": 5, "2010": 5, "2011": 5, "2012": 5,
-                      "2013": 5},
-            "units": "years",
-            "source": "RS Means"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters": {
-                                  "b1": {
-                                      "2009": -0.003, "2010": -0.003,
-                                      "2011": -0.003, "2012": -0.003,
-                                      "2013": -0.003},
-                                  "b2": {
-                                      "2009": -0.012, "2010": -0.012,
-                                      "2011": -0.012, "2012": -0.012,
-                                      "2013": -0.012}},
-                              "source": "EIA space heating/cooling"}}},
+        0,
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -742,21 +719,48 @@ class ListGeneratorTest(unittest.TestCase):
                                 "2012": 6, "2013": 6}},
                               "source": "EIA AEO"}}}]
 
-    # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
-        for (k, i), (k2, i2) in zip(sorted(dict1.items()),
-                                    sorted(dict2.items())):
+        """Compare two dicts for equality, allowing for floating point error.
+        """
+
+        # zip() and zip_longest() produce tuples for the items
+        # identified, where in the case of a dict, the first item
+        # in the tuple is the key and the second item is the value;
+        # in the case where the dicts are not of identical size,
+        # zip_longest() will use the fillvalue created below as a
+        # substitute in the dict that has missing content; this
+        # value is given as a tuple to be of comparable structure
+        # to the normal output from zip_longest()
+        fill_val = ('substituted entry', 5.2)
+
+        # In this structure, k and k2 are the keys that correspond to
+        # the dicts or unitary values that are found in i and i2,
+        # respectively, at the current level of the recursive
+        # exploration of dict1 and dict2, respectively
+        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
+                                                      sorted(dict2.items()),
+                                                      fillvalue=fill_val):
+
+            # Confirm that at the current location in the dict structure,
+            # the keys are equal; this should fail if one of the dicts
+            # is empty, is missing section(s), or has different key names
+            self.assertEqual(k, k2)
+
+            # If the recursion has not yet reached the terminal/leaf node
             if isinstance(i, dict):
+                # Test that the dicts from the current keys are equal
                 self.assertCountEqual(i, i2)
+                # Continue to recursively traverse the dict
                 self.dict_check(i, i2)
+
+            # At the terminal/leaf node, if the value is a string
+            elif isinstance(i, str):
+                self.assertEqual(dict1[k], dict2[k2])
+
+            # At the terminal/leaf node
             else:
-                # In the use of this function to compare dicts below,
-                # certain leaf node values will be strings (the info.
-                # units and sources) while others will be float values
-                if not isinstance(dict1[k], str):
-                    self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
-                else:
-                    self.assertEqual(dict1[k], dict2[k])
+                # Compare the values, allowing for floating point inaccuracy
+                self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
     # Test that the walk_techdata function yields a correct output dict
     # given the valid key chain input along with the other sample inputs
@@ -765,11 +769,15 @@ class ListGeneratorTest(unittest.TestCase):
         for (idx, tk) in enumerate(self.tech_ok_keys):
             dict1 = mseg_techdata.list_generator_techdata(
                 self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                self.eia_lt_choice, self.non_eia_env_choice,
+                self.eia_lt_choice,
                 mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                 self.tech_non_eia, tk, self.project_dict)
             dict2 = self.ok_datadict_out[idx]
-            self.dict_check(dict1, dict2)
+
+            if isinstance(dict2, dict):
+                self.dict_check(dict1, dict2)
+            else:
+                self.assertEqual(dict1, dict2)
 
     # Test that the walk_techdata function yields a KeyError given the
     # invalid key chain input along with the other sample inputs defined above
@@ -778,14 +786,14 @@ class ListGeneratorTest(unittest.TestCase):
             with self.assertRaises(KeyError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice, self.non_eia_env_choice,
+                    self.eia_lt_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ke, self.project_dict)
         for ve in self.tech_fail_keys_ve:
             with self.assertRaises(ValueError):
                 mseg_techdata.list_generator_techdata(
                     self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice, self.non_eia_env_choice,
+                    self.eia_lt_choice,
                     mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                     self.tech_non_eia, ve, self.project_dict)
 

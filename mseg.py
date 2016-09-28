@@ -1,23 +1,56 @@
 #!/usr/bin/env python3
 
-# import sys
 import re
 import numpy
 import json
-import copy
 
-# Set AEO time horizon in years (used in list_generator function
-# to check for correct length of microsegment value lists)
-aeo_years = 32
 
-# Identify files to import for conversion
-EIA_res_file = 'RESDBOUT.txt'
-json_in = 'microsegments.json'
-json_out = 'microsegments_out.json'
-res_tloads = 'Res_TLoads_Final.txt'
-res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
-com_tloads = 'Com_TLoads_Final.txt'
-com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
+class EIAData(object):
+    """Class of variables naming the EIA data files to be imported.
+
+    Attributes:
+        res_energy (str): The file name for the AEO residential energy
+            and stock data.
+    """
+    def __init__(self):
+        self.res_energy = 'RESDBOUT.txt'
+
+
+class UsefulVars(object):
+    """Class of variables that would otherwise be global.
+
+    Attributes:
+        json_in (str): JSON file containing the structure to be populated
+            with AEO data.
+        json_out (str): FIlename of the JSON file to be produced with
+            residential energy use, building stock, and equipment stock
+            data added.
+        res_tloads (str): Filename for the residential building thermal
+            load components data.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
+        unused_supply_re (str): A string usable as a regular expression
+            defining the parameters (and thus the corresponding rows)
+            from the AEO data that are not needed for the "supply"
+            (i.e., equipment) energy and stock data. The two letter
+            codes represent: (Switch From | Switch To | Fuel Pumps).
+        unused_demand_re (str): A string usable as a regular expression
+            defining the parameters (and thus the corresponding rows)
+            from the AEO data that should be retained to calculate the
+            demand (i.e., envelope) energy and stock data. Because the
+            demand only applies to heating and cooling, this regex is
+            configured to exclude every row not coded with one of the
+            two letter codes given. These codes represent:
+            (Heating | Cooling | Secondary Heating).
+    """
+
+    def __init__(self):
+        self.json_in = 'microsegments.json'
+        self.json_out = 'mseg_res_cdiv.json'
+        self.res_tloads = 'Res_TLoads_Final.txt'
+        self.aeo_metadata = 'metadata.json'
+        self.unused_supply_re = '^\(b\'(SF|ST |FP).*'
+        self.unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
+
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
@@ -42,7 +75,7 @@ bldgtypedict = {'single family home': 1,
 
 # Fuel type dict
 fueldict = {'electricity (on site)': 'SL',
-            'electricity (grid)': 'EL',
+            'electricity': 'EL',
             'natural gas': 'GS',
             'distillate': 'DS',
             'other fuel': ('LG', 'KS', 'CL', 'GE', 'WD')
@@ -57,7 +90,7 @@ fueldict = {'electricity (on site)': 'SL',
 # also left out of the "other fuel" definition.
 
 # End use dict
-endusedict = {'square footage': 'SQ',  # AEO handles sq.ft. info. as end use
+endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'new homes': 'HS',
               'total homes': 'HT',
               'heating': 'HT',
@@ -140,17 +173,6 @@ technology_demanddict = {'windows conduction': 'WIND_COND',
 res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
                 technology_supplydict, technology_demanddict]
 
-# Define a series of regex comparison inputs that determines what we don't need
-# in the imported RESDBOUT.txt file for the "supply" and "demand" portions of
-# the microsegment updating routine
-
-# Unused rows in the supply portion of the analysis
-# Exclude: (Switch From | Switch To | Fuel Pumps)
-unused_supply_re = '^\(b\'(SF|ST |FP).*'
-# Unused rows in the demand portion of the analysis
-# Exclude everything except: (Heating | Cooling | Secondary Heating)
-unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
-
 
 def json_translator(dictlist, filterformat):
     """ Determine filtering list for finding information in text file parse """
@@ -173,11 +195,11 @@ def json_translator(dictlist, filterformat):
 
     # Restructure the filterformat variable in the case of a "total homes"
     # update, where "total homes" uses the same filter codes as a heating,
-    # electricity (grid), boiler (electric) microsegment in RESDBOUT,
+    # electricity, boiler (electric) microsegment in RESDBOUT,
     # but with the relevant data in the "HOUSEHOLDS" column
     if 'total homes' in filterformat and len(filterformat) == 3:
         filterformat = filterformat[0:2]
-        filterformat.extend(['electricity (grid)', 'total homes',
+        filterformat.extend(['electricity', 'total homes',
                              'total homes (tech level)'])
     # Reduce dictlist as appropriate to filtering information (if not a
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
@@ -191,7 +213,7 @@ def json_translator(dictlist, filterformat):
         dictlist_loop = dictlist[:(len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
-    elif 'square footage' in filterformat and len(filterformat) == 3 or \
+    elif 'total square footage' in filterformat and len(filterformat) == 3 or \
          'new homes' in filterformat and len(filterformat) == 3:
         dictlist_loop = dictlist[:(len(dictlist) - 3)]
     elif len(filterformat) <= 4:
@@ -382,7 +404,7 @@ def sqft_homes_select(data, comparefrom):
     rows_to_remove = []
 
     # Define initial square footage, new homes, or total homes lists
-    if endusedict['square footage'] in comparefrom or \
+    if endusedict['total square footage'] in comparefrom or \
        endusedict['new homes'] in comparefrom or \
        endusedict['total homes'] in comparefrom:
         group_out = {}
@@ -399,7 +421,7 @@ def sqft_homes_select(data, comparefrom):
 
         # If there is a match, append values for the current cdiv/bldg. type
         if match:
-            if endusedict['square footage'] in comparefrom or \
+            if endusedict['total square footage'] in comparefrom or \
                endusedict['total homes'] in comparefrom:
                 # Record square foot or total homes info. (in "HOUSEHOLDS"
                 # column in RESDBOUT)
@@ -474,9 +496,9 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
         return [{'stock': 'NA', 'energy': group_energy}, ms_supply]
-    # Check whether current microsegment is updating "square footage" info.
-    # (handled differently)
-    elif 'square footage' in filterdata or 'new homes' in filterdata or \
+    # Check whether current microsegment is updating "total square footage"
+    # information (handled differently)
+    elif 'total square footage' in filterdata or 'new homes' in filterdata or \
          'total homes' in filterdata:
         # Given input numpy array and 'compare from' list, return sq. footage
         # projection lists and reduced numpy array (with matched rows removed)
@@ -511,7 +533,7 @@ def list_generator(ms_supply, ms_demand, ms_loads, filterdata, aeo_years):
         return [{'stock': group_stock, 'energy': group_energy}, ms_supply]
 
 
-def walk(supply, demand, loads, json_dict, key_list=[]):
+def walk(supply, demand, loads, json_dict, yrs_range, key_list=[]):
     """ Proceed recursively through data stored in dict-type structure
     and perform calculations at each leaf/terminal node in the data """
 
@@ -520,7 +542,7 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(supply, demand, loads, item, key_list + [key])
+            walk(supply, demand, loads, item, yrs_range, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types, and if
@@ -531,78 +553,12 @@ def walk(supply, demand, loads, json_dict, key_list=[]):
                 leaf_node_keys = key_list + [key]
                 # Extract data from original data sources
                 [data_dict, supply] = list_generator(supply, demand, loads,
-                                                     leaf_node_keys, aeo_years)
+                                                     leaf_node_keys, yrs_range)
                 # Set dict key to extracted data
                 json_dict[key] = data_dict
 
     # Return final file
     return json_dict
-
-
-def merge_sum(base_dict, add_dict, cd, clim, convert_array, cdivdict,
-              cdiv_list):
-    """ Given two dicts of the same structure, add values at the end
-    of each branch of the second dict to those of the first dict
-    (used to convert microsegment data from a census division to a
-    climate zone breakdown) """
-
-    for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
-                                sorted(add_dict.items())):
-        # Check to ensure dicts do have same structure
-        if k == k2:
-            # Recursively loop through both dicts
-            if isinstance(i, dict):
-                merge_sum(i, i2, cd, clim, convert_array, cdivdict, cdiv_list)
-            elif type(base_dict[k]) is not str:
-                # Once end of branch is reached, add values weighted by an
-                # appropriate census division to climate zone factor
-                cd_convert = convert_array[cd][clim]
-
-                # Special handling of first dict (no addition of the
-                # second dict, only conversion of the first dict with
-                # the appropriate factor)
-                if (cd == (cdivdict[cdiv_list[0]] - 1)):
-                    base_dict[k] = (base_dict[k] * cd_convert)
-                else:
-                    base_dict[k] = (base_dict[k] + add_dict[k2] * cd_convert)
-        else:
-            raise(KeyError('Merge keys do not match!'))
-
-    # Return a single dict representing sum of values of original two dicts
-    return base_dict
-
-
-def clim_converter(input_dict, convert_array):
-    """ Convert an updated microsegments dict from a census division
-    to a climate zone breakdown """
-
-    # Set climate zone and census division names
-    clim_list = convert_array.dtype.names[1:]
-    cdiv_list = list(input_dict.keys())
-
-    # Set up empty dict to be updated
-    converted_dict = {}
-
-    # Climate zone for loop
-    for climnum, clim in enumerate(clim_list):
-        base_dict = copy.deepcopy(input_dict[cdiv_list[0]])
-
-        # Census division for loop
-        for cdiv in cdiv_list:
-            # If cdivnum in cdivdict, find cdivnum using cdivdict; subtract 1
-            # to ensure proper list indexing (1st element = 0th in python)
-            if cdiv in cdivdict.keys():
-                cdivnum = cdivdict[cdiv] - 1
-                add_dict = copy.deepcopy(input_dict[cdiv])
-                base_dict = merge_sum(base_dict, add_dict, cdivnum,
-                                      (climnum + 1), convert_array, cdivdict,
-                                      cdiv_list)
-            else:
-                raise(KeyError("Cdiv name not found in dict keys!"))
-        newadd = base_dict
-        converted_dict.update({clim: newadd})
-
-    return converted_dict
 
 
 def array_row_remover(data, comparefrom):
@@ -636,39 +592,56 @@ def main():
     """ Import text and JSON files; run through JSON objects; find
     analogous text information; replace JSON values; update JSON """
 
+    # Instantiate objects that contain useful variables
+    handyvars = UsefulVars()
+    eiadata = EIAData()
+
     # Import EIA RESDBOUT.txt file
-    supply = numpy.genfromtxt(EIA_res_file, names=True,
+    supply = numpy.genfromtxt(eiadata.res_energy, names=True,
                               delimiter='\t', dtype=None)
     # Reduce supply array to only needed rows
-    supply = array_row_remover(supply, unused_supply_re)
+    supply = array_row_remover(supply, handyvars.unused_supply_re)
 
     # Set RESDBOUT.txt data for separate use in "demand" microsegments
     demand = supply
     # Reduce demand array to only needed rows
-    demand = array_row_remover(demand, unused_demand_re)
+    demand = array_row_remover(demand, handyvars.unused_demand_re)
 
-    # Set thermal loads .txt file (*currently residential)
-    loads = numpy.genfromtxt(res_tloads, names=True,
+    # Import residential thermal load components data
+    loads = numpy.genfromtxt(handyvars.res_tloads, names=True,
                              delimiter='\t', dtype=None)
 
-    # Import the residential census division to climate zone conversion array
-    res_convert_array = numpy.genfromtxt(res_climate_convert, names=True,
-                                         delimiter='\t', dtype=None)
+    # Import metadata generated based on EIA AEO data files
+    with open(handyvars.aeo_metadata, 'r') as metadata:
+        metajson = json.load(metadata)
+
+    # Calculate number of years in the AEO data; expecting 32 years
+    # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
+    # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA
+    # IN THE RANGE OF YEARS OF THE DATA REPORTED
+    yrs_range = metajson['max year'] - metajson['min year'] + 1
+
+    # json.dump cannot convert ("serialize") numbers of the type
+    # np.int64 to integers, but all of the integers in 'result' are
+    # formatted as np.int64; this function fixes that problem as the
+    # data are serialized and exported
+    def fix_ints(num):
+        if isinstance(num, numpy.integer):
+            return int(num)
+        else:
+            raise TypeError
 
     # Import JSON file and run through updating scheme
-    with open(json_in, 'r') as jsi:
+    with open(handyvars.json_in, 'r') as jsi, open(
+         handyvars.json_out, 'w') as jso:
         msjson = json.load(jsi)
 
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
-        updated_data = walk(supply, demand, loads, msjson)
+        result = walk(supply, demand, loads, msjson, yrs_range)
 
-        # Convert the updated data from census division to climate breakdown
-        final_data = clim_converter(updated_data, res_convert_array)
-
-    # Write the updated dict of data to a new JSON file
-    with open(json_out, 'w') as jso:
-        json.dump(final_data, jso, indent=4)
+        # Write the updated dict of data to a new JSON file
+        json.dump(result, jso, indent=2, default=fix_ints)
 
 
 if __name__ == '__main__':
