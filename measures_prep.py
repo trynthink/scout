@@ -38,6 +38,7 @@ class UsefulInputFiles(object):
         meas_summary_data (string): High-level measure summary data.
         meas_compete_data (string): Contributing microsegment data needed
             for measure competition.
+        meas_active_data (string): Active measure names.
     """
 
     def __init__(self):
@@ -49,6 +50,7 @@ class UsefulInputFiles(object):
         self.meas_summary_data = \
             "/measures_data/summary_data/meas_summary_data.json"
         self.meas_compete_data = "/measures_data/competition_data"
+        self.meas_active_data = "/measures_data/active_measnames.json"
 
 
 class UsefulVars(object):
@@ -3839,6 +3841,9 @@ def main(base_dir):
     # Import existing measure summaries
     with open((base_dir + handyfiles.meas_summary_data), 'r') as es:
         meas_summary = json.load(es, object_pairs_hook=OrderedDict)
+    # Import active measure data
+    with open((base_dir + handyfiles.meas_active_data), 'r') as am:
+        active_meas = json.load(am, object_pairs_hook=OrderedDict)
     # Import baseline microsegments
     with open((base_dir + handyfiles.msegs_in), 'r') as msi:
         msegs = json.load(msi)
@@ -3869,13 +3874,17 @@ def main(base_dir):
         meas_updated_objs)
 
     # Add all updated measure information to existing measure summaries
+    # and active measures list
     for m in meas_updated_summary:
-        # Measure has been updated from existing case (replace)
+        # Measure has been updated from existing case (replace summary)
         if m["name"] in [x["name"] for x in meas_summary]:
             [x.update(m) for x in meas_summary if x["name"] == m["name"]]
-        # Measure is new (add)
+        # Measure is new (add summary)
         else:
             meas_summary.append(m)
+        # Measure not already in active measures list (add to list)
+        if m["name"] not in active_meas["active"]:
+            active_meas["active"].append(m["name"])
 
     # Write updated measure competition data to zipped JSONs
     for ind, m in enumerate(meas_updated_objs):
@@ -3885,6 +3894,10 @@ def main(base_dir):
     # Write measure summary data to JSON
     with open((base_dir + handyfiles.meas_summary_data), "w") as jso:
         json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+
+    # Write any added measure names to the active measures JSON
+    with open((base_dir + handyfiles.meas_active_data), "w") as jso:
+        json.dump(active_meas, jso, indent=2)
 
 if __name__ == "__main__":
     import time

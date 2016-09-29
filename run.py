@@ -1949,9 +1949,7 @@ def main(base_dir):
         meas_summary = json.load(mjs)
     # Import list of active measures
     with open((base_dir + handyfiles.active_measures), 'r') as am:
-        active_meas = json.load(am)
-        active_meas_all = \
-            active_meas["residential"] + active_meas["commercial"]
+        active_meas_all = json.load(am)["active"]
     print('Measure summary data load complete')
 
     # Loop through measures data in JSON, initialize objects for all measures
