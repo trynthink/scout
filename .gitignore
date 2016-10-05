@@ -58,6 +58,13 @@ ehthumbs.db
 .log
 .sqlite
 
+# Rendered reStructuredText documentation folders #
+###################################################
+
+_build
+_static
+_templates
+
 # Packages and compressed files #
 #################################
 
