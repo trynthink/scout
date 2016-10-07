@@ -73,6 +73,8 @@ class UsefulVars(object):
         ecosts (dict): Energy costs by building and fuel type.
         ccosts (dict): Carbon costs.
         com_timeprefs (dict): Commercial adoption time preference premiums.
+        in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
+            list of climates, buildings, fuels, end uses, or technologies.
         out_break_czones (OrderedDict): Maps measure climate zone names to
             the climate zone categories used in summarizing measure outputs.
         out_break_bldgtypes (OrderedDict): Maps measure building type names to
@@ -171,6 +173,186 @@ class UsefulVars(object):
                 "refrigeration": {
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
+        self.in_all_map = {
+            "climate_zone": [
+                "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            "bldg_type": {
+                "residential": [
+                    "single family home", "multi family home", "mobile home"],
+                "commercial": [
+                    "assembly", "education", "food sales", "food service",
+                    "health care", "lodging", "large office", "small office",
+                    "mercantile/service", "warehouse", "other"]},
+            "structure_type": ["new", "existing"],
+            "fuel_type": {
+                "residential": [
+                    "electricity", "natural gas", "distillate", "other fuel"],
+                "commercial": [
+                    "electricity", "natural gas", "distillate"]},
+            "end_use": {
+                "residential": {
+                    "electricity": [
+                        'drying', 'other (grid electric)', 'water heating',
+                        'cooling', 'cooking', 'computers', 'lighting',
+                        'secondary heating', 'TVs', 'heating', 'refrigeration',
+                        'fans & pumps', 'ceiling fan'],
+                    "natural gas": [
+                        'drying', 'water heating', 'cooling', 'heating',
+                        'cooking', 'secondary heating'],
+                    "distillate": [
+                        'water heating', 'heating', 'secondary heating'],
+                    "other fuel": [
+                        'water heating', 'cooking', 'heating',
+                        'secondary heating']},
+                "commercial": {
+                    "electricity": [
+                        'ventilation', 'water heating', 'cooling',
+                        'heating', 'refrigeration', 'MELs',
+                        'non-PC office equipment', 'PCs', 'lighting',
+                        'cooking'],
+                    "natural gas": [
+                        'cooling', 'water heating', 'cooking', 'heating'],
+                    "distillate": ['water heating', 'heating']}},
+            "technology": {
+                "residential": {
+                    "supply": {
+                        "electricity": {
+                            'other (grid electric)': [
+                                'dishwasher', 'other MELs',
+                                'clothes washing', 'freezers'],
+                            'water heating': ['solar WH', 'electric WH'],
+                            'cooling': [
+                                'room AC', 'ASHP', 'GSHP', 'central AC'],
+                            'computers': [
+                                'desktop PC', 'laptop PC', 'network equipment',
+                                'monitors'],
+                            'lighting': [
+                                'linear fluorescent (T-8)',
+                                'linear fluorescent (T-12)',
+                                'reflector (LED)', 'general service (CFL)',
+                                'external (high pressure sodium)',
+                                'general service (incandescent)',
+                                'external (CFL)',
+                                'external (LED)', 'reflector (CFL)',
+                                'reflector (incandescent)',
+                                'general service (LED)',
+                                'external (incandescent)',
+                                'linear fluorescent (LED)',
+                                'reflector (halogen)'],
+                            'secondary heating': ['non-specific'],
+                            'TVs': [
+                                'home theater & audio', 'set top box',
+                                'video game consoles', 'DVD', 'TV'],
+                            'heating': ['GSHP', 'boiler (electric)', 'ASHP'],
+                            'ceiling fan': [None],
+                            'fans & pumps': [None],
+                            'refrigeration': [None],
+                            'drying': [None],
+                            'cooking': [None]},
+                        "natural gas": {
+                            'cooling': ['NGHP'],
+                            'heating': ['furnace (NG)', 'NGHP', 'boiler (NG)'],
+                            'secondary heating': ['non-specific'],
+                            'drying': [None],
+                            'water heating': [None],
+                            'cooking': [None]},
+                        "distillate": {
+                            'heating': [
+                                'boiler (distillate)', 'furnace (distillate)'],
+                            'secondary heating': ['non-specific'],
+                            'water heating': [None]},
+                        "other fuel": {
+                            'heating': [
+                                'resistance', 'furnace (kerosene)',
+                                'stove (wood)', 'furnace (LPG)'],
+                            'secondary heating': [
+                                'secondary heating (wood)',
+                                'secondary heating (coal)',
+                                'secondary heating (kerosene)',
+                                'secondary heating (LPG)'],
+                            'cooking': [None],
+                            'water heating': [None]}},
+                    "demand": [
+                        'roof', 'ground', 'windows solar',
+                        'windows conduction', 'equipment gain',
+                        'people gain', 'wall', 'infiltration']},
+                "commercial": {
+                    "supply": {
+                        "electricity": {
+                            'ventilation': ['VAV_Vent', 'CAV_Vent'],
+                            'water heating': [
+                                'Solar water heater', 'HP water heater',
+                                'elec_booster_water_heater',
+                                'elec_water_heater'],
+                            'cooling': [
+                                'rooftop_AC', 'scroll_chiller',
+                                'res_type_central_AC', 'reciprocating_chiller',
+                                'comm_GSHP-cool', 'centrifugal_chiller',
+                                'rooftop_ASHP-cool', 'wall-window_room_AC',
+                                'screw_chiller'],
+                            'heating': [
+                                'electric_res-heat', 'comm_GSHP-heat',
+                                'rooftop_ASHP-heat', 'elec_boiler'],
+                            'refrigeration': [
+                                'Reach-in_freezer', 'Supermkt_compressor_rack',
+                                'Walk-In_freezer', 'Supermkt_display_case',
+                                'Walk-In_refrig', 'Reach-in_refrig',
+                                'Supermkt_condenser', 'Ice_machine',
+                                'Vend_Machine', 'Bevrg_Mchndsr'],
+                            'MELs': [
+                                'lab fridges and freezers',
+                                'non-road electric vehicles',
+                                'kitchen ventilation', 'escalators',
+                                'distribution transformers',
+                                'large video displays', 'video displays',
+                                'elevators', 'laundry', 'medical imaging',
+                                'coffee brewers', 'fume hoods',
+                                'security systems'],
+                            'lighting': [
+                                'F28T8 HE w/ OS', 'F28T8 HE w/ SR',
+                                '90W Halogen Edison', 'HPS 150_HB', 'F96T8',
+                                'F96T12 mag', '72W incand', 'F96T8 HE',
+                                'LED_LB', 'F28T8 HE w/ OS & SR',
+                                'LED 150 HPS_HB', 'F96T8 HO_HB',
+                                '26W CFL', 'HPS 70_LB',
+                                '90W Halogen PAR-38', 'MH 400_HB',
+                                'LED Edison', 'F28T5', 'HPS 100_LB',
+                                '100W incand', 'MH 250_HB',
+                                'F54T5 HO_HB', 'MV 400_HB', 'F28T8 HE',
+                                'LED_HB', '70W HIR PAR-38', 'F32T8',
+                                'F96T8 HO_LB', '2L F54T5HO LB',
+                                'F96T12 ES mag', '23W CFL', 'LED T8',
+                                'MH 175_LB', 'LED 100 HPS_LB', 'MV 175_LB',
+                                'F34T12', 'T8 F32 EEMag (e)'],
+                            'cooking': [
+                                'Range, Electric-induction, 4 burner, oven, 1',
+                                'Range, Electric, 4 burner, oven, 11-inch gr'],
+                            'PCs': [None],
+                            'non-PC office equipment': [None]},
+                        "natural gas": {
+                            'cooling': [
+                                'gas_eng-driven_RTAC', 'gas_chiller',
+                                'res_type_gasHP-cool',
+                                'gas_eng-driven_RTHP-cool'],
+                            'water heating': [
+                                'gas_water_heater', 'gas_instantaneous_WH',
+                                'gas_booster_WH'],
+                            'cooking': [
+                                'Range, Gas, 4 powered burners, convect. oven',
+                                'Range, Gas, 4 burner, oven, 11-inch griddle'],
+                            'heating': [
+                                'gas_eng-driven_RTHP-heat',
+                                'res_type_gasHP-heat', 'gas_boiler',
+                                'gas_furnace']},
+                        "distillate": {
+                            'water heating': ['oil_water_heater'],
+                            'heating': ['oil_boiler', 'oil_furnace']}},
+                    "demand": [
+                        'roof', 'ground', 'lighting gain',
+                        'windows conduction', 'equipment gain',
+                        'floor', 'infiltration', 'people gain',
+                        'windows solar', 'ventilation',
+                        'other heat gain', 'wall']}}}
         self.out_break_czones = OrderedDict([
             ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
@@ -760,6 +942,11 @@ class Measure(object):
         # occur only once per microsegment building type
         bldgs_costconverted = {}
 
+        # Fill out any climate zone, building type and primary microsegment
+        # fuel type, end use, and/or technology attributes marked 'all' by
+        # users
+        self.fill_attr("primary")
+
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
         # baseline microsegment(s) directly affected by a measure (e.g.,
@@ -775,12 +962,15 @@ class Measure(object):
         # Determine "primary" microsegment key chains
         ms_iterable, ms_lists = self.create_keychain("primary")
 
-        # Determine "secondary" microsegment key chains and add to the
-        # "primary" microsegment key chain list, if needed. In a commercial
-        # lighting measure case where no secondary microsegment is specified,
-        # use the "lighting gain" thermal load component microsegments to
-        # represent secondary end use effects of the lighting measure
+        # If needed, fill out any secondary microsegment fuel type, end use,
+        # and/or technology input attributes marked 'all' by users. Determine
+        # secondary microsegment key chains and add to the primary
+        # microsegment key chain list. In a commercial lighting measure case
+        # where no secondary microsegment is specified, use the "lighting
+        # gain" thermal load component microsegments to represent secondary
+        # end use effects of the lighting measure
         if self.end_use["secondary"] is not None:
+            self.fill_attr("secondary")
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
@@ -2571,6 +2761,165 @@ class Measure(object):
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff]
+
+    def fill_attr(self, mseg_type):
+        """Fill out 'all' values in measure input attributes.
+
+        Note:
+            Handles cases where users do not wish to write out all the
+            climate zones, building types, etc. that a measure applies to in
+            the measure definition. For example, this function allows one to
+            write 'all' for the 'climate_zone' measure attribute in lieu of
+            ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'].
+
+        Args:
+            mseg_type (string): Identifies the type of baseline microsegments
+                to fill out input attributes for ('primary' or 'secondary').
+        """
+        # Fill out an 'all' climate zone input
+        if self.climate_zone == 'all':
+            self.climate_zone = self.handyvars.in_all_map["climate_zone"]
+
+        # Fill out an 'all' structure type input
+        if self.structure_type == 'all':
+            self.structure_type = self.handyvars.in_all_map["structure_type"]
+
+        # Fill out an 'all' building type input
+        if self.bldg_type == "all":
+            # Record the measure's applicability to both the residential and
+            # the commercial building sectors (for use in filling out
+            # 'fuel_type,' 'end_use,' and 'technology' attributes below)
+            map_bldgsect = self.handyvars.in_all_map["bldg_type"].keys()
+            # Reset the measure 'bldg_type' attribute as a list and fill
+            # with all building types for residential and commercial sectors
+            self.bldg_type = []
+            [self.bldg_type.extend(self.handyvars.in_all_map[
+                "bldg_type"][b]) for b in map_bldgsect]
+            # For an 'all' building type case, measure 'installed_cost,'
+            # 'cost_units,' 'energy_efficiency,' 'energy_efficiency_units,'
+            # and/or 'product_lifetime' attributes may be formatted as
+            # dictionaries broken out by building sector (e.g., with
+            # 'all residential' and 'all commercial' keys). This part of the
+            # code replaces such keys and their associated values with the
+            # appropriate set of building types. For example a
+            # ('all commercial', 1) key, value pair would be replaced with
+            # [('assembly', 1), ('education', 1), ...]
+            for attr in [self.installed_cost, self.cost_units,
+                         self.energy_efficiency[mseg_type],
+                         self.energy_efficiency_units[mseg_type],
+                         self.product_lifetime]:
+                # Check whether attribute is a dict before moving further
+                if isinstance(attr, dict):
+                    # Loop through each building sector and the building
+                    # type names in that sector, adding new key, value pairs
+                    # to the attribute dict where the building type name is
+                    # each key and the original value for the building
+                    # sector is the value for the new pair
+                    for b in map_bldgsect:
+                        for kn in self.handyvars.in_all_map["bldg_type"][b]:
+                            attr[kn] = [
+                                x[1] for x in attr.items() if b in x[0]][0]
+                    # Remove the original 'all residential' and
+                    # 'all commercial' branches from the attribute dict
+                    del_keys = [x for x in attr.keys() if x in [
+                                'all residential', 'all commercial']]
+                    for dk in del_keys:
+                        del(attr[dk])
+        # Fill out an 'all residential' or 'all commercial' building type input
+        elif "all" in self.bldg_type:
+            # Record the measure's applicability to either the residential or
+            # the commercial building sector (for use in filling out
+            # 'fuel_type,' 'end_use,' and 'technology' attributes below)
+            map_bldgsect = [b for b in self.handyvars.in_all_map[
+                "bldg_type"].keys() if b in self.bldg_type]
+            # Reset the measure 'bldg_type' attribute as a list and fill
+            # with all building types for residential or commercial sector
+            self.bldg_type = []
+            [self.bldg_type.extend(self.handyvars.in_all_map[
+                "bldg_type"][b]) for b in map_bldgsect]
+        # If there is no 'all' building type input, still record the
+        # measure's applicability to the residential and/or
+        # the commercial building sector (for use in filling out
+        # 'fuel_type,' 'end_use,' and 'technology' attributes below)
+        else:
+            map_bldgsect = [b[0] for b in self.handyvars.in_all_map[
+                "bldg_type"].items() if any([
+                    bta in b[1] for bta in self.bldg_type])]
+
+        # Fill out an 'all' fuel type input
+        if self.fuel_type[mseg_type] == 'all':
+            # Reset measure 'fuel_type' attribute as a list and fill with
+            # all fuels for the measure's applicable building sector(s)
+            self.fuel_type[mseg_type] = []
+            for b in map_bldgsect:
+                [self.fuel_type[mseg_type].append(f) for f in
+                 self.handyvars.in_all_map["fuel_type"][b] if
+                 f not in self.fuel_type[mseg_type]]
+
+        # Fill out an 'all' end use input
+        if self.end_use[mseg_type] == 'all':
+            # Reset measure 'end_use' attribute as a list and fill with
+            # all end uses for the measure's applicable building sector(s)
+            # and fuel type(s)
+            self.end_use[mseg_type] = []
+            for b in map_bldgsect:
+                for f in [x for x in self.fuel_type[mseg_type] if
+                          x in self.handyvars.in_all_map["fuel_type"][b]]:
+                    [self.end_use[mseg_type].append(e) for e in
+                     self.handyvars.in_all_map["end_use"][b][f] if
+                     e not in self.end_use[mseg_type]]
+
+        # Fill out a technology input that is marked 'all' or is
+        # formatted as a list with certain elements containing 'all'
+        # (e.g., 'all heating,' 'all water heating,' etc.)
+        if self.technology[mseg_type] == 'all' or \
+            (type(self.technology[mseg_type]) == list and any([
+             t is not None and 'all ' in t for t in
+             self.technology[mseg_type]])):
+            # Record the initial 'technology' attribute the user has defined
+            # for the measure before this attribute is reset below
+            map_tech_orig = self.technology[mseg_type]
+            # Reset the measure 'technology' attribute as a list that does not
+            # contain any elements including 'all' (e.g., if the 'technology'
+            # attribute value was initially 'all', it would be reset as a
+            # blank list; if the 'technology' attribute value was initially
+            # ['all heating', 'electric WH'], it would be reset as
+            # ['electric WH'])
+            if self.technology[mseg_type] == 'all':
+                self.technology[mseg_type] = []
+            else:
+                self.technology[mseg_type] = [
+                    t for t in self.technology[mseg_type] if 'all ' not in t]
+            # Fill 'technology' attribute
+            for b in map_bldgsect:
+                # Case concerning a demand-side technology, for which the set
+                # of 'all' technologies depends only on the measure's
+                # applicable building sector(s)
+                if self.technology_type[mseg_type] == "demand":
+                    [self.technology[mseg_type].append(t) for t in
+                        self.handyvars.in_all_map["technology"][b][
+                        self.technology_type[mseg_type]] if t not in
+                        self.technology[mseg_type]]
+                # Case concerning a supply-side technology, for which the set
+                # of 'all' technologies depends on the measure's applicable
+                # building sector(s), fuel type(s), and end use(s)
+                else:
+                    for f in [ft for ft in self.fuel_type[mseg_type] if
+                              ft in self.handyvars.in_all_map["fuel_type"][b]]:
+                        for e in [eu for eu in self.end_use[mseg_type] if eu in
+                                  self.handyvars.in_all_map["end_use"][b][f]]:
+                            # Note that the comprehension below handles both an
+                            # 'all' value for the initial user-defined
+                            # 'technology' attribute and a list value for this
+                            # attribute that contains elements with 'all'
+                            # (e.g., ['all heating', ...])
+                            [self.technology[mseg_type].append(t) for
+                             t in self.handyvars.in_all_map["technology"][b][
+                             self.technology_type[mseg_type]][f][e] if
+                             t not in self.technology[mseg_type] and
+                             (map_tech_orig == "all" or any([
+                                 e in torig for torig in map_tech_orig if
+                                 'all' in torig]))]
 
     def create_keychain(self, mseg_type):
         """Create list of dictionary keys used to find baseline microsegments.

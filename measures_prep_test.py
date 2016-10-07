@@ -7290,6 +7290,403 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.dict_check(lists1[elem2], lists2[elem2])
 
 
+class FillParametersTest(unittest.TestCase, CommonMethods):
+    """Test 'fill_attr' function.
+
+    Ensure that the function properly converts user-defined 'all'
+    climate zone, building type, fuel type, end use, and technology
+    attributes to the expanded set of names needed to retrieve measure
+    stock, energy, and technology characteristics data.
+
+    Attributes:
+        sample_measure_in (dict): Sample measures with attributes
+            including 'all' to fill out.
+        ok_primary_cpl_out (list): List of cost, performance, and
+            lifetime attributes that should be yielded by the function
+            for the first sample measure, given valid inputs.
+        ok_primary_mkts_out (list): List of climate zone, building
+            type, primary fuel, primary end use, and primary technology
+            attributes that should be yielded by the function for each
+            of the sample measures, given valid inputs.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
+        sample_measures = [{
+            "name": "sample measure 1",
+            "installed_cost": {
+                "all residential": 1,
+                "all commercial": 2},
+            "cost_units": {
+                "all residential": "cost unit 1",
+                "all commercial": "cost unit 2"},
+            "energy_efficiency": {
+                "primary": {
+                    "all residential": {
+                        "heating": 111,
+                        "cooling": 111},
+                    "all commercial": 222},
+                "secondary": None},
+            "energy_efficiency_units": {
+                "primary": {
+                    "all residential": "energy unit 1",
+                    "all commercial": "energy unit 2"},
+                "secondary": None},
+            "product_lifetime": {
+                "all residential": 11,
+                "all commercial": 22},
+            "climate_zone": "all",
+            "bldg_type": "all",
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": "all",
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": "all",
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 2",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": "all",
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": "all",
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": [
+                    "heating", "cooling", "secondary heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "demand",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 3",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": "all residential",
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": ["electricity"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": [
+                    "lighting", "water heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 4",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": "all commercial",
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": [
+                    "electricity", "natural gas"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": [
+                    "heating", "water heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": [
+                    "all heating", "electric WH"],
+                "secondary": None}},
+            {
+            "name": "sample measure 5",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": ["assembly", "education"],
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": ["natural gas"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": ["heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}}]
+        cls.sample_measures_in = [measures_prep.Measure(
+            handyvars, **x) for x in sample_measures]
+        cls.ok_primary_cpl_out = [{
+            'assembly': 2, 'education': 2, 'food sales': 2,
+            'food service': 2, 'health care': 2,
+            'large office': 2, 'lodging': 2, 'mercantile/service': 2,
+            'mobile home': 1, 'multi family home': 1, 'other': 2,
+            'single family home': 1, 'small office': 2, 'warehouse': 2},
+            {
+            'assembly': "cost unit 2", 'education': "cost unit 2",
+            'food sales': "cost unit 2",
+            'food service': "cost unit 2", 'health care': "cost unit 2",
+            'large office': "cost unit 2", 'lodging': "cost unit 2",
+            'mercantile/service': "cost unit 2",
+            'mobile home': "cost unit 1",
+            'multi family home': "cost unit 1", 'other': "cost unit 2",
+            'single family home': "cost unit 1",
+            'small office': "cost unit 2", 'warehouse': "cost unit 2"},
+            {
+            'assembly': 222, 'education': 222, 'food sales': 222,
+            'food service': 222, 'health care': 222,
+            'large office': 222, 'lodging': 222, 'mercantile/service': 222,
+            'mobile home': {"heating": 111, "cooling": 111},
+            'multi family home': {"heating": 111, "cooling": 111},
+            'other': 222,
+            'single family home': {"heating": 111, "cooling": 111},
+            'small office': 222, 'warehouse': 222},
+            {
+            'assembly': "energy unit 2", 'education': "energy unit 2",
+            'food sales': "energy unit 2",
+            'food service': "energy unit 2", 'health care': "energy unit 2",
+            'large office': "energy unit 2", 'lodging': "energy unit 2",
+            'mercantile/service': "energy unit 2",
+            'mobile home': "energy unit 1",
+            'multi family home': "energy unit 1", 'other': "energy unit 2",
+            'single family home': "energy unit 1",
+            'small office': "energy unit 2", 'warehouse': "energy unit 2"},
+            {
+            'assembly': 22, 'education': 22, 'food sales': 22,
+            'food service': 22, 'health care': 22,
+            'large office': 22, 'lodging': 22, 'mercantile/service': 22,
+            'mobile home': 11, 'multi family home': 11, 'other': 22,
+            'single family home': 11, 'small office': 22,
+            'warehouse': 22}]
+        cls.ok_primary_mkts_out = [[
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["single family home", "multi family home", "mobile home",
+             "assembly", "education", "food sales", "food service",
+             "health care", "lodging", "large office", "small office",
+             "mercantile/service", "warehouse", "other"],
+            ["new", "existing"],
+            ["electricity", "natural gas", "distillate", "other fuel"],
+            ['drying', 'other (grid electric)', 'water heating',
+             'cooling', 'cooking', 'computers', 'lighting',
+             'secondary heating', 'TVs', 'heating', 'refrigeration',
+             'fans & pumps', 'ceiling fan', 'ventilation', 'MELs',
+             'non-PC office equipment', 'PCs'],
+            ['dishwasher', 'other MELs',
+             'clothes washing', 'freezers',
+             'solar WH', 'electric WH',
+             'room AC', 'ASHP', 'GSHP', 'central AC',
+             'desktop PC', 'laptop PC', 'network equipment',
+             'monitors',
+             'linear fluorescent (T-8)',
+             'linear fluorescent (T-12)',
+             'reflector (LED)', 'general service (CFL)',
+             'external (high pressure sodium)',
+             'general service (incandescent)',
+             'external (CFL)',
+             'external (LED)', 'reflector (CFL)',
+             'reflector (incandescent)',
+             'general service (LED)',
+             'external (incandescent)',
+             'linear fluorescent (LED)',
+             'reflector (halogen)',
+             'non-specific',
+             'home theater & audio', 'set top box',
+             'video game consoles', 'DVD', 'TV',
+             'boiler (electric)',
+             'NGHP', 'furnace (NG)', 'boiler (NG)',
+             'boiler (distillate)', 'furnace (distillate)',
+             'resistance', 'furnace (kerosene)',
+             'stove (wood)', 'furnace (LPG)',
+             'secondary heating (wood)',
+             'secondary heating (coal)',
+             'secondary heating (kerosene)',
+             'secondary heating (LPG)',
+             'VAV_Vent', 'CAV_Vent',
+             'Solar water heater', 'HP water heater',
+             'elec_booster_water_heater',
+             'elec_water_heater',
+             'rooftop_AC', 'scroll_chiller',
+             'res_type_central_AC', 'reciprocating_chiller',
+             'comm_GSHP-cool', 'centrifugal_chiller',
+             'rooftop_ASHP-cool', 'wall-window_room_AC',
+             'screw_chiller',
+             'electric_res-heat', 'comm_GSHP-heat',
+             'rooftop_ASHP-heat', 'elec_boiler',
+             'Reach-in_freezer', 'Supermkt_compressor_rack',
+             'Walk-In_freezer', 'Supermkt_display_case',
+             'Walk-In_refrig', 'Reach-in_refrig',
+             'Supermkt_condenser', 'Ice_machine',
+             'Vend_Machine', 'Bevrg_Mchndsr',
+             'lab fridges and freezers',
+             'non-road electric vehicles',
+             'kitchen ventilation', 'escalators',
+             'distribution transformers',
+             'large video displays', 'video displays',
+             'elevators', 'laundry', 'medical imaging',
+             'coffee brewers', 'fume hoods',
+             'security systems',
+             'F28T8 HE w/ OS', 'F28T8 HE w/ SR',
+             '90W Halogen Edison', 'HPS 150_HB', 'F96T8',
+             'F96T12 mag', '72W incand', 'F96T8 HE',
+             'LED_LB', 'F28T8 HE w/ OS & SR',
+             'LED 150 HPS_HB', 'F96T8 HO_HB',
+             '26W CFL', 'HPS 70_LB',
+             '90W Halogen PAR-38', 'MH 400_HB',
+             'LED Edison', 'F28T5', 'HPS 100_LB',
+             '100W incand', 'MH 250_HB',
+             'F54T5 HO_HB', 'MV 400_HB', 'F28T8 HE',
+             'LED_HB', '70W HIR PAR-38', 'F32T8',
+             'F96T8 HO_LB', '2L F54T5HO LB',
+             'F96T12 ES mag', '23W CFL', 'LED T8',
+             'MH 175_LB', 'LED 100 HPS_LB', 'MV 175_LB',
+             'F34T12', 'T8 F32 EEMag (e)',
+             'Range, Electric-induction, 4 burner, oven, 1',
+             'Range, Electric, 4 burner, oven, 11-inch gr',
+             'gas_eng-driven_RTAC', 'gas_chiller',
+             'res_type_gasHP-cool',
+             'gas_eng-driven_RTHP-cool',
+             'gas_water_heater', 'gas_instantaneous_WH',
+             'gas_booster_WH',
+             'Range, Gas, 4 powered burners, convect. oven',
+             'Range, Gas, 4 burner, oven, 11-inch griddle',
+             'gas_eng-driven_RTHP-heat',
+             'res_type_gasHP-heat', 'gas_boiler',
+             'gas_furnace', 'oil_water_heater',
+             'oil_boiler', 'oil_furnace', None]],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["single family home", "multi family home", "mobile home",
+             "assembly", "education", "food sales", "food service",
+             "health care", "lodging", "large office", "small office",
+             "mercantile/service", "warehouse", "other"],
+            ["new", "existing"],
+            ["electricity", "natural gas", "distillate", "other fuel"],
+            ['cooling', 'secondary heating', 'heating'],
+            ['roof', 'ground', 'lighting gain',
+             'windows conduction', 'equipment gain',
+             'floor', 'infiltration', 'people gain',
+             'windows solar', 'ventilation',
+             'other heat gain', 'wall']],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["single family home", "multi family home", "mobile home"],
+            ["new", "existing"],
+            ["electricity"],
+            ["lighting", "water heating"],
+            ['solar WH', 'electric WH', 'linear fluorescent (T-8)',
+             'linear fluorescent (T-12)',
+             'reflector (LED)', 'general service (CFL)',
+             'external (high pressure sodium)',
+             'general service (incandescent)',
+             'external (CFL)',
+             'external (LED)', 'reflector (CFL)',
+             'reflector (incandescent)',
+             'general service (LED)',
+             'external (incandescent)',
+             'linear fluorescent (LED)',
+             'reflector (halogen)']],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["assembly", "education", "food sales", "food service",
+             "health care", "lodging", "large office", "small office",
+             "mercantile/service", "warehouse", "other"],
+            ["new", "existing"],
+            ["electricity", "natural gas"],
+            ["heating", "water heating"],
+            ['electric_res-heat', 'comm_GSHP-heat', 'rooftop_ASHP-heat',
+             'elec_boiler', 'gas_eng-driven_RTHP-heat', 'res_type_gasHP-heat',
+             'gas_boiler', 'gas_furnace', 'electric WH']],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["assembly", "education"],
+            ["new", "existing"],
+            ["natural gas"],
+            ["heating"],
+            ["res_type_gasHP-heat", "gas_eng-driven_RTHP-heat",
+             "gas_boiler", "gas_furnace"]]]
+
+    def test_fill(self):
+        """Test 'fill_attr' function given valid inputs.
+
+        Note:
+            Tests that measure attributes containing 'all' are properly
+            filled in with the appropriate attribute details.
+
+        Raises:
+            AssertionError: If function yields unexpected results.
+        """
+        # Loop through sample measures
+        for ind, m in enumerate(self.sample_measures_in):
+            # Execute the function on each sample measure
+            m.fill_attr("primary")
+            # For the first sample measure, check that cost, performance,
+            # and lifetime attribute dicts with 'all residential' and
+            # 'all commercial' keys were properly filled out
+            if ind == 0:
+                [self.dict_check(x, y) for x, y in zip([
+                    m.installed_cost, m.cost_units,
+                    m.energy_efficiency["primary"],
+                    m.energy_efficiency_units["primary"],
+                    m.product_lifetime],
+                    [o for o in self.ok_primary_cpl_out])]
+            # For each sample measure, check that 'all' climate zone,
+            # building type/vintage, fuel type, end use, and technology
+            # attributes were properly filled out
+            self.assertEqual([
+                sorted(m.climate_zone), sorted(m.bldg_type),
+                sorted(m.structure_type), sorted(m.fuel_type['primary']),
+                sorted(m.end_use['primary']), sorted(
+                    m.technology['primary'], key=lambda x: (x is None, x))],
+                [sorted(x, key=lambda x: (x is None, x)) for
+                 x in self.ok_primary_mkts_out[ind]])
+
+
 class CreateKeyChainTest(unittest.TestCase, CommonMethods):
     """Test 'create_keychain' function.
 
