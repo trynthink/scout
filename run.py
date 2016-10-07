@@ -1728,6 +1728,8 @@ class Engine(object):
             save_metric_uncertain = [
                 mkts["energy"]["total"]["efficient"],
                 mkts["carbon"]["total"]["efficient"],
+                mkts["cost"]["energy"]["total"]["efficient"],
+                mkts["cost"]["carbon"]["total"]["efficient"],
                 save["energy"]["savings (total)"],
                 save["energy"]["cost savings (total)"],
                 save["carbon"]["savings (total)"],
@@ -1749,35 +1751,41 @@ class Engine(object):
             if any([type(x) == numpy.ndarray for x in
                     save["energy"]["savings (total)"].values()]):
                 # Average values for outputs
-                energy_eff_avg, carb_eff_avg, energy_save_avg, \
+                energy_eff_avg, carb_eff_avg, energy_cost_eff_avg, \
+                    carb_cost_eff_avg, energy_save_avg, \
                     energy_costsave_avg, carb_save_avg, \
                     carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
                     ccc_e_avg = [{
                         k: numpy.mean(v) for k, v in z.items()} for
                         z in save_metric_uncertain]
                 # 5th percentile values for outputs
-                energy_eff_low, carb_eff_low, energy_save_low, \
+                energy_eff_low, carb_eff_low, energy_cost_eff_low, \
+                    carb_cost_eff_low, energy_save_low, \
                     energy_costsave_low, carb_save_low, \
                     carb_costsave_low, cce_low, cce_c_low, ccc_low, \
                     ccc_e_low = [{
                         k: numpy.percentile(v, 5) for k, v in
                         z.items()} for z in save_metric_uncertain]
                 # 95th percentile values for outputs
-                energy_eff_high, carb_eff_high, energy_save_high, \
+                energy_eff_high, carb_eff_high, energy_cost_eff_high, \
+                    carb_cost_eff_high, energy_save_high, \
                     energy_costsave_high, carb_save_high, \
                     carb_costsave_high, cce_high, \
                     cce_c_high, ccc_high, ccc_e_high = [{
                         k: numpy.percentile(v, 95) for k, v in
                         z.items()} for z in save_metric_uncertain]
             else:
-                energy_eff_avg, carb_eff_avg, energy_save_avg, \
+                energy_eff_avg, carb_eff_avg, energy_cost_eff_avg, \
+                    carb_cost_eff_avg, energy_save_avg, \
                     energy_costsave_avg, carb_save_avg, \
                     carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
                     ccc_e_avg, energy_eff_low, carb_eff_low, \
+                    energy_cost_eff_low, carb_cost_eff_low, \
                     energy_save_low, energy_costsave_low, \
                     carb_save_low, carb_costsave_low, cce_low, \
                     cce_c_low, ccc_low, ccc_e_low, energy_eff_high, \
-                    carb_eff_high, energy_save_high, \
+                    carb_eff_high, energy_cost_eff_high, \
+                    carb_cost_eff_high, energy_save_high, \
                     energy_costsave_high, carb_save_high, \
                     carb_costsave_high, cce_high, cce_c_high, \
                     ccc_high, ccc_e_high = [
@@ -1800,6 +1808,17 @@ class Engine(object):
                             "carbon"]["total"]["baseline"].items()))),
                     ("Efficient CO2 Emissions (MMTons)".translate(sub),
                         carb_eff_avg),
+                    # Order year entries of baseline energy cost market
+                    ("Baseline Energy Cost (USD)",
+                        OrderedDict(sorted(mkts["cost"]["energy"][
+                            "total"]["baseline"].items()))),
+                    ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
+                    # Order year entries of baseline carbon cost market
+                    ("Baseline CO2 Cost (USD)".translate(sub),
+                        OrderedDict(sorted(mkts["cost"]["carbon"][
+                            "total"]["baseline"].items()))),
+                    ("Efficient CO2 Cost (USD)".translate(sub),
+                        carb_cost_eff_avg),
                     ("Energy Savings (MMBtu)", energy_save_avg),
                     ("Energy Cost Savings (USD)", energy_costsave_avg),
                     ("Avoided CO2 Emissions (MMTons)".

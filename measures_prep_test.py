@@ -8290,7 +8290,9 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         handyvars = measures_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 2",
-            "active": 1,
+            "remove": False,
+            "installed_cost": 2,
+            "installed_cost_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,

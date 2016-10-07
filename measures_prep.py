@@ -2172,7 +2172,8 @@ class Measure(object):
             str(round(cost_meas_fin, 2)) + " " + cost_meas_units_fin
         # Add building type information to base message in cases where cost
         # conversion depends on building type (e.g., for envelope components)
-        if cost_meas_noyr in self.handyvars.cconv_bybldg_units:
+        if cost_meas_noyr in self.handyvars.cconv_bybldg_units or \
+                isinstance(self.installed_cost, dict):
             user_message += " for '" + mskeys[2] + "'"
         # Print user message
         print(user_message)
