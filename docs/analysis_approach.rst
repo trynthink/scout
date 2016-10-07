@@ -1,5 +1,4 @@
-.. in-text replacements
-
+.. Substitutions
 .. |CO2| replace:: CO\ :sub:`2`
 .. |ft2| replace:: ft\ :sup:`2`
 
