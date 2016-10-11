@@ -1,0 +1,82 @@
+{
+  "name": "LED Troffers",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": {
+    "primary": "lighting",
+    "secondary": ["cooling", "heating"]},
+  "fuel_type": {
+    "primary": "electricity",
+    "secondary": "all"},
+  "technology_type": {
+    "primary": "supply",
+    "secondary": "supply"},
+  "technology": {
+    "primary": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"]],
+    "secondary": ["all heating", "all cooling"]},
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": null,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": "NA",
+  "energy_efficiency": {
+    "primary": 120,
+    "secondary": null},
+  "energy_efficiency_units": {
+    "primary": "lm/W",
+    "secondary": null},
+  "energy_efficiency_source": {
+    "notes": "Augmented by data from the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": null,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "installed_cost": 233.33,
+  "cost_units": "$/1000 lm",
+  "installed_cost_source": {
+    "notes": "Assumes single fixture provides 4800 lm; requires 2 hour install with 2 people at a fully-burdened cost of $100/person/hr. Luminaire cost based on a range of retail prices found for luminaires with similar specifications found online in October 2016.",
+    "source_data": [{
+       "title": "",
+       "author": "",
+       "organization": "",
+       "year": null,
+       "pages": null,
+       "URL": ""}]},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Calculated from 68,000 hrs assuming 12 hr/day operation.",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": null,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "fuel_switch_to": null,
+  "_description": "LED troffers for commercial modular dropped ceiling grids that are a replacement for the entire troffer luminaire for linear fluorescent bulbs, not a retrofit kit or linear LED bulbs that slot into existing troffers.",
+  "_notes": "Energy performance is specified for the luminare, not the base lamp.",
+  "_added_by": {
+    "name": "Carmen Sandiego",
+    "organization": "Super Appliances, Inc.",
+    "email": "carmen.sandiego@superappliances.com",
+    "timestamp": "2009-10-12 12:53:19"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null},

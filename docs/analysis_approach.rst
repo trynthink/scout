@@ -23,7 +23,11 @@ A full analysis in Scout has three primary steps, shown with some additional det
 Step 1: Develop initial ECM definition (meas_toupdate_in.json)
 --------------------------------------------------------------
 
-Users may define entirely new ECMs or modify existing ECM definitions from the database ‘meas_summary_data.json’. [#]_ Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes – energy performance, installed cost, and lifetime – may be assigned a probability distribution [#]_ instead of a point value; these attributes also require sourcing information from the user. Acceptable sources for ECM input definitions include: RSMeans_ (for cost); `EnergyPlus/OpenStudio`_ (for performance, see :ref:`step 2 <analysis-step-2>`); databases from EIA_, `ENERGY STAR`_, and national labs; peer-reviewed journal publications or reports; and product literature.
+Users may define entirely new ECMs or modify existing ECM definitions from the database ‘meas_summary_data.json’. [#]_ Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes – energy performance, installed cost, and lifetime – may be assigned a probability distribution [#]_ instead of a point value; these attributes also require sourcing information from the user. 
+
+.. _ecm-sources:
+
+Acceptable sources for ECM input definitions include: RSMeans_ (for cost); `EnergyPlus/OpenStudio`_ (for performance, see :ref:`step 2 <analysis-step-2>`); databases from EIA_, `ENERGY STAR`_, and national labs; peer-reviewed journal publications or reports; and product literature.
 
 Selections for the applicable baseline market parameters are used in :ref:`step 2 <analysis-step-2>` to retrieve total energy use, |CO2|, and operating cost data for the baseline market. The ECM can then be applied to that baseline market to calculate savings impacts.
 
@@ -64,6 +68,8 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 
    * Performance is specified at the unit level in absolute terms (e.g., U-value and solar heat gain coefficient for a window, or COP for a heat pump) or as a percentage relative savings value. 
    * Relative savings percentages can be drawn from results of EnergyPlus/OpenStudio simulations. In such cases, the user flags the use of EnergyPlus/OpenStudio results in the performance input definition, and these results are filled in as part of :ref:`step 2 <analysis-step-2>` of the ECM analysis process.
+
+.. _ecm-installed-cost:
 
 * Installed cost
 
@@ -133,7 +139,7 @@ Finalizing ECM performance input via EnergyPlus/OpenStudio
 Calculating total baseline energy, |CO2|, and cost (uncompeted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a 2010-2040 projection of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case` simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE (add link to more detailed description).
+   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a _`2010-2040 projection` of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case` simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE (add link to more detailed description).
 
       * Baseline stock data represent the total number of units of a certain incumbent or “business-as-usual” technology associated with a given baseline market and year in the projection period. An example is the number of air-source heat pump units in all existing single family homes in mixed dry climates in the year 2020. When a number of units value is not available or not applicable for a baseline market, such as for building envelope component technologies, total building floor area square footage associated with that baseline market and year is used to quantify the baseline stock.
       * Baseline energy use data represent the total energy use attributed to a certain baseline market and year in the projection period. For example, the energy used to provide heating in all existing single family homes in mixed dry climates in the year 2031.
