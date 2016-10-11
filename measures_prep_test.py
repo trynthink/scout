@@ -7303,7 +7303,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             including 'all' to fill out.
         ok_primary_cpl_out (list): List of cost, performance, and
             lifetime attributes that should be yielded by the function
-            for the first sample measure, given valid inputs.
+            for the first two sample measures, given valid inputs.
         ok_primary_mkts_out (list): List of climate zone, building
             type, primary fuel, primary end use, and primary technology
             attributes that should be yielded by the function for each
@@ -7357,6 +7357,51 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "secondary": None}},
             {
             "name": "sample measure 2",
+            "installed_cost": {
+                "all residential": 1,
+                "assembly": 2,
+                "education": 2},
+            "cost_units": {
+                "all residential": "cost unit 1",
+                "assembly": "cost unit 2",
+                "education": "cost unit 2"},
+            "energy_efficiency": {
+                "primary": {
+                    "all residential": {
+                        "heating": 111,
+                        "cooling": 111},
+                    "assembly": 222,
+                    "education": 222},
+                "secondary": None},
+            "energy_efficiency_units": {
+                "primary": {
+                    "all residential": "energy unit 1",
+                    "assembly": "energy unit 2",
+                    "education": "energy unit 2"},
+                "secondary": None},
+            "product_lifetime": {
+                "all residential": 11,
+                "assembly": 22,
+                "education": 22},
+            "climate_zone": "all",
+            "bldg_type": [
+                "all residential", "assembly", "education"],
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": "all",
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": "all",
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 3",
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7382,7 +7427,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "primary": "all",
                 "secondary": None}},
             {
-            "name": "sample measure 3",
+            "name": "sample measure 4",
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7408,7 +7453,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "primary": "all",
                 "secondary": None}},
             {
-            "name": "sample measure 4",
+            "name": "sample measure 5",
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7436,7 +7481,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                     "all heating", "electric WH"],
                 "secondary": None}},
             {
-            "name": "sample measure 5",
+            "name": "sample measure 6",
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7462,7 +7507,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "secondary": None}}]
         cls.sample_measures_in = [measures_prep.Measure(
             handyvars, **x) for x in sample_measures]
-        cls.ok_primary_cpl_out = [{
+        cls.ok_primary_cpl_out = [[{
             'assembly': 2, 'education': 2, 'food sales': 2,
             'food service': 2, 'health care': 2,
             'large office': 2, 'lodging': 2, 'mercantile/service': 2,
@@ -7503,13 +7548,126 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             'large office': 22, 'lodging': 22, 'mercantile/service': 22,
             'mobile home': 11, 'multi family home': 11, 'other': 22,
             'single family home': 11, 'small office': 22,
-            'warehouse': 22}]
+            'warehouse': 22}],
+            [{
+             'assembly': 2, 'education': 2, 'mobile home': 1,
+             'multi family home': 1, 'single family home': 1},
+             {
+             'assembly': "cost unit 2", 'education': "cost unit 2",
+             'mobile home': "cost unit 1", 'multi family home': "cost unit 1",
+             'single family home': "cost unit 1"},
+             {
+             'assembly': 222, 'education': 222,
+             'mobile home': {"heating": 111, "cooling": 111},
+             'multi family home': {"heating": 111, "cooling": 111},
+             'single family home': {"heating": 111, "cooling": 111}},
+             {
+             'assembly': "energy unit 2", 'education': "energy unit 2",
+             'mobile home': "energy unit 1",
+             'multi family home': "energy unit 1",
+             'single family home': "energy unit 1"},
+             {
+             'assembly': 22, 'education': 22, 'mobile home': 11,
+             'multi family home': 11, 'single family home': 11}]]
         cls.ok_primary_mkts_out = [[
             ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
             ["single family home", "multi family home", "mobile home",
              "assembly", "education", "food sales", "food service",
              "health care", "lodging", "large office", "small office",
              "mercantile/service", "warehouse", "other"],
+            ["new", "existing"],
+            ["electricity", "natural gas", "distillate", "other fuel"],
+            ['drying', 'other (grid electric)', 'water heating',
+             'cooling', 'cooking', 'computers', 'lighting',
+             'secondary heating', 'TVs', 'heating', 'refrigeration',
+             'fans & pumps', 'ceiling fan', 'ventilation', 'MELs',
+             'non-PC office equipment', 'PCs'],
+            ['dishwasher', 'other MELs',
+             'clothes washing', 'freezers',
+             'solar WH', 'electric WH',
+             'room AC', 'ASHP', 'GSHP', 'central AC',
+             'desktop PC', 'laptop PC', 'network equipment',
+             'monitors',
+             'linear fluorescent (T-8)',
+             'linear fluorescent (T-12)',
+             'reflector (LED)', 'general service (CFL)',
+             'external (high pressure sodium)',
+             'general service (incandescent)',
+             'external (CFL)',
+             'external (LED)', 'reflector (CFL)',
+             'reflector (incandescent)',
+             'general service (LED)',
+             'external (incandescent)',
+             'linear fluorescent (LED)',
+             'reflector (halogen)',
+             'non-specific',
+             'home theater & audio', 'set top box',
+             'video game consoles', 'DVD', 'TV',
+             'boiler (electric)',
+             'NGHP', 'furnace (NG)', 'boiler (NG)',
+             'boiler (distillate)', 'furnace (distillate)',
+             'resistance', 'furnace (kerosene)',
+             'stove (wood)', 'furnace (LPG)',
+             'secondary heating (wood)',
+             'secondary heating (coal)',
+             'secondary heating (kerosene)',
+             'secondary heating (LPG)',
+             'VAV_Vent', 'CAV_Vent',
+             'Solar water heater', 'HP water heater',
+             'elec_booster_water_heater',
+             'elec_water_heater',
+             'rooftop_AC', 'scroll_chiller',
+             'res_type_central_AC', 'reciprocating_chiller',
+             'comm_GSHP-cool', 'centrifugal_chiller',
+             'rooftop_ASHP-cool', 'wall-window_room_AC',
+             'screw_chiller',
+             'electric_res-heat', 'comm_GSHP-heat',
+             'rooftop_ASHP-heat', 'elec_boiler',
+             'Reach-in_freezer', 'Supermkt_compressor_rack',
+             'Walk-In_freezer', 'Supermkt_display_case',
+             'Walk-In_refrig', 'Reach-in_refrig',
+             'Supermkt_condenser', 'Ice_machine',
+             'Vend_Machine', 'Bevrg_Mchndsr',
+             'lab fridges and freezers',
+             'non-road electric vehicles',
+             'kitchen ventilation', 'escalators',
+             'distribution transformers',
+             'large video displays', 'video displays',
+             'elevators', 'laundry', 'medical imaging',
+             'coffee brewers', 'fume hoods',
+             'security systems',
+             'F28T8 HE w/ OS', 'F28T8 HE w/ SR',
+             '90W Halogen Edison', 'HPS 150_HB', 'F96T8',
+             'F96T12 mag', '72W incand', 'F96T8 HE',
+             'LED_LB', 'F28T8 HE w/ OS & SR',
+             'LED 150 HPS_HB', 'F96T8 HO_HB',
+             '26W CFL', 'HPS 70_LB',
+             '90W Halogen PAR-38', 'MH 400_HB',
+             'LED Edison', 'F28T5', 'HPS 100_LB',
+             '100W incand', 'MH 250_HB',
+             'F54T5 HO_HB', 'MV 400_HB', 'F28T8 HE',
+             'LED_HB', '70W HIR PAR-38', 'F32T8',
+             'F96T8 HO_LB', '2L F54T5HO LB',
+             'F96T12 ES mag', '23W CFL', 'LED T8',
+             'MH 175_LB', 'LED 100 HPS_LB', 'MV 175_LB',
+             'F34T12', 'T8 F32 EEMag (e)',
+             'Range, Electric-induction, 4 burner, oven, 1',
+             'Range, Electric, 4 burner, oven, 11-inch gr',
+             'gas_eng-driven_RTAC', 'gas_chiller',
+             'res_type_gasHP-cool',
+             'gas_eng-driven_RTHP-cool',
+             'gas_water_heater', 'gas_instantaneous_WH',
+             'gas_booster_WH',
+             'Range, Gas, 4 powered burners, convect. oven',
+             'Range, Gas, 4 burner, oven, 11-inch griddle',
+             'gas_eng-driven_RTHP-heat',
+             'res_type_gasHP-heat', 'gas_boiler',
+             'gas_furnace', 'oil_water_heater',
+             'oil_boiler', 'oil_furnace', None]],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["single family home", "multi family home", "mobile home",
+             "assembly", "education"],
             ["new", "existing"],
             ["electricity", "natural gas", "distillate", "other fuel"],
             ['drying', 'other (grid electric)', 'water heating',
@@ -7665,16 +7823,16 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
         for ind, m in enumerate(self.sample_measures_in):
             # Execute the function on each sample measure
             m.fill_attr("primary")
-            # For the first sample measure, check that cost, performance,
+            # For the first two sample measures, check that cost, performance,
             # and lifetime attribute dicts with 'all residential' and
             # 'all commercial' keys were properly filled out
-            if ind == 0:
+            if ind < 2:
                 [self.dict_check(x, y) for x, y in zip([
                     m.installed_cost, m.cost_units,
                     m.energy_efficiency["primary"],
                     m.energy_efficiency_units["primary"],
                     m.product_lifetime],
-                    [o for o in self.ok_primary_cpl_out])]
+                    [o for o in self.ok_primary_cpl_out[ind]])]
             # For each sample measure, check that 'all' climate zone,
             # building type/vintage, fuel type, end use, and technology
             # attributes were properly filled out

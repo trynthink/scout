@@ -2785,22 +2785,50 @@ class Measure(object):
         if self.structure_type == 'all':
             self.structure_type = self.handyvars.in_all_map["structure_type"]
 
-        # Fill out an 'all' building type input
-        if self.bldg_type == "all":
+        # Fill out a building type input that is marked 'all',
+        # 'all residential' or 'all commercial', or is formatted as a list with
+        # certain elements containing 'all' (e.g.,
+        # ['all residential,' 'assembly', 'education'])
+        if self.bldg_type == "all" or "all" in self.bldg_type or (
+            type(self.bldg_type) == list and any([
+                'all ' in b for b in self.bldg_type])):
+            # Record the initial 'bldg_type' attribute the user has defined
+            # for the measure before this attribute is reset below
+            map_bldgtype_orig = self.bldg_type
+            # Reset the measure 'bldg_type' attribute as a list that does not
+            # contain any elements including 'all' (e.g., if the 'bldg_type'
+            # attribute value was initially 'all', 'all residential', or
+            # 'all commercial', it would be reset as a blank list; if the
+            # 'bldg_type' attribute value was initially
+            # ['all residential', 'assembly', 'education'], it would be reset
+            # as ['assembly', 'education'])
+            if self.bldg_type == 'all' or 'all' in self.bldg_type:
+                self.bldg_type = []
+            else:
+                self.bldg_type = [
+                    b for b in self.bldg_type if 'all ' not in b]
+            # Fill 'bldg_type' attribute. Note that the comprehension below
+            # handles 'all', 'all residential', or 'all commercial' values for
+            # the initial user-defined 'bldg_type' attribute as well as a list
+            # value for this attribute that contains elements with 'all' (e.g.,
+            # ['all residential,' 'assembly', 'education'])
+            [self.bldg_type.extend(b[1]) for b in self.handyvars.in_all_map[
+                "bldg_type"].items() if b[1] not in self.bldg_type and (
+                    map_bldgtype_orig == "all" or b[0] in map_bldgtype_orig or
+                    any([b[0] in borig for borig in map_bldgtype_orig if
+                        'all ' in borig]))]
             # Record the measure's applicability to both the residential and
             # the commercial building sectors (for use in filling out
             # 'fuel_type,' 'end_use,' and 'technology' attributes below)
-            map_bldgsect = self.handyvars.in_all_map["bldg_type"].keys()
-            # Reset the measure 'bldg_type' attribute as a list and fill
-            # with all building types for residential and commercial sectors
-            self.bldg_type = []
-            [self.bldg_type.extend(self.handyvars.in_all_map[
-                "bldg_type"][b]) for b in map_bldgsect]
+            map_bldgsect = [x[0] for x in self.handyvars.in_all_map[
+                "bldg_type"].items() if any([
+                    bt in x[1] for bt in self.bldg_type])]
+
             # For an 'all' building type case, measure 'installed_cost,'
             # 'cost_units,' 'energy_efficiency,' 'energy_efficiency_units,'
             # and/or 'product_lifetime' attributes may be formatted as
             # dictionaries broken out by building sector (e.g., with
-            # 'all residential' and 'all commercial' keys). This part of the
+            # 'all residential' and/or 'all commercial' keys). This part of the
             # code replaces such keys and their associated values with the
             # appropriate set of building types. For example a
             # ('all commercial', 1) key, value pair would be replaced with
@@ -2812,32 +2840,27 @@ class Measure(object):
                 # Check whether attribute is a dict before moving further
                 if isinstance(attr, dict):
                     # Loop through each building sector and the building
-                    # type names in that sector, adding new key, value pairs
-                    # to the attribute dict where the building type name is
-                    # each key and the original value for the building
-                    # sector is the value for the new pair
+                    # type names in that sector. If the sector has been
+                    # assigned an 'all' breakout for the current attribute, add
+                    # new key, value pairs to the attribute dict where the
+                    # building type name is each key and the original value
+                    # for the building sector is the value for the new pair
                     for b in map_bldgsect:
-                        for kn in self.handyvars.in_all_map["bldg_type"][b]:
-                            attr[kn] = [
-                                x[1] for x in attr.items() if b in x[0]][0]
+                        # Check whether the sector is assigned an 'all'
+                        # breakout in the attribute (e.g., 'all residential')
+                        sect_val = [x[1] for x in attr.items() if b in x[0]]
+                        # If sector is assigned 'all' breakout, add appropriate
+                        # building type keys and values to attribute dict
+                        if sect_val:
+                            for kn in self.handyvars.in_all_map[
+                                    "bldg_type"][b]:
+                                attr[kn] = sect_val[0]
                     # Remove the original 'all residential' and
                     # 'all commercial' branches from the attribute dict
                     del_keys = [x for x in attr.keys() if x in [
                                 'all residential', 'all commercial']]
                     for dk in del_keys:
                         del(attr[dk])
-        # Fill out an 'all residential' or 'all commercial' building type input
-        elif "all" in self.bldg_type:
-            # Record the measure's applicability to either the residential or
-            # the commercial building sector (for use in filling out
-            # 'fuel_type,' 'end_use,' and 'technology' attributes below)
-            map_bldgsect = [b for b in self.handyvars.in_all_map[
-                "bldg_type"].keys() if b in self.bldg_type]
-            # Reset the measure 'bldg_type' attribute as a list and fill
-            # with all building types for residential or commercial sector
-            self.bldg_type = []
-            [self.bldg_type.extend(self.handyvars.in_all_map[
-                "bldg_type"][b]) for b in map_bldgsect]
         # If there is no 'all' building type input, still record the
         # measure's applicability to the residential and/or
         # the commercial building sector (for use in filling out
@@ -2871,8 +2894,8 @@ class Measure(object):
                      e not in self.end_use[mseg_type]]
 
         # Fill out a technology input that is marked 'all' or is
-        # formatted as a list with certain elements containing 'all'
-        # (e.g., 'all heating,' 'all water heating,' etc.)
+        # formatted as a list with certain elements containing 'all' (e.g.,
+        # ['all heating,' 'central AC', 'room AC'])
         if self.technology[mseg_type] == 'all' or \
             (type(self.technology[mseg_type]) == list and any([
              t is not None and 'all ' in t for t in
@@ -2884,8 +2907,8 @@ class Measure(object):
             # contain any elements including 'all' (e.g., if the 'technology'
             # attribute value was initially 'all', it would be reset as a
             # blank list; if the 'technology' attribute value was initially
-            # ['all heating', 'electric WH'], it would be reset as
-            # ['electric WH'])
+            # ['all heating', 'central AC', 'room AC'], it would be reset as
+            # ['central AC', 'room AC'])
             if self.technology[mseg_type] == 'all':
                 self.technology[mseg_type] = []
             else:
@@ -2913,14 +2936,14 @@ class Measure(object):
                             # 'all' value for the initial user-defined
                             # 'technology' attribute and a list value for this
                             # attribute that contains elements with 'all'
-                            # (e.g., ['all heating', ...])
+                            # (e.g., ['all heating', 'central AC', 'room AC'])
                             [self.technology[mseg_type].append(t) for
                              t in self.handyvars.in_all_map["technology"][b][
                              self.technology_type[mseg_type]][f][e] if
                              t not in self.technology[mseg_type] and
                              (map_tech_orig == "all" or any([
                                  e in torig for torig in map_tech_orig if
-                                 'all' in torig]))]
+                                 'all ' in torig]))]
 
     def create_keychain(self, mseg_type):
         """Create list of dictionary keys used to find baseline microsegments.
