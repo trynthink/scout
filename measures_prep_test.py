@@ -1275,39 +1275,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}},
-                                "lighting gain": {
-                                    "performance": {
-                                        "typical": 0,
-                                        "best": 0,
-                                        "units": "NA",
-                                        "source":
-                                        "NA"},
-                                    "installed cost": {
-                                        "typical": 0,
-                                        "best": 0,
-                                        "units": "NA",
-                                        "source": "NA"},
-                                    "lifetime": {
-                                        "average": 0,
-                                        "range": 0,
-                                        "units": "NA",
-                                        "source": "NA"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}}},
+                                "lighting gain": 0}},
                         "lighting": {
                             "commercial light type X": {
                                 "performance": {
@@ -8545,14 +8513,49 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "commercial": "sample"}}},
             "cost unit conversions": {
                 "whole building": {
+                    "square footage to unit technology": {
+                        "original units": "$/ft^2 floor",
+                        "revised units": "$/unit",
+                        "conversion factor": {
+                            "description": "sample",
+                            "value": {
+                                "residential": {
+                                    "single family home": {
+                                        "linear fluorescent": 0.00175,
+                                        "general service": 0.02417,
+                                        "reflector": 0.003125,
+                                        "external": 0.004625,
+                                        "all other technologies": 0.000417},
+                                    "mobile home": {
+                                        "linear fluorescent": 0.00075,
+                                        "general service": 0.010625,
+                                        "reflector": 0.001375,
+                                        "external": 0.00229,
+                                        "all other technologies": 0.000417},
+                                    "multi family home": {
+                                        "linear fluorescent": 0.00108,
+                                        "general service": 0.014917,
+                                        "reflector": 0.00192,
+                                        "external": 0.00175,
+                                        "all other technologies": 0.00083}},
+                                "commercial": None},
+                            "units": "units/ft^2 floor",
+                            "source": "sample"}},
                     "wireless sensor network": {
                         "original units": "$/node",
                         "revised units": "$/ft^2 floor",
                         "conversion factor": {
                             "description": "sample",
-                            "value": 0.0005,
+                            "value": {
+                                "residential": {
+                                    "single family home": 0.0021,
+                                    "mobile home": 0.0021,
+                                    "multi family home": 0.0041},
+                                "commercial": 0.0005},
                             "units": "nodes/ft^2 floor",
-                            "source": "sample",
+                            "source": {
+                                "residential": "sample",
+                                "commercial": "sample"},
                             "notes": "sample"}},
                     "occupant-centered sensing and controls": {
                         "original units": "$/occupant",
@@ -8774,12 +8777,21 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "units": "1000 CFM/ft^2 floor",
                         "source": "Rule of thumb",
                         "notes": "sample"}},
+                "lighting": {
+                    "original units": "$/1000 lm",
+                    "revised units": "$/ft^2 floor",
+                    "conversion factor": {
+                        "description": "sample",
+                        "value": 0.049,
+                        "units": "1000 lm/ft^2 floor",
+                        "source": "sample",
+                        "notes": "sample"}},
                 "water heating": {
                     "original units": "$/kBtu/h water heating",
                     "revised units": "$/ft^2 floor",
                     "conversion factor": {
                         "description": "sample",
-                        "value": 0.04,
+                        "value": 0.012,
                         "units": "kBtu/h water heating/ft^2 floor",
                         "source": "sample",
                         "notes": "sample"}},
@@ -8788,13 +8800,19 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     "revised units": "$/ft^2 floor",
                     "conversion factor": {
                         "description": "sample",
-                        "value": 0.007,
+                        "value": 0.02,
                         "units": "kBtu/h refrigeration/ft^2 floor",
                         "source": "sample",
-                        "notes": "sample"}}}}
+                        "notes": "sample"}},
+                "cooking": {},
+                "MELs": {}
+            }
+        }
         cls.sample_bldgsect_ok_in = [
             "residential", "commercial", "commercial", "commercial",
-            "commercial", "commercial", "commercial", "commercial"]
+            "commercial", "commercial", "commercial", "commercial",
+            "residential", "residential", "commercial", "residential",
+            "residential"]
         cls.sample_mskeys_ok_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -8811,7 +8829,17 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             ('primary', 'marine', 'small office', 'electricity', 'cooling',
              'reciprocating_chiller', 'existing'),
             ('primary', 'mixed humid', 'health care', 'electricity', 'cooling',
-             'demand', 'roof', 'existing')]
+             'demand', 'roof', 'existing'),
+            ('primary', 'mixed humid', 'single family home', 'electricity',
+             'cooling', 'supply', 'ASHP'),
+            ('primary', 'mixed humid', 'single family home', 'electricity',
+             'lighting', 'linear fluorescent (LED)'),
+            ('primary', 'marine', 'food service', 'electricity', 'ventilation',
+             'CAV_Vent', 'existing'),
+            ('primary', 'mixed humid', 'multi family home', 'electricity',
+             'lighting', 'general service (CFL)'),
+            ('primary', 'mixed humid', 'multi family home', 'electricity',
+             'lighting', 'general service (CFL)')]
         cls.sample_mskeys_fail_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -8822,24 +8850,31 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         cls.cost_meas_units_ok_in_all = [
             '$/ft^2 glazing', '2013$/kBtu/h heating', '2010$/ft^2 footprint',
             '2016$/ft^2 roof', '2013$/ft^2 wall', '2012$/1000 CFM',
-            '2013$/occupant', '2013$/ft^2 roof']
+            '2013$/occupant', '2013$/ft^2 roof', '2013$/node',
+            '2013$/ft^2 floor', '2013$/node', '2013$/node',
+            '2013$/occupant']
         cls.cost_meas_units_fail_in = [
             '$/ft^2 facade', '$/kWh']
-        cls.cost_base_units_ok_in = '2013$/ft^2 floor'
+        cls.cost_base_units_ok_in = [
+            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/ft^2 floor',
+            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/ft^2 floor',
+            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/unit', '2013$/unit',
+            '2013$/ft^2 floor', '2013$/unit', '2013$/unit']
         cls.ok_out_costs_yronly = 11.11
         cls.ok_out_costs_all = [
-            1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182, 2]
-        cls.ok_out_cost_units = '2013$/ft^2 floor'
+            1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182,
+            2, 8.757e-06, 0.0175, 0.005, 0.00061, 0.00029834]
 
     def test_convertcost_ok_yronly(self):
         """Test 'convert_costs' function for year only conversion."""
         func_output = self.sample_measure_in.convert_costs(
             self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[0],
             self.sample_mskeys_ok_in[0], self.cost_meas_ok_in,
-            self.cost_meas_units_ok_in_yronly, self.cost_base_units_ok_in)
+            self.cost_meas_units_ok_in_yronly,
+            self.cost_base_units_ok_in[0])
         numpy.testing.assert_almost_equal(
             func_output[0], self.ok_out_costs_yronly, decimal=2)
-        self.assertEqual(func_output[1], self.ok_out_cost_units)
+        self.assertEqual(func_output[1], self.cost_base_units_ok_in[0])
 
     def test_convertcost_ok_all(self):
         """Test 'convert_costs' function for year/units conversion."""
@@ -8847,10 +8882,11 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             func_output = self.sample_measure_in.convert_costs(
                 self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
                 self.sample_mskeys_ok_in[k], self.cost_meas_ok_in,
-                self.cost_meas_units_ok_in_all[k], self.cost_base_units_ok_in)
+                self.cost_meas_units_ok_in_all[k],
+                self.cost_base_units_ok_in[k])
             numpy.testing.assert_almost_equal(
                 func_output[0], self.ok_out_costs_all[k], decimal=2)
-            self.assertEqual(func_output[1], self.ok_out_cost_units)
+            self.assertEqual(func_output[1], self.cost_base_units_ok_in[k])
 
     def test_convertcost_fail(self):
         """Test 'convert_costs' function given invalid inputs."""
@@ -8861,7 +8897,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     self.sample_bldgsect_ok_in[k],
                     self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
                     self.cost_meas_units_fail_in[k],
-                    self.cost_base_units_ok_in)
+                    self.cost_base_units_ok_in[k])
 
 
 class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
