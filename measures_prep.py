@@ -1614,18 +1614,24 @@ class Measure(object):
                     # technology cost, performance, and lifetime JSON
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
-                    elif isinstance(base_cpl, dict) and \
-                            "consumer choice" in base_cpl.keys():
-                        choice_params = base_cpl["consumer choice"][
-                            "competed market share"]["parameters"]
-                    # For uncovered end uses (e.g., envelope components),
-                    # default to choice parameters for the heating end use
                     else:
-                        choice_params = {
-                            "b1": {key: -0.003 for
-                                   key in self.handyvars.aeo_years},
-                            "b2": {key: -0.012 for
-                                   key in self.handyvars.aeo_years}}
+                        # Use try/except to handle cases with missing
+                        # or invalid consumer choice data (where choice
+                        # parameter values of 0 or "NA" are invalid)
+                        try:
+                            if any([x[1] in [0, "NA"] for x in base_cpl[
+                                "consumer choice"]["competed market share"][
+                                    "parameters"]["b1"].items()]):
+                                raise ValueError
+                            choice_params = base_cpl["consumer choice"][
+                                "competed market share"]["parameters"]
+                        # Update invalid consumer choice parameters
+                        except:
+                            choice_params = {
+                                "b1": {key: -0.003 for
+                                       key in self.handyvars.aeo_years},
+                                "b2": {key: -0.012 for
+                                       key in self.handyvars.aeo_years}}
                 else:
                     # Update commercial baseline and measure energy cost
                     # information, accounting for any fuel switching from
@@ -1658,17 +1664,17 @@ class Measure(object):
                     # as for residential)
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
-                    elif mskeys[4] in self.handyvars.com_timeprefs[
-                            "distributions"].keys():
-                        choice_params = {
-                            "rate distribution": self.handyvars.com_timeprefs[
-                                "distributions"][mskeys[4]]}
-                    # For uncovered end uses (e.g., envelope components),
-                    # default to choice parameters for the heating end use
                     else:
-                        choice_params = {
-                            "rate distribution": self.handyvars.com_timeprefs[
-                                "distributions"]["heating"]}
+                        # Use try/except to handle cases with missing
+                        # consumer choice data
+                        try:
+                            choice_params = {"rate distribution":
+                                             self.handyvars.com_timeprefs[
+                                                 "distributions"][mskeys[4]]}
+                        except:
+                            choice_params = {"rate distribution":
+                                             self.handyvars.com_timeprefs[
+                                                 "distributions"]["heating"]}
 
                 # Find fraction of total new buildings in each year.
                 # Note: in each year, this fraction is calculated by summing
