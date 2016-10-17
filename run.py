@@ -8,6 +8,7 @@ from collections import OrderedDict
 import gzip
 import pickle
 from os import getcwd
+from ast import literal_eval
 
 
 class UsefulInputFiles(object):
@@ -928,19 +929,11 @@ class Engine(object):
             elif "secondary" in msu:
                 # Determine the climate zone, building type, and structure
                 # type for the current contributing secondary microsegment
-                # from the microsegment key chain information
-                cz_bldg_struct = re.search(
-                    ("'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)',"
-                     "\s'([a-zA-Z0-9_() /&-]+)',\s'[a-zA-Z0-9_() /&-]+',"
-                     "\s'[a-zA-Z0-9_() /&-]+',\s'[a-zA-Z0-9_() /&-]+',"
-                     "\s'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)'"),
-                    msu)
-                # Use climate zone, building type, and structure type as
-                # the key for linking the secondary and its associated
-                # primary microsegment
+                # from the microsegment key chain information and use for
+                # linking the secondary and its associated primary microsegment
+                cz_bldg_struct = literal_eval(msu)
                 secnd_mseg_adjkey = str((
-                    cz_bldg_struct.group(1), cz_bldg_struct.group(2),
-                    cz_bldg_struct.group(3)))
+                    cz_bldg_struct[1], cz_bldg_struct[2], cz_bldg_struct[-1]))
                 # Determine the subset of measures that pertain to the given
                 # secondary microsegment
                 measures_adj = [
@@ -1581,9 +1574,9 @@ class Engine(object):
             # weighted market share based on the captured stock in each year
             for ind, wyr in enumerate(weighting_yrs):
                 # First year in time horizon; weighted market share equals
-                # market share for the captured stock in current year only
+                # market share for the captured stock in this year only
                 if ind == 0:
-                    adj_frac_tot = copy.deepcopy(adj_fracs[yr])
+                    adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
                 # Subsequent year; weighted market share combines market share
                 # for captured stock in current year and all previous years
                 else:
@@ -1623,18 +1616,12 @@ class Engine(object):
                 "original stock (total captured)"].keys()) > 0:
             # Determine the climate zone, building type, and structure
             # type for the current contributing primary microsegment from the
-            # microsegment key chain information
-            cz_bldg_struct = re.search(
-                ("'[a-zA-Z0-9_() /&-]+',\s'([a-zA-Z0-9_() /&-]+)',"
-                 "\s'([a-zA-Z0-9_() /&-]+)',\s'[a-zA-Z0-9_() /&-]+',"
-                 "\s'[a-zA-Z0-9_() /&-]+',\s'[a-zA-Z0-9_() /&-]+',"
-                 "\s'([a-zA-Z0-9_() /&-]+)'"), mseg_key)
-
-            # Use climate zone, building type, and structure type as the key
-            # for linking the primary and its associated secondary microsegment
+            # microsegment key chain information and use as the key for linking
+            # the primary and its associated secondary microsegment
+            cz_bldg_struct = literal_eval(mseg_key)
             secnd_mseg_adjkey = str((
-                cz_bldg_struct.group(1), cz_bldg_struct.group(2),
-                cz_bldg_struct.group(3)))
+                cz_bldg_struct[1], cz_bldg_struct[2], cz_bldg_struct[-1]))
+
             if secnd_mseg_adjkey in measure.markets[adopt_scheme][
                 "competed"]["mseg_adjust"][
                 "secondary mseg adjustments"]["market share"][

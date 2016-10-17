@@ -5225,11 +5225,11 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         secnd_adj_key (string): Key used to link primary and secondary market
             microsegments (by climate, building type, structure type).
         compete_meas1 (dict): Sample commercial supply-side lighting measure 1.
-        compete_meas1_dist (dict): Alternative version of sample commercial
-            supply-side lighting measure 1 including lists stock cost input
-            values instead of point values.
         compete_meas2 (dict): Sample commercial supply-side lighting measure 2.
         compete_meas3 (dict): Sample commercial supply-side lighting measure 3.
+        compete_meas_dist (dict): Alternative version of sample commercial
+            supply-side lighting measure 1 including lists stock cost input
+            values instead of point values.
         measures_all (list): List of all competing measures with point
             value inputs.
         measures_secondary (list): Subset of 'measures_all' with secondary
@@ -5645,456 +5645,6 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 15},
                                             "efficient": {
                                                 "2009": 5, "2010": 5}}}},
-                                "lifetime": {
-                                    "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
-                        "competed choice parameters": {
-                            cls.overlap_key: {
-                                "rate distribution": {
-                                    "2009": [
-                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
-                                    "2010": [
-                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
-                            cls.overlap_key_scnd: {
-                                "rate distribution": {}}},
-                        "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
-                            "market share": {
-                                "original stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
-                    "mseg_out_break": {}}}}
-        cls.compete_meas1_dist = {
-            "name": "sample compete measure c1 dist",
-            "climate_zone": ["AIA_CZ1"],
-            "bldg_type": ["assembly"],
-            "end_use": {
-                "primary": ["lighting"],
-                "secondary": ["heating", "secondary heating", "cooling"]},
-            "market_entry_year": 2010,
-            "market_exit_year": None,
-            "markets": {
-                "Technical potential": {
-                    "master_mseg": {
-                        "stock": {
-                            "total": {
-                                "all": {"2009": 20, "2010": 20},
-                                "measure": {"2009": 0, "2010": 20}},
-                            "competed": {
-                                "all": {"2009": 10, "2010": 10},
-                                "measure": {"2009": 0, "2010": 10}}},
-                        "energy": {
-                            "total": {
-                                "baseline": {"2009": 40, "2010": 40},
-                                "efficient": {"2009": 40, "2010": 30}},
-                            "competed": {
-                                "baseline": {"2009": 20, "2010": 20},
-                                "efficient": {"2009": 20, "2010": 10}}},
-                        "carbon": {
-                            "total": {
-                                "baseline": {"2009": 60, "2010": 60},
-                                "efficient": {"2009": 60, "2010": 40}},
-                            "competed": {
-                                "baseline": {"2009": 30, "2010": 30},
-                                "efficient": {"2009": 30, "2010": 10}}},
-                        "cost": {
-                            "stock": {
-                                "total": {
-                                    "baseline": {"2009": 20, "2010": 20},
-                                    "efficient": {
-                                        "2009": numpy.array([20, 20, 20]),
-                                        "2010": numpy.array([10, 12, 14])}},
-                                "competed": {
-                                    "baseline": {"2009": 10, "2010": 10},
-                                    "efficient": {
-                                        "2009": numpy.array([10, 10, 10]),
-                                        "2010": numpy.array([0, 2, 4])}}},
-                            "energy": {
-                                "total": {
-                                    "baseline": {"2009": 40, "2010": 40},
-                                    "efficient": {"2009": 40, "2010": 30}},
-                                "competed": {
-                                    "baseline": {"2009": 20, "2010": 20},
-                                    "efficient": {"2009": 20, "2010": 10}}},
-                            "carbon": {
-                                "total": {
-                                    "baseline": {"2009": 60, "2010": 60},
-                                    "efficient": {"2009": 60, "2010": 40}},
-                                "competed": {
-                                    "baseline": {"2009": 30, "2010": 30},
-                                    "efficient": {"2009": 30, "2010": 10}}}},
-                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
-                    "mseg_adjust": {
-                        "contributing mseg keys and values": {
-                            cls.overlap_key: {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 10, "2010": 10},
-                                        "measure": {"2009": 0, "2010": 10}},
-                                    "competed": {
-                                        "all": {"2009": 5, "2010": 5},
-                                        "measure": {"2009": 0, "2010": 5}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 20, "2010": 20},
-                                        "efficient": {"2009": 20, "2010": 15}},
-                                    "competed": {
-                                        "baseline": {"2009": 10, "2010": 10},
-                                        "efficient": {"2009": 10, "2010": 5}}},
-                                "carbon": {
-                                    "total": {
-                                        "baseline": {"2009": 30, "2010": 30},
-                                        "efficient": {"2009": 30, "2010": 20}},
-                                    "competed": {
-                                        "baseline": {"2009": 15, "2010": 15},
-                                        "efficient": {"2009": 15, "2010": 5}}},
-                                "cost": {
-                                    "stock": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [10, 10, 10]),
-                                                "2010": numpy.array(
-                                                    [5, 6, 7])}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 5, "2010": 5},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [5, 5, 5]),
-                                                "2010": numpy.array(
-                                                    [0, 1, 2])}}},
-                                    "energy": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 20, "2010": 20},
-                                            "efficient": {
-                                                "2009": 20, "2010": 15}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": 10, "2010": 5}}},
-                                    "carbon": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 30, "2010": 30},
-                                            "efficient": {
-                                                "2009": 30, "2010": 20}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 15, "2010": 15},
-                                            "efficient": {
-                                                "2009": 15, "2010": 5}}}},
-                                "lifetime": {
-                                    "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
-                            cls.overlap_key_scnd: {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 10, "2010": 10},
-                                        "measure": {"2009": 0, "2010": 10}},
-                                    "competed": {
-                                        "all": {"2009": 5, "2010": 5},
-                                        "measure": {"2009": 0, "2010": 5}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 20, "2010": 20},
-                                        "efficient": {"2009": 20, "2010": 15}},
-                                    "competed": {
-                                        "baseline": {"2009": 10, "2010": 10},
-                                        "efficient": {"2009": 10, "2010": 5}}},
-                                "carbon": {
-                                    "total": {
-                                        "baseline": {"2009": 30, "2010": 30},
-                                        "efficient": {"2009": 30, "2010": 20}},
-                                    "competed": {
-                                        "baseline": {"2009": 15, "2010": 15},
-                                        "efficient": {"2009": 15, "2010": 5}}},
-                                "cost": {
-                                    "stock": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [10, 10, 10]),
-                                                "2010": numpy.array(
-                                                    [5, 6, 7])}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 5, "2010": 5},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [5, 5, 5]),
-                                                "2010": numpy.array([
-                                                    0, 1, 2])}}},
-                                    "energy": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 20, "2010": 20},
-                                            "efficient": {
-                                                "2009": 20, "2010": 15}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": 10, "2010": 5}}},
-                                    "carbon": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 30, "2010": 30},
-                                            "efficient": {
-                                                "2009": 30, "2010": 20}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 15, "2010": 15},
-                                            "efficient": {
-                                                "2009": 15, "2010": 5}}}},
-                                "lifetime": {
-                                    "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
-                        "competed choice parameters": {
-                            cls.overlap_key: {
-                                "rate distribution": {
-                                    "2009": [
-                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
-                                    "2010": [
-                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
-                            cls.overlap_key_scnd: {
-                                "rate distribution": {}}},
-                        "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
-                            "market share": {
-                                "original stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
-                    "mseg_out_break": {}},
-                "Max adoption potential": {
-                    "master_mseg": {
-                        "stock": {
-                            "total": {
-                                "all": {"2009": 20, "2010": 20},
-                                "measure": {"2009": 0, "2010": 20}},
-                            "competed": {
-                                "all": {"2009": 10, "2010": 10},
-                                "measure": {"2009": 0, "2010": 10}}},
-                        "energy": {
-                            "total": {
-                                "baseline": {"2009": 40, "2010": 40},
-                                "efficient": {"2009": 40, "2010": 30}},
-                            "competed": {
-                                "baseline": {"2009": 20, "2010": 20},
-                                "efficient": {"2009": 20, "2010": 10}}},
-                        "carbon": {
-                            "total": {
-                                "baseline": {"2009": 60, "2010": 60},
-                                "efficient": {"2009": 60, "2010": 40}},
-                            "competed": {
-                                "baseline": {"2009": 30, "2010": 30},
-                                "efficient": {"2009": 30, "2010": 10}}},
-                        "cost": {
-                            "stock": {
-                                "total": {
-                                    "baseline": {"2009": 20, "2010": 20},
-                                    "efficient": {
-                                        "2009": numpy.array([20, 20, 20]),
-                                        "2010": numpy.array([10, 12, 14])}},
-                                "competed": {
-                                    "baseline": {"2009": 10, "2010": 10},
-                                    "efficient": {
-                                        "2009": numpy.array([10, 10, 10]),
-                                        "2010": numpy.array([0, 2, 4])}}},
-                            "energy": {
-                                "total": {
-                                    "baseline": {"2009": 40, "2010": 40},
-                                    "efficient": {"2009": 40, "2010": 30}},
-                                "competed": {
-                                    "baseline": {"2009": 20, "2010": 20},
-                                    "efficient": {"2009": 20, "2010": 10}}},
-                            "carbon": {
-                                "total": {
-                                    "baseline": {"2009": 60, "2010": 60},
-                                    "efficient": {"2009": 60, "2010": 40}},
-                                "competed": {
-                                    "baseline": {"2009": 30, "2010": 30},
-                                    "efficient": {"2009": 30, "2010": 10}}}},
-                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
-                    "mseg_adjust": {
-                        "contributing mseg keys and values": {
-                            cls.overlap_key: {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 10, "2010": 10},
-                                        "measure": {"2009": 0, "2010": 10}},
-                                    "competed": {
-                                        "all": {"2009": 5, "2010": 5},
-                                        "measure": {"2009": 0, "2010": 5}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 20, "2010": 20},
-                                        "efficient": {"2009": 20, "2010": 15}},
-                                    "competed": {
-                                        "baseline": {"2009": 10, "2010": 10},
-                                        "efficient": {"2009": 10, "2010": 5}}},
-                                "carbon": {
-                                    "total": {
-                                        "baseline": {"2009": 30, "2010": 30},
-                                        "efficient": {"2009": 30, "2010": 20}},
-                                    "competed": {
-                                        "baseline": {"2009": 15, "2010": 15},
-                                        "efficient": {"2009": 15, "2010": 5}}},
-                                "cost": {
-                                    "stock": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [10, 10, 10]),
-                                                "2010": numpy.array(
-                                                    [5, 6, 7])}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 5, "2010": 5},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [5, 5, 5]),
-                                                "2010": numpy.array(
-                                                    [0, 1, 2])}}},
-                                    "energy": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 20, "2010": 20},
-                                            "efficient": {
-                                                "2009": 20, "2010": 15}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": 10, "2010": 5}}},
-                                    "carbon": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 30, "2010": 30},
-                                            "efficient": {
-                                                "2009": 30, "2010": 20}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 15, "2010": 15},
-                                            "efficient": {
-                                                "2009": 15, "2010": 5}}}},
-                                "lifetime": {
-                                    "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
-                            cls.overlap_key_scnd: {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 10, "2010": 10},
-                                        "measure": {"2009": 0, "2010": 10}},
-                                    "competed": {
-                                        "all": {"2009": 5, "2010": 5},
-                                        "measure": {"2009": 0, "2010": 5}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 20, "2010": 20},
-                                        "efficient": {"2009": 20, "2010": 15}},
-                                    "competed": {
-                                        "baseline": {"2009": 10, "2010": 10},
-                                        "efficient": {"2009": 10, "2010": 5}}},
-                                "carbon": {
-                                    "total": {
-                                        "baseline": {"2009": 30, "2010": 30},
-                                        "efficient": {"2009": 30, "2010": 20}},
-                                    "competed": {
-                                        "baseline": {"2009": 15, "2010": 15},
-                                        "efficient": {"2009": 15, "2010": 5}}},
-                                "cost": {
-                                    "stock": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [10, 10, 10]),
-                                                "2010": numpy.array(
-                                                    [5, 6, 7])}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 5, "2010": 5},
-                                            "efficient": {
-                                                "2009": numpy.array(
-                                                    [5, 5, 5]),
-                                                "2010": numpy.array([
-                                                    0, 1, 2])}}},
-                                    "energy": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 20, "2010": 20},
-                                            "efficient": {
-                                                "2009": 20, "2010": 15}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 10, "2010": 10},
-                                            "efficient": {
-                                                "2009": 10, "2010": 5}}},
-                                    "carbon": {
-                                        "total": {
-                                            "baseline": {
-                                                "2009": 30, "2010": 30},
-                                            "efficient": {
-                                                "2009": 30, "2010": 20}},
-                                        "competed": {
-                                            "baseline": {
-                                                "2009": 15, "2010": 15},
-                                            "efficient": {
-                                                "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
                                     "measure": {"2009": 1, "2010": 1}}}},
@@ -7093,6 +6643,456 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             "savings": {},
                             "total": {}}},
                     "mseg_out_break": {}}}}
+        cls.compete_meas_dist = {
+            "name": "sample compete measure cdist",
+            "climate_zone": ["AIA_CZ1"],
+            "bldg_type": ["assembly"],
+            "end_use": {
+                "primary": ["lighting"],
+                "secondary": ["heating", "secondary heating", "cooling"]},
+            "market_entry_year": 2010,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 0, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 0, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 40, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 20, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 60, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 30, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {
+                                        "2009": numpy.array([20, 20, 20]),
+                                        "2010": numpy.array([10, 12, 14])}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {
+                                        "2009": numpy.array([10, 10, 10]),
+                                        "2010": numpy.array([0, 2, 4])}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 40, "2010": 30}},
+                                "competed": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 20, "2010": 10}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 60, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 30, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": {"2009": 1, "2010": 1}}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            cls.overlap_key: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 0, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 0, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 20, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 10, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 30, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 15, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [10, 10, 10]),
+                                                "2010": numpy.array(
+                                                    [5, 6, 7])}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [5, 5, 5]),
+                                                "2010": numpy.array(
+                                                    [0, 1, 2])}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 20, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 10, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 30, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 15, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            cls.overlap_key_scnd: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 0, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 0, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 20, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 10, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 30, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 15, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [10, 10, 10]),
+                                                "2010": numpy.array(
+                                                    [5, 6, 7])}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [5, 5, 5]),
+                                                "2010": numpy.array([
+                                                    0, 1, 2])}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 20, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 10, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 30, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 15, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": {"2009": 1, "2010": 1}}}},
+                        "competed choice parameters": {
+                            cls.overlap_key: {
+                                "rate distribution": {
+                                    "2009": [
+                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
+                                    "2010": [
+                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
+                            cls.overlap_key_scnd: {
+                                "rate distribution": {}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (previously captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed and captured)": {
+                                    cls.secnd_adj_key: {
+                                        "2009": 0, "2010": 0}}},
+                            "market share": {
+                                "original stock (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "original stock (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed and captured)": {
+                                    cls.secnd_adj_key: {
+                                        "2009": 0, "2010": 0}}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}}},
+                    "mseg_out_break": {}},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 0, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 0, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 40, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 20, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 60, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 30, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {
+                                        "2009": numpy.array([20, 20, 20]),
+                                        "2010": numpy.array([10, 12, 14])}},
+                                "competed": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {
+                                        "2009": numpy.array([10, 10, 10]),
+                                        "2010": numpy.array([0, 2, 4])}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 40, "2010": 40},
+                                    "efficient": {"2009": 40, "2010": 30}},
+                                "competed": {
+                                    "baseline": {"2009": 20, "2010": 20},
+                                    "efficient": {"2009": 20, "2010": 10}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 60, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 30, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": {"2009": 1, "2010": 1}}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            cls.overlap_key: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 0, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 0, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 20, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 10, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 30, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 15, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [10, 10, 10]),
+                                                "2010": numpy.array(
+                                                    [5, 6, 7])}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [5, 5, 5]),
+                                                "2010": numpy.array(
+                                                    [0, 1, 2])}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 20, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 10, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 30, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 15, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": {"2009": 1, "2010": 1}}},
+                            cls.overlap_key_scnd: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 0, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 0, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 20, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 10, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 30, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 15, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [10, 10, 10]),
+                                                "2010": numpy.array(
+                                                    [5, 6, 7])}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": numpy.array(
+                                                    [5, 5, 5]),
+                                                "2010": numpy.array([
+                                                    0, 1, 2])}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 20, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 10, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 30, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 15, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": {"2009": 1, "2010": 1}}}},
+                        "competed choice parameters": {
+                            cls.overlap_key: {
+                                "rate distribution": {
+                                    "2009": [
+                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4],
+                                    "2010": [
+                                        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}},
+                            cls.overlap_key_scnd: {
+                                "rate distribution": {}}},
+                        "secondary mseg adjustments": {
+                            "sub-market": {
+                                "original stock (total)": {},
+                                "adjusted stock (sub-market)": {}},
+                            "stock-and-flow": {
+                                "original stock (total)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (previously captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed and captured)": {
+                                    cls.secnd_adj_key: {
+                                        "2009": 0, "2010": 0}}},
+                            "market share": {
+                                "original stock (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "original stock (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
+                                "adjusted stock (competed and captured)": {
+                                    cls.secnd_adj_key: {
+                                        "2009": 0, "2010": 0}}}},
+                        "supply-demand adjustment": {
+                            "savings": {},
+                            "total": {}}},
+                    "mseg_out_break": {}}}}
         cls.measures_all = [run.Measure(
             cls.handyvars, **x) for x in [
             cls.compete_meas1, copy.deepcopy(cls.compete_meas2),
@@ -7250,7 +7250,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_all_dist = [run.Measure(
             cls.handyvars, **x) for x in [
             copy.deepcopy(cls.compete_meas2),
-            cls.compete_meas1_dist,
+            cls.compete_meas_dist,
             copy.deepcopy(cls.compete_meas3)]]
         cls.measures_secondary_dist = [cls.measures_all_dist[1]]
         cls.a_run_dist = run.Engine(cls.handyvars, cls.measures_all_dist)
@@ -7542,18 +7542,18 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 20, "2010": 20},
                     "measure": {
                         "2009": numpy.array([17, 17, 17]),
-                        "2010": numpy.array([12, 13, 16])}},
+                        "2010": numpy.array([14.5, 15.0, 16.5])}},
                 "competed": {
                     "all": {"2009": 10, "2010": 10},
                     "measure": {
                         "2009": numpy.array([8.5, 8.5, 8.5]),
-                        "2010": numpy.array([6, 6.5, 8])}}},
+                        "2010": numpy.array([6.0, 6.5, 8.0])}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 40, "2010": 40},
                     "efficient": {
                         "2009": numpy.array([31.5, 31.5, 31.5]),
-                        "2010": numpy.array([34, 33.5, 32])}},
+                        "2010": numpy.array([32.75, 32.50, 31.75])}},
                 "competed": {
                     "baseline": {"2009": 20, "2010": 20},
                     "efficient": {
@@ -7564,7 +7564,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 60, "2010": 60},
                     "efficient": {
                         "2009": numpy.array([43, 43, 43]),
-                        "2010": numpy.array([48, 47, 44])}},
+                        "2010": numpy.array([45.5, 45.0, 43.5])}},
                 "competed": {
                     "baseline": {"2009": 30, "2010": 30},
                     "efficient": {
@@ -7576,7 +7576,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 20, "2010": 20},
                         "efficient": {
                             "2009": numpy.array([11.5, 11.5, 11.5]),
-                            "2010": numpy.array([14, 13.5, 12])}},
+                            "2010": numpy.array([12.75, 12.50, 11.75])}},
                     "competed": {
                         "baseline": {"2009": 10, "2010": 10},
                         "efficient": {
@@ -7587,7 +7587,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 40, "2010": 40},
                         "efficient": {
                             "2009": numpy.array([31.5, 31.5, 31.5]),
-                            "2010": numpy.array([34, 33.5, 32])}},
+                            "2010": numpy.array([32.75, 32.50, 31.75])}},
                     "competed": {
                         "baseline": {"2009": 20, "2010": 20},
                         "efficient": {
@@ -7598,7 +7598,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 60, "2010": 60},
                         "efficient": {
                             "2009": numpy.array([43, 43, 43]),
-                            "2010": numpy.array([48, 47, 44])}},
+                            "2010": numpy.array([45.5, 45.0, 43.5])}},
                     "competed": {
                         "baseline": {"2009": 30, "2010": 30},
                         "efficient": {
@@ -7623,12 +7623,12 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 40, "2010": 40},
                     "efficient": {
                         "2009": numpy.array([40, 40, 40]),
-                        "2010": numpy.array([34.0, 35, 37])}},
+                        "2010": numpy.array([34, 35, 37])}},
                 "competed": {
                     "baseline": {"2009": 20, "2010": 20},
                     "efficient": {
                         "2009": numpy.array([20, 20, 20]),
-                        "2010": numpy.array([14.0, 15, 17])}}},
+                        "2010": numpy.array([14, 15, 17])}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 60, "2010": 60},
@@ -7682,7 +7682,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 30, "2010": 30},
                     "measure": {
                         "2009": numpy.array([23, 23, 23]),
-                        "2010": numpy.array([22, 22, 21])}},
+                        "2010": numpy.array([22.5, 22.5, 22.0])}},
                 "competed": {
                     "all": {"2009": 15, "2010": 15},
                     "measure": {
@@ -7693,7 +7693,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 60, "2010": 60},
                     "efficient": {
                         "2009": numpy.array([48.5, 48.5, 48.5]),
-                        "2010": numpy.array([49, 49, 49.5])}},
+                        "2010": numpy.array([48.75, 48.75, 49.00])}},
                 "competed": {
                     "baseline": {"2009": 30, "2010": 30},
                     "efficient": {
@@ -7704,7 +7704,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "baseline": {"2009": 90, "2010": 90},
                     "efficient": {
                         "2009": numpy.array([67, 67, 67]),
-                        "2010": numpy.array([68, 68, 69])}},
+                        "2010": numpy.array([67.5, 67.5, 68.0])}},
                 "competed": {
                     "baseline": {"2009": 45, "2010": 45},
                     "efficient": {
@@ -7716,7 +7716,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 30, "2010": 30},
                         "efficient": {
                             "2009": numpy.array([18.5, 18.5, 18.5]),
-                            "2010": numpy.array([19, 19, 19.5])}},
+                            "2010": numpy.array([18.75, 18.75, 19.00])}},
                     "competed": {
                         "baseline": {"2009": 15, "2010": 15},
                         "efficient": {
@@ -7727,7 +7727,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 60, "2010": 60},
                         "efficient": {
                             "2009": numpy.array([48.5, 48.5, 48.5]),
-                            "2010": numpy.array([49, 49, 49.5])}},
+                            "2010": numpy.array([48.75, 48.75, 49.00])}},
                     "competed": {
                         "baseline": {"2009": 30, "2010": 30},
                         "efficient": {
@@ -7738,7 +7738,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 90, "2010": 90},
                         "efficient": {
                             "2009": numpy.array([67, 67, 67]),
-                            "2010": numpy.array([68, 68, 69])}},
+                            "2010": numpy.array([67.5, 67.5, 68.0])}},
                     "competed": {
                         "baseline": {"2009": 45, "2010": 45},
                         "efficient": {
