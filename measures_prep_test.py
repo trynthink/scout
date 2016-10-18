@@ -63,9 +63,6 @@ class CommonMethods(object):
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=2)
 
 
-# Skip this test if running on Travis-CI and print the given skip statement
-@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-                 'External File Dependency Unavailable on Travis-CI')
 class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
     """Test 'find_vintage_weights' function.
 
@@ -133,9 +130,6 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
                 self.cbecs_sf_byvint).find_vintage_weights()
 
 
-# Skip this test if running on Travis-CI and print the given skip statement
-@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-                 'External File Dependency Unavailable on Travis-CI')
 class EPlusUpdateTest(unittest.TestCase, CommonMethods):
     """Test the 'fill_eplus' function and its supporting functions.
 
@@ -12724,7 +12718,8 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         cls.handyvars = measures_prep.UsefulVars(base_dir)
         cls.sample_meas_toupdate_package = [{
-            "sample package 1": [
+            "name": "sample package 1",
+            "contributing measures": [
                 "sample indiv measure 1",
                 "sample indiv measure 2"]}]
         sample_meas_updated_objs = [
@@ -12743,11 +12738,13 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
                  "sample indiv measure 2",
                  "sample indiv measure 3"]}]
         cls.sample_ok_meas_toupdate_package_out = [{
-            "sample package 1": [
+            "name": "sample package 1",
+            "contributing measures": [
                 "sample indiv measure 1",
                 "sample indiv measure 2"]},
             {
-            "sample package 2": [
+            "name": "sample package 2",
+            "contributing measures": [
                 "sample indiv measure 1",
                 "sample indiv measure 2",
                 "sample indiv measure 3"]}]

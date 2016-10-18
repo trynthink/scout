@@ -43,13 +43,13 @@ class UsefulInputFiles(object):
 
     def __init__(self):
         self.meas_toupdate_in = \
-            "/measures_data/to_update/meas_toupdate_in.json"
-        self.msegs_in = "/markets_data/mseg_res_com_cz.json"
-        self.msegs_cpl_in = "/markets_data/cpl_res_com_cz.json"
+            "/measures_data/meas_toupdate_in.json"
+        self.msegs_in = "/stock_energy_tech_data/mseg_res_com_cz.json"
+        self.msegs_cpl_in = "/stock_energy_tech_data/cpl_res_com_cz.json"
         self.cost_convert_in = "/convert_data/meas_costconvert.json"
         self.cbecs_sf_byvint = "/convert_data/CBECS_sf_byvintage.json"
         self.meas_summary_data = \
-            "/measures_data/summary_data/meas_summary_data.json"
+            "/measures_data/meas_summary_data.json"
         self.meas_compete_data = "/measures_data/competition_data"
         self.meas_active_data = "/measures_data/active_measnames.json"
 
@@ -4062,10 +4062,10 @@ def add_packages(packages, meas_update_objs, handyvars):
     """
     # Run through each unique measure package and merge the measures that
     # contribute to this package
-    for p in packages.keys():
+    for p in packages:
         # Establish a list of names for measures that contribute to the
         # package
-        package_measures = packages[p]
+        package_measures = p["contributing measures"]
         # Determine the subset of all measure objects that belong
         # to the current package
         measure_list_package = [
@@ -4090,11 +4090,11 @@ def add_packages(packages, meas_update_objs, handyvars):
             # Instantiate measure package object based on packaged measure
             # subset above
             packaged_measure = MeasurePackage(
-                measure_list_package, p, handyvars)
+                measure_list_package, p["name"], handyvars)
             # Merge measures in the package object
             packaged_measure.merge_measures()
             # Print update on measure status
-            print("Measure '" + p + "' successfully updated")
+            print("Measure '" + p["name"] + "' successfully updated")
 
         # Add the new packaged measure to the measure list (if it exists)
         # for further evaluation like any other regular measure
@@ -4131,7 +4131,7 @@ def add_uncovered_pkgupdates(
         x for x in meas_summary if ("measures_to_package" in x.keys()) and
         any([y.name in x[
             "measures_to_package"] for y in meas_updated_objs]) and
-        [x["name"] not in p.keys() for p in meas_toupdate_package]]
+        (x["name"] not in [p["name"] for p in meas_toupdate_package])]
     # Loop through uncovered package information; add uncovered packages to
     # list of packaged measures to update; ensure that all individual measures
     # that contribute to the package are included in the list of updated
@@ -4147,7 +4147,8 @@ def add_uncovered_pkgupdates(
         meas_updated_objs.extend(indiv_meas_to_add)
         # Add package to update list
         meas_toupdate_package.append(
-            {pkg["name"]: pkg["measures_to_package"]})
+            {"name": pkg["name"],
+             "contributing measures": pkg["measures_to_package"]})
         # Inform user of addition of package to measure update list
         warnings.warn(("WARNING: Existing package '" + pkg["name"] +
                        "' added to measure update list"))
@@ -4314,6 +4315,18 @@ def main(base_dir):
     # Write any added measure names to the active measures JSON
     with open((base_dir + handyfiles.meas_active_data), "w") as jso:
         json.dump(active_meas, jso, indent=2)
+
+    # Clear all updated measures from lists of individual and packaged
+    # measures to update and write updated lists to JSON
+    measures = OrderedDict([(
+        "individual measures", [x for x in meas_toupdate_indiv if x[
+            "name"] not in [m["name"] for m in meas_updated_summary]]),
+        (
+        "measure packages", [x for x in meas_toupdate_package if x[
+            "name"] not in [m["name"] for m in meas_updated_summary]])])
+    with open((base_dir + handyfiles.meas_toupdate_in), "w") as mo:
+        json.dump(measures, mo, indent=2)
+
 
 if __name__ == "__main__":
     import time

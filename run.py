@@ -24,7 +24,7 @@ class UsefulInputFiles(object):
 
     def __init__(self):
         self.meas_summary_data = \
-            "/measures_data/summary_data/meas_summary_data.json"
+            "/measures_data/meas_summary_data.json"
         self.meas_compete_data = "/measures_data/competition_data"
         self.active_measures = "/measures_data/active_measnames.json"
         self.meas_engine_out = "/engine_results/meas_engine_out.json"
