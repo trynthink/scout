@@ -1,0 +1,346 @@
+{
+	"building type conversions": {
+		"original type": "EnergyPlus reference buildings",
+		"revised type": "Annual Energy Outlook (AEO) buildings",
+		"conversion data": {
+			"description": "EnergyPlus->AEO type mapping and weighting factors",
+			"value": {
+				"residential": {
+					"single family home": {
+						"Single-Family": 1},
+					"mobile home": {
+						"Single-Family": 1},
+					"multi family home": {
+						"Multifamily": 1}},
+				"commercial": {
+					"assembly": {
+						"Hospital": 1},
+					"education": {
+						"PrimarySchool": 0.26,
+						"SecondarySchool": 0.74},
+					"food sales": {
+						"Supermarket": 1},
+					"food service": {
+						"QuickServiceRestaurant": 0.31,
+						"FullServiceRestaurant": 0.69},
+					"health care": null,
+					"lodging": {
+						"SmallHotel": 0.26,
+						"LargeHotel": 0.74},
+					"large office": {
+						"LargeOffice": 0.9,
+						"MediumOffice": 0.1},
+					"small office": {
+						"SmallOffice": 0.12,
+						"OutpatientHealthcare": 0.88},
+					"mercantile/service": {
+						"RetailStandalone": 0.53,
+						"RetailStripmall": 0.47},
+					"warehouse": {
+						"Warehouse": 1},
+					"other": null}},
+			"source": {
+				"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+				"commercial": "1) Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Tables 1 and 13, 2) EIA, Commercial Buildings Energy Consumption Survey (CBECs), Building Definitions, 3) Navigant Consulting, Analysis and Representation of Miscellaneous Electric Loads in NEMS, 2013, p.18"},
+			"notes": {
+				"residential": "Single-Family and Multifamily are EnergyPlus model names cited in the source, but are not yet formal EnergyPlus reference building types",
+				"commercial": "Source 1 (Table 1) used to map from EnergyPlus building reference type to CBECs building type; sources 2 and 3 used to map from CBECs building type to AEO building type; Source 1 (Table 13) provides square footage data for weighting factors above"}}},
+	"cost unit conversions": {
+		"whole building": {
+			"square footage to unit technology": {
+				"original units": "$/ft^2 floor",
+				"revised units": "$/unit",
+				"conversion factor": {
+					"description": "Typical number of technology units required per square foot (based on residential technologies and typical household square footages)",
+					"value": {
+						"residential": {
+							"single family home": {
+								"linear fluorescent": 0.00175,
+				                "general service": 0.02417,
+				               	"reflector": 0.003125,
+				                "external": 0.004625,
+				            	"all other technologies": 0.000417},
+							"mobile home": {
+								"linear fluorescent": 0.00075,
+				                "general service": 0.010625,
+				               	"reflector": 0.001375,
+				                "external": 0.00229,
+				            	"all other technologies": 0.000417},
+							"multi family home": {
+								"linear fluorescent": 0.00108,
+				                "general service": 0.014917,
+				               	"reflector": 0.00192,
+				                "external": 0.00175,
+				            	"all other technologies": 0.00083}},
+				        "commercial": null},
+					"units": "units/ft^2 floor",
+					"source": "EIA Annual Energy Outlook 2015, raw data file 'rsmlgt.txt'. For more on this file, see: EIA, Residential Demand Module of the National Energy Modeling System: Model Documentation, p. 39; U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+					"notes": "Residential values take the number of lamps per each household and lamp type in the EIA source and divide that lamp number by typical residential household square footages in the DOE source (2400 ft^2 floor for single family/mobile homes, 1200 ft^2 for multi-family homes)"}
+				},
+			"wireless sensor network": {
+				"original units": "$/node",
+				"revised units": "$/ft^2 floor",
+				"conversion factor": {
+					"description": "Typical number of wireless sensor nodes required per square foot residential/commercial area",
+					"value": {
+						"residential": {
+							"single family home": 0.0021,
+							"mobile home": 0.0021,
+							"multi family home": 0.0041},
+						"commercial": 0.0005},
+					"units": "nodes/ft^2 floor",
+					"source": {
+						"residential": "EIA, Residential Energy Consumption Survey (RECS) 2009, Table HC 2.1; U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+						"commercial": "Kintner-Meyer et al, Opportunities of Wireless Sensors and Controls for Building Operation, Table 1"},
+					"notes": "Residential values assume one sensor is required per room, use the RECS table to devise an average of 5 rooms (and sensors) per household across residential building types, and divide that sensors number by typical residential household square footages in the DOE source (2400 ft^2 floor for single family/mobile homes, 1200 ft^2 for multi-family homes); Commercial values take average of 30 sensors per 70000 square feet floor area (demonstration bldg. 1) and 120 sensors per 200000 square feet floor area (demonstration bldg. 2)"}},
+			"occupant-centered sensing and controls": {
+				"original units": "$/occupant",
+				"revised units": "$/ft^2 floor",
+				"conversion factor": {
+					"description": "Typical occupant density per square foot floor area",
+					"value": {
+						"residential": {
+							"single family home": {
+								"Single-Family": 0.001},
+							"mobile home": {
+								"Single-Family": 0.001},
+							"multi family home": {
+								"Multifamily": 0.002}},
+						"commercial": {
+							"assembly": {
+								"Hospital": 0.005},
+							"education": {
+								"PrimarySchool": 0.02,
+								"SecondarySchool": 0.02},
+							"food sales": {
+								"Supermarket": 0.008},
+							"food service": {
+								"QuickServiceRestaurant": 0.07,
+								"FullServiceRestaurant": 0.07},
+							"health care": 0.005,
+							"lodging": {
+								"SmallHotel": 0.005,
+								"LargeHotel": 0.005},
+							"large office": {
+								"LargeOffice": 0.005,
+								"MediumOffice": 0.005},
+							"small office": {
+								"SmallOffice": 0.005,
+								"OutpatientHealthcare": 0.02},
+							"mercantile/service": {
+								"RetailStandalone": 0.01,
+								"RetailStripmall": 0.01},
+							"warehouse": {
+								"Warehouse": 0.0001},
+							"other": 0.005}},
+					"units": "occupants/ft^2 floor",
+					"source": {
+						"residential": "U.S. Census, Households and Families 2010, p.1; U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+						"commercial": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 4"},
+					"notes": "Residential estimates divide U.S. 2010 Census estimate of 2.58 people per household by typical single and multi-family home square foot floor area estimates from the DOE source. Commercial occupant density estimates for 'assembly', 'lodging', 'large office', the 'SmallOffice' component of 'small office', 'health care', and 'other' building types correspond to the occupant density estimate for 'Office' in Table 4 of Deru source; 'education' corresponds to 'Classrooms' in Table 4; 'food sales' corresponds to 'Supermarket' in Table 4; 'food service' corresponds to 'Restaurant dining rooms' in Table 4; 'mercantile/service' corresponds to 'Sales' in Table 4; 'warehouse' corresponds to 'Warehouse' in Table 4; the 'Outpatient' component of 'small office' corresponds to 'Outpatient spaces' in Table 4"}}},
+		"heating and cooling": {
+			"supply": {
+				"heating equipment": {
+					"original units": "$/kBtu/h heating",
+					"revised units": "$/ft^2 floor",
+					"conversion factor": {
+						"description": "Typical commercial heating capacity demanded per square foot floor area",
+						"value": 0.020,
+						"units": "kBtu/h heating/ft^2 floor",
+						"source": "Rule of thumb",
+						"notes": "See http://www.pages.drexel.edu/~jef22/myweb4/hcalc.htm"}},
+				"cooling equipment": {
+					"original units": "$/kBtu/h cooling",
+					"revised units": "$/ft^2 floor",
+					"conversion factor": {
+						"description": "Typical commercial cooling capacity demanded per square foot floor area",
+						"value": 0.036,
+						"units": "kBtu/h cooling/ft^2 floor",
+						"source": "Rule of thumb",
+						"notes": "See http://www.pages.drexel.edu/~jef22/myweb4/hcalc.htm"}}},
+			"demand": {
+				"windows": {
+					"original units": "$/ft^2 glazing",
+					"revised units": "$/ft^2 wall",
+					"conversion factor": {
+						"description": "Window to wall ratio",
+						"value": {
+							"residential": {
+								"single family home": {
+									"Single-Family": 0.15},
+								"mobile home": {
+									"Single-Family": 0.15},
+								"multi family home": {
+									"Multifamily": 0.10}},
+							"commercial": {
+								"assembly": {
+									"Hospital": 0.15},
+								"education": {
+									"PrimarySchool": 0.35,
+									"SecondarySchool": 0.33},
+								"food sales": {
+									"Supermarket": 0.11},
+								"food service": {
+									"QuickServiceRestaurant": 0.14,
+									"FullServiceRestaurant": 0.17},
+								"health care": 0.2,
+								"lodging": {
+									"SmallHotel": 0.11,
+									"LargeHotel": 0.27},
+								"large office": {
+									"LargeOffice": 0.38,
+									"MediumOffice": 0.33},
+								"small office": {
+									"SmallOffice": 0.21,
+									"OutpatientHealthcare": 0.19},
+								"mercantile/service": {
+									"RetailStandalone": 0.07,
+									"RetailStripmall": 0.11},
+								"warehouse": {
+									"Warehouse": 0.006},
+								"other": 0.2}},
+						"units": null,
+						"source": {
+							"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+							"commercial": "Winiarski et al., Analysis of Building Envelope Construction in 2003 CBECS, 2007, Table S.3"},
+						"notes": "An additional conversion step is required to obtain costs with the desired final units of $/ft^2 floor. Conversion factors for 'health care' and 'other' building types are not available - average of conversion factors across all other building types is used"}},
+				"walls": {
+					"original units": "$/ft^2 wall",
+					"revised units": "$/ft^2 floor",
+					"conversion factor": {
+						"description": "Wall to floor ratio",
+						"value": {
+							"residential": {
+								"single family home": {
+									"Single-Family": 1},
+								"mobile home": {
+									"Single-Family": 1},
+								"multi family home": {
+									"Multifamily": 1}},
+							"commercial": {
+								"assembly": {
+									"Hospital": 0.26},
+								"education": {
+									"PrimarySchool": 0.20,
+									"SecondarySchool": 0.16},
+								"food sales": {
+									"Supermarket": 0.38},
+								"food service": {
+									"QuickServiceRestaurant": 0.80,
+									"FullServiceRestaurant": 0.54},
+								"health care": 0.4,
+								"lodging": {
+									"SmallHotel": 0.40,
+									"LargeHotel": 0.38},
+								"large office": {
+									"LargeOffice": 0.26,
+									"MediumOffice": 0.40},
+								"small office": {
+									"SmallOffice": 0.55,
+									"OutpatientHealthcare": 0.35},
+								"mercantile/service": {
+									"RetailStandalone": 0.51,
+									"RetailStripmall": 0.57},
+								"warehouse": {
+									"Warehouse": 0.53},
+								"other": 0.4}},
+						"units": null,
+						"source": {
+							"residential": "U.S. Department of Energy, Impacts of the 2009 IECC for Residential Buildings at State Level, 2009, p.13",
+							"commercial": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 13"},
+						"notes": "Calculated by determining typical total floor-to-ceiling wall area for given building type and dividing by total floor area. See 'Scout_Wall_Floor_Calcs.xlsx' for more details on the commercial sector wall-floor ratio calculations. Conversion factors for 'health care' and 'other' building types are not available - average of conversion factors across all other building types is used"}},
+				"footprint": {
+					"original units": "$/ft^2 footprint",
+					"revised units": "$/ft^2 floor",
+					"conversion factor": {
+						"description": "Building footprint to total floor area ratio",
+						"value": {
+							"residential": {
+								"single family home": {
+									"Single-Family": 0.5},
+								"mobile home": {
+									"Single-Family": 0.5},
+								"multi family home": {
+									"Multifamily": 0.33}},
+							"commercial": {
+								"assembly": {
+									"Hospital": 0.20},
+								"education": {
+									"PrimarySchool": 1,
+									"SecondarySchool": 0.5},
+								"food sales": {"Supermarket": 1},
+								"food service": {
+									"QuickServiceRestaurant": 1,
+									"FullServiceRestaurant": 1},
+								"health care": 0.2,
+								"lodging": {
+									"SmallHotel": 0.25,
+									"LargeHotel": 0.17},
+								"large office": {
+									"LargeOffice": 0.083,
+									"MediumOffice": 0.33},
+								"small office": {
+									"SmallOffice": 1,
+									"OutpatientHealthcare": 0.33},
+								"mercantile/service": {
+									"RetailStandalone": 1,
+									"RetailStripmall": 1},
+								"warehouse": {
+									"Warehouse": 1},
+								"other": 1}},
+						"units": null,
+						"source": {
+							"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
+							"commercial": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 13. Conversion factors for 'health care' and 'other' building types are not available - 'health care' conversion factor is assumed the same as 'assembly,' and 'other' conversion factor is assumed to be 1"},
+						"notes": "Calculated as 1/typical number of floors for the given building type"}},
+				"roof": {
+					"original units": "$/ft^2 roof",
+					"revised units": "$/ft^2 footprint",
+					"conversion factor": {
+						"description": "Roof to building footprint ratio",
+						"value": {
+							"residential": 1.05,
+							"commercial": 1},
+						"units": null,
+						"source": "Rule of thumb",
+						"notes": "Assumes a standard residential roof pitch of 4 inches per foot and standard commercial flat built-up roof"}}}},
+		"ventilation": {
+			"original units": "$/1000 CFM",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Typical commercial office CFM capacity demanded per square foot floor area",
+				"value": 0.001,
+				"units": "1000 CFM/ft^2 floor",
+				"source": "Rule of thumb",
+				"notes": "See http://www.pages.drexel.edu/~jef22/myweb4/hcalc.htm"}},
+		"lighting": {
+			"original units": "$/1000 lm",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Typical commercial office lumens demanded per square foot floor area",
+				"value": 0.049,
+				"units": "1000 lm/ft^2 floor",
+				"source": "U.S. General Services Administration, Facilities Standards for the Public Buildings Service, Table 6-3",
+				"notes": "Office lux level (middle of range), converted from square meter to square feet"}},
+		"water heating": {
+			"original units": "$/kBtu/h water heating",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Typical commercial water heating capacity demanded per square foot floor area",
+				"value": 0.012,
+				"units": "kBtu/h water heating/ft^2 floor",
+				"source": "EIA, Updated Buildings Sector Appliance and Equipment Costs and Efficiencies, p.113; EIA, Commercial Buildings Energy Consumption Survey (CBECS) 2012, Table B42.",
+				"notes": "Typical EIA commercial gas water heater capacity of 200 kBtu/h divided by average square footage/building for buildings with water heaters (15778)"}},
+		"refrigeration": {
+			"original units": "$/kBtu/h refrigeration",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Typical commercial refrigeration capacity demanded per square foot floor area",
+				"value": 0.02,
+				"units": "kBtu/h refrigeration/ft^2 floor",
+				"source": "U.S. Department of Energy, Appliance Standards Program, 2014 EERE-2010-BT-STD-0003-0102.pdf, Table 9.5; ORNL, Investigation of Energy-Efficient Supermarket Display Cases, 2004, p. 52",
+				"notes": "Assumes 10 linear foot display case with 1.5610 kBtu/h capacity per linear foot (ORNL); applies this unit to the 'Open cases per building' and 'Average Building Size (sq-ft)' numbers in Table 9.5 of the Appliance Standards TSD."}},
+		"cooking": {},
+		"MELs": {}
+	}
+}
