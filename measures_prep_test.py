@@ -67,7 +67,7 @@ class CommonMethods(object):
 @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
                  'External File Dependency Unavailable on Travis-CI')
 class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
-    """Test 'cbecs_vintage_sf' and 'find_vintage_weights' functions.
+    """Test 'find_vintage_weights' function.
 
     Ensure building vintage square footages are read in properly from a
     cbecs data file and that the proper weights are derived for mapping
@@ -75,14 +75,11 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
     structure types.
 
     Attributes:
+        cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         eplus_globals_ok (object): EPlusGlobals object with square footage and
             vintage weights attributes to test against expected outputs.
-        cbecs_failpath (string): Path to invalid CBECs data file that should
-            cause EPlusGlobals object instantiation to fail.
         eplus_failpath (string): Path to invalid EnergyPlus simulation data
             file that should cause EPlusGlobals object instantiation to fail.
-        ok_out_sf (dict): Correct square footage outputs for
-            'cbecs_vintage_sf' function given valid inputs.
         ok_out_weights (dict): Correct vintage weights output for
             'find_vintage_weights'function given valid inputs.
     """
@@ -91,48 +88,19 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.eplus_globals_ok = measures_prep.EPlusGlobals(
-            base_dir + "/ePlus_data/ePlus_test_ok")
-        cls.cbecs_failpath = base_dir + \
-            "/ePlus_data/ePlus_test_fail/vintagessf_fail"
-        cls.eplus_failpath = base_dir + \
-            "/ePlus_data/ePlus_test_fail/vintageweights_fail"
-        cls.ok_out_sf = {
+        cls.cbecs_sf_byvint = {
             '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
             '1946 to 1959': 7381.0, '1970 to 1979': 10846.0,
             '1990 to 1999': 13803.0, '2000 to 2003': 7215.0,
             'Before 1920': 3980.0, '2008 to 2012': 5726.0,
             '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
+        cls.eplus_globals_ok = measures_prep.EPlusGlobals(
+            base_dir + "/ePlus_data/ePlus_test_ok", cls.cbecs_sf_byvint)
+        cls.eplus_failpath = base_dir + "/ePlus_data/ePlus_test_fail"
         cls.ok_out_weights = {
             'DOE Ref 1980-2004': 0.42, '90.1-2004': 0.07,
             '90.1-2010': 0.07, 'DOE Ref Pre-1980': 0.44,
             '90.1-2013': 1}
-
-    def test_vintagessf(self):
-        """Test cbecs_vintage_sf function given valid inputs.
-
-        Note:
-            Ensure correct determination of CBECs square footages by building
-            vintage.
-
-        Raises:
-            AssertionError: If function yields unexpected results.
-        """
-        self.dict_check(
-            self.eplus_globals_ok.cbecs_vintage_sf(), self.ok_out_sf)
-
-    def test_vintagessf_fail(self):
-        """Test cbecs_vintage_sf function given invalid inputs.
-
-        Note:
-            Ensure that a ValueError is raised when no CBECs data are read in.
-
-        Raises:
-            AssertionError: If ValueError is not raised.
-        """
-        with self.assertRaises(ValueError):
-            measures_prep.EPlusGlobals(
-                self.cbecs_failpath).cbecs_vintage_sf()
 
     def test_vintageweights(self):
         """Test find_vintage_weights function given valid inputs.
@@ -161,7 +129,8 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
         """
         with self.assertRaises(KeyError):
             measures_prep.EPlusGlobals(
-                self.eplus_failpath).find_vintage_weights()
+                self.eplus_failpath,
+                self.cbecs_sf_byvint).find_vintage_weights()
 
 
 # Skip this test if running on Travis-CI and print the given skip statement
@@ -8908,6 +8877,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
 
     Attributes:
         handyvars (object): Global variables to use across measures.
+        cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         sample_mseg_in (dict): Sample baseline microsegment stock/energy.
         sample_cpl_in (dict): Sample baseline technology cost, performance,
             and lifetime.
@@ -8935,6 +8905,12 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         cls.handyvars = measures_prep.UsefulVars(cls.base_dir)
         # Adjust aeo_years to fit test years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        cls.cbecs_sf_byvint = {
+            '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
+            '1946 to 1959': 7381.0, '1970 to 1979': 10846.0,
+            '1990 to 1999': 13803.0, '2000 to 2003': 7215.0,
+            'Before 1920': 3980.0, '2008 to 2012': 5726.0,
+            '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
         # Adjust carbon intensity data to reflect units originally used for
         # tests (* Note: test outcome units to be adjusted later)
         for k in cls.handyvars.carb_int.keys():
@@ -9073,7 +9049,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         measures_out = measures_prep.update_measures(
             self.measures_ok_in, self.convert_data,
             self.sample_mseg_in, self.sample_cpl_in,
-            self.handyvars, self.base_dir)
+            self.handyvars, self.cbecs_sf_byvint, self.base_dir)
         for oc in range(0, len(self.ok_out)):
             self.dict_check(
                 measures_out[oc].markets[

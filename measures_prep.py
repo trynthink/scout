@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import xlrd
 import numpy
 import re
 import itertools
@@ -35,6 +34,7 @@ class UsefulInputFiles(object):
         msegs_in (string): Database of baseline microsegment stock/energy.
         msegs_cpl_in (string): Database of baseline technology characteristics.
         convert_data (string): Database of measure cost unit conversions.
+        cbecs_sf_byvint (string): Commercial sq.ft. by vintage data.
         meas_summary_data (string): High-level measure summary data.
         meas_compete_data (string): Contributing microsegment data needed
             for measure competition.
@@ -47,6 +47,7 @@ class UsefulInputFiles(object):
         self.msegs_in = "/markets_data/mseg_res_com_cz.json"
         self.msegs_cpl_in = "/markets_data/cpl_res_com_cz.json"
         self.cost_convert_in = "/convert_data/meas_costconvert.json"
+        self.cbecs_sf_byvint = "/convert_data/CBECS_sf_byvintage.json"
         self.meas_summary_data = \
             "/measures_data/summary_data/meas_summary_data.json"
         self.meas_compete_data = "/measures_data/competition_data"
@@ -540,13 +541,9 @@ class EPlusGlobals(object):
             for EnergyPlus vintages.
     """
 
-    def __init__(self, eplus_dir):
-        # Import CBECs XLSX
-        cbecs_in = "b34.xlsx"
-        cbecs = xlrd.open_workbook(eplus_dir + '/' + cbecs_in)
-        self.cbecs_sh = cbecs.sheet_by_index(0)
-        # Pull out building vintage square footage data
-        self.vintage_sf = self.cbecs_vintage_sf()
+    def __init__(self, eplus_dir, cbecs_sf_byvint):
+        # Set building vintage square footage data from CBECS
+        self.vintage_sf = cbecs_sf_byvint
         self.eplus_coltypes = [
             ('building_type', '<U50'), ('climate_zone', '<U50'),
             ('template', '<U50'), ('measure', '<U50'), ('status', '<U50'),
@@ -597,49 +594,6 @@ class EPlusGlobals(object):
         # Determine appropriate weights for mapping EnergyPlus vintages to the
         # 'new' and 'retrofit' building structure types of Scout
         self.eplus_vintage_weights = self.find_vintage_weights()
-
-    def cbecs_vintage_sf(self):
-        """Import commercial floorspace data from CBECs raw data file.
-
-        Note:
-            The name of the CBECs file used is 'b34.xlsx'. This file
-            includes floorspace data broken down by building vintage bin.
-
-        Returns:
-            Square footages by CBECs building vintage group.
-
-        Raises:
-            ValueError: If no rows from CBECs sheet are read in.
-        """
-        # Initialize a dictionary for the cbecs vintage square footages
-        vintage_sf = {}
-        # Initialize a flag for the first relevant row in the cbecs Excel sheet
-        start_row_flag = 0
-
-        # Loop through all rows in the Excel sheet, and pull out ft^2 data
-        for i in range(self.cbecs_sh.nrows):
-            # Check for a string that indicates the start of the ft^2 data
-            # rows
-            if self.cbecs_sh.cell(i, 0).value == "Year constructed":
-                start_row_flag = 1
-            # Check for a string that indicates the end of ft^2 data rows
-            # (break)
-            elif self.cbecs_sh.cell(i, 0).value == \
-                    "Census region and division":
-                break
-            # If start row flag hasn't been raised, skip row
-            elif start_row_flag == 0:
-                continue
-            # If start row flag has been raised, read in ft^2 data from row
-            else:
-                vintage_bin = self.cbecs_sh.cell(i, 0).value
-                sf_val = self.cbecs_sh.cell(i, 6).value
-                vintage_sf[vintage_bin] = sf_val
-
-        if start_row_flag == 0:
-            raise ValueError('Problem reading in the cbecs ft^2 data!')
-
-        return vintage_sf
 
     def find_vintage_weights(self):
         """Find square-footage-based weighting factors for building vintages.
@@ -4044,8 +3998,8 @@ class MeasurePackage(Measure):
         return pkg_brk
 
 
-def update_measures(
-        measures, convert_data, msegs, msegs_cpl, handyvars, base_dir):
+def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
+                    cbecs_sf_byvint, base_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Notes:
@@ -4061,6 +4015,7 @@ def update_measures(
         msegs (dict): Baseline microsegment stock and energy use.
         msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
         handyvars (object): Global variables of use across Measure methods.
+        cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         base_dir (string): Base directory.
 
     Returns:
@@ -4080,7 +4035,7 @@ def update_measures(
         # Set default directory for EnergyPlus simulation output files
         eplus_dir = base_dir + '/ePlus_data'
         # Set EnergyPlus global variables
-        handyeplusvars = EPlusGlobals(eplus_dir)
+        handyeplusvars = EPlusGlobals(eplus_dir, cbecs_sf_byvint)
         # Fill in EnergyPlus-based measure performance information
         [m.fill_eplus(
             msegs, eplus_dir, handyeplusvars.eplus_coltypes,
@@ -4308,10 +4263,16 @@ def main(base_dir):
     # Import measure cost unit conversion data
     with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
         convert_data = json.load(cc)
+    # Import CBECS square footage by vintage data (used to map EnergyPlus
+    # commercial building vintages to Scout building vintages)
+    with open((base_dir + handyfiles.cbecs_sf_byvint), 'r') as cbsf:
+        cbecs_sf_byvint = json.load(cbsf)[
+            "commercial square footage by vintage"]
 
     # Update individual measures
-    meas_updated_objs = update_measures(meas_toupdate_indiv, convert_data,
-                                        msegs, msegs_cpl, handyvars, base_dir)
+    meas_updated_objs = update_measures(
+        meas_toupdate_indiv, convert_data, msegs, msegs_cpl, handyvars,
+        cbecs_sf_byvint, base_dir)
 
     # Add any packages affected by individual measure updates that were not
     # included in the user-defined list of measure packages to update
