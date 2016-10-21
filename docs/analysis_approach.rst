@@ -100,6 +100,8 @@ ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways: 
 .. _commercial reference building models: http://energy.gov/eere/buildings/commercial-reference-buildings
 .. _on GitHub: https://github.com/NREL/OpenStudio-PTool/tree/master/design_docs
 
+.. _analysis-step-2-energyplus:
+
 Finalizing ECM performance input via EnergyPlus/OpenStudio
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -155,7 +157,7 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 .. __: http://www.raponline.org/wp-content/uploads/2016/05/rap-neme-residentialefficiencyretrofits-2011-05.pdf
 .. __: http://www.rmi.org/Knowledge-Center/Library/2010-11_WholeBuildingRetrofits
 
-   * ECM diffusion into baseline markets is modeled under technical potential and maximum adoption potential scenarios. In both cases, the available market portion is entirely captured by ECMs (e.g., no competed stock remains with a “business-as-usual” technology). [#]_ The primary difference between the two scenarios is in how they define competed stock for the first year of ECM market entry:
+   * _`ECM diffusion` into baseline markets is modeled under technical potential and maximum adoption potential scenarios. In both cases, the available market portion is entirely captured by ECMs (e.g., no competed stock remains with a “business-as-usual” technology). [#]_ The primary difference between the two scenarios is in how they define competed stock for the first year of ECM market entry:
 
       * in the technical potential case, an ECM competes for all new and existing stock in its market entry year, while 
       * in the maximum adoption potential scenario, an ECM competes for all new stock and existing stock that is up for retrofit or replacement in its market entry year.   
