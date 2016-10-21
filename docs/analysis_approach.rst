@@ -1,6 +1,5 @@
 .. Substitutions
 .. |CO2| replace:: CO\ :sub:`2`
-.. |ft2| replace:: ft\ :sup:`2`
 
 .. _analysis-approach:
 
@@ -69,35 +68,10 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
    * Performance is specified at the unit level in absolute terms (e.g., U-value and solar heat gain coefficient for a window, or COP for a heat pump) or as a percentage relative savings value. 
    * Relative savings percentages can be drawn from results of EnergyPlus/OpenStudio simulations. In such cases, the user flags the use of EnergyPlus/OpenStudio results in the performance input definition, and these results are filled in as part of :ref:`step 2 <analysis-step-2>` of the ECM analysis process.
 
-.. _ecm-installed-cost:
-
 * Installed cost
 
-   * Product or technology cost must be specified in absolute (not incremental) terms (add link to more detailed explanation).
-   * Cost units vary on the basis of building sector and technology type, as listed here.
-
-      * major equipment types (residential)
-
-         * all non-envelope or non-controls technologies ($/unit)
-
-      * major equipment types (commercial)
-
-         * heating, cooling, water heating, and refrigeration ($/kBtu/h service - e.g., $/kBtu/h heating)
-         * ventilation ($/1000 CFM)
-         * lighting ($/1000 lm)
-
-      * envelope components (residential and commercial): 
-
-         * windows ($/|ft2| glazing),
-         * walls ($/|ft2| wall),
-         * roof ($/|ft2| roof), and
-         * floor/ground ($/|ft2| footprint)
-
-      * controls (residential and commercial):
-
-         * sensor networks ($/node)
-         * occupant-centered controls ($/occupant)
-         * all other controls ECMs ($/|ft2| floor)
+   * Product or technology installed cost must be specified in absolute (not incremental) terms (add link to more detailed explanation).
+   * Cost units vary by building sector and technology type, as specified in the :ref:`ECM Definition Reference <ecm-installed-cost-units>`.
 
 * Lifetime
 

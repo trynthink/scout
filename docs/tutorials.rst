@@ -175,11 +175,10 @@ Performance
 .. ADD EXPLANATION OF HOW TO USE SECONDARY FIELDS
 .. UNSURE OF HOW TO EXPLAIN HOW TO CONFIGURE OPENSTUDIO MEASURE (AND DO WE EXPECT USERS TO DO THAT) TO PROVIDE THE INFORMATION HERE
 
-.. NEED PERFORMANCE UNITS GUIDE IN DOCUMENTATION FOR END USES
 
 The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. 
 
-The units specified are expected to be consistent with the units for each end use outlined in (add link).
+The units specified are expected to be consistent with the units for each end use outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
 
 The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example.
 
@@ -209,7 +208,7 @@ All lighting data should be provided in the units of lumens per Watt (denoted "l
 Installed Cost
 **************
 
-The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`this list <ecm-installed-cost>`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types.
+The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`this list <ecm-installed-cost-units>`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types.
 
 If applicable to the ECM, separate cost values can be provided for residential and commercial building types. Units should match the level of specificity in the values, and source information should be included for all values articulated, if separate sources are used for different building types. 
 
