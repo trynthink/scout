@@ -85,12 +85,22 @@ class UsefulVars(object):
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
             ('AIA CZ5', 'AIA_CZ5')])
         self.out_break_bldgtypes = OrderedDict([
-            ('Residential', [
-                'single family home', 'multi family home', 'mobile home']),
-            ('Commercial', [
-                'assembly', 'education', 'food sales', 'food service',
-                'health care', 'mercantile/service', 'lodging', 'large office',
-                'small office', 'warehouse', 'other'])])
+            ('Residential (New)', [
+                'new', 'single family home', 'multi family home',
+                'mobile home']),
+            ('Residential (Existing)', [
+                'existing', 'single family home', 'multi family home',
+                'mobile home'],),
+            ('Commercial (New)', [
+                'new', 'assembly', 'education', 'food sales',
+                'food service', 'health care', 'mercantile/service',
+                'lodging', 'large office', 'small office', 'warehouse',
+                'other']),
+            ('Commercial (Existing)', [
+                'existing', 'assembly', 'education', 'food sales',
+                'food service', 'health care', 'mercantile/service',
+                'lodging', 'large office', 'small office', 'warehouse',
+                'other'])])
         self.out_break_enduses = OrderedDict([
             ('Heating', ["heating", "secondary heating"]),
             ('Cooling', ["cooling"]),
@@ -262,7 +272,7 @@ class Engine(object):
             self.output[m.name] = OrderedDict([
                 ("Filter Variables", OrderedDict([
                     ("Applicable Climate Zones", czones),
-                    ("Applicable Building Sectors", bldgtypes),
+                    ("Applicable Building Classes", bldgtypes),
                     ("Applicable End Uses", end_uses)])),
                 ("Markets and Savings (Overall)", OrderedDict()),
                 ("Markets and Savings (by Category)", OrderedDict()),
