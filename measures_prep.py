@@ -359,12 +359,22 @@ class UsefulVars(object):
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
             ('AIA CZ5', 'AIA_CZ5')])
         self.out_break_bldgtypes = OrderedDict([
-            ('Residential', [
-                'single family home', 'multi family home', 'mobile home']),
-            ('Commercial', [
-                'assembly', 'education', 'food sales', 'food service',
-                'health care', 'mercantile/service', 'lodging', 'large office',
-                'small office', 'warehouse', 'other'])])
+            ('Residential (New)', [
+                'new', 'single family home', 'multi family home',
+                'mobile home']),
+            ('Residential (Existing)', [
+                'existing', 'single family home', 'multi family home',
+                'mobile home'],),
+            ('Commercial (New)', [
+                'new', 'assembly', 'education', 'food sales',
+                'food service', 'health care', 'mercantile/service',
+                'lodging', 'large office', 'small office', 'warehouse',
+                'other']),
+            ('Commercial (Existing)', [
+                'existing', 'assembly', 'education', 'food sales',
+                'food service', 'health care', 'mercantile/service',
+                'lodging', 'large office', 'small office', 'warehouse',
+                'other'])])
         self.out_break_enduses = OrderedDict([
             ('Heating', ["heating", "secondary heating"]),
             ('Cooling', ["cooling"]),
@@ -1780,7 +1790,8 @@ class Measure(object):
                             out_cz = cz[0]
                     # Establish applicable building type breakout
                     for bldg in self.handyvars.out_break_bldgtypes.items():
-                        if mskeys[2] in bldg[1]:
+                        if all([x in bldg[1] for x in [
+                                mskeys[2], mskeys[-1]]]):
                             out_bldg = bldg[0]
                     # Establish applicable end use breakout
                     for eu in self.handyvars.out_break_enduses.items():
@@ -1807,7 +1818,7 @@ class Measure(object):
                     # fractions of measure energy and carbon markets/savings
                     # that are attributable to each climate zone, building
                     # type, and end use the measure applies to
-                    if out_cz and out_bldg and out_eu:
+                    try:
                         # If this is the first time the output breakout
                         # dictionary is being updated, replace appropriate
                         # terminal leaf node value with the baseline energy use
@@ -1830,7 +1841,7 @@ class Measure(object):
                                     out_eu][yr] += add_energy[yr]
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
-                    else:
+                    except:
                         raise ValueError(
                             'Microsegment not found in output categories!')
 

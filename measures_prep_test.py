@@ -5539,146 +5539,271 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             {"savings": {}, "total": {}}]
         cls.ok_tpmeas_fullchk_break_out = [{
             'AIA CZ1': {
-                'Residential': {
-                    'Cooling': {"2009": 0.375, "2010": 0.374},
+                'Residential (New)': {
+                    'Cooling': {"2009": 0.0375, "2010": 0.05625},
                     'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {},
-                    'Heating': {"2009": 0.125, "2010": 0.124}},
-                'Commercial': {
+                    'Heating': {"2009": 0.0125, "2010": 0.01875}},
+                'Residential (Existing)': {
+                    'Cooling': {"2009": 0.3375, "2010": 0.31875},
+                    'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {},
+                    'Heating': {"2009": 0.1125, "2010": 0.10625}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ2': {
-                'Residential': {
-                    'Cooling': {"2009": 0.375, "2010": 0.374},
+                'Residential (New)': {
+                    'Cooling': {"2009": 0.0375, "2010": 0.05625},
                     'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {},
-                    'Heating': {"2009": 0.125, "2010": 0.124}},
-                'Commercial': {
+                    'Heating': {"2009": 0.0125, "2010": 0.01875}},
+                'Residential (Existing)': {
+                    'Cooling': {"2009": 0.3375, "2010": 0.31875},
+                    'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {},
+                    'Heating': {"2009": 0.1125, "2010": 0.10625}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ3': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ4': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ5': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}}},
             {
             'AIA CZ1': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {},
-                    'Water Heating': {"2009": 1, "2010": 1},
+                    'Water Heating': {"2009": 0.10, "2010": 0.15},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {},
+                    'Water Heating': {"2009": 0.90, "2010": 0.85},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ2': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ3': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ4': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ5': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}}},
             {
             'AIA CZ1': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
-                    'Refrigeration': {"2009": 1, "2010": 1},
-                    'Other': {},
-                    'Water Heating': {},
+                    'Refrigeration': {"2009": 0.10, "2010": 0.15},
+                    'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {"2009": 0.90, "2010": 0.85},
+                    'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ2': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ3': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ4': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}},
             'AIA CZ5': {
-                'Residential': {
+                'Residential (New)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}},
-                'Commercial': {
+                'Residential (Existing)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (New)': {
+                    'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                    'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
+                    'Computers and Electronics': {}, 'Heating': {}},
+                'Commercial (Existing)': {
                     'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                     'Refrigeration': {}, 'Other': {}, 'Water Heating': {},
                     'Computers and Electronics': {}, 'Heating': {}}}}]
@@ -9426,22 +9551,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
-                                'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
-                                'Refrigeration': {}, 'Other': {},
-                                'Water Heating': {"2009": 0.5, "2010": 0.5},
-                                'Computers and Electronics': {},
-                                'Heating': {}},
-                            'Commercial': {
-                                'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
-                                'Refrigeration': {}, 'Other': {},
-                                'Water Heating': {},
-                                'Computers and Electronics': {},
-                                'Heating': {}}},
-                        'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9449,7 +9559,53 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "2009": 0.5, "2010": 0.5},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0, "2010": 0},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0, "2010": 0},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9457,14 +9613,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9472,14 +9642,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9487,14 +9671,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9831,22 +10029,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
-                                'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
-                                'Refrigeration': {}, 'Other': {},
-                                'Water Heating': {"2009": 0.5, "2010": 0.5},
-                                'Computers and Electronics': {},
-                                'Heating': {}},
-                            'Commercial': {
-                                'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {},
-                                'Refrigeration': {}, 'Other': {},
-                                'Water Heating': {},
-                                'Computers and Electronics': {},
-                                'Heating': {}}},
-                        'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9854,7 +10037,53 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                     "2009": 0.5, "2010": 0.5},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0, "2010": 0},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}}},
+                        'AIA CZ2': {
+                            'Residential (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0.5, "2010": 0.5},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {
+                                    "2009": 0, "2010": 0},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9862,14 +10091,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9877,14 +10120,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -9892,14 +10149,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10142,14 +10413,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10157,14 +10442,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10172,14 +10471,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10187,14 +10500,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10202,14 +10529,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10430,14 +10771,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10445,14 +10800,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10460,14 +10829,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10475,14 +10858,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10490,14 +10887,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10747,14 +11158,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10762,14 +11187,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10777,14 +11216,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10792,14 +11245,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -10807,15 +11274,30 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {"2009": 1, "2010": 1},
                                 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {"2009": 0, "2010": 0},
+                                'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11039,14 +11521,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11054,14 +11550,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11069,14 +11579,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11084,14 +11608,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11099,15 +11637,30 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {"2009": 1, "2010": 1},
                                 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {"2009": 0, "2010": 0},
+                                'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11295,14 +11848,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11310,14 +11877,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11325,14 +11906,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11340,14 +11935,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11355,14 +11964,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11527,14 +12150,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                             "total": {}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {"2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {"2009": 0, "2010": 0},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11542,14 +12179,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ2': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11557,14 +12208,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ3': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11572,14 +12237,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ4': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11587,14 +12266,28 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Computers and Electronics': {},
                                 'Heating': {}}},
                         'AIA CZ5': {
-                            'Residential': {
+                            'Residential (New)': {
                                 'Cooling': {}, 'Ventilation': {},
-                                'Lighting': {}, 'Refrigeration': {},
-                                'Other': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}},
-                            'Commercial': {
+                            'Residential (Existing)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (New)': {
+                                'Cooling': {}, 'Ventilation': {},
+                                'Lighting': {},
+                                'Refrigeration': {}, 'Other': {},
+                                'Water Heating': {},
+                                'Computers and Electronics': {},
+                                'Heating': {}},
+                            'Commercial (Existing)': {
                                 'Cooling': {}, 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -12087,62 +12780,150 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                         "total": {}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
-                        'Residential': {
+                        'Residential (New)': {
                             'Cooling': {}, 'Ventilation': {},
                             'Lighting': {"2009": 0.161, "2010": 0.161},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {"2009": 0, "2010": 0},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0, "2010": 0},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ2': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0, "2010": 0},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ3': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ4': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ5': {
-                        'Residential': {
+                        'Residential (New)': {
                             'Cooling': {"2009": 0.806, "2010": 0.806},
                             'Ventilation': {}, 'Lighting': {},
-                            'Refrigeration': {},
-                            'Other': {}, 'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {"2009": 0, "2010": 0},
+                            'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}}}},
             "Max adoption potential": {
                 "master_mseg": {
                     "stock": {
@@ -12613,62 +13394,150 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                         "total": {}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
-                        'Residential': {
+                        'Residential (New)': {
                             'Cooling': {}, 'Ventilation': {},
                             'Lighting': {"2009": 0.161, "2010": 0.161},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {"2009": 0, "2010": 0},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0, "2010": 0},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ2': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {"2009": 0, "2010": 0},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ3': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ4': {
-                        'Residential': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                        'Residential (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}},
                     'AIA CZ5': {
-                        'Residential': {
+                        'Residential (New)': {
                             'Cooling': {"2009": 0.806, "2010": 0.806},
                             'Ventilation': {}, 'Lighting': {},
-                            'Refrigeration': {},
-                            'Other': {}, 'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}},
-                        'Commercial': {
-                            'Cooling': {}, 'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
-                            'Computers and Electronics': {}, 'Heating': {}}}}}}
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Residential (Existing)': {
+                            'Cooling': {"2009": 0, "2010": 0},
+                            'Ventilation': {}, 'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (New)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}},
+                        'Commercial (Existing)': {
+                            'Cooling': {}, 'Ventilation': {},
+                            'Lighting': {},
+                            'Refrigeration': {}, 'Other': {},
+                            'Water Heating': {},
+                            'Computers and Electronics': {},
+                            'Heating': {}}}}}}
 
     def test_package_measure(self):
         """Test 'merge_measures' function given valid inputs."""
