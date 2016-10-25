@@ -7560,6 +7560,57 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "technology": {
                 "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 7",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": [
+                "all residential", "small office"],
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": ["natural gas"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": ["heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}},
+            {
+            "name": "sample measure 8",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": ["small office"],
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": ["natural gas"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": ["heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
                 "secondary": None}}]
         cls.sample_measures_in = [measures_prep.Measure(
             handyvars, **x) for x in sample_measures]
@@ -7859,6 +7910,23 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             [
             ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
             ["assembly", "education"],
+            ["new", "existing"],
+            ["natural gas"],
+            ["heating"],
+            ["res_type_gasHP-heat", "gas_eng-driven_RTHP-heat",
+             "gas_boiler", "gas_furnace"]],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["single family home", "multi family home", "mobile home",
+             "small office"],
+            ["new", "existing"],
+            ["natural gas"],
+            ["heating"],
+            ["furnace (NG)", "NGHP", "boiler (NG)", "res_type_gasHP-heat",
+             "gas_eng-driven_RTHP-heat", "gas_boiler", "gas_furnace"]],
+            [
+            ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
+            ["small office"],
             ["new", "existing"],
             ["natural gas"],
             ["heating"],

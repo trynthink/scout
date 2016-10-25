@@ -2836,9 +2836,10 @@ class Measure(object):
         # 'all residential' or 'all commercial', or is formatted as a list with
         # certain elements containing 'all' (e.g.,
         # ['all residential,' 'assembly', 'education'])
-        if self.bldg_type == "all" or "all" in self.bldg_type or (
+        if self.bldg_type == "all" or (
+            "all" in self.bldg_type and self.bldg_type != "small office") or (
             type(self.bldg_type) == list and any([
-                'all ' in b for b in self.bldg_type])):
+                "all" in b for b in self.bldg_type if b != "small office"])):
             # Record the initial 'bldg_type' attribute the user has defined
             # for the measure before this attribute is reset below
             map_bldgtype_orig = self.bldg_type
@@ -2853,7 +2854,8 @@ class Measure(object):
                 self.bldg_type = []
             else:
                 self.bldg_type = [
-                    b for b in self.bldg_type if 'all ' not in b]
+                    b for b in self.bldg_type if (
+                        'all' not in b or b == 'small office')]
             # Fill 'bldg_type' attribute. Note that the comprehension below
             # handles 'all', 'all residential', or 'all commercial' values for
             # the initial user-defined 'bldg_type' attribute as well as a list
