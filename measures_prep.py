@@ -1963,7 +1963,10 @@ class Measure(object):
         # have been found for the measure's master microsegment
         elif key_chain_ct == 0:
             raise KeyError(
-                "No valid baseline market microsegments found for measure!")
+                "No data retrieved for applicable baseline market " +
+                "definition of measure '" + self.name +
+                "'; check measure's applicable baseline market inputs for " +
+                "invalid entries")
 
         # Print update on measure status
         print("Measure '" + self.name + "' successfully updated")
