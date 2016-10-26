@@ -1066,8 +1066,9 @@ class Engine(object):
             # Set measure markets and market adjustment information
             # Establish starting master microsegment and contributing
             # microsegment information
-            base, adj, base_list_eff, adj_list_eff, adj_list_base = \
-                self.compete_adjustment_dicts(m, mseg_key, adopt_scheme)
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adjustment_dicts(
+                    m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
@@ -1078,8 +1079,9 @@ class Engine(object):
                     # Make the adjustment to the measure's master microsegment
                     # based on its updated market share
                     self.compete_adjustment(
-                        mkt_fracs[ind], base, adj, base_list_eff, adj_list_eff,
-                        adj_list_base, yr, mseg_key, m, adopt_scheme)
+                        mkt_fracs[ind], mast, adj, mast_list_base,
+                        mast_list_eff, adj_list_eff, adj_list_base, yr,
+                        mseg_key, m, adopt_scheme)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Remove overlapping savings across competing commercial measures.
@@ -1199,8 +1201,9 @@ class Engine(object):
             # Set measure markets and market adjustment information
             # Establish starting master microsegment and contributing
             # microsegment information
-            base, adj, base_list_eff, adj_list_eff, adj_list_base = \
-                self.compete_adjustment_dicts(m, mseg_key, adopt_scheme)
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adjustment_dicts(
+                    m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
@@ -1261,8 +1264,9 @@ class Engine(object):
                     # Make the adjustment to the measure's master microsegment
                     # based on its updated market share
                     self.compete_adjustment(
-                        mkt_fracs[ind], base, adj, base_list_eff, adj_list_eff,
-                        adj_list_base, yr, mseg_key, m, adopt_scheme)
+                        mkt_fracs[ind], mast, adj, mast_list_base,
+                        mast_list_eff, adj_list_eff, adj_list_base, yr,
+                        mseg_key, m, adopt_scheme)
 
     def adj_secondary(
             self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
@@ -1289,8 +1293,9 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting master microsegment and current contributing
             # secondary microsegment information for the measure
-            base, adj, base_list_eff, adj_list_eff, adj_list_base = \
-                self.compete_adjustment_dicts(m, mseg_key, adopt_scheme)
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adjustment_dicts(
+                    m, mseg_key, adopt_scheme)
 
             # Adjust measure savings for the current contributing
             # secondary microsegment based on the market share calculated
@@ -1342,9 +1347,9 @@ class Engine(object):
                     if any([type(x) is numpy.ndarray or x != 1 for x in
                             adj_factors.values()]):
                         self.compete_adjustment(
-                            adj_factors, base, adj, base_list_eff,
-                            adj_list_eff, adj_list_base, yr, mseg_key, m,
-                            adopt_scheme)
+                            adj_factors, mast, adj, mast_list_base,
+                            mast_list_eff, adj_list_eff, adj_list_base, yr,
+                            mseg_key, m, adopt_scheme)
                 # Raise error if no adjustment information exists
                 else:
                     raise KeyError(
@@ -1381,8 +1386,9 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting master microsegment and current contributing
             # microsegment information for the measure
-            base, adj, base_list_eff, adj_list_eff, adj_list_base = \
-                self.compete_adjustment_dicts(m, mseg_key, adopt_scheme)
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adjustment_dicts(
+                    m, mseg_key, adopt_scheme)
             # Record any measure savings associated with the current
             # contributing microsegment; these will be removed from
             # overlapping microsegments in the 'rmv_htcl_overlaps' function
@@ -1420,8 +1426,9 @@ class Engine(object):
                     "supply-demand adjustment"]["savings"].keys():
                 # Establish starting master microsegment and contributing
                 # microsegment information
-                base, adj, base_list_eff, adj_list_eff, adj_list_base = \
-                    self.compete_adjustment_dicts(m, mseg, adopt_scheme)
+                mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                    adj_list_base = self.compete_adjustment_dicts(
+                        m, mseg, adopt_scheme)
                 # Calculate annual supply-demand overlap adjustment fraction
                 # for the measure and adjust measure's master microsegment
                 # values accordingly
@@ -1439,23 +1446,23 @@ class Engine(object):
                             m.markets[adopt_scheme]["competed"][
                             "mseg_adjust"]["supply-demand adjustment"][
                             "total"][mseg][yr]
-                    # Adjust total and competed savings by supply-demand
+                    # Adjust total and competed baselines by supply-demand
                     # adjustment fraction
-                    base["cost"]["energy"]["total"]["efficient"][yr], \
-                        base["cost"]["carbon"]["total"]["efficient"][yr], \
-                        base["energy"]["total"]["efficient"][yr],\
-                        base["carbon"]["total"]["efficient"][yr] = \
-                            [x[yr] + ((z[yr] - y[yr]) * overlap_adj_frac)
-                             for x, y, z in zip(
-                                base_list_eff[1:5], adj_list_eff[1:5],
+                    mast["cost"]["energy"]["total"]["baseline"][yr], \
+                        mast["cost"]["carbon"]["total"]["baseline"][yr], \
+                        mast["energy"]["total"]["baseline"][yr],\
+                        mast["carbon"]["total"]["baseline"][yr] = [
+                            x[yr] - ((z[yr] - y[yr]) * overlap_adj_frac)
+                            for x, y, z in zip(
+                                mast_list_base[1:5], adj_list_eff[1:5],
                                 adj_list_base[1:5])]
-                    base["cost"]["energy"]["competed"]["efficient"][yr], \
-                        base["cost"]["carbon"]["competed"]["efficient"][yr], \
-                        base["energy"]["competed"]["efficient"][yr],\
-                        base["carbon"]["competed"]["efficient"][yr] = \
-                            [x[yr] + ((z[yr] - y[yr]) * overlap_adj_frac)
-                             for x, y, z in zip(
-                                base_list_eff[6:], adj_list_eff[6:],
+                    mast["cost"]["energy"]["competed"]["baseline"][yr], \
+                        mast["cost"]["carbon"]["competed"]["baseline"][yr], \
+                        mast["energy"]["competed"]["baseline"][yr],\
+                        mast["carbon"]["competed"]["baseline"][yr] = [
+                            x[yr] - ((z[yr] - y[yr]) * overlap_adj_frac)
+                            for x, y, z in zip(
+                                mast_list_base[6:], adj_list_eff[6:],
                                 adj_list_base[6:])]
 
     def compete_adjustment_dicts(self, m, mseg_key, adopt_scheme):
@@ -1481,21 +1488,34 @@ class Engine(object):
             microsegment data needed to adjust for competition across measures.
         """
         # Organize relevant starting master microsegment values into a list
-        base = m.markets[adopt_scheme]["competed"]["master_mseg"]
+        mast = m.markets[adopt_scheme]["competed"]["master_mseg"]
+        # Set total-baseline and competed-baseline master microsegment
+        # values to be updated in the rmv_htcl_overlaps function below
+        mast_list_base = [
+            mast["cost"]["stock"]["total"]["baseline"],
+            mast["cost"]["energy"]["total"]["baseline"],
+            mast["cost"]["carbon"]["total"]["baseline"],
+            mast["energy"]["total"]["baseline"],
+            mast["carbon"]["total"]["baseline"],
+            mast["cost"]["stock"]["competed"]["baseline"],
+            mast["cost"]["energy"]["competed"]["baseline"],
+            mast["cost"]["carbon"]["competed"]["baseline"],
+            mast["energy"]["competed"]["baseline"],
+            mast["carbon"]["competed"]["baseline"]]
         # Set total-efficient and competed-efficient master microsegment
         # values to be updated in the compete_adjustment or rmv_htcl_overlaps
         # functions below
-        base_list_eff = [
-            base["cost"]["stock"]["total"]["efficient"],
-            base["cost"]["energy"]["total"]["efficient"],
-            base["cost"]["carbon"]["total"]["efficient"],
-            base["energy"]["total"]["efficient"],
-            base["carbon"]["total"]["efficient"],
-            base["cost"]["stock"]["competed"]["efficient"],
-            base["cost"]["energy"]["competed"]["efficient"],
-            base["cost"]["carbon"]["competed"]["efficient"],
-            base["energy"]["competed"]["efficient"],
-            base["carbon"]["competed"]["efficient"]]
+        mast_list_eff = [
+            mast["cost"]["stock"]["total"]["efficient"],
+            mast["cost"]["energy"]["total"]["efficient"],
+            mast["cost"]["carbon"]["total"]["efficient"],
+            mast["energy"]["total"]["efficient"],
+            mast["carbon"]["total"]["efficient"],
+            mast["cost"]["stock"]["competed"]["efficient"],
+            mast["cost"]["energy"]["competed"]["efficient"],
+            mast["cost"]["carbon"]["competed"]["efficient"],
+            mast["energy"]["competed"]["efficient"],
+            mast["carbon"]["competed"]["efficient"]]
         # Set up lists that will be used to determine the energy, carbon,
         # and cost savings associated with the contributing microsegment that
         # must be adjusted according to a measure's calculated market share
@@ -1529,11 +1549,12 @@ class Engine(object):
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
 
-        return base, adj, base_list_eff, adj_list_eff, adj_list_base
+        return mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+            adj_list_base
 
     def compete_adjustment(
-            self, adj_fracs, base, adj, base_list_eff, adj_list_eff,
-            adj_list_base, yr, mseg_key, measure, adopt_scheme):
+            self, adj_fracs, mast, adj, mast_list_base, mast_list_eff,
+            adj_list_eff, adj_list_base, yr, mseg_key, measure, adopt_scheme):
         """Remove savings overlaps from a measure's master markets.
 
         Notes:
@@ -1544,11 +1565,11 @@ class Engine(object):
 
         Args:
             adj_fracs (dict): Competed market share(s) for the measure.
-            base (dict): Initial master market microsegment data to adjust
+            mast (dict): Initial master market microsegment data to adjust
                 based on competed market share(s).
             adj (dict): Contributing market microsegment data to use in
                 adjusting master microsegment data following competition.
-            base_list_eff (dict): Master 'efficient' market microsegment.
+            mast_list_eff (dict): Master 'efficient' market microsegment.
             adj_list_eff (dict): Contributing 'efficient' market microsegment
                 being competed.
             adj_list_base (dict): Contributing 'baseline' market microsegment
@@ -1661,11 +1682,11 @@ class Engine(object):
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share for the master microsegment and
         # current contributing microsegment
-        base["stock"]["total"]["measure"][yr] = \
-            base["stock"]["total"]["measure"][yr] - \
+        mast["stock"]["total"]["measure"][yr] = \
+            mast["stock"]["total"]["measure"][yr] - \
             adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_tot)
-        base["stock"]["competed"]["measure"][yr] = \
-            base["stock"]["competed"]["measure"][yr] - \
+        mast["stock"]["competed"]["measure"][yr] = \
+            mast["stock"]["competed"]["measure"][yr] - \
             adj["stock"]["competed"]["measure"][yr] * (1 - adj_frac_comp)
         adj["stock"]["total"]["measure"][yr] = \
             adj["stock"]["total"]["measure"][yr] * adj_frac_tot
@@ -1675,20 +1696,20 @@ class Engine(object):
         # Adjust the total and competed energy, carbon, and associated cost
         # savings by the appropriate measure market share for the master
         # microsegment and current contributing microsegment
-        base["cost"]["stock"]["total"]["efficient"][yr], \
-            base["cost"]["energy"]["total"]["efficient"][yr], \
-            base["cost"]["carbon"]["total"]["efficient"][yr], \
-            base["energy"]["total"]["efficient"][yr], \
-            base["carbon"]["total"]["efficient"][yr] = [
+        mast["cost"]["stock"]["total"]["efficient"][yr], \
+            mast["cost"]["energy"]["total"]["efficient"][yr], \
+            mast["cost"]["carbon"]["total"]["efficient"][yr], \
+            mast["energy"]["total"]["efficient"][yr], \
+            mast["carbon"]["total"]["efficient"][yr] = [
                 x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_tot)) for x, y, z in
-                zip(base_list_eff[0:5], adj_list_eff[0:5], adj_list_base[0:5])]
-        base["cost"]["stock"]["competed"]["efficient"][yr], \
-            base["cost"]["energy"]["competed"]["efficient"][yr], \
-            base["cost"]["carbon"]["competed"]["efficient"][yr], \
-            base["energy"]["competed"]["efficient"][yr], \
-            base["carbon"]["competed"]["efficient"][yr] = [
+                zip(mast_list_eff[0:5], adj_list_eff[0:5], adj_list_base[0:5])]
+        mast["cost"]["stock"]["competed"]["efficient"][yr], \
+            mast["cost"]["energy"]["competed"]["efficient"][yr], \
+            mast["cost"]["carbon"]["competed"]["efficient"][yr], \
+            mast["energy"]["competed"]["efficient"][yr], \
+            mast["carbon"]["competed"]["efficient"][yr] = [
                 x[yr] + ((z[yr] - y[yr]) * (1 - adj_frac_comp)) for x, y, z in
-                zip(base_list_eff[5:], adj_list_eff[5:], adj_list_base[5:])]
+                zip(mast_list_eff[5:], adj_list_eff[5:], adj_list_base[5:])]
         adj["cost"]["stock"]["total"]["efficient"][yr], \
             adj["cost"]["energy"]["total"]["efficient"][yr], \
             adj["cost"]["carbon"]["total"]["efficient"][yr], \
@@ -1723,6 +1744,10 @@ class Engine(object):
             # Group markets, savings, and portfolio metrics into list
             # for updates
             save_metric_uncertain = [
+                mkts["energy"]["total"]["baseline"],
+                mkts["carbon"]["total"]["baseline"],
+                mkts["cost"]["energy"]["total"]["baseline"],
+                mkts["cost"]["carbon"]["total"]["baseline"],
                 mkts["energy"]["total"]["efficient"],
                 mkts["carbon"]["total"]["efficient"],
                 mkts["cost"]["energy"]["total"]["efficient"],
@@ -1748,7 +1773,9 @@ class Engine(object):
             if any([type(x) == numpy.ndarray for x in
                     save["energy"]["savings (total)"].values()]):
                 # Average values for outputs
-                energy_eff_avg, carb_eff_avg, energy_cost_eff_avg, \
+                energy_base_avg, carb_base_avg, energy_cost_base_avg, \
+                    carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
+                    energy_cost_eff_avg, \
                     carb_cost_eff_avg, energy_save_avg, \
                     energy_costsave_avg, carb_save_avg, \
                     carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
@@ -1756,7 +1783,9 @@ class Engine(object):
                         k: numpy.mean(v) for k, v in z.items()} for
                         z in save_metric_uncertain]
                 # 5th percentile values for outputs
-                energy_eff_low, carb_eff_low, energy_cost_eff_low, \
+                energy_base_low, carb_base_low, energy_cost_base_low, \
+                    carb_cost_base_low, energy_eff_low, carb_eff_low, \
+                    energy_cost_eff_low, \
                     carb_cost_eff_low, energy_save_low, \
                     energy_costsave_low, carb_save_low, \
                     carb_costsave_low, cce_low, cce_c_low, ccc_low, \
@@ -1764,7 +1793,9 @@ class Engine(object):
                         k: numpy.percentile(v, 5) for k, v in
                         z.items()} for z in save_metric_uncertain]
                 # 95th percentile values for outputs
-                energy_eff_high, carb_eff_high, energy_cost_eff_high, \
+                energy_base_high, carb_base_high, energy_cost_base_high, \
+                    carb_cost_base_high, energy_eff_high, carb_eff_high, \
+                    energy_cost_eff_high, \
                     carb_cost_eff_high, energy_save_high, \
                     energy_costsave_high, carb_save_high, \
                     carb_costsave_high, cce_high, \
@@ -1772,15 +1803,21 @@ class Engine(object):
                         k: numpy.percentile(v, 95) for k, v in
                         z.items()} for z in save_metric_uncertain]
             else:
-                energy_eff_avg, carb_eff_avg, energy_cost_eff_avg, \
+                energy_base_avg, carb_base_avg, energy_cost_base_avg, \
+                    carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
+                    energy_cost_eff_avg, \
                     carb_cost_eff_avg, energy_save_avg, \
                     energy_costsave_avg, carb_save_avg, \
                     carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
-                    ccc_e_avg, energy_eff_low, carb_eff_low, \
+                    ccc_e_avg, energy_base_low, carb_base_low, \
+                    energy_cost_base_low, \
+                    carb_cost_base_low, energy_eff_low, carb_eff_low, \
                     energy_cost_eff_low, carb_cost_eff_low, \
                     energy_save_low, energy_costsave_low, \
                     carb_save_low, carb_costsave_low, cce_low, \
-                    cce_c_low, ccc_low, ccc_e_low, energy_eff_high, \
+                    cce_c_low, ccc_low, ccc_e_low, energy_base_high, \
+                    carb_base_high, energy_cost_base_high, \
+                    carb_cost_base_high, energy_eff_high, \
                     carb_eff_high, energy_cost_eff_high, \
                     carb_cost_eff_high, energy_save_high, \
                     energy_costsave_high, carb_save_high, \
@@ -1789,40 +1826,68 @@ class Engine(object):
                         x for x in save_metric_uncertain] * 3
 
             # Record updated markets and savings in Engine 'output'
-            # attribute
-            self.output[m.name]["Markets and Savings (Overall)"][
-                adopt_scheme], self.output[m.name][
-                "Markets and Savings (by Category)"][
-                adopt_scheme] = (OrderedDict([
-                    # Order year entries of baseline energy market
-                    ("Baseline Energy Use (MMBtu)",
-                        OrderedDict(sorted(mkts[
-                            "energy"]["total"]["baseline"].items()))),
-                    ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                    # Order year entries of baseline carbon market
-                    ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                        OrderedDict(sorted(mkts[
-                            "carbon"]["total"]["baseline"].items()))),
-                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                        carb_eff_avg),
-                    # Order year entries of baseline energy cost market
-                    ("Baseline Energy Cost (USD)",
-                        OrderedDict(sorted(mkts["cost"]["energy"][
-                            "total"]["baseline"].items()))),
-                    ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
-                    # Order year entries of baseline carbon cost market
-                    ("Baseline CO2 Cost (USD)".translate(sub),
-                        OrderedDict(sorted(mkts["cost"]["carbon"][
-                            "total"]["baseline"].items()))),
-                    ("Efficient CO2 Cost (USD)".translate(sub),
-                        carb_cost_eff_avg),
-                    ("Energy Savings (MMBtu)", energy_save_avg),
-                    ("Energy Cost Savings (USD)", energy_costsave_avg),
-                    ("Avoided CO2 Emissions (MMTons)".
-                        translate(sub), carb_save_avg),
-                    ("CO2 Cost Savings (USD)".
-                        translate(sub), carb_costsave_avg)]) for
-                n in range(2))
+            # attribute; yield low and high estimates on the values if
+            # available
+            if energy_eff_avg != energy_eff_low:
+                self.output[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme], self.output[m.name][
+                    "Markets and Savings (by Category)"][
+                    adopt_scheme] = (OrderedDict([
+                        ("Baseline Energy Use (MMBtu)", energy_base_avg),
+                        ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                        ("Efficient Energy Use (low) (MMBtu)",
+                            energy_eff_low),
+                        ("Efficient Energy Use (high) (MMBtu)",
+                            energy_eff_high),
+                        ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                            carb_base_avg),
+                        ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                            carb_eff_avg),
+                        ("Efficient CO2 Emissions (low) (MMTons)".
+                            translate(sub), carb_eff_low),
+                        ("Efficient CO2 Emissions (high) (MMTons)".
+                            translate(sub), carb_eff_high),
+                        ("Baseline Energy Cost (USD)", energy_cost_base_avg),
+                        ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
+                        ("Efficient Energy Cost (low) (USD)",
+                            energy_cost_eff_low),
+                        ("Efficient Energy Cost (high) (USD)",
+                            energy_cost_eff_high),
+                        ("Baseline CO2 Cost (USD)".translate(sub),
+                            carb_cost_base_avg),
+                        ("Efficient CO2 Cost (USD)".translate(sub),
+                            carb_cost_eff_avg),
+                        ("Energy Savings (MMBtu)", energy_save_avg),
+                        ("Energy Cost Savings (USD)", energy_costsave_avg),
+                        ("Avoided CO2 Emissions (MMTons)".
+                            translate(sub), carb_save_avg),
+                        ("CO2 Cost Savings (USD)".
+                            translate(sub), carb_costsave_avg)]) for
+                    n in range(2))
+            else:
+                self.output[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme], self.output[m.name][
+                    "Markets and Savings (by Category)"][
+                    adopt_scheme] = (OrderedDict([
+                        ("Baseline Energy Use (MMBtu)", energy_base_avg),
+                        ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                        ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                            carb_base_avg),
+                        ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                            carb_eff_avg),
+                        ("Baseline Energy Cost (USD)", energy_cost_base_avg),
+                        ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
+                        ("Baseline CO2 Cost (USD)".translate(sub),
+                            carb_cost_base_avg),
+                        ("Efficient CO2 Cost (USD)".translate(sub),
+                            carb_cost_eff_avg),
+                        ("Energy Savings (MMBtu)", energy_save_avg),
+                        ("Energy Cost Savings (USD)", energy_costsave_avg),
+                        ("Avoided CO2 Emissions (MMTons)".
+                            translate(sub), carb_save_avg),
+                        ("CO2 Cost Savings (USD)".
+                            translate(sub), carb_costsave_avg)]) for
+                    n in range(2))
 
             # Scale down the measure's markets and savings by the
             # climate zone, building type, and end use partitioning
