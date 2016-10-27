@@ -193,7 +193,7 @@ for (v in 1:length(var_names_uncompete)){
         min_val = min(c(base_tp, base_map, eff_tp_m, eff_map_m))
         max_val = max(c(base_tp, base_map, eff_tp_m, eff_map_m))
         # Set limits of y axis for plot based on min. and max. values in data
-        ylims = pretty(c(min_val-0.10*max_val, max_val+0.10*max_val))
+        ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
         # Initiate plot region with baseline results
         plot(years, base_tp, typ='l', lwd=4, ylim = c(min(ylims), max(ylims)),
              xlab=NA, ylab=NA, col="gray30", main = meas_names[m], xaxt="n", yaxt="n")
@@ -220,13 +220,11 @@ for (v in 1:length(var_names_uncompete)){
           min_val = min(c(base_tp, base_map, eff_tp_m, eff_map_m, base_rec_uncompete[m, ]))
           max_val = max(c(base_tp, base_map, eff_tp_m, eff_map_m, base_rec_uncompete[m, ]))
           # Set limits of y axis for plot based on min. and max. values in data
-          ylims = pretty(c(min_val-0.10*max_val, max_val+0.10*max_val))
-          # Initiate plot region with baseline results
-          plot(years, base_rec_uncompete[m, ], typ='l', lwd=2, ylim = c(min(ylims), max(ylims)),
-               xlab=NA, ylab=NA, col="gray30", lty=6, main = meas_names[m], xaxt="n", yaxt="n")
-          # Add adjusted baseline for competed technical potential scenario
-          lines(years, base_tp, lwd=4, col="dodgerblue")
-          # Add adjusted baseline for competed max adoption potential scenario
+          ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
+          # Initiate plot region with adjusted technical potential baseline results
+          plot(years, base_tp, typ='l', lwd=4, ylim = c(min(ylims), max(ylims)),
+               xlab=NA, ylab=NA, col="dodgerblue", main = meas_names[m], xaxt="n", yaxt="n")
+          # Add adjusted max adoption potential baseline results
           lines(years, base_map, lwd=4, col="firebrick1")
           # Set plot legend parameters, which depend on the presence of uncertainty in outputs
           if (uncertainty == TRUE){
@@ -261,6 +259,10 @@ for (v in 1:length(var_names_uncompete)){
       lines(years, eff_tp_m, lwd=2.5, col="dodgerblue")
       # Max adoption potential scenario
       lines(years, eff_map_m, lwd=2.5, col="firebrick1")
+      # In a competed scenario, add uncompeted baseline for reference
+      if (comp_schemes[cp] == "competed"){
+        lines(years, base_rec_uncompete[m, ], lwd=2, col="gray30", lty=6)
+      }
 
       # Add x and y axis labels
       mtext("Year", side=1, line=3.5, cex=0.925)
