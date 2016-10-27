@@ -3,6 +3,7 @@
 # ============================================================================
 
 # Load rjson for reading in JSON files
+if(!require("rjson")){install.packages("rjson")}
 require("rjson")
 # Get current working directory path
 base_dir = getwd()
@@ -186,11 +187,13 @@ for (v in 1:length(var_names_uncompete)){
         eff_map_h = unlist(results[3, 4]) * unit_translate
       }
 
-      # Set limits of y axis for plot based on min. and max. values in data to be plotted
-      ylims = pretty(c(min(eff_tp_m)-0.15*max(base_map),max(base_map)+0.15*max(base_map)))
-      
       # Initialize plot and legend parameters for an uncompeted scenario
       if (comp_schemes[cp] == "uncompeted"){
+        # Find min. and max. values in the data to be plotted for setting y axis limits
+        min_val = min(c(base_tp, base_map, eff_tp_m, eff_map_m))
+        max_val = max(c(base_tp, base_map, eff_tp_m, eff_map_m))
+        # Set limits of y axis for plot based on min. and max. values in data
+        ylims = pretty(c(min_val-0.10*max_val, max_val+0.10*max_val))
         # Initiate plot region with baseline results
         plot(years, base_tp, typ='l', lwd=4, ylim = c(min(ylims), max(ylims)),
              xlab=NA, ylab=NA, col="gray30", main = meas_names[m], xaxt="n", yaxt="n")
@@ -213,6 +216,11 @@ for (v in 1:length(var_names_uncompete)){
         
         # Initialize plot and legend parameters for a competed scenario
         }else{
+          # Find min. and max. values in the data to be plotted for setting y axis limits
+          min_val = min(c(base_tp, base_map, eff_tp_m, eff_map_m, base_rec_uncompete[m, ]))
+          max_val = max(c(base_tp, base_map, eff_tp_m, eff_map_m, base_rec_uncompete[m, ]))
+          # Set limits of y axis for plot based on min. and max. values in data
+          ylims = pretty(c(min_val-0.10*max_val, max_val+0.10*max_val))
           # Initiate plot region with baseline results
           plot(years, base_rec_uncompete[m, ], typ='l', lwd=2, ylim = c(min(ylims), max(ylims)),
                xlab=NA, ylab=NA, col="gray30", lty=6, main = meas_names[m], xaxt="n", yaxt="n")
@@ -232,7 +240,7 @@ for (v in 1:length(var_names_uncompete)){
           }else{
             legend_param = c("Baseline (Uncompeted)", "Baseline (Competed TP)", "Baseline (Competed MAP)",
                              "Efficient (Competed TP)", "Efficient (Competed MAP)")
-            col_param = c("gray30", "dodgerblue", "firebrick1")
+            col_param = c("gray30", "dodgerblue", "firebrick1", "dodgerblue", "firebrick1")
             lwd_param = c(2, 4, 4, 2.5, 2.5)
             lty_param = c(6, 1, 1, 1, 1) 
           }  
@@ -270,7 +278,7 @@ for (v in 1:length(var_names_uncompete)){
     par(xpd=TRUE)
     plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
     legend("top", legend=legend_param, lwd=lwd_param, col=col_param, lty=lty_param, 
-           bty="n", fill=rep(NA, 5), border = FALSE, merge = TRUE, cex=1.15)
+           bty="n", border = FALSE, merge = TRUE, cex=1.15)
   dev.off()
   }
 }
