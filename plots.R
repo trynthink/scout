@@ -93,9 +93,9 @@ for (a in 1:length(adopt_scenarios)){
       uncertainty = FALSE
       # Set the file name for the plot based on the adoption scenario and plotting variable
       if (adopt_scenarios[a] == 'Technical potential'){
-        plot_file_name = paste(base_dir, '/engine_results/plots/tech_potential/', plot_names[v],".pdf", sep = "")
+        plot_file_name = paste(base_dir, '/engine_results/plots/tech_potential/', plot_names[v],"-TP.pdf", sep = "")
       }else{
-        plot_file_name = paste(base_dir, '/engine_results/plots/max_adopt_potential/', plot_names[v],".pdf", sep = "")
+        plot_file_name = paste(base_dir, '/engine_results/plots/max_adopt_potential/', plot_names[v],"-MAP.pdf", sep = "")
       }
     
       # Open PDF plot device
