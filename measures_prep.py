@@ -30,7 +30,10 @@ class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
 
     Attributes:
-        meas_toupdate_in (string): Database of initial measure definitions.
+        meas_toupdate_in (string): Database of new measure definitions
+            to update.
+        meas_updated_in (string): Database of existing (previously run)
+            measure definitions to update.
         msegs_in (string): Database of baseline microsegment stock/energy.
         msegs_cpl_in (string): Database of baseline technology characteristics.
         convert_data (string): Database of measure cost unit conversions.
@@ -44,6 +47,8 @@ class UsefulInputFiles(object):
     def __init__(self):
         self.meas_toupdate_in = \
             "/measures_data/meas_toupdate_in.json"
+        self.meas_updated_in = \
+            "/measures_data/meas_updated_in.json"
         self.msegs_in = "/stock_energy_tech_data/mseg_res_com_cz.json"
         self.msegs_cpl_in = "/stock_energy_tech_data/cpl_res_com_cz.json"
         self.cost_convert_in = "/convert_data/meas_costconvert.json"
@@ -2302,6 +2307,11 @@ class Measure(object):
         captured_eff_frac = 0
         captured_base_frac = 1
 
+        # Set the relative energy performance of the current year's
+        # competed and uncompeted stock that goes uncaptured (both 1)
+        rel_perf_comp_uncapt, rel_perf_uncomp_uncapt = (
+            1 for n in range(2))
+
         # In cases where secondary microsegments are present, initialize a
         # dict of year-by-year secondary microsegment adjustment information
         # that will be used to scale down the secondary microsegment(s) in
@@ -2653,32 +2663,24 @@ class Measure(object):
                             stock_total_meas[yr] > stock_total[yr]:
                         stock_total_meas[yr] = stock_total[yr]
 
-            # Set a relative performance level for all stock captured by the
-            # measure by weighting the relative performance of competed
-            # stock captured by the measure in the current year and the
-            # relative performance of all stock captured by the measure in
-            # previous years
-
-            # Set the relative performance of the current year's competed stock
-            rel_perf_competed = rel_perf[yr]
-
-            # If first year in the modeling time horizon, initialize the
-            # weighted relative performance level as identical to that of the
-            # competed stock (e.g., initialize to the the relative performance
-            # from baseline -> measure for that year only)
-            if yr == self.handyvars.aeo_years[0]:
-                rel_perf_weighted = rel_perf[yr]
-            # For a subsequent year in the modeling time horizon, calculate
-            # a weighted sum of the relative performances of the competed stock
-            # captured in the current year and the stock captured in all
-            # previous years
+            # Update the relative performance of the current year's competed
+            # and captured stock
+            rel_perf_comp_capt = rel_perf[yr]
+            # Set the relative performance of the current year's uncompeted
+            # and previously captured stock to that of the current year's
+            # competed and captured stock for all years through market entry;
+            # after market entry, this relative performance value represents
+            # a weighted combination of the relative performance values for
+            # competed and captured stock in all previous years
+            if int(yr) <= mkt_entry_yr:
+                rel_perf_uncomp_capt = rel_perf[yr]
             else:
                 total_capture = competed_captured_eff_frac + (
                     1 - competed_frac) * captured_eff_frac
                 if total_capture != 0:
-                    rel_perf_weighted = (
-                        rel_perf_competed * competed_captured_eff_frac +
-                        rel_perf_weighted * (
+                    rel_perf_uncomp_capt = (
+                        rel_perf_comp_capt * competed_captured_eff_frac +
+                        rel_perf_uncomp_capt * (
                             total_capture - competed_captured_eff_frac)) / \
                         total_capture
 
@@ -2691,29 +2693,34 @@ class Measure(object):
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_total[yr] * \
-                competed_captured_eff_frac * rel_perf_weighted * \
+                competed_captured_eff_frac * rel_perf_comp_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
-                energy_total[yr] * (competed_frac - competed_captured_eff_frac)
+                energy_total[yr] * (
+                    competed_frac - competed_captured_eff_frac) * \
+                rel_perf_comp_uncapt
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                captured_eff_frac * rel_perf_weighted * \
+                captured_eff_frac * rel_perf_uncomp_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                (1 - captured_eff_frac)
+                (1 - captured_eff_frac) * rel_perf_uncomp_uncapt
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total[yr] * \
-                competed_captured_eff_frac * rel_perf_weighted * \
+                competed_captured_eff_frac * rel_perf_comp_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                carb_total[yr] * (competed_frac - competed_captured_eff_frac)
+                carb_total[yr] * (
+                    competed_frac - competed_captured_eff_frac) * \
+                rel_perf_comp_uncapt
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 (carb_total[yr] - carb_compete[yr]) * \
-                captured_eff_frac * rel_perf_weighted * \
+                captured_eff_frac * rel_perf_uncomp_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                (carb_total[yr] - carb_compete[yr]) * (1 - captured_eff_frac)
+                (carb_total[yr] - carb_compete[yr]) * (
+                    1 - captured_eff_frac) * rel_perf_uncomp_uncapt
 
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
@@ -2753,21 +2760,22 @@ class Measure(object):
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy_base[yr]
             # Competed energy-efficient cost
             energy_compete_cost_eff[yr] = energy_total[yr] * \
-                competed_captured_eff_frac * rel_perf_weighted * \
+                competed_captured_eff_frac * rel_perf_comp_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] + energy_total[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
-                cost_energy_base[yr]
+                cost_energy_base[yr] * rel_perf_comp_uncapt
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
             # Total energy-efficient cost
             energy_total_eff_cost[yr] = energy_compete_cost_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * captured_eff_frac * \
-                rel_perf_weighted * (
+                rel_perf_uncomp_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] + (
                     energy_total[yr] - energy_compete[yr]) * (
-                    1 - captured_eff_frac) * cost_energy_base[yr]
+                    1 - captured_eff_frac) * cost_energy_base[yr] * \
+                rel_perf_uncomp_uncapt
 
             # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * \
@@ -2869,10 +2877,10 @@ class Measure(object):
                     map_bldgtype_orig == "all" or b[0] in map_bldgtype_orig or
                     any([b[0] in borig for borig in map_bldgtype_orig if
                         'all ' in borig]))]
-            # Record the measure's applicability to both the residential and
-            # the commercial building sectors (for use in filling out
+            # Record the measure's applicability to the residential and/or
+            # the commercial building sectors in a list (for use in filling out
             # 'fuel_type,' 'end_use,' and 'technology' attributes below)
-            map_bldgsect = [x[0] for x in self.handyvars.in_all_map[
+            bldgsect_list = [x[0] for x in self.handyvars.in_all_map[
                 "bldg_type"].items() if any([
                     bt in x[1] for bt in self.bldg_type])]
 
@@ -2897,7 +2905,7 @@ class Measure(object):
                     # new key, value pairs to the attribute dict where the
                     # building type name is each key and the original value
                     # for the building sector is the value for the new pair
-                    for b in map_bldgsect:
+                    for b in bldgsect_list:
                         # Check whether the sector is assigned an 'all'
                         # breakout in the attribute (e.g., 'all residential')
                         sect_val = [x[1] for x in attr.items() if b in x[0]]
@@ -2915,22 +2923,30 @@ class Measure(object):
                         del(attr[dk])
         # If there is no 'all' building type input, still record the
         # measure's applicability to the residential and/or
-        # the commercial building sector (for use in filling out
+        # the commercial building sector in a list (for use in filling out
         # 'fuel_type,' 'end_use,' and 'technology' attributes below)
         else:
-            map_bldgsect = [b[0] for b in self.handyvars.in_all_map[
+            bldgsect_list = [b[0] for b in self.handyvars.in_all_map[
                 "bldg_type"].items() if any([
-                    bta in b[1] for bta in self.bldg_type])]
+                    bta == self.bldg_type for bta in b[1]]) or
+                any([bta in b[1] for bta in self.bldg_type])]
 
         # Fill out an 'all' fuel type input
         if self.fuel_type[mseg_type] == 'all':
             # Reset measure 'fuel_type' attribute as a list and fill with
             # all fuels for the measure's applicable building sector(s)
             self.fuel_type[mseg_type] = []
-            for b in map_bldgsect:
+            for b in bldgsect_list:
                 [self.fuel_type[mseg_type].append(f) for f in
                  self.handyvars.in_all_map["fuel_type"][b] if
                  f not in self.fuel_type[mseg_type]]
+
+        # Record the measure's applicable fuel type(s) in a list (for use in
+        # filling out 'end_use,' and 'technology' attributes below)
+        if not isinstance(self.fuel_type[mseg_type], list):
+            fueltype_list = [self.fuel_type[mseg_type]]
+        else:
+            fueltype_list = self.fuel_type[mseg_type]
 
         # Fill out an 'all' end use input
         if self.end_use[mseg_type] == 'all':
@@ -2938,12 +2954,19 @@ class Measure(object):
             # all end uses for the measure's applicable building sector(s)
             # and fuel type(s)
             self.end_use[mseg_type] = []
-            for b in map_bldgsect:
-                for f in [x for x in self.fuel_type[mseg_type] if
+            for b in bldgsect_list:
+                for f in [x for x in fueltype_list if
                           x in self.handyvars.in_all_map["fuel_type"][b]]:
                     [self.end_use[mseg_type].append(e) for e in
                      self.handyvars.in_all_map["end_use"][b][f] if
                      e not in self.end_use[mseg_type]]
+
+        # Record the measure's applicable end use(s) in a list (for use in
+        # filling out 'technology' attribute below)
+        if not isinstance(self.end_use[mseg_type], list):
+            enduse_list = [self.end_use[mseg_type]]
+        else:
+            enduse_list = self.end_use[mseg_type]
 
         # Fill out a technology input that is marked 'all' or is
         # formatted as a list with certain elements containing 'all' (e.g.,
@@ -2967,7 +2990,7 @@ class Measure(object):
                 self.technology[mseg_type] = [
                     t for t in self.technology[mseg_type] if 'all ' not in t]
             # Fill 'technology' attribute
-            for b in map_bldgsect:
+            for b in bldgsect_list:
                 # Case concerning a demand-side technology, for which the set
                 # of 'all' technologies depends only on the measure's
                 # applicable building sector(s)
@@ -2980,9 +3003,9 @@ class Measure(object):
                 # of 'all' technologies depends on the measure's applicable
                 # building sector(s), fuel type(s), and end use(s)
                 else:
-                    for f in [ft for ft in self.fuel_type[mseg_type] if
+                    for f in [ft for ft in fueltype_list if
                               ft in self.handyvars.in_all_map["fuel_type"][b]]:
-                        for e in [eu for eu in self.end_use[mseg_type] if eu in
+                        for e in [eu for eu in enduse_list if eu in
                                   self.handyvars.in_all_map["end_use"][b][f]]:
                             # Note that the comprehension below handles both an
                             # 'all' value for the initial user-defined
@@ -3008,6 +3031,15 @@ class Measure(object):
             List of key chains to use in retreiving data for the measure's
             applicable baseline market microsegments.
         """
+        # Ensure that all variables relevant to forming key chains are lists
+        self.climate_zone, self.bldg_type, self.fuel_type[mseg_type], \
+            self.end_use[mseg_type], self.technology_type[mseg_type], \
+            self.technology[mseg_type], self.structure_type = [
+                [x] if not isinstance(x, list) else x for x in [
+                    self.climate_zone, self.bldg_type,
+                    self.fuel_type[mseg_type], self.end_use[mseg_type],
+                    self.technology_type[mseg_type],
+                    self.technology[mseg_type], self.structure_type]]
         # Flag heating/cooling end use microsegments. For heating/cooling
         # cases, an extra 'supply' or 'demand' key is required in the key
         # chain; this key indicates the supply-side and demand-side variants
@@ -3031,10 +3063,6 @@ class Measure(object):
                 self.climate_zone, self.bldg_type, self.fuel_type[mseg_type],
                 eu_hc, self.technology_type[mseg_type],
                 self.technology[mseg_type]]
-            # Ensure every element of 'ms_lists' is a list
-            for x in range(0, len(ms_lists)):
-                if isinstance(ms_lists[x], list) is False:
-                    ms_lists[x] = [ms_lists[x]]
             # Generate a list of all possible combinations of the elements
             # in 'ms_lists' above
             ms_iterable_init = list(itertools.product(*ms_lists))
@@ -3046,10 +3074,6 @@ class Measure(object):
                 ms_lists_add = [self.climate_zone, self.bldg_type,
                                 self.fuel_type[mseg_type], eu_non_hc,
                                 self.technology[mseg_type]]
-                # Ensure every element of 'ms_lists_add' is a list
-                for x in range(0, len(ms_lists_add)):
-                    if isinstance(ms_lists_add[x], list) is False:
-                        ms_lists_add[x] = [ms_lists_add[x]]
                 # Generate a list of all possible combinations of the
                 # elements in 'ms_lists_add' above and add this list
                 # to 'ms_iterable_init', also adding 'ms_lists_add'
@@ -3064,10 +3088,6 @@ class Measure(object):
             ms_lists = [self.climate_zone, self.bldg_type,
                         self.fuel_type[mseg_type], self.end_use[mseg_type],
                         self.technology[mseg_type]]
-            # Ensure every element of 'ms_lists' is a list
-            for x in range(0, len(ms_lists)):
-                if isinstance(ms_lists[x], list) is False:
-                    ms_lists[x] = [ms_lists[x]]
             # Generate a list of all possible combinations of the elements
             # in 'ms_lists' above
             ms_iterable_init = list(itertools.product(*ms_lists))
@@ -4258,13 +4278,28 @@ def main(base_dir):
     # Instantiate useful variables object
     handyvars = UsefulVars(base_dir)
 
-    # Import measures/measure packages to update
+    # Import new measure/measure package definitions to update
     with open((base_dir + handyfiles.meas_toupdate_in), 'r') as mjs:
         measures = json.load(mjs, object_pairs_hook=OrderedDict)
         # Set individual measures
         meas_toupdate_indiv = measures["individual measures"]
         # Set measure packages
         meas_toupdate_package = measures["measure packages"]
+    # Import existing measure/measure package definitions to update
+    with open((base_dir + handyfiles.meas_updated_in), 'r') as muo:
+        meas_updated_in = json.load(muo, object_pairs_hook=OrderedDict)
+    # Add new measure/measure packages definitions to update to existing
+    # measure/measure package definitions to update and write out the
+    # result
+    meas_updated_in["individual measures"].extend([
+        x for x in meas_toupdate_indiv if x["name"] not in [m[
+            "name"] for m in meas_updated_in["individual measures"]]])
+    meas_updated_in["measure packages"].extend([
+        x for x in meas_toupdate_package if x["name"] not in [m[
+            "name"] for m in meas_updated_in["measure packages"]]])
+    with open((base_dir + handyfiles.meas_updated_in), "w") as muo:
+        json.dump(meas_updated_in, muo, indent=2)
+
     # Import existing measure summaries
     with open((base_dir + handyfiles.meas_summary_data), 'r') as es:
         meas_summary = json.load(es, object_pairs_hook=OrderedDict)
