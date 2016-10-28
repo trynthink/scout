@@ -81,6 +81,8 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
             list of climates, buildings, fuels, end uses, or technologies.
+        valid_mktnames (list): List of all valid applicable baseline market
+            input names for a measure.
         out_break_czones (OrderedDict): Maps measure climate zone names to
             the climate zone categories used in summarizing measure outputs.
         out_break_bldgtypes (OrderedDict): Maps measure building type names to
@@ -359,6 +361,17 @@ class UsefulVars(object):
                         'floor', 'infiltration', 'people gain',
                         'windows solar', 'ventilation',
                         'other heat gain', 'wall']}}}
+        # Find the full set of valid names for describing a measure's
+        # applicable baseline that do not begin with 'all'
+        mktnames_non_all = self.append_keyvals(
+            self.in_all_map, keyval_list=[]) + ['supply', 'demand']
+        # Find the full set of valid names for describing a measure's
+        # applicable baseline that do begin with 'all'
+        mktnames_all_init = ["all", "all residential", "all commercial"] + \
+            self.append_keyvals(self.in_all_map["end_use"], keyval_list=[])
+        mktnames_all = ['all ' + x if 'all' not in x else x for
+                        x in mktnames_all_init]
+        self.valid_mktnames = mktnames_non_all + mktnames_all
         self.out_break_czones = OrderedDict([
             ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
             ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
@@ -454,6 +467,38 @@ class UsefulVars(object):
             "square footage to unit technology": ["$/ft^2 floor"],
             "wireless sensor network": ["$/node"],
             "occupant-centered sensing and controls": ["$/occupant"]}
+
+    def append_keyvals(self, dict1, keyval_list):
+        """Append all terminal key values in a dict to a list.
+
+        Note:
+            Values already in the list should not be appended.
+
+        Args:
+            dict1 (dict): Dictionary with terminal key values
+                to append.
+
+        Returns:
+            List including all terminal key values from dict.
+
+        Raises:
+            ValueError: If terminal key values are not formatted as
+                either lists or strings.
+        """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.append_keyvals(i, keyval_list)
+            elif isinstance(i, list):
+                keyval_list.extend([
+                    x for x in i if x not in keyval_list])
+            elif isinstance(i, str) and i not in keyval_list:
+                keyval_list.append(i)
+            else:
+                raise ValueError(
+                    "Input dict terminal key values expected to be "
+                    "lists or strings in the 'append_keyvals' function")
+
+        return keyval_list
 
 
 class EPlusMapDicts(object):
@@ -702,15 +747,15 @@ class EPlusGlobals(object):
             # Check that the 'new' EnergyPlus vintage weight equals 1 and that
             # all 'retrofit' EnergyPlus vintage weights sum to 1
             if new_weight_sum != 1:
-                raise ValueError('Incorrect new vintage weight total!')
+                raise ValueError('Incorrect new vintage weight total')
             elif retro_weight_sum != 1:
-                raise ValueError('Incorrect retrofit vintage weight total!')
+                raise ValueError('Incorrect retrofit vintage weight total')
 
         else:
             raise KeyError(
-                'Unexpected EnergyPlus vintage(s)! '
-                'Check EnergyPlus vintage assumptions in structure_type '
-                'attribute of EPlusMapDict object.')
+                'Unexpected EnergyPlus vintage(s); '
+                'check EnergyPlus vintage assumptions in structure_type '
+                'attribute of EPlusMapDict object')
 
         return eplus_vintage_weights
 
@@ -884,11 +929,16 @@ class Measure(object):
 
         Raises:
             KeyError: If measure and baseline performance or cost units are
-                inconsistent, or a valid baseline market microsegment cannot
+                inconsistent, or no valid baseline market microsegments can
                 be found for the given measure definition.
-            ValueError: If a market microsegment cannot be mapped to a
-                valid output breakout category.
+            ValueError: If an input value from the measure definition is
+                invalid, or if baseline market microsegment information cannot
+                be mapped to a valid breakout category for measure outputs.
         """
+        # Check that the measure's applicable baseline market input definitions
+        # are valid before attempting to retrieve data on this baseline market
+        self.check_mkt_inputs()
+
         # If multiple runs are required to handle probability distributions on
         # measure inputs, set a number to seed each random draw of cost,
         # performance, and or lifetime with for consistency across all
@@ -1549,7 +1599,9 @@ class Measure(object):
                             light_scnd_autoperf is True:
                         light_scnd_autoperf = rel_perf
                 else:
-                    raise KeyError('Inconsistent performance or cost units!')
+                    raise KeyError(
+                        "Invalid performance or cost units for measure '" +
+                        self.name + "'")
 
                 # Reduce energy costs and stock turnover info. to appropriate
                 # building type and - for energy costs - fuel, before
@@ -1848,7 +1900,8 @@ class Measure(object):
                     # be mapped to an output breakout category
                     except:
                         raise ValueError(
-                            'Microsegment not found in output categories!')
+                            "Baseline market key chain: '" + mskeys +
+                            "' does not map to output breakout categories")
 
                     # Case with no existing 'windows' contributing microsegment
                     # for the current climate zone, building type, fuel type,
@@ -1969,9 +2022,7 @@ class Measure(object):
         elif key_chain_ct == 0:
             raise KeyError(
                 "No data retrieved for applicable baseline market " +
-                "definition of measure '" + self.name +
-                "'; check measure's applicable baseline market inputs for " +
-                "invalid entries")
+                "definition of measure '" + self.name + "'")
 
         # Print update on measure status
         print("Measure '" + self.name + "' successfully updated")
@@ -2025,7 +2076,7 @@ class Measure(object):
                 top_key = next(x for x in top_keys.keys() if
                                cost_meas_noyr in top_keys[x])
             except StopIteration:
-                raise KeyError('No conversion data for measure cost units!')
+                raise KeyError('No conversion data for measure cost units')
 
             if top_key == "whole building":
                 # Retrieve whole building-level cost conversion data
@@ -2036,7 +2087,7 @@ class Measure(object):
                         cost_meas_noyr in whlbldg_keys[x])
                 except StopIteration:
                     raise KeyError(
-                        'No conversion data for measure cost units!')
+                        'No conversion data for measure cost units')
                 # If a residential cost conversion to $/unit is required,
                 # retrieve data needed for this multi-stage conversion (e.g,
                 # from $/occupant or $/node to $/ft^2 floor to $/unit);
@@ -2055,7 +2106,7 @@ class Measure(object):
                             cost_meas_noyr in node_keys[x]['key'])
                     except StopIteration:
                         raise KeyError(
-                            'No conversion data for measure cost units!')
+                            'No conversion data for measure cost units')
                     convert_units_data = [convert_data[
                         'cost unit conversions'][top_key][x] for x in
                         node_keys[node_key]["conversion stages"]]
@@ -2074,7 +2125,7 @@ class Measure(object):
                         cost_meas_noyr in htcl_keys[x])
                 except StopIteration:
                     raise KeyError(
-                        'No conversion data for measure cost units!')
+                        'No conversion data for measure cost units')
                 if htcl_key == "supply":
                     # Retrieve supply-side heating/cooling conversion data
                     supply_keys = self.handyvars.cconv_tech_htclsupply_map
@@ -2084,7 +2135,7 @@ class Measure(object):
                             cost_meas_noyr in supply_keys[x])
                     except StopIteration:
                         raise KeyError(
-                            'No conversion data for measure cost units!')
+                            'No conversion data for measure cost units')
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][supply_key]]
@@ -2097,7 +2148,7 @@ class Measure(object):
                             cost_meas_noyr in demand_keys[x]['key'])
                     except StopIteration:
                         raise KeyError(
-                            'No conversion data for measure cost units!')
+                            'No conversion data for measure cost units')
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][x] for x in
@@ -2821,6 +2872,46 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff]
 
+    def check_mkt_inputs(self):
+        """Check for valid applicable baseline market inputs for a measure.
+
+        Note:
+            The inputs are checked against a list of valid baseline market
+            input names, determined from the 'valid_mktnames' attribute of the
+            'UsefulVars' object type.
+
+        Raises:
+            ValueError: If input names are not in the list of valid names.
+        """
+        # Initialize the list of input names to check
+        check_list = []
+        # Loop through all inputs related to a measure's applicable baseline
+        # market and add input names to the list
+        for x in [
+            self.climate_zone, self.bldg_type, self.structure_type,
+            self.fuel_type, self.end_use, self.technology_type,
+                self.technology]:
+            # Handle input values formatted as dicts, lists, or strings
+            if isinstance(x, dict):
+                [check_list.extend(x[ms]) if isinstance(x[ms], list) else
+                 check_list.append(x[ms]) for ms in ["primary", "secondary"]]
+            elif isinstance(x, list):
+                check_list.extend(x)
+            elif isinstance(x, str):
+                check_list.append(x)
+            else:
+                raise ValueError(
+                    "Measure '" + self.name + "'applicable baseline market "
+                    "input in unexpected format (need dict, list, or string)")
+        # Find subset of input names that are not in the list of valid names
+        invalid_names = [
+            y for y in check_list if y not in self.handyvars.valid_mktnames]
+        # If invalid names are discovered, report them in an error message
+        if len(invalid_names) > 0:
+            raise ValueError(
+                "Input names in the following list are invalid for measure '" +
+                self.name + "': " + str(invalid_names))
+
     def fill_attr(self, mseg_type):
         """Fill out 'all' values in measure input attributes.
 
@@ -3120,7 +3211,7 @@ class Measure(object):
     def add_keyvals(self, dict1, dict2):
         """Add key values of two dicts together.
 
-        Notes:
+        Note:
             Dicts must be identically structured.
 
         Args:
@@ -3144,13 +3235,13 @@ class Measure(object):
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
-                raise KeyError('Add dict keys do not match!')
+                raise KeyError('Add dict keys do not match')
         return dict1
 
     def add_keyvals_restrict(self, dict1, dict2):
         """Add key values of two dicts, with restrictions.
 
-        Notes:
+        Note:
             Restrict the addition of 'lifetime' information. This
             function is used to merge baseline microsegments for
             windows conduction and windows solar components; the
@@ -3182,13 +3273,13 @@ class Measure(object):
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
-                raise KeyError('Add dict keys do not match!')
+                raise KeyError('Add dict keys do not match')
         return dict1
 
     def div_keyvals(self, dict1, dict2):
         """Divide key values of one dict by analogous values of another.
 
-        Notes:
+        Note:
             This function is used to generate partitioning fractions
             for key measure results. In that case the function divides a
             measure's climate, building, and end use-specific
@@ -3238,7 +3329,7 @@ class Measure(object):
     def div_keyvals_float_restrict(self, dict1, reduce_num):
         """Divide a dict's key values by a factor, with restrictions.
 
-        Notes:
+        Note:
             This function handles the special case where square footage
             is used as microsegment stock and double counted stock/stock
             cost must be factored out. As this special case only concerns
@@ -3302,7 +3393,7 @@ class Measure(object):
                                                 distrib_info[2],
                                                 distrib_info[3], nsamples)
         else:
-            raise ValueError("Unsupported input distribution specification!")
+            raise ValueError("Unsupported input distribution specification")
 
         return rand_list
 
@@ -3366,7 +3457,7 @@ class Measure(object):
                         eplus_perf_array[
                             'climate_zone'] == handydicts.czone[key])].copy()
                     if len(updated_perf_array) == 0:
-                        raise KeyError('eplus climate zone name not found!')
+                        raise KeyError('eplus climate zone name not found')
                 # Building type level
                 elif key in handydicts.bldgtype.keys():
                     # Determine relevant EnergyPlus building types for current
@@ -3374,14 +3465,14 @@ class Measure(object):
                     eplus_bldg_types = handydicts.bldgtype[key]
                     if sum(eplus_bldg_types.values()) != 1:
                         raise ValueError(
-                            'eplus building type weights do not sum to 1!')
+                            'eplus building type weights do not sum to 1')
                     # Reduce EnergyPlus array to only rows with building type
                     # relevant to current Scout building type
                     updated_perf_array = eplus_perf_array[numpy.in1d(
                         eplus_perf_array['building_type'],
                         list(eplus_bldg_types.keys()))].copy()
                     if len(updated_perf_array) == 0:
-                        raise KeyError('eplus building type name not found!')
+                        raise KeyError('eplus building type name not found')
                 # Fuel type level
                 elif key in handydicts.fuel.keys():
                     # Reduce EnergyPlus array to only columns with fuel type
@@ -3390,7 +3481,7 @@ class Measure(object):
                     colnames = base_cols + [
                         x for x in eplus_header if handydicts.fuel[key] in x]
                     if len(colnames) == len(base_cols):
-                        raise KeyError('eplus fuel type name not found!')
+                        raise KeyError('eplus fuel type name not found')
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 # End use level
                 elif key in handydicts.enduse.keys():
@@ -3401,11 +3492,11 @@ class Measure(object):
                         x for x in eplus_header if x in handydicts.enduse[
                             key]]
                     if len(colnames) == len(base_cols):
-                        raise KeyError('eplus end use name not found!')
+                        raise KeyError('eplus end use name not found')
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 else:
                     raise KeyError(
-                        'Invalid measure performance dictionary key!')
+                        'Invalid measure performance dictionary key')
 
                 # Given updated EnergyPlus array, proceed further down the
                 # dict level hierarchy
@@ -3438,10 +3529,10 @@ class Measure(object):
                             'template'])) != len(
                             handydicts.structure_type["retrofit"].keys())):
                         raise ValueError(
-                            'eplus vintage name not found in data file!')
+                            'eplus vintage name not found in data file')
                 else:
                     raise KeyError(
-                        'Invalid measure performance dictionary key!')
+                        'Invalid measure performance dictionary key')
 
                 # Separate filtered array into the rows representing measure
                 # consumption and those representing baseline consumption
@@ -3769,7 +3860,7 @@ class MeasurePackage(Measure):
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
 
-        Notes:
+        Note:
             Combines the 'markets' attributes of each individual measure into
             a packaged 'markets' attribute.
 
@@ -3986,7 +4077,7 @@ class MeasurePackage(Measure):
     def merge_out_break(self, pkg_brk, meas_brk, meas_brk_unnorm):
         """Merge output breakout data for an individual measure into a package.
 
-        Notes:
+        Note:
             The 'markets' attribute of an individual measure to be merged
             into a package includes partitioning fractions needed to breakout
             the measure's output markets/savings by key variables (e.g.,
@@ -4029,7 +4120,7 @@ class MeasurePackage(Measure):
                             i[yr] = i2[yr] * meas_brk_unnorm[yr]
                 else:
                     raise KeyError(
-                        'Dicts to merge are not identically structured!')
+                        'Dicts to merge are not identically structured')
 
         return pkg_brk
 
@@ -4038,7 +4129,7 @@ def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                     cbecs_sf_byvint, base_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
 
-    Notes:
+    Note:
         Determine which in a list of measures require updates to finalize
         stock, energy, carbon, and cost markets for further use in the
         analysis engine; instantiate these measures as Measure objects;
@@ -4144,7 +4235,7 @@ def add_uncovered_pkgupdates(
         meas_toupdate_package, meas_updated_objs, meas_summary, handyvars):
     """Add uncovered measure package updates to list of packages to update.
 
-    Notes:
+    Note:
         This function covers the case where a user has updated individual
         measures that contribute to a packaged measure in the existing
         'measures_summary_data' JSON, but has not flagged this packaged measure
@@ -4195,7 +4286,7 @@ def add_uncovered_pkgupdates(
 def split_clean_data(meas_updated_objs):
     """Reorganize and remove data from input Measure objects.
 
-    Notes:
+    Note:
         The input Measure objects have updated data, which must
         be reorganized/condensed for the purposes of writing out
         to JSON files.

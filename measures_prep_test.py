@@ -795,7 +795,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "energy": {
                                         "2009": 6, "2010": 6}}}},
                         "lighting": {
-                            "commercial light type X": {
+                            "F28T8 HE w/ OS": {
                                 "stock": "NA",
                                 "energy": {
                                     "2009": 11, "2010": 11}}}}},
@@ -1240,7 +1240,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "q": "NA"}}}},
                                 "lighting gain": 0}},
                         "lighting": {
-                            "commercial light type X": {
+                            "F28T8 HE w/ OS": {
                                 "performance": {
                                     "typical": {"2009": 14, "2010": 14},
                                     "best": {"2009": 14, "2010": 14},
@@ -4189,7 +4189,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                 "secondary": None},
             "technology": {
                 "primary": [
-                    "commercial light type X"],
+                    "F28T8 HE w/ OS"],
                 "secondary": None}},
             {
             "name": "sample measure 9",
@@ -4430,7 +4430,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                 "secondary": None},
             "technology": {
                 "primary": [
-                    "commercial light type X"],
+                    "F28T8 HE w/ OS"],
                 "secondary": None}},
             {
             "name": "sample measure 17",
@@ -4566,7 +4566,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {
-                "primary": "commercial light type X",
+                "primary": "F28T8 HE w/ OS",
                 "secondary": None}}]
         cls.ok_tpmeas_fullchk_in = [
             measures_prep.Measure(
@@ -4780,20 +4780,20 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
-            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": "single family home",
+            "climate_zone": ["AIA_CZ19", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity"],
+                "primary": "electricity",
                 "secondary": None},
             "fuel_switch_to": None,
-            "end_use": {"primary": ["cooling"],
+            "end_use": {"primary": "cooling",
                         "secondary": None},
             "technology_type": {"primary": "supply",
                                 "secondary": None},
-            "technology": {"primary": ["boiler (electric)"],
+            "technology": {"primary": "boiler (electric)",
                            "secondary": None}},
             {
-            "name": "blank measure 2",
+            "name": "fail measure 2",
             "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
@@ -4814,10 +4814,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
+            "bldg_type": "single family homer",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "fuel_type": {
-                "primary": ["electricity"],
+                "primary": "electricity",
                 "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
@@ -4844,18 +4844,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
-            "structure_type": ["new", "existing"],
+            "structure_type": ["newer", "existing"],
             "energy_efficiency_units": {
                 "primary": "lm/W", "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "bldg_type": ["single family home"],
+            "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["natural gas"],
+            "fuel_type": {"primary": "natural gas",
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
-                "primary": ["lighting"],
+                "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
@@ -4887,13 +4887,13 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "primary": "lm/W", "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "bldg_type": ["single family home"],
+            "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
             "fuel_type": {
-                "primary": ["solar"], "secondary": None},
+                "primary": "solar", "secondary": None},
             "fuel_switch_to": None,
             "end_use": {
-                "primary": ["lighting"],
+                "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
@@ -6813,7 +6813,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         """
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.failmeas_in):
-            with self.assertRaises(KeyError):
+            with self.assertRaises(ValueError):
                 measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
                                   convert_data={})
 
@@ -7343,6 +7343,85 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                     # Compare each element of the lists of output dicts
                     for elem2 in range(0, len(lists1)):
                         self.dict_check(lists1[elem2], lists2[elem2])
+
+
+class CheckMarketsTest(unittest.TestCase, CommonMethods):
+    """Test 'check_mkt_inputs' function.
+
+    Ensure that the function properly raises a ValueError when
+    a measure's applicable baseline market input names are invalid.
+
+    Attributes:
+        sample_measure_fail (dict): Sample measures with applicable
+            baseline market input names that should yield an error.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        # Base directory
+        base_dir = os.getcwd()
+        handyvars = measures_prep.UsefulVars(base_dir)
+        sample_measures_fail = [{
+            "name": "sample measure 5",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": "all commercial",
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": [
+                    "electricity", "natty gas"],
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": [
+                    "heating", "water heating"],
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": [
+                    "all heating", "electric WH"],
+                "secondary": None}},
+            {
+            "name": "sample measure 6",
+            "installed_cost": 999,
+            "cost_units": "dummy",
+            "energy_efficiency": {
+                "primary": 999, "secondary": None},
+            "energy_efficiency_units": {
+                "primary": "dummy", "secondary": None},
+            "product_lifetime": 999,
+            "climate_zone": "all",
+            "bldg_type": ["assembling", "education"],
+            "structure_type": "all",
+            "fuel_type": {
+                "primary": "natural gas",
+                "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {
+                "primary": "heating",
+                "secondary": None},
+            "technology_type": {
+                "primary": "supply",
+                "secondary": None},
+            "technology": {
+                "primary": "all",
+                "secondary": None}}]
+        cls.sample_measures_fail = [measures_prep.Measure(
+            handyvars, **x) for x in sample_measures_fail]
+
+    def test_invalid_mkts(self):
+        """Test 'check_mkt_inputs' function given invalid inputs."""
+        for m in self.sample_measures_fail:
+            with self.assertRaises(ValueError):
+                m.check_mkt_inputs()
 
 
 class FillParametersTest(unittest.TestCase, CommonMethods):
@@ -8523,6 +8602,109 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
             self.sample_measure_in.div_keyvals_float_restrict(
                 copy.deepcopy(self.ok_dict_in), self.ok_reduce_num),
             self.ok_out_restrict)
+
+
+class AppendKeyValsTest(unittest.TestCase):
+    """Test 'append_keyvals' function.
+
+    Ensure that the function properly determines a list of valid names
+    for describing a measure's applicable baseline market.
+
+    Attributes:
+        handyvars (object): Global variables to use for the test measure.
+        ok_mktnames_out (list): Set of valid names that should be generated
+            by the function given valid inputs.
+    """
+    @classmethod
+    def setUpClass(cls):
+        """Define variables and objects for use across all class functions."""
+        base_dir = os.getcwd()
+        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.ok_mktnames_out = [
+            "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
+            "single family home",
+            "multi family home", "mobile home",
+            "assembly", "education", "food sales", "food service",
+            "health care", "lodging", "large office", "small office",
+            "mercantile/service", "warehouse", "other",
+            "electricity", "natural gas", "distillate", "other fuel",
+            'drying', 'other (grid electric)', 'water heating',
+            'cooling', 'cooking', 'computers', 'lighting',
+            'secondary heating', 'TVs', 'heating', 'refrigeration',
+            'fans & pumps', 'ceiling fan', 'ventilation', 'MELs',
+            'non-PC office equipment', 'PCs',
+            'dishwasher', 'other MELs', 'clothes washing', 'freezers',
+            'solar WH', 'electric WH', 'room AC', 'ASHP', 'central AC',
+            'desktop PC', 'laptop PC', 'network equipment', 'monitors',
+            'linear fluorescent (T-8)', 'linear fluorescent (T-12)',
+            'reflector (LED)', 'general service (CFL)',
+            'external (high pressure sodium)',
+            'general service (incandescent)',
+            'external (CFL)', 'external (LED)', 'reflector (CFL)',
+            'reflector (incandescent)', 'general service (LED)',
+            'external (incandescent)', 'linear fluorescent (LED)',
+            'reflector (halogen)', 'non-specific', 'home theater & audio',
+            'set top box', 'video game consoles', 'DVD', 'TV',
+            'GSHP', 'boiler (electric)', 'NGHP', 'furnace (NG)',
+            'boiler (NG)', 'boiler (distillate)', 'furnace (distillate)',
+            'resistance', 'furnace (kerosene)', 'stove (wood)',
+            'furnace (LPG)', 'secondary heating (wood)',
+            'secondary heating (coal)', 'secondary heating (kerosene)',
+            'secondary heating (LPG)', 'roof', 'ground', 'windows solar',
+            'windows conduction', 'equipment gain', 'people gain', 'wall',
+            'infiltration', 'lighting gain', 'floor', 'other heat gain',
+            'VAV_Vent', 'CAV_Vent', 'Solar water heater',
+            'HP water heater', 'elec_booster_water_heater',
+            'elec_water_heater', 'rooftop_AC', 'scroll_chiller',
+            'res_type_central_AC', 'reciprocating_chiller', 'comm_GSHP-cool',
+            'centrifugal_chiller', 'rooftop_ASHP-cool', 'wall-window_room_AC',
+            'screw_chiller', 'electric_res-heat', 'comm_GSHP-heat',
+            'rooftop_ASHP-heat', 'elec_boiler', 'Reach-in_freezer',
+            'Supermkt_compressor_rack', 'Walk-In_freezer',
+            'Supermkt_display_case', 'Walk-In_refrig', 'Reach-in_refrig',
+            'Supermkt_condenser', 'Ice_machine', 'Vend_Machine',
+            'Bevrg_Mchndsr', 'lab fridges and freezers',
+            'non-road electric vehicles', 'kitchen ventilation',
+            'escalators', 'distribution transformers',
+            'large video displays', 'video displays', 'elevators', 'laundry',
+            'medical imaging', 'coffee brewers', 'fume hoods',
+            'security systems', 'F28T8 HE w/ OS', 'F28T8 HE w/ SR',
+            '90W Halogen Edison', 'HPS 150_HB', 'F96T8', 'F96T12 mag',
+            '72W incand', 'F96T8 HE', 'LED_LB', 'F28T8 HE w/ OS & SR',
+            'LED 150 HPS_HB', 'F96T8 HO_HB', '26W CFL', 'HPS 70_LB',
+            '90W Halogen PAR-38', 'MH 400_HB', 'LED Edison', 'F28T5',
+            'HPS 100_LB', '100W incand', 'MH 250_HB', 'F54T5 HO_HB',
+            'MV 400_HB', 'F28T8 HE', 'LED_HB', '70W HIR PAR-38', 'F32T8',
+            'F96T8 HO_LB', '2L F54T5HO LB', 'F96T12 ES mag', '23W CFL',
+            'LED T8', 'MH 175_LB', 'LED 100 HPS_LB', 'MV 175_LB',
+            'F34T12', 'T8 F32 EEMag (e)',
+            'Range, Electric-induction, 4 burner, oven, 1',
+            'Range, Electric, 4 burner, oven, 11-inch gr',
+            'gas_eng-driven_RTAC', 'gas_chiller', 'res_type_gasHP-cool',
+            'gas_eng-driven_RTHP-cool', 'gas_water_heater',
+            'gas_instantaneous_WH', 'gas_booster_WH',
+            'Range, Gas, 4 powered burners, convect. oven',
+            'Range, Gas, 4 burner, oven, 11-inch griddle',
+            'gas_eng-driven_RTHP-heat', 'res_type_gasHP-heat',
+            'gas_boiler', 'gas_furnace', 'oil_water_heater', 'oil_boiler',
+            'oil_furnace', 'new', 'existing', 'supply', 'demand',
+            'all', 'all residential', 'all commercial', 'all heating',
+            'all drying', 'all other (grid electric)',
+            'all water heating', 'all cooling', 'all cooking',
+            'all computers', 'all lighting', 'all secondary heating',
+            'all TVs', 'all refrigeration', 'all fans & pumps',
+            'all ceiling fan', 'all ventilation', 'all MELs',
+            'all non-PC office equipment', 'all PCs']
+
+    def test_ok_append(self):
+        """Test 'append_keyvals' function given valid inputs.
+
+        Raises:
+            AssertionError: If function yields unexpected results.
+        """
+        self.assertEqual(sorted(
+            [x for x in self.handyvars.valid_mktnames if x is not None]),
+            sorted([x for x in self.ok_mktnames_out if x is not None]))
 
 
 class CostConversionTest(unittest.TestCase, CommonMethods):
