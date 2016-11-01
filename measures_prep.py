@@ -2881,8 +2881,17 @@ class Measure(object):
             'UsefulVars' object type.
 
         Raises:
-            ValueError: If input names are not in the list of valid names.
+            ValueError: If 'technology_type' attribute is improperly formatted
+                or input names are not in the list of valid names.
         """
+        # Perform an initial check on the 'technology_type' attribute to ensure
+        # that it is not formatted as a list (should be 'supply' or 'demand')
+        if any([isinstance(self.technology_type[x], list) for x in [
+                'primary', 'secondary']]):
+            raise ValueError(
+                "Error in measure '" + self.name +
+                "': 'technology_type' should not be list " +
+                "(should be either 'supply' or 'demand')")
         # Initialize the list of input names to check
         check_list = []
         # Loop through all inputs related to a measure's applicable baseline
@@ -4379,15 +4388,21 @@ def main(base_dir):
     # Import existing measure/measure package definitions to update
     with open((base_dir + handyfiles.meas_updated_in), 'r') as muo:
         meas_updated_in = json.load(muo, object_pairs_hook=OrderedDict)
+    # Remove any existing measure/measure package definitions that
+    # use the same name as a new measure/measure package definition
+    meas_updated_in["individual measures"] = [
+        me for me in meas_updated_in["individual measures"] if
+        me["name"] not in [mn["name"] for mn in meas_toupdate_indiv]]
+    meas_updated_in["measure packages"] = [
+        me for me in meas_updated_in["measure packages"] if
+        me["name"] not in [mn["name"] for mn in meas_toupdate_package]]
     # Add new measure/measure packages definitions to update to existing
     # measure/measure package definitions to update and write out the
     # result
     meas_updated_in["individual measures"].extend([
-        x for x in meas_toupdate_indiv if x["name"] not in [m[
-            "name"] for m in meas_updated_in["individual measures"]]])
+        x for x in meas_toupdate_indiv])
     meas_updated_in["measure packages"].extend([
-        x for x in meas_toupdate_package if x["name"] not in [m[
-            "name"] for m in meas_updated_in["measure packages"]]])
+        x for x in meas_toupdate_package])
     with open((base_dir + handyfiles.meas_updated_in), "w") as muo:
         json.dump(meas_updated_in, muo, indent=2)
 
@@ -4444,6 +4459,9 @@ def main(base_dir):
         # Measure not already in active measures list (add to list)
         if m["name"] not in active_meas["active"]:
             active_meas["active"].append(m["name"])
+
+    # Notify user that all measure updates are completed
+    print('All measure updates complete; writing output data...')
 
     # Write updated measure competition data to zipped JSONs
     for ind, m in enumerate(meas_updated_objs):
