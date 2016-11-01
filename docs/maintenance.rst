@@ -1,3 +1,5 @@
+.. _maint:
+
 Maintenance
 ===========
 
@@ -13,7 +15,12 @@ The development of Scout involved, as much as possible, the implementation of wh
 * Adherence to established code formatting guidelines and philosophies, when available (e.g., :pep:`8` and :pep:`20`)
 
 
-.. _maint-vc:
+.. _maint-contribute:
+
+Contributions
+-------------
+
+.. _maint-vcs:
 
 Version Control with Git and GitHub
 -----------------------------------
@@ -30,6 +37,13 @@ Making a commit in git should not be a source of heartburn, but there are severa
 * Check that the commit message itself is free of typos and spelling errors.
 * Check to make sure that all tests are passing
 
+.. Writing Good Commit Messages
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. https://github.com/erlang/otp/wiki/writing-good-commit-messages
+
+.. If you want to contribute to the documentation, you'll also need to install Sphinx. Please also refer to our maintenance (add link) documentation for requirements and recommendations regarding the formatting of all documentation components.
+
 
 .. _maint-documentation:
 
@@ -38,9 +52,16 @@ Documentation
 
 The documentation for Scout is prepared using Sphinx, a package originally developed to document Python. Sphinx builds upon the reStructuredText markup language by adding a lot of handy features, like support for LaTeX equation markup with MathJax, automatic figure numbering, and simplified references to Python documentation. reStructuredText is a "semantic" markup language, and as a result, the documentation files have to be built to obtain their final, desired form. 
 
-.. SUBSECTIONS TO ADD
-.. useful reference documentation 
-.. version numbering
+Before contributing to or updating the documentation, try to think of documentation that you've encountered in the past that has been particularly helpful. Consider what made that documentation so useful to you - clarity of writing, extent of examples, explanations of edge cases, or overall structure. If nothing comes to mind, visit the `Beautiful Docs`_ page for a list of examples of high-quality documentation.
+
+.. _Beautiful Docs: https://github.com/PharkMillups/beautiful-docs
+
+.. http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
+
+.. SUBSECTIONS AND CONTENT TO ADD
+.. useful reference documentation: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html (restructuredtext detailed spec), 
+.. rst markup cheatsheet: https://github.com/ralsina/rst-cheatsheet/blob/master/rst-cheatsheet.rst
+.. version numbering (https://docs.readthedocs.io/en/latest/versions.html)
 .. handling the many 'residential' and 'commercial' links
 .. toctree updates to add new sections
 .. figure numbering :numfig:
@@ -48,6 +69,9 @@ The documentation for Scout is prepared using Sphinx, a package originally devel
 .. the power of substitutions
 .. custom configuration of extlinks
 .. syntax specific settings and linters for rst/Sphinx (Sublime Text-specific)
+.. how to preview documentation locally
+.. set up steps so that one can preview documentation in RTD theme (https://github.com/snide/sphinx_rtd_theme)
+.. summary of the different types of references/hyperlinks: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
 
 .. FIGURE THIS OUT
 .. documentation formatting rules and best practices
