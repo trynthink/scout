@@ -1,4 +1,2155 @@
 {
-	"individual measures": [],
-	"measure packages": []
+  "individual measures": [{
+      "name": "ENERGY STAR Refrigerator v 4.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "refrigeration",
+          "other (grid electric)"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": [
+          "electricity"
+        ],
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          null,
+          "freezers"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 429.7,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "kWh/yr",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Refrigerator-Freezer with manual/partial automatic defrost and an adjusted average volume of 32.7 ft3 (page 2, Table 1).",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 2,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/Refrigerators_and_Freezers_Program_Requirements%20v4_1.pdf"
+        }
+      },
+      "installed_cost": 525,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 42,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 15.5,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 42,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential refrigerator/freezers that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": null,
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 12:28:36 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Natural Gas Dryer, Fed. Std. c. 2010",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "drying"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": [
+          "natural gas"
+        ],
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          null
+        ],
+        "secondary": null
+      },
+      "market_entry_year": 2010,
+      "market_entry_year_source": {
+        "notes": "Based on appliance standard in force in 2010.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "market_exit_year": null,
+      "market_exit_year_source": "NA",
+      "energy_efficiency": {
+        "primary": 2.67,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "installed_cost": 650,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range in the Current Standard column.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 16,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential natural gas clothes dryers that meet federal minimum performance standards in 2010.",
+      "_notes": "EF (energy factor) units for clothes dryers are equivalent to lb/kWh",
+      "_added_by": {
+        "name": "Chioke Harris",
+        "organization": "U.S. Department of Energy",
+        "email": "chioke.harris@ee.doe.gov",
+        "timestamp": "2016-10-21 23:06:00 UTC"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Electric Dryer, Fed. Std. c. 2010",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "drying"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": [
+          "electricity"
+        ],
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          null
+        ],
+        "secondary": null
+      },
+      "market_entry_year": 2010,
+      "market_entry_year_source": {
+        "notes": "Based on appliance standard in force in 2010.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "market_exit_year": null,
+      "market_exit_year_source": "NA",
+      "energy_efficiency": {
+        "primary": 3.01,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "installed_cost": 650,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range in the Current Standard column.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 16,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 52,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential electric clothes dryers that meet federal minimum performance standards in 2010.",
+      "_notes": "EF (energy factor) units for clothes dryers are equivalent to lb/kWh",
+      "_added_by": {
+        "name": "Chioke Harris",
+        "organization": "U.S. Department of Energy",
+        "email": "chioke.harris@ee.doe.gov",
+        "timestamp": "2016-10-21 23:17:00 UTC"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Boiler v 2.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "heating"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": [
+          "natural gas",
+          "distillate"
+        ],
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          "boiler (NG)",
+          "boiler (distillate)"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": "NA",
+      "market_exit_year": null,
+      "market_exit_year_source": "NA",
+      "energy_efficiency": {
+        "primary": 0.85,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "AFUE",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Value reported under 3) Qualification Criteria",
+        "source_data": {
+          "title": "ENERGY STAR Program Requirements - Product Specification for Boilers - Version 2.1",
+          "author": "U.S. Environmental Protection Agency",
+          "organization": null,
+          "year": 2002,
+          "pages": 5,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers_Program_Requirements%20v2_1.pdf"
+        }
+      },
+      "installed_cost": 4250,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range in the 2010 ENERGY STAR column.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 28,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 25,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range in the 2010 ENERGY STAR column.",
+        "source_data": {
+          "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+          "author": "Navigant Consulting",
+          "organization": "U.S. Energy Information Administration",
+          "year": 2013,
+          "pages": 28,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Boilers supply hot water or steam for heating applications and can be fueled by natural gas or LPG/distillate. Coal and wood fired boilers may be in service, but are not captured in this measure.",
+      "_notes": "",
+      "_added_by": {
+        "name": "Chioke Harris",
+        "organization": "U.S. Department of Energy",
+        "email": "chioke.harris@ee.doe.gov",
+        "timestamp": "2016-10-21 23:23:00 UTC"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Washer v 5.1 Tier 1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "other (grid electric)",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": [
+          "electricity"
+        ],
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "clothes washing",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 1.94,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "kWh/cycle",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Assume a capcity of 3.5 ft^3 (p.2, table 1); conversion from original standard - MEF> 1.8; 3.5/1.8 = 1.94.",
+        "source_data": [
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": 2,
+            "URL": "https://www.energystar.gov/sites/default/files/specs//private/Clothes_Washers_Program_Requirements.pdf"
+          },
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": null,
+            "URL": "http://www.bestbuy.com/site/buying-guides/laundry-buying-guide/pcmcat327200050000.c?id=pcmcat327200050000"
+          }
+        ]
+      },
+      "installed_cost": 725,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 49,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 13.5,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 49,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential clothes washers that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "MEF is the quotient of the cubic foot capacity of the clothes container divided by the total clothes washer energy comsumption per cycle",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 15:15:53 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Central AC v 4.1 Tier 2",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "cooling",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "central AC",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 4.25,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "COP",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Split system (p.2, table 2); conversion from original standard - EER / SEER > 14.5 / 12; COP = EER * 0.293",
+        "source_data": [
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": 2,
+            "URL": "https://www.energystar.gov/sites/default/files/specs//private/Central_ASHP_and_CAC_Program_Requirements%20v4_1.pdf"
+          },
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": null,
+            "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+          }
+        ]
+      },
+      "installed_cost": 4100,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 33,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 16.5,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 33,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential central air conditioners that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EER is the ratio of the cooling effect measureed in BTU/hour over electrical energy input in Watts; SEER is seasonal EER= the total cooling in Btu during the normal cooling season over the total electric input in Wh in the same period.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 15:23:12 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Gas Furnace v 2.0 Tier 2",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "natural gas",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "furnace (NG)",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.9,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "AFUE",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": null,
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 4,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/furnaces_prog_req%20v2_0.pdf"
+        }
+      },
+      "installed_cost": 2750,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 22,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 20,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 22,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential natural gas furnaces that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "AFUE = annual fuel utilization efficiency; 'residential furnace' is a heating unit whose function is the combustion of fossil fuel for space heating with forced hot air.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 15:28:48 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Oil Furnace v 2.0",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "distillate",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "furnace (distillate)",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.85,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "AFUE",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": null,
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 4,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/furnaces_prog_req%20v2_0.pdf"
+        }
+      },
+      "installed_cost": 4750,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 25,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 20,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 20,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential oil furnaces that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "AFUE = annual fuel utilization efficiency; 'residential furnace' is a heating unit whose function is the combustion of fossil fuel for space heating with forced hot air.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 15:34:57 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Room AC v 2.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "cooling",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "room AC",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 3.16,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "COP",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Capacity 8,000 to 13,999 BTU/hr (p.5, table 1); conversion from original standard EER > 10.8; COP = EER * 0.293",
+        "source_data": [
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": 5,
+            "URL": "https://www.energystar.gov/sites/default/files/specs//private/Room_Air_Conditioners_Program_Requirements%20v2_1.pdf"
+          },
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": null,
+            "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+          }
+        ]
+      },
+      "installed_cost": 285,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 30,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 11,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 30,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential room air conditioners that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EER is the ratio of the cooling effect measureed in BTU/hour over electrical energy input in Watts; SEER is seasonal EER= the total cooling in Btu during the normal cooling season over the total electric input in Wh in the same period.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 15:50:43 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Air Source HP v 4.1 Tier 2",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "cooling",
+          "heating"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "ASHP",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": {
+          "cooling": 3.516,
+          "heating": 2.403
+        },
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "COP",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Split system (p.2, table 2); conversion from original standard - SEER - 14.5, EER - 12, HSPF - 8.2; COP = EER * .293, COP = HSPF * .293",
+        "source_data": [
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": 2,
+            "URL": "https://www.energystar.gov/sites/default/files/specs//private/Central_ASHP_and_CAC_Program_Requirements%20v4_1_0.pdf"
+          },
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": null,
+            "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+          }
+        ]
+      },
+      "installed_cost": 6450,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 35,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 15,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 35,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential air source heat pumps that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EER is the ratio of the cooling effect measureed in BTU/hour over electrical energy input in Watts; SEER is seasonal EER = the total cooling in Btu during the normal cooling season over the total electric input in Wh in the same period; HSPF is a measure of a heat pump's energy efficiency over one heating season.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 16:10:34 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR HP Water Heater v 1.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "water heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "electric WH",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 2,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "p.2, table 4",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 2,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/WaterHeater_ProgramRequirements-updated.v1_1_0.pdf"
+        }
+      },
+      "installed_cost": 1850,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 16,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 14,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 16,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential heat pump water heaters that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "Energy factor is the ratio of energy output of the water heater to the total amount of energy delivered.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 16:16:08 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Geothermal HP v 3.0 Tier 1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "cooling",
+          "heating"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "GSHP",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 3,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "COP",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Closed loop water-to-water (p.6, table 1); conversion from original standard - SEER - 14.5, EER - 12, HSPF - 8.2; COP = EER * .293, COP = HSPF * .293",
+        "source_data": [
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": 2,
+            "URL": "https://www.energystar.gov/sites/default/files/specs//private/ES_V3.0_Geothermal_Heat_Pump_Specification_1.pdf"
+          },
+          {
+            "title": null,
+            "author": null,
+            "organization": null,
+            "year": null,
+            "pages": null,
+            "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+          }
+        ]
+      },
+      "installed_cost": 11000,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 37,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 25,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 35,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential ground source heat pumps that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EER is a ratio of total cooling capacity to electrical energy input; COP is a ratio of total heating capacity to electrical energy input.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 16:27:54 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Gas Inst. Water Heater v 1.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "water heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "natural gas",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": null,
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.82,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "p.2, table 2",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 2,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/WaterHeater_ProgramRequirements-updated.v1_1.pdf"
+        }
+      },
+      "installed_cost": 1600,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 18,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 17.5,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 18,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential gas instantaneous water heater that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EF is the ratio of useful energy output to the total amount of energy delivered.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 17:04:30 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Oil Water Heater, ASHRAE 90.1 c. 2004",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "water heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "distillate",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": null,
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.495,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "50 gallon water heater",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 11,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "installed_cost": 1950,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 11,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 9,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Average listed lifetime.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 11,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "50 gallon residential oil water heater that meet the ASHRAE 90.1 performance standard in 2010.",
+      "_notes": "EF = 0.59 - (.0019 * Gal); storage and instantaneous are the same standard.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 17:13:40 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Resistance Water Heater, ASHRAE 90.1 c. 2007",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "water heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "electric WH",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.871,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "50 gallon water heater",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 13,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "installed_cost": 575,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 13,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 14,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 13,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential electric resistance water heaters that meet the ASHRAE 90.1 performance standard in 2010.",
+      "_notes": "EF = 0.97 - (0.00132 * volume).",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 19:56:31 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Windows v 5.0",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "heating",
+          "secondary heating",
+          "cooling"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "all",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "demand",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          "windows conduction",
+          "windows solar"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": {
+          "AIA_CZ1": {
+            "windows conduction": 3.33,
+            "windows solar": 0.4
+          },
+          "AIA_CZ2": {
+            "windows conduction": 3.33,
+            "windows solar": 0.4
+          },
+          "AIA_CZ3": {
+            "windows conduction": 3.13,
+            "windows solar": 0.4
+          },
+          "AIA_CZ4": {
+            "windows conduction": 2.86,
+            "windows solar": 0.3
+          },
+          "AIA_CZ5": {
+            "windows conduction": 1.67,
+            "windows solar": 0.27
+          }
+        },
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": {
+          "windows conduction": "R value",
+          "windows solar": "SHGC"
+        },
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Based on U values from ENERGY STAR document (R value = 1 / U value)",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 5,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/windows_prog_req%20v5.0%20archived.pdf"
+        }
+      },
+      "installed_cost": 39,
+      "cost_units": "2010$/ft^2 floor",
+      "installed_cost_source": {
+        "notes": "Double-pane, insulated frame, air fill, SHGC 0.31, U value 0.29.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=16&ctId=190"
+        }
+      },
+      "product_lifetime": 30,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "NREL listed average lifetime.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 13,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=16&ctId=37"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential double pane windows that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "U-factor is the heat transfer per time per area  and per degree of temperature difference (in Btu/h ft2 F); SHGC is the ratio of the solar heat gain entering the space through the fenestration product to the incident solar radiation.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 21:30:57 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Incandescent Bulbs, Fed. Std. c. 1995",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "lighting",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          "reflector (LED)",
+          "reflector (CFL)",
+          "reflector (incandescent)",
+          "reflector (halogen)"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 11,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "lm/W",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "Nominal lamp wattage 51-66",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.ecfr.gov/cgi-bin/text-idx?SID=0656df565fb5d0f6996bfb073b50b36d&mc=true&node=se10.3.430_132&rgn=div8"
+        }
+      },
+      "installed_cost": 0.9,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Average cost of 0.001/lm for incandescent at 15 lm/W for 60 W bulb",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "product_lifetime": 0.16,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Average lifetime of 1375 hours, translated to years.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Typical wattage residential incandescent reflector bulbs that meet the federal minimum performance standard in 2010.",
+      "_notes": "No federal standard applies for general service incandescent until after 2012; assumes 60 W bulb.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 10:45:38 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR LED Bulbs v 1.2",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "lighting",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          "reflector (LED)",
+          "reflector (CFL)",
+          "reflector (incandescent)",
+          "reflector (halogen)",
+          "general service (CFL)",
+          "general service (incandescent)",
+          "general service (LED)"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": 2010,
+      "market_entry_year_source": {
+        "notes": "Year in which ENERGY STAR standard went into effect",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 20,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+        }
+      },
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 50,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "lm/W",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "LED lamp power < 10 W, non-standard or replacement lamps",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": [
+            6,
+            7
+          ],
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+        }
+      },
+      "installed_cost": 21.6,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Average cost of 0.048/lm for LED at 50 lm/W for 9 W bulb",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "product_lifetime": 4.85,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Average lifetime of 42500 hours, translated to years.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Typical wattage residential LED bulbs that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "ENERGY STAR standard applies to general service and reflector bulb types; assumed standard bulb is for 60 W replacement, and under 10 W.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 10:07:49 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR CFL Bulbs v 4.3",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "lighting",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "electricity",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": [
+          "reflector (LED)",
+          "reflector (CFL)",
+          "reflector (incandescent)",
+          "reflector (halogen)",
+          "general service (CFL)",
+          "general service (incandescent)",
+          "general service (LED)"
+        ],
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 55,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "lm/W",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "CFL lamp power 10-15 W, bare, covered, globe, and outdoor reflector CFLs",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 4,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+        }
+      },
+      "installed_cost": 1.72,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Average cost of 0.0023/lm for CFL at 55 lm/W for 13 W bulb",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "product_lifetime": 1.02,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Average lifetime of 9000 hours, translated to years.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Typical wattage residential CFL bulbs that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "ENERGY STAR standard applies to general service and reflector bulb types; assumed standard bulb is for 60 W replacement, and between 10-15 W.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 10:20:06 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Floors, IECC Std. c. 2009",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "heating",
+          "secondary heating",
+          "cooling"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "all",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "demand",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "ground",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": {
+          "AIA_CZ1": 21,
+          "AIA_CZ2": 21,
+          "AIA_CZ3": 20,
+          "AIA_CZ4": 13,
+          "AIA_CZ5": 13
+        },
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "R value",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "p.3, table 402.1.1",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 3,
+          "URL": "http://www.iccsafe.org/wp-content/uploads/adoption_ordinances/2009_IECC_Update.pdf"
+        }
+      },
+      "installed_cost": 2.6,
+      "cost_units": "2010$/ft^2 floor",
+      "installed_cost_source": {
+        "notes": "Insulating slab, R-15.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
+        }
+      },
+      "product_lifetime": 100,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Same as lifetime of the home.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Residential floor slab insuluation that meets IECC 2009.",
+      "_notes": "R value is a measure of thermal resistance.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-11-01 11:24:13 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "Walls, IECC Std. c. 2009",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": [
+          "heating",
+          "secondary heating",
+          "cooling"
+        ],
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "all",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "demand",
+        "secondary": null
+      },
+      "technology": {
+        "primary": "wall",
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": {
+          "AIA_CZ1": 21,
+          "AIA_CZ2": 21,
+          "AIA_CZ3": 20,
+          "AIA_CZ4": 13,
+          "AIA_CZ5": 13
+        },
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "R value",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "p.3, table 402.1.1, wood frame wall",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 3,
+          "URL": "http://www.iccsafe.org/wp-content/uploads/adoption_ordinances/2009_IECC_Update.pdf"
+        }
+      },
+      "installed_cost": 2.2,
+      "cost_units": "2010$/ft^2 floor",
+      "installed_cost_source": {
+        "notes": "R-15 XPS.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=12&ctId=410"
+        }
+      },
+      "product_lifetime": 100,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Same as lifetime of the home.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": null,
+          "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=12&ctId=410"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Residential wood frame wall insuluation that meets IECC 2009.",
+      "_notes": "R value is a measure of thermal resistance.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-11-01 11:30:09 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    },
+    {
+      "name": "ENERGY STAR Gas Str. Water Heater v 1.1",
+      "climate_zone": "all",
+      "bldg_type": "all residential",
+      "structure_type": "all",
+      "end_use": {
+        "primary": "water heating",
+        "secondary": null
+      },
+      "fuel_type": {
+        "primary": "natural gas",
+        "secondary": null
+      },
+      "technology_type": {
+        "primary": "supply",
+        "secondary": null
+      },
+      "technology": {
+        "primary": null,
+        "secondary": null
+      },
+      "market_entry_year": null,
+      "market_entry_year_source": null,
+      "market_exit_year": null,
+      "market_exit_year_source": null,
+      "energy_efficiency": {
+        "primary": 0.67,
+        "secondary": null
+      },
+      "energy_efficiency_units": {
+        "primary": "EF",
+        "secondary": null
+      },
+      "energy_efficiency_source": {
+        "notes": "p.2, table 1",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 2,
+          "URL": "https://www.energystar.gov/sites/default/files/specs//private/WaterHeater_ProgramRequirements-updated.v1_1.pdf"
+        }
+      },
+      "installed_cost": 1245,
+      "cost_units": "2010$/unit",
+      "installed_cost_source": {
+        "notes": "Median of total installed cost range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 8,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "product_lifetime": 12,
+      "product_lifetime_units": "years",
+      "product_lifetime_source": {
+        "notes": "Median of stated 'average' lifetime range.",
+        "source_data": {
+          "title": null,
+          "author": null,
+          "organization": null,
+          "year": null,
+          "pages": 8,
+          "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+        }
+      },
+      "measure_type": "full service",
+      "fuel_switch_to": null,
+      "market_scaling_fractions": null,
+      "market_scaling_fractions_source": "NA",
+      "_description": "Standard size residential gas storage water heater that meet the ENERGY STAR performance standard in 2010.",
+      "_notes": "EF is the ratio of useful energy output to the total amount of energy delivered.",
+      "_added_by": {
+        "name": "Jared Langevin",
+        "organization": "Lawrence Berkeley National Lab",
+        "email": "jared.langevin@lbl.gov",
+        "timestamp": "2016-10-31 16:33:45 EDT"
+      },
+      "_updated_by": {
+        "name": null,
+        "organization": null,
+        "email": null,
+        "timestamp": null
+      }
+    }],
+  "measure packages": []
 }
