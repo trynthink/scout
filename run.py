@@ -2074,6 +2074,8 @@ def main(base_dir):
         # Write selected outputs to a summary JSON file for post-processing
         a_run.finalize_outputs(adopt_scheme)
 
+    # Notify user that all analysis engine calculations are completed
+    print('All calculations complete; writing output data...')
     # Write summary outputs for all measures to a JSON
     with open((base_dir + handyfiles.meas_engine_out), "w") as jso:
         json.dump(a_run.output, jso, indent=2)
