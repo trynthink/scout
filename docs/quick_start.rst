@@ -60,7 +60,7 @@ The Mac OS ships with Python already installed. Installing and using a package m
 .. note::
    While this step is optional, subsequent instructions are written with the assumption that you have installed Homebrew as your package manager.
 
-To install Homebrew, open Terminal (found in Applications > Utilities, or trigger Spotlight with |cmd|-space and type "Terminal"). Visit the `Homebrew website`_ and copy the installation command text on the page. Paste the text into the Terminal application window and press Return. If you encounter problems with the installation, return to the Homebrew website for help or search online for troubleshooting assistance.
+To install Homebrew, open Terminal (found in Applications/Utilities, or trigger Spotlight with |cmd|-space and type "Terminal"). Visit the `Homebrew website`_ and copy the installation command text on the page. Paste the text into the Terminal application window and press Return. If you encounter problems with the installation, return to the Homebrew website for help or search online for troubleshooting assistance.
 
 If you are using a package manager other than Homebrew, follow the documentation for that package manager to install Python 3. If you have chosen to not install a package manager, you may use the `Python Software Foundation installer`_ for the latest version of Python 3.
 
@@ -76,11 +76,20 @@ In a Terminal window, at the command prompt (a line terminated with a $ characte
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Only one package, numpy, is absolutely mandatory for Scout. To install it, at the command prompt in Terminal, type::
+Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Only one package, numpy, is required for Scout. To install it, at the command prompt in Terminal, type::
 
    pip3 install numpy
 
-.. CONSIDER ADDING INSTRUCTIONS TO VERIFY THAT NUMPY WAS SUCCESSFULLY INSTALLED BY OPENING PYTHON AND IMPORTING NUMPY
+If you'd like to confirm that numpy was installed successfully, you can start Python from the command prompt in Terminal by typing::
+
+   python3
+
+and import numpy (within the Python interactive shell, indicated by the ``>>>`` prompt).:: 
+
+   import numpy
+
+If no error or warning messages appear, then the installation was successful and you can exit Python by typing ``quit()``.
+
 
 .. _qs-mac-text-editor:
 
@@ -91,27 +100,54 @@ A third-party text editor will make it easier to change Scout files. There are `
 
 .. _many different text editors: https://en.wikipedia.org/wiki/Comparison_of_text_editors
 
-`Sublime Text`_ is an easy to use text editor with a graphical interface that can be configured to satisfy the specified requirements. To set up Sublime Text for working with Scout, `download Sublime Text 3`_, open the downloaded disk image, and drag the application file to the Applications folder using the shortcut provided.
+For the purposes of this tutorial, the following instructions will step through how to install `Sublime Text`_, an easy to use text editor with a graphical interface that can be configured to satisfy the specified requirements. This tutorial is provided to illustrate the steps required to configure a text editor for viewing and modifying Python and JSON files and should not be construed as an endorsement or promotion of Sublime Text.
 
 .. _Sublime Text: http://www.sublimetext.com
+
+1. Download Sublime Text
+************************
+
+To set up Sublime Text for working with Scout, `download Sublime Text 3`_, open the downloaded disk image, and drag the application file to the Applications folder using the shortcut provided.
+
 .. _download Sublime Text 3: http://www.sublimetext.com/3
 
 After installing Sublime Text, there are several additional configuration steps that will help get the editor ready for viewing and editing Python and JSON files.
+
+2. Install Package Control
+**************************
 
 First, open Sublime Text and, following the directions_ provided by the developer, install Package Control.
 
 .. _directions: https://packagecontrol.io/installation
 
-We will use Package Control to install the additional features needed for checking Python files. To access Package Control, open the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P) and then begin typing "Package Control: Install Package." Click that option once it appears in the list or use the arrow keys to navigate up and down the list that appears and press the return key when the "Install Package" function for Package Control is highlighted in the list. In the search field that appears, begin typing "SublimeLinter" and click the package when it appears in the list to install the package.
+Once installed, Package Control is opened via the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P). Begin typing "Package Control" into the Command Palette. If a list of options beginning with "Package Control" appear, then the installation was successful. If not, refer back to the `Package Control website`_ for troubleshooting help.
+
+.. _Package Control website: https://packagecontrol.io/docs
+
+We will use Package Control to install the additional features needed for checking Python files. 
+
+3. Install SublimeLinter Prerequisites
+**************************************
 
 Before proceeding further, open a Terminal window and at the command prompt, use pip3 to install the pep8 and pyflakes packages::
 
    pip3 install pep8
    pip3 install pyflakes
 
-Once both pep8 and pyflakes have been installed successfully, return to Sublime Text. Open Package Control to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
+4. Install SublimeLinter
+************************
 
-Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." Open the Python syntax-specific settings (Sublime Text > Preferences > Settings – Syntax Specific) and between the braces, paste::
+Return to Sublime Text and open Package Control using the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P). Begin typing "Package Control: Install Package" in the Command Palette and click that option once it appears in the list. (Arrow keys can also be used to move up and down in the list.) In the search field that appears, begin typing "SublimeLinter" and click the package when it appears in the list to install the package. If installation was successful for this (or any other) package, the package name will appear in Preferences > Package Settings.
+
+5. Install Specific Code Linters
+********************************
+
+Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
+
+6. Configure Python Syntax-specific Preferences
+***********************************************
+
+Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." ("asdf.py" will be deleted later.) Open the Python syntax-specific settings (Sublime Text > Preferences > Settings – Syntax Specific) and between the braces, paste::
 
    "spell_check": true,
    "tab_size": 4,
@@ -144,13 +180,10 @@ Follow the instructions in the installer to complete the installation.
 Windows
 -------
 
-.. warning::
-   These instructions have not been tested. Unforeseen problems might be encountered as a result of missing steps in these directions.
-
 1. Install Python 3
 ~~~~~~~~~~~~~~~~~~~
 
-Download the executable installer for Windows available on the Python Software Foundation `downloads page`_. Run the installer and follow the on-screen prompts as you would with any other software installer. At the relevant step in the installation process, ensure that the option is selected to update or adjust the system PATH environment variable.
+Download the executable installer for Windows available on the Python Software Foundation `downloads page`_. Run the installer and follow the on-screen prompts as you would with any other software installer. Be sure that the option "Add Python 3.x to PATH", where x denotes the current version of Python 3, in the installer is checked.
 
 .. _downloads page: https://www.python.org/downloads/
 
@@ -171,15 +204,15 @@ Once Python 3 installation is complete, the numpy package needs to be installed.
 
 While Windows comes with a plain text editor, Notepad, there are `many different text editors`_ available for Windows that will make it much easier to view and change Scout files. You are welcome to use the editor of your choice, but whatever you choose should have |editor requirements|.
 
-Sublime Text is an easy to use cross-platform text editor that can be configured to have the necessary features for authoring Python and JSON files. The instructions are the same as those :ref:`provided for Mac users <qs-mac-text-editor>`, but the shortcut key commands and the process for installing pep8 and pyflakes will be different in Windows. Follow the instructions already outlined for installing Python packages using pip to install pep8 and pyflakes.
+Sublime Text is an easy to use cross-platform text editor that can be configured to have the necessary features for authoring Python and JSON files. The instructions are the same as those :ref:`provided for Mac users <qs-mac-text-editor>`, except that on Windows, an installer places the application and supporting files in the correct location. Also, the shortcut key commands and the process for installing pep8 and pyflakes will be slightly different in Windows. Follow the instructions already outlined for installing Python packages using pip to install pep8 and pyflakes.
 
 4. Install R
 ~~~~~~~~~~~~
 
-Download R from CRAN_ and run the executable, again following the instructions in the installer. The downloads page includes links to pages with additional details regarding installation and the configuration of R specific to Windows.
+Download R from CRAN_ and run the executable, again following the instructions in the installer. The downloads page includes links to pages with additional details regarding installation and the configuration of R specific to Windows. In particular, the `R FAQ explains`_ whether you should use the 32-bit or 64-bit version of R. After running the R installer, no further configuration is required for this initial setup.
 
-.. _CRAN: https://cran.r-project.org/bin/windows/base/release.htm
-
+.. _CRAN: https://cloud.r-project.org/bin/windows/base/
+.. _R FAQ explains: https://cloud.r-project.org/bin/windows/base/rw-FAQ.html#Should-I-run-32_002dbit-or-64_002dbit-R_003f
 
 .. rubric:: Footnotes
 .. [#] pip/pip3 is typically installed at the same time that Python 3 is installed.
