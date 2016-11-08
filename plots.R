@@ -5,6 +5,8 @@
 # Load rjson for reading in JSON files
 if(!require("rjson")){install.packages("rjson")}
 require("rjson")
+# Specify JSON file encoding
+options("encoding" = "UTF-8")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
