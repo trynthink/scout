@@ -110,17 +110,23 @@ Applicable Baseline Market Options
 
 For each of the keys in the applicable baseline market definition, only specific entries are expected and allowable. This section outlines those acceptable entries for each of the keys.
 
+For some keys, there are shorthand summary values that can be used when all or a large group of more specific values for that key apply. For example, if all of the climate zones should be included in the applicable baseline market, the value "all" can be specified instead of typing out each climate zone name in a list. These shorthand values are provided after the semi-colon in the lists below. Additional notes might also be provided to further clarify the different summary values available for a given key.
+
 Climate Zone
 ~~~~~~~~~~~~
 
-AIA_CZ1, AIA_CZ2, AIA_CZ3, AIA_CZ4, AIA_CZ5
+AIA_CZ1, AIA_CZ2, AIA_CZ3, AIA_CZ4, AIA_CZ5; all
 
 Building Type
 ~~~~~~~~~~~~~
 
-**Residential:** single family home, multi family home, mobile home
+**Residential:** single family home, multi family home, mobile home; all residential
 
-**Commercial:** assembly, education, food sales, food service, health care, lodging, large office, small office, mercantile/service, warehouse, other
+**Commercial:** assembly, education, food sales, food service, health care, lodging, large office, small office, mercantile/service, warehouse, other; all commercial
+
+.. note::
+
+   "all" can be used instead of specifying both "all residential" and "all commercial" if all residential *and* commercial building types apply.
 
 Structure Type
 ~~~~~~~~~~~~~~
@@ -130,9 +136,9 @@ new, existing
 Fuel Type
 ~~~~~~~~~
 
-**Residential:** electricity, natural gas, distillate, other fuel
+**Residential:** electricity, natural gas, distillate, other fuel; all
 
-**Commercial:** electricity, natural gas, distillate
+**Commercial:** electricity, natural gas, distillate; all
 
 End Use
 ~~~~~~~
@@ -207,6 +213,12 @@ supply, demand
 
 Technology
 ~~~~~~~~~~
+
+.. note::
+
+   For a particular end use, all of the technology names can be selected by specifying "all" followed by the end use name -- "all heating" or "all water heating," for example. This shorthand will capture all of the technologies in the named end use that apply to the building types and fuel types included in the applicable baseline market. For example, if the building type is "single family homes" and the fuel type is specified as ["electricity", "natural gas"] then "all heating" will include all of the heating technologies for residential buildings that use electricity or natural gas.
+
+   This shortcut should not be used with end use, building type, and fuel type combinations that have ``null`` as the technology name, such as residential cooking or residential drying.
 
 **Residential -- Supply**
 
