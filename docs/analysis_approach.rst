@@ -121,14 +121,16 @@ Calculating total baseline energy, |CO2|, and cost (uncompeted)
       * Baseline energy use data represent the total energy use attributed to a certain baseline market and year in the projection period. For example, the energy used to provide heating in all existing single family homes in mixed dry climates in the year 2031.
       * Baseline technology characteristics data represent the primary attributes of an incumbent or “business-as-usual” building technology, namely the technology’s energy performance (in absolute units, e.g., COP), installed cost, and lifetime. Additionally, these data include consumer choice parameters for each technology, which are used for ECM competition (see :ref:`step 3 <analysis-step-3>`).
 
-   * Once baseline energy use numbers are established for each technology, these energy use numbers must be translated from site to source (or ‘primary’) energy using site-source conversion factors derived from AEO summary tables for the residential__ and commercial__ sectors. `Fuel-specific energy costs`_ and |CO2| `emission intensities`_ are also derived from AEO summary tables. |CO2| emissions costs are drawn from the most recent EPA `Social Cost of Carbon`_ estimates.
+   * Once baseline energy use numbers are established for each technology, these energy use numbers must be translated from site to source (or "primary") energy using site-source conversion factors calculated from the electricity and electricity related losses data in the `AEO energy consumption by sector and source table`_. `Fuel-specific energy costs`_ and |CO2| emission intensities, calculated by dividing fuel-specific |CO2| emissions_ by fuel-specific `energy use`_, are also derived from AEO summary tables. |CO2| emissions costs are drawn from the most recent U.S. Office of Management and Budget `Social Cost of Carbon`_ estimates [#]_.
 
-.. __: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-.. __: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=5-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-.. _Fuel-specific energy costs: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=3-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-.. _emission intensities: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=2-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
+.. _energy use: 
+.. _AEO energy consumption by sector and source table: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=2-AEO2016&region=1-0&cases=ref2016&start=2013&end=2040&f=A&sourcekey=0
+.. _Fuel-specific energy costs: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=3-AEO2016&region=1-0&cases=ref2016&start=2013&end=2040&f=A&sourcekey=0
+.. _emissions: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=17-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
 .. _stocks-and-flows: https://en.wikipedia.org/wiki/Stock_and_flow
-.. _Social Cost of Carbon: https://www3.epa.gov/climatechange/Downloads/EPAactivities/social-cost-carbon.pdf
+.. _Social Cost of Carbon: https://www.whitehouse.gov/sites/default/files/omb/inforeg/scc_tsd_final_clean_8_26_16.pdf
+
+.. ADD LINK TO THE JSON FILE ONCE IT IS ADDED TO THE REPO
 
 Calculating total efficient energy, |CO2|, and cost (uncompeted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -236,6 +238,7 @@ ECM-specific results from the analysis of the portfolio of ECMs
 .. [#] The vintages are: pre-1980, 1980-2004, `ASHRAE 90.1-2004`_, `ASHRAE 90.1-2010`_, and `ASHRAE 90.1-2013`_.
 .. [#] A representative city is simulated for each climate zone: Houston, TX (hot humid); Baltimore, MD (mixed humid); El Paso, TX (hot dry); Albuquerque, NM (mixed dry); San Francisco, CA (marine); Chicago, IL (cold); Duluth, NM (very cold), Fairbanks, AK (sub arctic).
 .. [#] EIA provides detailed documentation on the assumptions of the National Energy Modeling System (NEMS) it uses to project residential__ and commercial__ sector energy use out to 2040 for the AEO.
+.. [#] Data derived from Table A1, assuming a 3% average discount rate.
 .. [#] This assumption reflects our current inability to reliably determine how a consumer might choose between an ECM and updated version of a ‘business-as-usual’ technology. A future version of Scout may apportion some of an available market portion to this updated ‘business-as-usual’ technology, under an “Adjusted Adoption Potential” scenario.
 .. [#] We use a default `real discount rate`_ of 7%, based on the Office of Management and Budget’s `Guidelines and Discount Rates for Benefit-Cost Analysis of Federal Programs`_, p. 9 (“Base-Case Analysis”). 
 .. [#] End use categories for the markets and savings are not the same as the AEO end uses. These end use categories are similar to the 2015 `DOE Quadrennial Technology Review`_, Figure 5.1, but with the “Drying” end use lumped together with “Other.”
