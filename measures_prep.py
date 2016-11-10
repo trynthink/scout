@@ -2343,13 +2343,16 @@ class Measure(object):
             carb_compete_cost_eff = ({} for n in range(24))
 
         # Set measure market entry year
-        if self.market_entry_year is None:
-            mkt_entry_yr = int(list(sorted(stock_total_init.keys()))[0])
+        if self.market_entry_year is None or (int(
+                self.market_entry_year) < int(self.handyvars.aeo_years[0])):
+            mkt_entry_yr = int(self.handyvars.aeo_years[0])
         else:
             mkt_entry_yr = self.market_entry_year
         # Set measure market exit year
-        if self.market_exit_year is None:
-            mkt_exit_yr = int(list(sorted(stock_total_init.keys()))[-1]) + 1
+        if self.market_exit_year is None or (int(
+            self.market_exit_year) > (int(
+                self.handyvars.aeo_years[-1]) + 1)):
+            mkt_exit_yr = int(self.handyvars.aeo_years[-1]) + 1
         else:
             mkt_exit_yr = self.market_exit_year
 
@@ -2544,9 +2547,11 @@ class Measure(object):
                 # stock in new homes already captured by the efficient
                 # technology multiplied by (1 / efficient lifetime); if not,
                 # the efficient replacement fraction is 0
-                if self.market_entry_year is None:
+                if self.market_entry_year is None or (int(
+                    self.market_entry_year) < int(
+                        self.handyvars.aeo_years[0])):
                     turnover_meas = life_meas - (
-                        int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
+                        int(yr) - int(self.handyvars.aeo_years[0]))
                 else:
                     turnover_meas = life_meas - (
                         int(yr) - self.market_entry_year)
@@ -3793,14 +3798,17 @@ class MeasurePackage(Measure):
         self.name = p
         self.remove = False
         # Set market entry year as earliest of all the packaged measures
-        if any([x.market_entry_year is None for x in
+        if any([x.market_entry_year is None or (int(
+                x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
                self.measures_to_package]):
             self.market_entry_year = None
         else:
             self.market_entry_year = min([
                 x.market_entry_year for x in self.measures_to_package])
         # Set market exit year is latest of all the packaged measures
-        if any([x.market_exit_year is None for x in self.measures_to_package]):
+        if any([x.market_exit_year is None or (int(
+                x.market_exit_year) > (int(x.handyvars.aeo_years[0]) + 1)) for
+                x in self.measures_to_package]):
             self.market_exit_year = None
         else:
             self.market_exit_year = max([

@@ -142,12 +142,14 @@ class Measure(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Set measure market entry year
-        if self.market_entry_year is None:
+        if self.market_entry_year is None or (int(
+                self.market_entry_year) < int(handyvars.aeo_years[0])):
             mkt_entry_yr = int(handyvars.aeo_years[0])
         else:
             mkt_entry_yr = self.market_entry_year
         # Set measure market exit year
-        if self.market_exit_year is None:
+        if self.market_exit_year is None or (int(self.market_exit_year) > (
+                int(handyvars.aeo_years[-1]) + 1)):
             mkt_exit_yr = int(handyvars.aeo_years[-1]) + 1
         else:
             mkt_exit_yr = self.market_exit_year
