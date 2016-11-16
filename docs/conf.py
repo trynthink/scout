@@ -18,6 +18,11 @@ import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+# Added to support custom suppression of warning message when using
+# URI/URL references for external content, such as images
+import sphinx.environment
+from docutils.utils import get_source_line
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -353,6 +358,19 @@ intersphinx_mapping = {'https://docs.python.org/3': None}
 
 
 # -- CUSTOM CONFIGURATION OPTIONS -----------------------------------------
+
+# Set up additional CSS that adds popover capabilities to the style
+def setup(app):
+    app.add_stylesheet('css/custom.css')
+
+
+# Configuration to suppress warnings on make when linking to e.g., images
+# that have external URI/URLs
+def _warn_node(self, msg, node, **kwargs):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
+
+sphinx.environment.BuildEnvironment.warn_node = _warn_node
 
 # Define custom external link references
 extlinks = {'repo_file': ('https://github.com/trynthink/scout/blob/master/%s',

@@ -1,0 +1,51 @@
+.tooltip {
+  display:inline-block;
+  position:relative;
+}
+
+.tooltip:hover {
+  text-decoration:none;
+}
+
+.tooltip .chunk {
+  bottom: 30px; /* controls vertical distance between text and popover */
+  left: -1000px;
+  right: -1000px;
+  display: block;
+  font-size: 13px;
+  font-style: normal;
+  margin: auto;
+  position: absolute;
+  text-align: center;
+  z-index: 98;
+}
+
+.tooltip b {
+  background: #111;
+  background: rgba(0,0,0,0.8);
+  border-radius: 5px;
+  color: #fff;
+  display: none;
+  margin: auto;
+  padding: 5px 15px;
+  white-space: nowrap;
+  z-index: 98;
+  text-align: center;
+}
+
+.tooltip:hover b {
+  display:table;
+}
+
+.tooltip:hover b:before {
+  border: solid;
+  border-color: #111 transparent;
+  border-width: 6px 6px 0 6px;
+  bottom: -6px;
+  content: "";
+  display: block;
+  left: 50%;
+  margin-left: -3px;
+  position: absolute;
+  z-index: 99;
+}

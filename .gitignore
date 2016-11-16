@@ -62,8 +62,6 @@ ehthumbs.db
 ###################################################
 
 _build
-_static
-_templates
 
 # Packages and compressed files #
 #################################
