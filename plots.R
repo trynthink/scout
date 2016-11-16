@@ -10,9 +10,9 @@ options("encoding" = "UTF-8")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
-uncompete_results<-fromJSON(file = paste(base_dir, '/measures_data/meas_summary_data.json', sep=""))
+uncompete_results<-fromJSON(file = paste(base_dir, '/supporting_data/ecm_prep.json', sep=""))
 # Import competed ECM energy, carbon, and cost data
-compete_results<-fromJSON(file = paste(base_dir, '/engine_results/meas_engine_out.json', sep=""))
+compete_results<-fromJSON(file = paste(base_dir, '/results/ecm_results.json', sep=""))
 
 # ============================================================================
 # Set high-level plotting parameters
@@ -95,9 +95,9 @@ for (a in 1:length(adopt_scenarios)){
       uncertainty = FALSE
       # Set the file name for the plot based on the adoption scenario and plotting variable
       if (adopt_scenarios[a] == 'Technical potential'){
-        plot_file_name = paste(base_dir, '/engine_results/plots/tech_potential/', plot_names[v],"-TP.pdf", sep = "")
+        plot_file_name = paste(base_dir, '/results/plots/tech_potential/', plot_names[v],"-TP.pdf", sep = "")
       }else{
-        plot_file_name = paste(base_dir, '/engine_results/plots/max_adopt_potential/', plot_names[v],"-MAP.pdf", sep = "")
+        plot_file_name = paste(base_dir, '/results/plots/max_adopt_potential/', plot_names[v],"-MAP.pdf", sep = "")
       }
     
       # Open PDF plot device

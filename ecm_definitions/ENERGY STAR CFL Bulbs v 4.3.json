@@ -1,0 +1,97 @@
+{
+  "name": "ENERGY STAR CFL Bulbs v 4.3",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": {
+    "primary": "lighting",
+    "secondary": null
+  },
+  "fuel_type": {
+    "primary": "electricity",
+    "secondary": null
+  },
+  "technology_type": {
+    "primary": "supply",
+    "secondary": null
+  },
+  "technology": {
+    "primary": [
+      "reflector (LED)",
+      "reflector (CFL)",
+      "reflector (incandescent)",
+      "reflector (halogen)",
+      "general service (CFL)",
+      "general service (incandescent)",
+      "general service (LED)"
+    ],
+    "secondary": null
+  },
+  "market_entry_year": null,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "primary": 55,
+    "secondary": null
+  },
+  "energy_efficiency_units": {
+    "primary": "lm/W",
+    "secondary": null
+  },
+  "energy_efficiency_source": {
+    "notes": "CFL lamp power 10-15 W, bare, covered, globe, and outdoor reflector CFLs",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": 4,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+    }
+  },
+  "installed_cost": 1.72,
+  "cost_units": "2010$/unit",
+  "installed_cost_source": {
+    "notes": "Average cost of 0.0023/lm for CFL at 55 lm/W for 13 W bulb",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "product_lifetime": 1.02,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime of 9000 hours, translated to years.",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Typical wattage residential CFL bulbs that meet the ENERGY STAR performance standard in 2010.",
+  "_notes": "ENERGY STAR standard applies to general service and reflector bulb types; assumed standard bulb is for 60 W replacement, and between 10-15 W.",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-10-31 10:20:06 EDT"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

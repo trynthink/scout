@@ -4,7 +4,7 @@ import re
 import itertools
 import json
 from collections import OrderedDict
-from os import listdir, getcwd
+from os import listdir, getcwd, stat, path
 from os.path import isfile, join
 import copy
 import warnings
@@ -30,33 +30,32 @@ class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
 
     Attributes:
-        meas_toupdate_in (string): Database of new measure definitions
-            to update.
-        meas_updated_in (string): Database of existing (previously run)
-            measure definitions to update.
         msegs_in (string): Database of baseline microsegment stock/energy.
         msegs_cpl_in (string): Database of baseline technology characteristics.
         convert_data (string): Database of measure cost unit conversions.
         cbecs_sf_byvint (string): Commercial sq.ft. by vintage data.
-        meas_summary_data (string): High-level measure summary data.
-        meas_compete_data (string): Contributing microsegment data needed
-            for measure competition.
-        meas_active_data (string): Active measure names.
+        ecm_packages (string): Measure package data.
+        ecm_prep (string): Prepared measure attributes data for use in the
+            analysis engine.
+        ecm_compete_data (string): Contributing microsegment data needed
+            to run measure competition in the analysis engine.
+        run_setup (string): Names of active measures that should be run in
+            the analysis engine.
     """
 
     def __init__(self):
-        self.meas_toupdate_in = \
-            "/measures_data/meas_toupdate_in.json"
-        self.meas_updated_in = \
-            "/measures_data/meas_updated_in.json"
-        self.msegs_in = "/stock_energy_tech_data/mseg_res_com_cz.json"
-        self.msegs_cpl_in = "/stock_energy_tech_data/cpl_res_com_cz.json"
-        self.cost_convert_in = "/convert_data/meas_costconvert.json"
-        self.cbecs_sf_byvint = "/convert_data/CBECS_sf_byvintage.json"
-        self.meas_summary_data = \
-            "/measures_data/meas_summary_data.json"
-        self.meas_compete_data = "/measures_data/competition_data"
-        self.meas_active_data = "/measures_data/active_measnames.json"
+        self.msegs_in = \
+            "/supporting_data/stock_energy_tech_data/mseg_res_com_cz.json"
+        self.msegs_cpl_in = \
+            "/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+        self.cost_convert_in = \
+            "/supporting_data/convert_data/ecm_cost_convert.json"
+        self.cbecs_sf_byvint = \
+            "/supporting_data/convert_data/cbecs_sf_byvintage.json"
+        self.ecm_packages = "/ecm_definitions/package_ecms.json"
+        self.ecm_prep = "/supporting_data/ecm_prep.json"
+        self.ecm_compete_data = "/supporting_data/ecm_competition_data"
+        self.run_setup = "/run_setup.json"
 
 
 class UsefulVars(object):
@@ -128,11 +127,11 @@ class UsefulVars(object):
             '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
             'www.navigantresearch.com']
         self.consumer_price_ind = numpy.genfromtxt(
-            (base_dir + '/convert_data/CPI.csv'), names=True,
+            (base_dir + '/supporting_data/convert_data/cpi.csv'), names=True,
             delimiter=',', dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
         cost_ss_carb = numpy.genfromtxt(
-            (base_dir + "/convert_data/Cost_S-S_CO2.txt"), names=True,
-            delimiter='\t', dtype=None)
+            (base_dir + "/supporting_data/convert_data/cost_s-s_co2.txt"),
+            names=True, delimiter='\t', dtype=None)
         self.ss_conv = {
             "electricity": cost_ss_carb[7], "natural gas": cost_ss_carb[8],
             "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
@@ -4142,8 +4141,8 @@ class MeasurePackage(Measure):
         return pkg_brk
 
 
-def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
-                    cbecs_sf_byvint, base_dir):
+def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
+                     cbecs_sf_byvint, base_dir):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -4163,7 +4162,8 @@ def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         base_dir (string): Base directory.
 
     Returns:
-        A list of dicts, each including a finalized set of measure attributes.
+        A list of dicts, each including a set of measure attributes that has
+        been prepared for subsequent use in the analysis engine.
 
     Raises:
         ValueError: If more than one Measure object matches the name of a
@@ -4177,7 +4177,7 @@ def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     if any(['EnergyPlus file' in m.energy_efficiency.keys() for
             m in meas_update_objs]):
         # Set default directory for EnergyPlus simulation output files
-        eplus_dir = base_dir + '/ePlus_data'
+        eplus_dir = base_dir + '/ecm_definitions/energyplus_data'
         # Set EnergyPlus global variables
         handyeplusvars = EPlusGlobals(eplus_dir, cbecs_sf_byvint)
         # Fill in EnergyPlus-based measure performance information
@@ -4193,7 +4193,7 @@ def update_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     return meas_update_objs
 
 
-def add_packages(packages, meas_update_objs, handyvars):
+def prepare_packages(packages, meas_update_objs, handyvars):
     """Combine multiple measures into a single packaged measure.
 
     Args:
@@ -4249,7 +4249,7 @@ def add_packages(packages, meas_update_objs, handyvars):
 
 
 def add_uncovered_pkgupdates(
-        meas_toupdate_package, meas_updated_objs, meas_summary, handyvars):
+        meas_toprep_package, meas_prepped_objs, meas_summary, handyvars):
     """Add uncovered measure package updates to list of packages to update.
 
     Note:
@@ -4259,8 +4259,8 @@ def add_uncovered_pkgupdates(
         for an update in the 'meas_toupdate_in' JSON.
 
     Args:
-        meas_toupdate_package (list): Initial packaged measures to update.
-        meas_updated_objs (list): Initial updated measure objects.
+        meas_toprep_package (list): Initial packaged measures to update.
+        meas_prepped_objs (list): Initial updated measure objects.
         meas_summary (list): Existing measures summary database.
         handyvars (object): Global variables useful across class methods.
 
@@ -4274,8 +4274,8 @@ def add_uncovered_pkgupdates(
     uncovered_packageupdates = [
         x for x in meas_summary if ("measures_to_package" in x.keys()) and
         any([y.name in x[
-            "measures_to_package"] for y in meas_updated_objs]) and
-        (x["name"] not in [p["name"] for p in meas_toupdate_package])]
+            "measures_to_package"] for y in meas_prepped_objs]) and
+        (x["name"] not in [p["name"] for p in meas_toprep_package])]
     # Loop through uncovered package information; add uncovered packages to
     # list of packaged measures to update; ensure that all individual measures
     # that contribute to the package are included in the list of updated
@@ -4287,20 +4287,20 @@ def add_uncovered_pkgupdates(
             Measure(handyvars, **m) for m in meas_summary if any([
                 m["name"] in r for r in [y["measures_to_package"] for
                                          y in uncovered_packageupdates]]) and
-            m["name"] not in [z.name for z in meas_updated_objs]]
-        meas_updated_objs.extend(indiv_meas_to_add)
+            m["name"] not in [z.name for z in meas_prepped_objs]]
+        meas_prepped_objs.extend(indiv_meas_to_add)
         # Add package to update list
-        meas_toupdate_package.append(
+        meas_toprep_package.append(
             {"name": pkg["name"],
              "contributing measures": pkg["measures_to_package"]})
         # Inform user of addition of package to measure update list
         warnings.warn(("WARNING: Existing package '" + pkg["name"] +
                        "' added to measure update list"))
 
-    return meas_toupdate_package, meas_updated_objs
+    return meas_toprep_package, meas_prepped_objs
 
 
-def split_clean_data(meas_updated_objs):
+def split_clean_data(meas_prepped_objs):
     """Reorganize and remove data from input Measure objects.
 
     Note:
@@ -4309,7 +4309,7 @@ def split_clean_data(meas_updated_objs):
         to JSON files.
 
     Args:
-        meas_updated_objs (object): Measure objects with data to
+        meas_prepped_objs (object): Measure objects with data to
             be split in to separate dicts or removed.
 
     Returns:
@@ -4318,11 +4318,11 @@ def split_clean_data(meas_updated_objs):
         data for each updated measure.
     """
     # Initialize lists of measure competition/summary data
-    meas_updated_compete = []
-    meas_updated_summary = []
+    meas_prepped_compete = []
+    meas_prepped_summary = []
     # Loop through all Measure objects and reorganize/remove the
     # needed data.
-    for m in meas_updated_objs:
+    for m in meas_prepped_objs:
         # Initialize a reorganized measure competition data dict
         comp_data_dict = {}
         # Retrieve measure contributing microsegment data that
@@ -4342,7 +4342,7 @@ def split_clean_data(meas_updated_objs):
             del m.markets[adopt_scheme]["mseg_adjust"]
         # Append updated competition data from measure to
         # list of competition data across all measures
-        meas_updated_compete.append(comp_data_dict)
+        meas_prepped_compete.append(comp_data_dict)
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
@@ -4354,9 +4354,9 @@ def split_clean_data(meas_updated_objs):
                 x.name for x in m.measures_to_package]
         # Append updated measure __dict__ attribute to list of
         # summary data across all measures
-        meas_updated_summary.append(m.__dict__)
+        meas_prepped_summary.append(m.__dict__)
 
-    return meas_updated_compete, meas_updated_summary
+    return meas_prepped_compete, meas_prepped_summary
 
 
 def custom_formatwarning(msg, *a):
@@ -4365,135 +4365,131 @@ def custom_formatwarning(msg, *a):
 
 
 def main(base_dir):
-    """Import and finalize measures input data for analysis engine.
+    """Import and prepare measure attributes for analysis engine.
 
     Note:
-        Import measures from a JSON, determine which measures
-        are in need of an update, and finalize measure cost, performance,
-        and markets/savings attributes for those measures.
+        Determine which measure definitions in an 'ecm_definitions'
+        sub-folder are new or edited; prepare the cost, performance, and
+        markets attributes for these measures for use in the analysis
+        engine; and write prepared data to analysis engine input files.
 
     Args:
-        argv (string): Directory for EnergyPlus simulation data files.
-
-    Returns:
-        A finalized measures JSON for use in analysis engine.
+        base_dir (string): Root Scout directory.
     """
-    # Custom format all warning messages (ignore everything but message itself)
-    warnings.formatwarning = custom_formatwarning
 
-    # Instantiate useful input files object
-    handyfiles = UsefulInputFiles()
-    # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir)
+    # Determine which measure definitions have been updated (if any) since
+    # last the 'measures_prep.py' routine was run
+    sdir = 'ecm_definitions/'
+    meas_update_indiv_names = [
+        x for x in listdir(sdir) if '.json' in x and
+        'package' not in x and (
+            stat(path.join(sdir, x)).st_mtime >
+            stat('supporting_data/ecm_prep.json').st_mtime)]
 
-    # Import new measure/measure package definitions to update
-    with open((base_dir + handyfiles.meas_toupdate_in), 'r') as mjs:
-        measures = json.load(mjs, object_pairs_hook=OrderedDict)
-        # Set individual measures
-        meas_toupdate_indiv = measures["individual measures"]
-        # Set measure packages
-        meas_toupdate_package = measures["measure packages"]
-    # Import existing measure/measure package definitions to update
-    with open((base_dir + handyfiles.meas_updated_in), 'r') as muo:
-        meas_updated_in = json.load(muo, object_pairs_hook=OrderedDict)
-    # Remove any existing measure/measure package definitions that
-    # use the same name as a new measure/measure package definition
-    meas_updated_in["individual measures"] = [
-        me for me in meas_updated_in["individual measures"] if
-        me["name"] not in [mn["name"] for mn in meas_toupdate_indiv]]
-    meas_updated_in["measure packages"] = [
-        me for me in meas_updated_in["measure packages"] if
-        me["name"] not in [mn["name"] for mn in meas_toupdate_package]]
-    # Add new measure/measure packages definitions to update to existing
-    # measure/measure package definitions to update and write out the
-    # result
-    meas_updated_in["individual measures"].extend([
-        x for x in meas_toupdate_indiv])
-    meas_updated_in["measure packages"].extend([
-        x for x in meas_toupdate_package])
-    with open((base_dir + handyfiles.meas_updated_in), "w") as muo:
-        json.dump(meas_updated_in, muo, indent=2)
+    # If one or more measure definition is new or has been edited, proceed
+    # further with 'measures_prep.py' routine; otherwise end the routine
+    if len(meas_update_indiv_names) > 0:
 
-    # Import existing measure summaries
-    with open((base_dir + handyfiles.meas_summary_data), 'r') as es:
-        meas_summary = json.load(es, object_pairs_hook=OrderedDict)
-    # Import active measure data
-    with open((base_dir + handyfiles.meas_active_data), 'r') as am:
-        active_meas = json.load(am, object_pairs_hook=OrderedDict)
-    # Import baseline microsegments
-    with open((base_dir + handyfiles.msegs_in), 'r') as msi:
-        msegs = json.load(msi)
-    # Import baseline cost, performance, and lifetime data
-    with open((base_dir + handyfiles.msegs_cpl_in), 'r') as bjs:
-        msegs_cpl = json.load(bjs)
-    # Import measure cost unit conversion data
-    with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
-        convert_data = json.load(cc)
-    # Import CBECS square footage by vintage data (used to map EnergyPlus
-    # commercial building vintages to Scout building vintages)
-    with open((base_dir + handyfiles.cbecs_sf_byvint), 'r') as cbsf:
-        cbecs_sf_byvint = json.load(cbsf)[
-            "commercial square footage by vintage"]
+        # Custom format all warning messages (ignore everything but
+        # message itself)
+        warnings.formatwarning = custom_formatwarning
 
-    # Update individual measures
-    meas_updated_objs = update_measures(
-        meas_toupdate_indiv, convert_data, msegs, msegs_cpl, handyvars,
-        cbecs_sf_byvint, base_dir)
+        # Instantiate useful input files object
+        handyfiles = UsefulInputFiles()
+        # Instantiate useful variables object
+        handyvars = UsefulVars(base_dir)
 
-    # Add any packages affected by individual measure updates that were not
-    # included in the user-defined list of measure packages to update
-    meas_toupdate_package, meas_updated_objs = add_uncovered_pkgupdates(
-        meas_toupdate_package, meas_updated_objs, meas_summary, handyvars)
+        # Import all measure definitions that are new or edited and
+        # require further preparation before using in the analysis engine
+        meas_toprep_indiv = []
+        for mi in meas_update_indiv_names:
+            with open(path.join(sdir, mi)) as jsf:
+                meas_toprep_indiv.append(json.load(jsf))
+        # Import all measure packages that include one or more new/edited
+        # measures and require further preparation before using in the
+        # analysis engine
+        with open((base_dir + handyfiles.ecm_packages), 'r') as mpk:
+            meas_toprep_package = json.load(mpk)
+            # Set measure packages
+            meas_toprep_package = [x for x in meas_toprep_package if any(
+                [(y[1] + ".json") for y in x.items() in
+                 meas_update_indiv_names])]
+        # Import baseline microsegments
+        with open((base_dir + handyfiles.msegs_in), 'r') as msi:
+            msegs = json.load(msi)
+        # Import baseline cost, performance, and lifetime data
+        with open((base_dir + handyfiles.msegs_cpl_in), 'r') as bjs:
+            msegs_cpl = json.load(bjs)
+        # Import measure cost unit conversion data
+        with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
+            convert_data = json.load(cc)
+        # Import CBECs square footage by vintage data (used to map EnergyPlus
+        # commercial building vintages to Scout building vintages)
+        with open((base_dir + handyfiles.cbecs_sf_byvint), 'r') as cbsf:
+            cbecs_sf_byvint = json.load(cbsf)[
+                "commercial square footage by vintage"]
+        # Import file to write prepared measure attributes data to for
+        # subsequent use in the analysis engine
+        with open((base_dir + handyfiles.ecm_prep), 'r') as es:
+            meas_summary = json.load(es)
+        # Import analysis engine setup file to write prepared measure names
+        # to
+        with open((base_dir + handyfiles.run_setup), 'r') as am:
+            run_setup = json.load(am, object_pairs_hook=OrderedDict)
 
-    # Update measure packages (if needed)
-    if meas_toupdate_package:
-        meas_updated_objs = add_packages(
-            meas_toupdate_package, meas_updated_objs, handyvars)
+        # Prepare new or edited measures for use in analysis engine
+        meas_prepped_objs = prepare_measures(
+            meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
+            cbecs_sf_byvint, base_dir)
 
-    # Split updated measure data into subsets needed for detailed
-    # measure market competition and for high-level measure summaries
-    meas_updated_compete, meas_updated_summary = split_clean_data(
-        meas_updated_objs)
+        # Add any packages affected by individual measure updates that were not
+        # included in the user-defined list of measure packages to prepare
+        meas_toprep_package, meas_prepped_objs = add_uncovered_pkgupdates(
+            meas_toprep_package, meas_prepped_objs, meas_summary, handyvars)
 
-    # Add all updated measure information to existing measure summaries
-    # and active measures list
-    for m in meas_updated_summary:
-        # Measure has been updated from existing case (replace summary)
-        if m["name"] in [x["name"] for x in meas_summary]:
-            [x.update(m) for x in meas_summary if x["name"] == m["name"]]
-        # Measure is new (add summary)
-        else:
-            meas_summary.append(m)
-        # Measure not already in active measures list (add to list)
-        if m["name"] not in active_meas["active"]:
-            active_meas["active"].append(m["name"])
+        # Prepare measure packages for use in analysis engine (if needed)
+        if meas_toprep_package:
+            meas_prepped_objs = prepare_packages(
+                meas_toprep_package, meas_prepped_objs, handyvars)
 
-    # Notify user that all measure updates are completed
-    print('All measure updates complete; writing output data...')
+        # Split prepared measure data into subsets needed to set high-level
+        # measure attributes information and to execute measure competition
+        # in the analysis engine
+        meas_prepped_compete, meas_prepped_summary = split_clean_data(
+            meas_prepped_objs)
 
-    # Write updated measure competition data to zipped JSONs
-    for ind, m in enumerate(meas_updated_objs):
-        with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
-                       m.name + ".pkl.gz"), 'w') as zp:
-            pickle.dump(meas_updated_compete[ind], zp, protocol=4)
-    # Write measure summary data to JSON
-    with open((base_dir + handyfiles.meas_summary_data), "w") as jso:
-        json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+        # Add all prepared high-level measure information to existing
+        # high-level data and to list of active measures for analysis
+        for m in meas_prepped_summary:
+            # Measure has been prepared from existing case (replace
+            # high-level data for measure)
+            if m["name"] in [x["name"] for x in meas_summary]:
+                [x.update(m) for x in meas_summary if x["name"] == m["name"]]
+            # Measure is new (add high-level data for measure)
+            else:
+                meas_summary.append(m)
+            # Measure not already in active measures list (add name to list)
+            if m["name"] not in run_setup["active"]:
+                run_setup["active"].append(m["name"])
 
-    # Write any added measure names to the active measures JSON
-    with open((base_dir + handyfiles.meas_active_data), "w") as jso:
-        json.dump(active_meas, jso, indent=2)
+        # Notify user that all measure preparations are completed
+        print('All measure updates complete; writing output data...')
 
-    # Clear all updated measures from lists of individual and packaged
-    # measures to update and write updated lists to JSON
-    measures = OrderedDict([(
-        "individual measures", [x for x in meas_toupdate_indiv if x[
-            "name"] not in [m["name"] for m in meas_updated_summary]]),
-        (
-        "measure packages", [x for x in meas_toupdate_package if x[
-            "name"] not in [m["name"] for m in meas_updated_summary]])])
-    with open((base_dir + handyfiles.meas_toupdate_in), "w") as mo:
-        json.dump(measures, mo, indent=2)
+        # Write prepared measure competition data to zipped JSONs
+        for ind, m in enumerate(meas_prepped_objs):
+            with gzip.open((base_dir + handyfiles.ecm_compete_data + '/' +
+                           m.name + ".pkl.gz"), 'w') as zp:
+                pickle.dump(meas_prepped_compete[ind], zp, protocol=4)
+        # Write prepared high-level measure attributes data to JSON
+        with open((base_dir + handyfiles.ecm_prep), "w") as jso:
+            json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+
+        # Write any newly prepared measure names to the list of active
+        # measures to be run in the analysis engine
+        with open((base_dir + handyfiles.run_setup), "w") as jso:
+            json.dump(run_setup, jso, indent=2)
+    else:
+        print('No new measure updates available')
 
 
 if __name__ == "__main__":

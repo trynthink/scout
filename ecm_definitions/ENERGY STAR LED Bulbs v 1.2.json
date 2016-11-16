@@ -1,0 +1,110 @@
+{
+  "name": "ENERGY STAR LED Bulbs v 1.2",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": {
+    "primary": "lighting",
+    "secondary": null
+  },
+  "fuel_type": {
+    "primary": "electricity",
+    "secondary": null
+  },
+  "technology_type": {
+    "primary": "supply",
+    "secondary": null
+  },
+  "technology": {
+    "primary": [
+      "reflector (LED)",
+      "reflector (CFL)",
+      "reflector (incandescent)",
+      "reflector (halogen)",
+      "general service (CFL)",
+      "general service (incandescent)",
+      "general service (LED)"
+    ],
+    "secondary": null
+  },
+  "market_entry_year": 2010,
+  "market_entry_year_source": {
+    "notes": "Year in which ENERGY STAR standard went into effect",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": 20,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "primary": 50,
+    "secondary": null
+  },
+  "energy_efficiency_units": {
+    "primary": "lm/W",
+    "secondary": null
+  },
+  "energy_efficiency_source": {
+    "notes": "LED lamp power < 10 W, non-standard or replacement lamps",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": [
+        6,
+        7
+      ],
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/int_LED_lamps_prog_reqs_1.2_2010.pdf"
+    }
+  },
+  "installed_cost": 21.6,
+  "cost_units": "2010$/unit",
+  "installed_cost_source": {
+    "notes": "Average cost of 0.048/lm for LED at 50 lm/W for 9 W bulb",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "product_lifetime": 4.85,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime of 42500 hours, translated to years.",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Typical wattage residential LED bulbs that meet the ENERGY STAR performance standard in 2010.",
+  "_notes": "ENERGY STAR standard applies to general service and reflector bulb types; assumed standard bulb is for 60 W replacement, and under 10 W.",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-10-31 10:07:49 EDT"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "ENERGY STAR Washer v 5.1 Tier 1",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": {
+    "primary": "other (grid electric)",
+    "secondary": null
+  },
+  "fuel_type": {
+    "primary": [
+      "electricity"
+    ],
+    "secondary": null
+  },
+  "technology_type": {
+    "primary": "supply",
+    "secondary": null
+  },
+  "technology": {
+    "primary": "clothes washing",
+    "secondary": null
+  },
+  "market_entry_year": null,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "primary": 1.94,
+    "secondary": null
+  },
+  "energy_efficiency_units": {
+    "primary": "kWh/cycle",
+    "secondary": null
+  },
+  "energy_efficiency_source": {
+    "notes": "Assume a capcity of 3.5 ft^3 (p.2, table 1); conversion from original standard - MEF> 1.8; 3.5/1.8 = 1.94.",
+    "source_data": [
+      {
+        "title": null,
+        "author": null,
+        "organization": null,
+        "year": null,
+        "pages": 2,
+        "URL": "https://www.energystar.gov/sites/default/files/specs//private/Clothes_Washers_Program_Requirements.pdf"
+      },
+      {
+        "title": null,
+        "author": null,
+        "organization": null,
+        "year": null,
+        "pages": null,
+        "URL": "http://www.bestbuy.com/site/buying-guides/laundry-buying-guide/pcmcat327200050000.c?id=pcmcat327200050000"
+      }
+    ]
+  },
+  "installed_cost": 725,
+  "cost_units": "2010$/unit",
+  "installed_cost_source": {
+    "notes": "Median of total installed cost range.",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": 49,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+    }
+  },
+  "product_lifetime": 13.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of stated 'average' lifetime range.",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": 49,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/archive/2013/pdf/appendix-a.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Standard size residential clothes washers that meet the ENERGY STAR performance standard in 2010.",
+  "_notes": "MEF is the quotient of the cubic foot capacity of the clothes container divided by the total clothes washer energy comsumption per cycle",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-10-31 15:15:53 EDT"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

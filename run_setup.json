@@ -1,0 +1,27 @@
+{
+  "active": [
+    "Electric Dryer, Fed. Std. c. 2010",
+    "ENERGY STAR Air Source HP v 4.1 Tier 2",
+    "ENERGY STAR Boiler v 2.1",
+    "ENERGY STAR Central AC v 4.1 Tier 2",
+    "ENERGY STAR CFL Bulbs v 4.3",
+    "ENERGY STAR Gas Furnace v 2.0 Tier 2",
+    "ENERGY STAR Gas Inst. Water Heater v 1.1",
+    "ENERGY STAR Gas Str. Water Heater v 1.1",
+    "ENERGY STAR Geothermal HP v 3.0 Tier 1",
+    "ENERGY STAR HP Water Heater v 1.1",
+    "ENERGY STAR LED Bulbs v 1.2",
+    "ENERGY STAR Oil Furnace v 2.0",
+    "ENERGY STAR Refrigerator v 4.1",
+    "ENERGY STAR Room AC v 2.1",
+    "ENERGY STAR Washer v 5.1 Tier 1",
+    "ENERGY STAR Windows v 5.0",
+    "Floors, IECC Std. c. 2009",
+    "Incandescent Bulbs, Fed. Std. c. 1995",
+    "Natural Gas Dryer, Fed. Std. c. 2010",
+    "Oil Water Heater, ASHRAE 90.1 c. 2004",
+    "Resistance Water Heater, ASHRAE 90.1 c. 2007",
+    "Walls, IECC Std. c. 2009"
+  ],
+  "inactive": []
+}
