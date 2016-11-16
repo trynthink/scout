@@ -4378,7 +4378,7 @@ def main(base_dir):
     """
 
     # Determine which measure definitions have been updated (if any) since
-    # last the 'measures_prep.py' routine was run
+    # last the 'ecm_prep.py' routine was run
     sdir = 'ecm_definitions/'
     meas_update_indiv_names = [
         x for x in listdir(sdir) if '.json' in x and
@@ -4387,7 +4387,7 @@ def main(base_dir):
             stat('supporting_data/ecm_prep.json').st_mtime)]
 
     # If one or more measure definition is new or has been edited, proceed
-    # further with 'measures_prep.py' routine; otherwise end the routine
+    # further with 'ecm_prep.py' routine; otherwise end the routine
     if len(meas_update_indiv_names) > 0:
 
         # Custom format all warning messages (ignore everything but

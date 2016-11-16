@@ -1199,7 +1199,7 @@ class Engine(object):
             # arrays of annualized capital and/or operating costs for
             # the given year; if so, find the array length. * Note: all
             # array lengths should be equal to the 'nsamples' variable
-            # defined in 'measures_prep.py'
+            # defined in 'ecm_prep.py'
             if any([type(x[yr]) == numpy.ndarray or
                     type(y[yr]) == numpy.ndarray for
                     x, y in zip(anpv_s_in, anpv_e_in)]) is True:

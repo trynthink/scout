@@ -3,7 +3,7 @@
 """ Tests for running the measure preparation routine """
 
 # Import code to be tested
-import measures_prep
+import ecm_prep
 # Import needed packages
 import unittest
 import numpy
@@ -91,7 +91,7 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
             '1990 to 1999': 13803.0, '2000 to 2003': 7215.0,
             'Before 1920': 3980.0, '2008 to 2012': 5726.0,
             '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
-        cls.eplus_globals_ok = measures_prep.EPlusGlobals(
+        cls.eplus_globals_ok = ecm_prep.EPlusGlobals(
             base_dir + "/ecm_definitions/energyplus_data/energyplus_test_ok",
             cls.cbecs_sf_byvint)
         cls.eplus_failpath = \
@@ -127,7 +127,7 @@ class EPlusGlobalsTest(unittest.TestCase, CommonMethods):
             AssertionError: If KeyError is not raised.
         """
         with self.assertRaises(KeyError):
-            measures_prep.EPlusGlobals(
+            ecm_prep.EPlusGlobals(
                 self.eplus_failpath,
                 self.cbecs_sf_byvint).find_vintage_weights()
 
@@ -216,8 +216,8 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         # Useful global variables for the sample measure object
-        handyvars = measures_prep.UsefulVars(base_dir)
-        cls.meas = measures_prep.Measure(handyvars, **sample_measure_in)
+        handyvars = ecm_prep.UsefulVars(base_dir)
+        cls.meas = ecm_prep.Measure(handyvars, **sample_measure_in)
         cls.eplus_dir = \
             base_dir + "/ecm_definitions/energyplus_data/energyplus_test_ok"
         cls.eplus_coltypes = [
@@ -754,7 +754,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         handyvars.aeo_years = ["2009", "2010"]
         handyvars.retro_rate = 0.02
         # Adjust carbon intensity data to reflect units originally used for
@@ -4572,13 +4572,13 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "primary": "F28T8 HE w/ OS",
                 "secondary": None}}]
         cls.ok_tpmeas_fullchk_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in ok_measures_in[0:3]]
         cls.ok_tpmeas_partchk_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in ok_measures_in[3:18]]
         cls.ok_mapmeas_partchk_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in ok_measures_in[18:]]
         ok_distmeas_in = [{
             "name": "distrib measure 1",
@@ -4693,7 +4693,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "windows conduction", "windows solar"],
                 "secondary": None}}]
         cls.ok_distmeas_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in ok_distmeas_in]
         ok_partialmeas_in = [{
             "name": "partial measure 1",
@@ -4764,7 +4764,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "external (LED)", "GSHP", "ASHP"],
                 "secondary": None}}]
         cls.ok_partialmeas_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in ok_partialmeas_in]
         failmeas_in = [{
             "name": "blank measure 1",
@@ -4911,7 +4911,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "windows conduction",
                     "windows solar"]}}]
         cls.failmeas_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in failmeas_in]
         warnmeas_in = [{
             "name": "warn measure 1",
@@ -5106,7 +5106,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "windows conduction",
                     "windows solar"]}}]
         cls.warnmeas_in = [
-            measures_prep.Measure(
+            ecm_prep.Measure(
                 handyvars, **x) for x in warnmeas_in]
         cls.ok_tpmeas_fullchk_msegout = [{
             "stock": {
@@ -6901,7 +6901,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             ["2020", "2021", "2022"]]
         # Base directory
         base_dir = os.getcwd()
-        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.handyvars = ecm_prep.UsefulVars(base_dir)
         cls.handyvars.retro_rate = 0.02
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3), dtype=[
@@ -6935,7 +6935,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                     "boiler (electric)", "ASHP", "GSHP",
                     "room AC"],
                 "secondary": None}}
-        cls.measure_instance = measures_prep.Measure(
+        cls.measure_instance = ecm_prep.Measure(
             cls.handyvars, **sample_measure_in)
         cls.ok_diffuse_params_in = None
         cls.ok_mskeys_in = [
@@ -7363,7 +7363,7 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measures_fail = [{
             "name": "sample measure 5",
             "installed_cost": 999,
@@ -7417,7 +7417,7 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
             "technology": {
                 "primary": "all",
                 "secondary": None}}]
-        cls.sample_measures_fail = [measures_prep.Measure(
+        cls.sample_measures_fail = [ecm_prep.Measure(
             handyvars, **x) for x in sample_measures_fail]
 
     def test_invalid_mkts(self):
@@ -7452,7 +7452,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measures = [{
             "name": "sample measure 1",
             "installed_cost": {
@@ -7693,7 +7693,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": {
                 "primary": "all",
                 "secondary": None}}]
-        cls.sample_measures_in = [measures_prep.Measure(
+        cls.sample_measures_in = [ecm_prep.Measure(
             handyvars, **x) for x in sample_measures]
         cls.ok_primary_cpl_out = [[{
             'assembly': 2, 'education': 2, 'food sales': 2,
@@ -8063,7 +8063,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measure = {
             "name": "sample measure 2",
             "active": 1,
@@ -8110,7 +8110,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                 "supply-demand adjustment": {
                     "savings": {},
                     "total": {}}}}
-        cls.sample_measure_in = measures_prep.Measure(
+        cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure)
         cls.ok_out_primary = [
             ('primary', 'AIA_CZ1', 'single family home',
@@ -8279,7 +8279,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -8305,7 +8305,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
                     "boiler (electric)", "ASHP", "GSHP",
                     "room AC"],
                 "secondary": None}}
-        cls.sample_measure_in = measures_prep.Measure(
+        cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.ok_dict1_in, cls.ok_dict2_in = ({
             "level 1a": {
@@ -8399,7 +8399,7 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -8425,7 +8425,7 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
                     "boiler (electric)", "ASHP", "GSHP",
                     "room AC"],
                 "secondary": None}}
-        cls.sample_measure_in = measures_prep.Measure(
+        cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.ok_reduce_dict = {"2009": 100, "2010": 100}
         cls.ok_dict_in = {
@@ -8491,7 +8491,7 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -8517,7 +8517,7 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
                     "boiler (electric)", "ASHP", "GSHP",
                     "room AC"],
                 "secondary": None}}
-        cls.sample_measure_in = measures_prep.Measure(
+        cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.ok_reduce_num = 4
         cls.ok_dict_in = {
@@ -8622,7 +8622,7 @@ class AppendKeyValsTest(unittest.TestCase):
     def setUpClass(cls):
         """Define variables and objects for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.handyvars = ecm_prep.UsefulVars(base_dir)
         cls.ok_mktnames_out = [
             "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
             "single family home",
@@ -8747,7 +8747,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measure_in = {
             "name": "sample measure 2",
             "remove": False,
@@ -8796,7 +8796,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                 "supply-demand adjustment": {
                     "savings": {},
                     "total": {}}}}
-        cls.sample_measure_in = measures_prep.Measure(
+        cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
             "building type conversions": {
@@ -9267,7 +9267,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         cls.base_dir = os.getcwd()
-        cls.handyvars = measures_prep.UsefulVars(cls.base_dir)
+        cls.handyvars = ecm_prep.UsefulVars(cls.base_dir)
         # Adjust aeo_years to fit test years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.cbecs_sf_byvint = {
@@ -9411,7 +9411,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             Ensure that function properly identifies which input measures
             require updating and that the updates are performed correctly.
         """
-        measures_out = measures_prep.prepare_measures(
+        measures_out = ecm_prep.prepare_measures(
             self.measures_ok_in, self.convert_data,
             self.sample_mseg_in, self.sample_cpl_in,
             self.handyvars, self.cbecs_sf_byvint, self.base_dir)
@@ -9444,7 +9444,7 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        handyvars = measures_prep.UsefulVars(base_dir)
+        handyvars = ecm_prep.UsefulVars(base_dir)
         handyvars.aeo_years = ["2009", "2010"]
         sample_measures_in = [{
             "name": "sample measure pkg 1",
@@ -12540,13 +12540,13 @@ class MergeMeasuresTest(unittest.TestCase, CommonMethods):
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating': {}}}}}}}]
-        cls.sample_measures_in = [measures_prep.Measure(
+        cls.sample_measures_in = [ecm_prep.Measure(
             handyvars, **x) for x in sample_measures_in]
         # Reset sample measure markets (initialized to None)
         for ind, m in enumerate(cls.sample_measures_in):
             m.markets = sample_measures_in[ind]["markets"]
         cls.sample_package_name = "Package - CAC + CFLs + NGWH"
-        cls.sample_package_in = measures_prep.MeasurePackage(
+        cls.sample_package_in = ecm_prep.MeasurePackage(
             cls.sample_measures_in, cls.sample_package_name, handyvars)
         cls.genattr_ok_out = [
             'Package - CAC + CFLs + NGWH',
@@ -13831,7 +13831,7 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.handyvars = ecm_prep.UsefulVars(base_dir)
         cls.sample_meas_toupdate_package = [{
             "name": "sample package 1",
             "contributing measures": [
@@ -13841,7 +13841,7 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
             {"name": "sample indiv measure 1"},
             {"name": "sample indiv measure 2"}]
         cls.sample_meas_updated_objs = [
-            measures_prep.Measure(cls.handyvars, **x) for
+            ecm_prep.Measure(cls.handyvars, **x) for
             x in sample_meas_updated_objs]
         cls.sample_meas_summary = [
             {"name": "sample indiv measure 1"},
@@ -13877,7 +13877,7 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
         with warnings.catch_warnings(record=True) as w:
             # Execute the function
             meas_toupdate_package, meas_updated_objs = \
-                measures_prep.add_uncovered_pkgupdates(
+                ecm_prep.add_uncovered_pkgupdates(
                     self.sample_meas_toupdate_package,
                     self.sample_meas_updated_objs,
                     self.sample_meas_summary, self.handyvars)
@@ -13927,7 +13927,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         """Define variables and objects for use across all class functions."""
         # Base directory
         base_dir = os.getcwd()
-        cls.handyvars = measures_prep.UsefulVars(base_dir)
+        cls.handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measindiv_dicts = [{
             "name": "cleanup 1",
             "market_entry_year": None,
@@ -13936,9 +13936,9 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             "name": "cleanup 2",
             "market_entry_year": None,
             "market_exit_year": None}]
-        cls.sample_measlist_in = [measures_prep.Measure(
+        cls.sample_measlist_in = [ecm_prep.Measure(
             cls.handyvars, **x) for x in sample_measindiv_dicts]
-        sample_measpackage = measures_prep.MeasurePackage(
+        sample_measpackage = ecm_prep.MeasurePackage(
             copy.deepcopy(cls.sample_measlist_in), "cleanup 3", cls.handyvars)
         cls.sample_measlist_in.append(sample_measpackage)
         cls.sample_measlist_out_comp_data = [{
@@ -14031,7 +14031,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         """Test 'split_clean_data' function given valid inputs."""
         # Execute the function
         measures_comp_data, measures_summary_data = \
-            measures_prep.split_clean_data(self.sample_measlist_in)
+            ecm_prep.split_clean_data(self.sample_measlist_in)
         # Check function outputs
         for ind in range(0, len(self.sample_measlist_in)):
             # Check measure competition data
