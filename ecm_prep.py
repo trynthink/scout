@@ -1481,6 +1481,12 @@ class Measure(object):
                         base_cpl["installed cost"]["units"]
 
                 except:
+                    warnings.warn(
+                        "WARNING: Measure '" + self.name +
+                        "' has invalid or unavailable " +
+                        "baseline cost/performance/lifetime data for " +
+                        "technology '" + str(mskeys[-2]) +
+                        "'; setting equal to measure characteristics")
                     cost_base, perf_base, life_base = [
                         dict.fromkeys(self.handyvars.aeo_years, x) for
                         x in [cost_meas, perf_meas, life_meas]]
@@ -1545,18 +1551,26 @@ class Measure(object):
                                 # ratio of current year baseline to that of
                                 # an anchor year specified with the measure
                                 # performance units
-                                if isinstance(perf_units, list) and \
-                                        perf_base[str(perf_units[1])] != 0:
-                                    if perf_base_units not in self.handyvars.\
-                                            inverted_relperf_list:
-                                        perf_meas = 1 - (perf_base[yr] / (
-                                            perf_base[str(perf_units[1])] /
-                                            (1 - perf_meas_orig)))
-                                    else:
-                                        perf_meas = 1 - (
-                                            (perf_base[str(perf_units[1])] *
-                                             (1 - perf_meas_orig)) /
-                                            perf_base[yr])
+                                if isinstance(perf_units, list):
+                                    try:
+                                        if perf_base_units not in \
+                                            self.handyvars.\
+                                                inverted_relperf_list:
+                                            perf_meas = 1 - (perf_base[yr] / (
+                                                perf_base[str(perf_units[1])] /
+                                                (1 - perf_meas_orig)))
+                                        else:
+                                            perf_meas = 1 - ((
+                                                perf_base[str(perf_units[1])] *
+                                                (1 - perf_meas_orig)) /
+                                                perf_base[yr])
+                                    except ZeroDivisionError:
+                                        warnings.warn(
+                                            "WARNING: Measure '" + self.name +
+                                            "' has baseline " +
+                                            "or measure performance of zero;" +
+                                            " baseline and measure " +
+                                            "performance set equal")
                                     # Ensure that the adjusted relative savings
                                     # fraction is not greater than 1 or less
                                     # than 0 if not originally specified as
@@ -1584,10 +1598,26 @@ class Measure(object):
                     elif perf_units not in \
                             self.handyvars.inverted_relperf_list:
                         for yr in self.handyvars.aeo_years:
-                            rel_perf[yr] = (perf_base[yr] / perf_meas)
+                            try:
+                                rel_perf[yr] = (perf_base[yr] / perf_meas)
+                            except ZeroDivisionError:
+                                warnings.warn(
+                                    "WARNING: Measure '" + self.name +
+                                    "' has measure performance of zero; " +
+                                    "baseline and measure performance set " +
+                                    "equal")
+                                rel_perf[yr] = 1
                     else:
                         for yr in self.handyvars.aeo_years:
-                            rel_perf[yr] = (perf_meas / perf_base[yr])
+                            try:
+                                rel_perf[yr] = (perf_meas / perf_base[yr])
+                            except ZeroDivisionError:
+                                warnings.warn(
+                                    "WARNING: Measure '" + self.name +
+                                    "' has baseline performance of zero; " +
+                                    "baseline and measure performance set " +
+                                    "equal")
+                                rel_perf[yr] = 1
 
                     # If looping through a commercial lighting microsegment
                     # where secondary end use effects (heating/cooling) are not
@@ -1647,6 +1677,12 @@ class Measure(object):
                                 "competed market share"]["parameters"]
                         # Update invalid consumer choice parameters
                         except:
+                            warnings.warn(
+                                "WARNING: Measure '" + self.name +
+                                "' lacks consumer choice data " +
+                                "for end use '" + str(mskeys[4]) +
+                                "'; using default choice data for" +
+                                "heating end use")
                             choice_params = {
                                 "b1": {key: -0.003 for
                                        key in self.handyvars.aeo_years},
@@ -1692,6 +1728,12 @@ class Measure(object):
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][mskeys[4]]}
                         except:
+                            warnings.warn(
+                                "WARNING: Measure '" + self.name +
+                                "' lacks consumer choice data " +
+                                "for end use '" + str(mskeys[4]) +
+                                "'; using default choice data for" +
+                                "heating end use")
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
                                                  "distributions"]["heating"]}
