@@ -124,6 +124,8 @@ For each of the keys in the applicable baseline market definition, only specific
 
 For some keys, there are shorthand summary values that can be used when all or a large group of more specific values for that key apply. For example, if all of the climate zones should be included in the applicable baseline market, the value "all" can be specified instead of typing out each climate zone name in a list. These shorthand values are provided after the semi-colon in the lists below. Additional notes might also be provided to further clarify the different summary values available for a given key.
 
+.. _ecm-baseline_climate-zone:
+
 Climate Zone
 ~~~~~~~~~~~~
 
@@ -132,6 +134,8 @@ Climate Zone
 .. figure:: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg
 
    Map of American Institute of Architects (AIA) climate zones for the continental U.S., Alaska, and Hawaii.
+
+.. _ecm-baseline_building-type:
 
 Building Type
 ~~~~~~~~~~~~~
@@ -155,6 +159,8 @@ Fuel Type
 **Residential:** electricity, natural gas, distillate, other fuel; all
 
 **Commercial:** electricity, natural gas, distillate; all
+
+.. _ecm-baseline_end-use:
 
 End Use
 ~~~~~~~
@@ -236,6 +242,8 @@ Technology Type
 ~~~~~~~~~~~~~~~
 
 supply, demand
+
+.. _ecm-baseline_technology:
 
 Technology
 ~~~~~~~~~~
@@ -353,7 +361,7 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 |                     | 90W Halogen PAR-38 |br| |                          |                                                                                     |                                                                                                                     |
 |                     | 90W Halogen Edison |br| |                          |                                                                                     |                                                                                                                     |
 +---------------------+-------------------------+--------------------------+-------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------+
-| linear fixture      |                         | F28T5 |br|               |                                                                                     | LED_T8                                                                                                              |
+| linear fixture      |                         | F28T5 |br|               |                                                                                     | LED T8                                                                                                              |
 |                     |                         | F28T8 HE |br|            |                                                                                     |                                                                                                                     |
 |                     |                         | F28T8 HE w/ OS |br|      |                                                                                     |                                                                                                                     |
 |                     |                         | F28T8 HE w/ SR |br|      |                                                                                     |                                                                                                                     |

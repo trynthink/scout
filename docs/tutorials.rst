@@ -18,6 +18,8 @@ The examples in this tutorial will demonstrate how to write new ECMs so that the
 
 .. CREATE A SECTION FOR THE DOCUMENTATION THAT OUTLINES EVERY POSSIBLE COMBINATION OF SPECIFICATIONS FOR AN ECM, ESPECIALLY IN TERMS OF SPECIFYING PROBABILITY DISTRIBUTIONS OF VARIOUS TYPES, AND SPECIFYING C/P/L AT VARYING LEVELS OF DETAIL/SPECIFICITY
 
+In this tutorial, reference versions of the ECMs are provided as separate files for download to minimize confusion while learning how to write new ECMs. To add ECMs to Scout for analysis, all of the ECMs will be added to a single file, not input as a separate JSON file for each ECM. The structure of this single file and the process of adding ECMs is covered by the :ref:`second tutorial <tuts-2>`.
+
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
 
@@ -54,9 +56,9 @@ Among key-value pairs at the same level, the order of entries does not matter.
 
 We will use these general formatting guidelines to write new ECMs.
 
-.. In this tutorial, we will create two different ECMs. We will begin with an ECM that has a relatively simple cost and performance specification. The second example ECM will demonstrate more complex definitions for cost and performance and employ some optional measure features. Following these two examples, we recommend reviewing the `measure database`_ to see further examples of different kinds of ECMs.
+.. In this tutorial, we will create two different ECMs. We will begin with an ECM that has a relatively simple cost and performance specification. The second example ECM will demonstrate more complex definitions for cost and performance and employ some optional ECM features. Following these two examples, we recommend reviewing the `ECM database`_ to see further examples of different kinds of ECMs.
 
-.. measure database:
+.. ECM database:
 
 .. CREATE A KEY PAIR INDEX FOR ECM DEFINITIONS (OR AT LEAST FOR THE BASELINE MARKET DEFINITION)
 
@@ -86,7 +88,7 @@ To begin, the ECM should be given a short, but descriptive name. Details regardi
 Applicable Baseline Market
 **************************
 
-The applicable baseline market parameters specify the climate zones, building types, and other elements that define to what portion of energy use the ECM applies.
+The applicable baseline market parameters specify the climate zones, building types, and other elements that define to what portion of energy use the ECM applies. The exact climate zone and building type options are outlined in the :ref:`ecm-baseline_climate-zone` and :ref:`ecm-baseline_building-type` sections of the :ref:`ecm-def-reference`.
 
 LED troffers can be installed in buildings in any climate zone, and apply to all commercial building types. To simplify entry, "all" can be used to specify climate zones (instead of writing a list of all climate zones), and "all," "all residential," or "all commercial" can be used to specify building types. ::
 
@@ -101,7 +103,7 @@ ECMs can apply to only new construction, only retrofits, or all buildings both n
     "structure_type": "all",
     ...}
 
-The end use(s) for an ECM are separated into primary end uses, those that are applicable to the technology itself, and secondary end uses, which are those end uses that are affected by changes in the energy use from the ECM. The end use names are the same as the residential__ and commercial__ end uses specified in the AEO. In the case where there are no secondary end uses affected, the key must still be included, but the value should be set to ``null``.  The primary end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use qualify as secondary end uses. In general, these secondary end uses are handled automatically without being specified and the secondary field value can be set to ``null``. The specific cases where secondary effects are automatically added are outlined in the corresponding section (add link). ::
+The end use(s) for an ECM are separated into primary end uses, those that are applicable to the technology itself, and secondary end uses, which are those end uses that are affected by changes in the energy use from the ECM. The end use names are the same as the residential__ and commercial__ end uses specified in the AEO, and are listed for convenience in the :ref:`ecm-baseline_end-use` reference section. In the case where there are no secondary end uses affected, the key must still be included, but the value should be set to ``null``. The primary end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use qualify as secondary end uses. In general, these secondary end uses are handled automatically without being specified and the secondary field value can be set to ``null``. The specific cases where secondary effects are automatically added are outlined in the corresponding section (add link). ::
 
    {...
     "end_use": {
@@ -128,9 +130,7 @@ The technology type specifies whether the ECM applies to the "supply" of service
       "secondary": null},
     ...}
 
-The technology field drills down further into the specific technologies or device types that apply to the primary and secondary end uses for the ECM. The specific technology names are different for supply-side and demand-side energy use. The residential__ and commercial__ thermal load components are the technology names for the "demand" technology type. Technology names for the "supply" technology type generally correspond to major equipment types used in the AEO_ [#]_.
-
-.. ADD A SECTION TO THE DOCUMENTATION THAT SPECIFIES ALL OF THE TECHNOLOGY NAMES
+The technology field drills down further into the specific technologies or device types that apply to the primary and secondary end uses for the ECM. The specific technology names are different for supply-side and demand-side energy use. The residential__ and commercial__ thermal load components are the technology names for the "demand" technology type. Technology names for the "supply" technology type generally correspond to major equipment types used in the AEO_ [#]_. All of the technology names are listed by building sector (residential or commercial) and technology type in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`.
 
 In some cases, an ECM might be able to replace all of the currently used technologies for its end use and fuel type. For example, a highly efficient thermoelastic heat pump might be able to replace all current electric heating and cooling technologies. If the end uses have been specified as "heating" and "cooling" and the fuel type as "electricity," then the primary technologies can be specified simply with "all." A technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
 
@@ -205,7 +205,7 @@ For the example of LED troffers, all lighting data should be provided in the uni
 Installed Cost
 **************
 
-The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`this list <ecm-installed-cost-units>`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types.
+The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`the relevant section <ecm-installed-cost-units>` of the :ref:`ecm-def-reference`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types.
 
 If applicable to the ECM, separate cost values can be provided for residential and commercial building types. Units should match the level of specificity in the values, and source information should be included for all values articulated, if separate sources are used for different building types.
 
@@ -559,7 +559,7 @@ Tutorial 2: Preparing ECMs for analysis
 
 .. ADD LINKS TO INDICATED JSON INPUT FILES
 
-The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files in the "stock_energy_tech_data" directory and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new ECM.
+The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files in the supporting_files > stock_energy_tech_data directory and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new ECM.
 
 .. ADD LINK TO INDICATED ADDITIONAL INFORMATION REGARDING MEASURE PACKAGES
 
@@ -654,7 +654,7 @@ In addition to these comparisons, the uncertainty range (if applicable) around "
 .. _tech-potential-energy-plot-example:
 .. figure:: images/total_energy_TP.*
 
-   Primary energy use baselines, and improvements with the adoption of two ECMs -- LED Troffers and Residential Cold Climate Heat Pumps -- are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the large overnight energy use reductions when the ECM is applied to the baseline market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs' impact changes under :ref:`competition <ECM-competition>`. Note that for these figures, the primary energy use y-axis scale is different. For the LED Troffers ECM, the baseline does not change with competition, but the ECM is outcompeted by other lighting ECMs. The Residential Cold Climate Heat Pumps ECM shows a reduced baseline with competition, which is a result of demand-side heating and cooling measures reducing the total heating and cooling services required from HVAC equipment. Uncertainty in the results with competition arises due to uncertainty present in a competing ECM, but even in competition, there are still some energy savings compared to the baseline. Large variations in the baseline in both ECMs prior to the current year are an artifact of NEMS, which is used for the AEO__ projections.
+   Primary energy use baselines, and improvements with the adoption of two ECMs -- LED Troffers and Residential Cold Climate Heat Pumps -- are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the large overnight energy use reductions when the ECM is applied to the baseline market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs' impact changes under :ref:`competition <ECM-competition>`. Note that for these figures, the primary energy use y-axis scale is different. For the LED Troffers ECM, the baseline does not change with competition, but the ECM is outcompeted by other lighting ECMs. The Residential Cold Climate Heat Pumps ECM shows a reduced baseline with competition, which is a result of demand-side heating and cooling measures reducing the total heating and cooling services required from HVAC equipment. Uncertainty in the results with competition arises due to uncertainty present in a competing ECM, but even in competition, there are still some energy savings compared to the baseline. Large variations in the baseline in both ECMs prior to the current year are an artifact of NEMS, which is used to generate the AEO__ projections.
 
 .. LED Troffers - CCHP (R) - Legend
 .. __: http://www.eia.gov/forecasts/aeo/
