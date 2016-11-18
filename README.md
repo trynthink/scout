@@ -18,3 +18,7 @@ The Market Calculator yields total baseline U.S. energy use and CO<sub>2</sub> e
 ### Scout's input data and analysis engine will continue to be updated
 
 You can track on-going development of Scout in this repository. If you find any errors in the model or opportunities for improvement, contribute to the issue tracker by [commenting on an existing issue](https://github.com/trynthink/scout/issues) or [submitting a new one](https://github.com/trynthink/scout/issues/new).
+
+### Documentation is now available
+
+Documentation for Scout is now [available online](http://scout-bto.readthedocs.io/en/latest/). As with the analysis engine, the documentation is being actively updated with expanded details, additional illustrations, and new reference materials and tutorials.
