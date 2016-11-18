@@ -19,10 +19,10 @@ A full analysis in Scout has three primary steps, shown with some additional det
 
 .. _analysis-step-1:
 
-Step 1: Develop initial ECM definition(s) (meas_toupdate_in.json)
------------------------------------------------------------------
+Step 1: Develop initial ECM definition(s)
+-----------------------------------------
 
-Users may define entirely new ECMs or modify existing ECM definitions from the database "meas_summary_data.json." [#]_ Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes – energy performance, installed cost, and lifetime – may be assigned a probability distribution [#]_ instead of a point value; these attributes also require sourcing information from the user. 
+Users may define entirely new ECMs or modify existing ECM definitions located in the "ecm_definitions" directory. Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes -- energy performance, installed cost, and lifetime -- may be assigned a probability distribution [#]_ instead of a point value; these attributes also require source information from the user. 
 
 .. _ecm-sources:
 
@@ -90,10 +90,10 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 
 .. _analysis-step-2:
 
-Step 2: Finalize ECM definition (measures_prep.py)
---------------------------------------------------
+Step 2: Finalize ECM definition
+-------------------------------
 
-ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways: 1) ECM energy performance is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of performance data in :ref:`step 1 <analysis-step-1>`.
+ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways using the "measures_prep.py" script: 1) ECM energy performance is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of performance data in :ref:`step 1 <analysis-step-1>`.
 
 .. _OpenStudio Measures: http://nrel.github.io/OpenStudio-user-documentation/getting_started/about_measures/
 .. _EnergyPlus whole building energy simulation engine: https://energyplus.net/
@@ -174,14 +174,14 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 
    * While the total baseline and efficient ECM energy, |CO2|, and operating costs calculated in this step account for stocks-and-flows, they do not account for competition across multiple ECMs for the same baseline market. ECM competition is handled in :ref:`step 3 <analysis-step-3>`.
 
-Once user ECM definitions have been finalized in this step, they are added to the existing ECM database "meas_summary_data.json." The names of these ECMs are also added to "active_measnames.json," which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by removing ECM names that are not of interest to their analysis from the list. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or performance targets.
+Once user ECM definitions have been finalized in this step, the names of the ECMs are added to "run_setup.json," which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by removing ECM names that are not of interest to their analysis from the list. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or performance targets.
 
 .. _analysis-step-3:
 
-Step 3: Simulate ECM impact (run.py)
-------------------------------------
+Step 3: Simulate ECM impact
+---------------------------
 
-The final step calculates each ECM's total energy savings, avoided |CO2| emissions, and operating cost savings impacts based on the total uncompeted energy use, |CO2| emissions, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Cost savings impacts are used to calculate per-unit financial metrics for the ECMs. Here, both competed and uncompeted ECM impacts and financial metrics are calculated. 
+The final step, contained in the "run.py" module, calculates each ECM's total energy savings, avoided |CO2| emissions, and operating cost savings impacts based on the total uncompeted energy use, |CO2| emissions, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Cost savings impacts are used to calculate per-unit financial metrics for the ECMs. Here, both competed and uncompeted ECM impacts and financial metrics are calculated. 
 
 Calculating uncompeted ECM energy savings and financial metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +232,6 @@ ECM-specific results from the analysis of the portfolio of ECMs
 
 .. rubric:: Footnotes
 
-.. [#] In cases where users edit an existing ECM definition, that definition in "meas_summary_data.json" will be overwritten.
 .. [#] Currently supported distributions: normal, lognormal, uniform, triangular, weibull, gamma.
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
 .. [#] The vintages are: pre-1980, 1980-2004, `ASHRAE 90.1-2004`_, `ASHRAE 90.1-2010`_, and `ASHRAE 90.1-2013`_.

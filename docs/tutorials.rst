@@ -9,16 +9,18 @@ Tutorials
 
 .. _tuts-1:
 
-Tutorial 1: Creating a new ECM
-------------------------------
+Tutorial 1: Creating and editing ECMs
+-------------------------------------
 
-Before beginning this tutorial, it is recommended that you review the :ref:`list of required and optional parameters <ecm-contents>` in an ECM definition.
+Before beginning this tutorial, it is recommended that you review the :ref:`list of parameters <ecm-contents>` in an ECM definition.
 
-The examples in this tutorial will demonstrate how to write new ECMs so that they will be compliant with all relevant formatting requirements and provide the :ref:`needed information <ecm-contents>` about a technology in the structure expected by the Scout analysis engine. These examples are *not* exhaustive descriptions of all of the detailed options available to specify an ECM. A detailed outline of all of the options and combinations available for an ECM is available in section (add link).
+The examples in this tutorial will demonstrate how to write new ECMs so that they will be compliant with all relevant formatting requirements and provide the :ref:`needed information <ecm-contents>` about a technology in the structure expected by the Scout analysis engine. These examples are *not* exhaustive descriptions of all of the detailed options available to specify an ECM. A detailed outline of all of the options and combinations available for an ECM is available in section (add link). In addition, this tutorial includes information about how to :ref:`edit existing ECMs <editing-ecms>` and :ref:`define package ECMs <package-ecms>`.
 
 .. CREATE A SECTION FOR THE DOCUMENTATION THAT OUTLINES EVERY POSSIBLE COMBINATION OF SPECIFICATIONS FOR AN ECM, ESPECIALLY IN TERMS OF SPECIFYING PROBABILITY DISTRIBUTIONS OF VARIOUS TYPES, AND SPECIFYING C/P/L AT VARYING LEVELS OF DETAIL/SPECIFICITY
 
-In this tutorial, reference versions of the ECMs are provided as separate files for download to minimize confusion while learning how to write new ECMs. To add ECMs to Scout for analysis, all of the ECMs will be added to a single file, not input as a separate JSON file for each ECM. The structure of this single file and the process of adding ECMs is covered by the :ref:`second tutorial <tuts-2>`.
+Reference versions of the new ECMs are provided for download to check one's own work following completion of the examples.
+
+Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the "ecm_definitions" directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
 
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
@@ -64,8 +66,8 @@ We will use these general formatting guidelines to write new ECMs.
 
 .. _example-ecm-1:
 
-ECM 1 – Commercial LED troffers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+New ECM 1 – Commercial LED troffers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section.
 
@@ -173,7 +175,7 @@ LED troffers are currently commercially available with a range of performance, c
 Performance
 ***********
 
-The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. There are fields to specify the energy savings associated with secondary effects. If applicable, the performance value(s) should be reported in units of "relative savings (constant)," denoting a reduction in energy use *relative* to the baseline, with a *constant* percentage improvement, even as the baseline improves over time. The fields for secondary effects should be set to ``null`` if they do not apply.
+The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. There are fields to specify the energy savings associated with secondary effects. If applicable, the performance value(s) should be reported in units of "relative savings (constant)," denoting a reduction in energy use *relative* to the baseline, with a *constant* percentage improvement, even as the baseline improves over time. The fields for secondary effects should be set to ``null`` if they do not apply or will be filled in automatically.
 
 The units specified are expected to be consistent with the units for each end use outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
 
@@ -229,7 +231,7 @@ For LED troffers, costs are estimated based on an assumption of a single fixture
 Lifetime
 ********
 
-The lifetime of the ECM, or the expected amount of time that the ECM technology will last before requiring replacement, is specified using a structure identical to the installed cost. Again, the lifetime value, units, and source information must be specified for the corresponding keys. The units should always be in years, ideally as integer values greater than 0. LED troffers have rated lifetimes on the order of 50,000 hours, though the `High Efficiency Troffer Performance Specification`_ requires a minimum lifetime of 68,000 hours. ::
+The lifetime of the ECM, or the expected amount of time that the ECM technology will last before requiring replacement, is specified using a structure identical to the installed cost. Again, the lifetime value, units, and source information must be specified for the corresponding keys. The units should always be in years, ideally as integer values greater than 0. LED troffers have rated lifetimes on the order of 50,000 hours, though the `High Efficiency Troffer Performance Specification`_ requires a minimum lifetime of 68,000 hours. The values for lighting lifetimes should be based on assumptions regarding actual use conditions (i.e., number of hours per day), and the "notes" value in the source specification should include that assumption. The LED troffers in this example are assumed to operate 12 hours per day. ::
 
    {...
     "product_lifetime": 15,
@@ -318,8 +320,8 @@ When updating an existing ECM, the identifying information for the contributor s
 
 .. _example-ecm-2:
 
-ECM 2 – Thermoelastic heat pump
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+New ECM 2 – Thermoelastic heat pump
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This ECM describes thermoelastic heat pump technology for residential and commercial applications. Thermoelastic heating and cooling uses a shape memory (i.e., returns to its original shape when no force is applied) metal alloy that absorbs or releases heat when deformed (stretched or compressed). ::
 
@@ -344,7 +346,7 @@ The thermoelastic heat pump conceived for this example can be used in residentia
     "structure_type": "all",
     ...}
 
-The end use(s) specified for an ECM can be given as a list, if appropriate. Again, primary end uses apply to the technology itself, while secondary end uses are those affected by changes in energy use as a result of the ECM. In many cases, the secondary end uses are treated automatically based on the primary end uses specified (add link). Using the end use names specified for residential__ and commercial__ buildings in the AEO, the thermoelastic heat pump ECM is specified with both "heating" and "cooling" primary end uses in a list. Secondary end uses are not applicable in this case, thus the value is set to ``null``. ECMs that affect supply-side heating and cooling require updating of the energy use associated with demand-side heating and cooling, but this adjustment process is done automatically (add link), and is not considered a secondary end use. ::
+The end use(s) specified for an ECM can be given as a list, if appropriate. Again, primary end uses apply to the technology itself, while secondary end uses are those affected by changes in energy use as a result of the ECM. In many cases, the secondary end uses are treated automatically based on the primary end uses specified (add link). Using the end use names specified for residential__ and commercial__ buildings in the AEO, the thermoelastic heat pump ECM is specified with both "heating" and "cooling" primary end uses in a list. Secondary end uses are not applicable in this case, thus the value is set to ``null``. ECMs that affect supply-side heating and cooling require updating of the energy use associated with demand-side heating and cooling, but this adjustment process is done automatically (add link). ::
 
    {...
     "end_use": {
@@ -407,7 +409,7 @@ Each ECM definition includes quantitative energy efficiency or energy performanc
 
 Performance values can be specified with different values by end use, climate zone, building type, or building vintage. In addition, the performance values for commercial buildings can be specified with data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. The thermoelastic heat pump ECM applies to both residential and commercial buildings, and EnergyPlus simulation results will be used to specify the performance for commercial buildings. Since both the energy efficiency and units data require "primary" and "secondary" keys, the residential and commercial data should be specified under those keys using the simplified building type keys "all residential" and "all commercial."
 
-The EnergyPlus data file should be placed in the directory "ePlus" and the file name should be given as the value for the appropriate key. When EnergyPlus data are being used, the units should always be "relative savings (constant)." Using an EnergyPlus data file disables the automatic calculation of the secondary effects of an ECM because these secondary effects should be captured in the EnergyPlus simulation results. If secondary end uses apply to the ECM and EnergyPlus data are used to specify the performance, all of the *secondary* end use, fuel type, and other baseline market parameters must be specified for the performance. If no secondary effects apply, the "secondary" key for performance should be specified as ``null`` similar to other unused fields in the ECM.
+The EnergyPlus data file should be placed in the directory "energyplus_data" and the file name should be given as the value for the appropriate key. When EnergyPlus data are being used, the units should always be "relative savings (constant)." Using an EnergyPlus data file disables the automatic calculation of the secondary effects of an ECM because these secondary effects should be captured in the EnergyPlus simulation results. If secondary end uses apply to the ECM and EnergyPlus data are used to specify the performance, all of the *secondary* end use, fuel type, and other baseline market parameters must be specified for the performance. If no secondary effects apply, the "secondary" key for performance should be specified as ``null`` similar to other unused fields in the ECM.
 
 The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example. The pages where the data can be found in the source can be provided as a single number or as a list of two numbers, e.g., [93, 95], if the data are spread across multiple pages. If page numbers are not applicable, the field should have the value ``null``. ::
 
@@ -552,6 +554,34 @@ Since the scaling fraction is not derived from the EIA data used to provide a co
 Additional discussion regarding the use of the market scaling fraction can be found in the :ref:`first example ECM <example-ecm-1-optional-entries>`.
 
 
+.. _editing-ecms:
+
+Editing existing ECMs
+~~~~~~~~~~~~~~~~~~~~~
+
+All of the ECM definitions are stored in the "ecm_definitions" folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following :ref:`Tutorial 2 <tuts-2>`.
+
+Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well, as no two ECMs can share the same file name or name given in the JSON.
+
+
+.. _package-ecms:
+
+Creating and editing package ECMs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Package ECMs are not actually unique ECMs, rather, they are combinations of existing ECMs specified by the user. Existing ECMs can be included in multiple different packages; there is no limit to the number of packages to which a single ECM may be added.
+
+.. ADD EXPLANATION OF HOW TO SPECIFY ENERGY COST REDUCTIONS OR OTHER CHANGES APPLICABLE TO PACKAGE ECMs
+
+Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. Within that JSON file, each ECM package should be specified with a unique name as the key, and a list of ECM names separated by commas as the corresponding value. The individual ECM names should match exactly with the values of the "name" field for each of the ECMs added to the package. All of the intended packages should be specified in the "package_ecms.json" file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
+
+   {
+      "Name of the first package": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
+      "Name of the second package": ["ECM 4 name", "ECM 1 name"],
+      "Name of the third package": ["ECM 5 name", "ECM 3 name", "ECM 6 name", "ECM 2 name"]
+   }
+
+
 .. _tuts-2:
 
 Tutorial 2: Preparing ECMs for analysis
@@ -559,40 +589,27 @@ Tutorial 2: Preparing ECMs for analysis
 
 .. ADD LINKS TO INDICATED JSON INPUT FILES
 
-The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files in the supporting_files > stock_energy_tech_data directory and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new ECM.
+The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the supporting_data/stock_energy_tech_data directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
 
-.. ADD LINK TO INDICATED ADDITIONAL INFORMATION REGARDING MEASURE PACKAGES
+Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with an informative file name and placed in the "ecm_definitions" directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
 
-Once all of the new ECMs are written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>`, they should be added to a JSON file that has a specific format. The ECMs should be placed in a list (i.e., within brackets) as the value for the "individual measures" key at the top level of the JSON file. There should be a "measure packages" key at the same level as the "individual measures" key, with a corresponding value of an empty list. The use of the "measure packages" key is outlined in the section on measure packages (add link). ::
-
-   {"individual measures": [{
-      "name": "measure 1",
-      ...},
-      {
-      "name": "measure 2",
-      ...}],
-    "measure packages": []
-   }
-
-The file should be saved with the name "meas_toupdate_in.json" and placed in the "measures_data" sub-directory within the "scout" project directory. If this file is already present and follows the format described above, any new ECMs can be added in the list under the "individual measures" key.
-
-To run the pre-processing script, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``), and run "measures_prep.py" as a script.
+To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``), and run the script.
 
 **Windows** ::
 
    cd Documents\projects\scout-run_scheme
-   py -3 measures_prep.py
+   py -3 ecm_prep.py
 
 **Mac** ::
 
    cd Documents/projects/scout-run_scheme
-   python3 measures_prep.py
+   python3 ecm_prep.py
 
-As each ECM is processed by "measures_prep.py", the ECM name is printed to the command window within a message indicating that it has been updated successfully. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "measures_prep.py". The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
+As each ECM is processed by "ecm_prep.py", the ECM name is printed to the command window within a message indicating that it has been updated successfully. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
-If "measures_prep.py" runs successfully, the data for the ECMs recorded in "meas_toupdate_in.json" will be cleared, leaving an empty JSON file ready for additional new ECMs, and the ECM definitions updated successfully will be moved to the file "meas_updated_in.json" in the same directory. The names of the ECMs updated will be added to "active_measnames.json," a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were in "meas_toupdate_in.json" are added to "meas_summary_data.json" and the folder "competition_data," where there appear separate compressed files for each ECM. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 3 <tuts-3>`.
+If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 3 <tuts-3>`.
 
-If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include missing "individual measures" and "measure packages" keys at the top level of "meas_toupdate_in.json," typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy performance that do not match the baseline cost and performance data in the ECM.
+If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy performance that do not match the baseline cost and performance data in the ECM.
 
 
 .. _tuts-3:
@@ -601,6 +618,12 @@ Tutorial 3: Running an analysis
 -------------------------------
 
 Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by ``run.py`` following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+
+If some ECMs should be excluded from a given analysis, these ECMs can be specified in the "run_setup.json" file. All of the existing ECMs should appear in this file under *only* one of two keys, "active" and "inactive." Each of these keys should be followed by a list (enclosed by brackets). If all ECMs are in the active list, the "inactive" value should be an empty list. As new ECMs are added and pre-processed, their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list. To exclude one or more ECMs from the analysis, simply copy and paste their names from the "active" to the "inactive" list, and reverse the process to restore ECMs that have been excluded. 
+
+.. tip::
+
+   When editing the "run_setup.json" file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
 
 To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run "run.py" as a Python script.
 
@@ -616,7 +639,7 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
 
 While executing, "run.py" will print updates to the command window. This text is principally to assure users that the analysis is proceeding apace.
 
-Once complete, the command window will return to an open prompt. The complete competed and uncompeted ECM data are stored in the "meas_engine_out.json" file located in the "engine_results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
+Once complete, the command window will return to an open prompt. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
 
 
 .. _tuts-4:
@@ -634,7 +657,7 @@ The uncompeted and competed ECM results can be converted into graphical form usi
 
 An additional package is required to run the plot generation R script. Running the script should install the package automatically. If it does not, additional troubleshooting may be required. [#]_
 
-The plot image files can be found in the "plots" folder inside the "engine_results" folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
+The plot image files can be found in the "plots" folder inside the "results" folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
 
 Interpreting Results Figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -645,7 +668,7 @@ The y-axis scale for each figure is adjusted automatically to be appropriate for
 
 Interpretation of the results figures is facilitated with relevant comparisons of pairs of lines. 
 
-* Uncompeted Baseline vs. Competed Baseline -- For heating and cooling ECMs, effects of supply-side ECMs on a demand-side ECM and vice versa. [#]_
+* Uncompeted Baseline vs. Competed Baseline -- Represents the direct or indirect [#]_ effects of ECM competition on the total baseline market and associated energy, carbon, or cost that can be affected by each ECM. 
 * Uncompeted Baseline vs. Uncompeted "Efficient" -- The potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM in the absence of alternative technologies that provide the same services. 
 * Competed Baseline vs. Competed "Efficient" -- The potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM when other ECMs could provide equivalent service but with different energy/|CO2|/cost tradeoffs.
 
@@ -654,15 +677,13 @@ In addition to these comparisons, the uncertainty range (if applicable) around "
 .. _tech-potential-energy-plot-example:
 .. figure:: images/total_energy_TP.*
 
-   Primary energy use baselines, and improvements with the adoption of two ECMs -- LED Troffers and Residential Cold Climate Heat Pumps -- are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the large overnight energy use reductions when the ECM is applied to the baseline market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs' impact changes under :ref:`competition <ECM-competition>`. Note that for these figures, the primary energy use y-axis scale is different. For the LED Troffers ECM, the baseline does not change with competition, but the ECM is outcompeted by other lighting ECMs. The Residential Cold Climate Heat Pumps ECM shows a reduced baseline with competition, which is a result of demand-side heating and cooling measures reducing the total heating and cooling services required from HVAC equipment. Uncertainty in the results with competition arises due to uncertainty present in a competing ECM, but even in competition, there are still some energy savings compared to the baseline. Large variations in the baseline in both ECMs prior to the current year are an artifact of NEMS, which is used to generate the AEO__ projections.
+   Primary energy use baselines, and improvements with the adoption of two ECMs – RTU Control Retrofit and Reduce Infiltration – are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the large overnight energy use reductions when the ECM is applied to the baseline market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs’ impacts change under :ref:`competition <ECM-competition>`. Note that for these figures, the primary energy use y-axis scale is different. For the RTU Control Retrofit ECM, the ECM is outcompeted by other commercial cooling ECMs, and its baseline and efficient energy use go to zero. The Reduce Infiltration ECM shows a reduced (but non-zero) baseline after adjusting for competition; this reflects both the direct impact of other demand-side heating and cooling ECMs capturing part of this ECM’s baseline market, as well as the indirect impact of supply-side heating and cooling ECMs reducing the total heating and cooling energy that can be lost through infiltration. Uncertainty in the results after competition arises due to uncertainty present in a competing ECM, but even after adjusting for competition, there are still some energy savings compared to the baseline. Large variations in the baseline in both ECMs prior to the current year are an artifact of NEMS, which is used for the AEO__ projections.
 
-.. LED Troffers - CCHP (R) - Legend
 .. __: http://www.eia.gov/forecasts/aeo/
 
-:numref:`tech-potential-energy-plot-example` shows two ECMs plotted with and without competition under the technical potential scenario. For the LED Troffers ECM, the baselines are identical, thus the competed baseline (dark blue) fully obscures the uncompeted baseline (dark gray). The competed baseline and the competed "efficient" case, where the ECM is applied to the market, are also identical, which indicates that the ECM is not competitive with some other ECM that provides lighting for commercial buildings and was included in the same analysis. In the absence of competition, the "efficient" case shows the overnight energy savings characteristic of the technical potential scenario. The up and down variations in the baseline prior to the current year appear in many other ECMs is indicative of adjustments made by EIA in the historical AEO data and should not be a subject of attention. 
+:numref:`tech-potential-energy-plot-example` shows two ECMs plotted with and without competition under the technical potential scenario. For the RTU Control Retrofit ECM, a gap is present between the uncompeted baseline (dark gray) and efficient (light gray) energy use, which indicates the energy savings potential of the ECM when the effects of competition with other ECMs are not considered. Note that in the absence of competition, the efficient case shows the overnight energy savings characteristic of the technical potential scenario. The competed baseline (dark blue) and efficient (light blue) energy are both zero for this ECM, which indicates that the ECM is not competitive with some other ECM that provides cooling for commercial buildings and was included in the same analysis. The up and down variations in the baselines prior to the current year appear in many other ECMs is indicative of adjustments made by EIA in the historical AEO data and should not be a subject of attention.
 
-The Residential Cold Climate Heat Pump ECM has distinct baselines because in the competed case, demand-side ECMs that improve the performance of the building envelope reduce the total energy use for heating and cooling, which appears as a lower baseline for this supply-side heating and cooling ECM. Other heating and cooling supply-side ECMs in this analysis would show similar changes in their baseline energy use. As with the LED Troffers ECM, there are competing ECMs that affect the energy savings potential of this heat pump. Uncertainty also appears in the figure, though only for the competed results, which indicates there is uncertainty in a competing ECM, but not in this ECM.
-
+The Reduce Infiltration ECM similarly shows a gap between the uncompeted baseline and efficient energy use, which again indicates the energy savings potential of this ECM in the absence of competition with other ECMs. As with the RTU Control Retrofit ECM, the baseline and efficient energy use of the Reduce Infiltration ECM are scaled down following competition with other ECMs; these competing ECMs may be demand-side heating and cooling ECMs that directly capture part of the Reduce Infiltration ECM's baseline market, or could be supply-side heating and cooling ECMs that indirectly reduce the total amount of heating and cooling energy that can be lost through infiltration. Competition only slightly affects the Reduce Infiltration ECM’s energy use and energy savings potential. Note that uncertainty also appears in the plot for the Reduce Infiltration ECM, though only for the competed efficient result; this indicates there is uncertainty in a competing ECM, but not in this ECM.
 
 .. _associative arrays: https://en.wikipedia.org/wiki/Associative_array
 .. _Python dictionaries: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
