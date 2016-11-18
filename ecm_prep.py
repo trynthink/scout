@@ -781,6 +781,10 @@ class Measure(object):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
+        # Check to ensure that measure name is proper length for plotting
+        if len(self.name) >= 40:
+            raise ValueError(
+                "Measure '" + self.name + "' name must be < 40 characters")
         self.remove = False
         self.handyvars = handyvars
         self.markets = {}
@@ -4513,6 +4517,10 @@ def main(base_dir):
             # Measure not already in active measures list (add name to list)
             if m["name"] not in run_setup["active"]:
                 run_setup["active"].append(m["name"])
+            # Measure in inactive measures list (remove name from list)
+            if m["name"] in run_setup["inactive"]:
+                run_setup["inactive"] = [x for x in run_setup[
+                    "inactive"] if x != m["name"]]
 
         # Notify user that all measure preparations are completed
         print('All measure updates complete; writing output data...')

@@ -2152,7 +2152,7 @@ def main(base_dir):
     # Import list of all unique active measures
     with open((base_dir + handyfiles.active_measures), 'r') as am:
         active_meas_all = numpy.unique(json.load(am)["active"])
-    print('Measure summary data load complete')
+    print('Measure attributes data load complete')
 
     # Loop through measures data in JSON, initialize objects for all measures
     # that are active and valid
