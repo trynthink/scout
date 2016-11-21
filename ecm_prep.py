@@ -782,9 +782,9 @@ class Measure(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Check to ensure that measure name is proper length for plotting
-        if len(self.name) >= 40:
+        if len(self.name) > 40:
             raise ValueError(
-                "Measure '" + self.name + "' name must be < 40 characters")
+                "Measure '" + self.name + "' name must be <= 40 characters")
         self.remove = False
         self.handyvars = handyvars
         self.markets = {}
@@ -1487,9 +1487,8 @@ class Measure(object):
                 except:
                     warnings.warn(
                         "WARNING: Measure '" + self.name +
-                        "' has invalid or unavailable " +
-                        "baseline cost/performance/lifetime data for " +
-                        "technology '" + str(mskeys[-2]) +
+                        "' has invalid baseline cost/performance/lifetime " +
+                        "for technology '" + str(mskeys[-2]) +
                         "'; setting equal to measure characteristics")
                     cost_base, perf_base, life_base = [
                         dict.fromkeys(self.handyvars.aeo_years, x) for
