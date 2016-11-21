@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Fenestration, IECC Std. c. 2009",
+  "name": "Commercial Fenestration, IECC c. 2015",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -21,27 +21,37 @@
       "windows solar"],
     "secondary": null
   },
-  "market_entry_year": 2009,
-  "market_entry_year_source": null,
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": {
+      "title": "2015 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
     "primary": {
       "AIA_CZ1": {
-        "windows conduction": 2.22,
-        "windows solar": 0.4},
+        "windows conduction": 3.45,
+        "windows solar": 0.45},
       "AIA_CZ2": {
-        "windows conduction": 1.82,
+        "windows conduction": 2.78,
         "windows solar": 0.4},
       "AIA_CZ3": {
-        "windows conduction": 1.82,
+        "windows conduction": 2.63,
         "windows solar": 0.4},
       "AIA_CZ4": {
-        "windows conduction": 1.82,
+        "windows conduction": 2.63,
         "windows solar": 0.4},
       "AIA_CZ5": {
-        "windows conduction": 1.4,
-        "windows solar": 0.33}
+        "windows conduction": 2.09,
+        "windows solar": 0.25}
       },
     "secondary": null
   },
@@ -52,14 +62,14 @@
     "secondary": null
   },
   "energy_efficiency_source": {
-    "notes": "See page 7, table 502.3; assumes metal framing, 'all other' for U value and projection factor of .25 to .5 for SHGC; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2",
+    "notes": "See table C402.4, p.; assumes vertical and fixed fenestration for U value; assumes a projection factor < 0.2 and orientation other than north for SHGC; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2; takes average of performance levels for IECC zones 2/3",
     "source_data": {
-      "title": "2009 IECC Update",
+      "title": "2015 International Energy Conservation Code",
       "author": null,
       "organization": "International Code Council",
-      "year": 2009,
-      "pages": 7,
-      "URL": "http://www.iccsafe.org/wp-content/uploads/adoption_ordinances/2009_IECC_Update.pdf"}
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[CE].html"}
     },
   "installed_cost": 56.20,
   "cost_units": "2016$/ft^2 glazing",
@@ -77,7 +87,7 @@
   "product_lifetime": 25,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Assuming midpoint of aluminum and wood",
+    "notes": "Assumes midpoint of lifetime for aluminum and wood window assemblies",
     "source_data": {
       "title": "Study of the Life Expectancy of Home Components",
       "author": null,
@@ -91,13 +101,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Aluminum frame commercial window assembly that meets the IECC performance standard in 2010",
+  "_description": "Aluminum frame commercial window assembly that meets the IECC performance standard in 2015",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-16 16:38:51 EST"
+    "timestamp": "2016-11-16 12:10:56 EST"
   },
   "_updated_by": {
     "name": null,

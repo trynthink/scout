@@ -1,0 +1,109 @@
+{
+  "name": "Residential Floors, IECC c. 2015",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": {
+    "primary": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+    "secondary": null
+  },
+  "fuel_type": {
+    "primary": "all",
+    "secondary": null
+  },
+  "technology_type": {
+    "primary": "demand",
+    "secondary": null
+  },
+  "technology": {
+    "primary": "ground",
+    "secondary": null
+  },
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": {
+      "title": "2015 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "primary": {
+      "AIA_CZ1": 30,
+      "AIA_CZ2": 30,
+      "AIA_CZ3": 30,
+      "AIA_CZ4": 19,
+      "AIA_CZ5": 16
+    },
+    "secondary": null
+  },
+  "energy_efficiency_units": {
+    "primary": "R value",
+    "secondary": null
+  },
+  "energy_efficiency_source": {
+    "notes": "See table 402.1.2; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2; averages values for AIA climates 2/3",
+    "source_data": {
+      "title": "2015 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+    }
+  },
+  "installed_cost": 3.2,
+  "cost_units": "2013$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Insulating slab, R-20",
+    "source_data": {
+      "title": "NREL National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2013,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
+    }
+  },
+  "product_lifetime": 100,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed to be the same as lifetime of the home",
+    "source_data": {
+      "title": "NREL National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2013,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Residential floor slab insuluation that meets IECC 2015",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-11-17 16:51:36 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

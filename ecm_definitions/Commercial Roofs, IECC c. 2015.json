@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Roof, IECC Std. c. 2009",
+  "name": "Commercial Roofs, IECC Std. c. 2015",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -19,17 +19,27 @@
     "primary": "roof",
     "secondary": null
   },
-  "market_entry_year": 2009,
-  "market_entry_year_source": null,
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": {
+      "title": "2015 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
     "primary": {
-      "AIA_CZ1": 25,
-      "AIA_CZ2": 20,
-      "AIA_CZ3": 20,
-      "AIA_CZ4": 20,
-      "AIA_CZ5": 20
+      "AIA_CZ1": 35,
+      "AIA_CZ2": 30,
+      "AIA_CZ3": 30,
+      "AIA_CZ4": 30,
+      "AIA_CZ5": 25
       },
     "secondary": null
   },
@@ -38,14 +48,14 @@
     "secondary": null
   },
   "energy_efficiency_source": {
-    "notes": "Assumes insulation entirely above roof deck; page 6, table 502.2(1); assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2",
+    "notes": "See table 402.1.3; assumes insulation entirely above roof deck; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2",
     "source_data": {
-      "title": "2009 IECC Update",
+      "title": "2015 International Energy Conservation Code",
       "author": null,
       "organization": "International Code Council",
-      "year": 2009,
-      "pages": 6,
-      "URL": "http://www.iccsafe.org/wp-content/uploads/adoption_ordinances/2009_IECC_Update.pdf"}
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[CE].html"}
     },
   "installed_cost": 6.33,
   "cost_units": "2016$/ft^2 roof",
@@ -77,13 +87,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Metal commercial roofing that meets the IECC performance standard in 2010",
+  "_description": "Metal commercial roofing that meets the IECC performance standard in 2015",
   "_notes": "R value for continuous insulation",
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-16 14:17:01 EST"
+    "timestamp": "2016-11-16 12:59:05 EST"
   },
   "_updated_by": {
     "name": null,

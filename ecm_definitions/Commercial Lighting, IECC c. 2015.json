@@ -1,7 +1,8 @@
 {
-  "name": "Commercial Lighting, IECC Std. c. 2009",
+  "name": "Commercial Lighting, IECC c. 2015",
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": [
+    "assembly", "education", "small office", "large office", "lodging"],
   "structure_type": "all",
   "end_use": {
     "primary": "lighting",
@@ -16,15 +17,25 @@
     "secondary": null
   },
   "technology": {
-    "primary": "all",
+    "primary": ["F32T8", "T8 F32 EEMag (e)"],
     "secondary": null
   },
-  "market_entry_year": 2009,
-  "market_entry_year_source": null,
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": {
+      "title": "2015 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": 43.67,
+    "primary": 59.76,
     "secondary": null
   },
   "energy_efficiency_units": {
@@ -32,14 +43,14 @@
     "secondary": null
   },
   "energy_efficiency_source": {
-    "notes": "See page 59, table 505.5.2; use Scout Cost Conversion Data on 1000 lm/ft^2 floor to get from original 1.122 W/ft^2 floor -> 43.67 lm/W",
+    "notes": "See table C405.4.2, 'Office'; use Scout Cost Conversion Data on 1000 lm/ft^2 floor to get from original 0.82 W/ft^2 floor -> 59.76 lm/W",
     "source_data": [{
-      "title": "2009 International Energy Conservation Code",
+      "title": "2015 International Energy Conservation Code",
       "author": null,
       "organization": "International Code Council",
-      "year": 2009,
-      "pages": 59,
-      "URL": "https://law.resource.org/pub/us/code/ibr/icc.iecc.2009.pdf"
+      "year": 2015,
+      "pages": null,
+      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[CE].html"
     },
     {
       "title": "Scout Cost Conversion Data",
@@ -49,10 +60,10 @@
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/run_scheme/supporting_data/convert_data/ecm_cost_convert.json"
     }]},
-  "installed_cost": 1.87,
-  "cost_units": "2016$/1000 lm",
+  "installed_cost": 1.32,
+  "cost_units": "2013$/1000 lm",
   "installed_cost_source": {
-    "notes": "Assumes linear fluorescent as the dominant commercial lighting type, uses 2010 T8 bulb type costs for 'linear fluorescent' lamp type in EIA NEMS 'rsmlgt.txt' file; converts from $/bulb to $/1000 lm by assuming 32 W/lamp, 1.122 W/ft^2 floor from IECC standard, and 0.049 lm/ft^2 floor from Scout Cost Conversion Data",
+    "notes": "Assumes linear fluorescent as the dominant commercial lighting type, uses 2010 T8 bulb type costs for 'linear fluorescent' lamp type in EIA NEMS 'rsmlgt.txt' file; converts from $/bulb to $/1000 lm by assuming 33 W/lamp, 0.82 W/ft^2 floor from IECC standard, and 0.049 lm/ft^2 floor from Scout Cost Conversion Data",
     "source_data": [{
       "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation",
       "author": null,
@@ -81,7 +92,7 @@
   "product_lifetime": 5.48,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Assumes linear fluorescent as the dominant commercial lighting type, use 2010 T8 bulb type lifetime for 'linear fluorescent' lamp type in EIA NEMS 'rsmlgt.txt' file, with 12 hours of assumed use per day",
+    "notes": "Assumes linear fluorescent as the dominant commercial lighting type, use 2010 T8 bulb type lifetime for 'linear fluorescent' lamp type in EIA NEMS 'rsmlgt.txt' file, with 12h/day use",
     "source_data": [{
       "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation",
       "author": null,
@@ -103,13 +114,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Commercial lighting that meets the IECC performance standard in 2010",
-  "_notes": "Assumes linear fluorescent as the dominant commercial lighting type and T8 as the dominant bulb type in estimating cost/lifetime",
+  "_description": "Commercial lighting that meets the IECC performance standard in 2015",
+  "_notes": "Includes all building types with IECC lighting intensity near that of 'Office'; assumes linear fluorescent as the dominant commercial lighting type and T8 as the dominant bulb type in estimating cost/lifetime",
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-17 09:13:01 EST"
+    "timestamp": "2016-11-17 12:23:45 EST"
   },
   "_updated_by": {
     "name": null,

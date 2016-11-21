@@ -1,0 +1,114 @@
+{
+  "name": "ENERGY STAR Central AC v 5.0",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": {
+    "primary": "cooling",
+    "secondary": null
+  },
+  "fuel_type": {
+    "primary": "electricity",
+    "secondary": null
+  },
+  "technology_type": {
+    "primary": "supply",
+    "secondary": null
+  },
+  "technology": {
+    "primary": "central AC",
+    "secondary": null
+  },
+  "market_entry_year": null,
+  "market_entry_year_source": {
+    "notes": "Year in which ENERGY STAR standard went into effect",
+    "source_data": {
+      "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2015,
+      "pages": 4,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "primary": 4.40,
+    "secondary": null
+  },
+  "energy_efficiency_units": {
+    "primary": "COP",
+    "secondary": null
+  },
+  "energy_efficiency_source": {
+    "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412 (see EIA source)",
+    "source_data": [
+      {
+        "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+        "author": null,
+        "organization": "ENERGY STAR",
+        "year": 2015,
+        "pages": 2,
+        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+      },
+      {
+        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2014,
+        "pages": 17,
+        "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"
+      }
+    ]
+  },
+  "installed_cost": {
+      "AIA_CZ1": 2200,
+      "AIA_CZ2": 2200,
+      "AIA_CZ3": 2200,
+      "AIA_CZ4": 2100,
+      "AIA_CZ5": 2100},
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "Median of total installed cost range for 'ENERGY STAR' 2013 column; assumes 'North' maps to AIA climates 1-3 and 'South' maps to AIA climates 4-5",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": [36, 37],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 18,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for 'ENERGY STAR' 2013 column",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": [36, 37],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Standard size residential central air conditioners that meet the ENERGY STAR performance standard in 2015",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-11-17 15:13:08 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
