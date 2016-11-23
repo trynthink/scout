@@ -3816,6 +3816,8 @@ class MeasurePackage(Measure):
         handyvars (object): Global variables useful across class methods.
         measures_to_package (list): List of measures to package.
         name (string): Package name.
+        benefits (dict): Percent improvements in energy savings and/or cost
+            reductions from packaging measures.
         remove (boolean): Determines whether package should be removed from
             analysis engine due to insufficient market source data.
         market_entry_year (int): Earliest year of market entry across all
@@ -3836,10 +3838,11 @@ class MeasurePackage(Measure):
                variables (e.g., climate zone, building type, end use, etc.)
     """
 
-    def __init__(self, measure_list_package, p, handyvars):
+    def __init__(self, measure_list_package, p, bens, handyvars):
         self.handyvars = handyvars
         self.measures_to_package = measure_list_package
         self.name = p
+        self.benefits = bens
         self.remove = False
         # Set market entry year as earliest of all the packaged measures
         if any([x.market_entry_year is None or (int(
@@ -3995,7 +3998,7 @@ class MeasurePackage(Measure):
             # measure and add to the packaged master microsegment
             for k in (self.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"].keys()):
-                self.master_mseg = self.add_keyvals(
+                self.add_keyvals(
                     self.markets[adopt_scheme]["master_mseg"],
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"][k])
@@ -4125,6 +4128,10 @@ class MeasurePackage(Measure):
                     msegs_meas["cost"]["stock"] = self.div_keyvals_float(
                         msegs_meas["cost"]["stock"], len(overlap_meas_add))
 
+        # Check for additional energy savings and/or installed cost benefits
+        # from packaging and apply these benefits if applicable
+        self.apply_pkg_benefits(msegs_meas)
+
         # Add updated contributing microsegment information for individual
         # measure to the packaged measure, creating a new contributing
         # microsegment key if one does not already exist for the package
@@ -4134,6 +4141,66 @@ class MeasurePackage(Measure):
             msegs_pkg[cm_key] = self.add_keyvals(msegs_pkg[cm_key], msegs_meas)
 
         return msegs_pkg, msegs_meas
+
+    def apply_pkg_benefits(self, msegs_meas):
+        """Apply additional energy savings or cost benefits from packaging.
+
+        Note:
+            Users may define additional percent energy savings improvements or
+            installed cost reductions for a measure package; this function
+            applies those benefits to the package's energy, carbon, and cost
+            data.
+
+        Args:
+            msegs_meas (dict): Original energy, carbon, and cost data to
+                apply packaging benefits to (if applicable)
+
+        Returns:
+            Updated energy, carbon, and cost data for the packaged measure
+            that reflects the additional user-defined energy savings and
+            installed cost benefits for the package.
+        """
+        # Set additional energy savings and cost benefits defined by the user
+        # for the current package being updated
+        energy_ben = self.benefits["energy savings increase"]
+        cost_ben = self.benefits["cost reduction"]
+
+        # If additional energy savings benefits are not None and are non-zero,
+        # apply them to the measure's energy, carbon, and energy/carbon costs
+        if energy_ben not in [None, 0]:
+            for x in ["energy", "carbon"]:
+                for cs in ["competed", "total"]:
+                    # Set short variable names for baseline and efficient
+                    # energy and carbon data
+                    base = msegs_meas[x][cs]["baseline"]
+                    eff = msegs_meas[x][cs]["efficient"]
+                    # Apply the additional energy savings % benefit to the
+                    # efficient energy and carbon data (disallow result
+                    # below zero)
+                    msegs_meas[x][cs]["efficient"] = {key: 0 if (
+                        base[key] - eff[key]) * energy_ben > eff[key]
+                        else eff[key] - (base[key] - eff[key]) * energy_ben
+                        for key in self.handyvars.aeo_years}
+                    # Set short variable names for baseline and efficient
+                    # energy and carbon cost data
+                    base_c = msegs_meas["cost"][x][cs]["baseline"]
+                    eff_c = msegs_meas["cost"][x][cs]["efficient"]
+                    # Apply the additional energy savings % benefit to the
+                    # efficient energy and carbon cost data (disallow result
+                    # below zero)
+                    msegs_meas["cost"][x][cs]["efficient"] = {key: 0 if (
+                        base_c[key] - eff_c[key]) * energy_ben > eff_c[key]
+                        else eff_c[key] - (base_c[key] - eff_c[key]) *
+                        energy_ben for key in self.handyvars.aeo_years}
+        # If additional installed cost benefits are not None and are non-zero,
+        # apply them to the measure's stock cost
+        if cost_ben not in [None, 0]:
+            for cs in ["competed", "total"]:
+                msegs_meas["cost"]["stock"][cs]["efficient"] = {
+                    key: msegs_meas["cost"]["stock"][cs]["efficient"][key] *
+                    (1 - cost_ben) for key in self.handyvars.aeo_years}
+
+        return msegs_meas
 
     def merge_out_break(self, pkg_brk, meas_brk, meas_brk_unnorm):
         """Merge output breakout data for an individual measure into a package.
@@ -4279,7 +4346,7 @@ def prepare_packages(packages, meas_update_objs, handyvars):
             # Instantiate measure package object based on packaged measure
             # subset above
             packaged_measure = MeasurePackage(
-                measure_list_package, p["name"], handyvars)
+                measure_list_package, p["name"], p["benefits"], handyvars)
             # Merge measures in the package object
             packaged_measure.merge_measures()
             # Print update on measure status
