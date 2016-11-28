@@ -11,10 +11,6 @@
     "primary": "electricity",
     "secondary": null
   },
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null
-  },
   "technology": {
     "primary": "central AC",
     "secondary": null

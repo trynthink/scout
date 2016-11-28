@@ -12,10 +12,6 @@
     "primary": "electricity",
     "secondary": null
   },
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null
-  },
   "technology": {
     "primary": ["F32T8", "T8 F32 EEMag (e)"],
     "secondary": null

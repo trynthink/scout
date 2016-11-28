@@ -11,10 +11,6 @@
     "primary": "all",
     "secondary": null
   },
-  "technology_type": {
-    "primary": "demand",
-    "secondary": null
-  },
   "technology": {
     "primary": "roof",
     "secondary": null

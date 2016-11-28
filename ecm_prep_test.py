@@ -206,9 +206,6 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             ("end_use", OrderedDict([
                 ("primary", ["lighting"]),
                 ("secondary", ["heating", "cooling"])])),
-            ("technology_type", OrderedDict([
-                ("primary", "supply"),
-                ("secondary", "demand")])),
             ("technology", OrderedDict([
                 ("primary", [
                     "technology A", "technology B", "technology C"]),
@@ -3924,8 +3921,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "cooling"],
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": ["boiler (electric)",
                            "ASHP", "GSHP", "room AC"],
                            "secondary": None}},
@@ -3954,8 +3949,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "water heating",
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}},
             {
@@ -3987,8 +3980,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["refrigeration", "other (grid electric)"],
                 "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": [None, "freezers"],
                            "secondary": None}},
             {
@@ -4022,8 +4013,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": "lighting",
                         "secondary": ["heating", "secondary heating",
                                       "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {"primary":
                            ["linear fluorescent (LED)",
                             "general service (LED)",
@@ -4061,8 +4050,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "heating",
                         "secondary": None},
-            "technology_type": {"primary": "demand",
-                                "secondary": None},
             "technology": {"primary": ["windows conduction",
                            "windows solar"],
                            "secondary": None}},
@@ -4089,8 +4076,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "heating",
                         "secondary": None},
-            "technology_type": {"primary": "demand",
-                                "secondary": None},
             "technology": {"primary": ["windows solar"],
                            "secondary": None}},
             {
@@ -4122,8 +4107,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["heating", "secondary heating",
                                     "cooling"],
                         "secondary": None},
-            "technology_type": {"primary": "demand",
-                                "secondary": None},
             "technology": {"primary": ["windows conduction",
                                        "windows solar"],
                            "secondary": None}},
@@ -4157,8 +4140,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["heating", "secondary heating",
                                     "cooling"],
                         "secondary": None},
-            "technology_type": {"primary": "demand",
-                                "secondary": None},
             "technology": {"primary": ["windows conduction",
                                        "windows solar"],
                            "secondary": None}},
@@ -4188,8 +4169,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {
                 "primary": [
                     "F28T8 HE w/ OS"],
@@ -4218,8 +4197,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}},
             {
@@ -4246,8 +4223,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "water heating",
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}},
             {
@@ -4281,8 +4256,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["lighting"],
                         "secondary": ["heating", "secondary heating",
                                       "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {"primary":
                            ["linear fluorescent (LED)",
                             "general service (LED)",
@@ -4321,8 +4294,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": "lighting",
                         "secondary": ["heating", "secondary heating",
                                       "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {"primary":
                            ["linear fluorescent (LED)",
                             "general service (LED)",
@@ -4362,8 +4333,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": "lighting",
                         "secondary": ["heating", "secondary heating",
                                       "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {"primary":
                            ["linear fluorescent (LED)",
                             "general service (LED)",
@@ -4397,8 +4366,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": "electricity",
             "end_use": {"primary": "water heating",
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}},
             {
@@ -4429,8 +4396,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {
                 "primary": [
                     "F28T8 HE w/ OS"],
@@ -4478,8 +4443,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "water heating",
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}},
             {
@@ -4531,8 +4494,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": "lighting",
                         "secondary": ["heating", "secondary heating",
                                       "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {"primary":
                            ["linear fluorescent (LED)",
                             "general service (LED)",
@@ -4566,8 +4527,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {
                 "primary": "F28T8 HE w/ OS",
                 "secondary": None}}]
@@ -4613,9 +4572,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP", "GSHP",
@@ -4647,8 +4603,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["water heating"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
             "technology": {
                 "primary": None, "secondary": None}},
             {
@@ -4686,8 +4640,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "primary": [
                     "heating", "secondary heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "demand", "secondary": None},
             "technology": {
                 "primary": [
                     "windows conduction", "windows solar"],
@@ -4721,9 +4673,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP"],
@@ -4753,9 +4702,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": [
@@ -4791,8 +4737,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": "cooling",
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": "boiler (electric)",
                            "secondary": None}},
             {
@@ -4825,9 +4769,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": [
@@ -4862,9 +4803,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": "demand"},
             "technology": {
                 "primary": [
                     "linear fluorescent (LED)",
@@ -4900,8 +4838,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology_type": {
-                "primary": "supply", "secondary": "demand"},
             "technology": {
                 "primary": [
                     "linear fluorescent (LED)",
@@ -4967,8 +4903,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {
                 "primary": [
                     "linear fluorescent (LED)",
@@ -5031,8 +4965,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {
                 "primary": [
                     "linear fluorescent (LED)",
@@ -5095,8 +5027,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology_type": {"primary": "supply",
-                                "secondary": "demand"},
             "technology": {
                 "primary": [
                     "linear fluorescent (LED)",
@@ -6928,8 +6858,6 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP", "GSHP",
@@ -7385,9 +7313,6 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
                 "primary": [
                     "heating", "water heating"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": [
                     "all heating", "electric WH"],
@@ -7410,9 +7335,6 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": "heating",
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": "all",
@@ -7486,9 +7408,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": "all",
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": "all",
                 "secondary": None}},
@@ -7531,9 +7450,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": "all",
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": "all",
                 "secondary": None}},
@@ -7557,9 +7473,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "primary": [
                     "heating", "cooling", "secondary heating"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "demand",
-                "secondary": None},
             "technology": {
                 "primary": "all",
                 "secondary": None}},
@@ -7582,9 +7495,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": [
                     "lighting", "water heating"],
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": "all",
@@ -7610,9 +7520,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "primary": [
                     "heating", "water heating"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": [
                     "all heating", "electric WH"],
@@ -7635,9 +7542,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": "heating",
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": "all",
@@ -7662,9 +7566,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": "heating",
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {
                 "primary": "all",
                 "secondary": None}},
@@ -7686,9 +7587,6 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": "heating",
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": "all",
@@ -7954,11 +7852,23 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             ["new", "existing"],
             ["electricity", "natural gas", "distillate", "other fuel"],
             ['cooling', 'secondary heating', 'heating'],
-            ['roof', 'ground', 'lighting gain',
-             'windows conduction', 'equipment gain',
-             'floor', 'infiltration', 'people gain',
-             'windows solar', 'ventilation',
-             'other heat gain', 'wall']],
+            ['rooftop_AC', 'scroll_chiller',
+             'res_type_central_AC', 'reciprocating_chiller',
+             'comm_GSHP-cool', 'centrifugal_chiller',
+             'rooftop_ASHP-cool', 'wall-window_room_AC',
+             'screw_chiller', 'electric_res-heat',
+             'comm_GSHP-heat', 'rooftop_ASHP-heat', 'elec_boiler',
+             'non-specific', 'furnace (NG)', 'boiler (NG)',
+             'NGHP', 'room AC', 'ASHP', 'GSHP', 'central AC',
+             'boiler (electric)', 'boiler (distillate)',
+             'furnace (distillate)', 'resistance', 'furnace (kerosene)',
+             'stove (wood)', 'furnace (LPG)',
+             'gas_eng-driven_RTAC', 'gas_chiller',
+             'res_type_gasHP-cool', 'gas_eng-driven_RTHP-cool',
+             'gas_eng-driven_RTHP-heat', 'res_type_gasHP-heat',
+             'gas_boiler', 'gas_furnace', 'oil_boiler', 'oil_furnace',
+             'secondary heating (wood)', 'secondary heating (coal)',
+             'secondary heating (kerosene)', 'secondary heating (LPG)']],
             [
             ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
             ["single family home", "multi family home", "mobile home"],
@@ -8082,9 +7992,6 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": ["lighting"]},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": "supply"},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP",
@@ -8298,8 +8205,6 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP", "GSHP",
@@ -8418,8 +8323,6 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP", "GSHP",
@@ -8510,8 +8413,6 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": None},
-            "technology_type": {
-                "primary": "supply", "secondary": None},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP", "GSHP",
@@ -8768,9 +8669,6 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["heating", "cooling"],
                 "secondary": ["lighting"]},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": "supply"},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP",
@@ -9353,8 +9251,6 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": ["water heating"],
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None}}]
         cls.ok_out = [{
@@ -9489,8 +9385,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": ["water heating"],
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": None,
                            "secondary": None},
             "markets": {
@@ -10466,8 +10360,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
                         "secondary": None},
-            "technology_type": {"primary": "supply",
-                                "secondary": None},
             "technology": {"primary": [
                 "reflector (incandescent)",
                 "reflector (halogen)"], "secondary": None},
@@ -11204,9 +11096,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["cooling", "lighting"],
-                "secondary": None},
-            "technology_type": {
-                "primary": "supply",
                 "secondary": None},
             "technology": {
                 "primary": [
@@ -11957,9 +11846,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
                         "secondary": None},
-            "technology_type": {
-                "primary": "supply",
-                "secondary": None},
             "technology": {"primary": [
                 "reflector (incandescent)"], "secondary": None},
             "markets": {
@@ -13972,15 +13858,25 @@ class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
                 "sample indiv measure 1",
                 "sample indiv measure 2"]}]
         sample_meas_updated_objs = [
-            {"name": "sample indiv measure 1"},
-            {"name": "sample indiv measure 2"}]
+            {"name": "sample indiv measure 1",
+             "technology": {
+                 "primary": None, "secondary": None}},
+            {"name": "sample indiv measure 2",
+             "technology": {
+                 "primary": None, "secondary": None}}]
         cls.sample_meas_updated_objs = [
             ecm_prep.Measure(cls.handyvars, **x) for
             x in sample_meas_updated_objs]
         cls.sample_meas_summary = [
-            {"name": "sample indiv measure 1"},
-            {"name": "sample indiv measure 2"},
-            {"name": "sample indiv measure 3"},
+            {"name": "sample indiv measure 1",
+             "technology": {
+                 "primary": None, "secondary": None}},
+            {"name": "sample indiv measure 2",
+             "technology": {
+                 "primary": None, "secondary": None}},
+            {"name": "sample indiv measure 3",
+             "technology": {
+                 "primary": None, "secondary": None}},
             {"name": "sample package 2",
              "measures_to_package": [
                  "sample indiv measure 1",
@@ -14068,11 +13964,15 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         sample_measindiv_dicts = [{
             "name": "cleanup 1",
             "market_entry_year": None,
-            "market_exit_year": None},
+            "market_exit_year": None,
+            "technology": {
+                "primary": None, "secondary": None}},
             {
             "name": "cleanup 2",
             "market_entry_year": None,
-            "market_exit_year": None}]
+            "market_exit_year": None,
+            "technology": {
+                "primary": None, "secondary": None}}]
         cls.sample_measlist_in = [ecm_prep.Measure(
             cls.handyvars, **x) for x in sample_measindiv_dicts]
         sample_measpackage = ecm_prep.MeasurePackage(
@@ -14157,9 +14057,9 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove"],
+             "name", "remove", 'technology', 'technology_type'],
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove"],
+             "name", "remove", 'technology', 'technology_type'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
              "market_entry_year", "market_exit_year", 'markets',
              'measures_to_package', 'name', 'remove', 'structure_type']]

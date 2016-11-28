@@ -11,10 +11,6 @@
     "primary": "natural gas",
     "secondary": null
   },
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null
-  },
   "technology": {
     "primary": "gas_boiler",
     "secondary": null

@@ -67,7 +67,8 @@ class UsefulVars(object):
         retro_rate (float): Rate at which existing stock is retrofitted.
         nsamples (int): Number of samples to draw from probability distribution
             on measure inputs.
-        aeo_years (list) = Modeling time horizon.
+        aeo_years (list): Modeling time horizon.
+        demand_tech (list): All demand-side heating/cooling technologies.
         inverted_relperf_list (list) = Performance units that require
             an inverted relative performance calculation (e.g., an air change
             rate where lower numbers indicate higher performance).
@@ -119,6 +120,10 @@ class UsefulVars(object):
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
+        self.demand_tech = [
+            'roof', 'ground', 'lighting gain', 'windows conduction',
+            'equipment gain', 'floor', 'infiltration', 'people gain',
+            'windows solar', 'ventilation', 'other heat gain', 'wall']
         self.inverted_relperf_list = [
             "ACH50", "CFM/ft^2 floor", "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
         self.valid_submkt_urls = [
@@ -787,6 +792,21 @@ class Measure(object):
                 "Measure '" + self.name + "' name must be <= 40 characters")
         self.remove = False
         self.handyvars = handyvars
+        # Determine whether the measure replaces technologies pertaining to
+        # the supply or the demand of energy services
+        self.technology_type = {"primary": None, "secondary": None}
+        for ms in ["primary", "secondary"]:
+            # Measures replacing technologies in a pre-specified
+            # 'demand_tech' list are of the 'demand' side technology type
+            if (isinstance(self.technology[ms], list) and all([
+                x in self.handyvars.demand_tech for x in
+                    self.technology[ms]])) or self.technology[ms] in \
+                    self.handyvars.demand_tech:
+                self.technology_type[ms] = "demand"
+            # Measures replacing technologies not in a pre-specified
+            # 'demand_tech' list are of the 'supply' side technology type
+            else:
+                self.technology_type[ms] = "supply"
         self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = OrderedDict([(

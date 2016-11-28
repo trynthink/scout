@@ -12,10 +12,6 @@
     "primary": "electricity",
     "secondary": null
   },
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null
-  },
   "technology": {
     "primary": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
     "secondary": null

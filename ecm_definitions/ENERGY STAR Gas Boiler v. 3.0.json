@@ -16,10 +16,6 @@
     ],
     "secondary": null
   },
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null
-  },
   "technology": {
     "primary": [
       "boiler (NG)",
