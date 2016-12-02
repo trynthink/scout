@@ -3,21 +3,12 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": {
-    "primary": [
+  "end_use": [
       "cooling",
       "heating"
     ],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": "ASHP",
-    "secondary": null
-  },
+  "fuel_type": "electricity",
+  "technology": "ASHP",
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -33,16 +24,10 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": {
       "cooling": 4.40,
       "heating": 2.49
     },
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "COP",
-    "secondary": null
-  },
+  "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
     "source_data": [

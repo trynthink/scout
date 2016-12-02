@@ -3,18 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": {
-    "primary": "cooling",
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": "rooftop_AC",
-    "secondary": null
-  },
+  "end_use": "cooling",
+  "fuel_type": "electricity",
+  "technology": "rooftop_AC",
   "market_entry_year": 2011,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -29,14 +20,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 3.42,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "BTU out/BTU in",
-    "secondary": null
-  },
+  "energy_efficiency": 3.42,
+  "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "See table 1; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating or no heating; original std.: EER 11.7; COP = EER * .293",
     "source_data": [{

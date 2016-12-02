@@ -3,25 +3,16 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": {
-    "primary": [
+  "end_use": [
       "heating",
       "secondary heating",
       "cooling"
     ],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "all",
-    "secondary": null
-  },
-  "technology": {
-    "primary": [
+  "fuel_type": "all",
+  "technology": [
       "windows conduction",
       "windows solar"
     ],
-    "secondary": null
-  },
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -37,7 +28,6 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": {
       "AIA_CZ1": {
         "windows conduction": 3.7,
         "windows solar": 0.4
@@ -59,15 +49,10 @@
         "windows solar": 0.25
       }
     },
-    "secondary": null
-  },
   "energy_efficiency_units": {
-    "primary": {
       "windows conduction": "R value",
       "windows solar": "SHGC"
     },
-    "secondary": null
-  },
   "energy_efficiency_source": {
     "notes": "See table 1; assumes 'Northern' maps to AIA climates 1 and 2, 'North-Central' maps to AIA climates 3, 'South-Central' maps to AIA climate 4, and 'Southern' maps to AIA climate 5",
     "source_data": {

@@ -3,19 +3,10 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": {
-    "primary": [
+  "end_use": [
       "heating", "cooling"],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
-    "secondary": null
-  },
+  "fuel_type": "electricity",
+  "technology": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
   "market_entry_year": 2011,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -30,14 +21,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 3.35,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "BTU out/BTU in",
-    "secondary": null
-  },
+  "energy_efficiency": 3.35,
+  "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "See table 3; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating or no heating",
     "source_data": [{

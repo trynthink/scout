@@ -3,26 +3,17 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": {
-    "primary": [
+  "end_use": [
       "heating"
     ],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": [
+  "fuel_type": [
       "natural gas",
       "distillate"
     ],
-    "secondary": null
-  },
-  "technology": {
-    "primary": [
+  "technology": [
       "boiler (NG)",
       "boiler (distillate)"
     ],
-    "secondary": null
-  },
   "market_entry_year": 2014,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -37,14 +28,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 0.90,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "AFUE",
-    "secondary": null
-  },
+  "energy_efficiency": 0.90,
+  "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
     "notes": "See table 1",
     "source_data": {

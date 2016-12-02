@@ -3,20 +3,11 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": {
-    "primary": ["heating", "cooling"],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "all",
-    "secondary": null
-  },
-  "technology": {
-    "primary": [
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": [
       "windows conduction",
       "windows solar"],
-    "secondary": null
-  },
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -32,7 +23,6 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": {
       "AIA_CZ1": {
         "windows conduction": 3.45,
         "windows solar": 0.45},
@@ -49,14 +39,10 @@
         "windows conduction": 2.09,
         "windows solar": 0.25}
       },
-    "secondary": null
-  },
   "energy_efficiency_units": {
-    "primary": {
       "windows conduction": "R value",
-      "windows solar": "SHGC"},
-    "secondary": null
-  },
+      "windows solar": "SHGC"
+    },
   "energy_efficiency_source": {
     "notes": "See table C402.4, p.; assumes vertical and fixed fenestration for U value; assumes a projection factor < 0.2 and orientation other than north for SHGC; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2; takes average of performance levels for IECC zones 2/3",
     "source_data": {

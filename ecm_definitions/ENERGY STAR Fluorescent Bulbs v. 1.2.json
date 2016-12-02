@@ -3,16 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": {
-    "primary": "lighting",
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": [
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": [
       "reflector (LED)",
       "reflector (CFL)",
       "reflector (incandescent)",
@@ -21,8 +14,6 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-    "secondary": null
-  },
   "market_entry_year": 2012,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -37,14 +28,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 65,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "lm/W",
-    "secondary": null
-  },
+  "energy_efficiency": 65,
+  "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "Applies to linear, compact, and circline luminaires",
     "source_data": {

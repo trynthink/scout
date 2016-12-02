@@ -215,6 +215,9 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         # Useful global variables for the sample measure object
         handyvars = ecm_prep.UsefulVars(base_dir)
         cls.meas = ecm_prep.Measure(handyvars, **sample_measure_in)
+        # Finalize the measure's 'technology_type' attribute (handled by the
+        # 'fill_attr' function, which is not run as part of this test)
+        cls.meas.technology_type = {"primary": "supply", "secondary": "demand"}
         cls.eplus_dir = \
             base_dir + "/ecm_definitions/energyplus_data/energyplus_test_ok"
         cls.eplus_coltypes = [
@@ -3895,18 +3898,15 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "q": "NA"}}}}}}}}}
         ok_measures_in = [{
             "name": "sample measure 1",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary":
-                                  {"AIA_CZ1": {"heating": 30,
-                                               "cooling": 25},
-                                   "AIA_CZ2": {"heating": 30,
-                                               "cooling": 15}},
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary": "COP",
-                                        "secondary": None},
+            "energy_efficiency": {
+                "AIA_CZ1": {"heating": 30,
+                            "cooling": 25},
+                "AIA_CZ2": {"heating": 30,
+                            "cooling": 15}},
+            "energy_efficiency_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -3916,25 +3916,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": ["electricity"],
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": ["heating", "cooling"],
-                        "secondary": None},
-            "technology": {"primary": ["boiler (electric)",
-                           "ASHP", "GSHP", "room AC"],
-                           "secondary": None}},
+            "end_use": ["heating", "cooling"],
+            "technology": ["boiler (electric)",
+                           "ASHP", "GSHP", "room AC"]},
             {
             "name": "sample measure 2",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+            "energy_efficiency": {"new": 25, "existing": 25},
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -3944,27 +3937,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {"primary": "water heating",
-                        "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}},
+            "end_use": "water heating",
+            "technology": None},
             {
             "name": "sample measure 15",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 500,
             "cost_units": {
                 "refrigeration": "2010$/unit",
                 "other (grid electric)": "2014$/unit"},
-            "energy_efficiency": {
-                "primary": 0.1,
-                "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "relative savings (constant)",
-                "secondary": None},
+            "energy_efficiency": 0.1,
+            "energy_efficiency_units": "relative savings (constant)",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -3974,28 +3959,24 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {"primary": "electricity",
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["refrigeration", "other (grid electric)"],
-                "secondary": None},
-            "technology": {"primary": [None, "freezers"],
-                           "secondary": None}},
+            "end_use": ["refrigeration", "other (grid electric)"],
+            "technology": [None, "freezers"]},
             {
             "name": "sample measure 3",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": {
-                                      "heating": 0.4,
-                                      "secondary heating": 0.4,
-                                      "cooling": -0.4}},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary":
-                                        "relative savings (constant)"},
+            "energy_efficiency": {
+                "primary": 25,
+                "secondary": {
+                    "heating": 0.4,
+                    "secondary heating": 0.4,
+                    "cooling": -0.4}},
+            "energy_efficiency_units": {
+                "primary": "lm/W",
+                "secondary": "relative savings (constant)"},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4006,35 +3987,28 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": ["electricity",
-                                        "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "lighting",
-                        "secondary": ["heating", "secondary heating",
-                                      "cooling"]},
-            "technology": {"primary":
-                           ["linear fluorescent (LED)",
-                            "general service (LED)",
-                            "external (LED)"],
-                           "secondary":
-                           ["windows conduction",
-                            "windows solar"]}},
+            "end_use": {
+                "primary": "lighting",
+                "secondary": [
+                    "heating", "secondary heating",
+                    "cooling"]},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "sample measure 4",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary":
-                                  {"windows conduction": 20,
-                                   "windows solar": 1},
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary":
-                                        {"windows conduction":
-                                         "R Value",
-                                         "windows solar": "SHGC"},
-                                        "secondary": None},
+            "energy_efficiency": {
+                "windows conduction": 20,
+                "windows solar": 1},
+            "energy_efficiency_units": {
+                "windows conduction": "R Value",
+                "windows solar": "SHGC"},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4045,23 +4019,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "heating",
-                        "secondary": None},
-            "technology": {"primary": ["windows conduction",
-                           "windows solar"],
-                           "secondary": None}},
+            "end_use": "heating",
+            "technology": [
+                "windows conduction",
+                "windows solar"]},
             {
             "name": "sample measure 5",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary": 1, "secondary": None},
-            "energy_efficiency_units": {"primary": "SHGC",
-                                        "secondary": None},
+            "energy_efficiency": 1,
+            "energy_efficiency_units": "SHGC",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4071,27 +4041,20 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "heating",
-                        "secondary": None},
-            "technology": {"primary": ["windows solar"],
-                           "secondary": None}},
+            "end_use": "heating",
+            "technology": "windows solar"},
             {
             "name": "sample measure 6",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary": {"windows conduction": 10,
-                                              "windows solar": 1},
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary":
-                                        {"windows conduction":
-                                         "R Value",
-                                         "windows solar": "SHGC"},
-                                        "secondary": None},
+            "energy_efficiency": {
+                "windows conduction": 10, "windows solar": 1},
+            "energy_efficiency_units": {
+                "windows conduction": "R Value",
+                "windows solar": "SHGC"},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4101,30 +4064,24 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": ["heating", "secondary heating",
-                                    "cooling"],
-                        "secondary": None},
-            "technology": {"primary": ["windows conduction",
-                                       "windows solar"],
-                           "secondary": None}},
+            "end_use": [
+                "heating", "secondary heating",
+                "cooling"],
+            "technology": [
+                "windows conduction", "windows solar"]},
             {
             "name": "sample measure 7",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary":
-                                  {"windows conduction": 0.4,
-                                   "windows solar": 1},
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary":
-                                        {"windows conduction":
-                                         "relative savings (constant)",
-                                         "windows solar": "SHGC"},
-                                        "secondary": None},
+            "energy_efficiency": {
+                "windows conduction": 0.4,
+                "windows solar": 1},
+            "energy_efficiency_units": {
+                "windows conduction": "relative savings (constant)",
+                "windows solar": "SHGC"},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4134,25 +4091,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": ["heating", "secondary heating",
-                                    "cooling"],
-                        "secondary": None},
-            "technology": {"primary": ["windows conduction",
-                                       "windows solar"],
-                           "secondary": None}},
+            "end_use": ["heating", "secondary heating",
+                        "cooling"],
+            "technology": ["windows conduction",
+                           "windows solar"]},
             {
             "name": "sample measure 8",  # Add heat/cool end uses later
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary": None},
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "lm/W",
             "product_lifetime": 1,
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
@@ -4160,29 +4111,20 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "assembly",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "lighting",
-                "secondary": None},
+            "end_use": "lighting",
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology": {
-                "primary": [
-                    "F28T8 HE w/ OS"],
-                "secondary": None}},
+            "technology": [
+                "F28T8 HE w/ OS"]},
             {
             "name": "sample measure 9",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "EF",
             "product_lifetime": 1,
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
@@ -4190,25 +4132,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": "new",
             "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {"primary": "water heating",
-                        "secondary": None},
+            "end_use": "water heating",
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology": {"primary": None,
-                           "secondary": None}},
+            "technology": None},
             {
             "name": "sample measure 10",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4218,27 +4154,24 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": "existing",
             "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {"primary": "water heating",
-                        "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}},
+            "end_use": "water heating",
+            "technology": None},
             {
             "name": "sample measure 11",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": {
-                                      "heating": 0.4,
-                                      "secondary heating": 0.4,
-                                      "cooling": -0.4}},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary":
-                                        "relative savings (constant)"},
+            "energy_efficiency": {
+                "primary": 25,
+                "secondary": {
+                    "heating": 0.4,
+                    "secondary heating": 0.4,
+                    "cooling": -0.4}},
+            "energy_efficiency_units": {
+                "primary": "lm/W",
+                "secondary": "relative savings (constant)"},
             "market_entry_year": 2010,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4249,34 +4182,30 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": ["electricity",
-                                        "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": ["lighting"],
-                        "secondary": ["heating", "secondary heating",
-                                      "cooling"]},
-            "technology": {"primary":
-                           ["linear fluorescent (LED)",
-                            "general service (LED)",
-                            "external (LED)"],
-                           "secondary":
-                           ["windows conduction",
-                            "windows solar"]}},
+            "end_use": {
+                "primary": "lighting",
+                "secondary": ["heating", "secondary heating",
+                              "cooling"]},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "sample measure 12",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": {
-                                      "heating": 0.4,
-                                      "secondary heating": 0.4,
-                                      "cooling": -0.4}},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary":
-                                        "relative savings (constant)"},
+            "energy_efficiency": {
+                "primary": 25,
+                "secondary": {
+                    "heating": 0.4,
+                    "secondary heating": 0.4,
+                    "cooling": -0.4}},
+            "energy_efficiency_units": {
+                "primary": "lm/W",
+                "secondary": "relative savings (constant)"},
             "market_entry_year": None,
             "market_exit_year": 2010,
             "product_lifetime": 1,
@@ -4287,35 +4216,31 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": ["electricity",
-                                        "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "lighting",
-                        "secondary": ["heating", "secondary heating",
-                                      "cooling"]},
-            "technology": {"primary":
-                           ["linear fluorescent (LED)",
-                            "general service (LED)",
-                            "external (LED)"],
-                           "secondary":
-                           ["windows conduction",
-                            "windows solar"]}},
+            "end_use": {
+                "primary": "lighting",
+                "secondary": ["heating", "secondary heating",
+                              "cooling"]},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "sample measure 13",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": {
-                                      "heating": 0.4,
-                                      "secondary heating": 0.4,
-                                      "cooling": -0.4}},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary":
-                                        ["relative savings (dynamic)",
-                                         2009]},
+            "energy_efficiency": {
+                "primary": 25,
+                "secondary": {
+                    "heating": 0.4,
+                    "secondary heating": 0.4,
+                    "cooling": -0.4}},
+            "energy_efficiency_units": {
+                "primary": "lm/W",
+                "secondary": [
+                    "relative savings (dynamic)", 2009]},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4326,32 +4251,24 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": ["electricity",
-                                        "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "lighting",
-                        "secondary": ["heating", "secondary heating",
-                                      "cooling"]},
-            "technology": {"primary":
-                           ["linear fluorescent (LED)",
-                            "general service (LED)",
-                            "external (LED)"],
-                           "secondary":
-                           ["windows conduction",
-                            "windows solar",
-                            "infiltration"]}},
+            "end_use": {
+                "primary": "lighting",
+                "secondary": ["heating", "secondary heating",
+                              "cooling"]},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "sample measure 14",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
             "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+                "new": 25, "existing": 25},
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4361,25 +4278,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": "electricity",
-            "end_use": {"primary": "water heating",
-                        "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}},
+            "end_use": "water heating",
+            "technology": None},
             {
             "name": "sample measure 16 (lighting S&C)",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 11,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {
-                "primary": 0.44,
-                "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "relative savings (constant)",
-                "secondary": None},
+            "energy_efficiency": 0.44,
+            "energy_efficiency_units": 
+                "relative savings (constant)",
             "product_lifetime": 1,
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
@@ -4387,30 +4297,21 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "assembly",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "lighting",
-                "secondary": None},
+            "end_use": "lighting",
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology": {
-                "primary": [
-                    "F28T8 HE w/ OS"],
-                "secondary": None}},
+            "technology": [
+                "F28T8 HE w/ OS"]},
             {
             "name": "sample measure 17",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
             "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+                "new": 25, "existing": 25},
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": {
@@ -4438,27 +4339,24 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {"primary": "water heating",
-                        "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}},
+            "end_use": "water heating",
+            "technology": None},
             {
             "name": "sample measure 18",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": {
-                                      "heating": 0.4,
-                                      "secondary heating": 0.4,
-                                      "cooling": -0.4}},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary":
-                                        "relative savings (constant)"},
+            "energy_efficiency": {
+                "primary": 25,
+                "secondary": {
+                    "heating": 0.4,
+                    "secondary heating": 0.4,
+                    "cooling": -0.4}},
+            "energy_efficiency_units": {
+                "primary": "lm/W",
+                "secondary": "relative savings (constant)"},
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": {
@@ -4487,30 +4385,23 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["single family home",
                           "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "electricity",
-                          "secondary": ["electricity",
-                                        "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "lighting",
-                        "secondary": ["heating", "secondary heating",
-                                      "cooling"]},
-            "technology": {"primary":
-                           ["linear fluorescent (LED)",
-                            "general service (LED)",
-                            "external (LED)"],
-                           "secondary":
-                           ["windows conduction",
-                            "windows solar"]}},
+            "end_use": {
+                "primary": "lighting",
+                "secondary": ["heating", "secondary heating",
+                              "cooling"]},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "sample measure 19",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/ft^2 floor",
-            "energy_efficiency": {"primary": 25,
-                                  "secondary": None},
-            "energy_efficiency_units": {"primary": "lm/W",
-                                        "secondary": None},
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "lm/W",
             "product_lifetime": 1,
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
@@ -4518,18 +4409,12 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "assembly",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "lighting",
-                "secondary": None},
+            "end_use": "lighting",
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology": {
-                "primary": "F28T8 HE w/ OS",
-                "secondary": None}}]
+            "technology": "F28T8 HE w/ OS"}]
         cls.ok_tpmeas_fullchk_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_measures_in[0:3]]
@@ -4541,21 +4426,17 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 handyvars, **x) for x in ok_measures_in[18:]]
         ok_distmeas_in = [{
             "name": "distrib measure 1",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": ["normal", 25, 5],
             "cost_units": "2014$/unit",
             "energy_efficiency": {
-                "primary": {
-                    "AIA_CZ1": {
-                        "heating": ["normal", 30, 1],
-                        "cooling": ["normal", 25, 2]},
-                    "AIA_CZ2": {
-                        "heating": 30,
-                        "cooling": ["normal", 15, 4]}},
-                "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "COP", "secondary": None},
+                "AIA_CZ1": {
+                    "heating": ["normal", 30, 1],
+                    "cooling": ["normal", 25, 2]},
+                "AIA_CZ2": {
+                    "heating": 30,
+                    "cooling": ["normal", 15, 4]}},
+            "energy_efficiency_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4565,29 +4446,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
-                "secondary": None}},
+            "end_use": ["heating", "cooling"],
+            "technology": [
+                "boiler (electric)", "ASHP", "GSHP",
+                "room AC"]},
             {
             "name": "distrib measure 2",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": ["lognormal", 3.22, 0.06],
             "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": ["normal", 25, 5],
-                "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "EF", "secondary": None},
+            "energy_efficiency": ["normal", 25, 5],
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": ["normal", 1, 1],
@@ -4597,32 +4468,23 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {
-                "primary": ["natural gas"], "secondary": None},
+            "fuel_type": ["natural gas"],
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["water heating"],
-                "secondary": None},
-            "technology": {
-                "primary": None, "secondary": None}},
+            "end_use": "water heating",
+            "technology": None},
             {
             "name": "distrib measure 3",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": ["normal", 10, 5],
             "cost_units": "2014$/ft^2 floor",
             "energy_efficiency": {
-                "primary": {
-                    "windows conduction": [
-                        "lognormal", 2.29, 0.14],
-                    "windows solar": [
-                        "normal", 1, 0.1]},
-                "secondary": None},
+                "windows conduction": [
+                    "lognormal", 2.29, 0.14],
+                "windows solar": [
+                    "normal", 1, 0.1]},
             "energy_efficiency_units": {
-                "primary": {
-                    "windows conduction": "R Value",
-                    "windows solar": "SHGC"},
-                "secondary": None},
+                "windows conduction": "R Value",
+                "windows solar": "SHGC"},
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4632,59 +4494,42 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": [
-                    "heating", "secondary heating", "cooling"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "windows conduction", "windows solar"],
-                "secondary": None}}]
+            "end_use": [
+                "heating", "secondary heating", "cooling"],
+            "technology": [
+                "windows conduction", "windows solar"]}]
         cls.ok_distmeas_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_distmeas_in]
         ok_partialmeas_in = [{
             "name": "partial measure 1",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": 25, "secondary": None},
+            "energy_efficiency": 25,
             "product_lifetime": 1,
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
-            "energy_efficiency_units": {
-                "primary": "COP", "secondary": None},
+            "energy_efficiency_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["cooling"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP"],
-                "secondary": None}},
+            "end_use": "cooling",
+            "technology": [
+                "boiler (electric)", "ASHP"]},
             {
             "name": "partial measure 2",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": 25, "secondary": None},
+            "energy_efficiency": 25,
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4692,36 +4537,26 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
-            "energy_efficiency_units": {
-                "primary": "COP", "secondary": None},
+            "energy_efficiency_units": "COP",
             "bldg_type": ["single family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)", "GSHP", "ASHP"],
-                "secondary": None}}]
+            "end_use": ["heating", "cooling"],
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)", "GSHP", "ASHP"]}]
         cls.ok_partialmeas_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_partialmeas_in]
         failmeas_in = [{
             "name": "blank measure 1",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/unit",
-            "energy_efficiency": {
-                "primary": 10, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "COP", "secondary": None},
+            "energy_efficiency": 10,
+            "energy_efficiency_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4731,29 +4566,21 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ19", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {"primary": "cooling",
-                        "secondary": None},
-            "technology": {"primary": "boiler (electric)",
-                           "secondary": None}},
+            "end_use": "cooling",
+            "technology": "boiler (electric)"},
             {
             "name": "fail measure 2",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/unit",
             "energy_efficiency": {
-                "primary": {
-                    "AIA_CZ1": {
-                        "heating": 30, "cooling": 25},
-                    "AIA_CZ2": {
-                        "heating": 30, "cooling": 15}},
-                "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "COP", "secondary": None},
+                "AIA_CZ1": {
+                    "heating": 30, "cooling": 25},
+                "AIA_CZ2": {
+                    "heating": 30, "cooling": 15}},
+            "energy_efficiency_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -4763,22 +4590,15 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "bldg_type": "single family homer",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": ["heating", "cooling"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary": None}},
+            "end_use": ["heating", "cooling"],
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "blank measure 3",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4795,25 +4615,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_exit_year": None,
             "bldg_type": "single family home",
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {"primary": "natural gas",
-                          "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
             "end_use": {
                 "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary": [
-                    "windows conduction",
-                    "windows solar"]}},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "blank measure 4",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4830,29 +4644,23 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_exit_year": None,
             "bldg_type": "single family home",
             "climate_zone": "AIA_CZ1",
-            "fuel_type": {
-                "primary": "solar", "secondary": None},
+            "fuel_type": "solar",
             "fuel_switch_to": None,
             "end_use": {
                 "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary": [
-                    "windows conduction",
-                    "windows solar"]}}]
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]}]
         cls.failmeas_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in failmeas_in]
         warnmeas_in = [{
             "name": "warn measure 1",
             "active": 1,
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4892,28 +4700,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "single family home",
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": [
-                    "electricity",
-                    "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": {
-                "primary": ["lighting"],
+                "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary":[
-                    "windows conduction",
-                    "windows solar"]}},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "warn measure 2",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "active": 1,
@@ -4954,28 +4753,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "single family home",
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": [
-                    "electricity",
-                    "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": {
-                "primary": ["lighting"],
+                "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary":[
-                    "windows conduction",
-                    "windows solar"]}},
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]},
             {
             "name": "warn measure 3",
-            "status": {"active": True, "finalized": True},
             "markets": None,
             "installed_cost": 25,
             "active": 1,
@@ -5016,25 +4806,17 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "single family home",
                 "multi family home"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": [
-                    "electricity",
-                    "natural gas"]},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": {
-                "primary": ["lighting"],
+                "primary": "lighting",
                 "secondary": [
                     "heating", "secondary heating",
                     "cooling"]},
-            "technology": {
-                "primary": [
-                    "linear fluorescent (LED)",
-                    "general service (LED)",
-                    "external (LED)"],
-                "secondary":[
-                    "windows conduction",
-                    "windows solar"]}}]
+            "technology": [
+                "linear fluorescent (LED)",
+                "general service (LED)",
+                "external (LED)"]}]
         cls.warnmeas_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in warnmeas_in]
@@ -5749,18 +5531,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "measure": {"2009": 148, "2010": 148}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 648.47, "2010": 650.43},
-                    "efficient": {"2009": 550.0692, "2010": 551.722}},
+                    "baseline": {"2009": 870.17, "2010": 872.73},
+                    "efficient": {"2009": 742.2092, "2010": 744.382}},
                 "competed": {
-                    "baseline": {"2009": 648.47, "2010": 650.43},
-                    "efficient": {"2009": 550.0692, "2010": 551.722}}},
+                    "baseline": {"2009": 870.17, "2010": 872.73},
+                    "efficient": {"2009": 742.2092, "2010": 744.382}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 36855.9, "2010": 36504.45},
-                    "efficient": {"2009": 31262.24, "2010": 30960.7}},
+                    "baseline": {"2009": 49448.84, "2010": 48952.76},
+                    "efficient": {"2009": 42176.13, "2010": 41749.23}},
                 "competed": {
-                    "baseline": {"2009": 36855.9, "2010": 36504.45},
-                    "efficient": {"2009": 31262.24, "2010": 30960.7}}},
+                    "baseline": {"2009": 49448.84, "2010": 48952.76},
+                    "efficient": {"2009": 42176.13, "2010": 41749.23}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -5771,22 +5553,22 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 3700, "2010": 3700}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 6601.968, "2010": 6315.443},
-                        "efficient": {"2009": 5603.723, "2010": 5360.489}},
+                        "baseline": {"2009": 8884.548, "2010": 8498.717},
+                        "efficient": {"2009": 7581.959, "2010": 7252.659}},
                     "competed": {
-                        "baseline": {"2009": 6601.968, "2010": 6315.443},
-                        "efficient": {"2009": 5603.723, "2010": 5360.489}}},
+                        "baseline": {"2009": 8884.548, "2010": 8498.717},
+                        "efficient": {"2009": 7581.959, "2010": 7252.659}}},
                 "carbon": {
                     "total": {
                         "baseline": {
-                            "2009": 1216244.58, "2010": 1204646.90},
+                            "2009": 1631811.88, "2010": 1615440.96},
                         "efficient": {
-                            "2009": 1031653.83, "2010": 1021703.20}},
+                            "2009": 1391812.16, "2010": 1377724.71}},
                     "competed": {
                         "baseline": {
-                            "2009": 1216244.58, "2010": 1204646.90},
+                            "2009": 1631811.88, "2010": 1615440.96},
                         "efficient": {
-                            "2009": 1031653.83, "2010": 1021703.20}}}},
+                            "2009": 1391812.16, "2010": 1377724.71}}}},
             "lifetime": {"baseline": {"2009": 200, "2010": 200},
                          "measure": 1}},
             {
@@ -6137,18 +5919,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "measure": {"2009": 0, "2010": 148}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 648.47, "2010": 650.43},
-                    "efficient": {"2009": 648.47, "2010": 551.722}},
+                    "baseline": {"2009": 870.17, "2010": 872.73},
+                    "efficient": {"2009": 870.17, "2010": 744.382}},
                 "competed": {
-                    "baseline": {"2009": 79.78, "2010": 650.43},
-                    "efficient": {"2009": 79.78, "2010": 551.722}}},
+                    "baseline": {"2009": 107.2424, "2010": 872.73},
+                    "efficient": {"2009": 107.2424, "2010": 744.382}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 36855.9, "2010": 36504.45},
-                    "efficient": {"2009": 36855.9, "2010": 30960.7}},
+                    "baseline": {"2009": 49448.84, "2010": 48952.76},
+                    "efficient": {"2009": 49448.84, "2010": 41749.23}},
                 "competed": {
-                    "baseline": {"2009": 4534.446, "2010": 36504.45},
-                    "efficient": {"2009": 4534.446, "2010": 30960.7}}},
+                    "baseline": {"2009": 6094.213, "2010": 48952.76},
+                    "efficient": {"2009": 6094.213, "2010": 41749.23}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -6159,19 +5941,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 364.016, "2010": 3700}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 6601.968, "2010": 6315.443},
-                        "efficient": {"2009": 6601.968, "2010": 5360.489}},
+                        "baseline": {"2009": 8884.548, "2010": 8498.717},
+                        "efficient": {"2009": 8884.548, "2010": 7252.659}},
                     "competed": {
-                        "baseline": {"2009": 812.27, "2010": 6315.443},
-                        "efficient": {"2009": 812.27, "2010": 5360.489}}},
+                        "baseline": {"2009": 1094.996, "2010": 8498.717},
+                        "efficient": {"2009": 1094.996, "2010": 7252.659}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 1216244.58, "2010": 1204646.90},
-                        "efficient": {"2009": 1216244.58, "2010": 1021703.20}},
+                        "baseline": {"2009": 1631811.88, "2010": 1615440.96},
+                        "efficient": {"2009": 1631811.88, "2010": 1377724.71}},
                     "competed": {
-                        "baseline": {"2009": 149636.72, "2010": 1204646.90},
+                        "baseline": {"2009": 201109.02, "2010": 1615440.96},
                         "efficient": {
-                            "2009": 149636.72, "2010": 1021703.20}}}},
+                            "2009": 201109.02, "2010": 1377724.71}}}},
             "lifetime": {"baseline": {"2009": 200, "2010": 200},
                          "measure": 1}},
             {
@@ -6184,18 +5966,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "measure": {"2009": 148, "2010": 0}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 648.47, "2010": 650.43},
-                    "efficient": {"2009": 550.0692, "2010": 650.43}},
+                    "baseline": {"2009": 870.17, "2010": 872.73},
+                    "efficient": {"2009": 742.2092, "2010": 872.73}},
                 "competed": {
-                    "baseline": {"2009": 648.47, "2010": 650.43},
-                    "efficient": {"2009": 550.0692, "2010": 650.43}}},
+                    "baseline": {"2009": 870.17, "2010": 872.73},
+                    "efficient": {"2009": 742.2092, "2010": 872.73}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 36855.9, "2010": 36504.45},
-                    "efficient": {"2009": 31262.24, "2010": 36504.45}},
+                    "baseline": {"2009": 49448.84, "2010": 48952.76},
+                    "efficient": {"2009": 42176.13, "2010": 48952.76}},
                 "competed": {
-                    "baseline": {"2009": 36855.9, "2010": 36504.45},
-                    "efficient": {"2009": 31262.24, "2010": 36504.45}}},
+                    "baseline": {"2009": 49448.84, "2010": 48952.76},
+                    "efficient": {"2009": 42176.13, "2010": 48952.76}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -6206,19 +5988,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 3700, "2010": 2972}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 6601.968, "2010": 6315.443},
-                        "efficient": {"2009": 5603.723, "2010": 6315.443}},
+                        "baseline": {"2009": 8884.548, "2010": 8498.717},
+                        "efficient": {"2009": 7581.959, "2010": 8498.717}},
                     "competed": {
-                        "baseline": {"2009": 6601.968, "2010": 6315.443},
-                        "efficient": {"2009": 5603.723, "2010": 6315.443}}},
+                        "baseline": {"2009": 8884.548, "2010": 8498.717},
+                        "efficient": {"2009": 7581.959, "2010": 8498.717}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 1216244.58, "2010": 1204646.90},
-                        "efficient": {"2009": 1031653.83, "2010": 1204646.90}},
+                        "baseline": {"2009": 1631811.88, "2010": 1615440.96},
+                        "efficient": {"2009": 1391812.16, "2010": 1615440.96}},
                     "competed": {
-                        "baseline": {"2009": 1216244.58, "2010": 1204646.90},
+                        "baseline": {"2009": 1631811.88, "2010": 1615440.96},
                         "efficient": {
-                            "2009": 1031653.83, "2010": 1204646.90}}}},
+                            "2009": 1391812.16, "2010": 1615440.96}}}},
             "lifetime": {"baseline": {"2009": 200, "2010": 200},
                          "measure": 1}},
             {
@@ -6417,18 +6199,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "measure": {"2009": 70.3, "2010": 68.45}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 308.0233, "2010": 300.8239},
-                    "efficient": {"2009": 261.2829, "2010": 255.1714}},
+                    "baseline": {"2009": 413.3308, "2010": 403.6376},
+                    "efficient": {"2009": 352.5494, "2010": 344.2767}},
                 "competed": {
-                    "baseline": {"2009": 308.0233, "2010": 300.8239},
-                    "efficient": {"2009": 261.2829, "2010": 255.1714}}},
+                    "baseline": {"2009": 413.3308, "2010": 403.6376},
+                    "efficient": {"2009": 352.5494, "2010": 344.2767}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 17506.55, "2010": 16883.31},
-                    "efficient": {"2009": 14849.56, "2010": 14319.33}},
+                    "baseline": {"2009": 23488.2, "2010": 22640.65},
+                    "efficient": {"2009": 20033.66, "2010": 19309.02}},
                 "competed": {
-                    "baseline": {"2009": 17506.55, "2010": 16883.31},
-                    "efficient": {"2009": 14849.56, "2010": 14319.33}}},
+                    "baseline": {"2009": 23488.2, "2010": 22640.65},
+                    "efficient": {"2009": 20033.66, "2010": 19309.02}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -6439,18 +6221,18 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 1757.5, "2010": 1711.25}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 3135.935, "2010": 2920.893},
-                        "efficient": {"2009": 2661.769, "2010": 2479.226}},
+                        "baseline": {"2009": 4220.16, "2010": 3930.657},
+                        "efficient": {"2009": 3601.431, "2010": 3354.355}},
                     "competed": {
-                        "baseline": {"2009": 3135.935, "2010": 2920.893},
-                        "efficient": {"2009": 2661.769, "2010": 2479.226}}},
+                        "baseline": {"2009": 4220.16, "2010": 3930.657},
+                        "efficient": {"2009": 3601.431, "2010": 3354.355}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 577716.18, "2010": 557149.19},
-                        "efficient": {"2009": 490035.57, "2010": 472537.73}},
+                        "baseline": {"2009": 775110.65, "2010": 747141.44},
+                        "efficient": {"2009": 661110.78, "2010": 637197.68}},
                     "competed": {
-                        "baseline": {"2009": 577716.18, "2010": 557149.19},
-                        "efficient": {"2009": 490035.57, "2010": 472537.73}}}},
+                        "baseline": {"2009": 775110.65, "2010": 747141.44},
+                        "efficient": {"2009": 661110.78, "2010": 637197.68}}}},
             "lifetime": {"baseline": {"2009": 200, "2010": 200},
                          "measure": 1}}]
         cls.ok_mapmas_partchck_msegout = [{
@@ -7384,33 +7166,22 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "all residential": "cost unit 1",
                 "all commercial": "cost unit 2"},
             "energy_efficiency": {
-                "primary": {
-                    "all residential": {
-                        "heating": 111,
-                        "cooling": 111},
-                    "all commercial": 222},
-                "secondary": None},
+                "all residential": {
+                    "heating": 111, "cooling": 111},
+                "all commercial": 222},
             "energy_efficiency_units": {
-                "primary": {
-                    "all residential": "energy unit 1",
-                    "all commercial": "energy unit 2"},
-                "secondary": None},
+                "all residential": "energy unit 1",
+                "all commercial": "energy unit 2"},
             "product_lifetime": {
                 "all residential": 11,
                 "all commercial": 22},
             "climate_zone": "all",
             "bldg_type": "all",
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "all",
-                "secondary": None},
+            "fuel_type": "all",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "all",
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": "all",
+            "technology": "all"},
             {
             "name": "sample measure 2",
             "installed_cost": {
@@ -7422,19 +7193,14 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "assembly": "cost unit 2",
                 "education": "cost unit 2"},
             "energy_efficiency": {
-                "primary": {
-                    "all residential": {
-                        "heating": 111,
-                        "cooling": 111},
-                    "assembly": 222,
-                    "education": 222},
-                "secondary": None},
+                "all residential": {
+                    "heating": 111, "cooling": 111},
+                "assembly": 222,
+                "education": 222},
             "energy_efficiency_units": {
-                "primary": {
-                    "all residential": "energy unit 1",
-                    "assembly": "energy unit 2",
-                    "education": "energy unit 2"},
-                "secondary": None},
+                "all residential": "energy unit 1",
+                "assembly": "energy unit 2",
+                "education": "energy unit 2"},
             "product_lifetime": {
                 "all residential": 11,
                 "assembly": 22,
@@ -7443,62 +7209,40 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "bldg_type": [
                 "all residential", "assembly", "education"],
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "all",
-                "secondary": None},
+            "fuel_type": "all",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "all",
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": "all",
+            "technology": "all"},
             {
             "name": "sample measure 3",
             "installed_cost": 999,
             "cost_units": "dummy",
-            "energy_efficiency": {
-                "primary": 999, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "dummy", "secondary": None},
+            "energy_efficiency": 999,
+            "energy_efficiency_units": "dummy",
             "product_lifetime": 999,
             "climate_zone": "all",
             "bldg_type": "all",
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "all",
-                "secondary": None},
+            "fuel_type": "all",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": [
-                    "heating", "cooling", "secondary heating"],
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": [
+                "heating", "cooling", "secondary heating"],
+            "technology": "all"},
             {
             "name": "sample measure 4",
             "installed_cost": 999,
             "cost_units": "dummy",
-            "energy_efficiency": {
-                "primary": 999, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "dummy", "secondary": None},
+            "energy_efficiency": 999,
+            "energy_efficiency_units": "dummy",
             "product_lifetime": 999,
             "climate_zone": "all",
             "bldg_type": "all residential",
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "electricity",
-                "secondary": None},
+            "fuel_type": "electricity",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": [
-                    "lighting", "water heating"],
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": [
+                "lighting", "water heating"],
+            "technology": "all"},
             {
             "name": "sample measure 5",
             "installed_cost": 999,
@@ -7511,86 +7255,56 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "climate_zone": "all",
             "bldg_type": "all commercial",
             "structure_type": "all",
-            "fuel_type": {
-                "primary": [
-                    "electricity", "natural gas"],
-                "secondary": None},
+            "fuel_type": [
+                "electricity", "natural gas"],
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": [
-                    "heating", "water heating"],
-                "secondary": None},
-            "technology": {
-                "primary": [
-                    "all heating", "electric WH"],
-                "secondary": None}},
+            "end_use": [
+                "heating", "water heating"],
+            "technology": [
+                "all heating", "electric WH"]},
             {
             "name": "sample measure 6",
             "installed_cost": 999,
             "cost_units": "dummy",
-            "energy_efficiency": {
-                "primary": 999, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "dummy", "secondary": None},
+            "energy_efficiency": 999,
+            "energy_efficiency_units": "dummy",
             "product_lifetime": 999,
             "climate_zone": "all",
             "bldg_type": ["assembly", "education"],
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "natural gas",
-                "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "heating",
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": "heating",
+            "technology": "all"},
             {
             "name": "sample measure 7",
             "installed_cost": 999,
             "cost_units": "dummy",
-            "energy_efficiency": {
-                "primary": 999, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "dummy", "secondary": None},
+            "energy_efficiency": 999,
+            "energy_efficiency_units": "dummy",
             "product_lifetime": 999,
             "climate_zone": "all",
             "bldg_type": [
                 "all residential", "small office"],
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "natural gas",
-                "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "heating",
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}},
+            "end_use": "heating",
+            "technology": "all"},
             {
             "name": "sample measure 8",
             "installed_cost": 999,
             "cost_units": "dummy",
-            "energy_efficiency": {
-                "primary": 999, "secondary": None},
-            "energy_efficiency_units": {
-                "primary": "dummy", "secondary": None},
+            "energy_efficiency": 999,
+            "energy_efficiency_units": "dummy",
             "product_lifetime": 999,
             "climate_zone": "all",
             "bldg_type": "small office",
             "structure_type": "all",
-            "fuel_type": {
-                "primary": "natural gas",
-                "secondary": None},
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {
-                "primary": "heating",
-                "secondary": None},
-            "technology": {
-                "primary": "all",
-                "secondary": None}}]
+            "end_use": "heating",
+            "technology": "all"}]
         cls.sample_measures_in = [ecm_prep.Measure(
             handyvars, **x) for x in sample_measures]
         cls.ok_primary_cpl_out = [[{
@@ -7930,7 +7644,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
         # Loop through sample measures
         for ind, m in enumerate(self.sample_measures_in):
             # Execute the function on each sample measure
-            m.fill_attr("primary")
+            m.fill_attr()
             # For the first two sample measures, check that cost, performance,
             # and lifetime attribute dicts with 'all residential' and
             # 'all commercial' keys were properly filled out
@@ -7984,19 +7698,19 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-            "bldg_type": ["single family home"],
+            "bldg_type": "single family home",
             "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": ["electricity"]},
+                "primary": "electricity",
+                "secondary": "electricity"},
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["heating", "cooling"],
-                "secondary": ["lighting"]},
+                "secondary": "lighting"},
             "technology": {
                 "primary": [
                     "boiler (electric)", "ASHP",
                     "GSHP", "room AC"],
-                "secondary": ["general service (LED)"]},
+                "secondary": "general service (LED)"},
             "mseg_adjust": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
@@ -8019,6 +7733,10 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                     "total": {}}}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure)
+        # Finalize the measure's 'technology_type' attribute (handled by the
+        # 'fill_attr' function, which is not run as part of this test)
+        cls.sample_measure_in.technology_type = {
+            "primary": "supply", "secondary": "supply"}
         cls.ok_out_primary = [
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply',
@@ -9228,15 +8946,12 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         cls.convert_data = {}  # Blank for now
         cls.measures_ok_in = [{
             "name": "sample measure to update (user-flagged)",
-            "status": {"active": True, "finalized": False},
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
             "energy_efficiency": {
-                "primary": {"new": 25, "existing": 25},
-                "secondary": None},
-            "energy_efficiency_units": {"primary": "EF",
-                                        "secondary": None},
+                "new": 25, "existing": 25},
+            "energy_efficiency_units": "EF",
             "market_entry_year": None,
             "market_exit_year": None,
             "product_lifetime": 1,
@@ -9244,15 +8959,12 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
             "structure_type": ["new", "existing"],
-            "bldg_type": ["single family home"],
-            "climate_zone": ["AIA_CZ1"],
-            "fuel_type": {"primary": ["natural gas"],
-                          "secondary": None},
+            "bldg_type": "single family home",
+            "climate_zone": "AIA_CZ1",
+            "fuel_type": "natural gas",
             "fuel_switch_to": None,
-            "end_use": {"primary": ["water heating"],
-                        "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None}}]
+            "end_use": "water heating",
+            "technology": None}]
         cls.ok_out = [{
             "stock": {
                 "total": {
@@ -9371,7 +9083,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
         # Define a series of sample measures to package
         sample_measures_in = [{
             "name": "sample measure pkg 1",
-            "status": {"active": True, "finalized": True},
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,
@@ -10346,7 +10057,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating': {}}}}}}},
             {
             "name": "sample measure pkg 2",
-            "status": {"active": True, "finalized": True},
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,
@@ -11082,7 +10792,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating': {}}}}}}},
             {
             "name": "sample measure pkg 3",
-            "status": {"active": True, "finalized": True},
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,
@@ -11831,7 +11540,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating': {}}}}}}},
             {
             "name": "sample measure pkg 4",
-            "status": {"active": True, "finalized": True},
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,

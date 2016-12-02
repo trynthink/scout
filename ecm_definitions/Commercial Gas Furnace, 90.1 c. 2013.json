@@ -3,18 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": {
-    "primary": "heating",
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "natural gas",
-    "secondary": null
-  },
-  "technology": {
-    "primary": "gas_furnace",
-    "secondary": null
-  },
+  "end_use": "heating",
+  "fuel_type": "natural gas",
+  "technology": "gas_furnace",
   "market_entry_year": 2013,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -22,14 +13,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 0.8,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "BTU out/BTU in",
-    "secondary": null
-  },
+  "energy_efficiency": 0.8,
+  "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "Energy performance for 'Current Standard' 2013 column",
     "source_data": {

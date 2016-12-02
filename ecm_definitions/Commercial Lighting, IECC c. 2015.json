@@ -4,18 +4,9 @@
   "bldg_type": [
     "assembly", "education", "small office", "large office", "lodging"],
   "structure_type": "all",
-  "end_use": {
-    "primary": "lighting",
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": ["F32T8", "T8 F32 EEMag (e)"],
-    "secondary": null
-  },
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["F32T8", "T8 F32 EEMag (e)"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -30,14 +21,8 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-    "primary": 59.76,
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "lm/W",
-    "secondary": null
-  },
+  "energy_efficiency": 59.76,
+  "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "See table C405.4.2, 'Office'; use Scout Cost Conversion Data on 1000 lm/ft^2 floor to get from original 0.82 W/ft^2 floor -> 59.76 lm/W",
     "source_data": [{

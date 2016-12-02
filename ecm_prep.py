@@ -794,19 +794,17 @@ class Measure(object):
         self.handyvars = handyvars
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
-        self.technology_type = {"primary": None, "secondary": None}
-        for ms in ["primary", "secondary"]:
-            # Measures replacing technologies in a pre-specified
-            # 'demand_tech' list are of the 'demand' side technology type
-            if (isinstance(self.technology[ms], list) and all([
-                x in self.handyvars.demand_tech for x in
-                    self.technology[ms]])) or self.technology[ms] in \
-                    self.handyvars.demand_tech:
-                self.technology_type[ms] = "demand"
-            # Measures replacing technologies not in a pre-specified
-            # 'demand_tech' list are of the 'supply' side technology type
-            else:
-                self.technology_type[ms] = "supply"
+        self.technology_type = None
+        # Measures replacing technologies in a pre-specified
+        # 'demand_tech' list are of the 'demand' side technology type
+        if (isinstance(self.technology, list) and all([
+            x in self.handyvars.demand_tech for x in self.technology])) or \
+                self.technology in self.handyvars.demand_tech:
+            self.technology_type = "demand"
+        # Measures replacing technologies not in a pre-specified
+        # 'demand_tech' list are of the 'supply' side technology type
+        else:
+            self.technology_type = "supply"
         self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = OrderedDict([(
@@ -995,10 +993,10 @@ class Measure(object):
         # occur only once per microsegment building type
         bldgs_costconverted = {}
 
-        # Fill out any climate zone, building type and primary microsegment
-        # fuel type, end use, and/or technology attributes marked 'all' by
-        # users
-        self.fill_attr("primary")
+        # Fill out any "secondary" end use impact information and any climate
+        # zone, building type, fuel type, end use, and/or technology attributes
+        # marked 'all' by users
+        self.fill_attr()
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -1023,7 +1021,6 @@ class Measure(object):
         # gain" thermal load component microsegments to represent secondary
         # end use effects of the lighting measure
         if self.end_use["secondary"] is not None:
-            self.fill_attr("secondary")
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
@@ -2953,14 +2950,6 @@ class Measure(object):
             ValueError: If 'technology_type' attribute is improperly formatted
                 or input names are not in the list of valid names.
         """
-        # Perform an initial check on the 'technology_type' attribute to ensure
-        # that it is not formatted as a list (should be 'supply' or 'demand')
-        if any([isinstance(self.technology_type[x], list) for x in [
-                'primary', 'secondary']]):
-            raise ValueError(
-                "Error in measure '" + self.name +
-                "': 'technology_type' should not be list " +
-                "(should be either 'supply' or 'demand')")
         # Initialize the list of input names to check
         check_list = []
         # Loop through all inputs related to a measure's applicable baseline
@@ -2975,7 +2964,7 @@ class Measure(object):
                  check_list.append(x[ms]) for ms in ["primary", "secondary"]]
             elif isinstance(x, list):
                 check_list.extend(x)
-            elif isinstance(x, str):
+            elif isinstance(x, str) or x is None:
                 check_list.append(x)
             else:
                 raise ValueError(
@@ -2990,20 +2979,63 @@ class Measure(object):
                 "Input names in the following list are invalid for measure '" +
                 self.name + "': " + str(invalid_names))
 
-    def fill_attr(self, mseg_type):
-        """Fill out 'all' values in measure input attributes.
+    def fill_attr(self):
+        """Fill out any secondary end use impact information and 'all' values.
 
         Note:
-            Handles cases where users do not wish to write out all the
-            climate zones, building types, etc. that a measure applies to in
-            the measure definition. For example, this function allows one to
-            write 'all' for the 'climate_zone' measure attribute in lieu of
-            ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'].
+            Handles the following:
+            a) Splits the 'energy_efficiency', 'energy_efficiency_units',
+            'energy_fuel_type', 'end_use', 'technology', and 'technology_type'
+            attributes into 'primary' and 'secondary' keys, ensuring that
+            secondary end use impacts are properly processed by the remainder
+            of the 'fill_mkts' routine. Note: if the user has not specified
+            any secondary end use impacts, secondary key values for all
+            relevant attributes are set to None.
 
-        Args:
-            mseg_type (string): Identifies the type of baseline microsegments
-                to fill out input attributes for ('primary' or 'secondary').
+            b) Fills out any attributes marked 'all'. For example, if a user
+            has specified 'all' for the 'climate_zone' measure attribute, this
+            function will translate that entry into the full list of climate
+            zones: ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'].
         """
+        # Split attributes relevant to representing secondary end use impacts
+        # into 'primary' and 'secondary' keys
+
+        # Case where user has flagged secondary end use impacts for the measure
+        # via the 'end_use' attribute; fill in secondary 'fuel_type',
+        # 'technology', and 'technology_type' information. Note: it is assumed
+        # the user has already filled in secondary performance information via
+        # the 'energy_efficiency' and 'energy_efficiency_units' attributes
+        if isinstance(self.end_use, dict):
+            # Assume secondary effects pertain to all fuel types and
+            # technologies associated with the given secondary end use(s)
+            self.fuel_type, self.technology = [{
+                "primary": x, "secondary": "all"} for
+                x in [self.fuel_type, self.technology]]
+            # Assume secondary heating/cooling effects pertain to demand-side
+            # heating/cooling technologies (e.g., secondary 'technology_type'
+            # is set to 'demand')
+            if (isinstance(self.end_use["secondary"], list) and any([
+                x not in ["heating", "secondary heating", "cooling"] for
+                x in self.end_use["secondary"]])) or (
+                not isinstance(self.end_use["secondary"], list) and
+                self.end_use["secondary"] not in [
+                    "heating", "secondary heating", "cooling"]):
+                self.technology_type = {
+                    "primary": self.technology_type, "secondary": "supply"}
+            else:
+                self.technology_type = {
+                    "primary": self.technology_type, "secondary": "demand"}
+        # Case where the user has not flagged any secondary end use impacts;
+        # set 'secondary' key values for relevant attributes to None
+        else:
+            self.energy_efficiency, self.energy_efficiency_units, \
+                self.fuel_type, self.end_use, self.technology, \
+                self.technology_type = [
+                    {"primary": x, "secondary": None} for x in [
+                        self.energy_efficiency, self.energy_efficiency_units,
+                        self.fuel_type, self.end_use, self.technology,
+                        self.technology_type]]
+
         # Fill out an 'all' climate zone input
         if self.climate_zone == 'all':
             self.climate_zone = self.handyvars.in_all_map["climate_zone"]
@@ -3012,182 +3044,200 @@ class Measure(object):
         if self.structure_type == 'all':
             self.structure_type = self.handyvars.in_all_map["structure_type"]
 
-        # Fill out a building type input that is marked 'all',
-        # 'all residential' or 'all commercial', or is formatted as a list with
-        # certain elements containing 'all' (e.g.,
-        # ['all residential,' 'assembly', 'education'])
-        if self.bldg_type == "all" or (
-            "all" in self.bldg_type and self.bldg_type != "small office") or (
-            type(self.bldg_type) == list and any([
-                "all" in b for b in self.bldg_type if b != "small office"])):
-            # Record the initial 'bldg_type' attribute the user has defined
-            # for the measure before this attribute is reset below
-            map_bldgtype_orig = self.bldg_type
-            # Reset the measure 'bldg_type' attribute as a list that does not
-            # contain any elements including 'all' (e.g., if the 'bldg_type'
-            # attribute value was initially 'all', 'all residential', or
-            # 'all commercial', it would be reset as a blank list; if the
-            # 'bldg_type' attribute value was initially
-            # ['all residential', 'assembly', 'education'], it would be reset
-            # as ['assembly', 'education'])
-            if self.bldg_type == 'all' or 'all' in self.bldg_type:
-                self.bldg_type = []
-            else:
-                self.bldg_type = [
-                    b for b in self.bldg_type if (
-                        'all' not in b or b == 'small office')]
-            # Fill 'bldg_type' attribute. Note that the comprehension below
-            # handles 'all', 'all residential', or 'all commercial' values for
-            # the initial user-defined 'bldg_type' attribute as well as a list
-            # value for this attribute that contains elements with 'all' (e.g.,
+        # Fill out an 'all' building type, fuel type, end use, and/or
+        # technology input. Note that these attributes are affected by whether
+        # or not the user has flagged secondary end use impacts
+        for mseg_type in [
+                x[0] for x in self.end_use.items() if x[1] is not None]:
+            # Fill out a building type input that is marked 'all',
+            # 'all residential' or 'all commercial', or is formatted as a list
+            # with certain elements containing 'all' (e.g.,
             # ['all residential,' 'assembly', 'education'])
-            [self.bldg_type.extend(b[1]) for b in self.handyvars.in_all_map[
-                "bldg_type"].items() if b[1] not in self.bldg_type and (
-                    map_bldgtype_orig == "all" or b[0] in map_bldgtype_orig or
-                    any([b[0] in borig for borig in map_bldgtype_orig if
-                        'all ' in borig]))]
-            # Record the measure's applicability to the residential and/or
-            # the commercial building sectors in a list (for use in filling out
-            # 'fuel_type,' 'end_use,' and 'technology' attributes below)
-            bldgsect_list = [x[0] for x in self.handyvars.in_all_map[
-                "bldg_type"].items() if any([
-                    bt in x[1] for bt in self.bldg_type])]
-
-            # For an 'all' building type case, measure 'installed_cost,'
-            # 'cost_units,' 'energy_efficiency,' 'energy_efficiency_units,'
-            # and/or 'product_lifetime' attributes may be formatted as
-            # dictionaries broken out by building sector (e.g., with
-            # 'all residential' and/or 'all commercial' keys). This part of the
-            # code replaces such keys and their associated values with the
-            # appropriate set of building types. For example a
-            # ('all commercial', 1) key, value pair would be replaced with
-            # [('assembly', 1), ('education', 1), ...]
-            for attr in [self.installed_cost, self.cost_units,
-                         self.energy_efficiency[mseg_type],
-                         self.energy_efficiency_units[mseg_type],
-                         self.product_lifetime]:
-                # Check whether attribute is a dict before moving further
-                if isinstance(attr, dict):
-                    # Loop through each building sector and the building
-                    # type names in that sector. If the sector has been
-                    # assigned an 'all' breakout for the current attribute, add
-                    # new key, value pairs to the attribute dict where the
-                    # building type name is each key and the original value
-                    # for the building sector is the value for the new pair
-                    for b in bldgsect_list:
-                        # Check whether the sector is assigned an 'all'
-                        # breakout in the attribute (e.g., 'all residential')
-                        sect_val = [x[1] for x in attr.items() if b in x[0]]
-                        # If sector is assigned 'all' breakout, add appropriate
-                        # building type keys and values to attribute dict
-                        if sect_val:
-                            for kn in self.handyvars.in_all_map[
-                                    "bldg_type"][b]:
-                                attr[kn] = sect_val[0]
-                    # Remove the original 'all residential' and
-                    # 'all commercial' branches from the attribute dict
-                    del_keys = [x for x in attr.keys() if x in [
-                                'all residential', 'all commercial']]
-                    for dk in del_keys:
-                        del(attr[dk])
-        # If there is no 'all' building type input, still record the
-        # measure's applicability to the residential and/or
-        # the commercial building sector in a list (for use in filling out
-        # 'fuel_type,' 'end_use,' and 'technology' attributes below)
-        else:
-            bldgsect_list = [b[0] for b in self.handyvars.in_all_map[
-                "bldg_type"].items() if any([
-                    bta == self.bldg_type for bta in b[1]]) or
-                any([bta in b[1] for bta in self.bldg_type])]
-
-        # Fill out an 'all' fuel type input
-        if self.fuel_type[mseg_type] == 'all':
-            # Reset measure 'fuel_type' attribute as a list and fill with
-            # all fuels for the measure's applicable building sector(s)
-            self.fuel_type[mseg_type] = []
-            for b in bldgsect_list:
-                [self.fuel_type[mseg_type].append(f) for f in
-                 self.handyvars.in_all_map["fuel_type"][b] if
-                 f not in self.fuel_type[mseg_type]]
-
-        # Record the measure's applicable fuel type(s) in a list (for use in
-        # filling out 'end_use,' and 'technology' attributes below)
-        if not isinstance(self.fuel_type[mseg_type], list):
-            fueltype_list = [self.fuel_type[mseg_type]]
-        else:
-            fueltype_list = self.fuel_type[mseg_type]
-
-        # Fill out an 'all' end use input
-        if self.end_use[mseg_type] == 'all':
-            # Reset measure 'end_use' attribute as a list and fill with
-            # all end uses for the measure's applicable building sector(s)
-            # and fuel type(s)
-            self.end_use[mseg_type] = []
-            for b in bldgsect_list:
-                for f in [x for x in fueltype_list if
-                          x in self.handyvars.in_all_map["fuel_type"][b]]:
-                    [self.end_use[mseg_type].append(e) for e in
-                     self.handyvars.in_all_map["end_use"][b][f] if
-                     e not in self.end_use[mseg_type]]
-
-        # Record the measure's applicable end use(s) in a list (for use in
-        # filling out 'technology' attribute below)
-        if not isinstance(self.end_use[mseg_type], list):
-            enduse_list = [self.end_use[mseg_type]]
-        else:
-            enduse_list = self.end_use[mseg_type]
-
-        # Fill out a technology input that is marked 'all' or is
-        # formatted as a list with certain elements containing 'all' (e.g.,
-        # ['all heating,' 'central AC', 'room AC'])
-        if self.technology[mseg_type] == 'all' or \
-            (type(self.technology[mseg_type]) == list and any([
-             t is not None and 'all ' in t for t in
-             self.technology[mseg_type]])):
-            # Record the initial 'technology' attribute the user has defined
-            # for the measure before this attribute is reset below
-            map_tech_orig = self.technology[mseg_type]
-            # Reset the measure 'technology' attribute as a list that does not
-            # contain any elements including 'all' (e.g., if the 'technology'
-            # attribute value was initially 'all', it would be reset as a
-            # blank list; if the 'technology' attribute value was initially
-            # ['all heating', 'central AC', 'room AC'], it would be reset as
-            # ['central AC', 'room AC'])
-            if self.technology[mseg_type] == 'all':
-                self.technology[mseg_type] = []
-            else:
-                self.technology[mseg_type] = [
-                    t for t in self.technology[mseg_type] if 'all ' not in t]
-            # Fill 'technology' attribute
-            for b in bldgsect_list:
-                # Case concerning a demand-side technology, for which the set
-                # of 'all' technologies depends only on the measure's
-                # applicable building sector(s)
-                if self.technology_type[mseg_type] == "demand":
-                    [self.technology[mseg_type].append(t) for t in
-                        self.handyvars.in_all_map["technology"][b][
-                        self.technology_type[mseg_type]] if t not in
-                        self.technology[mseg_type]]
-                # Case concerning a supply-side technology, for which the set
-                # of 'all' technologies depends on the measure's applicable
-                # building sector(s), fuel type(s), and end use(s)
+            if self.bldg_type == "all" or (
+                "all" in self.bldg_type and
+                self.bldg_type != "small office") or (
+                type(self.bldg_type) == list and any([
+                    "all" in b for b in self.bldg_type if
+                    b != "small office"])):
+                # Record the initial 'bldg_type' attribute the user has defined
+                # for the measure before this attribute is reset below
+                map_bldgtype_orig = self.bldg_type
+                # Reset the measure 'bldg_type' attribute as a list that does
+                # not contain any elements including 'all' (e.g., if the
+                # 'bldg_type' attribute value was initially 'all', 'all
+                # residential', or 'all commercial', it would be reset as a
+                # blank list; if the 'bldg_type' attribute value was initially
+                # ['all residential', 'assembly', 'education'], it would be
+                # reset as ['assembly', 'education'])
+                if self.bldg_type == 'all' or 'all' in self.bldg_type:
+                    self.bldg_type = []
                 else:
-                    for f in [ft for ft in fueltype_list if
-                              ft in self.handyvars.in_all_map["fuel_type"][b]]:
-                        for e in [eu for eu in enduse_list if eu in
-                                  self.handyvars.in_all_map["end_use"][b][f]]:
-                            # Note that the comprehension below handles both an
-                            # 'all' value for the initial user-defined
-                            # 'technology' attribute and a list value for this
-                            # attribute that contains elements with 'all'
-                            # (e.g., ['all heating', 'central AC', 'room AC'])
-                            [self.technology[mseg_type].append(t) for
-                             t in self.handyvars.in_all_map["technology"][b][
-                             self.technology_type[mseg_type]][f][e] if
-                             t not in self.technology[mseg_type] and
-                             (map_tech_orig == "all" or any([
-                                 e in torig for torig in map_tech_orig if
-                                 'all ' in torig]))]
+                    self.bldg_type = [
+                        b for b in self.bldg_type if (
+                            'all' not in b or b == 'small office')]
+                # Fill 'bldg_type' attribute. Note that the comprehension below
+                # handles 'all', 'all residential', or 'all commercial' values
+                # for the initial user-defined 'bldg_type' attribute as well as
+                # a list value for this attribute that contains elements with
+                # 'all'(e.g., ['all residential,' 'assembly', 'education'])
+                [self.bldg_type.extend(b[1]) for b in
+                    self.handyvars.in_all_map["bldg_type"].items() if
+                    b[1] not in self.bldg_type and (
+                        map_bldgtype_orig == "all" or b[0] in
+                        map_bldgtype_orig or
+                        any([b[0] in borig for borig in map_bldgtype_orig if
+                            'all ' in borig]))]
+                # Record the measure's applicability to the residential and/or
+                # the commercial building sectors in a list (for use in filling
+                # 'fuel_type,' 'end_use,' and 'technology' attributes below)
+                bldgsect_list = [x[0] for x in self.handyvars.in_all_map[
+                    "bldg_type"].items() if any([
+                        bt in x[1] for bt in self.bldg_type])]
+
+                # For an 'all' building type case, measure 'installed_cost,'
+                # 'cost_units,' 'energy_efficiency,' 'energy_efficiency_units,'
+                # and/or 'product_lifetime' attributes may be formatted as
+                # dictionaries broken out by building sector (e.g., with
+                # 'all residential' and/or 'all commercial' keys). This part of
+                # the code replaces such keys and their associated values with
+                # the appropriate set of building types. For example a
+                # ('all commercial', 1) key, value pair would be replaced with
+                # [('assembly', 1), ('education', 1), ...]
+                for attr in [self.installed_cost, self.cost_units,
+                             self.energy_efficiency[mseg_type],
+                             self.energy_efficiency_units[mseg_type],
+                             self.product_lifetime]:
+                    # Check whether attribute is a dict before moving further
+                    if isinstance(attr, dict):
+                        # Loop through each building sector and the building
+                        # type names in that sector. If the sector has been
+                        # assigned an 'all' breakout for the current attribute,
+                        # add new key, value pairs to the attribute dict where
+                        # the building type name is each key and the original
+                        # value for the building sector is the value for the
+                        # new pair
+                        for b in bldgsect_list:
+                            # Check whether the sector is assigned an 'all'
+                            # breakout in the attribute (e.g., 'all
+                            # residential')
+                            sect_val = [
+                                x[1] for x in attr.items() if b in x[0]]
+                            # If sector is assigned 'all' breakout, add
+                            # appropriate building type keys and values to
+                            # attribute dict
+                            if sect_val:
+                                for kn in self.handyvars.in_all_map[
+                                        "bldg_type"][b]:
+                                    attr[kn] = sect_val[0]
+                        # Remove the original 'all residential' and
+                        # 'all commercial' branches from the attribute dict
+                        del_keys = [x for x in attr.keys() if x in [
+                                    'all residential', 'all commercial']]
+                        for dk in del_keys:
+                            del(attr[dk])
+            # If there is no 'all' building type input, still record the
+            # measure's applicability to the residential and/or
+            # the commercial building sector in a list (for use in filling out
+            # 'fuel_type,' 'end_use,' and 'technology' attributes below)
+            else:
+                bldgsect_list = [b[0] for b in self.handyvars.in_all_map[
+                    "bldg_type"].items() if any([
+                        bta == self.bldg_type for bta in b[1]]) or
+                    any([bta in b[1] for bta in self.bldg_type])]
+
+            # Fill out an 'all' fuel type input
+            if self.fuel_type[mseg_type] == 'all':
+                # Reset measure 'fuel_type' attribute as a list and fill with
+                # all fuels for the measure's applicable building sector(s)
+                self.fuel_type[mseg_type] = []
+                for b in bldgsect_list:
+                    [self.fuel_type[mseg_type].append(f) for f in
+                     self.handyvars.in_all_map["fuel_type"][b] if
+                     f not in self.fuel_type[mseg_type]]
+
+            # Record the measure's applicable fuel type(s) in a list (for use
+            # in filling out 'end_use,' and 'technology' attributes below)
+            if not isinstance(self.fuel_type[mseg_type], list):
+                fueltype_list = [self.fuel_type[mseg_type]]
+            else:
+                fueltype_list = self.fuel_type[mseg_type]
+
+            # Fill out an 'all' end use input
+            if self.end_use[mseg_type] == 'all':
+                # Reset measure 'end_use' attribute as a list and fill with
+                # all end uses for the measure's applicable building sector(s)
+                # and fuel type(s)
+                self.end_use[mseg_type] = []
+                for b in bldgsect_list:
+                    for f in [x for x in fueltype_list if
+                              x in self.handyvars.in_all_map["fuel_type"][b]]:
+                        [self.end_use[mseg_type].append(e) for e in
+                         self.handyvars.in_all_map["end_use"][b][f] if
+                         e not in self.end_use[mseg_type]]
+
+            # Record the measure's applicable end use(s) in a list (for use in
+            # filling out 'technology' attribute below)
+            if not isinstance(self.end_use[mseg_type], list):
+                enduse_list = [self.end_use[mseg_type]]
+            else:
+                enduse_list = self.end_use[mseg_type]
+
+            # Fill out a technology input that is marked 'all' or is
+            # formatted as a list with certain elements containing 'all' (e.g.,
+            # ['all heating,' 'central AC', 'room AC'])
+            if self.technology[mseg_type] == 'all' or \
+                (type(self.technology[mseg_type]) == list and any([
+                 t is not None and 'all ' in t for t in
+                 self.technology[mseg_type]])):
+                # Record the initial 'technology' attribute the user has
+                # defined for the measure before this attribute is reset below
+                map_tech_orig = self.technology[mseg_type]
+                # Reset the measure 'technology' attribute as a list that does
+                # not contain any elements including 'all' (e.g., if the
+                # 'technology' attribute value was initially 'all', it would be
+                # reset as a blank list; if the 'technology' attribute value
+                # was initially ['all heating', 'central AC', 'room AC'], it
+                # would be reset as ['central AC', 'room AC'])
+                if self.technology[mseg_type] == 'all':
+                    self.technology[mseg_type] = []
+                else:
+                    self.technology[mseg_type] = [
+                        t for t in self.technology[mseg_type] if
+                        'all ' not in t]
+                # Fill 'technology' attribute
+                for b in bldgsect_list:
+                    # Case concerning a demand-side technology, for which the
+                    # set of 'all' technologies depends only on the measure's
+                    # applicable building sector(s)
+                    if self.technology_type[mseg_type] == "demand":
+                        [self.technology[mseg_type].append(t) for t in
+                            self.handyvars.in_all_map["technology"][b][
+                            self.technology_type[mseg_type]] if t not in
+                            self.technology[mseg_type]]
+                    # Case concerning a supply-side technology, for which the
+                    # set of 'all' technologies depends on the measure's
+                    # applicable building sector(s), fuel type(s), and
+                    # end use(s)
+                    else:
+                        for f in [ft for ft in fueltype_list if
+                                  ft in self.handyvars.in_all_map[
+                                "fuel_type"][b]]:
+                            for e in [eu for eu in enduse_list if eu in
+                                      self.handyvars.in_all_map[
+                                    "end_use"][b][f]]:
+                                # Note that the comprehension below handles
+                                # both an 'all' value for the initial
+                                # user-defined 'technology' attribute and a
+                                # list value for this attribute that contains
+                                # elements with 'all' (e.g., ['all heating',
+                                # 'central AC', 'room AC'])
+                                [self.technology[mseg_type].append(t) for
+                                 t in self.handyvars.in_all_map["technology"][
+                                 b][self.technology_type[mseg_type]][f][e] if
+                                 t not in self.technology[mseg_type] and
+                                 (map_tech_orig == "all" or any([
+                                     e in torig for torig in map_tech_orig if
+                                     'all ' in torig]))]
 
     def create_keychain(self, mseg_type):
         """Create list of dictionary keys used to find baseline microsegments.
@@ -3696,10 +3746,7 @@ class Measure(object):
 
         # Create secondary dict structure from baseline market properties
         # (if needed)
-        if all([x is not None for x in [
-                self.fuel_type["secondary"], self.end_use["secondary"],
-                self.technology_type["secondary"],
-                self.technology["secondary"]]]):
+        if isinstance(self.end_use, dict):
             perf_dict_empty["secondary"] = self.create_nested_dict(
                 msegs, "secondary")
 
@@ -4306,7 +4353,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with an 'EnergyPlus file' flag in their 'energy_efficiency' attribute
-    if any(['EnergyPlus file' in m.energy_efficiency.keys() for
+    if any([isinstance(m.energy_efficiency, dict) and
+            'EnergyPlus file' in m.energy_efficiency.keys() for
             m in meas_update_objs]):
         # Set default directory for EnergyPlus simulation output files
         eplus_dir = base_dir + '/ecm_definitions/energyplus_data'

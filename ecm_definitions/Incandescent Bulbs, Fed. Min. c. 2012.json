@@ -3,16 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": {
-    "primary": "lighting",
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null
-  },
-  "technology": {
-    "primary": [
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": [
       "reflector (LED)",
       "reflector (CFL)",
       "reflector (incandescent)",
@@ -21,8 +14,6 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-    "secondary": null
-  },
   "market_entry_year": 2012,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -38,7 +29,6 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": {
       "reflector (LED)": 17.8,
       "reflector (CFL)": 17.8,
       "reflector (incandescent)": 17.8,
@@ -46,12 +36,7 @@
       "general service (CFL)": 28.09,
       "general service (incandescent)": 28.09,
       "general service (LED)": 28.09},
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "lm/W",
-    "secondary": null
-  },
+  "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "For reflectors, assumes 60 W light bulb, 120 V, standard spectrum, lamp diameter > 2.5 in; for general service, assumes 53 W light bulb at high end of rated lumen range for 53 W bulb (1489 lm)",
     "source_data": {

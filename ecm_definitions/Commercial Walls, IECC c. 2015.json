@@ -3,18 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": {
-    "primary": ["heating", "cooling"],
-    "secondary": null
-  },
-  "fuel_type": {
-    "primary": "all",
-    "secondary": null
-  },
-  "technology": {
-    "primary": "wall",
-    "secondary": null
-  },
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "wall",
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -30,19 +21,13 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "primary": {
       "AIA_CZ1": 20.5,
       "AIA_CZ2": 20.5,
       "AIA_CZ3": 20.5,
       "AIA_CZ4": 20.5,
       "AIA_CZ5": 19.35
       },
-    "secondary": null
-  },
-  "energy_efficiency_units": {
-    "primary": "R value",
-    "secondary": null
-  },
+  "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "See table 402.1.3; assumes metal framed assembly; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2; takes average of performance levels for IECC zones 2/3",
     "source_data": {
