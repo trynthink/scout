@@ -75,9 +75,9 @@ class UsefulVars(object):
         valid_submkt_urls (list) = Valid URLs for sub-market scaling fractions.
         consumer_price_ind (numpy.ndarray) = Historical Consumer Price Index.
         ss_conv (dict): Site-source conversion factors by fuel type.
-        carb_int (dict): Carbon intensities by fuel type.
-        ecosts (dict): Energy costs by building and fuel type.
-        ccosts (dict): Carbon costs.
+        carb_int (dict): Carbon intensities by fuel type (MMTon/quad).
+        ecosts (dict): Energy costs by building and fuel type ($/MMBtu).
+        ccosts (dict): Carbon costs ($/MTon).
         com_timeprefs (dict): Commercial adoption time preference premiums.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
             list of climates, buildings, fuels, end uses, or technologies.
@@ -134,33 +134,72 @@ class UsefulVars(object):
         self.consumer_price_ind = numpy.genfromtxt(
             (base_dir + '/supporting_data/convert_data/cpi.csv'), names=True,
             delimiter=',', dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
-        cost_ss_carb = numpy.genfromtxt(
-            (base_dir + "/supporting_data/convert_data/cost_s-s_co2.txt"),
-            names=True, delimiter='\t', dtype=None)
+        # Read in JSON with site to source conversion, fuel CO2 intensity,
+        # and energy/carbon costs data
+        with open((base_dir + (
+            "/supporting_data/convert_data/site_source_co2_conversions.json")),
+                'r') as ss:
+            cost_ss_carb = json.load(ss)
+        # Set site to source conversions
         self.ss_conv = {
-            "electricity": cost_ss_carb[7], "natural gas": cost_ss_carb[8],
-            "distillate": cost_ss_carb[9], "other fuel": cost_ss_carb[9]}
-        # Import fuel type carbon intensity data
-        carb_int = {
-            "electricity": cost_ss_carb[10], "natural gas": cost_ss_carb[11],
-            "distillate": cost_ss_carb[12], "other fuel": cost_ss_carb[12]}
-        # Divide fuel type carbon intensity data by 1000000000 to reflect
+            "electricity": cost_ss_carb[
+                "electricity"]["site to source conversion"]["data"],
+            "natural gas": {yr: 1 for yr in self.aeo_years},
+            "distillate": {yr: 1 for yr in self.aeo_years},
+            "other fuel": {yr: 1 for yr in self.aeo_years}}
+        # Set CO2 intensity by fuel type
+        carb_int_init = {
+            "residential": {
+                "electricity": cost_ss_carb[
+                    "electricity"]["CO2 intensity"]["data"]["residential"],
+                "natural gas": cost_ss_carb[
+                    "natural gas"]["CO2 intensity"]["data"]["residential"],
+                "distillate": cost_ss_carb[
+                    "other"]["CO2 intensity"]["data"]["residential"],
+                "other fuel": cost_ss_carb[
+                    "other"]["CO2 intensity"]["data"]["residential"]},
+            "commercial": {
+                "electricity": cost_ss_carb[
+                    "electricity"]["CO2 intensity"]["data"]["commercial"],
+                "natural gas": cost_ss_carb[
+                    "natural gas"]["CO2 intensity"]["data"]["commercial"],
+                "distillate": cost_ss_carb[
+                    "other"]["CO2 intensity"]["data"]["commercial"],
+                "other fuel": cost_ss_carb[
+                    "other"]["CO2 intensity"]["data"]["commercial"]}}
+        # Divide CO2 intensity by fuel type data by 1000000000 to reflect
         # conversion from import units of MMTon/quad to MMTon/MMBtu
-        self.carb_int = {}
-        for k in carb_int.keys():
-            self.carb_int[k] = {
-                yr_key: (carb_int[k][yr_key] / 1000000000) for
-                yr_key in self.aeo_years}
+        self.carb_int = {bldg: {fuel: {
+            yr: (carb_int_init[bldg][fuel][yr] / 1000000000) for
+            yr in self.aeo_years} for fuel in carb_int_init[bldg].keys()} for
+            bldg in carb_int_init.keys()}
+        # Set energy costs
         self.ecosts = {
             "residential": {
-                "electricity": cost_ss_carb[0],
-                "natural gas": cost_ss_carb[1], "distillate": cost_ss_carb[2],
-                "other fuel": cost_ss_carb[2]},
+                "electricity": cost_ss_carb[
+                    "electricity"]["price"]["data"]["residential"],
+                "natural gas": cost_ss_carb[
+                    "natural gas"]["price"]["data"]["residential"],
+                "distillate": cost_ss_carb[
+                    "other"]["price"]["data"]["residential"],
+                "other fuel": cost_ss_carb[
+                    "other"]["price"]["data"]["residential"]},
             "commercial": {
-                "electricity": cost_ss_carb[3],
-                "natural gas": cost_ss_carb[4], "distillate": cost_ss_carb[5],
-                "other fuel": cost_ss_carb[5]}}
-        self.ccosts = cost_ss_carb[6]
+                "electricity": cost_ss_carb[
+                    "electricity"]["price"]["data"]["commercial"],
+                "natural gas": cost_ss_carb[
+                    "natural gas"]["price"]["data"]["commercial"],
+                "distillate": cost_ss_carb[
+                    "other"]["price"]["data"]["commercial"],
+                "other fuel": cost_ss_carb[
+                    "other"]["price"]["data"]["commercial"]}}
+        # Set carbon costs
+        ccosts_init = cost_ss_carb["CO2 price"]["data"]
+        # Multiply carbon costs by 1000000 to reflect
+        # conversion from import units of $/MTon to $/MMTon
+        self.ccosts = {
+            yr_key: (ccosts_init[yr_key] * 1000000) for
+            yr_key in self.aeo_years}
         self.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
             "distributions": {
@@ -1146,13 +1185,15 @@ class Measure(object):
                     site_source_conv_base, site_source_conv_meas = (
                         self.handyvars.ss_conv[mskeys[3]] for n in range(2))
                     intensity_carb_base, intensity_carb_meas = (
-                        self.handyvars.carb_int[mskeys[3]] for n in range(2))
+                        self.handyvars.carb_int[bldg_sect][
+                            mskeys[3]] for n in range(2))
                 else:
                     site_source_conv_base = self.handyvars.ss_conv[mskeys[3]]
                     site_source_conv_meas = self.handyvars.ss_conv[
                         self.fuel_switch_to]
-                    intensity_carb_base = self.handyvars.carb_int[mskeys[3]]
-                    intensity_carb_meas = self.handyvars.carb_int[
+                    intensity_carb_base = self.handyvars.carb_int[bldg_sect][
+                        mskeys[3]]
+                    intensity_carb_meas = self.handyvars.carb_int[bldg_sect][
                         self.fuel_switch_to]
 
             # Initialize cost/performance/lifetime, stock/energy, square

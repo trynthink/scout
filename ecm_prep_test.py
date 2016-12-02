@@ -755,14 +755,40 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir)
+        # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         handyvars.retro_rate = 0.02
-        # Adjust carbon intensity data to reflect units originally used for
-        # tests (* Note: test outcome units to be adjusted later)
-        for k in handyvars.carb_int.keys():
-            handyvars.carb_int[k] = {
-                yr_key: (handyvars.carb_int[k][yr_key] * 1000000000) for
-                yr_key in handyvars.aeo_years}
+        # Hard code carbon intensity, site-source conversion, and cost data for
+        # tests such that these data are not dependent on an input file that
+        # may change in the future
+        handyvars.ss_conv = {
+            "electricity": {"2009": 3.19, "2010": 3.20},
+            "natural gas": {"2009": 1.01, "2010": 1.01},
+            "distillate": {"2009": 1.01, "2010": 1.01},
+            "other fuel": {"2009": 1.01, "2010": 1.01}}
+        handyvars.carb_int = {
+            "residential": {
+                "electricity": {"2009": 56.84702689, "2010": 56.16823191},
+                "natural gas": {"2009": 56.51576602, "2010": 54.91762852},
+                "distillate": {"2009": 49.5454521, "2010": 52.59751597},
+                "other fuel": {"2009": 49.5454521, "2010": 52.59751597}},
+            "commercial": {
+                "electricity": {"2009": 56.84702689, "2010": 56.16823191},
+                "natural gas": {"2009": 56.51576602, "2010": 54.91762852},
+                "distillate": {"2009": 49.5454521, "2010": 52.59751597},
+                "other fuel": {"2009": 49.5454521, "2010": 52.59751597}}}
+        handyvars.ecosts = {
+            "residential": {
+                "electricity": {"2009": 10.14, "2010": 9.67},
+                "natural gas": {"2009": 11.28, "2010": 10.78},
+                "distillate": {"2009": 21.23, "2010": 20.59},
+                "other fuel": {"2009": 21.23, "2010": 20.59}},
+            "commercial": {
+                "electricity": {"2009": 9.08, "2010": 8.55},
+                "natural gas": {"2009": 8.96, "2010": 8.59},
+                "distillate": {"2009": 14.81, "2010": 14.87},
+                "other fuel": {"2009": 14.81, "2010": 14.87}}}
+        handyvars.ccosts = {"2009": 33, "2010": 33}
         cls.sample_mseg_in = {
             "AIA_CZ1": {
                 "assembly": {
@@ -8884,7 +8910,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         # Base directory
         cls.base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(cls.base_dir)
-        # Adjust aeo_years to fit test years
+        # Hard code aeo_years to fit test years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.cbecs_sf_byvint = {
             '2004 to 2007': 6524.0, '1960 to 1969': 10362.0,
@@ -8892,12 +8918,37 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             '1990 to 1999': 13803.0, '2000 to 2003': 7215.0,
             'Before 1920': 3980.0, '2008 to 2012': 5726.0,
             '1920 to 1945': 6020.0, '1980 to 1989': 15185.0}
-        # Adjust carbon intensity data to reflect units originally used for
-        # tests (* Note: test outcome units to be adjusted later)
-        for k in cls.handyvars.carb_int.keys():
-            cls.handyvars.carb_int[k] = {
-                yr_key: (cls.handyvars.carb_int[k][yr_key] * 1000000000) for
-                yr_key in cls.handyvars.aeo_years}
+        # Hard code carbon intensity, site-source conversion, and cost data for
+        # tests such that these data are not dependent on an input file that
+        # may change in the future
+        cls.handyvars.ss_conv = {
+            "electricity": {"2009": 3.19, "2010": 3.20},
+            "natural gas": {"2009": 1.01, "2010": 1.01},
+            "distillate": {"2009": 1.01, "2010": 1.01},
+            "other fuel": {"2009": 1.01, "2010": 1.01}}
+        cls.handyvars.carb_int = {
+            "residential": {
+                "electricity": {"2009": 56.84702689, "2010": 56.16823191},
+                "natural gas": {"2009": 56.51576602, "2010": 54.91762852},
+                "distillate": {"2009": 49.5454521, "2010": 52.59751597},
+                "other fuel": {"2009": 49.5454521, "2010": 52.59751597}},
+            "commercial": {
+                "electricity": {"2009": 56.84702689, "2010": 56.16823191},
+                "natural gas": {"2009": 56.51576602, "2010": 54.91762852},
+                "distillate": {"2009": 49.5454521, "2010": 52.59751597},
+                "other fuel": {"2009": 49.5454521, "2010": 52.59751597}}}
+        cls.handyvars.ecosts = {
+            "residential": {
+                "electricity": {"2009": 10.14, "2010": 9.67},
+                "natural gas": {"2009": 11.28, "2010": 10.78},
+                "distillate": {"2009": 21.23, "2010": 20.59},
+                "other fuel": {"2009": 21.23, "2010": 20.59}},
+            "commercial": {
+                "electricity": {"2009": 9.08, "2010": 8.55},
+                "natural gas": {"2009": 8.96, "2010": 8.59},
+                "distillate": {"2009": 14.81, "2010": 14.87},
+                "other fuel": {"2009": 14.81, "2010": 14.87}}}
+        cls.handyvars.ccosts = {"2009": 33, "2010": 33}
         cls.sample_mseg_in = {
             "AIA_CZ1": {
                 "single family home": {
@@ -9078,7 +9129,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "cost reduction": 0.2}
         # Useful global variables for the sample package measure objects
         handyvars = ecm_prep.UsefulVars(base_dir)
-        # Adjust aeo_years to fit years in test data
+        # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         # Define a series of sample measures to package
         sample_measures_in = [{
