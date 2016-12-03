@@ -578,15 +578,58 @@ Creating and editing package ECMs
 
 Package ECMs are not actually unique ECMs, rather, they are combinations of existing ECMs specified by the user. Existing ECMs can be included in multiple different packages; there is no limit to the number of packages to which a single ECM may be added.
 
-.. ADD EXPLANATION OF HOW TO SPECIFY ENERGY COST REDUCTIONS OR OTHER CHANGES APPLICABLE TO PACKAGE ECMs
+A package ECM might make sense for a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall performance than if the ECMs were implemented separately. The definition of each package includes the specification of these improvements in cost or performance, if they apply. (Package ECMs could also include reductions in performance or increases in installed cost, but it is expected that those packages would not be of interest.)
 
-Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. Within that JSON file, each ECM package should be specified with a unique name as the key, and a list of ECM names separated by commas as the corresponding value. The individual ECM names should match exactly with the values of the "name" field for each of the ECMs added to the package. All of the intended packages should be specified in the "package_ecms.json" file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
+Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. In that JSON file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the performance or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
 
-   {
-      "Name of the first package": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
-      "Name of the second package": ["ECM 4 name", "ECM 1 name"],
-      "Name of the third package": ["ECM 5 name", "ECM 3 name", "ECM 6 name", "ECM 2 name"]
-   }
+   {"name": "First package name", 
+    "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
+    "benefits": {"energy savings increase": 0, "cost reduction": 0.15, "source": {
+      "notes": "Information about how the indicated benefits value(s) were derived.",
+      "source_data": [{
+         "title": "The Title",
+         "author": "Source Author",
+         "organization": "Organization Name",
+         "year": "2016",
+         "pages": "15-17"}]
+    }}}
+
+All of the intended packages should be specified in the "package_ecms.json" file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
+
+   [{"name": "First package name", 
+     "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
+     "benefits": {"energy savings increase": 0, "cost reduction": 0.15, "source": {
+        "notes": "Explanatory text related to source data and/or values given.",
+        "source_data": [{
+           "title": "Reference Title",
+           "author": "Author Name(s)",
+           "organization": "Organization Name",
+           "year": "2016",
+           "pages": null,
+           "URL": "http://buildings.energy.gov/"}]}}},
+    {"name": "Second package name", 
+     "contributing_ECMs": ["ECM 4 name", "ECM 1 name"],
+     "benefits": {"energy savings increase": 0.03, "cost reduction": 0.18, "source": {
+        "notes": "Explanatory text regarding both energy savings and cost reduction values given.",
+        "source_data": [{
+           "title": "Reference Title",
+           "author": "Author Name(s)",
+           "organization": "Organization Name",
+           "year": "2016",
+           "pages": "238-239",
+           "URL": "http://buildings.energy.gov/"}]}}},
+    {"name": "Third package name", 
+     "contributing_ECMs": ["ECM 5 name", "ECM 3 name", "ECM 6 name", "ECM 2 name"]
+     "benefits": {"energy savings increase": 0.2, "cost reduction": 0, "source": {
+        "notes": "Explanatory text related to source data and/or values given.",
+        "source_data": [{
+           "title": "Reference Title",
+           "author": "Author Name(s)",
+           "organization": "Organization Name",
+           "year": "2016",
+           "pages": "82",
+           "URL": "http://buildings.energy.gov/"}]}}}
+    ]
 
 
 .. _tuts-2:
