@@ -409,7 +409,14 @@ Each ECM definition includes quantitative energy efficiency or energy performanc
 
 Performance values can be specified with different values by end use, climate zone, building type, or building vintage. In addition, the performance values for commercial buildings can be specified with data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. The thermoelastic heat pump ECM applies to both residential and commercial buildings, and EnergyPlus simulation results will be used to specify the performance for commercial buildings. Since both the energy efficiency and units data require "primary" and "secondary" keys, the residential and commercial data should be specified under those keys using the simplified building type keys "all residential" and "all commercial."
 
-The EnergyPlus data file should be placed in the directory "energyplus_data" and the file name should be given as the value for the appropriate key. When EnergyPlus data are being used, the units should always be "relative savings (constant)." Using an EnergyPlus data file disables the automatic calculation of the secondary effects of an ECM because these secondary effects should be captured in the EnergyPlus simulation results. If secondary end uses apply to the ECM and EnergyPlus data are used to specify the performance, all of the *secondary* end use, fuel type, and other baseline market parameters must be specified for the performance. If no secondary effects apply, the "secondary" key for performance should be specified as ``null`` similar to other unused fields in the ECM.
+EnergyPlus performance data files are organized by building type and each file can include performance data for multiple ECMs. These files should be placed in the directory "energyplus_data." To import performance data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict as follows: ``"energy_efficiency": {"EnergyPlus file": "ECM name"}``. Here, "ECM name" will determine which rows should be drawn from the EnergyPlus file(s) that are relevant to the ECM's building type(s). When EnergyPlus data are being used, ECM performance units should always be "relative savings (constant)." 
+
+Using EnergyPlus performance data disables the automatic calculation of the secondary energy use effects of an ECM because these secondary effects can be retrieved directly from the EnergyPlus simulation results. Two changes must be made to the ECM definition to correctly incorporate the secondary effects data from the EnergyPlus results.
+
+1. In the applicable baseline market definition, the secondary end use(s), fuel type(s), and technology name(s) must be specified.
+2. The location of the EnergyPlus data files must be specified for the secondary performance fields.
+
+If no secondary effects apply, the "secondary" key for performance should be specified as ``null`` similar to other unused fields in the ECM. For thermoelastic heat pumps, there are no secondary effects.
 
 The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example. The pages where the data can be found in the source can be provided as a single number or as a list of two numbers, e.g., [93, 95], if the data are spread across multiple pages. If page numbers are not applicable, the field should have the value ``null``. ::
 
@@ -417,7 +424,7 @@ The source(s) for the performance data should be credible sources, such as :ref:
     "energy_efficiency": {
       "primary": {
          "all residential": 6,
-         "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps.csv"}},
+         "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps"}},
       "secondary": null},
     "energy_efficiency_units": {
       "primary": {
