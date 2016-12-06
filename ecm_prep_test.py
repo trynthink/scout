@@ -7051,9 +7051,13 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         """
         # Loop through 'ok_out' elements
         for elem in range(0, len(self.ok_out)):
-            # Reset AEO time horizon
+            # Reset AEO time horizon and market entry/exit years
             self.measure_instance.handyvars.aeo_years = \
                 self.time_horizons[elem]
+            self.measure_instance.market_entry_year = \
+                int(self.time_horizons[elem][0])
+            self.measure_instance.market_exit_year = \
+                int(self.time_horizons[elem][-1]) + 1
             # Loop through two test schemes (Technical potential and Max
             # adoption potential)
             for scn in range(0, len(self.handyvars.adopt_schemes)):
@@ -7102,6 +7106,8 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
         handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measures_fail = [{
             "name": "sample measure 5",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7127,6 +7133,8 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
                 "secondary": None}},
             {
             "name": "sample measure 6",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7185,6 +7193,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
         handyvars = ecm_prep.UsefulVars(base_dir)
         sample_measures = [{
             "name": "sample measure 1",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": {
                 "all residential": 1,
                 "all commercial": 2},
@@ -7210,6 +7220,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 2",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": {
                 "all residential": 1,
                 "assembly": 2,
@@ -7241,6 +7253,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 3",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": 999,
@@ -7256,6 +7270,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 4",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": 999,
@@ -7271,6 +7287,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 5",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": {
@@ -7290,6 +7308,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
                 "all heating", "electric WH"]},
             {
             "name": "sample measure 6",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": 999,
@@ -7304,6 +7324,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 7",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": 999,
@@ -7319,6 +7341,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "technology": "all"},
             {
             "name": "sample measure 8",
+            "market_entry_year": None,
+            "market_exit_year": None,
             "installed_cost": 999,
             "cost_units": "dummy",
             "energy_efficiency": 999,
@@ -13581,112 +13605,6 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             self.mseg_ok_out_test2)
 
 
-class AddUncoveredPackagesTest(unittest.TestCase, CommonMethods):
-    """Test 'add_uncovered_pkgupdates' function.
-
-    Ensure the function properly identifies existing packaged measures
-    that require updating but have not been flagged by the user, and
-    adds all data needed to update this measure to list of packaged
-    measures to update and updated individual measures, respectively.
-
-    Attributes:
-        handyvars (object): Global variables to use for the test measure.
-        sample_meas_toupdate_package (list): User-defined list of
-            packaged measures to update.
-        sample_meas_updated_objs (list): Already-updated individual measure
-            objects.
-        sample_meas_summary (list): Summary data for all existing measures.
-        sample_ok_meas_toupdate_package_out (list): Updated list of
-            packaged measures to update (should include omitted package(s)).
-        sample_ok_meas_updated_objnames_out (list): Update list of
-            individual measure objects (should include those related
-            to omitted package(s)).
-        ok_warn_out (list): Warning messages that should be shown to the
-            user given the above inputs to the function.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        """Define variables and objects for use across all class functions."""
-        # Base directory
-        base_dir = os.getcwd()
-        cls.handyvars = ecm_prep.UsefulVars(base_dir)
-        cls.sample_meas_toupdate_package = [{
-            "name": "sample package 1",
-            "contributing measures": [
-                "sample indiv measure 1",
-                "sample indiv measure 2"]}]
-        sample_meas_updated_objs = [
-            {"name": "sample indiv measure 1",
-             "technology": {
-                 "primary": None, "secondary": None}},
-            {"name": "sample indiv measure 2",
-             "technology": {
-                 "primary": None, "secondary": None}}]
-        cls.sample_meas_updated_objs = [
-            ecm_prep.Measure(cls.handyvars, **x) for
-            x in sample_meas_updated_objs]
-        cls.sample_meas_summary = [
-            {"name": "sample indiv measure 1",
-             "technology": {
-                 "primary": None, "secondary": None}},
-            {"name": "sample indiv measure 2",
-             "technology": {
-                 "primary": None, "secondary": None}},
-            {"name": "sample indiv measure 3",
-             "technology": {
-                 "primary": None, "secondary": None}},
-            {"name": "sample package 2",
-             "measures_to_package": [
-                 "sample indiv measure 1",
-                 "sample indiv measure 2",
-                 "sample indiv measure 3"]}]
-        cls.sample_ok_meas_toupdate_package_out = [{
-            "name": "sample package 1",
-            "contributing measures": [
-                "sample indiv measure 1",
-                "sample indiv measure 2"]},
-            {
-            "name": "sample package 2",
-            "contributing measures": [
-                "sample indiv measure 1",
-                "sample indiv measure 2",
-                "sample indiv measure 3"]}]
-        cls.sample_ok_meas_updated_objnames_out = [
-            "sample indiv measure 1",
-            "sample indiv measure 2",
-            "sample indiv measure 3"]
-        cls.ok_warn_out = [(
-            "WARNING: Existing package 'sample package 2'"
-            " added to measure update list")]
-
-    def test_adduncovered(self):
-        """Test 'add_uncovered_pkgupdates' function given valid inputs."""
-        # Catch and test warnings yielded by executing the function.
-        with warnings.catch_warnings(record=True) as w:
-            # Execute the function
-            meas_toupdate_package, meas_updated_objs = \
-                ecm_prep.add_uncovered_pkgupdates(
-                    self.sample_meas_toupdate_package,
-                    self.sample_meas_updated_objs,
-                    self.sample_meas_summary, self.handyvars)
-
-            # Check that correct number of warnings is yielded
-            self.assertEqual(len(w), len(self.ok_warn_out))
-            # Check that correct type of warnings is yielded
-            self.assertTrue(issubclass(w[0].category, UserWarning))
-            # Check that warning message is correct
-            self.assertTrue(self.ok_warn_out[0] in str(w[0].message))
-            # Check that the list of packaged measures to update has
-            # been properly updated
-            self.assertEqual(meas_toupdate_package,
-                             self.sample_ok_meas_toupdate_package_out)
-            # Check that the list of individual measure objects
-            # has been properly updated
-            self.assertEqual([x.name for x in meas_updated_objs],
-                             self.sample_ok_meas_updated_objnames_out)
-
-
 class CleanUpTest(unittest.TestCase, CommonMethods):
     """Test 'split_clean_data' function.
 
@@ -13706,7 +13624,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             input.
         sample_measlist_out_highlev_keys (list): Measure 'markets' keys that
             should be yielded by function given sample measures as input.
-        sample_pkg_meas_names (list): Updated 'measures_to_package'
+        sample_pkg_meas_names (list): Updated 'contributing_ECMs'
             attribute that should be yielded by function for sample
             packaged measure.
     """
@@ -13816,12 +13734,13 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove", 'technology', 'technology_type'],
+             "name", "remove", 'technology', 'technology_type', 'yrs_on_mkt'],
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove", 'technology', 'technology_type'],
+             "name", "remove", 'technology', 'technology_type', 'yrs_on_mkt'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
              "market_entry_year", "market_exit_year", 'markets',
-             'measures_to_package', 'name', 'remove', 'structure_type']]
+             'contributing_ECMs', 'name', 'remove', 'structure_type',
+             'yrs_on_mkt']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
     def test_cleanup(self):
@@ -13837,15 +13756,16 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             # Check measure summary data
             for adopt_scheme in self.handyvars.adopt_schemes:
                 self.assertEqual(sorted(list(measures_summary_data[
-                    ind].keys())), self.sample_measlist_out_highlev_keys[ind])
+                    ind].keys())),
+                    sorted(self.sample_measlist_out_highlev_keys[ind]))
                 self.assertEqual(sorted(list(measures_summary_data[
                     ind]["markets"][adopt_scheme].keys())),
-                    self.sample_measlist_out_mkt_keys)
-                # Verify correct updating of 'measures_to_package'
+                    sorted(self.sample_measlist_out_mkt_keys))
+                # Verify correct updating of 'contributing_ECMs'
                 # MeasurePackage attribute
                 if "Package: " in measures_summary_data[ind]["name"]:
                     self.assertEqual(measures_summary_data[ind][
-                        "measures_to_package"], self.sample_pkg_meas_names)
+                        "contributing_ECMs"], self.sample_pkg_meas_names)
 
 
 # Offer external code execution (include all lines below this point in all

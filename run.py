@@ -121,7 +121,6 @@ class Measure(object):
             from an input dictionary.
         update_results (dict): Flags markets, savings, and financial metric
             outputs that have yet to be finalized by the analysis engine.
-        yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
@@ -141,20 +140,6 @@ class Measure(object):
         # Read Measure object attributes from measures input JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
-        # Set measure market entry year
-        if self.market_entry_year is None or (int(
-                self.market_entry_year) < int(handyvars.aeo_years[0])):
-            mkt_entry_yr = int(handyvars.aeo_years[0])
-        else:
-            mkt_entry_yr = self.market_entry_year
-        # Set measure market exit year
-        if self.market_exit_year is None or (int(self.market_exit_year) > (
-                int(handyvars.aeo_years[-1]) + 1)):
-            mkt_exit_yr = int(handyvars.aeo_years[-1]) + 1
-        else:
-            mkt_exit_yr = self.market_exit_year
-        self.yrs_on_mkt = [
-            str(i) for i in range(mkt_entry_yr, mkt_exit_yr)]
         self.savings, self.portfolio_metrics, self.consumer_metrics = (
             {} for n in range(3))
         self.update_results = {

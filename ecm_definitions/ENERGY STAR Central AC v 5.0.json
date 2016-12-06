@@ -6,7 +6,7 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": "central AC",
-  "market_entry_year": null,
+  "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {

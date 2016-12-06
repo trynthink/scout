@@ -1874,6 +1874,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2149,6 +2150,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2495,6 +2497,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -2893,6 +2896,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3169,6 +3173,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3465,6 +3470,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3863,6 +3869,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -5594,6 +5601,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6012,6 +6020,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "secondary": ["heating", "secondary heating", "cooling"]},
             "market_entry_year": 2010,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6430,6 +6439,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "secondary": ["heating", "secondary heating", "cooling"]},
             "market_entry_year": 2010,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6872,6 +6882,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
