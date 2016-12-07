@@ -1348,10 +1348,6 @@ class Engine(object):
                 (mseg type->czone->bldg->fuel->end use->technology type
                  ->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
-
-        Raises:
-            KeyError: If secondary market microsegment has no associated
-                primary market microsegment.
         """
         # Find the year range in which at least one measure that applies
         # to the secondary microsegment is on the market
@@ -2133,11 +2129,22 @@ def main(base_dir):
 
     # Import measure files
     with open((base_dir + handyfiles.meas_summary_data), 'r') as mjs:
-        meas_summary = json.load(mjs)
+        try:
+            meas_summary = json.load(mjs)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" + handyfiles.meas_summary_data +
+                "': " + str(e)) from None
+
     # Import list of all unique active measures
     with open((base_dir + handyfiles.active_measures), 'r') as am:
-        active_meas_all = numpy.unique(json.load(am)["active"])
-    print('Measure attributes data load complete')
+        try:
+            active_meas_all = numpy.unique(json.load(am)["active"])
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" + handyfiles.active_measures +
+                "': " + str(e)) from None
+    print('ECM attributes data load complete')
 
     # Loop through measures data in JSON, initialize objects for all measures
     # that are active and valid
@@ -2148,14 +2155,20 @@ def main(base_dir):
     for m in measures_objlist:
         with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
                        m.name + ".pkl.gz"), 'r') as zp:
-            meas_comp_data = pickle.load(zp)
+            try:
+                meas_comp_data = pickle.load(zp)
+            except Exception as e:
+                raise Exception(
+                    "Error reading in competition data of " +
+                    "ECM '" + meas_obj.name + "': " + str(e)) from None
+
         for adopt_scheme in handyvars.adopt_schemes:
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
-        print("Imported measure '" + m.name + "' competition data")
-    print('Measure competition data load complete')
+        print("Imported ECM '" + m.name + "' competition data")
+    print('ECM competition data load complete')
 
     # Instantiate an Engine object using active measures list
     a_run = Engine(handyvars, measures_objlist)
@@ -2170,7 +2183,7 @@ def main(base_dir):
         # Update each measure's competed markets to reflect the
         # removal of savings overlaps with competing measures
         a_run.compete_measures(adopt_scheme)
-        print("Measure competition complete for '" +
+        print("ECM competition complete for '" +
               adopt_scheme + "' scenario")
         # Calculate each measure's competed measure savings and metrics
         # using updated competed markets
@@ -2191,4 +2204,7 @@ if __name__ == '__main__':
     start_time = time.time()
     base_dir = getcwd()
     main(base_dir)
-    print("--- Runtime: %s seconds ---" % round((time.time() - start_time), 2))
+    hours, rem = divmod(time.time() - start_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("--- Runtime: %s (HH:MM:SS.mm) ---" %
+          "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))

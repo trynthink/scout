@@ -539,7 +539,8 @@ class UsefulVars(object):
             else:
                 raise ValueError(
                     "Input dict terminal key values expected to be "
-                    "lists or strings in the 'append_keyvals' function")
+                    "lists or strings in the 'append_keyvals' function"
+                    "for ECM '" + self.name + "'")
 
         return keyval_list
 
@@ -790,15 +791,18 @@ class EPlusGlobals(object):
             # Check that the 'new' EnergyPlus vintage weight equals 1 and that
             # all 'retrofit' EnergyPlus vintage weights sum to 1
             if new_weight_sum != 1:
-                raise ValueError('Incorrect new vintage weight total')
+                raise ValueError("Incorrect new vintage weight total when "
+                                 "instantiating 'EPlusGlobals' object")
             elif retro_weight_sum != 1:
-                raise ValueError('Incorrect retrofit vintage weight total')
+                raise ValueError("Incorrect retrofit vintage weight total when"
+                                 "instantiating 'EPlusGlobals' object")
 
         else:
             raise KeyError(
-                'Unexpected EnergyPlus vintage(s); '
-                'check EnergyPlus vintage assumptions in structure_type '
-                'attribute of EPlusMapDict object')
+                "Unexpected EnergyPlus vintage(s) when instantiating "
+                "'EPlusGlobals' object; "
+                "check EnergyPlus vintage assumptions in structure_type "
+                "attribute of 'EPlusMapDict' object")
 
         return eplus_vintage_weights
 
@@ -829,7 +833,7 @@ class Measure(object):
         # Check to ensure that measure name is proper length for plotting
         if len(self.name) > 40:
             raise ValueError(
-                "Measure '" + self.name + "' name must be <= 40 characters")
+                "ECM '" + self.name + "' name must be <= 40 characters")
         self.remove = False
         self.handyvars = handyvars
         # Determine whether the measure replaces technologies pertaining to
@@ -984,7 +988,9 @@ class Measure(object):
             self.energy_efficiency_source = 'EnergyPlus/OpenStudio'
         else:
             raise ValueError(
-                'Failure to find relevant EPlus files for Scout building type')
+                "Failure to find relevant EPlus files for " +
+                "Scout building type(s) " + str(self.bldg_type) +
+                "in ECM '" + self.name + "'")
 
     def fill_mkts(self, msegs, msegs_cpl, convert_data):
         """Fill in a measure's market microsegments using EIA baseline data.
@@ -1010,6 +1016,9 @@ class Measure(object):
         # Check that the measure's applicable baseline market input definitions
         # are valid before attempting to retrieve data on this baseline market
         self.check_mkt_inputs()
+
+        # Notify user that measure is being updated
+        print("Updating ECM '" + self.name + "'...")
 
         # If multiple runs are required to handle probability distributions on
         # measure inputs, set a number to seed each random draw of cost,
@@ -1702,7 +1711,7 @@ class Measure(object):
                         light_scnd_autoperf = rel_perf
                 else:
                     raise KeyError(
-                        "Invalid performance or cost units for measure '" +
+                        "Invalid performance or cost units for ECM '" +
                         self.name + "'")
 
                 # Reduce energy costs and stock turnover info. to appropriate
@@ -2015,7 +2024,8 @@ class Measure(object):
                     except:
                         raise ValueError(
                             "Baseline market key chain: '" + mskeys +
-                            "' does not map to output breakout categories")
+                            "' for ECM '" + self.name + "' does not map to "
+                            "output breakout categories")
 
                     # Case with no existing 'windows' contributing microsegment
                     # for the current climate zone, building type, fuel type,
@@ -2135,11 +2145,11 @@ class Measure(object):
         # have been found for the measure's master microsegment
         elif key_chain_ct == 0:
             raise KeyError(
-                "No data retrieved for applicable baseline market " +
-                "definition of measure '" + self.name + "'")
+                "No data retrieved for applicable baseline market "
+                "definition of ECM '" + self.name + "'")
 
         # Print update on measure status
-        print("Measure '" + self.name + "' successfully updated")
+        print("ECM '" + self.name + "' successfully updated")
 
     def convert_costs(self, convert_data, bldg_sect, mskeys,
                       cost_meas, cost_meas_units, cost_base_units):
@@ -2190,7 +2200,8 @@ class Measure(object):
                 top_key = next(x for x in top_keys.keys() if
                                cost_meas_noyr in top_keys[x])
             except StopIteration:
-                raise KeyError('No conversion data for measure cost units')
+                raise KeyError("No conversion data for ECM '" +
+                               self.name + "' cost units")
 
             if top_key == "whole building":
                 # Retrieve whole building-level cost conversion data
@@ -2200,8 +2211,8 @@ class Measure(object):
                         x for x in whlbldg_keys.keys() if
                         cost_meas_noyr in whlbldg_keys[x])
                 except StopIteration:
-                    raise KeyError(
-                        'No conversion data for measure cost units')
+                    raise KeyError("No conversion data for ECM '" +
+                                   self.name + "' cost units")
                 # If a residential cost conversion to $/unit is required,
                 # retrieve data needed for this multi-stage conversion (e.g,
                 # from $/occupant or $/node to $/ft^2 floor to $/unit);
@@ -2219,8 +2230,8 @@ class Measure(object):
                             x for x in node_keys.keys() if
                             cost_meas_noyr in node_keys[x]['key'])
                     except StopIteration:
-                        raise KeyError(
-                            'No conversion data for measure cost units')
+                        raise KeyError("No conversion data for ECM '" +
+                                       self.name + "' cost units")
                     convert_units_data = [convert_data[
                         'cost unit conversions'][top_key][x] for x in
                         node_keys[node_key]["conversion stages"]]
@@ -2238,8 +2249,8 @@ class Measure(object):
                         x for x in htcl_keys.keys() if
                         cost_meas_noyr in htcl_keys[x])
                 except StopIteration:
-                    raise KeyError(
-                        'No conversion data for measure cost units')
+                    raise KeyError("No conversion data for ECM '" +
+                                   self.name + "' cost units")
                 if htcl_key == "supply":
                     # Retrieve supply-side heating/cooling conversion data
                     supply_keys = self.handyvars.cconv_tech_htclsupply_map
@@ -2248,8 +2259,8 @@ class Measure(object):
                             x for x in supply_keys.keys() if
                             cost_meas_noyr in supply_keys[x])
                     except StopIteration:
-                        raise KeyError(
-                            'No conversion data for measure cost units')
+                        raise KeyError("No conversion data for ECM '" +
+                                       self.name + "' cost units")
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][supply_key]]
@@ -2261,8 +2272,8 @@ class Measure(object):
                             x for x in demand_keys.keys() if
                             cost_meas_noyr in demand_keys[x]['key'])
                     except StopIteration:
-                        raise KeyError(
-                            'No conversion data for measure cost units')
+                        raise KeyError("No conversion data for ECM '" +
+                                       self.name + "' cost units")
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][x] for x in
@@ -2395,8 +2406,9 @@ class Measure(object):
         # Case where cost conversion has not succeeded
         else:
             raise ValueError(
-                "Measure cost units '" + str(cost_meas_units_fin) +
-                "' not equal to base units '" + str(cost_base_units) + "'")
+                "ECM '" + self.name + "' cost units '" +
+                str(cost_meas_units_fin) + "' not equal to base units '" +
+                str(cost_base_units) + "'")
 
         return cost_meas_fin, cost_meas_units_fin
 
@@ -3010,7 +3022,7 @@ class Measure(object):
                 check_list.append(x)
             else:
                 raise ValueError(
-                    "Measure '" + self.name + "'applicable baseline market "
+                    "ECM '" + self.name + "'applicable baseline market "
                     "input in unexpected format (need dict, list, or string)")
         # Find subset of input names that are not in the list of valid names
         invalid_names = [
@@ -3018,7 +3030,7 @@ class Measure(object):
         # If invalid names are discovered, report them in an error message
         if len(invalid_names) > 0:
             raise ValueError(
-                "Input names in the following list are invalid for measure '" +
+                "Input names in the following list are invalid for ECM '" +
                 self.name + "': " + str(invalid_names))
 
     def fill_attr(self):
@@ -3405,7 +3417,10 @@ class Measure(object):
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
-                raise KeyError('Add dict keys do not match')
+                raise KeyError("When adding together two dicts "
+                               "for ECM '" + self.name +
+                               "' update, dict key structures "
+                               "do not match")
         return dict1
 
     def add_keyvals_restrict(self, dict1, dict2):
@@ -3443,7 +3458,10 @@ class Measure(object):
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
-                raise KeyError('Add dict keys do not match')
+                raise KeyError("When adding together two dicts "
+                               "for ECM '" + self.name +
+                               "' update, dict key structures "
+                               "do not match")
         return dict1
 
     def div_keyvals(self, dict1, dict2):
@@ -3563,7 +3581,9 @@ class Measure(object):
                                                 distrib_info[2],
                                                 distrib_info[3], nsamples)
         else:
-            raise ValueError("Unsupported input distribution specification")
+            raise ValueError(
+                "Unsupported input distribution specification for ECM '" +
+                self.name + "'")
 
         return rand_list
 
@@ -3627,7 +3647,9 @@ class Measure(object):
                         eplus_perf_array[
                             'climate_zone'] == handydicts.czone[key])].copy()
                     if len(updated_perf_array) == 0:
-                        raise KeyError('eplus climate zone name not found')
+                        raise KeyError(
+                            "EPlus climate zone name not found for ECM '" +
+                            self.name + "'")
                 # Building type level
                 elif key in handydicts.bldgtype.keys():
                     # Determine relevant EnergyPlus building types for current
@@ -3635,14 +3657,17 @@ class Measure(object):
                     eplus_bldg_types = handydicts.bldgtype[key]
                     if sum(eplus_bldg_types.values()) != 1:
                         raise ValueError(
-                            'eplus building type weights do not sum to 1')
+                            "EPlus building type weights do not sum to 1 "
+                            "for ECM '" + self.name + "'")
                     # Reduce EnergyPlus array to only rows with building type
                     # relevant to current Scout building type
                     updated_perf_array = eplus_perf_array[numpy.in1d(
                         eplus_perf_array['building_type'],
                         list(eplus_bldg_types.keys()))].copy()
                     if len(updated_perf_array) == 0:
-                        raise KeyError('eplus building type name not found')
+                        raise KeyError(
+                            "EPlus building type name not found for ECM '" +
+                            self.name + "'")
                 # Fuel type level
                 elif key in handydicts.fuel.keys():
                     # Reduce EnergyPlus array to only columns with fuel type
@@ -3651,7 +3676,9 @@ class Measure(object):
                     colnames = base_cols + [
                         x for x in eplus_header if handydicts.fuel[key] in x]
                     if len(colnames) == len(base_cols):
-                        raise KeyError('eplus fuel type name not found')
+                        raise KeyError(
+                            "EPlus fuel type name not found for ECM '" +
+                            self.name + "'")
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 # End use level
                 elif key in handydicts.enduse.keys():
@@ -3662,11 +3689,14 @@ class Measure(object):
                         x for x in eplus_header if x in handydicts.enduse[
                             key]]
                     if len(colnames) == len(base_cols):
-                        raise KeyError('eplus end use name not found')
+                        raise KeyError(
+                            "EPlus end use name not found for ECM '" +
+                            self.name + "'")
                     updated_perf_array = eplus_perf_array[colnames].copy()
                 else:
                     raise KeyError(
-                        'Invalid measure performance dictionary key')
+                        "Invalid performance dict key for ECM '" +
+                        self.name + "'")
 
                 # Given updated EnergyPlus array, proceed further down the
                 # dict level hierarchy
@@ -3699,10 +3729,12 @@ class Measure(object):
                             'template'])) != len(
                             handydicts.structure_type["retrofit"].keys())):
                         raise ValueError(
-                            'eplus vintage name not found in data file')
+                            "EPlus vintage name not found for ECM '" +
+                            self.name + "'")
                 else:
                     raise KeyError(
-                        'Invalid measure performance dictionary key')
+                        "Invalid performance dict key for ECM '" +
+                        self.name + "'")
 
                 # Separate filtered array into the rows representing measure
                 # consumption and those representing baseline consumption
@@ -3714,8 +3746,9 @@ class Measure(object):
                 # Ensure that a baseline consumption row exists for every
                 # measure consumption row retrieved
                 if len(updated_perf_array_m) != len(updated_perf_array_b):
-                    raise ValueError('Lengths of measure and baseline'
-                                     'EnergyPlus data arrays are unequal')
+                    raise ValueError(
+                        "Lengths of ECM and baseline EPlus data arrays "
+                        "are unequal for ECM '" + self.name + "'")
                 # Initialize total measure and baseline consumption values
                 val_m, val_b = (0 for n in range(2))
 
@@ -4391,7 +4424,8 @@ class MeasurePackage(Measure):
                             i[yr] = i2[yr] * meas_brk_unnorm[yr]
                 else:
                     raise KeyError(
-                        'Dicts to merge are not identically structured')
+                        "Output data dicts to merge for ECM '" + self.name +
+                        "are not identically structured")
 
         return pkg_brk
 
@@ -4464,6 +4498,9 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
     # Run through each unique measure package and merge the measures that
     # contribute to this package
     for p in packages:
+        # Notify user that measure is being updated
+        print("Updating measure '" + p["name"] + "'...")
+
         # Establish a list of names for measures that contribute to the
         # package
         package_measures = p["contributing_ECMs"]
@@ -4486,7 +4523,14 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 # Load and set competition data for the missing measure object
                 with gzip.open((base_dir + handyfiles.ecm_compete_data + '/' +
                                meas_obj.name + ".pkl.gz"), 'r') as zp:
-                    meas_comp_data = pickle.load(zp)
+                    try:
+                        meas_comp_data = pickle.load(zp)
+                    except Exception as e:
+                        raise Exception(
+                            "Error reading in competition data of " +
+                            "contributing ECM '" + meas_obj.name +
+                            "' for package '" + p["name"] + "': " +
+                            str(e)) from None
                 for adopt_scheme in handyvars.adopt_schemes:
                     meas_obj.markets[adopt_scheme]["mseg_adjust"] = \
                         meas_comp_data[adopt_scheme]
@@ -4494,11 +4538,16 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 measure_list_package.append(meas_obj)
             # Raise an error if no existing data exist for the missing
             # contributing measure
-            else:
+            elif len(meas_summary_data) == 0:
                 raise ValueError(
                     "Contributing ECM '" + m +
-                    "' cannot be added to package '" + str(p) +
-                    "' due to missing data for this ECM")
+                    "' cannot be added to package '" + p["name"] +
+                    "' due to missing attribute data for this ECM")
+            else:
+                raise ValueError(
+                    "More than one set of attribute data for " +
+                    "contributing ECM '" + m + "'; ECM cannot be added to" +
+                    "package '" + p["name"])
 
         # Determine which (if any) measure objects that contribute to
         # the package are invalid due to unacceptable input data sourcing
@@ -4507,7 +4556,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
 
         # Warn user of no valid measures to package
         if len(measure_list_package_rmv) > 0:
-            warnings.warn("WARNING (CRITICAL): Package '" + str(p) +
+            warnings.warn("WARNING (CRITICAL): Package '" + p["name"] +
                           "' removed due to invalid contributing ECM(s)")
             packaged_measure = False
         # Update package if valid contributing measures are available
@@ -4519,7 +4568,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # Merge measures in the package object
             packaged_measure.merge_measures()
             # Print update on measure status
-            print("Measure '" + p["name"] + "' successfully updated")
+            print("ECM '" + p["name"] + "' successfully updated")
 
         # Add the new packaged measure to the measure list (if it exists)
         # for further evaluation like any other regular measure
@@ -4617,7 +4666,12 @@ def main(base_dir):
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine
     with open((base_dir + handyfiles.ecm_prep), 'r') as es:
-        meas_summary = json.load(es)
+        try:
+            meas_summary = json.load(es)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" + handyfiles.ecm_prep +
+                "': " + str(e)) from None
 
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
@@ -4638,7 +4692,12 @@ def main(base_dir):
 
     # Import full list of packages
     with open((base_dir + handyfiles.ecm_packages), 'r') as mpk:
-        meas_toprep_package_init = json.load(mpk)
+        try:
+            meas_toprep_package_init = json.load(mpk)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in ECM package '" + handyfiles.ecm_packages +
+                "': " + str(e)) from None
     # Initialize list of measure packages to prepare
     meas_toprep_package = []
     # Identify all previously prepared measure packages
@@ -4665,7 +4724,7 @@ def main(base_dir):
         # multiple previously prepared packages
         elif len(m_exist) > 1:
             raise ValueError(
-                "Multiple existing measure names match '" + m["name"] + "'")
+                "Multiple existing ECM names match '" + m["name"] + "'")
 
     # If one or more measure definition is new or has been edited, proceed
     # further with 'ecm_prep.py' routine; otherwise end the routine
@@ -4676,26 +4735,56 @@ def main(base_dir):
         meas_toprep_indiv = []
         for mi in meas_toprep_indiv_names:
             with open(path.join(ecm_dir, mi)) as jsf:
-                meas_toprep_indiv.append(json.load(jsf))
+                try:
+                    meas_toprep_indiv.append(json.load(jsf))
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in ECM '" + mi + "': " +
+                        str(e)) from None
 
         # Import baseline microsegments
         with open((base_dir + handyfiles.msegs_in), 'r') as msi:
-            msegs = json.load(msi)
+            try:
+                msegs = json.load(msi)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
         with open((base_dir + handyfiles.msegs_cpl_in), 'r') as bjs:
-            msegs_cpl = json.load(bjs)
+            try:
+                msegs_cpl = json.load(bjs)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.msegs_cpl_in + "': " + str(e)) from None
         # Import measure cost unit conversion data
         with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
-            convert_data = json.load(cc)
+            try:
+                convert_data = json.load(cc)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.cost_convert_in + "': " + str(e)) from None
         # Import CBECs square footage by vintage data (used to map EnergyPlus
         # commercial building vintages to Scout building vintages)
         with open((base_dir + handyfiles.cbecs_sf_byvint), 'r') as cbsf:
-            cbecs_sf_byvint = json.load(cbsf)[
-                "commercial square footage by vintage"]
+            try:
+                cbecs_sf_byvint = json.load(cbsf)[
+                    "commercial square footage by vintage"]
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
         # Import analysis engine setup file to write prepared measure names
         # to
         with open((base_dir + handyfiles.run_setup), 'r') as am:
-            run_setup = json.load(am, object_pairs_hook=OrderedDict)
+            try:
+                run_setup = json.load(am, object_pairs_hook=OrderedDict)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.run_setup + "': " + str(e)) from None
 
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
@@ -4733,7 +4822,7 @@ def main(base_dir):
                     "inactive"] if x != m["name"]]
 
         # Notify user that all measure preparations are completed
-        print('All measure updates complete; writing output data...')
+        print('All ECM updates complete; writing output data...')
 
         # Write prepared measure competition data to zipped JSONs
         for ind, m in enumerate(meas_prepped_objs):
@@ -4749,7 +4838,7 @@ def main(base_dir):
         with open((base_dir + handyfiles.run_setup), "w") as jso:
             json.dump(run_setup, jso, indent=2)
     else:
-        print('No new measure updates available')
+        print('No new ECM updates available')
 
 
 if __name__ == "__main__":
@@ -4759,4 +4848,7 @@ if __name__ == "__main__":
     # directory
     base_dir = getcwd()
     main(base_dir)
-    print("--- Runtime: %s seconds ---" % round((time.time() - start_time), 2))
+    hours, rem = divmod(time.time() - start_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("--- Runtime: %s (HH:MM:SS.mm) ---" %
+          "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
