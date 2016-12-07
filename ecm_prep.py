@@ -4686,7 +4686,7 @@ def main(base_dir):
     # (if any) since last the 'ecm_prep.py' routine was run
     ecm_dir = 'ecm_definitions/'
     meas_toprep_indiv_names = [
-        x for x in listdir(ecm_dir) if '.json' in x and
+        x for x in listdir(ecm_dir) if x.endswith(".json") and
         'package' not in x and (
             stat(path.join(ecm_dir, x)).st_mtime >
             stat('supporting_data/ecm_prep.json').st_mtime)]
