@@ -464,7 +464,7 @@ class UsefulVars(object):
                 current_level = current_level[elem]
         self.cconv_bybldg_units = [
             "$/occupant", "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
-            "$/ft^2 footprint"]
+            "$/ft^2 footprint", "$/ft^2 floor"]
         self.cconv_topkeys_map = {
             "whole building": ["$/ft^2 floor", "$/node", "$/occupant"],
             "heating and cooling": [
@@ -1171,9 +1171,9 @@ class Measure(object):
             else:
                 # Set cost attributes to values previously calculated for
                 # current mseg building type
-                if ms_iterable[ind][2] in bldgs_costconverted.keys():
+                if mskeys[2] in bldgs_costconverted.keys():
                     cost_meas, cost_units = [x for x in bldgs_costconverted[
-                        ms_iterable[ind][2]]]
+                        mskeys[2]]]
                 # Set cost attributes to initial values
                 elif ind == 0 or any([x in self.cost_units for x in
                                      self.handyvars.cconv_bybldg_units]):
@@ -2199,9 +2199,10 @@ class Measure(object):
             try:
                 top_key = next(x for x in top_keys.keys() if
                                cost_meas_noyr in top_keys[x])
-            except StopIteration:
+            except StopIteration as e:
                 raise KeyError("No conversion data for ECM '" +
-                               self.name + "' cost units")
+                               self.name + "' cost units '" +
+                               cost_meas_units + "'") from e
 
             if top_key == "whole building":
                 # Retrieve whole building-level cost conversion data
@@ -2210,9 +2211,10 @@ class Measure(object):
                     whlbldg_key = next(
                         x for x in whlbldg_keys.keys() if
                         cost_meas_noyr in whlbldg_keys[x])
-                except StopIteration:
+                except StopIteration as e:
                     raise KeyError("No conversion data for ECM '" +
-                                   self.name + "' cost units")
+                                   self.name + "' cost units" +
+                                   cost_meas_units + "'") from e
                 # If a residential cost conversion to $/unit is required,
                 # retrieve data needed for this multi-stage conversion (e.g,
                 # from $/occupant or $/node to $/ft^2 floor to $/unit);
@@ -2229,9 +2231,10 @@ class Measure(object):
                         node_key = next(
                             x for x in node_keys.keys() if
                             cost_meas_noyr in node_keys[x]['key'])
-                    except StopIteration:
+                    except StopIteration as e:
                         raise KeyError("No conversion data for ECM '" +
-                                       self.name + "' cost units")
+                                       self.name + "' cost units" +
+                                       cost_meas_units + "'") from e
                     convert_units_data = [convert_data[
                         'cost unit conversions'][top_key][x] for x in
                         node_keys[node_key]["conversion stages"]]
@@ -2248,9 +2251,10 @@ class Measure(object):
                     htcl_key = next(
                         x for x in htcl_keys.keys() if
                         cost_meas_noyr in htcl_keys[x])
-                except StopIteration:
+                except StopIteration as e:
                     raise KeyError("No conversion data for ECM '" +
-                                   self.name + "' cost units")
+                                   self.name + "' cost units" +
+                                   cost_meas_units + "'") from e
                 if htcl_key == "supply":
                     # Retrieve supply-side heating/cooling conversion data
                     supply_keys = self.handyvars.cconv_tech_htclsupply_map
@@ -2258,9 +2262,10 @@ class Measure(object):
                         supply_key = next(
                             x for x in supply_keys.keys() if
                             cost_meas_noyr in supply_keys[x])
-                    except StopIteration:
+                    except StopIteration as e:
                         raise KeyError("No conversion data for ECM '" +
-                                       self.name + "' cost units")
+                                       self.name + "' cost units" +
+                                       cost_meas_units + "'") from e
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][supply_key]]
@@ -2271,9 +2276,10 @@ class Measure(object):
                         demand_key = next(
                             x for x in demand_keys.keys() if
                             cost_meas_noyr in demand_keys[x]['key'])
-                    except StopIteration:
+                    except StopIteration as e:
                         raise KeyError("No conversion data for ECM '" +
-                                       self.name + "' cost units")
+                                       self.name + "' cost units" +
+                                       cost_meas_units + "'") from e
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][x] for x in
