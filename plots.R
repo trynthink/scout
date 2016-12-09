@@ -201,6 +201,15 @@ for (a in 1:length(adopt_scenarios)){
       eff_c_l = unlist(results[2, 4]) * unit_translate
       eff_c_h = unlist(results[3, 4]) * unit_translate
       
+      # Initialize or update summed results across all ECMs
+      if (m == 1){
+        base_c_all = base_c
+        eff_c_m_all = eff_c_m
+      }else{
+        base_c_all = base_c_all + base_c
+        eff_c_m_all = eff_c_m_all + eff_c_m
+      }
+      
       # Find the min. and max. values in the data to be plotted
       min_val = min(c(base_uc, base_c, eff_uc_m, eff_uc_l, eff_uc_h,
                       eff_c_m, eff_c_l, eff_c_h))
@@ -232,7 +241,7 @@ for (a in 1:length(adopt_scenarios)){
           lwd_param = c(5, 3, 3.5, rep(2, 2))
           lty_param = rep(1, 4)  
         }
-     
+
       # Add low/high bounds on uncompeted and competed baseline and efficient
       # results, if applicable
       if (uncertainty == TRUE){
@@ -241,13 +250,14 @@ for (a in 1:length(adopt_scenarios)){
         lines(years, eff_c_l, lwd=2, lty=3, col=plot_col_c_lowhigh)
         lines(years, eff_c_h, lwd=2, lty=3, col=plot_col_c_lowhigh)
       }
+
       # Add mean uncompeted efficient results
       lines(years, eff_uc_m, lwd=3, col=plot_col_uc_eff)
       # Add competed baseline results
       lines(years, base_c, lwd=3.5, col=plot_col_c_base)
       # Add mean competed efficient results
       lines(years, eff_c_m, lwd=2, col=plot_col_c_eff)
-      
+
       # Add x and y axis labels
       mtext("Year", side=1, line=3.5, cex=0.925)
       mtext(plot_axis_labels[v], side=2, line=3.75, cex=0.925)
@@ -260,6 +270,31 @@ for (a in 1:length(adopt_scenarios)){
       axis(side=4, at=ylims, labels = NA)
     }
   
+    # Plot results across all ECMs
+    
+    # Find the min. and max. values in the data to be plotted
+    min_val = min(c(base_c_all, eff_c_m_all))
+    max_val = max(c(base_c_all, eff_c_m_all))
+    # Set limits of y axis for plot based on min. and max. values in data
+    ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
+
+    # Initialize the plot with uncompeted baseline results across all ECMs
+    plot(years, base_c_all, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
+         xlab=NA, ylab=NA, col=plot_col_c_base, main = "All ECMs", xaxt="n", yaxt="n")
+    # Add mean competed efficient results across all ECMs
+    lines(years, eff_c_m_all, lwd=2, col=plot_col_c_eff)
+    
+    # Add x and y axis labels
+    mtext("Year", side=1, line=3.5, cex=0.925)
+    mtext(plot_axis_labels[v], side=2, line=3.75, cex=0.925)
+    # Add tick marks and labels to bottom and left axes
+    axis(side=1, at=xlabels,
+         labels=xlabels, cex.axis = 1.2)
+    axis(side=2, at=ylims, labels = ylims, cex.axis = 1.2, las=1)
+    # Add tick marks to top and right axes
+    axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
+    axis(side=4, at=ylims, labels = NA)
+
     # Add plot legend
     par(xpd=TRUE)
     plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
