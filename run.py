@@ -904,16 +904,14 @@ class Engine(object):
                 # total secondary energy/carbon/cost, proceed with the
                 # adjustment calculation
                 if len(measures_adj_scnd) > 0:
-                    self.adj_secondary(measures_adj_scnd, msu,
+                    self.secondary_adj(measures_adj_scnd, msu,
                                        secnd_mseg_adjkey, adopt_scheme)
 
             # For any contributing microsegment that pertains to heating or
-            # cooling, additional adjustments may be needed post-competition to
-            # a) balance out total supply-side and demand-side heating and
-            # cooling energy to reflect competition-driven changes in primary
-            # or secondary energy/carbon/cost totals, or b) account for the
-            # demand-side effects of competition-driven changes in secondary
-            # energy/carbon/cost totals.
+            # cooling, additional adjustments may be needed to reflect
+            # overlaps between the supply-side and demand-side of heating
+            # and cooling energy (note that supply-side and demand-side heating
+            # and cooling ECMs are not directly competed)
 
             # Ensure the current contributing microsegment pertains to
             # heating or cooling (marked by 'supply' or 'demand' keys)
@@ -923,97 +921,45 @@ class Engine(object):
                 # competition-driven changes in the current heating/cooling
                 # microsegment, and what contributing microsegment keys for
                 # each measure will be affected
-                measures_adj_htcl_add = {"measures": [], "keys": []}
 
-                # Establish criteria for matching a primary, supply-side
-                # heating/cooling microsegment with either a primary or
-                # secondary demand-side heating/cooling microsegment
-                # (same climate zone, building type, and fuel)
-                if 'primary' in msu and'supply' in msu:
+                # Establish criteria for matching a supply-side heating/
+                # cooling microsegment with a demand-side heating/cooling
+                # microsegment (same climate zone, building type, and fuel)
+                if 'supply' in msu:
                     msu_split = re.search(
                         "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*supply.*",
                         msu).group(1)
-                # Establish criteria for matching a primary, demand-side
-                # heating/cooling microsegment with a primary supply-side
-                # heating/cooling microsegment (same climate zone, building
-                # type, and fuel)
-                elif 'primary' in msu and 'demand' in msu:
+                # Establish criteria for matching a demand-side heating/
+                # cooling microsegment with a supply-side heating/cooling
+                # microsegment (same climate zone, building type, and fuel)
+                else:
                     msu_split = re.search(
                         "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*demand.*",
                         msu).group(1)
-                # Establish criteria for matching a secondary, demand-side
-                # heating/cooling microsegment with either a primary,
-                # supply-side heating/cooling microsegment, a primary,
-                # demand-side heating/cooling microsegment, or another
-                # secondary, demand-side heating/cooling microsegment
-                elif 'secondary' in msu:
-                    # When matching a secondary, demand-side heating/cooling
-                    # microsegment with primary, supply-side heating/cooling
-                    # microsegments, the matching criteria is same climate
-                    # zone, building type, and fuel, as above
-                    msu_split_supply = re.search(
-                        "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*demand.*",
-                        msu).group(1)
-                    # When matching a secondary, demand-side heating/cooling
-                    # microsegment with either a primary, demand-side
-                    # heating/cooling microsegment or another secondary
-                    # demand-side heating/cooling microsegment, the matching
-                    # criteria is the same climate zone, building type,
-                    # structure type, fuel type, end use, technology type,
-                    # and technology
-                    msu_split_demand = re.search(
-                        "'[a-zA-Z0-9_() /&-]+',\s'(.*)", msu).group(1)
 
                 # Loop through all measures to find key chain matches
                 for ind, m in enumerate(self.measures):
-                    # Register a match between a primary, supply-side
-                    # heating/cooling microsegment and a primary or
-                    # secondary demand-side heating/cooling microsegment
-                    if 'primary' in msu and 'supply' in msu:
-                        keys = [x for x in mkts_adj[ind][
-                            "contributing mseg keys and values"].keys() if
+                    # Register a match between a supply-side heating/cooling
+                    # microsegment and demand-side heating/cooling microsegment
+                    if 'supply' in msu:
+                        supply_demand_overlp = [
+                            x for x in mkts_adj[ind][
+                                "contributing mseg keys and values"].keys() if
                             msu_split in x and 'demand' in x]
-                    # Register a match between a primary, demand-side
-                    # heating/cooling microsegment and a primary supply-side
-                    # heating/cooling microsegment
-                    elif 'primary' in msu and 'demand' in msu:
-                        keys = [x for x in mkts_adj[ind][
-                            "contributing mseg keys and values"].keys() if
+                    # Register a match between a demand-side heating/cooling
+                    # microsegment and supply-side heating/cooling microsegment
+                    else:
+                        supply_demand_overlp = [
+                            x for x in mkts_adj[ind][
+                                "contributing mseg keys and values"].keys() if
                             msu_split in x and 'supply' in x]
-                    # Register a match between a secondary, demand-side
-                    # heating/cooling microsegment and either a primary,
-                    # supply-side heating/cooling microsegment or a secondary,
-                    # demand-side heating/cooling microsegment
-                    elif 'secondary' in msu:
-                        keys = [x for x in mkts_adj[ind][
-                            "contributing mseg keys and values"].keys() if
-                            (msu_split_supply in x and 'supply' in x) or
-                            (msu_split_demand in x and 'demand' in x)]
-                    # Record the matched key chains and associated
-                    # measure objects in a dict for further use in the function
-                    # that records the data needed to make the additional
-                    # adjustments to energy/carbon/cost totals for these
-                    # measures ('adj_htcl_add_rec')
-                    if len(keys) > 0:
-                        measures_adj_htcl_add["measures"].append(m)
-                        measures_adj_htcl_add["keys"].append(keys)
 
-                # If any measures require additional adjustments to their
-                # heating/cooling microsegments, record the energy/carbon/cost
-                # data for the current contributing microsegment that is
-                # is needed to make these adjustments
-                if len(measures_adj_htcl_add["measures"]) > 0:
-                    self.adj_htcl_add_rec(
-                        measures_adj, measures_adj_htcl_add, msu, adopt_scheme)
-
-        # Determine heating/cooling measures that require additional post-
-        # competition energy/carbon/cost adjustments and implement these
-        # adjustments
-        measures_adj_htcl_add = [
-            self.measures[x] for x in range(0, len(self.measures)) if len(
-                mkts_adj[x]["supply-demand adjustment"]["savings"].keys()) > 0]
-        if len(measures_adj_htcl_add) > 0:
-            self.adj_htcl_add(measures_adj_htcl_add, adopt_scheme)
+                # If there are overlaps for the given contributing microsegment
+                # across the supply-side and demand-side of heating and
+                # cooling energy, apply an adjustment to remove those overlaps
+                # for each measure that applies to this microsegment
+                if len(supply_demand_overlp) > 0:
+                    self.htcl_adj(measures_adj, msu, adopt_scheme)
 
     def compete_res_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across competing residential measures.
@@ -1061,9 +1007,8 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
 
-            # Loop through all years where at least one competing measure
-            # is on the market
-            for yr in years_on_mkt_all:
+            # Loop through all years in time horizon
+            for yr in self.handyvars.aeo_years:
                 # Ensure measure is on the market in given year
                 if yr in m.yrs_on_mkt:
                     # Set measure capital and operating cost inputs. * Note:
@@ -1110,21 +1055,25 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals and current
             # contributing primary energy/carbon/cost information for measure
             mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adjustment_dicts(
+                adj_list_base = self.compete_adj_dicts(
                     m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
-            for yr in years_on_mkt_all:
+            for yr in self.handyvars.aeo_years:
                 # Ensure measure is on the market in given year; if not,
-                # the measure's market share is zero
+                # the measure either splits the market with other
+                # competing measures if none of those measures is on
+                # the market either, or else has a market share of zero
                 if yr in m.yrs_on_mkt:
                     mkt_fracs[ind][yr] = \
                         mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                elif mkt_fracs_tot[yr] == 0:
+                    mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 else:
                     mkt_fracs[ind][yr] = 0
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals based on its updated competed market share
-                self.compete_adjustment(
+                self.compete_adj(
                     mkt_fracs[ind], mast, adj, mast_list_base,
                     mast_list_eff, adj_list_eff, adj_list_base, yr,
                     mseg_key, m, adopt_scheme)
@@ -1175,11 +1124,10 @@ class Engine(object):
         # have arrays of annualized capital and/or operating costs rather
         # than point values (resultant of distributions on measure inputs),
         # for each year in the range above
-        length_array = numpy.repeat(0, len(years_on_mkt_all))
+        length_array = numpy.repeat(0, len(self.handyvars.aeo_years))
 
-        # Loop through all years where at least one competing measure
-        # is on the market
-        for ind_l, yr in enumerate(years_on_mkt_all):
+        # Loop through all years in time horizon
+        for ind_l, yr in enumerate(self.handyvars.aeo_years):
             # Determine whether any of the competing measures have
             # arrays of annualized capital and/or operating costs for
             # the given year; if so, find the array length. * Note: all
@@ -1199,9 +1147,8 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
 
-            # Loop through all years where at least one competing measure
-            # is on the market
-            for ind_l, yr in enumerate(years_on_mkt_all):
+            # Loop through all years in time horizon
+            for ind_l, yr in enumerate(self.handyvars.aeo_years):
                 # Ensure measure is on the market in given year
                 if yr in m.yrs_on_mkt:
                     # Set measure capital and operating cost inputs. * Note:
@@ -1261,16 +1208,17 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals and current
             # contributing primary energy/carbon/cost information for measure
             mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adjustment_dicts(
+                adj_list_base = self.compete_adj_dicts(
                     m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
 
-            # Loop through all years where at least one competing measure
-            # is on the market
-            for ind_l, yr in enumerate(years_on_mkt_all):
+            # Loop through all years in time horizon
+            for ind_l, yr in enumerate(self.handyvars.aeo_years):
                 # Ensure measure is on the market in given year; if not,
-                # the measure's market share is zero
+                # the measure either splits the market with other
+                # competing measures if none of those measures is on
+                # the market either, or else has a market share of zero
                 if yr in m.yrs_on_mkt:
                     # Set the fractions of commericial adopters who fall into
                     # each discount rate category for this particular
@@ -1307,7 +1255,7 @@ class Engine(object):
                             mkt_fracs[ind][yr][l] = sum(
                                 mkt_fracs[ind][yr][l])
                         # Convert market fractions list to numpy array for
-                        # use in compete_adjustment function below
+                        # use in compete_adj function below
                         mkt_fracs[ind][yr] = numpy.array(
                             mkt_fracs[ind][yr])
                     # Handle cases where capital and/or operating cost inputs
@@ -1323,17 +1271,19 @@ class Engine(object):
                             else:
                                 mkt_fracs[ind][yr].append(0)
                         mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
+                elif yr not in years_on_mkt_all:
+                    mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 else:
                     mkt_fracs[ind][yr] = 0
 
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals based on its updated competed market share
-                self.compete_adjustment(
+                self.compete_adj(
                     mkt_fracs[ind], mast, adj, mast_list_base,
                     mast_list_eff, adj_list_eff, adj_list_base, yr,
                     mseg_key, m, adopt_scheme)
 
-    def adj_secondary(
+    def secondary_adj(
             self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
         """Adjust secondary microsegments to account for primary competition.
 
@@ -1349,19 +1299,13 @@ class Engine(object):
                  ->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
         """
-        # Find the year range in which at least one measure that applies
-        # to the secondary microsegment is on the market
-        years_on_mkt_all = []
-        [years_on_mkt_all.extend(x.yrs_on_mkt) for x in measures_adj]
-        years_on_mkt_all = numpy.unique(years_on_mkt_all)
-
         # Loop through all measures that apply to the current contributing
         # secondary microsegment
         for ind, m in enumerate(measures_adj):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
             mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adjustment_dicts(
+                adj_list_base = self.compete_adj_dicts(
                     m, mseg_key, adopt_scheme)
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
@@ -1451,127 +1395,58 @@ class Engine(object):
                         adj["carbon"]["competed"][x][yr] = [
                             (x[yr] * adj_frac_comp) for x in adjlist[6:]]
 
-    def adj_htcl_add_rec(
-            self, measures_adj, measures_adj_htcl_add, mseg_key, adopt_scheme):
-        """Record additional adjustment data for heating/cooling microsegments.
+    def htcl_adj(self, measures_adj, mseg, adopt_scheme):
+        """Remove overlaps in heating/cooling supply and demand energy.
 
         Notes:
-            For heating/cooling measures, additional post-competition
-            energy/carbon/cost adjustments may be required to reflect balancing
-            of supply-side and demand-side heating/cooling energy and the
-            effects of post-competition changes in secondary demand-side
-            microsegments on supply-side and demand-side heating and cooling
-            energy. This function records the data needed to make these added
-            adjustments.
+            These additional adjustments are required to remove overlaps
+            across supply-side and demand-side heating/cooling energy
 
         Args:
-            measures_adj (list): Measures that pertain to the current
-                contributing microsegment being competed across measures.
-            measures_adj_htcl_add (list): Measures requiring additional
-                adjustments (outside of direct competitiont) to reflect
-                changes in the current contributing microsegment.
-            mseg_key (string): Key for current contributing microsegment being
-                competed/adjusted across measures.
-            adopt_scheme (string): Assumed consumer adoption scenario.
-        """
-        # Loop through all heating/cooling measures that apply to the the
-        # current contributing microsegment
-        for ind, m in enumerate(measures_adj):
-            # Establish starting energy/carbon/cost totals and current
-            # contributing energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adjustment_dicts(
-                    m, mseg_key, adopt_scheme)
-            # Record any measure savings associated with the current
-            # contributing microsegment; these will be used to implement
-            # additional adjustments in the 'adj_htcl_add' function
-            for yr in self.handyvars.aeo_years:
-                # Loop through all measures that would be affected by
-                # changes in savings for the current measure and contributing
-                # microsegment; record the magnitude of these changes for
-                # later use in adjusting energy/carbon/cost totals for these
-                # affected measures after all competition is completed
-                # (see 'adj_htcl_add' function)
-                for ind2, ms in enumerate(measures_adj_htcl_add["measures"]):
-                    # Ensure an adjustment is not being recorded for within
-                    # the same measure, only across different measures
-                    # (this would otherwise lead to double counting savings)
-                    if ms.name != m.name:
-                        keys = measures_adj_htcl_add["keys"][ind2]
-                        for k in keys:
-                            ms.markets[adopt_scheme]["competed"][
-                                "mseg_adjust"]["supply-demand adjustment"][
-                                "savings"][k][yr] += (
-                                    adj["energy"]["total"]["baseline"][yr] -
-                                    adj["energy"]["total"]["efficient"][yr])
-
-    def adj_htcl_add(self, measures_adj_htcl_add, adopt_scheme):
-        """Apply post-competition adjustments to measure energy/carbon/cost.
-
-        Notes:
-            These additional adjustments are required to balance supply-side
-            and demand-side heating/cooling energy and account for the effects
-            of competition-driven changes in secondary demand-side
-            microsegments on supply-side and demand-side heating and cooling
-            energy
-
-        Args:
-            measures_adj_htcl_add (list): Measures requiring additional
-                post-competition adjustments to energy/carbon/cost totals.
+            measures_adj (list): Measures requiring additional
+                adjustments to energy/carbon/cost totals.
             adopt_scheme (string): Assumed consumer adoption scenario.
         """
         # Loop through all measures requiring additional energy/carbon/cost
         # adjustments
-        for m in measures_adj_htcl_add:
-            for mseg in m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                    "supply-demand adjustment"]["savings"].keys():
-                # Establish starting energy/carbon/cost totals and current
-                # contributing energy/carbon/cost information for measure
-                mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                    adj_list_base = self.compete_adjustment_dicts(
-                        m, mseg, adopt_scheme)
-                # Calculate post-competition adjustment fraction for measure
-                # and adjust measure's energy/carbon/cost totals accordingly
-                for yr in self.handyvars.aeo_years:
-                    if m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                            "supply-demand adjustment"][
-                            "total"][mseg][yr] == 0:
-                        adj_frac_add = 0
+        for m in measures_adj:
+            # Establish starting energy/carbon/cost totals and current
+            # contributing energy/carbon/cost information for measure
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adj_dicts(
+                    m, mseg, adopt_scheme)
+            # Adjust measure's energy/carbon/cost totals by half
+            # (reflecting an even partitioning of supply and demand
+            # energy, carbon, and cost potential)
+            for yr in self.handyvars.aeo_years:
+                # Partition supply and demand energy by half
+                htcl_adj_frac = 0.5
+                # Apply adjustment fraction to total and competed
+                # baseline and efficient energy/carbon/cost data
+                for x in ["baseline", "efficient"]:
+                    # Determine appropriate adjustment data to use
+                    # for baseline or efficient case
+                    if x == "baseline":
+                        mastlist, adjlist = [mast_list_base, adj_list_base]
                     else:
-                        adj_frac_add = m.markets[adopt_scheme][
-                            "competed"]["mseg_adjust"][
-                            "supply-demand adjustment"][
-                            "savings"][mseg][yr] / \
-                            m.markets[adopt_scheme]["competed"][
-                            "mseg_adjust"]["supply-demand adjustment"][
-                            "total"][mseg][yr]
+                        mastlist, adjlist = [mast_list_eff, adj_list_eff]
+                    # Adjust the total and competed energy, carbon, and
+                    # associated cost savings by the secondary adjustment
+                    # factor
+                    mast["cost"]["energy"]["total"][x][yr], \
+                        mast["cost"]["carbon"]["total"][x][yr], \
+                        mast["energy"]["total"][x][yr],\
+                        mast["carbon"]["total"][x][yr] = [
+                            x[yr] - (y[yr] * htcl_adj_frac)
+                            for x, y in zip(mastlist[1:5], adjlist[1:5])]
+                    mast["cost"]["energy"]["competed"][x][yr], \
+                        mast["cost"]["carbon"]["competed"][x][yr], \
+                        mast["energy"]["competed"][x][yr],\
+                        mast["carbon"]["competed"][x][yr] = [
+                            x[yr] - (y[yr] * htcl_adj_frac)
+                            for x, y in zip(mastlist[6:], adjlist[6:])]
 
-                    # Apply adjustment fraction to total and competed
-                    # baseline and efficient energy/carbon/cost data
-                    for x in ["baseline", "efficient"]:
-                        # Determine appropriate adjustment data to use
-                        # for baseline or efficient case
-                        if x == "baseline":
-                            mastlist, adjlist = [mast_list_base, adj_list_base]
-                        else:
-                            mastlist, adjlist = [mast_list_eff, adj_list_eff]
-                        # Adjust the total and competed energy, carbon, and
-                        # associated cost savings by the secondary adjustment
-                        # factor
-                        mast["cost"]["energy"]["total"][x][yr], \
-                            mast["cost"]["carbon"]["total"][x][yr], \
-                            mast["energy"]["total"][x][yr],\
-                            mast["carbon"]["total"][x][yr] = [
-                                x[yr] - (y[yr] * adj_frac_add)
-                                for x, y in zip(mastlist[1:5], adjlist[1:5])]
-                        mast["cost"]["energy"]["competed"][x][yr], \
-                            mast["cost"]["carbon"]["competed"][x][yr], \
-                            mast["energy"]["competed"][x][yr],\
-                            mast["carbon"]["competed"][x][yr] = [
-                                x[yr] - (y[yr] * adj_frac_add)
-                                for x, y in zip(mastlist[6:], adjlist[6:])]
-
-    def compete_adjustment_dicts(self, m, mseg_key, adopt_scheme):
+    def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
         """Set the initial measure market data needed to adjust for overlaps.
 
         Notes:
@@ -1592,7 +1467,7 @@ class Engine(object):
         mast = m.markets[adopt_scheme]["competed"]["master_mseg"]
         # Set total-baseline and competed-baseline overall
         # stock/energy/carbon/cost totals to be updated in the
-        # 'compete_adjustment', 'adj_secondary', and 'adj_htcl_add' functions
+        # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
         mast_list_base = [
             mast["cost"]["stock"]["total"]["baseline"],
             mast["cost"]["energy"]["total"]["baseline"],
@@ -1606,7 +1481,7 @@ class Engine(object):
             mast["carbon"]["competed"]["baseline"]]
         # Set total-efficient and competed-efficient overall
         # stock/energy/carbon/cost totals to be updated in the
-        # 'compete_adjustment', 'adj_secondary', and 'adj_htcl_add' functions
+        # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
         mast_list_eff = [
             mast["cost"]["stock"]["total"]["efficient"],
             mast["cost"]["energy"]["total"]["efficient"],
@@ -1625,7 +1500,7 @@ class Engine(object):
             "contributing mseg keys and values"][mseg_key]
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
-        # 'compete_adjustment', 'adj_secondary', and 'adj_htcl_add' functions
+        # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
         adj_list_base = [
             adj["cost"]["stock"]["total"]["baseline"],
             adj["cost"]["energy"]["total"]["baseline"],
@@ -1639,7 +1514,7 @@ class Engine(object):
             adj["carbon"]["competed"]["baseline"]]
         # Set total-efficient and competed-efficient contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
-        # 'compete_adjustment', 'adj_secondary', and 'adj_htcl_add' functions
+        # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
         adj_list_eff = [
             adj["cost"]["stock"]["total"]["efficient"],
             adj["cost"]["energy"]["total"]["efficient"],
@@ -1655,7 +1530,7 @@ class Engine(object):
         return mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
             adj_list_base
 
-    def compete_adjustment(
+    def compete_adj(
             self, adj_fracs, mast, adj, mast_list_base, mast_list_eff,
             adj_list_eff, adj_list_base, yr, mseg_key, measure, adopt_scheme):
         """Scale down measure stock/energy/carbon/cost totals to reflect competition.
@@ -1697,33 +1572,27 @@ class Engine(object):
         # year)
         adj_frac_comp = copy.deepcopy(adj_fracs[yr])
 
-        # Combine the competed market share adjustment for the stock
-        # captured by the measure in the current year with that of the
-        # stock captured by the measure in all previous years, yielding a
-        # weighted market share adjustment
-
-        # Determine the subset of all years leading up to the current
-        # year in the modeling time horizon
-        weighting_yrs = sorted([
-            x for x in adj_fracs.keys() if int(x) <= int(yr)])
-        # Loop through the above set of years, successively updating the
-        # weighted market share based on the captured stock in each year
-        for ind, wyr in enumerate(weighting_yrs):
-            # First year in time horizon; weighted market share equals
-            # market share for the captured stock in this year only
-            if ind == 0:
-                adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
-            # Subsequent year; weighted market share combines market share
-            # for captured stock in current year and all previous years
-            else:
-                # Only update weighted market share if measure captures
-                # stock in the current year
-                if type(adj["stock"]["total"]["measure"][wyr]) == \
-                    numpy.ndarray and all(
-                        adj["stock"]["total"]["measure"][wyr]) != 0 or \
-                   type(adj["stock"]["total"]["measure"][wyr]) != \
-                    numpy.ndarray and \
-                        adj["stock"]["total"]["measure"][wyr] != 0:
+        # For all years after market entry (e.g., where the measure has
+        # captured some of the existing stock), combine the competed market
+        # share adjustment for the stock captured by the measure in the
+        # current year with that of the stock captured by the measure in
+        # all previous years, yielding a weighted market share adjustment
+        if adj["stock"]["total"]["measure"][yr] != 0:
+            # Determine the subset of all years leading up to the current
+            # year in the modeling time horizon
+            weighting_yrs = sorted([
+                x for x in adj_fracs.keys() if int(x) <= int(yr) and
+                adj["stock"]["total"]["measure"][x] != 0])
+            # Loop through the above set of years, successively updating the
+            # weighted market share based on the captured stock in each year
+            for ind, wyr in enumerate(weighting_yrs):
+                # First year in time horizon; weighted market share equals
+                # market share for the captured stock in this year only
+                if ind == 0:
+                    adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
+                # Subsequent year; weighted market share combines market share
+                # for captured stock in current year and all previous years
+                else:
                     # Develop the split between captured stock in the
                     # current year and all previously captured stock
                     wt_comp = adj["stock"]["competed"]["all"][wyr] / \
@@ -1732,6 +1601,8 @@ class Engine(object):
                     # current and previously captured stock
                     adj_frac_tot = adj_fracs[wyr] * wt_comp + \
                         adj_frac_tot * (1 - wt_comp)
+        else:
+            adj_frac_tot = copy.deepcopy(adj_fracs[yr])
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
