@@ -2032,7 +2032,7 @@ class Measure(object):
                     # and end use (create new 'contributing mseg keys and
                     # values' and 'competed choice parameters' microsegment
                     # information)
-                    if contrib_mseg_key not in self.markets[adopt_scheme][
+                    if str(contrib_mseg_key) not in self.markets[adopt_scheme][
                         "mseg_adjust"][
                             "contributing mseg keys and values"].keys():
                         # Register contributing microsegment information for
@@ -3991,6 +3991,10 @@ class MeasurePackage(Measure):
         self.handyvars = handyvars
         self.contributing_ECMs = copy.deepcopy(measure_list_package)
         self.name = p
+        # Check to ensure that measure name is proper length for plotting
+        if len(self.name) > 40:
+            raise ValueError(
+                "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
         # Set market entry year as earliest of all the packaged measures

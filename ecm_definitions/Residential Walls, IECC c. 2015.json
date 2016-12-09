@@ -10,7 +10,7 @@
     ],
   "fuel_type": "all",
   "technology": "wall",
-  "market_entry_year": null,
+  "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": {
