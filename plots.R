@@ -288,8 +288,8 @@ for (a in 1:length(adopt_scenarios)){
     mtext("Year", side=1, line=3.5, cex=0.925)
     mtext(plot_axis_labels[v], side=2, line=3.75, cex=0.925)
     # Add tick marks and labels to bottom and left axes
-    axis(side=1, at=xlabels,
-         labels=xlabels, cex.axis = 1.2)
+    axis(side=1, at=pretty(c(min(years), max(years))),
+         labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
     axis(side=2, at=ylims, labels = ylims, cex.axis = 1.2, las=1)
     # Add tick marks to top and right axes
     axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
