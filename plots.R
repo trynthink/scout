@@ -7,6 +7,9 @@ if(!require("rjson")){install.packages("rjson")}
 require("rjson")
 # Specify JSON file encoding
 options("encoding" = "UTF-8")
+# Load XLSX for writing out raw data to MS Excel
+if(!require("xlsx")){install.packages("xlsx")}
+require("xlsx")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
@@ -44,6 +47,8 @@ years<-row.names(as.matrix(
 years<-years[order(years)]
 # Set variable names to use in accessing all uncompeted energy, carbon, and cost results from JSON data
 var_names_uncompete <- c('energy', 'carbon', 'cost')
+# Set output units for each variable type
+var_units <- c('Quads', 'MMTons', 'Billion $')
 # Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data
 var_names_compete_base <- c(
   'Baseline Energy Use (MMBtu)', 'Baseline CO₂ Emissions (MMTons)', 'Baseline Energy Cost (USD)') 
@@ -55,8 +60,9 @@ var_names_compete_eff_l <- c(
   'Efficient Energy Use (low) (MMBtu)', 'Efficient CO₂ Emissions (low) (MMTons)', 'Efficient Energy Cost (low) (USD)') 
 var_names_compete_eff_h <- c(
   'Efficient Energy Use (high) (MMBtu)', 'Efficient CO₂ Emissions (high) (MMTons)', 'Efficient Energy Cost (high) (USD)') 
-# Initialize a matrix used to store baseline data for the uncompeted plot
-# (to be included for reference in the competed plot)
+
+# Set column names for Excel file
+col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
 
 # ============================================================================
 # Generate plots for total energy, carbon, and cost
@@ -66,19 +72,35 @@ var_names_compete_eff_h <- c(
 for (a in 1:length(adopt_scenarios)){
 
   # Set plot colors for competed baseline, efficient, and low/high results
-  # (varies by adoption scenario)
+  # (varies by adoption scenario); also set XLSX summary data file name for adoption scenario
   if (adopt_scenarios[a] == "Technical potential"){
+    # Set plot colors
     plot_col_c_base = "midnightblue"
     plot_col_c_eff = "lightskyblue"
     plot_col_c_lowhigh = "lightskyblue"
+    # Set XLSX summary data file name
+    xlsx_file_name = paste(base_dir, '/results/plots/tech_potential/', "Summary_Data-TP.xlsx", sep = "")
   }else{
+    # Set plot colors
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
     plot_col_c_lowhigh = "lightpink"
+    # Set XLSX summary data file name
+    xlsx_file_name = paste(base_dir, '/results/plots/max_adopt_potential/', "Summary_Data-MAP.xlsx", sep = "")
   }
   
   # Loop through all plotting variables
   for (v in 1:length(var_names_uncompete)){
+
+    # Initialize data frame to write to XLSX sheet (note: number of rows equals to
+    # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
+    # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
+    xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
+                                 nrow = (length(meas_names)*4 + 2)))
+    # Set column names for the XLSX sheet
+    colnames(xlsx_data) = col_names_xlsx
+    # Add variable units to the XLSX data frame
+    xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
 
     # Set a factor to convert the results data to final plotting units for given variable
     # (quads for energy, MMT for carbon, and billion $ for cost)
@@ -110,6 +132,18 @@ for (a in 1:length(adopt_scenarios)){
     # Loop through all ECMs
     for (m in 1:length(meas_names)){
     
+      # Add ECM name to XLSX data frame
+      row_ind_start = (m-1)*4 + 1
+      xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
+      
+      # Set applicable climate zones, end uses, and building classes for ECM and add to XLSX data frame
+      czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Climate Zones')
+      bldg_types = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Building Classes')
+      end_uses = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable End Uses')
+      xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
+      xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
+      xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
+
       # Find the index for accessing the item in the list of uncompeted results that corresponds
       # to data for the current ECM. Note: competed results are accessed directly by ECM name,
       # and do not require an index
@@ -122,6 +156,10 @@ for (a in 1:length(adopt_scenarios)){
       # Loop through all competition schemes
       for (cp in 1:length(comp_schemes)){
           
+        # Add name of results scenario (baseline/efficient + competed/uncompeted) to XLSX data frame
+        xlsx_data[(row_ind_start + (cp-1)*2):(row_ind_start + (cp-1)*2 + 1), 2] = c(
+          paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
+        
         # Set matrix for temporarily storing finalized baseline and efficient results
         r_temp <- matrix(NA, 4, length(years))  
         # Find data for uncompeted energy, carbon, and/or cost
@@ -180,10 +218,10 @@ for (a in 1:length(adopt_scenarios)){
           }
         }
         # Set the column start and stop indexes to use in updating the matrix of results
-        ind_start = ((cp-1)*(length(comp_schemes))) + 1
-        ind_end = ind_start + 1 # note this accommodates baseline and efficient outcomes
+        col_ind_start = ((cp-1)*(length(comp_schemes))) + 1
+        col_ind_end = col_ind_start + 1 # note this accommodates baseline and efficient outcomes
         # Update results matrix with mean, low, and high baseline and efficient outcomes
-        results[, ind_start:ind_end] = rbind(cbind(list(r_temp[1,]), list(r_temp[2,])),
+        results[, col_ind_start:col_ind_end] = rbind(cbind(list(r_temp[1,]), list(r_temp[2,])),
                                              cbind(list(r_temp[1,]), list(r_temp[3,])),
                                              cbind(list(r_temp[1,]), list(r_temp[4,])))
       }
@@ -200,6 +238,10 @@ for (a in 1:length(adopt_scenarios)){
       eff_c_m = unlist(results[1, 4]) * unit_translate
       eff_c_l = unlist(results[2, 4]) * unit_translate
       eff_c_h = unlist(results[3, 4]) * unit_translate
+      
+      # Add ECM results to XLSX data frame
+      xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
+        rbind(base_uc, eff_uc_m, base_c, eff_uc_m)
       
       # Initialize or update summed results across all ECMs
       if (m == 1){
@@ -268,8 +310,18 @@ for (a in 1:length(adopt_scenarios)){
       # Add tick marks to top and right axes
       axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
       axis(side=4, at=ylims, labels = NA)
+      
+      # Add ECM end use labels
+      text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50", pos=4)
     }
   
+    # Add results across all ECMs to XLSX data frame
+    row_ind_start = (length(meas_names))*4 + 1
+    xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
+    xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
+    # Add data to XLSX data frame
+    xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
+    
     # Plot results across all ECMs
     
     # Find the min. and max. values in the data to be plotted
@@ -283,6 +335,20 @@ for (a in 1:length(adopt_scenarios)){
          xlab=NA, ylab=NA, col=plot_col_c_base, main = "All ECMs", xaxt="n", yaxt="n")
     # Add mean competed efficient results across all ECMs
     lines(years, eff_c_m_all, lwd=2, col=plot_col_c_eff)
+    
+    # Annotate the plot with 2030 savings figure
+    # Find x and y values for annotation
+    xval_2030 = 2030
+    yval_2030_eff = eff_c_m_all[which(years=="2030")]
+    yval_2030_base = base_c_all[which(years=="2030")]
+    # Draw line segment connecting 2030 baseline and efficient results
+    points(xval_2030, yval_2030_base, col="light green", pch = 1, cex=1.5, lwd=2.5)
+    points(xval_2030, yval_2030_eff, col="light green", pch = 1, cex=1.5, lwd=2.5)
+    segments(xval_2030, yval_2030_eff, xval_2030, yval_2030_base, col="green", lty=3)
+    # Add 2030 savings figure
+    text(xval_2030, yval_2030_eff - (yval_2030_eff - min(ylims))/7,
+         paste(toString(sprintf("%.1f", yval_2030_base-yval_2030_eff)),
+               toString(var_units[v]), sep=" "), pos = 1, col="green")
     
     # Add x and y axis labels
     mtext("Year", side=1, line=3.5, cex=0.925)
@@ -302,5 +368,16 @@ for (a in 1:length(adopt_scenarios)){
        bty="n", border = FALSE, merge = TRUE, cex=1.15)
     # Close plot device
     dev.off()
+    
+    # Write data to XLSX sheet
+    # First variable and adoption scenario - create XLSX file
+    if (v == 1){
+      write.xlsx(x = xlsx_data, file = xlsx_file_name,
+                 sheetName = plot_names[v], row.names = FALSE, append = FALSE)
+      # Subsequent variable and adoption scenario - add to XLSX file
+      }else{
+      write.xlsx(x = xlsx_data, file = xlsx_file_name,
+                 sheetName = plot_names[v], row.names = FALSE, append = TRUE)
+      }
   }
 }
