@@ -9,9 +9,6 @@
   "fuel_type": {
     "primary": "electricity",
     "secondary": null},
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null},
   "technology": {
     "primary": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
     "secondary": null},

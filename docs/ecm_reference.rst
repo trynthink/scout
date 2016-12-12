@@ -144,11 +144,6 @@ The end use names appear verbatim in the first column of the tables for resident
    | MELs                    |      X      |             |            |
    +-------------------------+-------------+-------------+------------+
 
-Technology Type
-~~~~~~~~~~~~~~~
-
-supply, demand
-
 .. _ecm-baseline_technology:
 
 Technology

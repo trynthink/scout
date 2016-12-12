@@ -124,15 +124,7 @@ Parallel to the structure for the end use data, there must be "primary" and "sec
       "secondary": null},
     ...}
 
-The technology type specifies whether the ECM applies to the "supply" of service or the "demand" of services. If the ECM affects devices or equipment that use energy directly, the technology type is "supply." If an ECM affects the quantity of heating and/or cooling service required but does not directly modify the efficiency of the heating and/or cooling equipment, the technology type is "demand." For the "heating" and "cooling" end uses, a heat pump ECM is of the "supply" technology type, while an R-8/in rigid insulation board ECM is of the "demand" technology type. Again there are "primary" and "secondary" keys, which should be used to indicate the technology type for the respective end uses. If there are no secondary end uses or if they will be defined automatically, the secondary technology type value should be set to ``null``. LED troffers are a technology that improves the efficiency of lighting technologies, thus it is of the supply technology type. ::
-
-   {...
-    "technology_type": {
-      "primary": "supply",
-      "secondary": null},
-    ...}
-
-The technology field drills down further into the specific technologies or device types that apply to the primary and secondary end uses for the ECM. The specific technology names are different for supply-side and demand-side energy use. The residential__ and commercial__ thermal load components are the technology names for the "demand" technology type. Technology names for the "supply" technology type generally correspond to major equipment types used in the AEO_ [#]_. All of the technology names are listed by building sector (residential or commercial) and technology type in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`.
+The technology field drills down into the specific technologies or device types that apply to the primary and secondary end uses for the ECM. The specific technology names are different for supply-side and demand-side energy use. All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
 
 In some cases, an ECM might be able to replace all of the currently used technologies for its end use and fuel type. For example, a highly efficient thermoelastic heat pump might be able to replace all current electric heating and cooling technologies. If the end uses have been specified as "heating" and "cooling" and the fuel type as "electricity," then the primary technologies can be specified simply with "all." A technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
 
@@ -365,15 +357,7 @@ Parallel to the structure for the end use data, there must be "primary" and "sec
       "secondary": null},
     ...}
 
-The technology type specifies whether the ECM applies to the "supply" of service or the "demand" of services. If the ECM affects devices or equipment that use energy directly, the technology type is "supply." If an ECM affects the quantity of heating and/or cooling service required but does not directly modify the efficiency of the heating and/or cooling equipment, the technology type is "demand." For the "heating" and "cooling" end uses, a heat pump ECM is of the "supply" technology type, while an R-8/in rigid insulation board ECM is of the "demand" technology type. Thermoelastic heat pumps are a "supply" technology. ::
-
-   {...
-    "technology_type": {
-      "primary": "supply",
-      "secondary": null},
-    ...}
-
-The technology field lists the specific technologies or device types that can be replaced by the technology described by the ECM. In some cases, an ECM might be able to replace the full range of incumbent technologies in its end use categories, while in others, only specific technologies might be subject to replacement. There are shortcut technology names available for each end use (e.g., "all heating" or "all lighting") and "all" can be used to indicate all technologies for the end uses specified for the ECM. A highly efficient thermoelastic heat pump, for the purposes of this ECM, can replace other similar air-source heat pump technologies and central AC or rooftop AC systems. ::
+The technology field lists the specific technologies or device types that can be replaced by the technology described by the ECM. In some cases, an ECM might be able to replace the full range of incumbent technologies in its end use categories, while in others, only specific technologies might be subject to replacement. There are shortcut technology names available for each end use (e.g., "all heating" or "all lighting") and "all" can be used to indicate all technologies for the end uses specified for the ECM. These shortcut technology names are explained further in the relevant section of the :ref:`ECM Definition Reference <ecm-baseline_technology>`. A highly efficient thermoelastic heat pump, for the purposes of this ECM, can replace other similar air-source heat pump technologies and central AC or rooftop AC systems. ::
 
    {...
     "technology": {

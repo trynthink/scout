@@ -9,9 +9,6 @@
   "fuel_type": {
     "primary": "electricity",
     "secondary": null},
-  "technology_type": {
-    "primary": "supply",
-    "secondary": null},
   "technology": {
     "primary": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
     "secondary": null},
