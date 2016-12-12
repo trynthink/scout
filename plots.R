@@ -13,9 +13,9 @@ require("xlsx")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
-uncompete_results<-fromJSON(file = paste(base_dir, '/supporting_data/ecm_prep.json', sep=""))
+uncompete_results<-fromJSON(file = file.path(base_dir, 'supporting_data','ecm_prep.json'))
 # Import competed ECM energy, carbon, and cost data
-compete_results<-fromJSON(file = paste(base_dir, '/results/ecm_results.json', sep=""))
+compete_results<-fromJSON(file = file.path(base_dir, 'results','ecm_results.json'))
 
 # ============================================================================
 # Set high-level plotting parameters
@@ -79,14 +79,14 @@ for (a in 1:length(adopt_scenarios)){
     plot_col_c_eff = "lightskyblue"
     plot_col_c_lowhigh = "lightskyblue"
     # Set XLSX summary data file name
-    xlsx_file_name = paste(base_dir, '/results/plots/tech_potential/', "Summary_Data-TP.xlsx", sep = "")
+    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
   }else{
     # Set plot colors
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
     plot_col_c_lowhigh = "lightpink"
     # Set XLSX summary data file name
-    xlsx_file_name = paste(base_dir, '/results/plots/max_adopt_potential/', "Summary_Data-MAP.xlsx", sep = "")
+    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
   }
   
   # Loop through all plotting variables
@@ -117,9 +117,9 @@ for (a in 1:length(adopt_scenarios)){
       uncertainty = FALSE
       # Set the file name for the plot based on the adoption scenario and plotting variable
       if (adopt_scenarios[a] == 'Technical potential'){
-        plot_file_name = paste(base_dir, '/results/plots/tech_potential/', plot_names[v],"-TP.pdf", sep = "")
+        plot_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', paste(plot_names[v],"-TP.pdf", sep=""))
       }else{
-        plot_file_name = paste(base_dir, '/results/plots/max_adopt_potential/', plot_names[v],"-MAP.pdf", sep = "")
+        plot_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', paste(plot_names[v],"-MAP.pdf", sep = ""))
       }
     
       # Open PDF plot device

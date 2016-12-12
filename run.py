@@ -7,7 +7,7 @@ from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import gzip
 import pickle
-from os import getcwd
+from os import getcwd, path
 from ast import literal_eval
 
 
@@ -24,10 +24,10 @@ class UsefulInputFiles(object):
 
     def __init__(self):
         self.meas_summary_data = \
-            "/supporting_data/ecm_prep.json"
-        self.meas_compete_data = "/supporting_data/ecm_competition_data"
-        self.active_measures = "/run_setup.json"
-        self.meas_engine_out = "/results/ecm_results.json"
+            ("supporting_data", "ecm_prep.json")
+        self.meas_compete_data = ("supporting_data", "ecm_competition_data")
+        self.active_measures = "run_setup.json"
+        self.meas_engine_out = ("results", "ecm_results.json")
 
 
 class UsefulVars(object):
@@ -1239,17 +1239,30 @@ class Engine(object):
                             [] for n in range(length_array[ind_l])]
                         for l in range(length_array[ind_l]):
                             for ind2, dr in enumerate(tot_cost[ind][yr][l]):
-                                # If the measure has the lowest annualized
-                                # cost, assign it the appropriate market share
-                                # for the current discount rate category being
-                                # looped through; otherwise, set its market
-                                # fraction for that category to zero
-                                if tot_cost[ind][yr][l][ind2] == \
-                                   min([tot_cost[x][yr][l][ind2] for x in
-                                        range(0, len(measures_adj)) if
-                                        yr in tot_cost[x].keys()]):
+                                # Find the lowest annualized cost for the given
+                                # set of competing measures and discount bin
+                                min_val = min([
+                                    tot_cost[x][yr][l][ind2] for x in
+                                    range(0, len(measures_adj)) if
+                                    yr in tot_cost[x].keys()])
+                                # Determine how many of the competing measures
+                                # have the lowest annualized cost under
+                                # the given discount rate bin
+                                min_val_ecms = [
+                                    x for x in range(0, len(measures_adj)) if
+                                    yr in tot_cost[x].keys() and
+                                    tot_cost[x][yr][l][ind2] == min_val]
+                                # If the current measure has the lowest
+                                # annualized cost, assign it the appropriate
+                                # market share for the current discount rate
+                                # category being looped through, divided by the
+                                # total number of competing measures that share
+                                # the lowest annualized cost
+                                if tot_cost[ind][yr][l][ind2] == min_val:
                                     mkt_fracs[ind][yr][l].append(
-                                        mkt_dists[ind2])  # * EQUALS? *
+                                        mkt_dists[ind2] / len(min_val_ecms))
+                                # Otherwise, set its market share for that
+                                # discount rate bin to zero
                                 else:
                                     mkt_fracs[ind][yr][l].append(0)
                             mkt_fracs[ind][yr][l] = sum(
@@ -1263,11 +1276,30 @@ class Engine(object):
                     else:
                         mkt_fracs[ind][yr] = []
                         for ind2, dr in enumerate(tot_cost[ind][yr]):
-                            if tot_cost[ind][yr][ind2] == \
-                               min([tot_cost[x][yr][ind2] for x in range(
-                                    0, len(measures_adj)) if
-                                    yr in tot_cost[x].keys()]):
-                                mkt_fracs[ind][yr].append(mkt_dists[ind2])
+                            # Find the lowest annualized cost for the given
+                            # set of competing measures and discount bin
+                            min_val = min([
+                                tot_cost[x][yr][ind2] for x in
+                                range(0, len(measures_adj)) if
+                                yr in tot_cost[x].keys()])
+                            # Determine how many of the competing measures
+                            # have the lowest annualized cost under
+                            # the given discount rate bin
+                            min_val_ecms = [
+                                x for x in range(0, len(measures_adj)) if
+                                yr in tot_cost[x].keys() and
+                                tot_cost[x][yr][ind2] == min_val]
+                            # If the current measure has the lowest
+                            # annualized cost, assign it the appropriate
+                            # market share for the current discount rate
+                            # category being looped through, divided by the
+                            # total number of competing measures that share
+                            # the lowest annualized cost
+                            if tot_cost[ind][yr][ind2] == min_val:
+                                mkt_fracs[ind][yr].append(
+                                    mkt_dists[ind2] / len(min_val_ecms))
+                            # Otherwise, set its market share for that
+                            # discount rate bin to zero
                             else:
                                 mkt_fracs[ind][yr].append(0)
                         mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
@@ -1999,7 +2031,7 @@ def main(base_dir):
     handyvars = UsefulVars()
 
     # Import measure files
-    with open((base_dir + handyfiles.meas_summary_data), 'r') as mjs:
+    with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
         try:
             meas_summary = json.load(mjs)
         except ValueError as e:
@@ -2008,7 +2040,7 @@ def main(base_dir):
                 "': " + str(e)) from None
 
     # Import list of all unique active measures
-    with open((base_dir + handyfiles.active_measures), 'r') as am:
+    with open(path.join(base_dir, handyfiles.active_measures), 'r') as am:
         try:
             active_meas_all = numpy.unique(json.load(am)["active"])
         except ValueError as e:
@@ -2024,8 +2056,12 @@ def main(base_dir):
 
     # Load and set competition data for active measure objects
     for m in measures_objlist:
-        with gzip.open((base_dir + handyfiles.meas_compete_data + '/' +
-                       m.name + ".pkl.gz"), 'r') as zp:
+        # Append gzip file extension to ECM name before reading in
+        # competition data for the ECM
+        meas_file_name = m.name + ".pkl.gz"
+        with gzip.open(path.join(
+            base_dir, *handyfiles.meas_compete_data,
+                meas_file_name), 'r') as zp:
             try:
                 meas_comp_data = pickle.load(zp)
             except Exception as e:
@@ -2067,7 +2103,7 @@ def main(base_dir):
     # Notify user that all analysis engine calculations are completed
     print('All calculations complete; writing output data...')
     # Write summary outputs for all measures to a JSON
-    with open((base_dir + handyfiles.meas_engine_out), "w") as jso:
+    with open(path.join(base_dir, *handyfiles.meas_engine_out), "w") as jso:
         json.dump(a_run.output, jso, indent=2)
 
 if __name__ == '__main__':

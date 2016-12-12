@@ -44,18 +44,18 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self):
-        self.msegs_in = \
-            "/supporting_data/stock_energy_tech_data/mseg_res_com_cz.json"
-        self.msegs_cpl_in = \
-            "/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
-        self.cost_convert_in = \
-            "/supporting_data/convert_data/ecm_cost_convert.json"
+        self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+                         "mseg_res_com_cz.json")
+        self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
+                             "cpl_res_com_cz.json")
+        self.cost_convert_in = ("supporting_data", "convert_data",
+                                "ecm_cost_convert.json")
         self.cbecs_sf_byvint = \
-            "/supporting_data/convert_data/cbecs_sf_byvintage.json"
-        self.ecm_packages = "/ecm_definitions/package_ecms.json"
-        self.ecm_prep = "/supporting_data/ecm_prep.json"
-        self.ecm_compete_data = "/supporting_data/ecm_competition_data"
-        self.run_setup = "/run_setup.json"
+            ("supporting_data", "convert_data", "cbecs_sf_byvintage.json")
+        self.ecm_packages = ("ecm_definitions", "package_ecms.json")
+        self.ecm_prep = ("supporting_data", "ecm_prep.json")
+        self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
+        self.run_setup = "run_setup.json"
 
 
 class UsefulVars(object):
@@ -132,13 +132,15 @@ class UsefulVars(object):
             '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
             'www.navigantresearch.com']
         self.consumer_price_ind = numpy.genfromtxt(
-            (base_dir + '/supporting_data/convert_data/cpi.csv'), names=True,
-            delimiter=',', dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+            path.join(
+                base_dir, *("supporting_data", "convert_data", "cpi.csv")),
+            names=True, delimiter=',',
+            dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data
-        with open((base_dir + (
-            "/supporting_data/convert_data/site_source_co2_conversions.json")),
-                'r') as ss:
+        with open(path.join(
+            base_dir, *("supporting_data", "convert_data",
+                        "site_source_co2_conversions.json")), 'r') as ss:
             cost_ss_carb = json.load(ss)
         # Set site to source conversions
         self.ss_conv = {
@@ -4530,9 +4532,13 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             if len(meas_summary_data) == 1:
                 # Initialize the missing measure as an object
                 meas_obj = Measure(handyvars, **meas_summary_data[0])
+                # Append gzip file extension to ECM name before reading in
+                # competition data for the ECM
+                meas_file_name = meas_obj.name + ".pkl.gz"
                 # Load and set competition data for the missing measure object
-                with gzip.open((base_dir + handyfiles.ecm_compete_data + '/' +
-                               meas_obj.name + ".pkl.gz"), 'r') as zp:
+                with gzip.open(path.join(
+                    base_dir, *handyfiles.ecm_compete_data,
+                        meas_file_name), 'r') as zp:
                     try:
                         meas_comp_data = pickle.load(zp)
                     except Exception as e:
@@ -4675,7 +4681,7 @@ def main(base_dir):
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine
-    with open((base_dir + handyfiles.ecm_prep), 'r') as es:
+    with open(path.join(base_dir, *handyfiles.ecm_prep), 'r') as es:
         try:
             meas_summary = json.load(es)
         except ValueError as e:
@@ -4686,22 +4692,26 @@ def main(base_dir):
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
 
-    # Find individual measure definitions that have been added/updated
-    # (if any) since last the 'ecm_prep.py' routine was run
-    ecm_dir = 'ecm_definitions/'
+    # Find the names of individual measures that are new (e.g., they have
+    # not already been fully prepared for use in the analysis engine) or
+    # have been edited since last the 'ecm_prep.py' routine was run
+    ecm_dir = 'ecm_definitions'
     meas_toprep_indiv_names = [
         x for x in listdir(ecm_dir) if x.endswith(".json") and
         'package' not in x and (
-            stat(path.join(ecm_dir, x)).st_mtime >
-            stat('supporting_data/ecm_prep.json').st_mtime)]
+            all([y["name"] not in x for y in meas_summary]) or
+            all([path.splitext(x)[0] not in y for y in listdir(
+                 path.join(*handyfiles.ecm_compete_data))]) or
+            (stat(path.join(ecm_dir, x)).st_mtime > stat(path.join(
+                "supporting_data", "ecm_prep.json")).st_mtime))]
 
-    # Find package measure definitions that have either been directly
-    # added/updated since the last time 'ecm_prep.py' routine was run, or
-    # are comprised of individual measures that have been added/updated
-    # since the last time 'ecm_prep.py' routine was run
+    # Find package measure definitions that are new or were edited since
+    # the last time 'ecm_prep.py' routine was run, or are comprised of
+    # individual measures that are new or were edited since the last time
+    # 'ecm_prep.py' routine was run
 
     # Import full list of packages
-    with open((base_dir + handyfiles.ecm_packages), 'r') as mpk:
+    with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
         try:
             meas_toprep_package_init = json.load(mpk)
         except ValueError as e:
@@ -4753,7 +4763,7 @@ def main(base_dir):
                         str(e)) from None
 
         # Import baseline microsegments
-        with open((base_dir + handyfiles.msegs_in), 'r') as msi:
+        with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
             try:
                 msegs = json.load(msi)
             except ValueError as e:
@@ -4761,7 +4771,7 @@ def main(base_dir):
                     "Error reading in '" +
                     handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        with open((base_dir + handyfiles.msegs_cpl_in), 'r') as bjs:
+        with open(path.join(base_dir, *handyfiles.msegs_cpl_in), 'r') as bjs:
             try:
                 msegs_cpl = json.load(bjs)
             except ValueError as e:
@@ -4769,7 +4779,7 @@ def main(base_dir):
                     "Error reading in '" +
                     handyfiles.msegs_cpl_in + "': " + str(e)) from None
         # Import measure cost unit conversion data
-        with open((base_dir + handyfiles.cost_convert_in), 'r') as cc:
+        with open(path.join(base_dir, *handyfiles.cost_convert_in), 'r') as cc:
             try:
                 convert_data = json.load(cc)
             except ValueError as e:
@@ -4778,7 +4788,8 @@ def main(base_dir):
                     handyfiles.cost_convert_in + "': " + str(e)) from None
         # Import CBECs square footage by vintage data (used to map EnergyPlus
         # commercial building vintages to Scout building vintages)
-        with open((base_dir + handyfiles.cbecs_sf_byvint), 'r') as cbsf:
+        with open(path.join(
+                base_dir, *handyfiles.cbecs_sf_byvint), 'r') as cbsf:
             try:
                 cbecs_sf_byvint = json.load(cbsf)[
                     "commercial square footage by vintage"]
@@ -4788,7 +4799,7 @@ def main(base_dir):
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
         # Import analysis engine setup file to write prepared measure names
         # to
-        with open((base_dir + handyfiles.run_setup), 'r') as am:
+        with open(path.join(base_dir, handyfiles.run_setup), 'r') as am:
             try:
                 run_setup = json.load(am, object_pairs_hook=OrderedDict)
             except ValueError as e:
@@ -4836,16 +4847,20 @@ def main(base_dir):
 
         # Write prepared measure competition data to zipped JSONs
         for ind, m in enumerate(meas_prepped_objs):
-            with gzip.open((base_dir + handyfiles.ecm_compete_data + '/' +
-                           m.name + ".pkl.gz"), 'w') as zp:
+            # Append gzip file extension to ECM name before writing
+            # out competition data
+            meas_file_name = m.name + ".pkl.gz"
+            with gzip.open(path.join(
+                base_dir, *handyfiles.ecm_compete_data,
+                    meas_file_name), 'w') as zp:
                 pickle.dump(meas_prepped_compete[ind], zp, protocol=4)
         # Write prepared high-level measure attributes data to JSON
-        with open((base_dir + handyfiles.ecm_prep), "w") as jso:
+        with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
 
         # Write any newly prepared measure names to the list of active
         # measures to be run in the analysis engine
-        with open((base_dir + handyfiles.run_setup), "w") as jso:
+        with open(path.join(base_dir, handyfiles.run_setup), "w") as jso:
             json.dump(run_setup, jso, indent=2)
     else:
         print('No new ECM updates available')
