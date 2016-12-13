@@ -4532,13 +4532,13 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             if len(meas_summary_data) == 1:
                 # Initialize the missing measure as an object
                 meas_obj = Measure(handyvars, **meas_summary_data[0])
-                # Append gzip file extension to ECM name before reading in
-                # competition data for the ECM
+                # Assemble folder path for measure competition data
+                meas_folder_name = path.join(*handyfiles.ecm_compete_data)
+                # Assemble file name for measure competition data
                 meas_file_name = meas_obj.name + ".pkl.gz"
                 # Load and set competition data for the missing measure object
-                with gzip.open(path.join(
-                    base_dir, *handyfiles.ecm_compete_data,
-                        meas_file_name), 'r') as zp:
+                with gzip.open(path.join(base_dir, meas_folder_name,
+                                         meas_file_name), 'r') as zp:
                     try:
                         meas_comp_data = pickle.load(zp)
                     except Exception as e:
@@ -4847,12 +4847,12 @@ def main(base_dir):
 
         # Write prepared measure competition data to zipped JSONs
         for ind, m in enumerate(meas_prepped_objs):
-            # Append gzip file extension to ECM name before writing
-            # out competition data
+            # Assemble folder path for measure competition data
+            meas_folder_name = path.join(*handyfiles.ecm_compete_data)
+            # Assemble file name for measure competition data
             meas_file_name = m.name + ".pkl.gz"
             with gzip.open(path.join(
-                base_dir, *handyfiles.ecm_compete_data,
-                    meas_file_name), 'w') as zp:
+                    base_dir, meas_folder_name, meas_file_name), 'w') as zp:
                 pickle.dump(meas_prepped_compete[ind], zp, protocol=4)
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:

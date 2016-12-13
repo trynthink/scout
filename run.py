@@ -2056,12 +2056,12 @@ def main(base_dir):
 
     # Load and set competition data for active measure objects
     for m in measures_objlist:
-        # Append gzip file extension to ECM name before reading in
-        # competition data for the ECM
+        # Assemble folder path for measure competition data
+        meas_folder_name = path.join(*handyfiles.meas_compete_data)
+        # Assemble file name for measure competition data
         meas_file_name = m.name + ".pkl.gz"
         with gzip.open(path.join(
-            base_dir, *handyfiles.meas_compete_data,
-                meas_file_name), 'r') as zp:
+                base_dir, meas_folder_name, meas_file_name), 'r') as zp:
             try:
                 meas_comp_data = pickle.load(zp)
             except Exception as e:
