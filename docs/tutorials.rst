@@ -18,7 +18,7 @@ The examples in this tutorial will demonstrate how to write new ECMs so that the
 
 .. CREATE A SECTION FOR THE DOCUMENTATION THAT OUTLINES EVERY POSSIBLE COMBINATION OF SPECIFICATIONS FOR AN ECM, ESPECIALLY IN TERMS OF SPECIFYING PROBABILITY DISTRIBUTIONS OF VARIOUS TYPES, AND SPECIFYING C/P/L AT VARYING LEVELS OF DETAIL/SPECIFICITY
 
-Reference versions of the new ECMs are provided for download to check one's own work following completion of the examples.
+As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
 Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the "ecm_definitions" directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
 
