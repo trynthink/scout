@@ -3,15 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all",
   "structure_type": "all",
-  "end_use": {
-    "primary": ["heating", "cooling"],
-    "secondary": null},
-  "fuel_type": {
-    "primary": "electricity",
-    "secondary": null},
-  "technology": {
-    "primary": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
-    "secondary": null},
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "electricity",
+  "technology": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
   "market_entry_year": 2020,
   "market_entry_year_source": {
     "notes": "Market entry year is based on the low Technology Readiness Level of the technology at the time the ECM was added.",
@@ -21,15 +15,11 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
   "energy_efficiency": {
-    "primary": {
-      "all residential": 6,
-      "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps.csv"}},
-    "secondary": null},
+    "all residential": 6,
+    "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps.csv"}},
   "energy_efficiency_units": {
-    "primary": {
-      "all residential": "COP",
-      "all commercial": "relative savings (constant)"},
-    "secondary": null},
+    "all residential": "COP",
+    "all commercial": "relative savings (constant)"},
   "energy_efficiency_source": {
     "notes": null,
     "source_data":[{

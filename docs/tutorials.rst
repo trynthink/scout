@@ -105,35 +105,29 @@ ECMs can apply to only new construction, only retrofits, or all buildings both n
     "structure_type": "all",
     ...}
 
-The end use(s) for an ECM are separated into primary end uses, those that are applicable to the technology itself, and secondary end uses, which are those end uses that are affected by changes in the energy use from the ECM. The end use names are the same as the residential__ and commercial__ end uses specified in the AEO, and are listed for convenience in the :ref:`ecm-baseline_end-use` reference section. In the case where there are no secondary end uses affected, the key must still be included, but the value should be set to ``null``. The primary end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use qualify as secondary end uses. In general, these secondary end uses are handled automatically without being specified and the secondary field value can be set to ``null``. The specific cases where secondary effects are automatically added are outlined in the corresponding section (add link). ::
+The end use(s) for an ECM correspond to the residential__ and commercial__ end uses specified in the AEO, and are listed for convenience in the :ref:`ecm-baseline_end-use` ECM reference section. End uses can be specified as a single string or, if multiple end uses apply, as a list. The only applicable end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use that arise from changes to lighting systems in commercial buildings are accounted for automatically in the energy use calculations for the ECM. ::
 
    {...
-    "end_use": {
-      "primary": "lighting",
-      "secondary": null},
+    "end_use": "lighting",
     ...}
 
 .. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
 .. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=5-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
 
-Parallel to the structure for the end use data, there must be "primary" and "secondary" keys specifying the fuel type for an ECM. The primary fuel types specified should correspond to the primary end use(s) already specified, and similarly for the secondary fuel types corresponding to those end uses. If no secondary end uses are specified, the secondary fuel type key should have the value ``null``. If multiple fuel types apply for either category, primary or secondary, they can be specified with a list. In the case of LED troffers, electricity is the only relevant primary fuel type. The secondary fuel types will be handled automatically. ::
+The fuel type should be consistent with the end use(s) already specified. Fuel types are listed in the :ref:`ecm-baseline_fuel-type` ECM reference section, and can be specified as a single entry or a list if multiple fuel types are relevant. In the case of LED troffers, electricity is the only relevant fuel type. ::
 
    {...
-    "fuel_type": {
-      "primary": "electricity",
-      "secondary": null},
+    "fuel_type": "electricity",
     ...}
 
-The technology field drills down into the specific technologies or device types that apply to the primary and secondary end uses for the ECM. The specific technology names are different for supply-side and demand-side energy use. All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
+The technology field drills down into the specific technologies or device types that apply to the end use(s) for the ECM. The specific technology names are different for supply-side and demand-side energy use. All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
 
-In some cases, an ECM might be able to replace all of the currently used technologies for its end use and fuel type. For example, a highly efficient thermoelastic heat pump might be able to replace all current electric heating and cooling technologies. If the end uses have been specified as "heating" and "cooling" and the fuel type as "electricity," then the primary technologies can be specified simply with "all." A technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
+In some cases, an ECM might be able to replace all of the currently used technologies for its end use and fuel type. For example, a highly efficient thermoelastic heat pump might be able to replace all current electric heating and cooling technologies. If the end uses have been specified as "heating" and "cooling" and the fuel type as "electricity," then the technologies can be specified simply with "all." A technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
 
 For this example, LED troffers are likely to replace linear fluorescent bulbs, the typical bulb type for troffers. There are many lighting types for commercial buildings, but we will include all of the lighting types that are specified as F\_\_T\_\_, including those with additional modifying text. ::
 
    {...
-    "technology": {
-      "primary": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
-      "secondary": null},
+    "technology": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
     ...}
 
 .. __: https://github.com/trynthink/scout/blob/master/1999%20Residential%20heating%20and%20cooling%20loads%20component%20analysis.pdf
@@ -167,7 +161,7 @@ LED troffers are currently commercially available with a range of performance, c
 Performance
 ***********
 
-The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. There are fields to specify the energy savings associated with secondary effects. If applicable, the performance value(s) should be reported in units of "relative savings (constant)," denoting a reduction in energy use *relative* to the baseline, with a *constant* percentage improvement, even as the baseline improves over time. The fields for secondary effects should be set to ``null`` if they do not apply or will be filled in automatically.
+The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. If applicable, the performance value(s) should be reported in units of "relative savings (constant)," denoting a reduction in energy use *relative* to the baseline, with a *constant* percentage improvement, even as the baseline improves over time.
 
 The units specified are expected to be consistent with the units for each end use outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
 
@@ -178,12 +172,8 @@ If appropriate, the performance can be specified with a different value for each
 For the example of LED troffers, all lighting data should be provided in the units of lumens per Watt (denoted "lm/W"). LED troffers performance information is based on the `High Efficiency Troffer Performance Specification`_. ::
 
    {...
-    "energy_efficiency": {
-      "primary": 120,
-      "secondary": null},
-    "energy_efficiency_units": {
-      "primary": "lm/W",
-      "secondary": null},
+    "energy_efficiency": 120,
+    "energy_efficiency_units": "lm/W",
     "energy_efficiency_source": {
       "notes": "Augmented by data from the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
       "source_data": [{
@@ -297,7 +287,7 @@ If the ECM is intended to supplant technologies with multiple fuel types, the fu
      ...}
 
 .. note::
-   If a value other than ``null`` is provided for the fuel type of the ECM, the primary fuel types selected for the applicable baseline market should include all of the fuel types that can be switched away from when employing the ECM in a building.
+   If a value other than ``null`` is provided for the fuel type of the ECM, the fuel types selected for the applicable baseline market should include all of the fuel types that can be switched away from when employing the ECM in a building.
 
 When updating an existing ECM, the identifying information for the contributor should be provided in the "_updated_by" field instead of the "_added_by" field. ::
 
@@ -338,31 +328,22 @@ The thermoelastic heat pump conceived for this example can be used in residentia
     "structure_type": "all",
     ...}
 
-The end use(s) specified for an ECM can be given as a list, if appropriate. Again, primary end uses apply to the technology itself, while secondary end uses are those affected by changes in energy use as a result of the ECM. In many cases, the secondary end uses are treated automatically based on the primary end uses specified (add link). Using the end use names specified for residential__ and commercial__ buildings in the AEO, the thermoelastic heat pump ECM is specified with both "heating" and "cooling" primary end uses in a list. Secondary end uses are not applicable in this case, thus the value is set to ``null``. ECMs that affect supply-side heating and cooling require updating of the energy use associated with demand-side heating and cooling, but this adjustment process is done automatically (add link). ::
+The end use(s) specified for an ECM can be given as a list, if appropriate. Referring to the end use names indicated in the :ref:`ecm-baseline_end-use` section of the :ref:`ecm-def-reference`, the thermoelastic heat pump ECM is specified with both "heating" and "cooling"  end uses in a list. ECMs that affect supply-side heating and cooling require that the energy use associated with demand-side heating and cooling be updated to match, but this adjustment process is done automatically as part of :ref:`ECM competition <ecm-competition>`. ::
 
    {...
-    "end_use": {
-      "primary": ["heating", "cooling"],
-      "secondary": null},
+    "end_use": ["heating", "cooling"],
     ...}
 
-.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=5-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-
-Parallel to the structure for the end use data, there must be "primary" and "secondary" keys specifying the fuel type for an ECM. The primary and secondary fuel types correspond to the end uses listed under the same keys. As with end uses, fuel types can be specified with a list. Thermoelastic heat pumps use electricity to deform the shape memory metal and absorb or release heat. ::
+Fuel type(s) should correspond to the end uses specified and with the technology description. As with end uses, fuel types can be specified with a list. Thermoelastic heat pumps use electricity to deform the shape memory metal and absorb or release heat. ::
 
    {...
-    "fuel_type": {
-      "primary": "electricity",
-      "secondary": null},
+    "fuel_type": "electricity",
     ...}
 
 The technology field lists the specific technologies or device types that can be replaced by the technology described by the ECM. In some cases, an ECM might be able to replace the full range of incumbent technologies in its end use categories, while in others, only specific technologies might be subject to replacement. There are shortcut technology names available for each end use (e.g., "all heating" or "all lighting") and "all" can be used to indicate all technologies for the end uses specified for the ECM. These shortcut technology names are explained further in the relevant section of the :ref:`ECM Definition Reference <ecm-baseline_technology>`. A highly efficient thermoelastic heat pump, for the purposes of this ECM, can replace other similar air-source heat pump technologies and central AC or rooftop AC systems. ::
 
    {...
-    "technology": {
-      "primary": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
-      "secondary": null},
+    "technology": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
     ...}
 
 
@@ -387,34 +368,25 @@ Performance
 ***********
 
 .. ARE THERE MORE GENERAL COMMENTS TO BE MADE ABOUT THE ORDER IN WHICH THE ENERGY EFFICIENCY SUB-FIELDS MUST BE SPECIFIED?
-.. ADD MORE DETAIL ABOUT WHERE ENERGYPLUS FILES COME FROM; WHAT SPECIFIC FILE FROM THE SIMULATION IS REQUIRED
+.. ADD MORE DETAIL ABOUT WHERE ENERGYPLUS FILES COME FROM
 
-Each ECM definition includes quantitative energy efficiency or energy performance values and the units and source information for those values. Each of these parameters is specified in a separate field. Both the energy efficiency and units should have second level keys for primary and secondary effects from the ECM. Performance data should be derived from :ref:`credible sources <ecm-sources>` and the units must be consistent with those outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
+Each ECM definition includes quantitative energy efficiency or energy performance values and the units and source information for those values. Each of these parameters is specified in a separate field. Performance data should be derived from :ref:`credible sources <ecm-sources>` and the units must be consistent with those outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
 
-Performance values can be specified with different values by end use, climate zone, building type, or building vintage. In addition, the performance values for commercial buildings can be specified with data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. The thermoelastic heat pump ECM applies to both residential and commercial buildings, and EnergyPlus simulation results will be used to specify the performance for commercial buildings. Since both the energy efficiency and units data require "primary" and "secondary" keys, the residential and commercial data should be specified under those keys using the simplified building type keys "all residential" and "all commercial."
+Performance values can be specified with different values by end use, climate zone, building type, or building vintage. In addition, the performance values for commercial buildings can be specified with data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. The thermoelastic heat pump ECM applies to both residential and commercial buildings, and EnergyPlus simulation results will be used to specify the performance for commercial buildings. For the purposes of this example, performance is assumed to be uniform across residential buildings and the EnergyPlus simulation results address commercial buildings, thus the performance can be specified under the simplified building type keys "all residential" and "all commercial."
 
-EnergyPlus performance data files are organized by building type and each file can include performance data for multiple ECMs. These files should be placed in the directory "energyplus_data." To import performance data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict as follows: ``"energy_efficiency": {"EnergyPlus file": "ECM name"}``. Here, "ECM name" will determine which rows should be drawn from the EnergyPlus file(s) that are relevant to the ECM's building type(s). When EnergyPlus data are being used, ECM performance units should always be "relative savings (constant)." 
+EnergyPlus performance data files are specific to a single building type and each file can include performance data for multiple ECMs. These files should be placed in the directory "energyplus_data" (inside the "ecm_definitions" folder). To import performance data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict as follows: ``"energy_efficiency": {"EnergyPlus file": "ECM name"}``. Here, "ECM name" will determine which rows will be read in the EnergyPlus file(s). Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM performance units should always be "relative savings (constant)." 
 
-Using EnergyPlus performance data disables the automatic calculation of the secondary energy use effects of an ECM because these secondary effects can be retrieved directly from the EnergyPlus simulation results. Two changes must be made to the ECM definition to correctly incorporate the secondary effects data from the EnergyPlus results.
-
-1. In the applicable baseline market definition, the secondary end use(s), fuel type(s), and technology name(s) must be specified.
-2. The location of the EnergyPlus data files must be specified for the secondary performance fields.
-
-If no secondary effects apply, the "secondary" key for performance should be specified as ``null`` similar to other unused fields in the ECM. For thermoelastic heat pumps, there are no secondary effects.
+EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM.
 
 The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example. The pages where the data can be found in the source can be provided as a single number or as a list of two numbers, e.g., [93, 95], if the data are spread across multiple pages. If page numbers are not applicable, the field should have the value ``null``. ::
 
    {...
     "energy_efficiency": {
-      "primary": {
-         "all residential": 6,
-         "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps"}},
-      "secondary": null},
+      "all residential": 6,
+      "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps"}},
     "energy_efficiency_units": {
-      "primary": {
-         "all residential": "COP",
-         "all commercial": "relative savings (constant)"},
-      "secondary": null},
+      "all residential": "COP",
+      "all commercial": "relative savings (constant)"},
     "energy_efficiency_source": {
       "notes": null,
       "source_data":[{

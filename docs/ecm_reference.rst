@@ -59,6 +59,8 @@ Structure Type
 
 new, existing
 
+.. _ecm-baseline_fuel-type:
+
 Fuel Type
 ~~~~~~~~~
 
