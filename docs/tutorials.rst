@@ -513,6 +513,32 @@ Since the scaling fraction is not derived from the EIA data used to provide a co
 
 Additional discussion regarding the use of the market scaling fraction can be found in the :ref:`first example ECM <example-ecm-1-optional-entries>`.
 
+.. _ecm-feature-distributions:
+
+Probability Distributions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Probability distributions can be added to the installed cost, energy efficiency, and lifetime specified for ECMs to represent uncertainty or known, quantified variability in one or more of those values. In a single ECM, a probability distribution can be applied to any one or more of these parameters. Probability distributions cannot be specified for any other parameters in an ECM, such as the market entry or exit years, market scaling fractions, or to either the energy savings increase or cost reduction parameters in :ref:`package ECMs <package-ecms>`. 
+
+Where permitted, probability distributions are specified using a list. The first entry in the list identifies the desired distribution. Subsequent entries in the list correspond to the required and optional parameters that define that distribution type, according to the `numpy.random module documentation`_, excluding the optional "size" parameter. [#]_ The |supported-distributions| distributions are currently supported. (Note that the normal and log-normal distributions' scale parameter is standard deviation, not variance.)
+
+.. _numpy.random module documentation: https://docs.scipy.org/doc/numpy/reference/routines.random.html
+
+
+For a given ECM, if the installed cost is known to vary uniformly between 1585 and 2230 $/unit, that range can be specified with a probability distribution. ::
+
+   {...
+    "installed_cost": ["uniform", 1585, 2230],
+    ...}
+
+Probability distributions can be specified in any location in the energy efficiency, installed cost, or product lifetime specification where a point value would otherwise be used. Distributions do not have to be provided for every value in a detailed specification if it is not relevant or there are insufficient supporting data. Different distributions can be used for each value if so desired. ::
+
+   {...
+    "energy_efficiency": {
+      "heating": ["normal", 2.3, 0.4],
+      "cooling": ["lognormal", 0.9, 0.2],
+      "water heating": 1.15},
+    ...}
 
 .. _editing-ecms:
 
@@ -698,5 +724,6 @@ The Reduce Infiltration ECM similarly shows a gap between the uncompeted baselin
 .. [#] These key-value pairs enclosed with curly braces are called `associative arrays`_, and JSON files use syntax for these arrays that is similar to `Python dictionaries`_.
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
+.. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
 .. [#] If the warning "there is no package called 'rjson'" appears in the R Console window, try running the script again. If the warning is repeated, the rjson package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select "rjson" from the list of packages that appears. On a Mac, search in the list for "rjson," click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
 .. [#] When ECMs are competed against each other, demand-side heating and cooling ECMs that improve the performance of the building envelope reduce the energy required to meet heating and cooling needs (supply-side energy), and that reduction in energy requirements for heating and cooling is reflected in a reduced baseline for supply-side heating and cooling ECMs. At the same time, supply-side heating and cooling ECMs that are more efficient reduce the energy used to provide heating and cooling services, thus reducing the baseline energy for demand-side ECMs. The description of :ref:`ECM competition <ecm-competition>` in Step 3 of the analysis approach section includes further details regarding supply-side and demand-side heating and cooling energy use balancing.

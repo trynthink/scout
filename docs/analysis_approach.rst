@@ -229,7 +229,7 @@ ECM-specific results from the analysis of the portfolio of ECMs
 
 .. rubric:: Footnotes
 
-.. [#] Currently supported distributions: normal, lognormal, uniform, triangular, weibull, gamma.
+.. [#] Currently supported distributions: |supported-distributions|.
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
 .. [#] The vintages are: pre-1980, 1980-2004, `ASHRAE 90.1-2004`_, `ASHRAE 90.1-2010`_, and `ASHRAE 90.1-2013`_.
 .. [#] A representative city is simulated for each climate zone: Houston, TX (hot humid); Baltimore, MD (mixed humid); El Paso, TX (hot dry); Albuquerque, NM (mixed dry); San Francisco, CA (marine); Chicago, IL (cold); Duluth, NM (very cold), Fairbanks, AK (sub arctic).

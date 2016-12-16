@@ -362,6 +362,15 @@ intersphinx_mapping = {'https://docs.python.org/3': None}
 # Set up common substitutions to be available throughout the documentation
 rst_prolog = """
 .. |CO2| replace:: CO\ :sub:`2`
+.. |supported-distributions| replace::
+   uniform_, normal_, lognormal_, triangular_, weibull_, and gamma_
+
+.. _uniform: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.uniform.html#numpy.random.uniform
+.. _normal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.normal.html#numpy.random.normal
+.. _lognormal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.lognormal.html#numpy.random.lognormal
+.. _triangular: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.triangular.html#numpy.random.triangular
+.. _weibull: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.weibull.html#numpy.random.weibull
+.. _gamma: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.gamma.html#numpy.random.gamma
 """
 
 
