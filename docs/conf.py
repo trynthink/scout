@@ -359,6 +359,12 @@ intersphinx_mapping = {'https://docs.python.org/3': None}
 
 # -- CUSTOM CONFIGURATION OPTIONS -----------------------------------------
 
+# Set up common substitutions to be available throughout the documentation
+rst_prolog = """
+.. |CO2| replace:: CO\ :sub:`2`
+"""
+
+
 # Set up additional CSS that adds popover capabilities to the style
 def setup(app):
     app.add_stylesheet('css/custom.css')

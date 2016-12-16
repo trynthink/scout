@@ -1,8 +1,4 @@
-﻿.. in-text replacements
-
-.. |CO2| replace:: CO\ :sub:`2`
-
-.. _overview:
+﻿.. _overview:
 
 An Overview of Scout
 ====================

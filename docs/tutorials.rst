@@ -1,6 +1,3 @@
-.. Substitutions
-.. |CO2| replace:: CO\ :sub:`2`
-
 .. _tutorials:
 
 Tutorials
