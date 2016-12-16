@@ -54,6 +54,8 @@ Building Type
 
    "all" can be used instead of specifying both "all residential" and "all commercial" if all residential *and* commercial building types apply.
 
+.. _ecm-baseline_structure-type:
+
 Structure Type
 ~~~~~~~~~~~~~~
 
@@ -304,9 +306,10 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 roof, wall, ground, floor, infiltration, ventilation, windows conduction, windows solar, lighting gain, equipment gain, people gain, other heat gain
 
 .. _ecm-performance-units:
+.. _ecm-energy-efficiency-units:
 
-Performance Units
------------------
+Energy Efficiency Units
+-----------------------
 
 **Residential -- Equipment (Supply)**
 

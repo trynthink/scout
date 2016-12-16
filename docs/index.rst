@@ -22,6 +22,7 @@ Documentation Contents
    analysis_approach
    thermal_load_components
    ecm_reference
+   ecm_schema
 ..   maintenance
 
 
