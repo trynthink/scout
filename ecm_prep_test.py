@@ -733,8 +733,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             that should be yielded given 'ok_tpmeas_fullchk_in'.
         ok_tpmeas_fullchk_msegadjout (list): Secondary microsegment adjustment
             information that should be yielded given 'ok_tpmeas_fullchk_in'.
-        ok_tpmeas_fullchk_supplydemandout (list): Supply-demand adjustment
-            information that should be yielded given 'ok_tpmeas_fullchk_in'.
         ok_tpmeas_fullchk_break_out (list): Output breakout information that
             should be yielded given 'ok_tpmeas_fullchk_in'.
         ok_tpmeas_partchk_msegout (list): Master market microsegments
@@ -6310,9 +6308,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "lifetime": {"baseline": {"2009": 140, "2010": 140},
                          "measure": 1}}]
         cls.ok_distmeas_out = [
-            [121.74, 50, 1844.58, 50, 1, 1],
-            [11.61, 50, 379.91, 50, 1.03, 50],
-            [57.20, 50, 6017912381.8599997, 50, 1, 1]]
+            [120.86, 100, 1741.32, 100, 1.0, 1],
+            [11.9, 100, 374.73, 100, 0.93, 100],
+            [55.44, 100, 6426946929.70, 100, 1.0, 1]]
         cls.ok_partialmeas_out = [{
             "stock": {
                 "total": {
@@ -6452,10 +6450,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 measure.markets['Technical potential']['mseg_adjust'][
                     'secondary mseg adjustments'],
                 self.ok_tpmeas_fullchk_msegadjout[idx])
-            self.dict_check(
-                measure.markets['Technical potential']['mseg_adjust'][
-                    'supply-demand adjustment'],
-                self.ok_tpmeas_fullchk_supplydemandout[idx])
             self.dict_check(
                 measure.markets['Technical potential']['mseg_out_break'],
                 self.ok_tpmeas_fullchk_break_out[idx])
@@ -7777,10 +7771,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}}}
+                        "adjusted stock (competed and captured)": {}}}}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure)
         # Finalize the measure's 'technology_type' attribute (handled by the
@@ -8458,10 +8449,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}}}
+                        "adjusted stock (competed and captured)": {}}}}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
@@ -9166,13 +9154,11 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new", "existing"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["natural gas"],
-                          "secondary": None},
+            "fuel_type": ["natural gas"],
             "fuel_switch_to": None,
             "end_use": {"primary": ["water heating"],
                         "secondary": None},
-            "technology": {"primary": None,
-                           "secondary": None},
+            "technology": [None],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -9498,10 +9484,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -9976,10 +9959,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -10140,14 +10120,13 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "structure_type": ["existing"],
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["electricity"],
-                          "secondary": None},
+            "fuel_type": ["electricity"],
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
                         "secondary": None},
-            "technology": {"primary": [
+            "technology": [
                 "reflector (incandescent)",
-                "reflector (halogen)"], "secondary": None},
+                "reflector (halogen)"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -10357,10 +10336,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -10715,10 +10691,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -10875,17 +10848,14 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "structure_type": ["new"],
             "climate_zone": ["AIA_CZ5"],
             "bldg_type": ["multi family home"],
-            "fuel_type": {"primary": ["electricity"],
-                          "secondary": None},
+            "fuel_type": ["electricity"],
             "fuel_switch_to": None,
             "end_use": {
                 "primary": ["cooling", "lighting"],
                 "secondary": None},
-            "technology": {
-                "primary": [
+            "technology": [
                     "ASHP",
                     "reflector (incandescent)"],
-                "secondary": None},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -11098,10 +11068,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -11461,10 +11428,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -11623,14 +11587,12 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "structure_type": ["existing"],
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
-            "fuel_type": {
-                "primary": ["electricity"],
-                "secondary": None},
+            "fuel_type": ["electricity"],
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
                         "secondary": None},
-            "technology": {"primary": [
-                "reflector (incandescent)"], "secondary": None},
+            "technology": [
+                "reflector (incandescent)"],
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -11784,10 +11746,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -12086,10 +12045,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -12720,10 +12676,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             "original stock (total captured)": {},
                             "original stock (competed and captured)": {},
                             "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}},
-                    "supply-demand adjustment": {
-                        "savings": {},
-                        "total": {}}},
+                            "adjusted stock (competed and captured)": {}}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
@@ -13334,10 +13287,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             "original stock (total captured)": {},
                             "original stock (competed and captured)": {},
                             "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}},
-                    "supply-demand adjustment": {
-                        "savings": {},
-                        "total": {}}},
+                            "adjusted stock (competed and captured)": {}}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
@@ -13588,7 +13538,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             self.sample_package_in_test1.climate_zone,
             self.sample_package_in_test1.bldg_type,
             self.sample_package_in_test1.structure_type,
-            self.sample_package_in_test1.fuel_type["primary"],
+            self.sample_package_in_test1.fuel_type,
             self.sample_package_in_test1.end_use["primary"]]
         for ind in range(0, len(output_lists)):
             self.assertEqual(sorted(self.genattr_ok_out_test1[ind]),
@@ -13665,10 +13615,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}},
+                        "adjusted stock (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
@@ -13677,10 +13624,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}}},
+                        "adjusted stock (competed and captured)": {}}}}},
             {
             "Technical potential": {
                 "contributing mseg keys and values": {},
@@ -13690,10 +13634,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}},
+                        "adjusted stock (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
@@ -13702,10 +13643,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}}},
+                        "adjusted stock (competed and captured)": {}}}}},
             {
             "Technical potential": {
                 "contributing mseg keys and values": {},
@@ -13715,10 +13653,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}},
+                        "adjusted stock (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
@@ -13727,10 +13662,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                         "original stock (total captured)": {},
                         "original stock (competed and captured)": {},
                         "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}},
-                "supply-demand adjustment": {
-                    "savings": {},
-                    "total": {}}}}]
+                        "adjusted stock (competed and captured)": {}}}}}]
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
@@ -13738,7 +13670,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             ["market_entry_year", "market_exit_year", "markets",
              "name", "remove", 'technology', 'technology_type', 'yrs_on_mkt'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
-             "market_entry_year", "market_exit_year", 'markets',
+             "technology", "market_entry_year", "market_exit_year", 'markets',
              'contributing_ECMs', 'name', 'remove', 'structure_type',
              'yrs_on_mkt']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]

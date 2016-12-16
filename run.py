@@ -253,7 +253,17 @@ class Engine(object):
             for euse in self.handyvars.out_break_enduses.items():
                 if any([x in euse[1] for x in m.end_use["primary"]]) and \
                         euse[0] not in end_uses:
-                    end_uses.append(euse[0])
+                    # Handle special freezers case as 'Refrigeration'
+                    if "other (grid electric)" in m.end_use["primary"] and \
+                            "freezers" in m.technology:
+                        end_uses.append("Refrigeration")
+                    # Handle all other technologies associated with
+                    # 'other (grid electric)' end use as 'Other'
+                    elif "other (grid electric)" in m.end_use["primary"] and \
+                            "freezers" not in m.technology:
+                        end_uses.append("Other")
+                    else:
+                        end_uses.append(euse[0])
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
             self.output[m.name] = OrderedDict([
@@ -1002,6 +1012,10 @@ class Engine(object):
         [years_on_mkt_all.extend(x.yrs_on_mkt) for x in measures_adj]
         years_on_mkt_all = numpy.unique(years_on_mkt_all)
 
+        # Set market entry years for all competing measures
+        mkt_entry_yrs = [
+            m.market_entry_year for m in measures_adj]
+
         # Loop through competing measures and calculate market shares for
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
@@ -1076,7 +1090,7 @@ class Engine(object):
                 self.compete_adj(
                     mkt_fracs[ind], mast, adj, mast_list_base,
                     mast_list_eff, adj_list_eff, adj_list_base, yr,
-                    mseg_key, m, adopt_scheme)
+                    mseg_key, m, adopt_scheme, mkt_entry_yrs)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across competing commercial measures.
@@ -1119,6 +1133,10 @@ class Engine(object):
         years_on_mkt_all = []
         [years_on_mkt_all.extend(x.yrs_on_mkt) for x in measures_adj]
         years_on_mkt_all = numpy.unique(years_on_mkt_all)
+
+        # Set market entry years for all competing measures
+        mkt_entry_yrs = [
+            m.market_entry_year for m in measures_adj]
 
         # Initialize a flag that indicates whether any competing measures
         # have arrays of annualized capital and/or operating costs rather
@@ -1313,7 +1331,7 @@ class Engine(object):
                 self.compete_adj(
                     mkt_fracs[ind], mast, adj, mast_list_base,
                     mast_list_eff, adj_list_eff, adj_list_base, yr,
-                    mseg_key, m, adopt_scheme)
+                    mseg_key, m, adopt_scheme, mkt_entry_yrs)
 
     def secondary_adj(
             self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
@@ -1564,7 +1582,8 @@ class Engine(object):
 
     def compete_adj(
             self, adj_fracs, mast, adj, mast_list_base, mast_list_eff,
-            adj_list_eff, adj_list_base, yr, mseg_key, measure, adopt_scheme):
+            adj_list_eff, adj_list_base, yr, mseg_key, measure,
+            adopt_scheme, mkt_entry_yrs):
         """Scale down measure stock/energy/carbon/cost totals to reflect competition.
 
         Notes:
@@ -1604,37 +1623,53 @@ class Engine(object):
         # year)
         adj_frac_comp = copy.deepcopy(adj_fracs[yr])
 
-        # For all years after market entry (e.g., where the measure has
-        # captured some of the existing stock), combine the competed market
-        # share adjustment for the stock captured by the measure in the
-        # current year with that of the stock captured by the measure in
-        # all previous years, yielding a weighted market share adjustment
-        if adj["stock"]["total"]["measure"][yr] != 0:
-            # Determine the subset of all years leading up to the current
-            # year in the modeling time horizon
-            weighting_yrs = sorted([
-                x for x in adj_fracs.keys() if int(x) <= int(yr) and
-                adj["stock"]["total"]["measure"][x] != 0])
-            # Loop through the above set of years, successively updating the
-            # weighted market share based on the captured stock in each year
-            for ind, wyr in enumerate(weighting_yrs):
-                # First year in time horizon; weighted market share equals
-                # market share for the captured stock in this year only
-                if ind == 0:
-                    adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
-                # Subsequent year; weighted market share combines market share
-                # for captured stock in current year and all previous years
-                else:
-                    # Develop the split between captured stock in the
-                    # current year and all previously captured stock
+        # Weight the competed market share adjustment for the stock captured
+        # by the measure in the current year against that of the stock captured
+        # by the measure in all previous years, yielding a total weighted
+        # market share adjustment
+
+        # Determine the subset of all years leading up to current year in
+        # the modeling time horizon
+        weighting_yrs = sorted([
+            x for x in adj_fracs.keys() if int(x) <= int(yr)])
+        # Loop through the above set of years, successively updating the
+        # weighted market share based on the captured stock in each year
+        for ind, wyr in enumerate(weighting_yrs):
+            # First year in time horizon; weighted market share equals
+            # market share for the captured stock in this year only
+            if ind == 0:
+                adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
+            # Subsequent year; weighted market share combines market share
+            # for captured stock in current year and all previous years
+            else:
+                # Set shorter name for total stock data in weighting year
+                stock_all_wyr = adj["stock"]["total"]["all"][wyr]
+
+                # Find the proportion of the current year's stock that
+                # is competed across measures, for use in weighting
+                # market share between the current year and previous years
+
+                # If the weighting year represents a market entry year
+                # for any of the competing measures and the simulation
+                # is running through a 'Technical potential' scenario,
+                # the competed proportion is 1 (all stock competed)
+                if int(wyr) in mkt_entry_yrs and \
+                        adopt_scheme == "Technical potential":
+                    wt_comp = 1
+                # Otherwise, the competed portion corresponds to the
+                # ratio of total competed stock to total stock
+                elif stock_all_wyr != 0:
                     wt_comp = adj["stock"]["competed"]["all"][wyr] / \
-                        adj["stock"]["total"]["all"][wyr]
-                    # Calculate weighted combination of market shares for
-                    # current and previously captured stock
-                    adj_frac_tot = adj_fracs[wyr] * wt_comp + \
-                        adj_frac_tot * (1 - wt_comp)
-        else:
-            adj_frac_tot = copy.deepcopy(adj_fracs[yr])
+                        stock_all_wyr
+                # If total stock for the weighting year is zero, set
+                # the competed proportion to zero as well
+                else:
+                    wt_comp = 0
+
+                # Calculate weighted combination of market shares for
+                # current and previously competed stock
+                adj_frac_tot = adj_fracs[wyr] * wt_comp + \
+                    adj_frac_tot * (1 - wt_comp)
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -1741,14 +1776,16 @@ class Engine(object):
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
-            # Set competed measure markets, savings, and portfolio-level
-            # financial metrics
+            # Set competed measure markets, savings, portfolio-level
+            # and consumer-level financial metrics
             mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
             save = m.savings[adopt_scheme]["competed"]
             metrics_port = m.portfolio_metrics[adopt_scheme]["competed"]
-            # Group markets, savings, and portfolio metrics into list
-            # for updates
-            save_metric_uncertain = [
+            metrics_consume = m.consumer_metrics
+
+            # Group baseline/efficient markets, savings, and financial
+            # metrics into list for updates
+            summary_vals = [
                 mkts["energy"]["total"]["baseline"],
                 mkts["carbon"]["total"]["baseline"],
                 mkts["cost"]["energy"]["total"]["baseline"],
@@ -1764,114 +1801,53 @@ class Engine(object):
                 metrics_port["cce"],
                 metrics_port["cce (w/ carbon cost benefits)"],
                 metrics_port["ccc"],
-                metrics_port["ccc (w/ energy cost benefits)"]]
+                metrics_port["ccc (w/ energy cost benefits)"],
+                metrics_consume["irr (w/ energy costs)"],
+                metrics_consume["irr (w/ energy and carbon costs)"],
+                metrics_consume["payback (w/ energy costs)"],
+                metrics_consume["payback (w/ energy and carbon costs)"]]
             # Order the year entries in the above markets, savings,
             # and portfolio metrics outputs
-            save_metric_uncertain = [OrderedDict(
-                sorted(x.items())) for x in save_metric_uncertain]
+            summary_vals = [OrderedDict(
+                sorted(x.items())) for x in summary_vals]
 
-            # Check if the current measure's markets, savings, and
-            # portfolio metrics are arrays of values. If so, find the
-            # average and 5th/95th percentile values of each output
-            # array and report out. Otherwise, report the point values
-            # for each output
-            if any([type(x) == numpy.ndarray for x in
-                    save["energy"]["savings (total)"].values()]):
-                # Average values for outputs
-                energy_base_avg, carb_base_avg, energy_cost_base_avg, \
-                    carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
-                    energy_cost_eff_avg, \
-                    carb_cost_eff_avg, energy_save_avg, \
-                    energy_costsave_avg, carb_save_avg, \
-                    carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
-                    ccc_e_avg = [{
-                        k: numpy.mean(v) for k, v in z.items()} for
-                        z in save_metric_uncertain]
-                # 5th percentile values for outputs
-                energy_base_low, carb_base_low, energy_cost_base_low, \
-                    carb_cost_base_low, energy_eff_low, carb_eff_low, \
-                    energy_cost_eff_low, \
-                    carb_cost_eff_low, energy_save_low, \
-                    energy_costsave_low, carb_save_low, \
-                    carb_costsave_low, cce_low, cce_c_low, ccc_low, \
-                    ccc_e_low = [{
-                        k: numpy.percentile(v, 5) for k, v in
-                        z.items()} for z in save_metric_uncertain]
-                # 95th percentile values for outputs
-                energy_base_high, carb_base_high, energy_cost_base_high, \
-                    carb_cost_base_high, energy_eff_high, carb_eff_high, \
-                    energy_cost_eff_high, \
-                    carb_cost_eff_high, energy_save_high, \
-                    energy_costsave_high, carb_save_high, \
-                    carb_costsave_high, cce_high, \
-                    cce_c_high, ccc_high, ccc_e_high = [{
-                        k: numpy.percentile(v, 95) for k, v in
-                        z.items()} for z in save_metric_uncertain]
-            else:
-                energy_base_avg, carb_base_avg, energy_cost_base_avg, \
-                    carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
-                    energy_cost_eff_avg, \
-                    carb_cost_eff_avg, energy_save_avg, \
-                    energy_costsave_avg, carb_save_avg, \
-                    carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, \
-                    ccc_e_avg, energy_base_low, carb_base_low, \
-                    energy_cost_base_low, \
-                    carb_cost_base_low, energy_eff_low, carb_eff_low, \
-                    energy_cost_eff_low, carb_cost_eff_low, \
-                    energy_save_low, energy_costsave_low, \
-                    carb_save_low, carb_costsave_low, cce_low, \
-                    cce_c_low, ccc_low, ccc_e_low, energy_base_high, \
-                    carb_base_high, energy_cost_base_high, \
-                    carb_cost_base_high, energy_eff_high, \
-                    carb_eff_high, energy_cost_eff_high, \
-                    carb_cost_eff_high, energy_save_high, \
-                    energy_costsave_high, carb_save_high, \
-                    carb_costsave_high, cce_high, cce_c_high, \
-                    ccc_high, ccc_e_high = [
-                        x for x in save_metric_uncertain] * 3
+            # Find mean and 5th/95th percentile values of each output
+            # (note: if output is point value, all three of these values
+            # will be the same)
+
+            # Mean of outputs
+            energy_base_avg, carb_base_avg, energy_cost_base_avg, \
+                carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
+                energy_cost_eff_avg, carb_cost_eff_avg, energy_save_avg, \
+                energy_costsave_avg, carb_save_avg, carb_costsave_avg, \
+                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, irr_e_avg, \
+                irr_ec_avg, payback_e_avg, \
+                payback_ec_avg = [{
+                    k: numpy.mean(v) for k, v in z.items()} for
+                    z in summary_vals]
+            # 5th percentile of outputs
+            energy_base_low, carb_base_low, energy_cost_base_low, \
+                carb_cost_base_low, energy_eff_low, carb_eff_low, \
+                energy_cost_eff_low, carb_cost_eff_low, energy_save_low, \
+                energy_costsave_low, carb_save_low, carb_costsave_low, \
+                cce_low, cce_c_low, ccc_low, ccc_e_low, irr_e_low, \
+                irr_ec_low, payback_e_low, payback_ec_low = [{
+                    k: numpy.percentile(v, 5) for k, v in z.items()} for
+                    z in summary_vals]
+            # 95th percentile of outputs
+            energy_base_high, carb_base_high, energy_cost_base_high, \
+                carb_cost_base_high, energy_eff_high, carb_eff_high, \
+                energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
+                energy_costsave_high, carb_save_high, carb_costsave_high, \
+                cce_high, cce_c_high, ccc_high, ccc_e_high, irr_e_high, \
+                irr_ec_high, payback_e_high, payback_ec_high = [{
+                    k: numpy.percentile(v, 95) for k, v in z.items()} for
+                    z in summary_vals]
 
             # Record updated markets and savings in Engine 'output'
-            # attribute; yield low and high estimates on the values if
-            # available
-            if energy_eff_avg != energy_eff_low:
-                self.output[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme], self.output[m.name][
-                    "Markets and Savings (by Category)"][
-                    adopt_scheme] = (OrderedDict([
-                        ("Baseline Energy Use (MMBtu)", energy_base_avg),
-                        ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                        ("Efficient Energy Use (low) (MMBtu)",
-                            energy_eff_low),
-                        ("Efficient Energy Use (high) (MMBtu)",
-                            energy_eff_high),
-                        ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                            carb_base_avg),
-                        ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                            carb_eff_avg),
-                        ("Efficient CO2 Emissions (low) (MMTons)".
-                            translate(sub), carb_eff_low),
-                        ("Efficient CO2 Emissions (high) (MMTons)".
-                            translate(sub), carb_eff_high),
-                        ("Baseline Energy Cost (USD)", energy_cost_base_avg),
-                        ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
-                        ("Efficient Energy Cost (low) (USD)",
-                            energy_cost_eff_low),
-                        ("Efficient Energy Cost (high) (USD)",
-                            energy_cost_eff_high),
-                        ("Baseline CO2 Cost (USD)".translate(sub),
-                            carb_cost_base_avg),
-                        ("Efficient CO2 Cost (USD)".translate(sub),
-                            carb_cost_eff_avg),
-                        ("Energy Savings (MMBtu)", energy_save_avg),
-                        ("Energy Cost Savings (USD)", energy_costsave_avg),
-                        ("Avoided CO2 Emissions (MMTons)".
-                            translate(sub), carb_save_avg),
-                        ("CO2 Cost Savings (USD)".
-                            translate(sub), carb_costsave_avg)]) for
-                    n in range(2))
-            else:
-                self.output[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme], self.output[m.name][
+            # attribute
+            self.output[m.name]["Markets and Savings (Overall)"][
+                adopt_scheme], self.output[m.name][
                     "Markets and Savings (by Category)"][
                     adopt_scheme] = (OrderedDict([
                         ("Baseline Energy Use (MMBtu)", energy_base_avg),
@@ -1892,7 +1868,7 @@ class Engine(object):
                             translate(sub), carb_save_avg),
                         ("CO2 Cost Savings (USD)".
                             translate(sub), carb_costsave_avg)]) for
-                    n in range(2))
+                        n in range(2))
 
             # Scale down the measure's markets and savings by the
             # climate zone, building type, and end use partitioning
@@ -1908,6 +1884,48 @@ class Engine(object):
                         self.output[m.name][
                             'Markets and Savings (by Category)'][
                             adopt_scheme][k])
+
+            # Record low and high estimates on markets, if available
+
+            # Set shorter names for markets and savings output dicts
+            output_dict_overall = self.output[m.name][
+                "Markets and Savings (Overall)"][adopt_scheme]
+            output_dict_bycat = self.output[m.name][
+                "Markets and Savings (by Category)"][adopt_scheme]
+            # Record low and high baseline market values
+            if energy_base_avg != energy_base_low:
+                for x in [output_dict_overall, output_dict_bycat]:
+                    x["Baseline Energy Use (low) (MMBtu)"] = energy_base_low
+                    x["Baseline Energy Use (high) (MMBtu)"] = energy_base_high
+                    x["Baseline CO2 Emissions (low) (MMTons)".
+                        translate(sub)] = carb_base_low
+                    x["Baseline CO2 Emissions (high) (MMTons)".
+                        translate(sub)] = carb_base_high
+                    x["Baseline Energy Cost (low) (USD)"] = \
+                        energy_cost_base_low
+                    x["Baseline Energy Cost (high) (USD)"] = \
+                        energy_cost_base_high
+                    x["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
+                        carb_cost_base_low
+                    x["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
+                        carb_cost_base_high
+            # Record low and high efficient market values
+            if energy_eff_avg != energy_eff_low:
+                for x in [output_dict_overall, output_dict_bycat]:
+                    x["Efficient Energy Use (low) (MMBtu)"] = energy_eff_low
+                    x["Efficient Energy Use (high) (MMBtu)"] = energy_eff_high
+                    x["Efficient CO2 Emissions (low) (MMTons)".
+                        translate(sub)] = carb_eff_low
+                    x["Efficient CO2 Emissions (high) (MMTons)".
+                        translate(sub)] = carb_eff_high
+                    x["Efficient Energy Cost (low) (USD)"] = \
+                        energy_cost_eff_low
+                    x["Efficient Energy Cost (high) (USD)"] = \
+                        energy_cost_eff_high
+                    x["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
+                        carb_cost_eff_low
+                    x["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
+                        carb_cost_eff_high
 
             # Record updated portfolio metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
@@ -1938,43 +1956,6 @@ class Engine(object):
                           "($/MTon CO2 avoided)").
                          translate(sub), ccc_avg)])
 
-            # Set consumer-level financial metrics
-            metrics = m.consumer_metrics
-            # Group consumer-level financial metrics into list for updates
-            consume_metric_uncertain = [
-                metrics["irr (w/ energy costs)"],
-                metrics["irr (w/ energy and carbon costs)"],
-                metrics["payback (w/ energy costs)"],
-                metrics["payback (w/ energy and carbon costs)"]]
-            # Order the year entries in consumer metrics outputs
-            consume_metric_uncertain = [OrderedDict(
-                sorted(x.items())) for x in consume_metric_uncertain]
-
-            # Check if the current measure's consumer metrics
-            # are arrays of values. If so, find the average and 5th/95th
-            # percentile values of each output array and report out.
-            # Otherwise, report the point values for each output
-            if any([type(x) == numpy.ndarray for x in
-                    metrics["irr (w/ energy costs)"].values()]):
-                # Average values for outputs
-                irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg = \
-                    [{k: numpy.mean(v) for k, v in z.items()} for
-                     z in consume_metric_uncertain]
-                # 5th percentile values for outputs
-                irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = \
-                    [{k: numpy.percentile(v, 5) for k, v in z.items()} for
-                     z in consume_metric_uncertain]
-                # 95th percentile values for outputs
-                irr_e_high, irr_ec_high, payback_e_high, \
-                    payback_ec_high = [{
-                        k: numpy.percentile(v, 95) for k, v in
-                        z.items()} for z in consume_metric_uncertain]
-            else:
-                irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg, \
-                    irr_e_low, irr_ec_low, payback_e_low, payback_ec_low, \
-                    irr_e_high, irr_ec_high, payback_e_high, \
-                    payback_ec_high = [
-                        x for x in consume_metric_uncertain] * 3
             # Record updated consumer metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
             if irr_e_avg != irr_e_low:

@@ -112,7 +112,7 @@ class UsefulVars(object):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.01
-        self.nsamples = 50
+        self.nsamples = 100
         # Set minimum AEO modeling year
         aeo_min = 2009
         # Set maximum AEO modeling year
@@ -919,10 +919,7 @@ class Measure(object):
                             "original stock (total captured)": {},
                             "original stock (competed and captured)": {},
                             "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}},
-                    "supply-demand adjustment": {
-                        "savings": {},
-                        "total": {}}}),
+                            "adjusted stock (competed and captured)": {}}}}),
                 (
                 "mseg_out_break", copy.deepcopy(
                     self.handyvars.out_break_in))])
@@ -1288,89 +1285,6 @@ class Measure(object):
                             mskeys[i] in mkt_scale_frac_source.keys():
                         mkt_scale_frac_source = \
                             mkt_scale_frac_source[mskeys[i]]
-
-                    # If updating heating/cooling measure microsegment,
-                    # record the total amount of overlapping supply and
-                    # demand-side energy. For example, given a supply-side
-                    # cooling measure microsegment key chain of ['AIA_CZ1',
-                    # 'single family home', 'electricity (grid)', 'cooling',
-                    # 'supply', 'ASHP'], the total cooling energy that overlaps
-                    # with demand-side measures (e.g. highly insulating window)
-                    # is defined by the key ['AIA_CZ1', 'single family home',
-                    # 'electricity (grid)', 'cooling']. This information will
-                    # be used in the 'adjust_savings' function below to
-                    # adjust supply-side measure savings by the fraction
-                    # of overlapping demand-side savings, and vice versa.
-                    if (mskeys[i] == "supply" or mskeys[i] == "demand") \
-                       and mskeys[i + 1] in mseg.keys():
-                        # Find the total overlapping heating/cooling energy
-                        # by summing together the energy for all microsegments
-                        # under the current 'supply' or 'demand' levels of the
-                        # key chain (e.g. could be 'ASHP', 'GSHP', 'boiler',
-                        # 'windows (conduction)', 'infiltration', etc.).
-                        # Note that for a given climate zone, building type,
-                        # and fuel type, heating/cooling supply and demand
-                        # energy should be equal.
-                        for ind, ks in enumerate(mseg.keys()):
-                            if ind == 0:
-                                adj_vals = copy.deepcopy(mseg[ks][
-                                    "energy"])
-                            else:
-                                adj_vals = self.add_keyvals(
-                                    adj_vals, mseg[ks]["energy"])
-                        for adopt_scheme in self.handyvars.adopt_schemes:
-                            # Case with no existing 'windows' contributing
-                            # microsegment for the current climate zone,
-                            # building type, fuel type, and end use (create new
-                            # 'supply-demand adjustment' information)
-                            if contrib_mseg_key not in self.markets[
-                                adopt_scheme]["mseg_adjust"][
-                                    "supply-demand adjustment"][
-                                    "total"].keys():
-                                # Adjust the resultant total overlapping energy
-                                # values by appropriate site-source conversion
-                                # factor and record as the measure's
-                                # 'supply-demand adjustment' information
-                                self.markets[adopt_scheme]["mseg_adjust"][
-                                    "supply-demand adjustment"][
-                                    "total"][str(contrib_mseg_key)] = {
-                                        key: val * site_source_conv_base[
-                                            key] for key, val in
-                                    adj_vals.items() if key in
-                                    self.handyvars.aeo_years}
-                                # Set overlapping energy savings values to zero
-                                # in the measure's 'supply-demand adjustment'
-                                # information for now (updated as necessary in
-                                # the 'adjust_savings' function below)
-                                self.markets[adopt_scheme]["mseg_adjust"][
-                                    "supply-demand adjustment"][
-                                    "savings"][str(contrib_mseg_key)] = \
-                                    dict.fromkeys(self.handyvars.aeo_years, 0)
-                            # Case with existing 'windows' contributing
-                            # microsegment for the current climate zone,
-                            # building type, fuel type, and end use (add to
-                            # existing 'supply-demand adjustment' information)
-                            else:
-                                # Adjust the resultant total overlapping energy
-                                # values by appropriate site-source conversion
-                                # factor and add to existing 'supply-demand
-                                # adjustment' information for the current
-                                # windows microsegment
-                                add_adjust = {
-                                    key: val * site_source_conv_base[
-                                        key] for key, val in
-                                    adj_vals.items() if key in
-                                    self.handyvars.aeo_years}
-                                self.markets[adopt_scheme]["mseg_adjust"][
-                                    "supply-demand adjustment"][
-                                    "total"][str(contrib_mseg_key)] = \
-                                    self.add_key_vals(
-                                        self.markets[adopt_scheme][
-                                            "mseg_adjust"][
-                                            "supply-demand adjustment"][
-                                            "total"][
-                                            str(contrib_mseg_key)], add_adjust)
-
                 # If no key match, break the loop
                 else:
                     if mskeys[i] is not None:
@@ -2399,10 +2313,17 @@ class Measure(object):
             # Notify user of cost conversion
 
             # Set base user message
-            user_message = "Measure '" + self.name + \
-                "' cost converted from " + \
-                str(cost_meas) + " " + cost_meas_units + " to " + \
-                str(round(cost_meas_fin, 2)) + " " + cost_meas_units_fin
+            if not isinstance(cost_meas, numpy.ndarray):
+                user_message = "Measure '" + self.name + \
+                    "' cost converted from " + \
+                    str(cost_meas) + " " + cost_meas_units + " to " + \
+                    str(round(cost_meas_fin, 2)) + " " + cost_meas_units_fin
+            else:
+                user_message = "Measure '" + self.name + \
+                    "' cost converted from " + \
+                    str(numpy.mean(cost_meas)) + " " + cost_meas_units + \
+                    " to " + str(round(numpy.mean(cost_meas_fin), 2)) + " " + \
+                    cost_meas_units_fin
             # Add building type information to base message in cases where cost
             # conversion depends on building type (e.g., for envelope
             # components)
@@ -2541,7 +2462,6 @@ class Measure(object):
                         stock_total_init.keys(), 0)
 
                 # Initialize market share secondary adjustment information
-                # (used in 'adjust_savings' function below)
 
                 # Initialize original total captured stock information
                 secnd_adj_mktshr["original stock (total captured)"][
@@ -4018,9 +3938,10 @@ class MeasurePackage(Measure):
         self.yrs_on_mkt = [
             str(i) for i in range(
                 self.market_entry_year, self.market_exit_year)]
-        self.climate_zone, self.bldg_type, self.structure_type = (
-            [] for n in range(3))
-        self.fuel_type, self.end_use = ({"primary": []} for n in range(2))
+        self.climate_zone, self.bldg_type, self.structure_type, \
+            self.fuel_type, self.technology = (
+                [] for n in range(5))
+        self.end_use = {"primary": [], "secondary": None}
         self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
@@ -4073,10 +3994,7 @@ class MeasurePackage(Measure):
                             "original stock (total captured)": {},
                             "original stock (competed and captured)": {},
                             "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}},
-                    "supply-demand adjustment": {
-                        "savings": {},
-                        "total": {}}},
+                            "adjusted stock (competed and captured)": {}}}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
 
     def merge_measures(self):
@@ -4103,13 +4021,15 @@ class MeasurePackage(Measure):
             self.structure_type.extend(
                 list(set(m.structure_type) - set(self.structure_type)))
             # Add measure fuel types
-            self.fuel_type["primary"].extend(
-                list(set(m.fuel_type["primary"]) -
-                     set(self.fuel_type["primary"])))
+            self.fuel_type.extend(
+                list(set(m.fuel_type) - set(self.fuel_type)))
             # Add measure end uses
             self.end_use["primary"].extend(
                 list(set(m.end_use["primary"]) -
                      set(self.end_use["primary"])))
+            # Add measure technologies
+            self.technology.extend(
+                list(set(m.technology) - set(self.technology)))
 
             # Generate a dictionary with data about all the
             # microsegments that contribute to the packaged measure's
@@ -4132,8 +4052,7 @@ class MeasurePackage(Measure):
                     # Add all other contributing microsegment data for
                     # the measure
                     elif k in ["competed choice parameters",
-                               "secondary mseg adjustments",
-                               "supply-demand adjustment"]:
+                               "secondary mseg adjustments"]:
                         self.update_dict(msegs_pkg[k], msegs_meas[k])
 
                 # Generate a dictionary including data on how much of the

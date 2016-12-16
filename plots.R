@@ -10,6 +10,9 @@ options("encoding" = "UTF-8")
 # Load XLSX for writing out raw data to MS Excel
 if(!require("xlsx")){install.packages("xlsx")}
 require("xlsx")
+# Load package for counting commas in a string
+if(!require("stringr")){install.packages("stringr")}
+require("stringr")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
@@ -49,9 +52,14 @@ years<-years[order(years)]
 var_names_uncompete <- c('energy', 'carbon', 'cost')
 # Set output units for each variable type
 var_units <- c('Quads', 'MMTons', 'Billion $')
-# Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data
-var_names_compete_base <- c(
-  'Baseline Energy Use (MMBtu)', 'Baseline CO₂ Emissions (MMTons)', 'Baseline Energy Cost (USD)') 
+# Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data. Note
+# that each variable potentially has a '(low)' and '(high)' variant in the JSON.
+var_names_compete_base_m <- c(
+  'Baseline Energy Use (MMBtu)', 'Baseline CO₂ Emissions (MMTons)', 'Baseline Energy Cost (USD)')
+var_names_compete_base_l <- c(
+  'Baseline Energy Use (low) (MMBtu)', 'Baseline CO₂ Emissions (low) (MMTons)', 'Baseline Energy Cost (low) (USD)')
+var_names_compete_base_h <- c(
+  'Baseline Energy Use (high) (MMBtu)', 'Baseline CO₂ Emissions (high) (MMTons)', 'Baseline Energy Cost (high) (USD)')
 # Set variable names to use in accessing competed efficient energy, carbon, and cost results from JSON data. Note
 # that each variable potentially has a '(low)' and '(high)' variant in the JSON.
 var_names_compete_eff_m <- c(
@@ -77,14 +85,12 @@ for (a in 1:length(adopt_scenarios)){
     # Set plot colors
     plot_col_c_base = "midnightblue"
     plot_col_c_eff = "lightskyblue"
-    plot_col_c_lowhigh = "lightskyblue"
     # Set XLSX summary data file name
     xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
   }else{
     # Set plot colors
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
-    plot_col_c_lowhigh = "lightpink"
     # Set XLSX summary data file name
     xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
   }
@@ -143,6 +149,12 @@ for (a in 1:length(adopt_scenarios)){
       xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
       xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
       xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
+      
+      # If there are more than three end use names, set a single end use name of 'Multiple' such that
+      # the end use name label will fit easily within each plot region
+      if (str_count(end_uses, ",") > 2){
+        end_uses = "Multiple"
+      }
 
       # Find the index for accessing the item in the list of uncompeted results that corresponds
       # to data for the current ECM. Note: competed results are accessed directly by ECM name,
@@ -161,7 +173,7 @@ for (a in 1:length(adopt_scenarios)){
           paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
         
         # Set matrix for temporarily storing finalized baseline and efficient results
-        r_temp <- matrix(NA, 4, length(years))  
+        r_temp <- matrix(NA, 6, length(years))  
         # Find data for uncompeted energy, carbon, and/or cost
         if (comp_schemes[cp] == "uncompeted"){
           # Set the appropriate database of uncompeted results (access keys vary based on plotted variable)
@@ -177,18 +189,18 @@ for (a in 1:length(adopt_scenarios)){
           # Order the uncompeted results by year and determine low/high bounds on each result value
           # (if applicable)
           for (yr in 1:length(years)){
-            r_temp[1, yr] = results_database$'baseline'[years[yr]][[1]]
+            r_temp[1:3, yr] = results_database$'baseline'[years[yr]][[1]]
             # Set mean, low, and high values for case with ECM input/output uncertainty
             if (length(results_database$'efficient'[years[1]][[1]]) > 1){
               # Take mean of list of values from uncompeted results
-              r_temp[2, yr] = mean(results_database$'efficient'[years[yr]][[1]])
+              r_temp[4, yr] = mean(results_database$'efficient'[years[yr]][[1]])
               # Take 5th/95th percentiles of list of values from uncompeted results
-              r_temp[3:4, yr] = quantile(results_database$'efficient'[years[yr]][[1]], c(0.05, 0.95))
+              r_temp[5:6, yr] = quantile(results_database$'efficient'[years[yr]][[1]], c(0.05, 0.95))
               uncertainty = TRUE
               # Set mean, low, and high values for case without ECM input/output uncertainty
               # (all values equal to mean value)
               }else{
-                r_temp[2:4, yr] = results_database$'efficient'[years[yr]][[1]]
+                r_temp[4:6, yr] = results_database$'efficient'[years[yr]][[1]]
               }
           }
         # Find data for competed energy, carbon, and/or cost
@@ -199,21 +211,38 @@ for (a in 1:length(adopt_scenarios)){
           # Order the competed results by year and determine low/high bounds on each result value
           # (if applicable)
           for (yr in 1:length(years)){
-            r_temp[1, yr] = results_database[[var_names_compete_base[v]]][years[yr]][[1]]
-            # Set mean, low, and high values for case with ECM input/output uncertainty
-            if (length(which(grepl('low', names(results_database))))>0) {
+            base_uncertain_check = sapply(c("Baseline", "low"), grepl, names(results_database))
+            if (length(which((base_uncertain_check[,1]&base_uncertain_check[,2])==TRUE)>0)) {
               # Take mean value output directly from competed results
-              r_temp[2, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
+              r_temp[1, yr] = results_database[[var_names_compete_base_m[v]]][years[yr]][[1]]
               # Take 'low' value output directly from competed results (represents 5th percentile)
-              r_temp[3, yr] = results_database[[var_names_compete_eff_l[v]]][years[yr]][[1]]
+              r_temp[2, yr] = results_database[[var_names_compete_base_l[v]]][years[yr]][[1]]
+              # Take 'high' value output directly from competed results (represents 5th percentile)
+              r_temp[3, yr] = results_database[[var_names_compete_base_h[v]]][years[yr]][[1]]
+              # Flag output uncertainty in the current plot
+              uncertainty = TRUE
+              # Set mean, low, and high values for case without ECM input/output uncertainty
+              # (all values equal to mean value)
+            }else{
+              # Take 'low' value output directly from competed results (represents 5th percentile)
+              r_temp[1:3, yr] = results_database[[var_names_compete_base_m[v]]][years[yr]][[1]]
+            }
+            
+            # Set mean, low, and high values for case with ECM input/output uncertainty
+            eff_uncertain_check = sapply(c("Efficient", "low"), grepl, names(results_database))
+            if (length(which((eff_uncertain_check[,1]&eff_uncertain_check[,2])==TRUE)>0)) {
+              # Take mean value output directly from competed results
+              r_temp[4, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
+              # Take 'low' value output directly from competed results (represents 5th percentile)
+              r_temp[5, yr] = results_database[[var_names_compete_eff_l[v]]][years[yr]][[1]]
               # Take 'high' value output directly from competed results (represents 95th percentile)
-              r_temp[4, yr] = results_database[[var_names_compete_eff_h[v]]][years[yr]][[1]]
+              r_temp[6, yr] = results_database[[var_names_compete_eff_h[v]]][years[yr]][[1]]
               # Flag output uncertainty in the current plot
               uncertainty = TRUE
               # Set mean, low, and high values for case without ECM input/output uncertainty
               # (all values equal to mean value)
               }else{
-                r_temp[2:4, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
+                r_temp[4:6, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
               }
           }
         }
@@ -221,15 +250,18 @@ for (a in 1:length(adopt_scenarios)){
         col_ind_start = ((cp-1)*(length(comp_schemes))) + 1
         col_ind_end = col_ind_start + 1 # note this accommodates baseline and efficient outcomes
         # Update results matrix with mean, low, and high baseline and efficient outcomes
-        results[, col_ind_start:col_ind_end] = rbind(cbind(list(r_temp[1,]), list(r_temp[2,])),
-                                             cbind(list(r_temp[1,]), list(r_temp[3,])),
-                                             cbind(list(r_temp[1,]), list(r_temp[4,])))
+        results[, col_ind_start:col_ind_end] = rbind(
+          cbind(list(r_temp[1,]), list(r_temp[4,])),
+          cbind(list(r_temp[2,]), list(r_temp[5,])),
+          cbind(list(r_temp[3,]), list(r_temp[6,])))
       }
 
       # Set uncompeted and competed baseline results for given adoption scenario,
-      # plotting variable, and ECM  
+      # plotting variable, and ECM (mean and low/high values for competed case)  
       base_uc = unlist(results[1, 1]) * unit_translate
-      base_c = unlist(results[1, 3]) * unit_translate
+      base_c_m = unlist(results[1, 3]) * unit_translate
+      base_c_l = unlist(results[2, 3]) * unit_translate
+      base_c_h = unlist(results[3, 3]) * unit_translate
       # Set uncompeted and competed efficient results for adoption scenario,
       # plotting variable, and ECM (mean and low/high values)
       eff_uc_m = unlist(results[1, 2]) * unit_translate
@@ -241,21 +273,27 @@ for (a in 1:length(adopt_scenarios)){
       
       # Add ECM results to XLSX data frame
       xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
-        rbind(base_uc, eff_uc_m, base_c, eff_uc_m)
+        rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
       
       # Initialize or update summed results across all ECMs
       if (m == 1){
-        base_c_all = base_c
+        base_c_all = base_c_m
         eff_c_m_all = eff_c_m
+        eff_c_l_all = eff_c_l
+        eff_c_h_all = eff_c_h
       }else{
-        base_c_all = base_c_all + base_c
+        base_c_all = base_c_all + base_c_m
         eff_c_m_all = eff_c_m_all + eff_c_m
+        eff_c_l_all = eff_c_l_all + eff_c_l
+        eff_c_h_all = eff_c_h_all + eff_c_h
       }
       
       # Find the min. and max. values in the data to be plotted
-      min_val = min(c(base_uc, base_c, eff_uc_m, eff_uc_l, eff_uc_h,
+      min_val = min(c(base_uc, base_c_m, base_c_l, base_c_h,
+                      eff_uc_m, eff_uc_l, eff_uc_h,
                       eff_c_m, eff_c_l, eff_c_h))
-      max_val = max(c(base_uc, base_c, eff_uc_m, eff_uc_l, eff_uc_h,
+      max_val = max(c(base_uc, base_c_m, base_c_l, base_c_h, 
+                      eff_uc_m, eff_uc_l, eff_uc_h,
                       eff_c_m, eff_c_l, eff_c_h))
       # Set limits of y axis for plot based on min. and max. values in data
       ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
@@ -270,11 +308,13 @@ for (a in 1:length(adopt_scenarios)){
         legend_param = c(
           "Baseline (Uncompeted)", "Baseline (Competed)",
           "Efficient (Uncompeted)", "Efficient (Competed)",
-          "Efficient (Uncompeted, 5th/95th PCT)", "Efficient (Competed, 5th/95th PCT)")
+          "Baseline (Competed, 5th/95th PCT)", "Efficient (Uncompeted, 5th/95th PCT)",
+          "Efficient (Competed, 5th/95th PCT)")
         col_param = c(plot_col_uc_base, plot_col_c_base, plot_col_uc_eff,
-                      plot_col_c_eff, plot_col_uc_lowhigh, plot_col_c_lowhigh)
-        lwd_param = c(5, 3, 3.5, rep(2, 4))
-        lty_param = c(rep(1, 4), rep(3, 2))
+                      plot_col_c_eff, plot_col_c_base,
+                      plot_col_uc_eff, plot_col_c_eff)
+        lwd_param = c(5, 3, 3.5, rep(1, 5))
+        lty_param = c(rep(1, 4), rep(6, 3))
         }else{
           # Set legend parameters for a plot with no uncertainty in the results
           legend_param = c("Baseline (Uncompeted)", "Baseline (Competed)",
@@ -287,16 +327,18 @@ for (a in 1:length(adopt_scenarios)){
       # Add low/high bounds on uncompeted and competed baseline and efficient
       # results, if applicable
       if (uncertainty == TRUE){
-        lines(years, eff_uc_l, lwd=2, lty=3, col=plot_col_uc_lowhigh)
-        lines(years, eff_uc_h, lwd=2, lty=3, col=plot_col_uc_lowhigh)
-        lines(years, eff_c_l, lwd=2, lty=3, col=plot_col_c_lowhigh)
-        lines(years, eff_c_h, lwd=2, lty=3, col=plot_col_c_lowhigh)
+          lines(years, eff_uc_l, lwd=1, lty=6, col=plot_col_uc_eff)
+          lines(years, eff_uc_h, lwd=1, lty=6, col=plot_col_uc_eff)
+          lines(years, base_c_l, lwd=1, lty=6 , col=plot_col_c_base)
+          lines(years, base_c_h, lwd=1, lty=6 , col=plot_col_c_base)
+          lines(years, eff_c_l, lwd=1, lty=6 , col=plot_col_c_eff)
+          lines(years, eff_c_h, lwd=1, lty=6 , col=plot_col_c_eff)
       }
 
       # Add mean uncompeted efficient results
       lines(years, eff_uc_m, lwd=3, col=plot_col_uc_eff)
-      # Add competed baseline results
-      lines(years, base_c, lwd=3.5, col=plot_col_c_base)
+      # Add mean competed baseline results
+      lines(years, base_c_m, lwd=3.5, col=plot_col_c_base)
       # Add mean competed efficient results
       lines(years, eff_c_m, lwd=2, col=plot_col_c_eff)
 
@@ -325,14 +367,22 @@ for (a in 1:length(adopt_scenarios)){
     # Plot results across all ECMs
     
     # Find the min. and max. values in the data to be plotted
-    min_val = min(c(base_c_all, eff_c_m_all))
-    max_val = max(c(base_c_all, eff_c_m_all))
+    min_val = min(c(base_c_all,
+                    eff_c_m_all, eff_c_l_all, eff_c_h_all))
+    max_val = max(c(base_c_all,
+                    eff_c_m_all, eff_c_l_all, eff_c_h_all))
     # Set limits of y axis for plot based on min. and max. values in data
     ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
 
     # Initialize the plot with uncompeted baseline results across all ECMs
     plot(years, base_c_all, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
          xlab=NA, ylab=NA, col=plot_col_c_base, main = "All ECMs", xaxt="n", yaxt="n")
+    # Add low bounds on uncompeted and competed baseline and efficient
+    # results, if applicable
+    if (uncertainty == TRUE){
+      lines(years, eff_c_l_all, lwd=1, lty=6 , col=plot_col_c_eff)
+      lines(years, eff_c_h_all, lwd=1, lty=6 , col=plot_col_c_eff)
+    }
     # Add mean competed efficient results across all ECMs
     lines(years, eff_c_m_all, lwd=2, col=plot_col_c_eff)
     
@@ -342,13 +392,13 @@ for (a in 1:length(adopt_scenarios)){
     yval_2030_eff = eff_c_m_all[which(years=="2030")]
     yval_2030_base = base_c_all[which(years=="2030")]
     # Draw line segment connecting 2030 baseline and efficient results
-    points(xval_2030, yval_2030_base, col="light green", pch = 1, cex=1.5, lwd=2.5)
-    points(xval_2030, yval_2030_eff, col="light green", pch = 1, cex=1.5, lwd=2.5)
-    segments(xval_2030, yval_2030_eff, xval_2030, yval_2030_base, col="green", lty=3)
+    points(xval_2030, yval_2030_base, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+    points(xval_2030, yval_2030_eff, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+    segments(xval_2030, yval_2030_eff, xval_2030, yval_2030_base, col="forestgreen", lty=3)
     # Add 2030 savings figure
     text(xval_2030, yval_2030_eff - (yval_2030_eff - min(ylims))/7,
          paste(toString(sprintf("%.1f", yval_2030_base-yval_2030_eff)),
-               toString(var_units[v]), sep=" "), pos = 1, col="green")
+               toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
     
     # Add x and y axis labels
     mtext("Year", side=1, line=3.5, cex=0.925)

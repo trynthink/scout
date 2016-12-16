@@ -62,10 +62,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -85,10 +82,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         self.sample_measure2 = {
             "name": "sample measure 2",
@@ -130,10 +124,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -153,10 +144,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         self.sample_measure3 = {
             "name": "sample measure 3 (commercial)",
@@ -198,10 +186,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -221,10 +206,7 @@ class CommonTestMeasures(object):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
 
 
@@ -2000,14 +1982,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key1: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key1: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -2133,14 +2109,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key1: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key1: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}}}}
         # cls.compete_meas1_dist = {
         #     "name": "sample compete measure r1 dist",
@@ -2684,14 +2654,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key1: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key1: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -2879,14 +2843,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key1: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key1: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}}}}
         cls.compete_meas3 = {
             "name": "sample compete measure r3",
@@ -3022,14 +2980,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -3156,14 +3108,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}}}}
         # cls.compete_meas3_dist = {
         #     "name": "sample compete measure r3 dist",
@@ -3657,14 +3603,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -3852,14 +3791,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         cls.compete_meas5 = {
             "name": "sample compete measure r5",
@@ -4117,14 +4049,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -4373,14 +4298,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original stock (total captured)": {},
                                 "original stock (competed and captured)": {},
                                 "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}},
-                        "supply-demand adjustment": {
-                            "savings": {
-                                cls.adjust_key2: {
-                                    "2009": 0, "2010": 0}},
-                            "total": {
-                                cls.adjust_key2: {
-                                    "2009": 100, "2010": 100}}}},
+                                "adjusted stock (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         cls.measures_all = [run.Measure(cls.handyvars, **x) for x in [
             cls.compete_meas1, copy.deepcopy(cls.compete_meas2),
@@ -5795,10 +5713,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -5999,10 +5914,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}
         cls.compete_meas2 = {
             "name": "sample compete measure c2",
@@ -6214,10 +6126,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -6418,10 +6327,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}
         # cls.compete_meas2_dist = {
         #     "name": "sample compete measure c2 dist",
@@ -7137,10 +7043,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -7402,10 +7305,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted stock (competed and captured)": {
                                     cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}}},
-                        "supply-demand adjustment": {
-                            "savings": {},
-                            "total": {}}},
+                                        "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}
         cls.measures_all = [run.Measure(
             cls.handyvars, **x) for x in [
@@ -7762,43 +7662,43 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {"2009": 20, "2010": 20},
-                    "measure": {"2009": 0, "2010": 16}},
+                    "measure": {"2009": 0, "2010": 13}},
                 "competed": {
                     "all": {"2009": 10, "2010": 10},
                     "measure": {"2009": 0, "2010": 8}}},
             "energy": {
                 "total": {
-                    "baseline": {"2009": 0, "2010": 24},
-                    "efficient": {"2009": 0, "2010": 18}},
+                    "baseline": {"2009": 0, "2010": 12},
+                    "efficient": {"2009": 0, "2010": 9}},
                 "competed": {
                     "baseline": {"2009": 0, "2010": 12},
                     "efficient": {"2009": 0, "2010": 6}}},
             "carbon": {
                 "total": {
-                    "baseline": {"2009": 0, "2010": 36},
-                    "efficient": {"2009": 0, "2010": 24}},
+                    "baseline": {"2009": 0, "2010": 18},
+                    "efficient": {"2009": 0, "2010": 12}},
                 "competed": {
                     "baseline": {"2009": 0, "2010": 18},
                     "efficient": {"2009": 0, "2010": 6}}},
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 16},
-                        "efficient": {"2009": 20, "2010": 8}},
+                        "baseline": {"2009": 10, "2010": 13},
+                        "efficient": {"2009": 20, "2010": 6.5}},
                     "competed": {
                         "baseline": {"2009": 5, "2010": 8},
                         "efficient": {"2009": 10, "2010": 0}}},
                 "energy": {
                     "total": {
-                        "baseline": {"2009": 0, "2010": 24},
-                        "efficient": {"2009": 0, "2010": 18}},
+                        "baseline": {"2009": 0, "2010": 12},
+                        "efficient": {"2009": 0, "2010": 9}},
                     "competed": {
                         "baseline": {"2009": 0, "2010": 12},
                         "efficient": {"2009": 0, "2010": 6}}},
                 "carbon": {
                     "total": {
-                        "baseline": {"2009": 0, "2010": 36},
-                        "efficient": {"2009": 0, "2010": 24}},
+                        "baseline": {"2009": 0, "2010": 18},
+                        "efficient": {"2009": 0, "2010": 12}},
                     "competed": {
                         "baseline": {"2009": 0, "2010": 18},
                         "efficient": {"2009": 0, "2010": 6}}}},
