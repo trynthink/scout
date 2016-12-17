@@ -627,7 +627,7 @@ class Engine(object):
         if life_ratio > 1:
             for i in range(0, life_ratio - 1):
                 added_stockcost_gain_yrs.append(
-                    (life_base - 1) + (life_base * i))
+                    (int(life_base) - 1) + (int(life_base) * i))
         # If the measure lifetime is less than 1 year, set it to 1 year
         # (a minimum for measure lifetime to work in below calculations)
         if life_meas < 1:
@@ -719,7 +719,7 @@ class Engine(object):
                           "mobile home"] for x in m.bldg_type]):
                 # Set ANPV values under general discount rate
                 res_anpv_s_in, res_anpv_e_in, res_anpv_c = [
-                    numpy.pmt(self.handyvars.discount_rate, life_meas, x) for
+                    -numpy.pmt(self.handyvars.discount_rate, life_meas, x) for
                     x in [npv_s, npv_e, npv_c]]
             # If measure does not apply to residential sector, set residential
             # ANPVs to 'None'
@@ -739,7 +739,7 @@ class Engine(object):
                     com_anpv_s_in["rate " + str(ind + 1)],\
                         com_anpv_e_in["rate " + str(ind + 1)],\
                         com_anpv_c["rate " + str(ind + 1)] = \
-                        [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
+                        [-numpy.pmt(tps, life_meas, numpy.npv(tps, x))
                          for x in [cashflows_s, cashflows_e, cashflows_c]]
             # If measure does not apply to commercial sector, set commercial
             # ANPVs to 'None'
