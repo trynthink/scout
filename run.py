@@ -1081,7 +1081,7 @@ class Engine(object):
                 if yr in m.yrs_on_mkt:
                     mkt_fracs[ind][yr] = \
                         mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
-                elif mkt_fracs_tot[yr] == 0:
+                elif yr not in years_on_mkt_all:
                     mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 else:
                     mkt_fracs[ind][yr] = 0
