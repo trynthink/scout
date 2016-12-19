@@ -2587,29 +2587,36 @@ class Measure(object):
                 # stock in new homes already captured by the efficient
                 # technology multiplied by (1 / efficient lifetime); if not,
                 # the efficient replacement fraction is 0
-                if self.market_entry_year is None or (int(
-                    self.market_entry_year) < int(
-                        self.handyvars.aeo_years[0])):
-                    turnover_meas = life_meas - (
-                        int(yr) - int(self.handyvars.aeo_years[0]))
-                else:
-                    turnover_meas = life_meas - (
-                        int(yr) - self.market_entry_year)
-                # Handle case where efficient measure lifetime is a numpy array
-                if type(life_meas) == numpy.ndarray:
-                    for ind, l in enumerate(life_meas):
-                        if turnover_meas[ind] <= 0:
-                            captured_eff_replace_frac = \
-                                captured_eff_frac * (1 / l)
-                        else:
-                            captured_eff_replace_frac = 0
-                # Handle case where efficient measure lifetime is a point value
-                else:
-                    if turnover_meas <= 0:
-                        captured_eff_replace_frac = captured_eff_frac * \
-                            (1 / life_meas)
-                    else:
-                        captured_eff_replace_frac = 0
+                # if self.market_entry_year is None or (int(
+                #     self.market_entry_year) < int(
+                #         self.handyvars.aeo_years[0])):
+                #     turnover_meas = life_meas - (
+                #         int(yr) - int(self.handyvars.aeo_years[0]))
+                # else:
+                #     turnover_meas = life_meas - (
+                #         int(yr) - self.market_entry_year)
+                # # Handle case where efficient measure lifetime is a numpy array
+                # if type(life_meas) == numpy.ndarray:
+                #     for ind, l in enumerate(life_meas):
+                #         if turnover_meas[ind] <= 0:
+                #             captured_eff_replace_frac = \
+                #                 captured_eff_frac * (1 / l)
+                #         else:
+                #             captured_eff_replace_frac = 0
+                # # Handle case where efficient measure lifetime is a point value
+                # else:
+                #     if turnover_meas <= 0:
+                #         captured_eff_replace_frac = captured_eff_frac * \
+                #             (1 / life_meas)
+                #     else:
+                #         captured_eff_replace_frac = 0
+
+                # For now, set efficient replacement fraction to zero. This
+                # reflects a simplifying assumption that once each efficient
+                # technology captures a piece of its baseline market, that
+                # market segment remains with the efficient technology across
+                # the remainder of the time horizon
+                captured_eff_replace_frac = 0
             else:
                 captured_eff_replace_frac, captured_base_replace_frac = \
                     (0 for n in range(2))
