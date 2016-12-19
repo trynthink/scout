@@ -386,9 +386,13 @@ class Engine(object):
                 if adopt_scheme != "Technical potential":
                     nunits_tot = markets["stock"]["competed"]["all"][yr]
                     nunits_meas = markets["stock"]["competed"]["measure"][yr]
+                    scostbase = markets["cost"]["stock"][
+                        "competed"]["baseline"][yr]
                 else:
                     nunits_tot = markets["stock"]["total"]["all"][yr]
                     nunits_meas = markets["stock"]["total"]["measure"][yr]
+                    scostbase = markets["cost"]["stock"][
+                        "total"]["baseline"][yr]
 
                 # Set the lifetime of the baseline technology for comparison
                 # with measure lifetime
@@ -519,8 +523,7 @@ class Engine(object):
                         self.metric_update(
                             m, nunits_tot, nunits_meas, life_base,
                             int(life_meas), int(life_ratio),
-                            markets["cost"]["stock"][
-                                "competed"]["baseline"][yr], scostsave[yr],
+                            scostbase, scostsave[yr],
                             esave[yr], ecostsave[yr], csave[yr], ccostsave[yr])
 
             # Record final measure savings figures and financial metrics
@@ -625,9 +628,10 @@ class Engine(object):
         # LED bulb has reached the end of its life.
         added_stockcost_gain_yrs = []
         if life_ratio > 1:
-            for i in range(0, life_ratio - 1):
-                added_stockcost_gain_yrs.append(
-                    (int(life_base) - 1) + (int(life_base) * i))
+            for i in range(1, life_meas):
+                if i % int(life_base) == 0:
+                    added_stockcost_gain_yrs.append(i - 1)
+
         # If the measure lifetime is less than 1 year, set it to 1 year
         # (a minimum for measure lifetime to work in below calculations)
         if life_meas < 1:
@@ -651,7 +655,7 @@ class Engine(object):
             # as appropriate
             cashflows_s = numpy.append(cashflows_s, scost_life)
 
-        cashflows_s = cashflows_s / nunits_meas
+        cashflows_s = cashflows_s / nunits_tot
 
         # Construct complete energy and carbon cash flows across measure
         # lifetime (normalized by number of captured stock units). First
@@ -719,7 +723,7 @@ class Engine(object):
                           "mobile home"] for x in m.bldg_type]):
                 # Set ANPV values under general discount rate
                 res_anpv_s_in, res_anpv_e_in, res_anpv_c = [
-                    -numpy.pmt(self.handyvars.discount_rate, life_meas, x) for
+                    numpy.pmt(self.handyvars.discount_rate, life_meas, x) for
                     x in [npv_s, npv_e, npv_c]]
             # If measure does not apply to residential sector, set residential
             # ANPVs to 'None'
@@ -739,7 +743,7 @@ class Engine(object):
                     com_anpv_s_in["rate " + str(ind + 1)],\
                         com_anpv_e_in["rate " + str(ind + 1)],\
                         com_anpv_c["rate " + str(ind + 1)] = \
-                        [-numpy.pmt(tps, life_meas, numpy.npv(tps, x))
+                        [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
                          for x in [cashflows_s, cashflows_e, cashflows_c]]
             # If measure does not apply to commercial sector, set commercial
             # ANPVs to 'None'
