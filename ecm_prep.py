@@ -52,6 +52,7 @@ class UsefulInputFiles(object):
                                 "ecm_cost_convert.json")
         self.cbecs_sf_byvint = \
             ("supporting_data", "convert_data", "cbecs_sf_byvintage.json")
+        self.indiv_ecms = "ecm_definitions"
         self.ecm_packages = ("ecm_definitions", "package_ecms.json")
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
@@ -4618,25 +4619,52 @@ def main(base_dir):
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
 
-    # Find the names of individual measures that are new (e.g., they have
+    # Find individual measure definitions that are new (e.g., they have
     # not already been fully prepared for use in the analysis engine) or
     # have been edited since last the 'ecm_prep.py' routine was run
-    ecm_dir = 'ecm_definitions'
+
+    # Determine full list of individual measure JSON names
     meas_toprep_indiv_names = [
-        x for x in listdir(ecm_dir) if x.endswith(".json") and
-        'package' not in x and (
-            all([y["name"] not in x for y in meas_summary]) or
-            all([path.splitext(x)[0] not in y for y in listdir(
-                 path.join(*handyfiles.ecm_compete_data))]) or
-            (stat(path.join(ecm_dir, x)).st_mtime > stat(path.join(
-                "supporting_data", "ecm_prep.json")).st_mtime))]
+        x for x in listdir(handyfiles.indiv_ecms) if x.endswith(".json") and
+        'package' not in x]
+    # Initialize list of individual measures to prepare
+    meas_toprep_indiv = []
+    # Import all individual measure JSONs
+    for mi in meas_toprep_indiv_names:
+        with open(path.join(base_dir, handyfiles.indiv_ecms, mi), 'r') as jsf:
+            try:
+                # Load each JSON into a dict
+                meas_dict = json.load(jsf)
+                # Determine whether dict should be added to list of measure
+                # definitions to update. Add a measure dict to the list
+                # requiring further prepartion if: a) measure name is not
+                # already included in database of prepared measure attributes
+                # ('ecm_prep.json'); b) measure does not already have
+                # competition data prepared for it (in
+                # '/supporting_data/ecm_competition_data' folder), or
+                # c) measure JSON time stamp indicates it has been modified
+                # since the last run of 'ecm_prep.py'
+                if all([meas_dict["name"] != y["name"] for
+                       y in meas_summary]) or \
+                   all([meas_dict["name"] not in y for y in listdir(
+                        path.join(*handyfiles.ecm_compete_data))]) or \
+                   (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >
+                    stat(path.join(
+                        "supporting_data", "ecm_prep.json")).st_mtime):
+                    # Append measure dict to list of measure definitions
+                    # to update if it meets the above criteria
+                    meas_toprep_indiv.append(meas_dict)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in ECM '" + mi + "': " +
+                    str(e)) from None
 
     # Find package measure definitions that are new or were edited since
     # the last time 'ecm_prep.py' routine was run, or are comprised of
     # individual measures that are new or were edited since the last time
     # 'ecm_prep.py' routine was run
 
-    # Import full list of packages
+    # Import packages JSON
     with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
         try:
             meas_toprep_package_init = json.load(mpk)
@@ -4644,19 +4672,19 @@ def main(base_dir):
             raise ValueError(
                 "Error reading in ECM package '" + handyfiles.ecm_packages +
                 "': " + str(e)) from None
-    # Initialize list of measure packages to prepare
+    # Initialize list of measure package dicts to prepare
     meas_toprep_package = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [
         mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
-    # Loop through each package in the current list and determine which
+    # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
     for m in meas_toprep_package_init:
         # Determine the subset of previously prepared package measures
         # with the same name as the current package measure
         m_exist = [
             me for me in meas_prepped_pkgs if me["name"] == m["name"]]
-        # Add a package to the list requiring further prepartion if:
+        # Add a package dict to the list requiring further prepartion if:
         # a) any of the package's contributing measures have been
         # updated, b) the package is new, or c) package
         # "contributing_ECMs" and/or "benefits" parameters have been
@@ -4674,19 +4702,7 @@ def main(base_dir):
 
     # If one or more measure definition is new or has been edited, proceed
     # further with 'ecm_prep.py' routine; otherwise end the routine
-    if len(meas_toprep_indiv_names) > 0 or len(meas_toprep_package) > 0:
-
-        # Import all measure definitions that are new or edited and
-        # require further preparation before using in the analysis engine
-        meas_toprep_indiv = []
-        for mi in meas_toprep_indiv_names:
-            with open(path.join(ecm_dir, mi)) as jsf:
-                try:
-                    meas_toprep_indiv.append(json.load(jsf))
-                except ValueError as e:
-                    raise ValueError(
-                        "Error reading in ECM '" + mi + "': " +
-                        str(e)) from None
+    if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
 
         # Import baseline microsegments
         with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
