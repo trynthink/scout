@@ -256,19 +256,9 @@ class CommonMethods(object):
             # At the terminal/leaf node, formatted as a numpy array
             # (for input uncertainty test cases)
             elif isinstance(i, numpy.ndarray):
-                # Additional check for dict elements in the numpy array is
-                # needed to accomodate the current structure of measure
-                # Annuity Net Present Value information when distributions
-                # are placed on measure inputs (see ok_out_dist test dicts
-                # in PrioritizationMetricsTest below)
-                if isinstance(i[0], dict):
-                    for ind in range(0, len(i)):
-                        self.assertCountEqual(i[ind], i2[ind])
-                        self.dict_check(i[ind], i2[ind])
-                else:
-                    self.assertTrue(type(i) == type(i2))
-                    numpy.testing.assert_array_almost_equal(
-                        i, i2, decimal=2)
+                self.assertTrue(type(i) == type(i2))
+                numpy.testing.assert_array_almost_equal(
+                    i, i2, decimal=2)
 
             # At the terminal/leaf node, formatted as a point value
             else:
@@ -721,26 +711,20 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009": {
-                        "residential": numpy.pmt(0.07, 2, 0.8691589),
-                        "commercial": None},
-                    "2010": {
-                        "residential": numpy.pmt(0.07, 2, 0.4018692),
-                        "commercial": None}},
+                    "residential": {
+                        "2009": numpy.pmt(0.07, 2, 0.8691589),
+                        "2010": numpy.pmt(0.07, 2, 0.4018692)},
+                    "commercial": {"2009": None, "2010": None}},
                 "energy cost": {
-                    "2009": {
-                        "residential": numpy.pmt(0.07, 2, 3.616036),
-                        "commercial": None},
-                    "2010": {
-                        "residential": numpy.pmt(0.07, 2, 2.712027),
-                        "commercial": None}},
+                    "residential": {
+                        "2009": numpy.pmt(0.07, 2, 3.616036),
+                        "2010": numpy.pmt(0.07, 2, 2.712027)},
+                    "commercial": {"2009": None, "2010": None}},
                 "carbon cost": {
-                    "2009": {
-                        "residential": numpy.pmt(0.07, 2, 1.808018),
-                        "commercial": None},
-                    "2010": {
-                        "residential": numpy.pmt(0.07, 2, 2.712027),
-                        "commercial": None}}},
+                    "residential": {
+                        "2009": numpy.pmt(0.07, 2, 1.808018),
+                        "2010": numpy.pmt(0.07, 2, 2.712027)},
+                    "commercial": {"2009": None, "2010": None}}},
             "irr (w/ energy costs)": {
                 "2009": 3.45, "2010": 2.44},
             "irr (w/ energy and carbon costs)": {
@@ -780,19 +764,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009": {
-                        "residential": None,
-                        "commercial": {
+                    "residential": {"2009": None, "2010": None},
+                    "commercial": {
+                        "2009": {
                             "rate 1": numpy.pmt(10.0, 2, -0.8181818),
                             "rate 2": numpy.pmt(1.0, 2, 0),
                             "rate 3": numpy.pmt(0.45, 2, 0.3793103),
                             "rate 4": numpy.pmt(0.25, 2, 0.6),
                             "rate 5": numpy.pmt(0.15, 2, 0.7391304),
                             "rate 6": numpy.pmt(0.065, 2, 0.8779343),
-                            "rate 7": -0.5}},
-                    "2010": {
-                        "residential": None,
-                        "commercial": {
+                            "rate 7": -0.5},
+                        "2010": {
                             "rate 1": numpy.pmt(10.0, 2, -0.8636364),
                             "rate 2": numpy.pmt(1.0, 2, -0.25),
                             "rate 3": numpy.pmt(0.45, 2, 0.03448276),
@@ -801,19 +783,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             "rate 6": numpy.pmt(0.065, 2, 0.4084507),
                             "rate 7": -0.25}}},
                 "energy cost": {
-                    "2009": {
-                        "residential": None,
-                        "commercial": {
+                    "residential": {"2009": None, "2010": None},
+                    "commercial": {
+                        "2009": {
                             "rate 1": numpy.pmt(10.0, 2, 0.1983471),
                             "rate 2": numpy.pmt(1.0, 2, 1.5),
                             "rate 3": numpy.pmt(0.45, 2, 2.330559),
                             "rate 4": numpy.pmt(0.25, 2, 2.88),
                             "rate 5": numpy.pmt(0.15, 2, 3.251418),
                             "rate 6": numpy.pmt(0.065, 2, 3.641253),
-                            "rate 7": -2}},
-                    "2010": {
-                        "residential": None,
-                        "commercial": {
+                            "rate 7": -2},
+                        "2010": {
                             "rate 1": numpy.pmt(10.0, 2, 0.1487603),
                             "rate 2": numpy.pmt(1.0, 2, 1.125),
                             "rate 3": numpy.pmt(0.45, 2, 1.747919),
@@ -822,19 +802,17 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             "rate 6": numpy.pmt(0.065, 2, 2.73094),
                             "rate 7": -1.5}}},
                 "carbon cost": {
-                    "2009": {
-                        "residential": None,
-                        "commercial": {
+                    "residential": {"2009": None, "2010": None},
+                    "commercial": {
+                        "2009": {
                             "rate 1": numpy.pmt(10.0, 2, 0.09917355),
                             "rate 2": numpy.pmt(1.0, 2, 0.75),
                             "rate 3": numpy.pmt(0.45, 2, 1.165279),
                             "rate 4": numpy.pmt(0.25, 2, 1.44),
                             "rate 5": numpy.pmt(0.15, 2, 1.625709),
                             "rate 6": numpy.pmt(0.065, 2, 1.820626),
-                            "rate 7": -1}},
-                    "2010": {
-                        "residential": None,
-                        "commercial": {
+                            "rate 7": -1},
+                        "2010": {
                             "rate 1": numpy.pmt(10.0, 2, 0.1487603),
                             "rate 2": numpy.pmt(1.0, 2, 1.125),
                             "rate 3": numpy.pmt(0.45, 2, 1.747919),
@@ -915,104 +893,62 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 0.8691589)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 2, 0.4018692)])
+                    },
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)
+                    }},
                 "energy cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 3.94148),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 4.086121),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 4.447725),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.182112),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 2.712027)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 2.693947),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.94707),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.404664),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.495065),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 2.260023),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 2, 2.260023)])
+                    },
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)
+                    }},
                 "carbon cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 1.7718578),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.9164993),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.2781029),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, -0.4339244),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 4.1584418),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 4.1584418)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 3.597956),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.851079),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.308673),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.399074),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 3.164032),
-                          "commercial": None}]}},
+                            numpy.pmt(0.07, 2, 3.164032)])
+                    },
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)
+                    }}},
                 "irr (w/ energy costs)": {
                     "2009": numpy.array([3.65, 3.74, 3.96, 3.18, 2.89]),
                     "2010": numpy.array([2.42, 2.58, 2.24, 2.30, 2.15])},
@@ -1078,104 +1014,57 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 0.8491589),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.329159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.049159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.029159),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 0.7691589),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 0.7691589)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 0.8918692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.031869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.7318692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.9818692),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 0.8518692),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 2, 0.8518692)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
+
                 "energy cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 3.616036)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 2, 2.712027)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
                 "carbon cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 2, 1.808018)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None}]}},
+                            numpy.pmt(0.07, 2, 2.712027)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([3.37, 6.88, 4.34, 4.22, 3.08]),
                  "2010": numpy.array([5.35, 7.58, 3.93, 6.61, 4.92])},
@@ -1237,104 +1126,56 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009":
-                        [{"residential":
-                            numpy.pmt(0.07, 1, -1.0000000),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 1, -1.0000000),
-                          "commercial": None},
-                         {"residential":
+                    "residential": {
+                        "2009": numpy.array([
+                            numpy.pmt(0.07, 1, -1),
+                            numpy.pmt(0.07, 1, -1),
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.8691589),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 5.7744225),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
-                            numpy.pmt(0.07, 1, -1.0000000),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 1, -1.0000000),
-                          "commercial": None},
-                         {"residential":
+                            numpy.pmt(0.07, 5, 5.7744225)]),
+                        "2010": numpy.array([
+                            numpy.pmt(0.07, 1, -1),
+                            numpy.pmt(0.07, 1, -1),
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.4018692),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 4.080817),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 5, 4.080817)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
                 "energy cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 1, 1.869159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.869159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 8.200395),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 5, 8.200395)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 6.150296),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 5, 6.150296)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
                 "carbon cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 1, 0.9345794),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 0.9345794),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 4.1001974),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 5, 4.1001974)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 6.150296),
-                          "commercial": None}]}},
+                            numpy.pmt(0.07, 5, 6.150296)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([1.00, 1.00, 3.45, 3.45, 4.00]),
                  "2010": numpy.array([0.50, 0.50, 2.44, 2.44, 2.99])},
@@ -1400,104 +1241,56 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             {
             "anpv": {
                 "stock cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 1, -1.02),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, -0.54),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.049159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.029159),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 5.674423),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 5, 5.674423)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 1, -0.51),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, -0.37),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.7318692),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 0.9818692),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 4.530817),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 5, 4.530817)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
                 "energy cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 1, 1.869159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.869159),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 3.616036),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 8.200395),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 5, 8.200395)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 6.150296),
-                          "commercial": None}]},
+                            numpy.pmt(0.07, 5, 6.150296)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}},
                 "carbon cost": {
-                    "2009":
-                        [{"residential":
+                    "residential": {
+                        "2009": numpy.array([
                             numpy.pmt(0.07, 1, 0.9345794),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 0.9345794),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 1.808018),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 4.1001974),
-                          "commercial": None}],
-                    "2010":
-                        [{"residential":
+                            numpy.pmt(0.07, 5, 4.1001974)]),
+                        "2010": numpy.array([
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 1, 1.401869),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
                             numpy.pmt(0.07, 2, 2.712027),
-                          "commercial": None},
-                         {"residential":
-                            numpy.pmt(0.07, 5, 6.150296),
-                          "commercial": None}]}},
+                            numpy.pmt(0.07, 5, 6.150296)])},
+                    "commercial": {
+                        "2009": numpy.repeat(numpy.nan, 5),
+                        "2010": numpy.repeat(numpy.nan, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([0.96, 2.70, 4.34, 4.22, 3.63]),
                  "2010": numpy.array([1.94, 3.05, 3.93, 6.61, 5.45])},
@@ -1704,22 +1497,20 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars()
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
-        cls.ok_num_units = 10
         cls.ok_base_life = 3
         cls.ok_product_lifetime = 6.2
         cls.ok_life_ratio = 2
-        cls.ok_base_scost = 10
-        cls.ok_scostsave = -10
-        cls.ok_esave = 75
-        cls.ok_ecostsave = 5
-        cls.ok_csave = 500
-        cls.ok_ccostsave = 10
-        cls.ok_out_dicts = [
-            {"residential": numpy.pmt(0.07, 6, -0.1837021),
-             "commercial": None},
-            {"residential": numpy.pmt(0.07, 6, 2.38327), "commercial": None},
-            {"residential": numpy.pmt(0.07, 6, 4.76654), "commercial": None}]
-        cls.ok_out_array = [0.62, 1.59, 2, 0.67, 0.005, -0.13, 0.008, -0.009]
+        cls.ok_base_scost = 1
+        cls.ok_meas_sdelt = -1
+        cls.ok_esave = 7.5
+        cls.ok_ecostsave = 0.5
+        cls.ok_csave = 50
+        cls.ok_ccostsave = 1
+        cls.ok_out_array = [
+            numpy.pmt(0.07, 6, -0.1837021),
+            numpy.pmt(0.07, 6, 2.38327), numpy.pmt(0.07, 6, 4.76654),
+            None, None, None, 0.62, 1.59, 2, 0.67, 0.005,
+            -0.13, 7.7e-10, -9.2e-9]
 
     def test_metric_updates(self):
         """Test for correct outputs given valid inputs."""
@@ -1728,19 +1519,17 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         # Record the output for the test run of the 'metric_update'
         # function
         function_output = engine_instance.metric_update(
-            self.measure_list[0], self.ok_num_units, self.ok_num_units,
-            self.ok_base_life, int(self.ok_product_lifetime),
-            int(self.ok_life_ratio), self.ok_base_scost, self.ok_scostsave,
-            self.ok_esave, self.ok_ecostsave, self.ok_csave, self.ok_ccostsave)
-
-        # Test that valid inputs yield correct annuity equivalent
-        # NPV dict outputs
-        for i in range(0, len(self.ok_out_dicts)):
-            self.dict_check(function_output[i], self.ok_out_dicts[i])
-        # Test that valid inputs yield correct irr, payback, and
-        # cost of conserved energy/carbon floating point outputs
-        numpy.testing.assert_array_almost_equal(
-            function_output[3:], self.ok_out_array, decimal=2)
+            self.measure_list[0], self.ok_base_life,
+            int(self.ok_product_lifetime), self.ok_base_scost,
+            self.ok_meas_sdelt, self.ok_esave, self.ok_ecostsave,
+            self.ok_csave, self.ok_ccostsave)
+        # Test that valid inputs yield correct anpv, irr, payback, and
+        # cost of conserved energy/carbon outputs
+        for ind, x in enumerate(self.ok_out_array):
+            if x is not None:
+                self.assertAlmostEqual(function_output[ind], x, places=2)
+            else:
+                self.assertEqual(function_output[ind], x)
 
 
 class PaybackTest(unittest.TestCase):
@@ -4330,54 +4119,114 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         # consumer metrics
         consumer_metrics_final = [{
             "stock cost": {
-                "2009": {"residential": 95, "commercial": None},
-                "2010": {"residential": 95, "commercial": None}},
+                "residential": {
+                    "2009": 95,
+                    "2010": 95},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "energy cost": {
-                "2009": {"residential": -150, "commercial": None},
-                "2010": {"residential": -150, "commercial": None}},
+                "residential": {
+                    "2009": -150,
+                    "2010": -150},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "carbon cost": {
-                "2009": {"residential": -150, "commercial": None},
-                "2010": {"residential": -50, "commercial": None}}},
+                "residential": {
+                    "2009": -150,
+                    "2010": -50},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}},
             {
             "stock cost": {
-                "2009": {"residential": 120, "commercial": None},
-                "2010": {"residential": 120, "commercial": None}},
+                "residential": {
+                    "2009": 120,
+                    "2010": 120},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "energy cost": {
-                "2009": {"residential": -400, "commercial": None},
-                "2010": {"residential": -400, "commercial": None}},
+                "residential": {
+                    "2009": -400,
+                    "2010": -400},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "carbon cost": {
-                "2009": {"residential": -50, "commercial": None},
-                "2010": {"residential": -50, "commercial": None}}},
+                "residential": {
+                    "2009": -50,
+                    "2010": -50},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}},
             {
             "stock cost": {
-                "2009": {"residential": 95, "commercial": None},
-                "2010": {"residential": 95, "commercial": None}},
+                "residential": {
+                    "2009": 95,
+                    "2010": 95},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "energy cost": {
-                "2009": {"residential": -150, "commercial": None},
-                "2010": {"residential": -150, "commercial": None}},
+                "residential": {
+                    "2009": -150,
+                    "2010": -150},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "carbon cost": {
-                "2009": {"residential": -150, "commercial": None},
-                "2010": {"residential": -50, "commercial": None}}},
+                "residential": {
+                    "2009": -150,
+                    "2010": -50},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}},
             {
             "stock cost": {
-                "2009": {"residential": 120, "commercial": None},
-                "2010": {"residential": 120, "commercial": None}},
+                "residential": {
+                    "2009": 120,
+                    "2010": 120},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "energy cost": {
-                "2009": {"residential": -400, "commercial": None},
-                "2010": {"residential": -400, "commercial": None}},
+                "residential": {
+                    "2009": -400,
+                    "2010": -400},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "carbon cost": {
-                "2009": {"residential": -50, "commercial": None},
-                "2010": {"residential": -50, "commercial": None}}},
+                "residential": {
+                    "2009": -50,
+                    "2010": -50},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}},
             {
             "stock cost": {
-                "2009": {"residential": 100, "commercial": None},
-                "2010": {"residential": 100, "commercial": None}},
+                "residential": {
+                    "2009": 100,
+                    "2010": 100},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "energy cost": {
-                "2009": {"residential": -200, "commercial": None},
-                "2010": {"residential": -200, "commercial": None}},
+                "residential": {
+                    "2009": -200,
+                    "2010": -200},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
             "carbon cost": {
-                "2009": {"residential": -100, "commercial": None},
-                "2010": {"residential": -100, "commercial": None}}}]
+                "residential": {
+                    "2009": -100,
+                    "2010": -100},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}}]
         # Adjust/finalize point value test measure consumer metrics
         for ind, m in enumerate(cls.a_run.measures):
             m.consumer_metrics['anpv'] = consumer_metrics_final[ind]
@@ -7318,93 +7167,87 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         # metrics
         consumer_metrics = [{
             "stock cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": 100, "rate 2": 110,
                         "rate 3": 120, "rate 4": 130,
                         "rate 5": 140, "rate 6": 150,
-                        "rate 7": 160}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": 160},
+                    "2010": {
                         "rate 1": 100, "rate 2": 110,
                         "rate 3": 120, "rate 4": 130,
                         "rate 5": 140, "rate 6": 150,
                         "rate 7": 160}}},
             "energy cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -350, "rate 2": -60,
                         "rate 3": -70, "rate 4": -380,
                         "rate 5": -390, "rate 6": -150,
-                        "rate 7": -400}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -400},
+                    "2010": {
                         "rate 1": -350, "rate 2": -60,
                         "rate 3": -70, "rate 4": -380,
                         "rate 5": -390, "rate 6": -150,
                         "rate 7": -400}}},
             "carbon cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -40, "rate 2": -50,
                         "rate 3": -55, "rate 4": -60,
                         "rate 5": -65, "rate 6": -70,
-                        "rate 7": -75}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -75},
+                    "2010": {
                         "rate 1": -40, "rate 2": -50,
                         "rate 3": -55, "rate 4": -60,
                         "rate 5": -65, "rate 6": -70,
                         "rate 7": -75}}}},
             {
             "stock cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": 85, "rate 2": 90, "rate 3": 95,
                         "rate 4": 100, "rate 5": 105,
-                        "rate 6": 110, "rate 7": 115}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 6": 110, "rate 7": 115},
+                    "2010": {
                         "rate 1": 85, "rate 2": 90, "rate 3": 95,
                         "rate 4": 100, "rate 5": 105,
                         "rate 6": 110, "rate 7": 115}}},
             "energy cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -435, "rate 2": -440,
                         "rate 3": -145,
                         "rate 4": -150, "rate 5": -155,
                         "rate 6": -160,
-                        "rate 7": -370}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -370},
+                    "2010": {
                         "rate 1": -435, "rate 2": -440,
                         "rate 3": -145,
                         "rate 4": -150, "rate 5": -155,
                         "rate 6": -160,
                         "rate 7": -370}}},
             "carbon cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -135, "rate 2": -140,
                         "rate 3": -145,
                         "rate 4": -150, "rate 5": -155,
                         "rate 6": -160,
-                        "rate 7": -170}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -170},
+                    "2010": {
                         "rate 1": -135, "rate 2": -140,
                         "rate 3": -145,
                         "rate 4": -150, "rate 5": -155,
@@ -7412,47 +7255,45 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "rate 7": -170}}}},
             {
             "stock cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": 50, "rate 2": 60, "rate 3": 70,
                         "rate 4": 80, "rate 5": 90, "rate 6": 100,
-                        "rate 7": 110}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": 110},
+                    "2010": {
                         "rate 1": 50, "rate 2": 60, "rate 3": 70,
                         "rate 4": 80, "rate 5": 90, "rate 6": 100,
                         "rate 7": 110}}},
             "energy cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -190, "rate 2": -195,
                         "rate 3": -190,
                         "rate 4": -205, "rate 5": -180,
                         "rate 6": -230,
-                        "rate 7": -200}},
-                "2010": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -200},
+                    "2010": {
                         "rate 1": -190, "rate 2": -195,
                         "rate 3": -190,
                         "rate 4": -205, "rate 5": -180,
                         "rate 6": -230,
                         "rate 7": -200}}},
-            "carbon cost": {
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+            "carbon cost":
+                {
+                "residential": {
+                    "2009": None, "2010": None},
+                "commercial": {
+                    "2009": {
                         "rate 1": -90, "rate 2": -95,
                         "rate 3": -100,
                         "rate 4": -105, "rate 5": -110,
                         "rate 6": -115,
-                        "rate 7": -120}},
-                "2009": {
-                    "residential": None,
-                    "commercial": {
+                        "rate 7": -120},
+                    "2010": {
                         "rate 1": -90, "rate 2": -95,
                         "rate 3": -100,
                         "rate 4": -105, "rate 5": -110,

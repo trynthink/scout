@@ -198,9 +198,18 @@ class Measure(object):
                     "ccc (w/ energy cost benefits)": None}}
             self.consumer_metrics = {
                 "anpv": {
-                    "stock cost": None,
-                    "energy cost": None,
-                    "carbon cost": None},
+                    "stock cost": {
+                        "residential": None,
+                        "commercial": None
+                    },
+                    "energy cost": {
+                        "residential": None,
+                        "commercial": None
+                    },
+                    "carbon cost": {
+                        "residential": None,
+                        "commercial": None
+                    }},
                 "irr (w/ energy costs)": None,
                 "irr (w/ energy and carbon costs)": None,
                 "payback (w/ energy costs)": None,
@@ -293,7 +302,7 @@ class Engine(object):
 
         Notes:
             Given information on measure master microsegments for
-            each projection year, determine stock, energy, and carbon
+            each projection year, determine capital, energy, and carbon
             cost savings; energy and carbon savings; and the net present
             value, internal rate of return, simple payback, cost of
             conserved energy, and cost of conserved carbon for the measure.
@@ -309,26 +318,66 @@ class Engine(object):
 
         # Update measure savings and associated financial metrics
         for m in measures_update:
+            # Initialize energy/energy cost savings, carbon/
+            # carbon cost savings, and dicts for financial metrics
+            scostsave_tot, scostsave, esave_tot, esave, ecostsave_tot, \
+                ecostsave, csave_tot, csave, ccostsave_tot, ccostsave, \
+                stock_anpv_res, stock_anpv_com, energy_anpv_res, \
+                energy_anpv_com, carb_anpv_res, carb_anpv_com, \
+                irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, \
+                ccc_bens = ({
+                    yr: None for yr in self.handyvars.aeo_years} for
+                    n in range(24))
+
+            # Determine the total uncompeted measure/baseline capital
+            # cost and total number of applicable baseline stock units,
+            # used below to calculate incremental capital cost per unit
+            # stock for the measure in each year
+
+            # Total uncompeted baseline capital cost
+            stock_meas_cost_tot = {
+                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
+                    "cost"]["stock"]["competed"]["efficient"][yr] for
+                yr in self.handyvars.aeo_years}
+            # Total uncompeted measure capital cost
+            stock_base_cost_tot = {
+                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
+                    "cost"]["stock"]["competed"]["baseline"][yr] for
+                yr in self.handyvars.aeo_years}
+            # Total number of applicable stock units
+            nunits_tot = {
+                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
+                    "stock"]["competed"]["all"][yr] for
+                yr in self.handyvars.aeo_years}
+
             # Set measure master microsegments for the current adoption and
             # competition schemes
             markets = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
 
-            # Initialize stock cost, energy/energy cost savings, carbon/
-            # carbon cost savings, and economic metrics dicts
-            scostsave_tot, scostsave, esave_tot, esave, ecostsave_tot, \
-                ecostsave, csave_tot, csave, ccostsave_tot, ccostsave, \
-                stock_anpv, energy_anpv, carb_anpv, irr_e, irr_ec, \
-                payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = (
-                    {} for d in range(21))
-
-            # Calculate stock cost savings, energy/carbon savings, and
-            # energy/carbon cost savings for each projection year
+            # Calculate measure capital cost savings, energy/carbon savings,
+            # energy/carbon cost savings, and financial metrics for each
+            # projection year
             for yr in self.handyvars.aeo_years:
-                # Calculate total annual energy/carbon and stock/energy/carbon
-                # cost savings for the measure vs. baseline. Total savings
-                # reflect the impact of all measure adoptions simulated up
-                # until and including the current year of the modeling time
-                # horizon
+
+                # Calculate per unit baseline capital cost and incremental
+                # measure capital cost (used in financial metrics
+                # calculations below); set these values to zero for
+                # years in which total number of units is zero
+                if nunits_tot[yr] != 0:
+                    # Per unit baseline capital cost
+                    scostbase = \
+                        stock_base_cost_tot[yr] / nunits_tot[yr]
+                    # Per unit measure incremental capital cost
+                    scostmeas_delt = \
+                        (stock_base_cost_tot[yr] -
+                         stock_meas_cost_tot[yr]) / nunits_tot[yr]
+                else:
+                    scostbase, scost_save = 0
+
+                # Calculate total annual energy/carbon and capital/energy/
+                # carbon cost savings for the measure vs. baseline. Total
+                # savings reflect the impact of all measure adoptions
+                # simulated up until and including the current year
                 esave_tot[yr] = \
                     markets["energy"]["total"]["baseline"][yr] - \
                     markets["energy"]["total"]["efficient"][yr]
@@ -345,54 +394,26 @@ class Engine(object):
                     markets["cost"]["carbon"]["total"]["baseline"][yr] - \
                     markets["cost"]["carbon"]["total"]["efficient"][yr]
 
-                # Calculate the annual energy/carbon and stock/energy/carbon
+                # Calculate the annual energy/carbon and capital/energy/carbon
                 # cost savings for the measure vs. baseline. (Annual savings
-                # will later be used in measure competition routines). In non-
-                # technical potential scenarios, annual savings reflect the
-                # impact of only the measure adoptions that are new in the
-                # current year of the modeling time horizon. In a technical
-                # potential scenario, where we are simulating an 'overnight'
-                # adoption of the measure across the entire applicable stock
-                # in each year, annual savings are set to the total savings
-                # from all current/previous adoptions of the measure
-                if adopt_scheme != "Technical potential":
-                    esave[yr] = \
-                        markets["energy"]["competed"]["baseline"][yr] - \
-                        markets["energy"]["competed"]["efficient"][yr]
-                    csave[yr] = \
-                        markets["carbon"]["competed"]["baseline"][yr] - \
-                        markets["carbon"]["competed"]["efficient"][yr]
-                    scostsave[yr] = markets[
-                        "cost"]["stock"]["competed"]["baseline"][yr] - \
-                        markets["cost"]["stock"]["competed"]["efficient"][yr]
-                    ecostsave[yr] = markets[
-                        "cost"]["energy"]["competed"]["baseline"][yr] - \
-                        markets["cost"]["energy"]["competed"]["efficient"][yr]
-                    ccostsave[yr] = markets[
-                        "cost"]["carbon"]["competed"]["baseline"][yr] - \
-                        markets["cost"]["carbon"]["competed"]["efficient"][yr]
-                else:
-                    esave[yr], csave[yr], scostsave[yr], \
-                        ecostsave[yr], ccostsave[yr] = [
-                        esave_tot[yr], csave_tot[yr], scostsave_tot[yr],
-                        ecostsave_tot[yr], ccostsave_tot[yr]]
-
-                # Set the number of competed stock units that are captured by
-                # the measure for the given year; this number is used for
-                # normalizing stock, energy and carbon cash flows to a per
-                # unit basis in the "metric_update" function below. * Note:
-                # for a technical potential scenario, all stock units are
-                # captured in each year
-                if adopt_scheme != "Technical potential":
-                    nunits_tot = markets["stock"]["competed"]["all"][yr]
-                    nunits_meas = markets["stock"]["competed"]["measure"][yr]
-                    scostbase = markets["cost"]["stock"][
-                        "competed"]["baseline"][yr]
-                else:
-                    nunits_tot = markets["stock"]["total"]["all"][yr]
-                    nunits_meas = markets["stock"]["total"]["measure"][yr]
-                    scostbase = markets["cost"]["stock"][
-                        "total"]["baseline"][yr]
+                # will later be used in measure competition routines). Annual
+                # savings reflect the impact of only the measure adoptions
+                # that are new in the current year
+                esave[yr] = \
+                    markets["energy"]["competed"]["baseline"][yr] - \
+                    markets["energy"]["competed"]["efficient"][yr]
+                csave[yr] = \
+                    markets["carbon"]["competed"]["baseline"][yr] - \
+                    markets["carbon"]["competed"]["efficient"][yr]
+                scostsave[yr] = markets[
+                    "cost"]["stock"]["competed"]["baseline"][yr] - \
+                    markets["cost"]["stock"]["competed"]["efficient"][yr]
+                ecostsave[yr] = markets[
+                    "cost"]["energy"]["competed"]["baseline"][yr] - \
+                    markets["cost"]["energy"]["competed"]["efficient"][yr]
+                ccostsave[yr] = markets[
+                    "cost"]["carbon"]["competed"]["baseline"][yr] - \
+                    markets["cost"]["carbon"]["competed"]["efficient"][yr]
 
                 # Set the lifetime of the baseline technology for comparison
                 # with measure lifetime
@@ -409,34 +430,35 @@ class Engine(object):
                     life_meas[numpy.where(life_meas) < 1] = 1
                 elif type(life_meas) != numpy.ndarray and life_meas < 1:
                     life_meas = 1
-                # Define ratio of measure lifetime to baseline lifetime.  This
-                # will be used below in determining cashflows over the measure
-                # lifetime
-                life_ratio = life_meas / life_base
 
                 # Calculate measure financial metrics
 
-                # Check whether number of adopted units for a measure is zero,
-                # in which case all financial metrics are set to 999
-                if type(nunits_meas) != numpy.ndarray and nunits_meas < 1 or \
-                   type(nunits_meas) == numpy.ndarray and all(nunits_meas) < 1:
-                    stock_anpv[yr], energy_anpv[yr], carb_anpv[yr] = [
-                        {"residential": 999, "commercial": 999} for n in
-                        range(3)]
-                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
+                # Create short name for number of captured measure stock units
+                nunits_meas = markets["stock"]["competed"]["measure"][yr]
+                # If the total baseline stock is zero or no measure units
+                # have been captured for a given year, set financial metrics
+                # to 999
+                if nunits_tot[yr] == 0 or (
+                    type(nunits_meas) != numpy.ndarray and nunits_meas < 1 or
+                        type(nunits_meas) == numpy.ndarray and all(
+                            nunits_meas) < 1):
+                    stock_anpv_res[yr], energy_anpv_res[yr], \
+                        carb_anpv_res[yr], stock_anpv_com[yr], \
+                        energy_anpv_com[yr], carb_anpv_com[yr], \
+                        irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = [
-                            999 for n in range(8)]
-                # Check whether any financial metric calculation inputs that
-                # can be arrays are in fact arrays, proceed accordingly
+                            999 for n in range(14)]
+                # Otherwise, check whether any financial metric calculation
+                # inputs that can be arrays are in fact arrays
                 elif any(type(x) == numpy.ndarray for x in [
-                        scostsave[yr], esave[yr], life_meas]):
+                        scostmeas_delt, esave[yr], life_meas]):
                     # Make copies of the above stock, energy, carbon, and cost
                     # variables for possible further manipulation below before
-                    # using as inputs to the "metric update" function below
-                    scostsave_tmp, esave_tmp, ecostsave_tmp, csave_tmp, \
-                        ccostsave_tmp, life_meas_tmp, life_ratio_tmp = [
-                            scostsave[yr], esave[yr], ecostsave[yr],
-                            csave[yr], ccostsave[yr], life_meas, life_ratio]
+                    # using as inputs to the "metric update" function
+                    scostmeas_delt_tmp, esave_tmp, ecostsave_tmp, csave_tmp, \
+                        ccostsave_tmp, life_meas_tmp = [
+                            scostmeas_delt, esave[yr], ecostsave[yr],
+                            csave[yr], ccostsave[yr], life_meas]
 
                     # Ensure consistency in length of all "metric_update"
                     # inputs that can be arrays
@@ -444,93 +466,82 @@ class Engine(object):
                     # Determine the length that any array inputs to
                     # "metric_update" should consistently have
                     len_arr = next((len(item) for item in [
-                        scostsave[yr], esave[yr], life_meas] if
+                        scostmeas_delt, esave[yr], life_meas] if
                         type(item) == numpy.ndarray), None)
 
                     # Ensure all array inputs to "metric_update" are of the
                     # above length
 
-                    # Check incremental stock cost input
-                    if type(scostsave_tmp) != numpy.ndarray:
-                        scostsave_tmp = numpy.repeat(scostsave_tmp, len_arr)
+                    # Check incremental capital cost input
+                    if type(scostmeas_delt_tmp) != numpy.ndarray:
+                        scostmeas_delt_tmp = numpy.repeat(
+                            scostmeas_delt_tmp, len_arr)
                     # Check energy/energy cost and carbon/cost savings inputs
                     if type(esave_tmp) != numpy.ndarray:
                         esave_tmp = numpy.repeat(esave_tmp, len_arr)
                         ecostsave_tmp = numpy.repeat(ecostsave_tmp, len_arr)
                         csave_tmp = numpy.repeat(csave_tmp, len_arr)
                         ccostsave_tmp = numpy.repeat(ccostsave_tmp, len_arr)
-                    # Check measure lifetime and lifetime ratio inputs
+                    # Check measure lifetime input
                     if type(life_meas_tmp) != numpy.ndarray:
                         life_meas_tmp = numpy.repeat(life_meas_tmp, len_arr)
-                        life_ratio_tmp = numpy.repeat(life_ratio_tmp, len_arr)
-                    # Check number of units captured by the measure
-                    if type(nunits_meas) != numpy.ndarray:
-                        nunits_meas = numpy.repeat(nunits_meas, len_arr)
 
                     # Initialize numpy arrays for financial metrics outputs
-
-                    # First three arrays will be populated by dicts
-                    # containing residential and commercial annuity equivalent
-                    # Net Present Values (ANPVs)
-                    stock_anpv[yr], energy_anpv[yr], carb_anpv[yr] = (
-                        numpy.repeat({}, len(scostsave_tmp)) for v in range(3))
-                    # Remaining eight arrays will be populated by floating
-                    # point values
-                    irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
-                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        (numpy.zeros(len(scostsave_tmp)) for v in range(8))
+                    stock_anpv_res[yr], energy_anpv_res[yr], \
+                        carb_anpv_res[yr], stock_anpv_com[yr], \
+                        energy_anpv_com[yr], carb_anpv_com[yr], \
+                        irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
+                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = (
+                            numpy.zeros(len(scostmeas_delt_tmp)) for
+                            v in range(14))
 
                     # Run measure energy/carbon/cost savings and lifetime
                     # inputs through "metric_update" function to yield
                     # financial metric outputs. To handle inputs that are
                     # arrays, use a for loop to generate an output for each
                     # input array element one-by-one and append it to the
-                    # appropriate output list
-                    for x in range(0, len(scostsave_tmp)):
-                        # Check whether number of adopted units for a measure
-                        # is zero, in which case all economic outputs are set
-                        # to 999
-                        if nunits_meas[x] == 0:
-                            stock_anpv[yr][x], energy_anpv[yr][x], \
-                                carb_anpv[yr][x] = [{
-                                    "residential": 999, "commercial": 999} for
-                                    n in range(3)]
-                            irr_e[yr][x], irr_ec[yr][x], payback_e[yr][x], \
-                                payback_ec[yr][x], cce[yr][x], \
-                                cce_bens[yr][x], ccc[yr][x], \
-                                ccc_bens[yr][x] = [999 for n in range(8)]
-                        else:
-                            stock_anpv[yr][x], energy_anpv[yr][x],\
-                                carb_anpv[yr][x], irr_e[yr][x], \
-                                irr_ec[yr][x], payback_e[yr][x], \
-                                payback_ec[yr][x], cce[yr][x], \
-                                cce_bens[yr][x], ccc[yr][x], \
-                                ccc_bens[yr][x] = self.metric_update(
-                                    m, nunits_tot, nunits_meas[x],
-                                    life_base, int(life_meas_tmp[x]),
-                                    int(life_ratio_tmp[x]), markets[
-                                        "cost"]["stock"]["competed"][
-                                        "baseline"][yr], scostsave_tmp[x],
-                                    esave_tmp[x], ecostsave_tmp[x],
-                                    csave_tmp[x], ccostsave_tmp[x])
+                    # appropriate output list. Note that lifetime float
+                    # values are translated to integers, and all
+                    # energy, carbon, and energy/carbon cost savings values
+                    # are normalized by total applicable stock units
+                    for x in range(0, len(scostmeas_delt_tmp)):
+                        stock_anpv_res[yr][x], energy_anpv_res[yr][x], \
+                            carb_anpv_res[yr][x], stock_anpv_com[yr][x], \
+                            energy_anpv_com[yr][x], carb_anpv_com[yr][x], \
+                            irr_e[yr][x], irr_ec[yr][x], \
+                            payback_e[yr][x], payback_ec[yr][x], \
+                            cce[yr][x], cce_bens[yr][x], ccc[yr][x], \
+                            ccc_bens[yr][x] = self.metric_update(
+                                m, int(life_base), int(life_meas_tmp[x]),
+                                scostbase, scostmeas_delt_tmp[x],
+                                esave_tmp[x] / nunits_tot[yr],
+                                ecostsave_tmp[x] / nunits_tot[yr],
+                                csave_tmp[x] / nunits_tot[yr],
+                                ccostsave_tmp[x] / nunits_tot[yr])
                 else:
                     # Run measure energy/carbon/cost savings and lifetime
-                    # inputs through "metric_update" function to yield economic
-                    # metric outputs
-                    stock_anpv[yr], energy_anpv[yr], carb_anpv[yr], \
+                    # inputs through "metric_update" function to yield
+                    # financial metric outputs. Note that lifetime float
+                    # values are translated to integers, and all
+                    # energy, carbon, and energy/carbon cost savings values
+                    # are normalized by total applicable stock units
+                    stock_anpv_res[yr], energy_anpv_res[yr], \
+                        carb_anpv_res[yr], stock_anpv_com[yr], \
+                        energy_anpv_com[yr], carb_anpv_com[yr], \
                         irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        self.metric_update(
-                            m, nunits_tot, nunits_meas, life_base,
-                            int(life_meas), int(life_ratio),
-                            scostbase, scostsave[yr],
-                            esave[yr], ecostsave[yr], csave[yr], ccostsave[yr])
+                        self.metric_update(m, int(life_base), int(
+                            life_meas), scostbase, scostmeas_delt,
+                            esave[yr] / nunits_tot[yr],
+                            ecostsave[yr] / nunits_tot[yr],
+                            csave[yr] / nunits_tot[yr],
+                            ccostsave[yr] / nunits_tot[yr])
 
             # Record final measure savings figures and financial metrics
 
             # Set measure savings dict to update
             save = m.savings[adopt_scheme][comp_scheme]
-            # Update stock cost savings
+            # Update capital cost savings
             save["stock"]["cost savings (total)"] = scostsave_tot
             save["stock"]["cost savings (annual)"] = scostsave
             # Update energy and energy cost savings
@@ -564,10 +575,16 @@ class Engine(object):
             if m.update_results["consumer metrics"] is True:
                 # Set measure consumer-level financial metrics dict to update
                 metrics_consumer = m.consumer_metrics
-                # Update annuity equivalent NPV
-                metrics_consumer["anpv"]["stock cost"] = stock_anpv
-                metrics_consumer["anpv"]["energy cost"] = energy_anpv
-                metrics_consumer["anpv"]["carbon cost"] = carb_anpv
+                # Update annuity equivalent NPVs
+                metrics_consumer["anpv"]["stock cost"]["residential"], \
+                    metrics_consumer["anpv"]["stock cost"]["commercial"] = [
+                        stock_anpv_res, stock_anpv_com]
+                metrics_consumer["anpv"]["energy cost"]["residential"], \
+                    metrics_consumer["anpv"]["energy cost"]["commercial"] = [
+                        energy_anpv_res, energy_anpv_com]
+                metrics_consumer["anpv"]["carbon cost"]["residential"], \
+                    metrics_consumer["anpv"]["carbon cost"]["commercial"] = [
+                        carb_anpv_res, carb_anpv_com]
                 # Update internal rate of return
                 metrics_consumer["irr (w/ energy costs)"] = irr_e
                 metrics_consumer["irr (w/ energy and carbon costs)"] = irr_ec
@@ -579,9 +596,8 @@ class Engine(object):
                 # Set measure consumer-level metrics to finalized status
                 m.update_results["consumer metrics"] = False
 
-    def metric_update(
-        self, m, nunits_tot, nunits_meas, life_base, life_meas, life_ratio,
-            scost_base, scostsave, esave, ecostsave, csave, ccostsave):
+    def metric_update(self, m, life_base, life_meas, scost_base,
+                      scost_meas_delt, esave, ecostsave, csave, ccostsave):
         """Calculate measure financial metrics for a given year.
 
         Notes:
@@ -591,23 +607,22 @@ class Engine(object):
 
         Args:
             m (object): Measure object.
-            nunits_tot (int): Total competed baseline units in a given year.
+            nunits (int): Total competed baseline units in a given year.
             nunits_meas (int): Total competed units captured by measure in
                 given year.
             life_base (float): Baseline technology lifetime.
             life_meas (float): Measure lifetime.
-            life_ratio (float): Ratio of measure lifetime to baseline lifetime.
-            scost_base (list): Cost of competed baseline stock for given year.
-            scostsave (list): Annual stock cost cash flows over the measure
+            scost_base (list): Per unit baseline capital cost in given year.
+            scost_meas_delt (float): Per unit upfront capital
+                cost for measure over baseline unit in given year.
+            esave (list): Per unit annual energy savings over measure
                 lifetime, starting in given year.
-            esave (list): Annual energy savings over the measure lifetime,
-                starting in given year.
-            ecostsave (list): Annual energy cost savings over the measure
-                lifetime, starting in a given year.
-            csave (list): Annual avoided carbon emissions over the measure
-                lifetime, starting in given year.
-            ccostsave (list): Annual carbon cost savings over the measure
-                lifetime, starting in a given year.
+            ecostsave (list): Per unit annual energy cost savings over
+                measure lifetime, starting in a given year.
+            csave (list): Per unit annual avoided carbon emissions over
+                measure lifetime, starting in given year.
+            ccostsave (list): Per unit annual carbon cost savings over
+                measure lifetime, starting in a given year.
 
         Returns:
             Consumer and portfolio-level financial metrics for the given
@@ -627,9 +642,9 @@ class Engine(object):
         # 3 purchases of the baseline bulb would have occured by the time the
         # LED bulb has reached the end of its life.
         added_stockcost_gain_yrs = []
-        if life_ratio > 1:
+        if life_meas > life_base:
             for i in range(1, life_meas):
-                if i % int(life_base) == 0:
+                if i % life_base == 0:
                     added_stockcost_gain_yrs.append(i - 1)
 
         # If the measure lifetime is less than 1 year, set it to 1 year
@@ -637,11 +652,10 @@ class Engine(object):
         if life_meas < 1:
             life_meas = 1
 
-        # Construct complete stock cash flows across measure lifetime
-        # (normalized by number of captured stock units)
+        # Construct capital cost cash flows across measure life
 
-        # Initialize stock cash flows with incremental capital cost
-        cashflows_s = numpy.array(scostsave)
+        # Initialize capital cost cash flows with upfront capital cost
+        cashflows_s = numpy.array(scost_meas_delt)
 
         for life_yr in range(0, life_meas):
             # Check whether an avoided cost of the baseline technology should
@@ -655,15 +669,12 @@ class Engine(object):
             # as appropriate
             cashflows_s = numpy.append(cashflows_s, scost_life)
 
-        cashflows_s = cashflows_s / nunits_tot
-
         # Construct complete energy and carbon cash flows across measure
-        # lifetime (normalized by number of captured stock units). First
-        # term (reserved for initial investment figure) is zero.
-        cashflows_e, cashflows_c = [numpy.append(0, [x] * life_meas) /
-                                    nunits_tot for x in [ecostsave, ccostsave]]
+        # lifetime. First term (reserved for initial investment) is zero.
+        cashflows_e, cashflows_c = [numpy.append(0, [x] * life_meas)
+                                    for x in [ecostsave, ccostsave]]
 
-        # Calculate Net Present Value (NPVs) using the above cashflows
+        # Calculate net present values (NPVs) using the above cashflows
         npv_s, npv_e, npv_c = [
             numpy.npv(self.handyvars.discount_rate, x) for x in [
                 cashflows_s, cashflows_e, cashflows_c]]
@@ -672,36 +683,33 @@ class Engine(object):
         # lifetime (for use in cost of conserved energy and carbon calcs).
         # First term (reserved for initial investment figure) is zero, and
         # each array is normalized by number of captured stock units
-        esave_array = numpy.append(0, [esave] * life_meas) / nunits_tot
-        csave_array = numpy.append(0, [csave] * life_meas) / nunits_tot
+        esave_array = numpy.append(0, [esave] * life_meas)
+        csave_array = numpy.append(0, [csave] * life_meas)
 
         # Calculate Net Present Value and annuity equivalent Net Present Value
         # of the above energy and carbon savings
         npv_esave = numpy.npv(self.handyvars.discount_rate, esave_array)
         npv_csave = numpy.npv(self.handyvars.discount_rate, csave_array)
 
-        # Initially set financial metrics to 999 for cases where the
-        # metric should not or cannot be computed (e.g., consumer-level metrics
-        # have already been calculated; or zeros in denominator of portfolio-
-        # level financial metrics due to no energy savings)
-        anpv_s_in, anpv_e_in, anpv_c, irr_e, irr_ec, payback_e, payback_ec, \
-            cce, cce_bens, ccc, ccc_bens = (999 for n in range(11))
-
         # Calculate portfolio-level financial metrics
 
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
-        # benefits.  Check to ensure energy savings NPV in the denominator
-        # is not zero
-        if npv_esave > 0:
+        # benefits. Use try/except to handle cases with zero in the
+        # denominator
+        try:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
+        except:
+            cce, cce_bens = [999 for n in range(2)]
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
-        # benefits.  Check to ensure carbon savings NPV in the denominator
-        # is not zero.
-        if npv_csave > 0:
+        # benefits.  Use try/except to handle cases with zero in the
+        # denominator
+        try:
             ccc = (-npv_s / (npv_csave * 1000000))
             ccc_bens = (-(npv_s + npv_e) / (npv_csave * 1000000))
+        except:
+            ccc, ccc_bens = [999 for n in range(2)]
 
         # Calculate consumer-level financial metrics
 
@@ -722,66 +730,76 @@ class Engine(object):
             if any([x in ["single family home", "multi family home",
                           "mobile home"] for x in m.bldg_type]):
                 # Set ANPV values under general discount rate
-                res_anpv_s_in, res_anpv_e_in, res_anpv_c = [
-                    numpy.pmt(self.handyvars.discount_rate, life_meas, x) for
-                    x in [npv_s, npv_e, npv_c]]
+                try:
+                    anpv_s_res, anpv_e_res, anpv_c_res = [
+                        numpy.pmt(
+                            self.handyvars.discount_rate, life_meas, x) for
+                        x in [npv_s, npv_e, npv_c]]
+                except:
+                    anpv_s_res, anpv_e_res, anpv_c_res = (
+                        999 for n in range(3))
             # If measure does not apply to residential sector, set residential
             # ANPVs to 'None'
             else:
-                res_anpv_s_in, res_anpv_e_in, res_anpv_c = (
+                anpv_s_res, anpv_e_res, anpv_c_res = (
                     None for n in range(3))
 
             # Populate ANPVs for commercial sector
             # Check whether measure applies to commercial sector
             if any([x not in ["single family home", "multi family home",
                               "mobile home"] for x in m.bldg_type]):
-                com_anpv_s_in, com_anpv_e_in, com_anpv_c = (
+                anpv_s_com, anpv_e_com, anpv_c_com = (
                     {} for n in range(3))
                 # Set ANPV values under 7 discount rate categories
-                for ind, tps in enumerate(
-                        self.handyvars.com_timeprefs["rates"]):
-                    com_anpv_s_in["rate " + str(ind + 1)],\
-                        com_anpv_e_in["rate " + str(ind + 1)],\
-                        com_anpv_c["rate " + str(ind + 1)] = \
-                        [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
-                         for x in [cashflows_s, cashflows_e, cashflows_c]]
+                try:
+                    for ind, tps in enumerate(
+                            self.handyvars.com_timeprefs["rates"]):
+                        anpv_s_com["rate " + str(ind + 1)],\
+                            anpv_e_com["rate " + str(ind + 1)],\
+                            anpv_c_com["rate " + str(ind + 1)] = \
+                            [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
+                             for x in [cashflows_s, cashflows_e, cashflows_c]]
+                except:
+                    anpv_s_com, anpv_e_com, anpv_c_com = (
+                        999 for n in range(3))
             # If measure does not apply to commercial sector, set commercial
             # ANPVs to 'None'
             else:
-                com_anpv_s_in, com_anpv_e_in, com_anpv_c = (
+                anpv_s_com, anpv_e_com, anpv_c_com = (
                     None for n in range(3))
 
-            # Set overall ANPV dicts based on above updating of residential
-            # and commercial sector ANPV values
-            anpv_s_in = {
-                "residential": res_anpv_s_in, "commercial": com_anpv_s_in}
-            anpv_e_in = {
-                "residential": res_anpv_e_in, "commercial": com_anpv_e_in}
-            anpv_c = {
-                "residential": res_anpv_c, "commercial": com_anpv_c}
-
             # Calculate internal rate of return and simple payback for capital
-            # + energy and capital + energy + carbon cash flows.  Check to
-            # ensure that relevant cash flows are non-zero and that IRR/payback
-            # can be calculated
-            if any(cashflows_e) != 0:
-                # IRR/payback given capital + energy cash flows
-                try:
-                    irr_e = numpy.irr(cashflows_s + cashflows_e)
-                    payback_e = self.payback(cashflows_s + cashflows_e)
-                except (ValueError, LinAlgError):
-                    pass
-                # IRR/payback given capital + energy + carbon cash flows
-                try:
-                    irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
-                    payback_ec = \
-                        self.payback(cashflows_s + cashflows_e + cashflows_c)
-                except (ValueError, LinAlgError):
-                    pass
+            # + energy and capital + energy + carbon cash flows.  Use try/
+            # except to handle cases where IRR/payback cannot be calculated
+
+            # IRR and payback given capital + energy cash flows
+            try:
+                irr_e = numpy.irr(cashflows_s + cashflows_e)
+            except:
+                irr_e = 999
+            try:
+                payback_e = self.payback(cashflows_s + cashflows_e)
+            except (ValueError, LinAlgError):
+                payback_e = 999
+            # IRR and payback given capital + energy + carbon cash flows
+            try:
+                irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
+            except:
+                irr_ec = 999
+            try:
+                payback_ec = \
+                    self.payback(cashflows_s + cashflows_e + cashflows_c)
+            except (ValueError, LinAlgError):
+                payback_ec = 999
+        else:
+            anpv_s_res, anpv_e_res, anpv_c_res, anpv_s_com, anpv_e_com, \
+                anpv_c_com, irr_e, irr_ec, payback_e, payback_ec = (
+                    None for n in range(10))
 
         # Return all updated economic metrics
-        return anpv_s_in, anpv_e_in, anpv_c, irr_e, irr_ec, payback_e, \
-            payback_ec, cce, cce_bens, ccc, ccc_bens
+        return anpv_s_res, anpv_e_res, anpv_c_res, anpv_s_com, anpv_e_com, \
+            anpv_c_com, irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, \
+            ccc, ccc_bens
 
     def payback(self, cashflows):
         """Calculate simple payback period.
@@ -1004,11 +1022,11 @@ class Engine(object):
         # capital and operating cost values, accessed further below
 
         # Annualized capital cost dictionary
-        anpv_s_in = [m.consumer_metrics["anpv"]["stock cost"] for
-                     m in measures_adj]
+        anpv_s_in = [m.consumer_metrics["anpv"]["stock cost"][
+            "residential"] for m in measures_adj]
         # Annualized operating cost dictionary
-        anpv_e_in = [m.consumer_metrics["anpv"]["energy cost"] for
-                     m in measures_adj]
+        anpv_e_in = [m.consumer_metrics["anpv"]["energy cost"][
+            "residential"] for m in measures_adj]
 
         # Find the year range in which at least one measure that applies
         # to the competed primary microsegment is on the market
@@ -1037,18 +1055,16 @@ class Engine(object):
                     if type(anpv_s_in[ind][yr]) == numpy.ndarray:
                         cap_cost = numpy.zeros(len(anpv_s_in[ind][yr]))
                         for i in range(0, len(anpv_s_in[ind][yr])):
-                            cap_cost[i] = anpv_s_in[ind][yr][i][
-                                "residential"]
+                            cap_cost[i] = anpv_s_in[ind][yr][i]
                     else:
-                        cap_cost = anpv_s_in[ind][yr]["residential"]
+                        cap_cost = anpv_s_in[ind][yr]
                     # Set operating cost (handle as numpy array or point value)
                     if type(anpv_e_in[ind][yr]) == numpy.ndarray:
                         op_cost = numpy.zeros(len(anpv_e_in[ind][yr]))
                         for i in range(0, len(anpv_e_in[ind][yr])):
-                            op_cost[i] = anpv_e_in[ind][yr][i][
-                                "residential"]
+                            op_cost[i] = anpv_e_in[ind][yr][i]
                     else:
-                        op_cost = anpv_e_in[ind][yr]["residential"]
+                        op_cost = anpv_e_in[ind][yr]
 
                     # Calculate measure market fraction using log-linear
                     # regression equation that takes capital/operating
@@ -1126,11 +1142,11 @@ class Engine(object):
         # capital and operating cost values, accessed further below
 
         # Annualized stock cost dictionary
-        anpv_s_in = [m.consumer_metrics["anpv"]["stock cost"] for
+        anpv_s_in = [m.consumer_metrics["anpv"]["stock cost"]["commercial"] for
                      m in measures_adj]
         # Annualized operating cost dictionary
-        anpv_e_in = [m.consumer_metrics["anpv"]["energy cost"] for
-                     m in measures_adj]
+        anpv_e_in = [m.consumer_metrics["anpv"]["energy cost"][
+            "commercial"] for m in measures_adj]
 
         # Find the year range in which at least one measure that applies
         # to the competed primary microsegment is on the market
@@ -1168,7 +1184,6 @@ class Engine(object):
         # each based on their annualized capital and operating costs
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-
             # Loop through all years in time horizon
             for ind_l, yr in enumerate(self.handyvars.aeo_years):
                 # Ensure measure is on the market in given year
@@ -1189,16 +1204,14 @@ class Engine(object):
                         for i in range(length_array[ind_l]):
                             # Set capital cost input array
                             if type(anpv_s_in[ind][yr]) == numpy.ndarray:
-                                cap_cost[i] = anpv_s_in[ind][yr][i][
-                                    "commercial"]
+                                cap_cost[i] = anpv_s_in[ind][yr][i]
                             else:
-                                cap_cost[i] = anpv_s_in[ind][yr]["commercial"]
+                                cap_cost[i] = anpv_s_in[ind][yr]
                             # Set operating cost input array
                             if type(anpv_e_in[ind][yr]) == numpy.ndarray:
-                                op_cost[i] = anpv_e_in[ind][yr][i][
-                                    "commercial"]
+                                op_cost[i] = anpv_e_in[ind][yr][i]
                             else:
-                                op_cost[i] = anpv_e_in[ind][yr]["commercial"]
+                                op_cost[i] = anpv_e_in[ind][yr]
                         # Sum capital and operating cost arrays and add to the
                         # total cost dict entry for the given measure
                         tot_cost[ind][yr] = [
@@ -1211,9 +1224,9 @@ class Engine(object):
                     # are specified as point values for all competing measures
                     else:
                         # Set capital cost point value
-                        cap_cost = anpv_s_in[ind][yr]["commercial"]
+                        cap_cost = anpv_s_in[ind][yr]
                         # Set operating cost point value
-                        op_cost = anpv_e_in[ind][yr]["commercial"]
+                        op_cost = anpv_e_in[ind][yr]
                         # Sum capital and opearting cost point values and add
                         # to the total cost dict entry for the given measure
                         tot_cost[ind][yr] = []

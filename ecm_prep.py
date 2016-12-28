@@ -2729,9 +2729,7 @@ class Measure(object):
             # been captured by the measure up until the current year;
             # subsequently, update the number of total and competed stock units
             # captured by the measure to reflect additions from the current
-            # year. * Note: captured stock numbers are used in the
-            # cost_metric_update function below to normalize measure cost
-            # metrics to a per unit basis.
+            # year
 
             # First year in the modeling time horizon
             if yr == self.handyvars.aeo_years[0]:
@@ -4244,8 +4242,7 @@ class MeasurePackage(Measure):
         # If the first dict is nested and the intended level of the data
         # merge has not yet been reached, proceed further down its branches
         if len(dict1.keys()) != 0 and all([
-            "primary" not in x and "secondary" not in x for
-                x in dict1.keys()]):
+                "," not in x for x in dict1.keys()]):
             for (k, i), (k2, i2) in zip(
                     dict1.items(), dict2.items()):
                 self.update_dict(i, i2)
@@ -4689,8 +4686,8 @@ def main(base_dir):
         # updated, b) the package is new, or c) package
         # "contributing_ECMs" and/or "benefits" parameters have been
         # edited from a previous version
-        if any([(x + '.json') in meas_toprep_indiv_names for x in
-                m["contributing_ECMs"]]) or len(m_exist) == 0 or (
+        if any([x["name"] in m["contributing_ECMs"] for
+                x in meas_toprep_indiv]) or len(m_exist) == 0 or (
             len(m_exist) == 1 and any([m[x] != m_exist[0][x] for x in [
                 "contributing_ECMs", "benefits"]])):
             meas_toprep_package.append(m)
