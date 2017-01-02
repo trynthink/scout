@@ -1080,7 +1080,7 @@ class Measure(object):
         # where no secondary microsegment is specified, use the "lighting
         # gain" thermal load component microsegments to represent secondary
         # end use effects of the lighting measure
-        if self.end_use["secondary"] is not None:
+        if isinstance(self.end_use, dict):
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
