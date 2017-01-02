@@ -555,9 +555,11 @@ Making changes to the existing ECMs will necessarily overwrite previous versions
 Creating and editing package ECMs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Package ECMs are not actually unique ECMs, rather, they are combinations of existing ECMs specified by the user. Existing ECMs can be included in multiple different packages; there is no limit to the number of packages to which a single ECM may be added.
+Package ECMs are not actually unique ECMs, rather, they are combinations of existing (single technology) ECMs specified by the user. Existing ECMs can be included in multiple different packages; there is no limit to the number of packages to which a single ECM may be added. There is also no limit on the number of ECMs included in a package.
 
-A package ECM might make sense for a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall performance than if the ECMs were implemented separately. The definition of each package includes the specification of these improvements in cost or performance, if they apply. (Package ECMs could also include reductions in performance or increases in installed cost, but it is expected that those packages would not be of interest.)
+A package ECM might make sense, for example, in a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall performance than if the ECMs were implemented separately. More specifically, a package ECM could be created from an air barrier ECM and an insulation ECM to represent performing an air barrier *and* insulation retrofit at `tenant fit-out`_ in a commercial building, which could reduce the labor cost and thus the combined total installed cost by installing both systems at the same time. If one or more building type-appropriate HVAC equipment ECMs are added to the air barrier and insulation package ECM, downsizing of the HVAC equipment could further reduce the combined total installed cost. The definition for each package includes fields to specify any improvements in cost and/or performance, if they apply. (Package ECMs could also include reductions in performance and/or increases in installed cost, but it is expected that those packages would not be of interest.)
+
+.. _tenant fit-out: https://www.designingbuildings.co.uk/wiki/Fit_out_of_buildings
 
 Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. In that JSON file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the performance or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
 
@@ -598,7 +600,7 @@ All of the intended packages should be specified in the "package_ecms.json" file
            "pages": "238-239",
            "URL": "http://buildings.energy.gov/"}]}}},
     {"name": "Third package name", 
-     "contributing_ECMs": ["ECM 5 name", "ECM 3 name", "ECM 6 name", "ECM 2 name"]
+     "contributing_ECMs": ["ECM 5 name", "ECM 3 name", "ECM 6 name", "ECM 2 name"],
      "benefits": {"energy savings increase": 0.2, "cost reduction": 0, "source": {
         "notes": "Explanatory text related to source data and/or values given.",
         "source_data": [{
@@ -607,8 +609,7 @@ All of the intended packages should be specified in the "package_ecms.json" file
            "organization": "Organization Name",
            "year": "2016",
            "pages": "82",
-           "URL": "http://buildings.energy.gov/"}]}}}
-    ]
+           "URL": "http://buildings.energy.gov/"}]}}}]
 
 
 .. _tuts-2:
@@ -693,7 +694,7 @@ Interpreting Results Figures
 
 Each PDF file includes a single plot for each ECM, with the modeling horizon (years 2009 through 2040) on the x-axis and the parameter indicated in the PDF file name on the y-axis -- energy, cost, or |CO2| emissions. A legend is included at the end of the figures on the last page of each PDF.
 
-The y-axis scale for each figure is adjusted automatically to be appropriate for the data shown. Care should be taken when inspecting two adjacent plots, since what looks like a similar energy or |CO2| savings at a glance, might in fact be quite different depending on the y-axes. The y-axis markings must be used to determine the magnitudes in the plots and to compare between plots.
+The y-axis scale for each figure is adjusted automatically to be appropriate for the data shown. Care should be taken when inspecting two adjacent plots, since what look like a similar energy or |CO2| savings values at a glance, might in fact be quite different depending on the y-axes. The y-axis markings must be used to determine the magnitudes in the plots and to compare between plots.
 
 Interpretation of the results figures is facilitated with relevant comparisons of pairs of lines. 
 
