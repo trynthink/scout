@@ -59,7 +59,7 @@ Building Type
 Structure Type
 ~~~~~~~~~~~~~~
 
-new, existing
+new, existing; all
 
 .. _ecm-baseline_fuel-type:
 

@@ -96,7 +96,9 @@ LED troffers can be installed in buildings in any climate zone, and apply to all
     "bldg_type": "all commercial",
     ...}
 
-ECMs can apply to only new construction, only retrofits, or all buildings both new and existing. This is specified under the "structure_type" key with the values "new," "retrofit," or "all," respectively. LED troffers can be installed in new construction and retrofits. ::
+ECMs can apply to only new construction, only existing buildings, or all buildings both new and existing. This is specified under the :ref:`json-structure_type` key with the values "new," "existing," or "all," respectively. 
+
+LED troffers can be installed in both new construction and existing buildings, thus the "all" shortcut is used. ::
 
    {...
     "structure_type": "all",

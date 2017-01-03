@@ -65,7 +65,7 @@ structure_type
 * **Children:** none
 * **Type:** string, list
 
-The structure type indicates whether the technology described by the ECM is suitable for application in new construction, completed/existing buildings, or both. :ref:`Valid structure types <ecm-baseline_structure-type>` are limited to ``new``, ``existing``, or a list with both structure types. ::
+The structure type indicates whether the technology described by the ECM is suitable for application in new construction, completed/existing buildings, or both. :ref:`Valid structure types <ecm-baseline_structure-type>` are  ``new``, ``existing``, or ``all``, respectively. ::
 
    {...
     "structure_type": "new",
