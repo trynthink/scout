@@ -75,7 +75,7 @@ The structure type indicates whether the technology described by the ECM is suit
 
 .. tip::
 
-   If the ECM technology can be applied to both new construction and existing buildings but with differing energy performance, installed costs, and/or service life, those differing values should be specified explicitly in the :ref:`json-energy_efficiency`, :ref:`json-installed_cost`, and/or :ref:`json-product_lifetime` fields. This specification method is explained in the :ref:`ecm-features-detailed-input` section.
+   If the ECM technology can be applied to both new construction and existing buildings but with differing energy efficiency, installed costs, and/or service life, those differing values should be specified explicitly in the :ref:`json-energy_efficiency`, :ref:`json-installed_cost`, and/or :ref:`json-product_lifetime` fields. This specification method is explained in the :ref:`ecm-features-detailed-input` section.
 
 .. _json-fuel_type:
 
@@ -455,7 +455,7 @@ measure_type
 * **Children:** none
 * **Type:** string
 
-This field is used to specify whether the technology described by the ECM could be substituted for a component already installed in buildings, such as an electric cold-climate heat pump being substituted for an electric furnace and central AC system, or enhance the performance of an existing component, such as a window film applied to an existing window or an HVAC controls system that improves the performance of existing HVAC equipment. The measure type is then either ``"full service"`` or ``"add-on"``, respectively. Supplementary information and illustrative examples of the use of this field are available in the :ref:`ecm-features-measure-type` section. ::
+This field is used to specify whether the technology described by the ECM could be substituted for a component already installed in buildings, such as an electric cold-climate heat pump being substituted for an electric furnace and central AC system, or enhance the efficiency of an existing component, such as a window film applied to an existing window or an HVAC controls system that improves the efficiency of existing HVAC equipment. The measure type is then either ``"full service"`` or ``"add-on"``, respectively. Supplementary information and illustrative examples of the use of this field are available in the :ref:`ecm-features-measure-type` section. ::
 
    {...
     "measure_type": "full service",
@@ -564,7 +564,7 @@ _notes
 A text field that can be used for explanatory notes regarding the technologies that can be replaced by the ECM, any notable assumptions made in the specification of the ECM, or any other relevant information about the ECM that is not captured by any other field. ::
 
    {...
-    "_notes": "Energy performance is specified for the luminaire, not the base lamp.",
+    "_notes": "Energy efficiency is specified for the luminaire, not the base lamp.",
     ...}
 
 .. _json-_added_by:

@@ -35,10 +35,10 @@ Results specify U.S. energy, |CO2|, and cost savings
 Scout ECMs and their baseline markets
 -------------------------------------
 
-* ECMs represent building technologies or operational approaches that improve upon the unit performance and/or lifetime operational costs of the comparable incumbent or “business-as-usual” technology or approach.
-* :ref:`ECMs are characterized <analysis-step-1>` by their energy performance, installed cost, lifetime, and applicable baseline markets; whether they add-on to or fully replace the service of a “business-as-usual” technology; whether they involve fuel switching; and their year of market entry and exit.
+* ECMs represent building technologies or operational approaches that improve upon the unit efficiency and/or lifetime operational costs of the comparable incumbent or “business-as-usual” technology or approach.
+* :ref:`ECMs are characterized <analysis-step-1>` by their energy efficiency, installed cost, lifetime, and applicable baseline markets; whether they add-on to or fully replace the service of a “business-as-usual” technology; whether they involve fuel switching; and their year of market entry and exit.
 * The applicable baseline market for an ECM enumerates all of the climate zones, building types, end uses, fuel types, and, if applicable, technologies (add links) that are relevant to an ECM.
-* ECM definitions can include distinct cost, performance, and lifetime values for each climate zone, building type, fuel type, end use, and/or technology type; probability distributions may also be placed on ECM cost, performance, and lifetime inputs.
+* ECM definitions can include distinct cost, efficiency, and lifetime values for each climate zone, building type, fuel type, end use, and/or technology type; probability distributions may also be placed on ECM cost, efficiency, and lifetime inputs.
 
 .. _overview-adoption:
 
@@ -48,7 +48,7 @@ ECMs are adopted one of two ways
 There are two different scenarios that are used to represent consumer adoption of an ECM.
 
 * The technical potential scenario assumes that as soon as an ECM is introduced, the entire baseline market instantaneously and completely switches to the new ECM, and the ECM retains a complete sales monopoly in subsequent years. Results from this scenario represent the maximum impact an ECM could have, limited only by baseline market size. 
-* The max adoption potential scenario assumes an ECM is only able to capture the portion of its baseline market associated with new construction and retrofit or replacement of existing equipment in a given year. Results from this scenario represent an ECM’s maximum impact considering typical building and equipment turnover and generally show a gradual accumulation of measure savings over time.
+* The max adoption potential scenario assumes an ECM is only able to capture the portion of its baseline market associated with new construction and retrofit or replacement of existing equipment in a given year. Results from this scenario represent an ECM’s maximum impact considering typical building and equipment turnover and generally show a gradual accumulation of ECM savings over time.
 
 .. _overview-competition:
 
