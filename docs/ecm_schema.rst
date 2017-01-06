@@ -495,8 +495,8 @@ Market scaling fractions can be separately specified using the optional child fi
 
    {...
     "market_scaling_fractions": {
-      "all residential": 0.54,
-      "all commercial": 0.36},
+      "new": 1,
+      "existing": 0.43},
     ...}
 
 Further information regarding the use of market scaling fractions is in the :ref:`ecm-features-market-scaling-fractions` section.
@@ -507,22 +507,34 @@ market_scaling_fractions_source
 -------------------------------
 
 * **Parents:** root
-* **Children:** :ref:`json-notes`, :ref:`json-fraction_derivation`, :ref:`json-source_data`
-* **Type:** dict, none
+* **Children:** :ref:`json-title`, :ref:`json-author`, :ref:`json-organization`, :ref:`json-year`, :ref:`json-pages`, :ref:`json-URL`, :ref:`json-fraction_derivation`; none
+* **Type:** dict, string, none
 
 The market scaling fractions source identifies the sources that were used to determine the market scaling fraction, including the exact method for deriving the fraction. If the :ref:`json-market_scaling_fractions` field is ``null``, the source should also be specified as ``null``. ::
 
    {...
     "market_scaling_fractions_source": {
-      "notes": "Data from Figure 4.4.",
-      "fraction_derivation": "Sum of 2015 data for LED - Connected Lighting, LED - Controls, and Conventional Lighting - Controls.",
-      "source_data": [{
-         "title": "Energy Savings Forecast for Solid-State Lighting in General Illumination Applications",
-         "author": "Navigant Consulting; Julie Penning, Kelsey Stober, Victor Taylor, Mary Yamada",
-         "organization": "U.S. Department of Energy",
-         "year": 2016,
-         "pages": 23,
-         "URL": "http://energy.gov/sites/prod/files/2016/09/f33/energysavingsforecast16_2.pdf"}]},
+      "title": "Energy Savings Forecast for Solid-State Lighting in General Illumination Applications",
+      "author": "Navigant Consulting; Julie Penning, Kelsey Stober, Victor Taylor, Mary Yamada",
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 23,
+      "URL": "http://energy.gov/sites/prod/files/2016/09/f33/energysavingsforecast16_2.pdf"},
+      "fraction_derivation": "In Figure 4.4, sum of 2015 data for LED - Connected Lighting, LED - Controls, and Conventional Lighting - Controls."},
+    ...}
+
+Multiple scaling fraction values can share the same source so long as the calculation procedure for all of the values is provided in the :ref:`json-fraction_derivation` field, however, no more than one source is allowed for each scaling fraction value. If scaling fractions correspond to different sources, the source information can be given in a nested dict with the same top level structure as the scaling fractions themselves. If the market scaling fraction is set to 1 for one of the keys in the nested structure, the source information can be given as a string explaining any assumptions. ::
+
+   {...
+    "market_scaling_fractions_source": {
+      "new": "Assumes that all new commercial buildings are constructed with BAS",
+      "existing": {
+         "title": "CBECS 2012 - Table B1. Summary table: total and means of floorspace, number of workers, and hours of operation, 2012",
+         "author": "U.S. Energy Information Administration (EIA)",
+         "organization": "U.S. Energy Information Administration (EIA)",
+         "year": "2012",
+         "URL": "http://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b1.cfm",
+         "fraction_derivation": "37051 ft^2 floor of commercial buildings with BAS / 87093 ft^2 floor total commercial buildings"}},
     ...}
 
 .. _json-_description:
@@ -596,7 +608,7 @@ A dict containing basic information that identifies the user that last updated t
 notes
 -----
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-market_scaling_fractions_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`
 * **Children:** none
 * **Type:** string
 
@@ -626,7 +638,7 @@ For the market scaling fractions, this field should provide a description of how
 source_data
 -----------
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-market_scaling_fractions_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`
 * **Children:** :ref:`json-title`, :ref:`json-author`, :ref:`json-organization`, :ref:`json-year`, :ref:`json-pages`, :ref:`json-URL`
 * **Type:** list
 
@@ -647,7 +659,7 @@ A list that encloses one or more dicts, where each dict corresponds to a single 
 title
 -----
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** string
 
@@ -662,7 +674,7 @@ The title of the source document. ::
 author
 ------
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** string, none
 
@@ -677,7 +689,7 @@ The names of the author(s) of the publication, if any are identified. If no auth
 organization
 ------------
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** string
 
@@ -692,7 +704,7 @@ The journal publication, organization, or other entity that released the source 
 year
 ----
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** int
 
@@ -707,7 +719,7 @@ The year that the source was published or last updated. ::
 pages
 -----
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** int, string, none
 
@@ -722,7 +734,7 @@ The page number(s) of the information in the source document, if applicable. If 
 URL
 ---
 
-* **Parents:** :ref:`json-source_data`
+* **Parents:** :ref:`json-source_data`, :ref:`json-market_scaling_fractions_source`
 * **Children:** none
 * **Type:** string
 
