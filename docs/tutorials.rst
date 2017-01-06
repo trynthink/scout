@@ -11,9 +11,9 @@ Tutorial 1: Creating and editing ECMs
 
 Before beginning this tutorial, it is recommended that you review the :ref:`list of parameters <ecm-contents>` in an ECM definition.
 
-The examples in this tutorial will demonstrate how to write new ECMs so that they will be compliant with all relevant formatting requirements and provide the :ref:`needed information <ecm-contents>` about a technology in the structure expected by the Scout analysis engine. These examples are *not* exhaustive descriptions of all of the detailed options available to specify an ECM. A detailed outline of all of the options and combinations available for an ECM is available in section (add link). In addition, this tutorial includes information about how to :ref:`edit existing ECMs <editing-ecms>` and :ref:`define package ECMs <package-ecms>`.
+The :ref:`json-schema` should always be in your back pocket as a reference. This section includes brief descriptions, allowable options, and examples for each of the fields in an ECM definition. You might want to have it open in a separate tab in your browser while you complete this tutorial, and any time you're authoring or editing an ECM. 
 
-.. CREATE A SECTION FOR THE DOCUMENTATION THAT OUTLINES EVERY POSSIBLE COMBINATION OF SPECIFICATIONS FOR AN ECM, ESPECIALLY IN TERMS OF SPECIFYING PROBABILITY DISTRIBUTIONS OF VARIOUS TYPES, AND SPECIFYING C/P/L AT VARYING LEVELS OF DETAIL/SPECIFICITY
+The example in this tutorial will demonstrate how to write new ECMs so that they will be compliant with all relevant formatting requirements and provide the :ref:`needed information <ecm-contents>` about a technology in the structure expected by the Scout analysis engine. This example is intentionally plain to illustrate the basic features of an ECM definition and is *not* an exhaustive description of all of the detailed options available to specify an ECM. These additional options are presented in the :ref:`ecm-features` section, and the :ref:`json-schema` has detailed specifications for each field in an ECM definition. In addition, this tutorial includes information about how to :ref:`edit existing ECMs <editing-ecms>` and :ref:`define package ECMs <package-ecms>`.
 
 As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
@@ -22,7 +22,7 @@ Each new ECM created should be saved in a separate file. To add new or edited EC
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
 
-All of the ECMs for Scout are stored in a JSON_-formatted file. JSON files are human-readable (they appear as plain text) and are structured as (nested) pairs of keys and values, separated by a colon and enclosed with braces. [#]_ ::
+Each ECM for Scout is stored in a JSON_-formatted file. JSON files are human-readable (they appear as plain text) and are structured as (nested) pairs of *keys* and *values*, separated by a colon and enclosed with braces. [#]_ ::
 
    {"key": "value"}
 
@@ -51,22 +51,15 @@ Values can also be additional key-value pairs, thus creating a nested structure.
 
 Among key-value pairs at the same level, the order of entries does not matter.
 
-.. ADD A NOTE EXPLAINING THAT KEY STRINGS MUST MATCH EXACTLY WITH WHAT IS EXPECTED - NO SPACES, NO SWITCHING _ WITH -
+We will use these formatting guidelines to write new ECMs.
 
-We will use these general formatting guidelines to write new ECMs.
-
-.. In this tutorial, we will create two different ECMs. We will begin with an ECM that has a relatively simple cost and performance specification. The second example ECM will demonstrate more complex definitions for cost and performance and employ some optional ECM features. Following these two examples, we recommend reviewing the `ECM database`_ to see further examples of different kinds of ECMs.
-
-.. ECM database:
-
-.. CREATE A KEY PAIR INDEX FOR ECM DEFINITIONS (OR AT LEAST FOR THE BASELINE MARKET DEFINITION)
 
 .. _example-ecm-1:
 
-New ECM 1 – Commercial LED troffers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Your First ECM Definition
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section.
+The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section. For all of the fields in the ECM definition, details regarding acceptable values, structure, and formatting are provided in the :ref:`ECM JSON schema <json-schema>`.
 
 For this example, we will be creating an ECM for LED troffers for commercial buildings. Troffers are square or rectangular light fixtures designed to be used in a modular dropped ceiling grid commonly seen in offices and other commercial spaces.
 
@@ -87,43 +80,53 @@ To begin, the ECM should be given a short, but descriptive name. Details regardi
 Applicable Baseline Market
 **************************
 
-The applicable baseline market parameters specify the climate zones, building types, and other elements that define to what portion of energy use the ECM applies. The exact climate zone and building type options are outlined in the :ref:`ecm-baseline_climate-zone` and :ref:`ecm-baseline_building-type` sections of the :ref:`ecm-def-reference`.
+The applicable baseline market parameters specify the climate zones, building types, structure types, end uses, fuel types, and specific technologies for the ECM. 
 
-LED troffers can be installed in buildings in any climate zone, and apply to all commercial building types. To simplify entry, "all" can be used to specify climate zones (instead of writing a list of all climate zones), and "all," "all residential," or "all commercial" can be used to specify building types. ::
+The climate zone(s) can be given as a single string, if only one climate zone applies, or as a list if a few climate zones apply. The climate zone entry options are outlined in the :ref:`ecm-baseline_climate-zone` section, and formatting details are in the :ref:`applicable section <json-climate_zone>` of the JSON schema. If the ECM is suitable for all climate zones, the shorthand string ``"all"`` can be used in place of a list of all of the climate zone names. These shorthand terms are discussed further in the :ref:`ecm-features-shorthand` section. 
+
+LED troffers can be installed in buildings in any climate zone, and for convenience, the available shorthand term will be used in place of a list of all of the climate zone names. ::
 
    {...
     "climate_zone": "all",
+    ...}
+
+Building type options include specific residential and commercial building types, given in the :ref:`ecm-baseline_building-type` section, as well as several shorthand terms. A single string, list of strings, or shorthand value(s) are all allowable entries, as indicated in the :ref:`json-bldg_type` field reference. 
+
+Though LED troffers are most commonly found in office and other small commercial settings, they are found to some limited extent in most types of commercial buildings. Rather than limiting the ECM to only some building types, the technology field will be used to restrict the applicability of the ECM to only the energy used by lighting types that could be replaced by LED troffers.
+
+   {...
     "bldg_type": "all commercial",
     ...}
 
 ECMs can apply to only new construction, only existing buildings, or all buildings both new and existing. This is specified under the :ref:`json-structure_type` key with the values "new," "existing," or "all," respectively. 
 
-LED troffers can be installed in both new construction and existing buildings, thus the "all" shortcut is used. ::
+LED troffers can be installed in both new construction and existing buildings, thus the "all" shorthand is used. ::
 
    {...
     "structure_type": "all",
     ...}
 
-The end use(s) for an ECM correspond to the residential__ and commercial__ end uses specified in the AEO, and are listed for convenience in the :ref:`ecm-baseline_end-use` ECM reference section. End uses can be specified as a single string or, if multiple end uses apply, as a list. The only applicable end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use that arise from changes to lighting systems in commercial buildings are accounted for automatically in the energy use calculations for the ECM. ::
+The end use(s) correspond to the major building functions or other energy uses provided by the technology described in the ECM. End uses can be specified as a single string or, if multiple end uses apply, as a list. The acceptable formats for the end use(s) are in the :ref:`ECM JSON schema <json-end_use>` and the acceptable values are listed in the :ref:`ecm-baseline_end-use` ECM reference section. [#]_ If the ECM describes a technology that affects the thermal load of a building (e.g., insulation), the end use should be given as "heating" and "cooling" in a list.
+
+The only applicable end use for LED troffers is lighting. Changing from fluorescent bulbs typically found in troffers to LEDs will reduce the heat output from the fixture, thus reducing the cooling load and increasing the heating load for the building. These changes in heating and cooling energy use that arise from changes to lighting systems in commercial buildings are accounted for automatically in the energy use calculations for the ECM. ::
 
    {...
     "end_use": "lighting",
     ...}
 
-.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
-.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=5-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
+The fuel type generally corresponds to the energy source used for the technology described by an ECM -- natural gas for a natural gas heat pump and electricity for an air-source heat pump, for example. The fuel type should be consistent with the end use(s) already specified, based on the :ref:`end use reference tables <ecm-baseline_end-use>`. Fuel types are listed in the :ref:`ecm-baseline_fuel-type` ECM reference section, and can be specified as a single entry or a list if multiple fuel types are relevant (as indicated in the :ref:`ECM JSON schema <json-fuel_type>`). If the ECM describes a technology that affects the thermal load of a building (e.g., insulation), the fuel type should be given as "all" because heating and cooling energy from all fuel types could be affected by those types of technologies.
 
-The fuel type should be consistent with the end use(s) already specified. Fuel types are listed in the :ref:`ecm-baseline_fuel-type` ECM reference section, and can be specified as a single entry or a list if multiple fuel types are relevant. In the case of LED troffers, electricity is the only relevant fuel type. ::
+In the case of LED troffers, electricity is the only relevant fuel type. ::
 
    {...
     "fuel_type": "electricity",
     ...}
 
-The technology field drills down into the specific technologies or device types that apply to the end use(s) for the ECM. The specific technology names are different for supply-side and demand-side energy use. All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
+The technology field drills down into the specific technologies or device types that apply to the end use(s) for the ECM. In some cases, an ECM might be able to replace the full range of incumbent technologies in its end use categories, while in others, only specific technologies might be subject to replacement. As indicated in the :ref:`ECM JSON schema <json-technology>`, applicable technologies can be given as a single string, a list of technology names, or using :ref:`shorthand values <ecm-features-shorthand>`. If applicable, a technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
 
-In some cases, an ECM might be able to replace all of the currently used technologies for its end use and fuel type. For example, a highly efficient thermoelastic heat pump might be able to replace all current electric heating and cooling technologies. If the end uses have been specified as "heating" and "cooling" and the fuel type as "electricity," then the technologies can be specified simply with "all." A technology list can also be specified with a mix of shorthand end use references (e.g., "all lighting") and specific technology names, such as ``["all heating", "F28T8 HE w/ OS", "F28T8 HE w/ SR"]``.
+All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
 
-For this example, LED troffers are likely to replace linear fluorescent bulbs, the typical bulb type for troffers. There are many lighting types for commercial buildings, but we will include all of the lighting types that are specified as F\_\_T\_\_, including those with additional modifying text. ::
+For this example, LED troffers are likely to replace linear fluorescent bulbs, the typical bulb type in troffers. There are many lighting types for commercial buildings, but we will include all of the lighting types that are specified as F\_\_T\_\_, which correspond to linear fluorescent bulb types, including those with additional modifying text. ::
 
    {...
     "technology": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
@@ -137,14 +140,16 @@ For this example, LED troffers are likely to replace linear fluorescent bulbs, t
 Market Entry and Exit Year
 **************************
 
-The market entry year represents the year the technology is or will be available for purchase and installation. Some ECMs might be prospective, representing technologies not currently available. Others might represent technologies currently commercially available. The market entry year should reflect the current status of the technology described in the ECM. Similarly, the market exit year represents the year the technology is expected to be withdrawn from the market. The market entry year and exit year both require source information. As much as is practicable, a :ref:`high quality<ecm-sources>` reference should be used for both values. If no source is available, such as for a technology that is still quite far from commercialization, a brief explanatory note should be provided for the market entry year source. If it is anticipated that the product will not be withdrawn from the market prior to the end of the model :ref:`time horizon <2010-2040 projection>`, the exit year and source should be given as ``null``.
+The market entry year represents the year the technology is or will be available for purchase and installation. Some ECMs might be prospective, representing technologies not currently available. Others might represent technologies currently commercially available. The market entry year should reflect the current status of the technology described in the ECM. Similarly, the market exit year represents the year the technology is expected to be withdrawn from the market. If the technology described by an ECM will have a lower installed cost or improved performance after its initial market entry, another ECM should be created that reflects the improved version of the product, and the market exit year should not (in general) be used to force an older technology out of the market.
+
+The market entry year and exit year both require source information. As much as is practicable, a :ref:`high quality<ecm-sources>` reference should be used for both values. If no source is available, such as for a technology that is still quite far from commercialization, a brief explanatory note should be provided for the market entry year source, and the :ref:`json-source_data` fields themselves can be given as ``null`` or with empty strings. If it is anticipated that the product will not be withdrawn from the market prior to the end of the model :ref:`time horizon <2010-2040 projection>`, the exit year and source should be given as ``null``.
 
 LED troffers are currently commercially available with a range of performance, cost, and lifetime ratings. It is likely that while LED troffers will not, in general, exit the market within the model :ref:`time horizon <2010-2040 projection>`, LED troffers with cost and performance similar to this ECM are not likely to remain competitive through 2040. It will, however, be left to the analysis to determine whether more advanced lighting products enter the market and supplant this ECM, rather than specifying a market exit year. ::
 
    {...
     "market_entry_year": 2015,
     "market_entry_year_source": {
-      "notes": "",
+      "notes": "The source suggests that technologies described in the document are available on the market by its release date.",
       "source_data": [{
          "title": "High Efficiency Troffer Performance Specification, Version 5.0",
          "author": "",
@@ -157,16 +162,14 @@ LED troffers are currently commercially available with a range of performance, c
     ...}
 
 
-Performance
-***********
+Energy Efficiency
+*****************
 
-The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. If applicable, the performance value(s) should be reported in units of "relative savings (constant)," denoting a reduction in energy use *relative* to the baseline, with a *constant* percentage improvement, even as the baseline improves over time.
+The energy performance or efficiency of the ECM must be specified in three parts: the quantitative performance (only the value(s)), the units of the performance value(s) provided, and source(s) that support the indicated performance information. Each of these parameters is specified in a separate field. 
 
 The units specified are expected to be consistent with the units for each end use outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
 
-The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example.
-
-If appropriate, the performance can be specified with a different value for each end use, climate zone, building type, or building vintage that is in the applicable baseline market. Source information should be provided as appropriate for the level of detail used in the performance specification. If each of the performance data come from different sources, each source should be specified separately using the same nested dict structure. It is also acceptable to provide a single source if all of the performance data come from that source. This detailed performance specification approach is demonstrated in the :ref:`second ECM example <example-ecm-2>`.
+The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example and should include sufficient information so that the value(s) can be quickly identified from the sources listed. Additional detail regarding the acceptable form for entries in the source are linked to from the :ref:`json-source_data` entry in the ECM JSON schema.
 
 For the example of LED troffers, all lighting data should be provided in the units of lumens per Watt (denoted "lm/W"). LED troffers performance information is based on the `High Efficiency Troffer Performance Specification`_. ::
 
@@ -174,25 +177,27 @@ For the example of LED troffers, all lighting data should be provided in the uni
     "energy_efficiency": 120,
     "energy_efficiency_units": "lm/W",
     "energy_efficiency_source": {
-      "notes": "Augmented by data from the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
+      "notes": "Initial efficiency value taken from source section II.a.2.a. Efficiency value increased slightly based on efficacy values for fixtures categorized as '2x4 Luminaires for Ambient Lighting of Interior Commercial Spaces' in the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
       "source_data": [{
          "title": "High Efficiency Troffer Performance Specification, Version 5.0",
          "author": "",
          "organization": "U.S. Department of Energy",
          "year": 2015,
-         "pages": null,
+         "pages": 5,
          "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
     ...}
+
+Many additional options exist that enable more complex definitions of energy efficiency, such as incorporating :ref:`probability distributions <ecm-features-distributions>`, providing a :ref:`detailed efficiency breakdown <ecm-features-detailed-input>` by elements of the applicable baseline market, using :ref:`EnergyPlus simulation data <ecm-features-energyplus>`, and using :ref:`relative instead of absolute units <ecm-features-relative-savings>`. Detailed examples for all of the options is in the :ref:`ecm-features` section.
 
 
 Installed Cost
 **************
 
-The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`the relevant section <ecm-installed-cost-units>` of the :ref:`ecm-def-reference`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types.
+The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`the relevant section <ecm-installed-cost-units>` of the :ref:`ecm-def-reference`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types. The source information should be provided using the same keys and structure as the energy efficiency source. For ECMs that describe technologies not yet commercialized, assumptions incorporated into the installed cost estimate should be described in the :ref:`json-notes` section of the source.
 
-If applicable to the ECM, separate cost values can be provided for residential and commercial building types. Units should match the level of specificity in the values, and source information should be included for all values articulated, if separate sources are used for different building types.
+If applicable to the ECM, separate cost values can be provided by building type and structure type, as described in the :ref:`ecm-features-detailed-input` section. Probability distributions can also be used instead of point values for the cost, using the format outlined in the :ref:`ecm-features-distributions` section.
 
-For LED troffers, costs are estimated based on an assumption of a single fixture providing 4800 lm, with installation requiring two hours and two people at a fully-burdened cost of $100/person/hr. ::
+For LED troffers, costs are estimated based on an assumption of a single fixture providing 4800 lm, with installation requiring two hours and two people at a fully-burdened cost of $100/person/hr. The assumptions are articulated using the :ref:`json-notes` key under the :ref:`json-installed_cost_source` key.::
 
    {...
     "installed_cost": 233.33,
@@ -212,19 +217,21 @@ For LED troffers, costs are estimated based on an assumption of a single fixture
 Lifetime
 ********
 
-The lifetime of the ECM, or the expected amount of time that the ECM technology will last before requiring replacement, is specified using a structure identical to the installed cost. Again, the lifetime value, units, and source information must be specified for the corresponding keys. The units should always be in years, ideally as integer values greater than 0. LED troffers have rated lifetimes on the order of 50,000 hours, though the `High Efficiency Troffer Performance Specification`_ requires a minimum lifetime of 68,000 hours. The values for lighting lifetimes should be based on assumptions regarding actual use conditions (i.e., number of hours per day), and the "notes" value in the source specification should include that assumption. The LED troffers in this example are assumed to operate 12 hours per day. ::
+The lifetime of the ECM, or the expected amount of time that the ECM technology will last before requiring replacement, is specified using a structure identical to the installed cost. Again, the lifetime value, units, and source information must be specified for the corresponding keys. The product lifetime can also be specified with a :ref:`probability distribution <ecm-features-distributions>` and/or :ref:`different values by building type <ecm-features-detailed-input>`. The units should always be in years, ideally as integer values greater than 0. The source information follows the same format as for the energy efficiency and installed cost. For ECMs that describe technologies not yet commercialized, assumptions in the lifetime estimate should be explained in the :ref:`json-notes` section of the source.
+
+LED troffers have rated lifetimes on the order of 50,000 hours, though the `High Efficiency Troffer Performance Specification`_ requires a minimum lifetime of 68,000 hours. The values for lighting lifetimes should be based on assumptions regarding actual use conditions (i.e., number of hours per day), and the :ref:`json-notes` value in the source specification should include that assumption. The LED troffers in this example are assumed to operate 12 hours per day. ::
 
    {...
     "product_lifetime": 15,
     "product_lifetime_units": "years",
     "product_lifetime_source": {
-      "notes": "Calculated from 68,000 hrs assuming 12 hr/day operation.",
+      "notes": "Calculated from 68,000 hrs, stated as item II.c.i, assuming 12 hr/day operation.",
       "source_data": [{
          "title": "High Efficiency Troffer Performance Specification, Version 5.0",
          "author": "",
          "organization": "U.S. Department of Energy",
          "year": 2015,
-         "pages": null,
+         "pages": 5,
          "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
     ...}
 
@@ -234,20 +241,41 @@ The lifetime of the ECM, or the expected amount of time that the ECM technology 
 Other Fields
 ************
 
-ECMs may directly replace the service of an existing device already installed (and the default product installed in new construction), such as an ECM for an electric cold-climate heat pump, which would replace existing electric heating systems. Alternately, ECMs may enhance the performance of an existing technology, such as a window film that improves the solar heat gain coefficient of an existing window, or an HVAC controls system that improves the operation of an existing HVAC system. The particular type for the ECM must be specified as either ``"full service"`` or ``"add-on"``, respectively. LED troffers would replace existing troffers that use linear fluorescent bulbs, providing an equivalent building service (lighting) using less energy. The LED troffers ECM is thus denoted as "full service." ::
+The :ref:`json-measure_type` field indicates whether an ECM directly replaces the service of an existing device or building component or improves the efficiency of an existing technology. Examples include a cold-climate heat pump replacing existing electric heating and cooling systems and a window film that decreases solar heat gain, respectively. Further discussion of how to use the :ref:`json-measure_type` field and illustrative examples are in the :ref:`ecm-features-measure-type` section.
+
+LED troffers would replace existing troffers that use linear fluorescent bulbs, providing an equivalent building service (lighting) using less energy. The LED troffers ECM is thus denoted as "full service." ::
 
    {...
     "measure_type": "full service",
     ...}
 
-Two keys are provided for ECM authors to provide additional details about the measure specified. The "_description" field should include a one to two sentence description of the ECM, including additional references for further details regarding the technology if it is especially novel or unusual. The "_notes" field can be used for explanatory notes regarding the technologies that are expected to be replaced by the ECM and any notable assumptions made in the specification of the ECM not captured in another field. ::
+If the ECM is intended to supplant technologies with multiple fuel types, those fuel types are specified in the :ref:`json-fuel_type` value, and the fuel type of the ECM itself is specified in the :ref:`json-fuel_switch_to` field. This field is explained further, with illustrative examples in the :ref:`ecm-features-multiple-fuel-types` section. When not applicable, this field should be given the value ``null``.
+
+All lighting uses only electricity, so this option is not relevant to LED troffers. ::
+
+   {...
+    "fuel_switch_to": null,
+     ...}
+
+If the ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular end use, fuel type, and technologies that are relevant, a scaling value can be added to the ECM definition to specify what fraction of the applicable baseline market is truly applicable to that ECM. 
+
+When creating a new ECM, it is important to carefully specify the applicable baseline market to avoid the use of the market scaling fraction parameter, if at all possible. If the scaling fraction is not used, the value and the source should be set to ``null``. Details regarding the use of the market scaling fraction can be found in the :ref:`ecm-features-market-scaling-fractions` section.
+
+No market scaling fraction is required for the LED troffers ECM. ::
+
+   {...
+    "market_scaling_fractions": null,
+    "market_scaling_fractions_source": null,
+    ...}
+
+Two keys are provided for ECM authors to provide additional details about the measure specified. The :ref:`json-_description` field should include a one to two sentence description of the ECM, including additional references for further details regarding the technology if it is especially novel or unusual. The :ref:`json-_notes` field can be used for explanatory notes regarding the technologies that are expected to be replaced by the ECM and any notable assumptions made in the specification of the ECM not captured in another field. ::
 
    {...
     "_description": "LED troffers for commercial modular dropped ceiling grids that are a replacement for the entire troffer luminaire for linear fluorescent bulbs, not a retrofit kit or linear LED bulbs that slot into existing troffers.",
     "_notes": "Energy performance is specified for the luminaire, not the base lamp.",
     ...}
 
-Basic contact information regarding the author of a new ECM should be added to the fields under the "_added_by" key. ::
+Basic contact information regarding the author of a new ECM should be added to the fields under the :ref:`json-_added_by` key. ::
 
    {...
     "_added_by": {
@@ -259,36 +287,7 @@ Basic contact information regarding the author of a new ECM should be added to t
 
 .. Date and time of New Horizons flyby of Pluto
 
-.. _example-ecm-1-optional-entries:
-
-"Optional" Entries
-******************
-
-These "optional" fields must be included in the ECM definition, but can be set to a value of ``null`` if they are not relevant to the ECM.
-
-If the ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular end use, fuel type, and technologies that are relevant, a scaling value can be added to the ECM definition to specify what fraction of the applicable baseline market is truly applicable to that ECM. A source must be provided for the scaling fraction following the same general format used for other ECM data, but with an additional "fraction_derivation" key. The fraction derivation is a string that explains how the scaling value(s) were calculated. The source information is especially important for these data, and must be fully specified or the ECM will not be included in the analysis. Further detail regarding scaling fractions can be found in the :ref:`second ECM example <example-ecm-2-optional-entries>`.
-
-Multiple different scaling fraction values can be specified if the ECM applies to multiple building types or climate zones. The sources should be provided with equal specificity if multiple sources were required to obtain the various scaling fraction values.
-
-When creating a new measure, it is important to carefully specify the applicable baseline market to avoid the use of the market scaling fraction parameter, if at all possible. If the scaling fraction is not used, the value and the source should be set to ``null``.
-
-No market scaling fraction is required for the LED troffers ECM. ::
-
-   {...
-    "market_scaling_fractions": null,
-    "market_scaling_fractions_source": null,
-    ...}
-
-If the ECM is intended to supplant technologies with multiple fuel types, the fuel type of the ECM itself should be specified. For example, if an electric heat pump water heater is expected to replace existing electric *and* natural gas water heaters, the "fuel_switch_to" option should be set to the fuel type of the ECM itself: "electricity." If fuel switching is indicated, the applicable baseline market should include the fuel types and technologies that can be supplanted by the ECM. All lighting uses only electricity, so this option is not relevant to LED troffers. ::
-
-   {...
-    "fuel_switch_to": null,
-     ...}
-
-.. note::
-   If a value other than ``null`` is provided for the fuel type of the ECM, the fuel types selected for the applicable baseline market should include all of the fuel types that can be switched away from when employing the ECM in a building.
-
-When updating an existing ECM, the identifying information for the contributor should be provided in the "_updated_by" field instead of the "_added_by" field. ::
+When updating an existing ECM, the identifying information for the contributor should be provided in the :ref:`json-_updated_by` field instead of the "_added_by" field. If the ECM is new, the child keys in the "_updated_by" section should be given ``null`` values. ::
 
    {...
     "_updated_by": {
@@ -298,234 +297,381 @@ When updating an existing ECM, the identifying information for the contributor s
       "timestamp": null},
     ...}
 
+The LED troffers ECM that you've now written can be simulated with Scout by following the steps in subsequent tutorials. Many technologies will have ECM definitions like the one you just created, but some technologies, like sensors and controls and windows and opaque envelope products, will have definitions that are subtly different. Sensors and controls ECMs augment the performance of existing equipment in the stock, rather than replacing existing and supplanting new equipment. To get a feel for what these types of add-on technologies look like as an ECM, you can :download:`download <examples/AFDD (Prospective).json>` and review an Automated Fault Detection and Diagnosis (AFDD) ECM. Additional information about sensors and controls ECMs can be found in the :ref:`ecm-features-measure-type` section. Windows and opaque envelope technologies reduce demand for heating and cooling instead of increasing the efficiency of the supply of heating and cooling. An ECM for the ENERGY STAR windows version 6 specification is available to :download:`download <examples/ENERGY STAR Windows v. 6.0.json>` to illustrate demand-reducing ECMs.
 
-.. _example-ecm-2:
 
-New ECM 2 – Thermoelastic heat pump
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _ecm-features:
 
-This ECM describes thermoelastic heat pump technology for residential and commercial applications. Thermoelastic heating and cooling uses a shape memory (i.e., returns to its original shape when no force is applied) metal alloy that absorbs or releases heat when deformed (stretched or compressed). ::
+Additional ECM Features
+~~~~~~~~~~~~~~~~~~~~~~~
 
-   {"name": "Thermoelastic Heat Pump",
+There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the end of each section.
+
+.. PHRASING
+
+.. _ecm-features-shorthand:
+
+Baseline Market Shorthand Values
+********************************
+
+If an ECM applies to multiple building types, end uses, or other applicable baseline market categories [#]_, the specification of the baseline market and, in some cases, other fields, can be greatly simplified by using shorthand strings. When specifying the applicable baseline market, for example, an ECM might represent a technology that can be installed in any residential building, indicated with the "all residential" string for the building type key. ::
+
+   {...
+    "bldg_type": "all residential",
     ...}
 
-The finished ECM specification is available to :download:`download </examples/thermoelastic_hp.json>` for reference.
-
-The discussion in this example will generally focus on the specific features of this ECM. A more introductory discussion of the features of an ECM definition can be found in the :ref:`first example <example-ecm-1>`.
-
-
-Applicable Baseline Market
-**************************
-
-The applicable baseline market parameters specify the climate zones, building types, and other elements that define to what portion of energy use the ECM applies.
-
-The thermoelastic heat pump conceived for this example can be used in residential and commercial buildings, but will have different performance specifications for each building sector. As in the first ECM example, "all" can be used to simplify the specification instead of listing each building type and climate zone explicitly. The structure type (new or retrofit) can also be specified using the "all" shortcut. ::
+Similarly, an ECM that applies to any climate zone can use "all" as the value for the climate zone key. ::
 
    {...
     "climate_zone": "all",
-    "bldg_type": "all",
-    "structure_type": "all",
     ...}
 
-The end use(s) specified for an ECM can be given as a list, if appropriate. Referring to the end use names indicated in the :ref:`ecm-baseline_end-use` section of the :ref:`ecm-def-reference`, the thermoelastic heat pump ECM is specified with both "heating" and "cooling"  end uses in a list. ECMs that affect supply-side heating and cooling require that the energy use associated with demand-side heating and cooling be updated to match, but this adjustment process is done automatically as part of :ref:`ECM competition <ecm-competition>`. ::
+These shorthand terms, when they encompass only a subset of the valid entries for a given field (e.g., "all commercial," which does not include any residential building types), can also be mixed in a list with other valid entries for that field. ::
 
    {...
-    "end_use": ["heating", "cooling"],
+    "bldg_type": ["all residential", "small office", "mercantile/service"],
     ...}
 
-Fuel type(s) should correspond to the end uses specified and with the technology description. As with end uses, fuel types can be specified with a list. Thermoelastic heat pumps use electricity to deform the shape memory metal and absorb or release heat. ::
+The :ref:`ECM definition reference <ecm-applicable-baseline-market>` specifies whether these shorthand terms are available for each of the applicable baseline market fields and what shorthand strings are valid for each field.
+
+If these shorthand terms are used to specify the applicable baseline market fields, they can also be used for a :ref:`detailed input specification <ecm-features-detailed-input>` for energy efficiency, installed cost, or lifetime. For example, if an ECM applies to "all residential," "small office," and "lodging" building types, the installed cost could be specified separately for each of these building types. ::
 
    {...
-    "fuel_type": "electricity",
+    "installed_cost": {
+      "all residential": 5530,
+      "small office": 6190,
+      "lodging": 6015},
     ...}
 
-The technology field lists the specific technologies or device types that can be replaced by the technology described by the ECM. In some cases, an ECM might be able to replace the full range of incumbent technologies in its end use categories, while in others, only specific technologies might be subject to replacement. There are shortcut technology names available for each end use (e.g., "all heating" or "all lighting") and "all" can be used to indicate all technologies for the end uses specified for the ECM. These shortcut technology names are explained further in the relevant section of the :ref:`ECM Definition Reference <ecm-baseline_technology>`. A highly efficient thermoelastic heat pump, for the purposes of this ECM, can replace other similar air-source heat pump technologies and central AC or rooftop AC systems. ::
+Separate installed costs can also be specified for each of the residential building types, even if they are indicated as a group using the "all residential" shorthand for the building type field. ::
 
    {...
-    "technology": ["central AC", "ASHP", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "rooftop_AC"],
+    "bldg_type": ["all residential", "small office", "lodging"],
+    ...
+    "installed_cost": {
+      "single family home": 5775,
+      "multi family home": 5693,
+      "mobile home": 5288,
+      "small office": 6190,
+      "lodging": 6015},
     ...}
 
-
-Market Entry and Exit Year
-**************************
-
-The market entry and exit year represent the first and last year the technology described by the ECM is expected to be available. If the ECM will have a lower installed cost or improved performance after its initial market entry, another ECM should be created that reflects the improved version of the product. Thermoelastic heat pumps are a technology currently under development that might be available in future years. A market entry year of 2020 is an estimate, since the development path of the technology is unknown. This uncertainty is indicated in the note provided for the entry year source. As with the LED troffers example, the market exit year is not specified, not because the particular technology described in this ECM will necessarily be available through the end of the model :ref:`time horizon <2010-2040 projection>`, but because it is left to the model to determine whether the technology is competitive with later entrants. ::
-
-   {...
-    "market_entry_year": 2020,
-    "market_entry_year_source": {
-      "notes": "Market entry year is based on the low Technology Readiness Level of the technology at the time the ECM was added.",
-      "source_data": null},
-    "market_exit_year": null,
-    "market_exit_year_source": "NA",
-    "market_scaling_fractions": null,
-    "market_scaling_fractions_source": "NA",
-    ...}
+A :download:`whole building sub-metering ECM <examples/Whole Building Submetering (Prospective).json>` illustrates the use of shorthand terms by employing the "all" shorthand term for most of the applicable baseline market fields (|baseline-market|) and the "all commercial" shorthand term as one of the building types and to define separate installed costs for the various building types that apply to the ECM. If you would like to see additional examples, many of the other examples available to download in this section use shorthand terms for one or more of their applicable baseline market fields.
 
 
-Performance
-***********
+.. _ecm-features-detailed-input:
 
-.. ARE THERE MORE GENERAL COMMENTS TO BE MADE ABOUT THE ORDER IN WHICH THE ENERGY EFFICIENCY SUB-FIELDS MUST BE SPECIFIED?
-.. ADD MORE DETAIL ABOUT WHERE ENERGYPLUS FILES COME FROM
+Detailed Input Specification
+****************************
 
-Each ECM definition includes quantitative energy efficiency or energy performance values and the units and source information for those values. Each of these parameters is specified in a separate field. Performance data should be derived from :ref:`credible sources <ecm-sources>` and the units must be consistent with those outlined in the :ref:`ECM Definition Reference <ecm-performance-units>` section.
+.. THE SCHEMA WOULD BENEFIT FROM A CONSISTENT TERM FOR WHEN CPL VALUES ARE SPLIT UP WITH GREATER DETAIL
 
-Performance values can be specified with different values by end use, climate zone, building type, or building vintage. In addition, the performance values for commercial buildings can be specified with data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. The thermoelastic heat pump ECM applies to both residential and commercial buildings, and EnergyPlus simulation results will be used to specify the performance for commercial buildings. For the purposes of this example, performance is assumed to be uniform across residential buildings and the EnergyPlus simulation results address commercial buildings, thus the performance can be specified under the simplified building type keys "all residential" and "all commercial."
+The energy efficiency, installed cost, and lifetime values in an ECM definition can be specified as a point value or with separate values for one or more of the applicable baseline market keys (|baseline-market|). As shown in :numref:`table-detailed-input-options`, the allowable baseline market keys are different for the energy efficiency, installed cost, and lifetime values.
 
-EnergyPlus performance data files are specific to a single building type and each file can include performance data for multiple ECMs. These files should be placed in the directory "energyplus_data" (inside the "ecm_definitions" folder). To import performance data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict as follows: ``"energy_efficiency": {"EnergyPlus file": "ECM name"}``. Here, "ECM name" will determine which rows will be read in the EnergyPlus file(s). Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM performance units should always be "relative savings (constant)." 
+.. table:: The baseline market keys that can be used to provide a detailed specification of the energy efficiency, installed cost, or lifetime input fields in an ECM definition depend on which field is being specified.
+   :name: table-detailed-input-options
 
-EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM.
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
+   | Baseline Market Key        |       Energy Efficiency       |       Installed Cost       |       Product Lifetime       |
+   +============================+===============================+============================+==============================+
+   | :ref:`json-climate_zone`   |               X               |                            |                              |
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
+   | :ref:`json-bldg_type`      |               X               |              X             |               X              |
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
+   | :ref:`json-structure_type` |               X               |              X             |                              |
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
+   | :ref:`json-end_use`        |               X               |                            |                              |
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
 
-The source(s) for the performance data should be credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. The source information should be provided using only the fields shown in the example. The pages where the data can be found in the source can be provided as a single number or as a list of two numbers, e.g., [93, 95], if the data are spread across multiple pages. If page numbers are not applicable, the field should have the value ``null``. ::
+A detailed input specification for any of the fields should consist of a dict with keys from the desired baseline market field(s) and the appropriate values given for each key. For example, an HVAC-related ECM, such as a central AC unit, will generally have performance that varies by :ref:`climate zone <json-climate_zone>`, which can be captured in the energy efficiency input specification. ::
 
    {...
     "energy_efficiency": {
-      "all residential": 6,
+      "AIA_CZ1": 1.6,
+      "AIA_CZ2": 1.54,
+      "AIA_CZ3": 1.47,
+      "AIA_CZ4": 1.4,
+      "AIA_CZ5": 1.28},
+    ...}
+
+ECMs that describe technologies that perform functions across multiple end uses will necessarily require an energy efficiency definition that is specified by fuel type. Air-source heat pumps, which provide both heating and cooling, are an example of such a technology. ::
+
+   {...
+    "energy_efficiency": {
+      "heating": 1.2,
+      "cooling": 1.4},
+    ...}
+
+For an ECM that applies to both new and existing buildings, the installed cost might vary for those :ref:`structure types <json-structure_type>` due to differences in the number of labor hours required to install the technology as a building is being constructed versus an installation that begins with teardown and requires more careful cleanup and management of dust and noise. ::
+
+   {...
+    "installed_cost": {
+      "new": 26,
+      "existing": 29},
+    ...}
+
+If a detailed input specification includes two or more baseline market keys, the keys should be placed in a nested dict structure. The order in which the keys are nested does not matter and is at the discretion of the user. Multi-function heat pumps, which provide heating, cooling, and water heating services, are an example of a case where a detailed energy efficiency specification by climate zone and end use might be appropriate. ::
+
+   {...
+    "energy_efficiency": {
+      "AIA_CZ1": {
+         "heating": 1.05,
+         "cooling": 1.3,
+         "water heating": 1.25},
+      "AIA_CZ2": {
+         "heating": 1.15,
+         "cooling": 1.26,
+         "water heating": 1.31},
+      "AIA_CZ3": {
+         "heating": 1.3,
+         "cooling": 1.21,
+         "water heating": 1.4},
+      "AIA_CZ4": {
+         "heating": 1.4,
+         "cooling": 1.16,
+         "water heating": 1.57},
+      "AIA_CZ5": {
+         "heating": 1.4,
+         "cooling": 1.07,
+         "water heating": 1.7}},
+    ...}
+
+As noted previously, the order does not matter, thus an equivalent specification of performance for the same ECM could be given by end use and then by climate zone. ::
+
+   {...
+    "energy_efficiency": {
+      "heating": {
+         "AIA_CZ1": 1.05,
+         "AIA_CZ2": 1.15,
+         "AIA_CZ3": 1.3,
+         "AIA_CZ4": 1.4,
+         "AIA_CZ5": 1.4},
+      "cooling": {
+         "AIA_CZ1": 1.3,
+         "AIA_CZ2": 1.26,
+         "AIA_CZ3": 1.21,
+         "AIA_CZ4": 1.16,
+         "AIA_CZ5": 1.07}
+      "water heating": {
+         "AIA_CZ1": 1.25,
+         "AIA_CZ2": 1.31,
+         "AIA_CZ3": 1.4,
+         "AIA_CZ4": 1.57,
+         "AIA_CZ5": 1.7}},
+    ...}
+
+If an input has a detailed specification, the units need not be given in an identical dict structure. The units can be specified using the simplest required structure, including as a single string, while matching the required units specified for :ref:`energy efficiency <ecm-energy-efficiency-units>` and :ref:`installed cost <ecm-installed-cost-units>`. Product lifetime units can always be given as a single string since all lifetime values should be in years. For the first example, energy efficiency units will not vary across climate zones. ::
+
+   {...
+    "energy_efficiency_units": "COP",
+    ...}
+
+Similarly, in the third example, installed cost units for a given technology will not vary by building structure type. ::
+
+   {...
+    "installed_cost_units": "$/ft^2 wall",
+    ...}
+
+In the second example, while the energy efficiency units are generally different for each end use, the :ref:`energy efficiency units reference <ecm-energy-efficiency-units>` shows that heating (from a heat pump) and cooling have the same units, thus the units do not need to be specified by end use for this particular case. ::
+
+   {...
+    "energy_efficiency_units": "COP",
+    ...}
+
+In the fourth example, where the energy efficiency is specified by climate zone and end use, the units will only vary by end use, thus the units dict does not need to be identical in structure to the performance dict, and can be specified using only the end uses. ::
+
+   {...
+    "energy_efficiency_units": {
+      "heating": "COP",
+      "cooling": "COP",
+      "water heating": "EF"},
+    ...}
+
+While all of the examples shown use absolute units, :ref:`relative savings values <ecm-features-relative-savings>`, :ref:`EnergyPlus energy efficiency data <ecm-features-energyplus>` (for commercial buildings), and :ref:`probability distributions <ecm-features-distributions>` can also be used with detailed input specifications. If an ECM can be described using one or more :ref:`shorthand terms <ecm-features-shorthand>`, these strings can be used as keys for a detailed input specification; this ability is particularly helpful when using the "all residential" and/or "all commercial" building type shorthand strings.
+
+When a detailed input specification is given, the corresponding source information need not be specified in the same type of nested dict format, particularly if all of the data are drawn from a single source. Even if multiple sources are required, all of the sources may be given with separate dicts in a single list under the :ref:`json-source_data` key, along with an explanation of what data are drawn from each source given in the :ref:`json-notes` field.
+
+Finally, any ECM that includes one or more detailed input specifications should have some discussion of the detailed specification and any underlying assumptions included in either the :ref:`json-_notes` field in the JSON or the :ref:`json-notes` field for the source information for each detailed input specification. As the complexity of the specification increases, the detail of the explanation should similarly increase.
+
+A :download:`thermoelastic heat pump ECM <examples/Thermoelastic HP (Prospective).json>` illustrates the use of the detailed input specification approach for the installed cost data and units, as well as the page information for the installed cost source.
+
+
+.. _ecm-features-relative-savings:
+
+Relative Energy Efficiency Units
+********************************
+
+In addition to the absolute units used in the :ref:`initial example <example-ecm-1>`, any ECM can have energy efficiency specified with the units "relative savings (constant)" or "relative savings (dynamic)". In either case, the energy efficiency value should be given as a decimal value between 0 and 1, corresponding to the percentage improvement from the baseline (i.e., the existing stock) -- a value of 0.2 corresponds to a 20% energy savings relative to the baseline.
+
+.. note::
+   Absolute efficiency units are preferred (except for sensors and controls ECMs and when :ref:`using EnergyPlus data <ecm-features-energyplus>`). Absolute units are more commonly reported in test results and product specifications. In addition, using relative savings leaves some uncertainty regarding whether there are discrepancies between the baseline used to calculate the savings percentage and the baseline in Scout.
+
+When the units are "relative savings (constant)," the value that is given is assumed to be the same in every year, independent of improvement in the efficiency of technologies comprising the baseline. That is, an "energy_efficiency" value of 0.3 with the units "relative savings (constant)" means that the ECM will achieve a 30% reduction in energy use compared to the baseline in the current year and a 30% reduction in energy use compared to the baseline in all future years.
+
+If "relative savings (dynamic)" is used, the percentage savings are reduced in future years to account for efficiency improvements in the baseline. These reductions are calculated relative to an anchor year, which is the year for which the specified savings percentage was calculated. The anchor year is specified as an integer along with the units string in a list. (In the example shown, 2014 is the anchor year.) ::
+
+   {...
+    "energy_efficiency_units": ["relative savings (dynamic)", 2014],
+    ...}
+
+Relative units can be combined with :ref:`detailed input specifications <ecm-features-detailed-input>`. ::
+
+   {...
+    "energy_efficiency": {
+      "AIA_CZ1": 0.13,
+      "AIA_CZ2": 0.127,
+      "AIA_CZ3": 0.123,
+      "AIA_CZ4": 0.118,
+      "AIA_CZ5": 0.11},
+    "energy_efficiency_units": "relative savings (constant)",
+    ...}
+
+If appropriate for a given ECM, absolute and relative units can also be mixed in a :ref:`detailed input specification <ecm-features-detailed-input>`. ::
+
+   {...
+    "energy_efficiency": {
+      "heating": 1.2,
+      "cooling": 0.25},
+    "energy_efficiency_units": {
+      "heating": "COP",
+      "cooling": ["relative savings (dynamic)", 2016]},
+    ...}
+
+An occupant-centered controls ECM available for :download:`download <examples/Occupant-Centered Controls (Prospective).json>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
+
+
+.. _ecm-features-energyplus:
+
+EnergyPlus Efficiency Data
+**************************
+
+For commercial building types, energy efficiency values can be specified using data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM. EnergyPlus simulation data cannot be combined with :ref:`probability distributions <ecm-features-distributions>` on energy efficiency.
+
+Results from EnergyPlus that can be used for energy efficiency inputs in ECMs are stored in CSV files. Each EnergyPlus CSV file is specific to a single building type and can include energy efficiency data for many simulated ECMs. These files should be placed in the directory "energyplus_data" (inside the "ecm_definitions" folder). To import energy efficiency data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict in a specific form: ``"energy_efficiency": {"EnergyPlus file": "ECM_name"}``. Here, "ECM_name" will determine which rows will be read in the EnergyPlus files. The "ECM_name" string should match exactly with the text in the "measure" column in the EnergyPlus CSV files corresponding to the relevant data. Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM energy efficiency units should always be "relative savings (constant)." 
+
+The source(s) for the energy efficiency data that were used as inputs to the EnergyPlus simulations should be indicated in the :ref:`json-energy_efficiency_source` field. The data should be drawn from credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. Information about the source(s) should be included in the ECM definition in the same format as when EnergyPlus data are not used.
+
+An LED troffers ECM is used to illustrate the format for specifying EnergyPlus simulation data for the energy efficiency. LED troffers are an ideal technology to simulate using EnergyPlus, as the significant reduction in waste heat generated by LED lamps compared to fluorescent and incandescent lamps can have an effect on the HVAC energy use in a building, an effect captured by the EnergyPlus simulation. ::
+
+   {...
+    "energy_efficiency": {"EnergyPlus file": "LED_troffers"},
+    "energy_efficiency_units": "relative savings (constant)",
+    "energy_efficiency_source": {
+      "notes": "Initial efficiency value taken from source section II.a.2.a. Efficiency value increased slightly based on efficacy values for fixtures categorized as "2x4 Luminaires for Ambient Lighting of Interior Commercial Spaces" in the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
+      "source_data": [{
+         "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+         "author": "",
+         "organization": "U.S. Department of Energy",
+         "year": 2015,
+         "pages": 5,
+         "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+    ...}
+
+Window and opaque envelope (i.e., insulation and air sealing) ECMs are also ideal for EnergyPlus simulation, as they similarly will have an effect on HVAC operation by reducing the heading and cooling load in a building and the potential energy savings are affected by whether or not equipment is resized to correspond to the reduced loads.
+
+In both of these cases, solid state lighting and window and envelope technologies, without EnergyPlus simulation data Scout will automatically account for the energy use effects from changes in heating and cooling loads. Using results from EnergyPlus can only improve the accuracy of this accounting.
+
+In some cases, an ECM could apply to both residential and commercial buildings. Since EnergyPlus data can only be used to specify energy efficiency for commercial buildings, the energy efficiency values can be specified separately for residential and commercial buildings using the :ref:`detailed input specification <ecm-features-detailed-input>` approach. For example, a thermoelastic heat pump might apply to all building types, with some differences in efficiency. EnergyPlus simulation data can be used to specify the efficiency for commercial buildings, while residential unit efficiency can be specified with absolute or relative values or a probability distribution. For the purposes of this example, energy efficiency is assumed to be uniform across residential building types and the EnergyPlus simulation results address commercial buildings, thus the efficiency can be specified under the :ref:`simplified building type keys <ecm-features-shorthand>` "all residential" and "all commercial." Because heat pumps provide both heating and cooling service but generally with different efficiencies, separate values are given for the heating and cooling end use for residential buildings. ::
+
+   {...
+    "energy_efficiency": {
+      "all residential": {
+         "heating": 6,
+         "cooling": 5.3},
       "all commercial": {"EnergyPlus file": "thermoelastic_heat_pumps"}},
     "energy_efficiency_units": {
       "all residential": "COP",
       "all commercial": "relative savings (constant)"},
     "energy_efficiency_source": {
-      "notes": null,
+      "notes": "Estimate for heating COP from Takeuchi. Estimate for cooling COP reduced relative to heating with the unproven assumption that more waste thermal energy will need to be rejected in cooling mode operation (this assumption was made primarily for the purpose of illustrating an ECM definition with mixed EnergyPlus efficiency data).",
       "source_data":[{
          "title": "Energy Savings Potential and RD&D Opportunities for Non-Vapor Compression HVAC Technologies",
          "author": "Navigant Consulting",
-         "organization": "Navigant Consulting",
+         "organization": "U.S. Department of Energy",
          "year": 2014,
          "pages": 107,
          "URL": "http://energy.gov/sites/prod/files/2014/03/f12/Non-Vapor%20Compression%20HVAC%20Report.pdf"}]},
     ...}
 
-
-Installed Cost
-**************
-
-The installed cost is specified in a structure similar to the energy performance. The cost units must match those indicated in the :ref:`ECM Definition Reference <ecm-installed-cost-units>` section. For the thermoelastic heat pump ECM, the cost should be specified separately for residential and commercial buildings since the expected installed cost is different and the heating and cooling cost units are different.
-
-While the installed cost data are specified separately for residential and commercial buildings, the data come from the same source, but on different pages. The pages information can thus be specified with separate keys for "all residential" and "all commercial," paralleling the structure for the installed cost and units data. ::
-
-   {...
-    "installed_cost": {
-      "all residential": 5300,
-      "all commercial": 283},
-    "cost_units": {
-      "all residential": "2015$/unit",
-      "all commercial": "2015$/kBtu/h cooling"},
-   "installed_cost_source": {
-      "notes": "Numbers based on 'High' case and installed costs for existing/retrofit scenario.",
-      "source_data": [{
-         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-         "author": "U.S. Energy Information Administration (EIA)",
-         "organization": "U.S. Energy Information Administration (EIA)",
-         "year": 2015,
-         "pages": {
-            "all residential": 37,
-            "all commercial": 103},
-         "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-    ...}
+.. <<< DOWNLOADABLE >>>
 
 
-Lifetime
-********
+.. _ecm-features-market-scaling-fractions:
 
-The lifetime of the ECM, or the expected amount of time that the ECM technology will last before requiring replacement, is specified using a structure identical to the installed cost. Again, the lifetime value, units, and source information must be specified for the corresponding keys. The units should always be in years, ideally as integer values greater than 0. Since thermoelastic heat pumps are not yet commercially available, the lifetime is estimated based on the range of lifetimes for central AC equipment given in the EIA AEO data for residential buildings. This assumption is described in the "notes" section of the source information. ::
+Market Scaling Fractions
+************************
+
+If an ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular building type, end use, fuel type, and technologies that are relevant, the market scaling fraction can be used to specify the fraction of the applicable baseline market that is truly applicable to that ECM. The market scaling fraction thus reduces the size of all or a portion of the applicable baseline market beyond what is achievable using only the baseline market fields. All scaling fraction values should be between greater than 0 and less than 1, where a value of 0.4, for example, indicates that 40% of the baseline market selected applies to that ECM.
+
+.. note::
+   When creating a new ECM, it is important to carefully specify the applicable baseline market to avoid the use of the market scaling fraction parameter, if at all possible.
+
+Since the scaling fraction is not derived from the EIA data used to provide a common baseline across all ECMs in Scout, source information must be provided, and it is especially important that the source information be correct and complete. The market scaling fraction source information should be supplied as a dict corresponding to a single source. If multiple values derived from multiple sources are reported, source information can be provided using the same nested dict structure as the scaling fractions themselves. The source field for the market scaling fraction has keys similar to those under the "source_data" key associated with other ECM data, but with an additional :ref:`json-fraction_derivation` key. The fraction derivation is a string that should include an explanation of how the scaling value(s) are calculated from the source(s) given.
+
+When :ref:`preparing the ECM for analysis <tuts-2>`, if a scaling fraction is specified, the source fields are automatically reviewed to ensure that either a) a "title," "author," "organization," and "year" are specified or b) a URL from an acceptable source [#]_ is provided. While these are the minimum requirements, the source information fields should be filled out as completely as possible. Additionally, the "fraction_derivation" field is checked for the presence of some explanatory text. If any of these required fields are missing, the ECM will not be included in the :ref:`prepared ECMs <tuts-2>`. 
+
+As an example, for a multi-function fuel-fired heat pump ECM for commercial building applications, if the system is to provide space heating and cooling and water heating services, it is most readily installed in a building that already has some non-electric energy supply. If it is assumed that any building with a non-electric heating system would be a viable installation target for this technology, market scaling fractions can be applied to restrict the baseline market to correspond with that assumption. ::
 
    {...
-    "product_lifetime": 14,
-    "product_lifetime_units": "years",
-    "product_lifetime_source": {
-      "notes": "Median of minimum and maximum lifetime listed for residential central AC equipment in 'rsclass.txt'.",
-      "source_data": [{
-         "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014", 
-         "author": "U.S. Energy Information Administration (EIA)",
-         "organization": "U.S. Energy Information Administration (EIA)",
-         "year": 2014,
-         "pages": 28,
-         "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"}]},
-    ...}
-
-
-Other Fields
-************
-
-Thermoelectric heat pumps would replace the service of existing heating and/or cooling systems, such as central AC systems, rooftop units (RTUs), or traditional vapor-compression cycle air-source heat pumps, thus this is a "full service" type ECM. Other ECMs, like sensors and controls, that augment the performance of heating and cooling, lighting, or other building system(s) are considered "add-on" type ECMs. ::
-
-   {...
-    "measure_type": "full service",
-    ...}
-
-Two keys are provided for ECM authors to provide additional details about the measure specified. The "_description" field describes briefly the technology or product described by the ECM, and the "_notes" field includes any explanatory notes regarding the technologies that the ECM can replace or any other notable assumptions regarding the ECM that are not already captured elsewhere in the definition. ::
-
-   "_description": "A heat pump that uses shape memory alloy (SMA) to absorb heat from, or reject heat to, the surroundings as the SMA is elongated or compressed.",
-   "_notes": "Assumed to be a drop-in replacement for existing residential and commercial electric heating/cooling systems.",
-
-Basic contact information regarding the author of a new ECM should be added to the fields under the "_added_by" key. ::
-
-   {...
-    "_added_by": {
-      "name": "Elaine Fairchilde",
-      "organization": "Make-Believe Engineering",
-      "email": "fairchildee@mb-engineering.com",
-      "timestamp": "2011-07-08 15:29:17 UTC"},
-    ...}
-
-.. Launch time of STS-135, final NASA Space Shuttle mission
-
-There is also an "_updated_by" key that follows the same structure as "_added_by" but should be left blank if the ECM is new. ::
-
-   {...
-    "_updated_by": {
-      "name": null,
-      "organization": null,
-      "email": null,
-      "timestamp": null},
-    ...}
-
-
-.. _example-ecm-2-optional-entries:
-
-"Optional" Entries
-******************
-
-In addition to the entries already presented that are expected in any new ECM definition, there are several additional fields that must be included, but can be specified as ``null`` or used to further customize the ECM.
-
-If the ECM is to include fuel switching, the fuel type of the ECM itself would be specified under the "fuel_switch_to" key. The fuel type strings used should match those used in the fuel type in the applicable baseline market. Though it would be possible to include fuel switching in the definition for thermoelastic heat pumps, it is being excluded in this case. If it were in use, the value would be "electricity." ::
-
-   {...
-    "fuel_switch_to": null,
-    ...}
-
-After using the "technology" keys to specify the technologies that an ECM can replace, it might be appropriate to specify a value that further reduces the size of the applicable baseline market accessed by an ECM. For thermoelastic heat pumps in residential buildings, the heat pump can only replace the energy use of the entire heating and cooling system if it is either a) already a heat pump system or b) has central AC and an electric heating system of some type. To restrict the ECM to only the portion of homes that have central AC and electric heating, a scaling fraction is calculated using EIA data and applied specifically to the "central AC" portion of the applicable baseline market.
-
-Since the scaling fraction is not derived from the EIA data used to provide a common baseline across all ECMs in Scout, it is especially important that the source information be correct and complete. When reading the ECM, if a scaling fraction is specified, the source fields are reviewed to ensure that either a) a "title," "author," "organization," and "year" are specified or b) a URL from an acceptable source [#]_ is provided. Additionally, the "fraction_derivation" field, which should include an explanation of how the fraction provided was calculated, must also be specified. If any of these required fields are missing, the ECM will not be :ref:`prepared for analysis <tuts-2>`. Always ensure that the information in the source, including the "fraction_derivation" is sufficiently detailed that the scaling fraction can be re-derived. ::
-
-   {...
-    "market_scaling_fractions": {"central AC": 0.356},
+    "market_scaling_fractions": {
+      "cooling": 0.53,
+      "water heating": 0.53},
     "market_scaling_fractions_source": {
-      "central AC": {
-         "title": "RECS 2009",
-         "author": "U.S. Energy Information Administration (EIA)",
-         "organization": "U.S. Energy Information Administration (EIA)",
-         "year": "2009",
-         "pages": null,
-         "URL": "https://www.eia.gov/consumption/residential/data/2009/index.cfm?view=microdata",
-         "fraction_derivation": "14,942,604 total residential cooled sq.ft. filtered for electric heating"}},
+      "title": "2012 Commercial Buildings Energy Consumption Survey (CBECS) Public Use Microdata",
+      "author": "U.S. Energy Information Administration (EIA)",
+      "organization": "",
+      "year": "2016",
+      "URL": "http://www.eia.gov/consumption/commercial/data/2012/index.php?view=microdata",
+      "fraction_derivation": "Assuming that only buildings with natural gas or propane heating can be retrofitted with a multi-function fuel-fired heat pump, 53.1% of commercial building floor space in CBECS is from buildings with natural gas or propane primary heating systems."},
     ...}
 
-Additional discussion regarding the use of the market scaling fraction can be found in the :ref:`first example ECM <example-ecm-1-optional-entries>`.
+As shown in the example, if the ECM applies to multiple building types, climate zones, or technologies, for example, different scaling fraction values can be supplied for some or all of the baseline market. The method for specifying multiple scaling fraction values is similar to that outlined in the :ref:`ecm-features-detailed-input` sub-section. This detailed breakdown of the market scaling fraction can only include keys that are included in the applicable baseline market. For example, if the applicable baseline market includes only residential buildings, no commercial building types should appear in the market scaling fraction breakdown. If all residential buildings are in the applicable baseline market, however, the market scaling fractions can be separately specified for each residential building type.
 
-.. _ecm-feature-distributions:
+The automated fault detection and diagnosis (AFDD) ECM available for :download:`download <examples/AFDD (Prospective).json>` illustrates the use of the market scaling fraction to limit the applicability of the ECM to only buildings with building automation systems (BAS), since that is a prerequisite for the implementation of the AFDD technology described in the ECM.
+
+
+.. _ecm-features-measure-type:
+
+Add-on Type ECMs
+****************
+
+Technologies that affect the operation of or augment the efficiency of the existing components of a building must be defined differently in an ECM than technologies that replace a building component. Examples include sensors and control systems, window films, and daylighting systems. These technologies improve or affect the operation of another building system -- HVAC or other building equipment, windows, and lighting, respectively -- but do not replace those building systems.
+
+For these technologies, several of the fields of the ECM must be configured slightly differently. First, the applicable baseline market should be set for the end uses and technologies that are affected by the technology, not those that describe the technology. For example, an automated fault detection and diagnosis (AFDD) system that affects heating and cooling systems should have the end uses "heating" and "cooling," not some type of electronics or miscellaneous electric load (MEL) end use. Second, the energy efficiency values should have :ref:`relative savings <ecm-features-relative-savings>`  units and the installed cost units should match those specified in the :ref:`ECM Definition Reference <ecm-installed-cost-units>`, noting that they are different for sensors and controls ECMs. Finally, the :ref:`json-measure_type` field should have the value ``"add-on"`` instead of ``"full service"``.
+
+A plug-and-play sensors ECM available to :download:`download <examples/Plug-and-Play Sensors (Prospective).json>` to illustrate the use of the "add-on" ECM type.
+
+.. <<< DOWNLOADABLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
+
+
+.. _ecm-features-multiple-fuel-types:
+
+Multiple Fuel Types
+*******************
+
+Some technologies, especially those that serve multiple end uses, might yield much greater energy savings if they are permitted to supplant technologies with different fuel types. Heat pumps, for example, can provide heating and cooling using a single fuel type (typically electricity), but could replace an HVAC system that uses different fuels for heating and cooling. The :ref:`json-fuel_switch_to` field, used in conjunction with the :ref:`json-fuel_type` field in the baseline market enables ECMs that serve multiple end uses and could replace technologies with various fuel types.
+
+To configure these ECMs, the :ref:`json-fuel_type` field should be populated with a list of the fuel types that, for the applicable end uses, are able to be supplanted by the technology described by the ECM. The :ref:`json-fuel_switch_to` field should be set to the string for the fuel type of the technology itself. For example, an ECM that describes a natural gas-fired heat pump might be able to replace technologies that use electricity, natural gas, or distillate fuels. ::
+
+   {...
+    "fuel_type": ["electricity", "natural gas", "distillate"],
+    ...
+    "fuel_switch_to": "natural gas",
+    ...}
+
+.. <<< DOWNLOADABLE >>>
+
+
+.. _ecm-features-distributions:
 
 Probability Distributions
-~~~~~~~~~~~~~~~~~~~~~~~~~
+*************************
 
 Probability distributions can be added to the installed cost, energy efficiency, and lifetime specified for ECMs to represent uncertainty or known, quantified variability in one or more of those values. In a single ECM, a probability distribution can be applied to any one or more of these parameters. Probability distributions cannot be specified for any other parameters in an ECM, such as the market entry or exit years, market scaling fractions, or to either the energy savings increase or cost reduction parameters in :ref:`package ECMs <package-ecms>`. 
 
 Where permitted, probability distributions are specified using a list. The first entry in the list identifies the desired distribution. Subsequent entries in the list correspond to the required and optional parameters that define that distribution type, according to the `numpy.random module documentation`_, excluding the optional "size" parameter. [#]_ The |supported-distributions| distributions are currently supported. (Note that the normal and log-normal distributions' scale parameter is standard deviation, not variance.)
 
 .. _numpy.random module documentation: https://docs.scipy.org/doc/numpy/reference/routines.random.html
-
 
 For a given ECM, if the installed cost is known to vary uniformly between 1585 and 2230 $/unit, that range can be specified with a probability distribution. ::
 
@@ -542,14 +688,20 @@ Probability distributions can be specified in any location in the energy efficie
       "water heating": 1.15},
     ...}
 
+An ENERGY STAR LED bulbs ECM is available for :download:`download <examples/ENERGY STAR LED Bulbs v. 1.2 c. 2012.json>` to illustrate the use of probability distributions, in that case, on installed cost and product lifetime.
+
+
 .. _editing-ecms:
 
 Editing existing ECMs
 ~~~~~~~~~~~~~~~~~~~~~
 
-All of the ECM definitions are stored in the "ecm_definitions" folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following :ref:`Tutorial 2 <tuts-2>`.
+All of the ECM definitions are stored in the "ecm_definitions" folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
 
-Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well, as no two ECMs can share the same file name or name given in the JSON.
+Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well. 
+
+.. tip::
+   No two ECMs can share the same file name *or* name given in the JSON.
 
 
 .. _package-ecms:
@@ -719,13 +871,17 @@ The Reduce Infiltration ECM similarly shows a gap between the uncompeted baselin
 
 .. _associative arrays: https://en.wikipedia.org/wiki/Associative_array
 .. _Python dictionaries: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
+.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
+.. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=5-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
 
 .. REPLACE DICTONARIES LINK WITH SPHINX-LIKE REFERENCE
 
 .. rubric:: Footnotes
 
 .. [#] These key-value pairs enclosed with curly braces are called `associative arrays`_, and JSON files use syntax for these arrays that is similar to `Python dictionaries`_.
+.. [#] The end uses also largely correspond to the residential__ and commercial__ end uses specified in the AEO.
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
+.. [#] The "applicable baseline market" is comprised of the |baseline-market| fields.
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
 .. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
 .. [#] If the warning "there is no package called 'rjson'" appears in the R Console window, try running the script again. If the warning is repeated, the rjson package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select "rjson" from the list of packages that appears. On a Mac, search in the list for "rjson," click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.

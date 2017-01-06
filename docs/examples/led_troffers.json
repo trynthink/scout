@@ -8,7 +8,7 @@
   "technology": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": "",
+    "notes": "The source suggests that technologies described in the document are available on the market by its release date.",
     "source_data": [{
        "title": "High Efficiency Troffer Performance Specification, Version 5.0",
        "author": "",
@@ -21,13 +21,13 @@
   "energy_efficiency": 120,
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
-    "notes": "Augmented by data from the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
+    "notes": "Initial efficiency value taken from source section II.a.2.a. Efficiency value increased slightly based on efficacy values for fixtures categorized as '2x4 Luminaires for Ambient Lighting of Interior Commercial Spaces' in the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
     "source_data": [{
        "title": "High Efficiency Troffer Performance Specification, Version 5.0",
        "author": "",
        "organization": "U.S. Department of Energy",
        "year": 2015,
-       "pages": null,
+       "pages": 5,
        "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
   "installed_cost": 233.33,
   "cost_units": "$/1000 lm",
@@ -43,13 +43,13 @@
   "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Calculated from 68,000 hrs assuming 12 hr/day operation.",
+    "notes": "Calculated from 68,000 hrs, stated as item II.c.i, assuming 12 hr/day operation.",
     "source_data": [{
        "title": "High Efficiency Troffer Performance Specification, Version 5.0",
        "author": "",
        "organization": "U.S. Department of Energy",
        "year": 2015,
-       "pages": null,
+       "pages": 5,
        "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
   "measure_type": "full service",
   "market_scaling_fractions": null,

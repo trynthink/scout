@@ -1,0 +1,89 @@
+{
+  "name": "Plug-and-Play Sensors (Prospective)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "all",
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Based on BTO target for short-term market introduction (next 3-5 years)",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.10,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Based on typical relative savings range of 5%-30%",
+    "source_data": [{
+      "title": "iPower: An Energy Conservation System for Intelligent Buildings by Wireless Sensor Networks", 
+      "author": "Yeh et al",
+      "organization": "National Chiao-Tung University, Taiwan",
+      "year": 2007,
+      "pages": [2, 10],
+      "URL": "http://people.cs.nctu.edu.tw/~yctseng/papers.pub/sensor-ipower-ijsnet.pdf"},
+      {
+      "title": "A Wireless Sensor Network for Intelligent Building Energy Management Based on Multi Communication Standards - A Case Study",
+      "author": "Grindvoll et al.",
+      "organization": "SINTEF ITC",
+      "year": 2012,
+      "pages": [43, 62],
+      "URL": "http://www.itcon.org/data/works/att/2012_3.content.00598.pdf"
+      },
+      {
+      "title": "A Review of Wireless-Sensor-Network-Enabled Building Energy Management Systems",
+      "author": "Kazmi et al.",
+      "organization": "National University of Ireland",
+      "year": 2014,
+      "pages": [2, 43],
+      "URL": "https://www.researchgate.net/publication/260135187_A_Review_of_Wireless_Sensor_Network_Enabled_Building_Energy_Management_Systems"
+      }]},
+  "installed_cost": 300,
+  "cost_units": "2016$/node",
+  "installed_cost_source":{
+    "notes": "BTO Prioritization Tool analysis assuming 10% overall energy savings and 1 year payback threshold",
+    "source_data": {
+      "title": "A Tool to Prioritize Energy Efficiency Investments",
+      "author": "Farese et al.",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2012,
+      "pages": null,
+      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Based on assumption that network lifetime is driven by lifetime of single nodes",
+    "source_data": [{
+      "title": "On the Lifetime of Wireless Sensor Networks",
+      "author": "Dietrich, I. and Dressler F.",
+      "organization": "University of Erlagen",
+      "year": 2009,
+      "pages": [1, 38],
+      "URL": "http://www.ccs-labs.org/bib/dietrich2009lifetime/dietrich2009lifetime.pdf"},
+      {
+      "title": "Energy Aware Routing for Low Energy Ad Hoc Sensor Networks",
+      "author": "Shah, R.C. and Rabaey, J.M.",
+      "organization": "University of California, Berkeley",
+      "year": 2002,
+      "pages": null,
+      "URL": "https://classes.soe.ucsc.edu/cmpe259/Winter05/papers/wcnc.rahul.pdf"}]},
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Multi-functional wireless sensing node packages with plug-and-play functionality",
+  "_notes": "Energy savings percentages are reported in the literature for whole building energy, though such sensing packages typically only affect HVAC, lighting, and plug loads",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2017-01-04 15:33:48 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

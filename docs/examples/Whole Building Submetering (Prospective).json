@@ -1,0 +1,68 @@
+{
+  "name": "Whole Building Submetering (Prospective)",
+  "climate_zone": "all",
+  "bldg_type": ["multi family home", "all commercial"],
+  "structure_type": "all",
+  "end_use": "all",
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Based on BTO target for short-term market introduction (3-5 years)",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.02,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "note": "Based on typical relative overall savings range of 0%-2% for sub-meters installation in Table 3.2 of source below",
+    "source_data": [{
+      "title": "Metering Best Practices: A Guide to Achieving Utility Resource Efficiency",
+      "author": "Sullivan et al.",
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2011,
+      "pages": null,
+      "URL": "http://energy.gov/sites/prod/files/2013/10/f3/mbpg.pdf"}]},
+  "installed_cost": {
+    "multi family home": 0.02,
+    "all commercial": 0.03},
+  "cost_units": "2016$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "BTO Prioritization Tool analysis assuming 2% overall energy savings and 1 year payback threshold",
+    "source_data": {
+      "title": "A Tool to Prioritize Energy Efficiency Investments",
+      "author": "Farese et al.",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2012,
+      "pages": null,
+      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "See life cycle assumptions in source below, p. 3.17",
+    "source_data": [{
+      "title": "Metering Best Practices: A Guide to Achieving Utility Resource Efficiency",
+      "author": "Sullivan et al.",
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2011,
+      "pages": null,
+      "URL": "http://energy.gov/sites/prod/files/2013/10/f3/mbpg.pdf"}]},
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Pervasive and granular sub-metering system such that all equipment and plug loads are being metered with sufficient accuracy for unique identification",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2017-01-04 15:47:12 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

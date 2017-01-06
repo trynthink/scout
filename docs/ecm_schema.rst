@@ -1,3 +1,5 @@
+.. _json-schema:
+
 ECM JSON Schema
 ===============
 
