@@ -22,7 +22,7 @@ name
 * **Children:** none
 * **Type:** string
 
-A descriptive name of the technology defined in the ECM. If possible, the name length should be kept to under 55 characters including spaces. ::
+A descriptive name of the technology defined in the ECM. If possible, the name length should be kept to under 55 characters including spaces. The name should not be shared with any other ECM. ::
 
    {...
     "name": "Residential Natural Gas HPWH",
@@ -75,7 +75,7 @@ The structure type indicates whether the technology described by the ECM is suit
 
 .. tip::
 
-   If the ECM technology can be applied to both new construction and existing buildings but with differing energy performance, installed costs, and/or service life, those differing values should be specified explicitly in the :ref:`json-energy_efficiency`, :ref:`json-installed_cost`, and/or :ref:`json-product_lifetime` fields.
+   If the ECM technology can be applied to both new construction and existing buildings but with differing energy performance, installed costs, and/or service life, those differing values should be specified explicitly in the :ref:`json-energy_efficiency`, :ref:`json-installed_cost`, and/or :ref:`json-product_lifetime` fields. This specification method is explained in the :ref:`ecm-features-detailed-input` section.
 
 .. _json-fuel_type:
 
@@ -86,7 +86,7 @@ fuel_type
 * **Children:** none
 * **Type:** string, list
 
-The fuel type(s) should correspond to the energy source(s) used by the technology described in the ECM, and can be specified as a string for a single fuel type or as a list to include multiple fuel types. The fuel type(s) should be drawn from the list of valid fuel types. ::
+The fuel type(s) should correspond to the energy source(s) used by the technology described in the ECM, and can be specified as a string for a single fuel type or as a list to include multiple fuel types. The fuel type(s) should be drawn from the :ref:`list of valid fuel types <ecm-baseline_fuel-type>`. ::
 
    {...
     "fuel_type": "electricity",
@@ -98,7 +98,7 @@ The fuel type(s) should correspond to the energy source(s) used by the technolog
 
 .. tip::
 
-   If :ref:`fuel switching <json-fuel_switch_to>` is included in the ECM definition, then the fuel types listed should include all fuel types corresponding to equipment or technologies that can be supplanted by the technology described in the ECM.
+   If :ref:`fuel switching <json-fuel_switch_to>` is included in the ECM definition, then the fuel types listed should include all fuel types corresponding to equipment or technologies that can be supplanted by the technology described in the ECM. Further information about using the :ref:`json-fuel_switch_to` field is in the :ref:`ecm-features-multiple-fuel-types` section.
 
 .. _json-end_use:
 
@@ -221,7 +221,7 @@ The energy efficiency value(s) define the energy performance of the technology b
     "energy_efficiency": 2.8,
     ...}
 
-If it is appropriate for the technology described by the ECM, the energy efficiency can be specified more precisely using one or more of the optional child fields. The values should then be reported in a dict where the keys correspond to the applicable child fields. If multiple levels of specificity are desired, the hierarchy of the nested keys can be chosen for convenience. ::
+If it is appropriate for the technology described by the ECM, the energy efficiency can be specified more precisely using one or more of the optional child fields. The values should then be reported in a dict where the keys correspond to the applicable child fields. If multiple levels of specificity are desired, the hierarchy of the nested keys can be chosen for convenience. Additional information regarding this specification method can be found in the :ref:`ecm-features-detailed-input` section. ::
 
    {...
     "energy_efficiency": {
@@ -286,6 +286,8 @@ In cases where the energy efficiency is specified with one or more of the option
          "small office": "BTU out/BTU in"}},
     ...}
 
+Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, using EnergyPlus data, explained in the :ref:`ecm-features-energyplus` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
+
 .. _json-energy_efficiency_source:
 
 energy_efficiency_source
@@ -332,7 +334,7 @@ Since installation costs can vary by building type (implicitly by building squar
       "all commercial": 10},
     ...}
 
-The installed costs can be specified with detail beyond what is shown using the additional optional child field types, as illustrated for the :ref:`json-energy_efficiency` field. The order of the hierarchy for the child fields is at the user's discretion.
+The installed costs can be specified with detail beyond what is shown using the additional optional child field types, as illustrated for the :ref:`json-energy_efficiency` field. The order of the hierarchy for the child fields is at the user's discretion. Further information about detailed structures for specifying the installed cost is in the :ref:`ecm-features-detailed-input` section.
 
 .. _json-cost_units:
 
@@ -397,7 +399,7 @@ The product lifetime is the expected usable life of the technology described by 
     "product_lifetime": 3,
     ...}
 
-The product lifetime can be specified by building type, if appropriate for the ECM. The building types are the keys in the lifetime dict and should match the types listed in the :ref:`json-bldg_type` field. ::
+The product lifetime can be specified by building type, if appropriate for the ECM. The building types are the keys in the lifetime dict and should match the types listed in the :ref:`json-bldg_type` field. Additional information regarding this specification method can be found in the :ref:`ecm-features-detailed-input` section. ::
 
    {...
     "product_lifetime": {
@@ -453,7 +455,7 @@ measure_type
 * **Children:** none
 * **Type:** string
 
-This field is used to specify whether the technology described by the ECM could be substituted for a component already installed in buildings, such as an electric cold-climate heat pump being substituted for an electric furnace and central AC system, or enhance the performance of an existing component, such as a window film applied to an existing window or an HVAC controls system that improves the performance of existing HVAC equipment. The measure type is then either ``"full service"`` or ``"add-on"``, respectively. ::
+This field is used to specify whether the technology described by the ECM could be substituted for a component already installed in buildings, such as an electric cold-climate heat pump being substituted for an electric furnace and central AC system, or enhance the performance of an existing component, such as a window film applied to an existing window or an HVAC controls system that improves the performance of existing HVAC equipment. The measure type is then either ``"full service"`` or ``"add-on"``, respectively. Supplementary information and illustrative examples of the use of this field are available in the :ref:`ecm-features-measure-type` section. ::
 
    {...
     "measure_type": "full service",
@@ -468,7 +470,7 @@ fuel_switch_to
 * **Children:** none
 * **Type:** string, list
 
-If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this filed can be given as ``null``. ::
+If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this filed can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
 
    {...
     "fuel_switch_to": "natural gas",
@@ -496,6 +498,8 @@ Market scaling fractions can be separately specified using the optional child fi
       "all residential": 0.54,
       "all commercial": 0.36},
     ...}
+
+Further information regarding the use of market scaling fractions is in the :ref:`ecm-features-market-scaling-fractions` section.
 
 .. _json-market_scaling_fractions_source:
 
@@ -792,4 +796,4 @@ The date and time at which the relevant changes were completed. The entry should
 
 .. rubric:: Footnotes
 
-.. [#] The applicable baseline market is comprised of the :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-structure_type`, :ref:`json-end_use`, :ref:`json-fuel_type`, and :ref:`json-technology` fields.
+.. [#] The applicable baseline market is comprised of the |baseline-market| fields.
