@@ -190,6 +190,8 @@ For the example of LED troffers, all lighting data should be provided in the uni
 Many additional options exist that enable more complex definitions of energy efficiency, such as incorporating :ref:`probability distributions <ecm-features-distributions>`, providing a :ref:`detailed efficiency breakdown <ecm-features-detailed-input>` by elements of the applicable baseline market, using :ref:`EnergyPlus simulation data <ecm-features-energyplus>`, and using :ref:`relative instead of absolute units <ecm-features-relative-savings>`. Detailed examples for all of the options is in the :ref:`ecm-features` section.
 
 
+.. _first-ecm-installed-cost:
+
 Installed Cost
 **************
 

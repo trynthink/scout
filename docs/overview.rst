@@ -26,9 +26,13 @@ Results specify U.S. energy, |CO2|, and cost savings
    * primary energy savings (in quadrillion Btus),
    * avoided |CO2| emissions (in million metric tons),
    * operational cost savings, and
-   * per unit cost effectiveness, expressed by multiple financial metrics including internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved carbon (CCC) (add link to definitions of these terms).
+   * per unit cost effectiveness, expressed by multiple financial metrics including `internal rate of return (IRR)`_, `simple payback`_, `cost of conserved energy (CCE)`_, and cost of conserved carbon (CCC) (conceptually equivalent to CCE, but should be compared with |CO2| prices).
 
 * Results may be aggregated across multiple ECMs and filtered by variables such as climate zone, building type/vintage, and end use.
+
+.. _internal rate of return (IRR): https://docs.scipy.org/doc/numpy/reference/generated/numpy.irr.html
+.. _simple payback: https://beopt.nrel.gov/sites/beopt.nrel.gov/files/help/Simple_Payback.htm
+.. _cost of conserved energy (CCE): https://eetd.lbl.gov/ee/price-graphic.html
 
 .. _overview-ecms:
 
@@ -37,7 +41,7 @@ Scout ECMs and their baseline markets
 
 * ECMs represent building technologies or operational approaches that improve upon the unit efficiency and/or lifetime operational costs of the comparable incumbent or “business-as-usual” technology or approach.
 * :ref:`ECMs are characterized <analysis-step-1>` by their energy efficiency, installed cost, lifetime, and applicable baseline markets; whether they add-on to or fully replace the service of a “business-as-usual” technology; whether they involve fuel switching; and their year of market entry and exit.
-* The applicable baseline market for an ECM enumerates all of the climate zones, building types, end uses, fuel types, and, if applicable, technologies (add links) that are relevant to an ECM.
+* The :ref:`applicable baseline market <ecm-applicable-baseline-market>` for an ECM enumerates all of the :ref:`climate zones <json-climate_zone>`, :ref:`building types <json-bldg_type>`, :ref:`structure types <json-structure_type>`, :ref:`end uses <json-end_use>`, :ref:`fuel types <json-fuel_type>`, and :ref:`technologies <json-technology>` that are relevant to an ECM.
 * ECM definitions can include distinct cost, efficiency, and lifetime values for each climate zone, building type, fuel type, end use, and/or technology type; probability distributions may also be placed on ECM cost, efficiency, and lifetime inputs.
 
 .. _overview-adoption:

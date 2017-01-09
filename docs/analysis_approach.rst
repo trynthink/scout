@@ -67,7 +67,7 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 
 * Installed cost
 
-   * Product or technology installed cost must be specified in absolute (not incremental) terms (add link to more detailed explanation).
+   * Product or technology :ref:`installed cost <first-ecm-installed-cost>` should be specified in absolute (not incremental) terms.
    * Cost units vary by building sector and technology type, as specified in the :ref:`ECM Definition Reference <ecm-installed-cost-units>`.
 
 * Lifetime
@@ -112,7 +112,7 @@ Finalizing ECM efficiency input via EnergyPlus/OpenStudio
 Calculating total baseline energy, |CO2|, and cost (uncompeted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a _`2010-2040 projection` of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case` simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE (add link to more detailed description).
+   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a _`2010-2040 projection` of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case` simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE.
 
       * Baseline stock data represent the total number of units of a certain incumbent or "business-as-usual" technology associated with a given baseline market and year in the projection period. An example is the number of air-source heat pump units in all existing single family homes in mixed dry climates in the year 2020. When a number of units value is not available or not applicable for a baseline market, such as for building envelope component technologies, total building floor area square footage associated with that baseline market and year is used to quantify the baseline stock.
       * Baseline energy use data represent the total energy use attributed to a certain baseline market and year in the projection period. For example, the energy used to provide heating in all existing single family homes in mixed dry climates in the year 2031.
@@ -127,6 +127,7 @@ Calculating total baseline energy, |CO2|, and cost (uncompeted)
 .. _stocks-and-flows: https://en.wikipedia.org/wiki/Stock_and_flow
 .. _Social Cost of Carbon: https://www.whitehouse.gov/sites/default/files/omb/inforeg/scc_tsd_final_clean_8_26_16.pdf
 
+.. ADD LINK TO FIRST BULLET IN THIS SECTION WITH FURTHER DETAILS REGARDING THE DEVELOPMENT OF ORIGINAL DATASETS TO AUGMENT THE AEO DATA
 .. ADD LINK TO THE JSON FILE ONCE IT IS ADDED TO THE REPO
 
 Calculating total efficient energy, |CO2|, and cost (uncompeted)
@@ -205,10 +206,12 @@ Competing ECMs and updating savings and financial metrics
 * ECMs with overlaps in their applicable baseline markets compete for the overlapping portions of these markets on the basis of their cost effectiveness from a consumer perspective. In general, ECMs with lower incremental capital costs and higher operational cost savings across their lifetimes capture larger portions of the overlapping baseline markets.
 * For example, R-5, R-7, or R-10 window ECMs could each replace the same "business-as-usual" window technology. The initial savings impacts calculated for each of these ECMs will be based on the entire applicable baseline market. Those savings impacts must be scaled by the share of the baseline window market each ECM is modeled as capturing to avoid double counting of savings. Assuming the R-7 window is most cost effective and R-10 is least cost effective, the market shares might be 35%, R-5; 45%, R-7; and 20%, R-10.
 * This use of market shares to reflect ECM competition ensures that competing ECMs with similar levels of cost effectiveness will have similar savings impacts after adjusting for competition.
-* In general, ECM competition calculations in Scout weigh an ECM's annualized capital and operating costs against the capital and operating costs for competing ECMs to determine each ECM's competed market share. However, the specific calculation steps differ somewhat between the residential and commercial building sectors (add link to competition calculation details for residential and commercial).
+* In general, ECM competition calculations in Scout weigh an ECM's annualized capital and operating costs against the capital and operating costs for competing ECMs to determine each ECM's competed market share. However, the specific calculation steps differ somewhat between the residential and commercial building sectors.
 * Once ECM market shares are determined, uncompeted ECM savings impact estimates are multiplied by these market shares to arrive at competed ECM energy savings, avoided |CO2| emissions, and operating cost savings impacts. 
 * For heating and cooling ECMs, a post-competition calculation is needed to ensure that total supply-side heating/cooling energy use (e.g., as consumed by a heat pump, or furnace) equals total demand-side heating/cooling energy use (e.g., that attributable to heat transfer through the envelope and other thermal load components). 
 * Competed ECM savings impacts are used to calculate competed portfolio-level financial metrics (CCE, CCC). This calculation proceeds exactly as described earlier for uncompeted portfolio-level metrics, but with total savings impacts numbers adjusted to reflect ECM competition outcomes.
+
+.. IN BULLET 4, ADD LINK TO COMPETITION CALCULATION DETAILS FOR RESIDENTIAL AND COMMERCIAL
 
 ECM-specific results from the analysis of the portfolio of ECMs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
