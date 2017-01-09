@@ -22,7 +22,7 @@ If you already have the :ref:`prerequisites <qs-prerequisites-list>` for Scout i
 
 .. _qs-setup:
 
-Initial Setup
+Initial setup
 -------------
 
 Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software.
@@ -126,7 +126,7 @@ Once installed, Package Control is opened via the Command Palette (Tools > Comma
 
 We will use Package Control to install the additional features needed for checking Python files. 
 
-3. Install SublimeLinter Prerequisites
+3. Install SublimeLinter prerequisites
 **************************************
 
 Before proceeding further, open a Terminal window and at the command prompt, use pip3 to install the pep8 and pyflakes packages::
@@ -139,12 +139,12 @@ Before proceeding further, open a Terminal window and at the command prompt, use
 
 Return to Sublime Text and open Package Control using the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P). Begin typing "Package Control: Install Package" in the Command Palette and click that option once it appears in the list. (Arrow keys can also be used to move up and down in the list.) In the search field that appears, begin typing "SublimeLinter" and click the package when it appears in the list to install the package. If installation was successful for this (or any other) package, the package name will appear in Preferences > Package Settings.
 
-5. Install Specific Code Linters
+5. Install specific code linters
 ********************************
 
 Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
 
-6. Configure Python Syntax-specific Preferences
+6. Configure Python syntax-specific preferences
 ***********************************************
 
 Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." ("asdf.py" will be deleted later.) Open the Python syntax-specific settings (Sublime Text > Preferences > Settings – Syntax Specific) and between the braces, paste::

@@ -23,7 +23,7 @@ In some parts of the definition of an ECM, specific values must be entered for t
 
 .. _ecm-applicable-baseline-market:
 
-Applicable Baseline Market Options
+Applicable baseline market options
 ----------------------------------
 
 For each of the keys in the applicable baseline market definition, only specific entries are expected and allowable. This section outlines those acceptable entries for each of the keys.
@@ -32,7 +32,7 @@ For some keys, there are shorthand summary values that can be used when all or a
 
 .. _ecm-baseline_climate-zone:
 
-Climate Zone
+Climate zone
 ~~~~~~~~~~~~
 
 |tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| AIA_CZ3 |chunk-b| AIA Climate Zone 3 |close|, |tooltip| AIA_CZ4 |chunk-b| AIA Climate Zone 4 |close|, |tooltip| AIA_CZ5 |chunk-b| AIA Climate Zone 5 |close|; all
@@ -43,7 +43,7 @@ Climate Zone
 
 .. _ecm-baseline_building-type:
 
-Building Type
+Building type
 ~~~~~~~~~~~~~
 
 **Residential:** single family home, multi family home, mobile home; all residential
@@ -56,14 +56,14 @@ Building Type
 
 .. _ecm-baseline_structure-type:
 
-Structure Type
+Structure type
 ~~~~~~~~~~~~~~
 
 new, existing; all
 
 .. _ecm-baseline_fuel-type:
 
-Fuel Type
+Fuel type
 ~~~~~~~~~
 
 **Residential:** electricity, natural gas, distillate, other fuel; all
@@ -72,7 +72,7 @@ Fuel Type
 
 .. _ecm-baseline_end-use:
 
-End Use
+End use
 ~~~~~~~
 
 The end use names appear verbatim in the first column of the tables for residential and commercial buildings.
@@ -308,7 +308,7 @@ roof, wall, ground, floor, infiltration, ventilation, windows conduction, window
 .. _ecm-performance-units:
 .. _ecm-energy-efficiency-units:
 
-Energy Efficiency Units
+Energy efficiency units
 -----------------------
 
 **Residential -- Equipment (Supply)**
@@ -373,7 +373,7 @@ Energy Efficiency Units
 
 .. _ecm-installed-cost-units:
 
-Installed Cost Units
+Installed cost units
 --------------------
 
 **Residential -- Equipment (Supply)**
@@ -403,7 +403,7 @@ Installed Cost Units
 
 .. _json-schema:
 
-ECM JSON Schema
+ECM JSON schema
 ---------------
 
 This section outlines the elements of a JSON file that defines an energy conservation measure (ECM) -- a technology included for analysis with Scout. More details about ECMs can be found in the :ref:`Analysis Approach <analysis-step-1>` and :ref:`Tutorial 1 <tuts-1>` sections.

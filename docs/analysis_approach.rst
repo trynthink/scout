@@ -182,7 +182,7 @@ Step 3: Simulate ECM impact
 The final step, contained in the "run.py" module, calculates each ECM's total energy savings, avoided |CO2| emissions, and operating cost savings impacts based on the total uncompeted energy use, |CO2| emissions, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Cost savings impacts are used to calculate per-unit financial metrics for the ECMs. Here, both competed and uncompeted ECM impacts and financial metrics are calculated. 
 
 Calculating uncompeted ECM energy savings and financial metrics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Uncompeted ECM energy savings, avoided |CO2| emissions, and operating cost savings impacts are calculated by subtracting the total uncompeted efficient energy, |CO2|, and operating costs calculated in :ref:`step 2 <analysis-step-2>` from total uncompeted baseline energy, |CO2|, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Note that each of these total figures are calculated for technical potential and maximum adoption potential scenarios, and therefore ECM impacts and financial metrics are also described in terms of these scenarios.
 

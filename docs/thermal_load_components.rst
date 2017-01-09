@@ -24,8 +24,8 @@ Thermal load components data are drawn in large part from two simulation studies
 
 .. _tlcomponents_derivation:
 
-Deriving Heating & Cooling Load Components
-------------------------------------------
+Deriving heating and cooling load components
+--------------------------------------------
 
 The residential and commercial building thermal load component values are derived from the data in the simulation study publications.
 

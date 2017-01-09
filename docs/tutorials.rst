@@ -56,7 +56,7 @@ We will use these formatting guidelines to write new ECMs.
 
 .. _example-ecm-1:
 
-Your First ECM Definition
+Your first ECM definition
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section. For all of the fields in the ECM definition, details regarding acceptable values, structure, and formatting are provided in the :ref:`ECM JSON schema <json-schema>`.
@@ -77,7 +77,7 @@ To begin, the ECM should be given a short, but descriptive name. Details regardi
        ...}
 
 
-Applicable Baseline Market
+Applicable baseline market
 **************************
 
 The applicable baseline market parameters specify the climate zones, building types, structure types, end uses, fuel types, and specific technologies for the ECM. 
@@ -137,7 +137,7 @@ For this example, LED troffers are likely to replace linear fluorescent bulbs, t
 .. _AEO: https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf
 
 
-Market Entry and Exit Year
+Market entry and exit year
 **************************
 
 The market entry year represents the year the technology is or will be available for purchase and installation. Some ECMs might be prospective, representing technologies not currently available. Others might represent technologies currently commercially available. The market entry year should reflect the current status of the technology described in the ECM. Similarly, the market exit year represents the year the technology is expected to be withdrawn from the market. If the technology described by an ECM will have a lower installed cost or improved energy efficiency after its initial market entry, another ECM should be created that reflects the improved version of the product, and the market exit year should not (in general) be used to force an older technology out of the market.
@@ -162,7 +162,7 @@ LED troffers are currently commercially available with a range of efficiency, co
     ...}
 
 
-Energy Efficiency
+Energy efficiency
 *****************
 
 The energy efficiency of the ECM must be specified in three parts: the quantitative efficiency (only the value(s)), the units of the efficiency value(s) provided, and source(s) that support the indicated efficiency information. Each of these parameters is specified in a separate field. 
@@ -192,7 +192,7 @@ Many additional options exist that enable more complex definitions of energy eff
 
 .. _first-ecm-installed-cost:
 
-Installed Cost
+Installed cost
 **************
 
 The absolute installed cost must be specified for the ECM, including the cost value, units, and reference source. The cost units should be specified according to :ref:`the relevant section <ecm-installed-cost-units>` of the :ref:`ecm-def-reference`, noting that residential and commercial equipment have different units, and that sensors and controls ECMs also have different units from other equipment types. The source information should be provided using the same keys and structure as the energy efficiency source. For ECMs that describe technologies not yet commercialized, assumptions incorporated into the installed cost estimate should be described in the :ref:`json-notes` section of the source.
@@ -240,7 +240,7 @@ LED troffers have rated lifetimes on the order of 50,000 hours, though the `High
 .. _High Efficiency Troffer Performance Specification: https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf
 
 
-Other Fields
+Other fields
 ************
 
 The :ref:`json-measure_type` field indicates whether an ECM directly replaces the service of an existing device or building component or improves the efficiency of an existing technology. Examples include a cold-climate heat pump replacing existing electric heating and cooling systems and a window film that decreases solar heat gain, respectively. Further discussion of how to use the :ref:`json-measure_type` field and illustrative examples are in the :ref:`ecm-features-measure-type` section.
@@ -304,7 +304,7 @@ The LED troffers ECM that you've now written can be simulated with Scout by foll
 
 .. _ecm-features:
 
-Additional ECM Features
+Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the end of each section.
@@ -313,7 +313,7 @@ There are many ways in which an ECM definition can be augmented, beyond the basi
 
 .. _ecm-features-shorthand:
 
-Baseline Market Shorthand Values
+Baseline market shorthand values
 ********************************
 
 If an ECM applies to multiple building types, end uses, or other applicable baseline market categories [#]_, the specification of the baseline market and, in some cases, other fields, can be greatly simplified by using shorthand strings. When specifying the applicable baseline market, for example, an ECM might represent a technology that can be installed in any residential building, indicated with the "all residential" string for the building type key. ::
@@ -363,7 +363,7 @@ A :download:`whole building sub-metering ECM <examples/Whole Building Submeterin
 
 .. _ecm-features-detailed-input:
 
-Detailed Input Specification
+Detailed input specification
 ****************************
 
 .. THE SCHEMA WOULD BENEFIT FROM A CONSISTENT TERM FOR WHEN CPL VALUES ARE SPLIT UP WITH GREATER DETAIL
@@ -500,7 +500,7 @@ A :download:`thermoelastic heat pump ECM <examples/Thermoelastic HP (Prospective
 
 .. _ecm-features-relative-savings:
 
-Relative Energy Efficiency Units
+Relative energy efficiency units
 ********************************
 
 In addition to the absolute units used in the :ref:`initial example <example-ecm-1>`, any ECM can have energy efficiency specified with the units "relative savings (constant)" or "relative savings (dynamic)". In either case, the energy efficiency value should be given as a decimal value between 0 and 1, corresponding to the percentage improvement from the baseline (i.e., the existing stock) -- a value of 0.2 corresponds to a 20% energy savings relative to the baseline.
@@ -544,7 +544,7 @@ An occupant-centered controls ECM available for :download:`download <examples/Oc
 
 .. _ecm-features-energyplus:
 
-EnergyPlus Efficiency Data
+EnergyPlus efficiency data
 **************************
 
 For commercial building types, energy efficiency values can be specified using data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM. EnergyPlus simulation data cannot be combined with :ref:`probability distributions <ecm-features-distributions>` on energy efficiency.
@@ -600,7 +600,7 @@ In some cases, an ECM could apply to both residential and commercial buildings. 
 
 .. _ecm-features-market-scaling-fractions:
 
-Market Scaling Fractions
+Market scaling fractions
 ************************
 
 If an ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular building type, end use, fuel type, and technologies that are relevant, the market scaling fraction can be used to specify the fraction of the applicable baseline market that is truly applicable to that ECM. The market scaling fraction thus reduces the size of all or a portion of the applicable baseline market beyond what is achievable using only the baseline market fields. All scaling fraction values should be between greater than 0 and less than 1, where a value of 0.4, for example, indicates that 40% of the baseline market selected applies to that ECM.
@@ -634,7 +634,7 @@ The automated fault detection and diagnosis (AFDD) ECM available for :download:`
 
 .. _ecm-features-measure-type:
 
-Add-on Type ECMs
+Add-on type ECMs
 ****************
 
 Technologies that affect the operation of or augment the efficiency of the existing components of a building must be defined differently in an ECM than technologies that replace a building component. Examples include sensors and control systems, window films, and daylighting systems. These technologies improve or affect the operation of another building system -- HVAC or other building equipment, windows, and lighting, respectively -- but do not replace those building systems.
@@ -648,7 +648,7 @@ A plug-and-play sensors ECM available to :download:`download <examples/Plug-and-
 
 .. _ecm-features-multiple-fuel-types:
 
-Multiple Fuel Types
+Multiple fuel types
 *******************
 
 Some technologies, especially those that serve multiple end uses, might yield much greater energy savings if they are permitted to supplant technologies with different fuel types. Heat pumps, for example, can provide heating and cooling using a single fuel type (typically electricity), but could replace an HVAC system that uses different fuels for heating and cooling. The :ref:`json-fuel_switch_to` field, used in conjunction with the :ref:`json-fuel_type` field in the baseline market enables ECMs that serve multiple end uses and could replace technologies with various fuel types.
@@ -666,7 +666,7 @@ To configure these ECMs, the :ref:`json-fuel_type` field should be populated wit
 
 .. _ecm-features-distributions:
 
-Probability Distributions
+Probability distributions
 *************************
 
 Probability distributions can be added to the installed cost, energy efficiency, and lifetime specified for ECMs to represent uncertainty or known, quantified variability in one or more of those values. In a single ECM, a probability distribution can be applied to any one or more of these parameters. Probability distributions cannot be specified for any other parameters in an ECM, such as the market entry or exit years, market scaling fractions, or to either the energy savings increase or cost reduction parameters in :ref:`package ECMs <package-ecms>`. 
@@ -833,7 +833,7 @@ Once complete, the command window will return to an open prompt. The complete co
 Tutorial 4: Viewing and understanding outputs
 ---------------------------------------------
 
-Generating/Updating Figures
+Generating/updating figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The uncompeted and competed ECM results can be converted into graphical form using R. To begin, open R (sometimes called R GUI) from the Applications folder (Mac) or the Start Menu (Windows). Like a Terminal window or command prompt, R will need to be switched to the project directory. The plot generation script can then be run. ::
@@ -845,7 +845,7 @@ An additional package is required to run the plot generation R script. Running t
 
 The plot image files can be found in the "plots" folder inside the "results" folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
 
-Interpreting Results Figures
+Interpreting results figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each PDF file includes a single plot for each ECM, with the modeling horizon (years 2009 through 2040) on the x-axis and the parameter indicated in the PDF file name on the y-axis -- energy, cost, or |CO2| emissions. A legend is included at the end of the figures on the last page of each PDF.
