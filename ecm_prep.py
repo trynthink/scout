@@ -11,6 +11,8 @@ import warnings
 from urllib.parse import urlparse
 import gzip
 import pickle
+from functools import reduce  # forward compatibility for Python 3
+import operator
 
 
 class MyEncoder(json.JSONEncoder):
@@ -909,18 +911,18 @@ class Measure(object):
                     "competed choice parameters": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
-                            "original stock (total)": {},
-                            "adjusted stock (sub-market)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (sub-market)": {}},
                         "stock-and-flow": {
-                            "original stock (total)": {},
-                            "adjusted stock (previously captured)": {},
-                            "adjusted stock (competed)": {},
-                            "adjusted stock (competed and captured)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (previously captured)": {},
+                            "adjusted energy (competed)": {},
+                            "adjusted energy (competed and captured)": {}},
                         "market share": {
-                            "original stock (total captured)": {},
-                            "original stock (competed and captured)": {},
-                            "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}}}),
+                            "original energy (total captured)": {},
+                            "original energy (competed and captured)": {},
+                            "adjusted energy (total captured)": {},
+                            "adjusted energy (competed and captured)": {}}}}),
                 (
                 "mseg_out_break", copy.deepcopy(
                     self.handyvars.out_break_in))])
@@ -1080,7 +1082,7 @@ class Measure(object):
         # where no secondary microsegment is specified, use the "lighting
         # gain" thermal load component microsegments to represent secondary
         # end use effects of the lighting measure
-        if isinstance(self.end_use, dict):
+        if self.end_use["secondary"] != [None]:
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
@@ -1773,6 +1775,30 @@ class Measure(object):
                 # diffuse_params = base_cpl["consumer choice"][
                 #    "competed market"]["parameters"]
 
+                # For primary lighting microsegments with secondary effects,
+                # initialize a variable used to track the total lighting
+                # energy for the microsegment's climate zone, building
+                # type, and structure type
+                if mskeys[4] == "lighting" and self.end_use[
+                        "secondary"] != [None] and mskeys[-1] == "new":
+                    # Initialize total lighting energy
+                    energy_total_scnd = True
+                    # New building fraction
+                    vint_frac = {
+                        yr: new_constr["new fraction"][yr] for yr
+                        in self.handyvars.aeo_years}
+                elif mskeys[4] == "lighting" and self.end_use[
+                    "secondary"] != [None] and \
+                        mskeys[-1] == "existing":
+                    # Initialize total lighting energy
+                    energy_total_scnd = True
+                    # Existing building fraction
+                    vint_frac = {
+                        yr: (1 - new_constr["new fraction"][yr]) for yr
+                        in self.handyvars.aeo_years}
+                else:
+                    energy_total_scnd = False
+
                 # Update total stock, energy use, and carbon emissions for the
                 # current contributing microsegment. Note that secondary
                 # microsegments make no contribution to the stock calculation,
@@ -1792,12 +1818,21 @@ class Measure(object):
                         key: val * new_existing_frac[key] for key, val in
                         mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
-                # Total energy use (primary)
+                # Total energy use
                 add_energy = {
                     key: val * site_source_conv_base[key] *
                     new_existing_frac[key] for key, val in mseg[
                         "energy"].items() if key in
                     self.handyvars.aeo_years}
+                # Total lighting energy use for climate zone, building type,
+                # and structure type of current primary lighting
+                # microsegment (used to adjust secondary effects)
+                if energy_total_scnd is True:
+                    energy_total_scnd = self.find_scnd_overlp(
+                        vint_frac, reduce(
+                            operator.getitem, mskeys[1:5], msegs),
+                        energy_tot=dict.fromkeys(
+                            self.handyvars.aeo_years, 0))
                 # Total carbon emissions
                 add_carb = {key: val * intensity_carb_base[key]
                             for key, val in add_energy.items()
@@ -1825,7 +1860,7 @@ class Measure(object):
                             cost_energy_base, cost_energy_meas, rel_perf,
                             life_base, life_meas, site_source_conv_base,
                             site_source_conv_meas, intensity_carb_base,
-                            intensity_carb_meas)
+                            intensity_carb_meas, energy_total_scnd)
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict
@@ -2348,7 +2383,7 @@ class Measure(object):
             carb_total_init, cost_base, cost_meas, cost_energy_base,
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
-            intensity_carb_meas):
+            intensity_carb_meas, energy_total_scnd):
         """Find total, competed, and efficient portions of a market microsegment.
 
         Args:
@@ -2413,7 +2448,7 @@ class Measure(object):
         # that will be used to scale down the secondary microsegment(s) in
         # accordance with the portion of the total applicable primary stock
         # that is captured by the measure in each year
-        if self.end_use["secondary"] is not None:
+        if energy_total_scnd is not False or mskeys[0] == "secondary":
             # Set short names for secondary adjustment information dicts
             secnd_adj_sbmkt = self.markets[adopt_scheme]["mseg_adjust"][
                 "secondary mseg adjustments"]["sub-market"]
@@ -2429,57 +2464,56 @@ class Measure(object):
             # exists for the given climate zone, building type, and structure
             # type, initialize all year-by-year adjustment values as 0
             if secnd_mseg_adjkey not in secnd_adj_stk[
-                    "original stock (total)"].keys():
+                    "original energy (total)"].keys():
                 # Initialize sub-market secondary adjustment information
 
                 # Initialize original primary microsegment stock information
-                secnd_adj_sbmkt["original stock (total)"][
+                secnd_adj_sbmkt["original energy (total)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize sub-market adjusted microsegment stock information
-                secnd_adj_sbmkt["adjusted stock (sub-market)"][
+                secnd_adj_sbmkt["adjusted energy (sub-market)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
 
                 # Initialize stock-and-flow secondary adjustment information
 
                 # Initialize original primary microsegment stock information
-                secnd_adj_stk["original stock (total)"][secnd_mseg_adjkey] = \
-                    dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                secnd_adj_stk["original energy (total)"][secnd_mseg_adjkey] = \
+                    dict.fromkeys(self.handyvars.aeo_years, 0)
                 # Initialize previously captured primary microsegment stock
                 # information
-                secnd_adj_stk["adjusted stock (previously captured)"][
+                secnd_adj_stk["adjusted energy (previously captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize competed primary microsegment stock information
-                secnd_adj_stk["adjusted stock (competed)"][
+                secnd_adj_stk["adjusted energy (competed)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize competed and captured primary microsegment stock
                 # information
-                secnd_adj_stk["adjusted stock (competed and captured)"][
+                secnd_adj_stk["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
 
                 # Initialize market share secondary adjustment information
 
                 # Initialize original total captured stock information
-                secnd_adj_mktshr["original stock (total captured)"][
+                secnd_adj_mktshr["original energy (total captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize original competed and captured stock information
-                secnd_adj_mktshr["original stock (competed and captured)"][
+                secnd_adj_mktshr["original energy (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize adjusted total captured stock information
-                secnd_adj_mktshr["adjusted stock (total captured)"][
+                secnd_adj_mktshr["adjusted energy (total captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
                 # Initialize adjusted competed and captured stock information
-                secnd_adj_mktshr["adjusted stock (competed and captured)"][
+                secnd_adj_mktshr["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
-                        stock_total_init.keys(), 0)
+                        self.handyvars.aeo_years, 0)
 
         # In cases where no secondary heating/cooling microsegment is present,
         # set secondary microsegment adjustment key to None
@@ -2495,22 +2529,22 @@ class Measure(object):
             # primary microsegment, and b) the portion of associated primary
             # microsegment stock that has been captured by the measure in
             # previous years
-            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None:
+            if mskeys[0] == "secondary":
                 # Adjust sub-market scaling fraction
-                if secnd_adj_sbmkt["original stock (total)"][
+                if secnd_adj_sbmkt["original energy (total)"][
                         secnd_mseg_adjkey][yr] != 0:
                     mkt_scale_frac = secnd_adj_sbmkt[
-                        "adjusted stock (sub-market)"][
+                        "adjusted energy (sub-market)"][
                         secnd_mseg_adjkey][yr] / \
-                        secnd_adj_sbmkt["original stock (total)"][
+                        secnd_adj_sbmkt["original energy (total)"][
                         secnd_mseg_adjkey][yr]
                 # Adjust previously captured efficient fraction
-                if secnd_adj_stk["original stock (total)"][
+                if secnd_adj_stk["original energy (total)"][
                         secnd_mseg_adjkey][yr] != 0:
                     captured_eff_frac = secnd_adj_stk[
-                        "adjusted stock (previously captured)"][
+                        "adjusted energy (previously captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original stock (total)"][secnd_mseg_adjkey][yr]
+                        "original energy (total)"][secnd_mseg_adjkey][yr]
                 else:
                     captured_eff_frac = 0
                 # Update portion of existing primary stock remaining with the
@@ -2629,11 +2663,11 @@ class Measure(object):
             # Secondary microsegment (competed fraction tied to the associated
             # primary microsegment)
             if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None and \
-               secnd_adj_stk["original stock (total)"][
+               secnd_adj_stk["original energy (total)"][
                     secnd_mseg_adjkey][yr] != 0:
-                    competed_frac = secnd_adj_stk["adjusted stock (competed)"][
+                    competed_frac = secnd_adj_stk["adjusted energy (competed)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                            "original stock (total)"][secnd_mseg_adjkey][yr]
+                            "original energy (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment in the first year of a technical potential
             # scenario (all stock competed)
             elif mskeys[0] == "primary" and \
@@ -2672,13 +2706,12 @@ class Measure(object):
 
             # Secondary microsegment (competed and captured fraction tied
             # to the associated primary microsegment)
-            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
-               and secnd_adj_stk[
-                    "original stock (total)"][secnd_mseg_adjkey][yr] != 0:
+            if mskeys[0] == "secondary" and secnd_adj_stk[
+                    "original energy (total)"][secnd_mseg_adjkey][yr] != 0:
                     competed_captured_eff_frac = secnd_adj_stk[
-                        "adjusted stock (competed and captured)"][
+                        "adjusted energy (competed and captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original stock (total)"][secnd_mseg_adjkey][yr]
+                        "original energy (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment and year when measure is on the market
             elif mskeys[0] == "primary" and (
                     int(yr) >= self.market_entry_year) and (
@@ -2693,28 +2726,36 @@ class Measure(object):
             # microsegment(s) by a sub-market fraction and previously captured,
             # competed, and competed and captured stock fractions for the
             # primary microsegment
-            if mskeys[0] == "primary" and secnd_mseg_adjkey is not None:
+            if mskeys[0] == "primary" and mskeys[4] == "lighting" and \
+                    secnd_mseg_adjkey is not None:
                 # Total stock
-                secnd_adj_sbmkt["original stock (total)"][
-                    secnd_mseg_adjkey][yr] += stock_total_init[yr]
+                secnd_adj_sbmkt["original energy (total)"][
+                    secnd_mseg_adjkey][yr] += energy_total_scnd[yr]
                 # Sub-market stock
-                secnd_adj_sbmkt["adjusted stock (sub-market)"][
-                    secnd_mseg_adjkey][yr] += stock_total[yr]
+                secnd_adj_sbmkt["adjusted energy (sub-market)"][
+                    secnd_mseg_adjkey][yr] += energy_total[yr]
                 # Total stock
                 secnd_adj_stk[
-                    "original stock (total)"][secnd_mseg_adjkey][yr] += \
-                    stock_total[yr]
+                    "original energy (total)"][secnd_mseg_adjkey][yr] += \
+                    energy_total_scnd[yr]
                 # Previously captured stock
-                secnd_adj_stk["adjusted stock (previously captured)"][
+                secnd_adj_stk["adjusted energy (previously captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    captured_eff_frac * stock_total[yr]
+                    captured_eff_frac * energy_total[yr]
                 # Competed stock
-                secnd_adj_stk["adjusted stock (competed)"][
-                    secnd_mseg_adjkey][yr] += competed_frac * stock_total[yr]
+                secnd_adj_stk["adjusted energy (competed)"][
+                    secnd_mseg_adjkey][yr] += competed_frac * energy_total[yr]
                 # Competed and captured stock
-                secnd_adj_stk["adjusted stock (competed and captured)"][
+                secnd_adj_stk["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    competed_captured_eff_frac * stock_total[yr]
+                    competed_captured_eff_frac * energy_total[yr]
+                # Total captured stock
+                secnd_adj_mktshr["original energy (total captured)"][
+                    secnd_mseg_adjkey] += energy_total_scnd[yr]
+                # Total competed and captured stock
+                secnd_adj_mktshr["original energy (competed and captured)"][
+                    secnd_mseg_adjkey] += \
+                    competed_captured_eff_frac * energy_total_scnd[yr]
 
             # Update competed stock, energy, and carbon
             stock_compete[yr] = stock_total[yr] * competed_frac
@@ -3323,6 +3364,46 @@ class Measure(object):
 
         # Output list of key chains
         return ms_iterable, ms_lists
+
+    def find_scnd_overlp(self, vint_frac, dict1, energy_tot):
+        """Find total lighting energy for climate, building, and structure type.
+
+        Note:
+            Primary/secondary microsegments are linked by climate zone,
+            building type, and structure type (new/existing).
+
+        Args:
+            vint_frac (dict): New/existing fraction by year.
+            dict1 (dict): Dict of lighting stock/energy data for given
+            climate zone, building type, and structure type.
+            energy_tot (float): Total lighting energy value.
+
+        Returns:
+            Total lighting energy for given climate, building, and structure
+            type.
+        """
+        for k, i in dict1.items():
+            # Ignore stock data
+            if k == "stock":
+                continue
+            # Proceed further into nested dict if terminal node with stock/
+            # energy data has not been reached
+            elif isinstance(i, dict) and k != "energy":
+                self.find_scnd_overlp(
+                    vint_frac, i, energy_tot)
+            # If terminal node energy data has been reached, add energy
+            # data to the total energy use variable
+            elif k == "energy":
+                for yr in self.handyvars.aeo_years:
+                    energy_tot[yr] += dict1["energy"][yr] * \
+                        vint_frac[yr]
+            # Raise error if no energy data are available
+            else:
+                raise ValueError(
+                    'No energy data available for total '
+                    'lighting energy use calculation')
+
+        return energy_tot
 
     def add_keyvals(self, dict1, dict2):
         """Add key values of two dicts together.
@@ -3989,18 +4070,18 @@ class MeasurePackage(Measure):
                     "competed choice parameters": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
-                            "original stock (total)": {},
-                            "adjusted stock (sub-market)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (sub-market)": {}},
                         "stock-and-flow": {
-                            "original stock (total)": {},
-                            "adjusted stock (previously captured)": {},
-                            "adjusted stock (competed)": {},
-                            "adjusted stock (competed and captured)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (previously captured)": {},
+                            "adjusted energy (competed)": {},
+                            "adjusted energy (competed and captured)": {}},
                         "market share": {
-                            "original stock (total captured)": {},
-                            "original stock (competed and captured)": {},
-                            "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}}},
+                            "original energy (total captured)": {},
+                            "original energy (competed and captured)": {},
+                            "adjusted energy (total captured)": {},
+                            "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
 
     def merge_measures(self):

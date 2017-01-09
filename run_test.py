@@ -50,19 +50,12 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
+                    },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -70,19 +63,11 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         self.sample_measure2 = {
             "name": "sample measure 2",
@@ -112,19 +97,11 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -132,19 +109,11 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         self.sample_measure3 = {
             "name": "sample measure 3 (commercial)",
@@ -174,19 +143,11 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -194,19 +155,11 @@ class CommonTestMeasures(object):
                         "contributing mseg keys and values": {},
                         "competed choice parameters": {},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
 
 
@@ -1759,19 +1712,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
                                 },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
@@ -1886,19 +1831,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
                                 },
                     "mseg_out_break": {}}}}
         # cls.compete_meas1_dist = {
@@ -2058,19 +1995,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                         "b1": {"2009": -0.95, "2010": -0.95},
         #                         "b2": {"2009": -0.10, "2010": -0.10}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (previously captured)": {},
-        #                         "adjusted stock (competed)": {},
-        #                         "adjusted stock (competed and captured)": {}},
         #                     "market share": {
-        #                         "original stock (total captured)": {},
-        #                         "original stock (competed and captured)": {},
-        #                         "adjusted stock (total captured)": {},
-        #                         "adjusted stock (competed and captured)": {}}},
+        #                         "original energy (total captured)": {},
+        #                         "original energy (competed and captured)": {},
+        #                         "adjusted energy (total captured)": {},
+        #                         "adjusted energy (competed and captured)": {}}},
         #                 "supply-demand adjustment": {
         #                     "savings": {
         #                         cls.adjust_key1: {
@@ -2227,19 +2156,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                         "b1": {"2009": -0.95, "2010": -0.95},
         #                         "b2": {"2009": -0.10, "2010": -0.10}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (previously captured)": {},
-        #                         "adjusted stock (competed)": {},
-        #                         "adjusted stock (competed and captured)": {}},
         #                     "market share": {
-        #                         "original stock (total captured)": {},
-        #                         "original stock (competed and captured)": {},
-        #                         "adjusted stock (total captured)": {},
-        #                         "adjusted stock (competed and captured)": {}}},
+        #                         "original energy (total captured)": {},
+        #                         "original energy (competed and captured)": {},
+        #                         "adjusted energy (total captured)": {},
+        #                         "adjusted energy (competed and captured)": {}}},
         #                 "supply-demand adjustment": {
         #                     "savings": {
         #                         cls.adjust_key1: {
@@ -2431,19 +2352,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
                                 },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
@@ -2620,20 +2533,12 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
-                                },
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
+                        },
                     "mseg_out_break": {}}}}
         cls.compete_meas3 = {
             "name": "sample compete measure r3",
@@ -2757,19 +2662,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
                                 },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
@@ -2885,19 +2782,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
                                 },
                     "mseg_out_break": {}}}}
         # cls.compete_meas3_dist = {
@@ -3032,19 +2921,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                         "b1": {"2009": -0.95, "2010": -0.95},
         #                         "b2": {"2009": -0.10, "2010": -0.10}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (previously captured)": {},
-        #                         "adjusted stock (competed)": {},
-        #                         "adjusted stock (competed and captured)": {}},
         #                     "market share": {
-        #                         "original stock (total captured)": {},
-        #                         "original stock (competed and captured)": {},
-        #                         "adjusted stock (total captured)": {},
-        #                         "adjusted stock (competed and captured)": {}}},
+        #                         "original energy (total captured)": {},
+        #                         "original energy (competed and captured)": {},
+        #                         "adjusted energy (total captured)": {},
+        #                         "adjusted energy (competed and captured)": {}}},
         #                 "supply-demand adjustment": {
         #                     "savings": {
         #                         cls.adjust_key2: {
@@ -3176,19 +3057,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                         "b1": {"2009": -0.95, "2010": -0.95},
         #                         "b2": {"2009": -0.10, "2010": -0.10}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (previously captured)": {},
-        #                         "adjusted stock (competed)": {},
-        #                         "adjusted stock (competed and captured)": {}},
         #                     "market share": {
-        #                         "original stock (total captured)": {},
-        #                         "original stock (competed and captured)": {},
-        #                         "adjusted stock (total captured)": {},
-        #                         "adjusted stock (competed and captured)": {}}},
+        #                         "original energy (total captured)": {},
+        #                         "original energy (competed and captured)": {},
+        #                         "adjusted energy (total captured)": {},
+        #                         "adjusted energy (competed and captured)": {}}},
         #                 "supply-demand adjustment": {
         #                     "savings": {
         #                         cls.adjust_key2: {
@@ -3380,19 +3253,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -3568,19 +3433,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         cls.compete_meas5 = {
             "name": "sample compete measure r5",
@@ -3826,19 +3683,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -4075,19 +3924,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "b1": {"2009": -0.95, "2010": -0.95},
                                 "b2": {"2009": -0.10, "2010": -0.10}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {}}}}
         cls.measures_all = [run.Measure(cls.handyvars, **x) for x in [
             cls.compete_meas1, copy.deepcopy(cls.compete_meas2),
@@ -5540,27 +5381,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "2010": [
                                         0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
@@ -5741,27 +5569,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "2010": [
                                         0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}
@@ -5953,27 +5768,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             cls.overlap_key_scnd: {
                                 "rate distribution": {}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
@@ -6154,27 +5956,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             cls.overlap_key_scnd: {
                                 "rate distribution": {}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}
@@ -6378,27 +6167,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                     cls.overlap_key_scnd: {
         #                         "rate distribution": {}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (previously captured)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed and captured)": {
-        #                             cls.secnd_adj_key: {
-        #                                 "2009": 0, "2010": 0}}},
         #                     "market share": {
-        #                         "original stock (total captured)": {
+        #                         "original energy (total captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "original stock (competed and captured)": {
+        #                         "original energy (competed and captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (total captured)": {
+        #                         "adjusted energy (total captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed and captured)": {
+        #                         "adjusted energy (competed and captured)": {
         #                             cls.secnd_adj_key: {
         #                                 "2009": 0, "2010": 0}}}},
         #                 "supply-demand adjustment": {
@@ -6594,27 +6370,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                     cls.overlap_key_scnd: {
         #                         "rate distribution": {}}},
         #                 "secondary mseg adjustments": {
-        #                     "sub-market": {
-        #                         "original stock (total)": {},
-        #                         "adjusted stock (sub-market)": {}},
-        #                     "stock-and-flow": {
-        #                         "original stock (total)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (previously captured)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed)": {
-        #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed and captured)": {
-        #                             cls.secnd_adj_key: {
-        #                                 "2009": 0, "2010": 0}}},
         #                     "market share": {
-        #                         "original stock (total captured)": {
+        #                         "original energy (total captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "original stock (competed and captured)": {
+        #                         "original energy (competed and captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (total captured)": {
+        #                         "adjusted energy (total captured)": {
         #                             cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-        #                         "adjusted stock (competed and captured)": {
+        #                         "adjusted energy (competed and captured)": {
         #                             cls.secnd_adj_key: {
         #                                 "2009": 0, "2010": 0}}}},
         #                 "supply-demand adjustment": {
@@ -6870,27 +6633,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "2010": [
                                         0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}},
@@ -7132,27 +6882,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "2010": [
                                         0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.4]}}},
                         "secondary mseg adjustments": {
-                            "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
-                            "stock-and-flow": {
-                                "original stock (total)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (previously captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
-                                    cls.secnd_adj_key: {
-                                        "2009": 0, "2010": 0}}},
                             "market share": {
-                                "original stock (total captured)": {
+                                "original energy (total captured)": {
+                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                "original energy (competed and captured)": {
+                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "original stock (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
-                                "adjusted stock (competed and captured)": {
+                                "adjusted energy (competed and captured)": {
                                     cls.secnd_adj_key: {
                                         "2009": 0, "2010": 0}}}}},
                     "mseg_out_break": {}}}}

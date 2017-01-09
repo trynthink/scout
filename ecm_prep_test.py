@@ -5082,46 +5082,46 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #              "'new')"): compete_choice_val}]
 #         cls.ok_tpmeas_fullchk_msegadjout = [{
 #             "sub-market": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (sub-market)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (sub-market)": {}},
 #             "stock-and-flow": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (previously captured)": {},
-#                 "adjusted stock (competed)": {},
-#                 "adjusted stock (competed and captured)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (previously captured)": {},
+#                 "adjusted energy (competed)": {},
+#                 "adjusted energy (competed and captured)": {}},
 #             "market share": {
-#                 "original stock (total captured)": {},
-#                 "original stock (competed and captured)": {},
-#                 "adjusted stock (total captured)": {},
-#                 "adjusted stock (competed and captured)": {}}},
+#                 "original energy (total captured)": {},
+#                 "original energy (competed and captured)": {},
+#                 "adjusted energy (total captured)": {},
+#                 "adjusted energy (competed and captured)": {}}},
 #             {
 #             "sub-market": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (sub-market)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (sub-market)": {}},
 #             "stock-and-flow": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (previously captured)": {},
-#                 "adjusted stock (competed)": {},
-#                 "adjusted stock (competed and captured)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (previously captured)": {},
+#                 "adjusted energy (competed)": {},
+#                 "adjusted energy (competed and captured)": {}},
 #             "market share": {
-#                 "original stock (total captured)": {},
-#                 "original stock (competed and captured)": {},
-#                 "adjusted stock (total captured)": {},
-#                 "adjusted stock (competed and captured)": {}}},
+#                 "original energy (total captured)": {},
+#                 "original energy (competed and captured)": {},
+#                 "adjusted energy (total captured)": {},
+#                 "adjusted energy (competed and captured)": {}}},
 #             {
 #             "sub-market": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (sub-market)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (sub-market)": {}},
 #             "stock-and-flow": {
-#                 "original stock (total)": {},
-#                 "adjusted stock (previously captured)": {},
-#                 "adjusted stock (competed)": {},
-#                 "adjusted stock (competed and captured)": {}},
+#                 "original energy (total)": {},
+#                 "adjusted energy (previously captured)": {},
+#                 "adjusted energy (competed)": {},
+#                 "adjusted energy (competed and captured)": {}},
 #             "market share": {
-#                 "original stock (total captured)": {},
-#                 "original stock (competed and captured)": {},
-#                 "adjusted stock (total captured)": {},
-#                 "adjusted stock (competed and captured)": {}}}]
+#                 "original energy (total captured)": {},
+#                 "original energy (competed and captured)": {},
+#                 "adjusted energy (total captured)": {},
+#                 "adjusted energy (competed and captured)": {}}}]
 #         cls.ok_tpmeas_fullchk_supplydemandout = [{
 #             "savings": {
 #                 ("('primary', 'AIA_CZ1', 'single family home', "
@@ -6689,6 +6689,10 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
             {"2009": 100, "2010": 200, "2011": 300},
             {"2025": 400, "2026": 500, "2027": 600},
             {"2020": 700, "2021": 800, "2022": 900}]
+        cls.ok_energy_scnd_in = [
+            {"2009": 10, "2010": 20, "2011": 30},
+            {"2025": 40, "2026": 50, "2027": 60},
+            {"2020": 70, "2021": 80, "2022": 90}]
         cls.ok_energy_in = [
             {"2009": 10, "2010": 20, "2011": 30},
             {"2025": 40, "2026": 50, "2027": 60},
@@ -7074,7 +7078,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                         self.ok_life_base_in,
                         self.ok_life_meas_in,
                         self.ok_ssconv_base_in, self.ok_ssconv_meas_in,
-                        self.ok_carbint_base_in, self.ok_carbint_meas_in)
+                        self.ok_carbint_base_in, self.ok_carbint_meas_in,
+                        self.ok_energy_scnd_in)
                     # Correct list of output dicts
                     lists2 = self.ok_out[elem][scn][k]
                     # Compare each element of the lists of output dicts
@@ -7760,18 +7765,18 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "sub-market": {
-                        "original stock (total)": {},
-                        "adjusted stock (sub-market)": {}},
+                        "original energy (total)": {},
+                        "adjusted energy (sub-market)": {}},
                     "stock-and-flow": {
-                        "original stock (total)": {},
-                        "adjusted stock (previously captured)": {},
-                        "adjusted stock (competed)": {},
-                        "adjusted stock (competed and captured)": {}},
+                        "original energy (total)": {},
+                        "adjusted energy (previously captured)": {},
+                        "adjusted energy (competed)": {},
+                        "adjusted energy (competed and captured)": {}},
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}}}
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure)
         # Finalize the measure's 'technology_type' attribute (handled by the
@@ -8438,18 +8443,18 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "sub-market": {
-                        "original stock (total)": {},
-                        "adjusted stock (sub-market)": {}},
+                        "original energy (total)": {},
+                        "adjusted energy (sub-market)": {}},
                     "stock-and-flow": {
-                        "original stock (total)": {},
-                        "adjusted stock (previously captured)": {},
-                        "adjusted stock (competed)": {},
-                        "adjusted stock (competed and captured)": {}},
+                        "original energy (total)": {},
+                        "adjusted energy (previously captured)": {},
+                        "adjusted energy (competed)": {},
+                        "adjusted energy (competed and captured)": {}},
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}}}
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
@@ -9473,18 +9478,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.5, "2010": 0.5}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -9948,18 +9953,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.5, "2010": 0.5}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -10325,18 +10330,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -10680,18 +10685,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -11057,18 +11062,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -11417,18 +11422,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -11735,18 +11740,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -12034,18 +12039,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "b2": {"2009": 0.25, "2010": 0.25}}},
                         "secondary mseg adjustments": {
                             "sub-market": {
-                                "original stock (total)": {},
-                                "adjusted stock (sub-market)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (sub-market)": {}},
                             "stock-and-flow": {
-                                "original stock (total)": {},
-                                "adjusted stock (previously captured)": {},
-                                "adjusted stock (competed)": {},
-                                "adjusted stock (competed and captured)": {}},
+                                "original energy (total)": {},
+                                "adjusted energy (previously captured)": {},
+                                "adjusted energy (competed)": {},
+                                "adjusted energy (competed and captured)": {}},
                             "market share": {
-                                "original stock (total captured)": {},
-                                "original stock (competed and captured)": {},
-                                "adjusted stock (total captured)": {},
-                                "adjusted stock (competed and captured)": {}}}},
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
                     "mseg_out_break": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -12665,18 +12670,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             "b2": {"2009": 0.75, "2010": 0.75}}},
                     "secondary mseg adjustments": {
                         "sub-market": {
-                            "original stock (total)": {},
-                            "adjusted stock (sub-market)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (sub-market)": {}},
                         "stock-and-flow": {
-                            "original stock (total)": {},
-                            "adjusted stock (previously captured)": {},
-                            "adjusted stock (competed)": {},
-                            "adjusted stock (competed and captured)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (previously captured)": {},
+                            "adjusted energy (competed)": {},
+                            "adjusted energy (competed and captured)": {}},
                         "market share": {
-                            "original stock (total captured)": {},
-                            "original stock (competed and captured)": {},
-                            "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}}},
+                            "original energy (total captured)": {},
+                            "original energy (competed and captured)": {},
+                            "adjusted energy (total captured)": {},
+                            "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
@@ -13276,18 +13281,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             "b2": {"2009": 0.75, "2010": 0.75}}},
                     "secondary mseg adjustments": {
                         "sub-market": {
-                            "original stock (total)": {},
-                            "adjusted stock (sub-market)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (sub-market)": {}},
                         "stock-and-flow": {
-                            "original stock (total)": {},
-                            "adjusted stock (previously captured)": {},
-                            "adjusted stock (competed)": {},
-                            "adjusted stock (competed and captured)": {}},
+                            "original energy (total)": {},
+                            "adjusted energy (previously captured)": {},
+                            "adjusted energy (competed)": {},
+                            "adjusted energy (competed and captured)": {}},
                         "market share": {
-                            "original stock (total captured)": {},
-                            "original stock (competed and captured)": {},
-                            "adjusted stock (total captured)": {},
-                            "adjusted stock (competed and captured)": {}}}},
+                            "original energy (total captured)": {},
+                            "original energy (competed and captured)": {},
+                            "adjusted energy (total captured)": {},
+                            "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
@@ -13612,57 +13617,57 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}},
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}}},
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}}},
             {
             "Technical potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}},
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}}},
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}}},
             {
             "Technical potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}},
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}},
             "Max adoption potential": {
                 "contributing mseg keys and values": {},
                 "competed choice parameters": {},
                 "secondary mseg adjustments": {
                     "market share": {
-                        "original stock (total captured)": {},
-                        "original stock (competed and captured)": {},
-                        "adjusted stock (total captured)": {},
-                        "adjusted stock (competed and captured)": {}}}}}]
+                        "original energy (total captured)": {},
+                        "original energy (competed and captured)": {},
+                        "adjusted energy (total captured)": {},
+                        "adjusted energy (competed and captured)": {}}}}}]
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",

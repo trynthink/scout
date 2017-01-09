@@ -930,7 +930,7 @@ class Engine(object):
                     0, len(self.measures)) if x in measures_adj and any(
                     [(y[1] > 0) for y in mkts_adj[x][
                         "secondary mseg adjustments"]["market share"][
-                        "original stock (total captured)"][
+                        "original energy (total captured)"][
                         secnd_mseg_adjkey].items()])]
                 # If at least one applicable measure requires adjustments to
                 # total secondary energy/carbon/cost, proceed with the
@@ -1399,12 +1399,12 @@ class Engine(object):
 
                 # Set competed market share adjustment
                 if secnd_adj_mktshr[
-                        "original stock (competed and captured)"][
+                        "original energy (competed and captured)"][
                         secnd_mseg_adjkey][yr] != 0:
                     adj_frac_comp = secnd_adj_mktshr[
-                        "adjusted stock (competed and captured)"][
+                        "adjusted energy (competed and captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original stock (competed and captured)"][
+                        "original energy (competed and captured)"][
                         secnd_mseg_adjkey][yr]
                 # Set competed market share adjustment to zero if total
                 # originally captured baseline stock is zero for
@@ -1413,12 +1413,12 @@ class Engine(object):
                     adj_frac_comp = 0
 
                 # Set total market share adjustment
-                if secnd_adj_mktshr["original stock (total captured)"][
+                if secnd_adj_mktshr["original energy (total captured)"][
                         secnd_mseg_adjkey][yr] != 0:
                     adj_frac_tot = secnd_adj_mktshr[
-                        "adjusted stock (total captured)"][
+                        "adjusted energy (total captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original stock (total captured)"][
+                        "original energy (total captured)"][
                         secnd_mseg_adjkey][yr]
                 # Set total market share adjustment to zero if total
                 # originally captured baseline stock is zero for
@@ -1693,7 +1693,7 @@ class Engine(object):
         # secondary microsegments and associated energy/carbon/cost totals
         if len(measure.markets[adopt_scheme]["competed"]["mseg_adjust"][
                 "secondary mseg adjustments"]["market share"][
-                "original stock (total captured)"].keys()) > 0:
+                "original energy (total captured)"].keys()) > 0:
             # Determine the climate zone, building type, and structure
             # type for the current contributing primary microsegment from the
             # microsegment key chain information and use as the key for linking
@@ -1705,28 +1705,21 @@ class Engine(object):
             if secnd_mseg_adjkey in measure.markets[adopt_scheme][
                 "competed"]["mseg_adjust"][
                 "secondary mseg adjustments"]["market share"][
-                    "original stock (total captured)"].keys():
+                    "original energy (total captured)"].keys():
                 # Record original and adjusted primary stock numbers as part of
                 # the measure's 'mseg_adjust' attribute
                 secnd_adj_mktshr = measure.markets[adopt_scheme][
                     "competed"]["mseg_adjust"]["secondary mseg adjustments"][
                     "market share"]
-                # Original total captured stock
-                secnd_adj_mktshr["original stock (total captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    adj["stock"]["total"]["measure"][yr]
-                # Original competed and captured stock
-                secnd_adj_mktshr["original stock (competed and captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    adj["stock"]["competed"]["measure"][yr]
                 # Adjusted total captured stock
-                secnd_adj_mktshr["adjusted stock (total captured)"][
+                secnd_adj_mktshr["adjusted energy (total captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    (adj["stock"]["total"]["measure"][yr] * adj_frac_tot)
+                    (adj["energy"]["total"]["efficient"][yr] * adj_frac_tot)
                 # Adjusted competed and captured stock
-                secnd_adj_mktshr["adjusted stock (competed and captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    (adj["stock"]["competed"]["measure"][yr] * adj_frac_comp)
+                secnd_adj_mktshr["adjusted energy (competed and captured)"][
+                    secnd_mseg_adjkey][yr] += (
+                        adj["energy"]["competed"]["efficient"][yr] *
+                        adj_frac_comp)
 
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share, both overall and for the
