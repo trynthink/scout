@@ -5383,9 +5383,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {
@@ -5571,9 +5571,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {
@@ -5770,9 +5770,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {
@@ -5958,9 +5958,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {
@@ -6635,9 +6635,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {
@@ -6884,9 +6884,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "secondary mseg adjustments": {
                             "market share": {
                                 "original energy (total captured)": {
-                                    cls.secnd_adj_key: {"2009": 20, "2010": 15}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "original energy (competed and captured)": {
-                                    cls.secnd_adj_key: {"2009": 10, "2010": 5}},
+                                    cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (total captured)": {
                                     cls.secnd_adj_key: {"2009": 0, "2010": 0}},
                                 "adjusted energy (competed and captured)": {

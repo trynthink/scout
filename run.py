@@ -1650,41 +1650,21 @@ class Engine(object):
         weighting_yrs = sorted([
             x for x in adj_fracs.keys() if int(x) <= int(yr)])
         # Loop through the above set of years, successively updating the
-        # weighted market share based on the captured stock in each year
+        # weighted market share using a simple moving average
         for ind, wyr in enumerate(weighting_yrs):
-            # First year in time horizon; weighted market share equals
-            # market share for the captured stock in this year only
-            if ind == 0:
+            # First year in time horizon or a competed measure market entry
+            # year in a technical potential scenario; weighted market share
+            # equals market share for the captured stock in this year only
+            if ind == 0 or (int(wyr) in mkt_entry_yrs and
+                            adopt_scheme == "Technical potential"):
                 adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
-            # Subsequent year; weighted market share combines market share
+            # Subsequent year; weighted market share averages market share
             # for captured stock in current year and all previous years
             else:
-                # Set shorter name for total stock data in weighting year
-                stock_all_wyr = adj["stock"]["total"]["all"][wyr]
-
-                # Find the proportion of the current year's stock that
-                # is competed across measures, for use in weighting
-                # market share between the current year and previous years
-
-                # If the weighting year represents a market entry year
-                # for any of the competing measures and the simulation
-                # is running through a 'Technical potential' scenario,
-                # the competed proportion is 1 (all stock competed)
-                if int(wyr) in mkt_entry_yrs and \
-                        adopt_scheme == "Technical potential":
-                    wt_comp = 1
-                # Otherwise, the competed portion corresponds to the
-                # ratio of total competed stock to total stock
-                elif stock_all_wyr != 0:
-                    wt_comp = adj["stock"]["competed"]["all"][wyr] / \
-                        stock_all_wyr
-                # If total stock for the weighting year is zero, set
-                # the competed proportion to zero as well
-                else:
-                    wt_comp = 0
-
-                # Calculate weighted combination of market shares for
-                # current and previously competed stock
+                # Weight according to the number of previous years,
+                # yielding a simple moving average of the market share
+                wt_comp = 1 / len(weighting_yrs)
+                # Calculate weighted combination of market shares
                 adj_frac_tot = adj_fracs[wyr] * wt_comp + \
                     adj_frac_tot * (1 - wt_comp)
 
@@ -1711,6 +1691,14 @@ class Engine(object):
                 secnd_adj_mktshr = measure.markets[adopt_scheme][
                     "competed"]["mseg_adjust"]["secondary mseg adjustments"][
                     "market share"]
+                # Total captured stock
+                secnd_adj_mktshr["original energy (total captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    adj["energy"]["total"]["efficient"][yr]
+                # Competed and captured stock
+                secnd_adj_mktshr["original energy (competed and captured)"][
+                    secnd_mseg_adjkey][yr] += \
+                    adj["energy"]["competed"]["efficient"][yr]
                 # Adjusted total captured stock
                 secnd_adj_mktshr["adjusted energy (total captured)"][
                     secnd_mseg_adjkey][yr] += \

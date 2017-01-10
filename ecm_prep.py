@@ -1082,7 +1082,7 @@ class Measure(object):
         # where no secondary microsegment is specified, use the "lighting
         # gain" thermal load component microsegments to represent secondary
         # end use effects of the lighting measure
-        if self.end_use["secondary"] != [None]:
+        if self.end_use["secondary"] is not None:
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
@@ -2737,7 +2737,7 @@ class Measure(object):
                 # Total stock
                 secnd_adj_stk[
                     "original energy (total)"][secnd_mseg_adjkey][yr] += \
-                    energy_total_scnd[yr]
+                    energy_total[yr]
                 # Previously captured stock
                 secnd_adj_stk["adjusted energy (previously captured)"][
                     secnd_mseg_adjkey][yr] += \
@@ -2749,13 +2749,6 @@ class Measure(object):
                 secnd_adj_stk["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
                     competed_captured_eff_frac * energy_total[yr]
-                # Total captured stock
-                secnd_adj_mktshr["original energy (total captured)"][
-                    secnd_mseg_adjkey] += energy_total_scnd[yr]
-                # Total competed and captured stock
-                secnd_adj_mktshr["original energy (competed and captured)"][
-                    secnd_mseg_adjkey] += \
-                    competed_captured_eff_frac * energy_total_scnd[yr]
 
             # Update competed stock, energy, and carbon
             stock_compete[yr] = stock_total[yr] * competed_frac
