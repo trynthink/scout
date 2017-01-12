@@ -1478,6 +1478,16 @@ class Measure(object):
                         cost_base, life_base = [
                             base_cpl["installed cost"]["typical"],
                             base_cpl["lifetime"]["average"]]
+                        # Adjust residential baseline lighting lifetimes to
+                        # reflect the fact that input data assume 24 h/day of
+                        # lighting use, rather than 3 h/day as assumed for
+                        # measure lifetime definitions
+                        if bldg_sect == "residential" and \
+                                mskeys[4] == "lighting":
+                            life_base = {
+                                yr: life_base[yr] * (24/3) for
+                                yr in self.handyvars.aeo_years}
+
                     # Set baseline cost units
                     cost_base_units = \
                         base_cpl["installed cost"]["units"]
@@ -1863,7 +1873,11 @@ class Measure(object):
                             intensity_carb_meas, energy_total_scnd)
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
-                    # into a dict
+                    # into a dict. Note that baseline lighting lifetimes are
+                    # adjusted by the stock of the contributing microsegment
+                    # such that a total weighted baseline lifetime may be
+                    # calculated below for the measure across all contributing
+                    # microsegments
                     add_dict = {
                         "stock": {
                             "total": {
@@ -1909,7 +1923,10 @@ class Measure(object):
                                     "baseline": add_carb_cost_compete,
                                     "efficient": add_carb_cost_compete_eff}}},
                         "lifetime": {
-                            "baseline": life_base, "measure": life_meas}}
+                            "baseline": {
+                                yr: life_base[yr] * add_stock_total[yr] for
+                                yr in self.handyvars.aeo_years},
+                            "measure": life_meas}}
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -2029,13 +2046,18 @@ class Measure(object):
         if key_chain_ct != 0 and key_chain_ct != 999:
 
             for adopt_scheme in self.handyvars.adopt_schemes:
-                # Reduce summed lifetimes by number of microsegments that
-                # contributed to the sums
+                # Calculate overall average baseline and measure lifetimes
                 for yr in self.handyvars.aeo_years:
+                    # Divide summed baseline lifetimes * stock values for
+                    # contributing microsegments by total stock across all
+                    # contributing microsegments
                     self.markets[adopt_scheme]["master_mseg"]["lifetime"][
                         "baseline"][yr] = self.markets[adopt_scheme][
                         "master_mseg"]["lifetime"]["baseline"][yr] / \
-                        key_chain_ct
+                        self.markets[adopt_scheme][
+                        "master_mseg"]["stock"]["total"]["all"][yr]
+                # Divide summed measure lifetimes by total number of valid
+                # contributing microsegment key chains
                 self.markets[adopt_scheme][
                     "master_mseg"]["lifetime"]["measure"] = \
                     self.markets[adopt_scheme]["master_mseg"][
@@ -4669,8 +4691,8 @@ def main(base_dir):
     """
 
     # Custom format all warning messages (ignore everything but
-    # message itself)
-    warnings.formatwarning = custom_formatwarning
+    # message itself) *** Note: sometimes yields error; investigate ***
+    # warnings.formatwarning = custom_formatwarning
 
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()

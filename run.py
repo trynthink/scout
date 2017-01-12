@@ -694,21 +694,19 @@ class Engine(object):
         # Calculate portfolio-level financial metrics
 
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
-        # benefits. Use try/except to handle cases with zero in the
-        # denominator
-        try:
+        # benefits. Restrict denominator values less than or equal to zero
+        if npv_esave > 0:
             cce = (-npv_s / npv_esave)
             cce_bens = (-(npv_s + npv_c) / npv_esave)
-        except:
+        else:
             cce, cce_bens = [999 for n in range(2)]
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
-        # benefits.  Use try/except to handle cases with zero in the
-        # denominator
-        try:
+        # benefits. Restrict denominator values less than or equal to zero
+        if npv_csave > 0:
             ccc = (-npv_s / (npv_csave * 1000000))
             ccc_bens = (-(npv_s + npv_e) / (npv_csave * 1000000))
-        except:
+        else:
             ccc, ccc_bens = [999 for n in range(2)]
 
         # Calculate consumer-level financial metrics
