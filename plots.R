@@ -2,14 +2,17 @@
 # Load required packages and files
 # ============================================================================
 
+# Load RColorBrewer
+if(!require("RColorBrewer")){install.packages("RColorBrewer")}
+require("RColorBrewer")
 # Load rjson for reading in JSON files
 if(!require("rjson")){install.packages("rjson")}
 require("rjson")
 # Specify JSON file encoding
 options("encoding" = "UTF-8")
-# Load XLSX for writing out raw data to MS Excel
-if(!require("xlsx")){install.packages("xlsx")}
-require("xlsx")
+# # Load XLSX for writing out raw data to MS Excel
+# if(!require("xlsx")){install.packages("xlsx")}
+# require("xlsx")
 # Load package for counting commas in a string
 if(!require("stringr")){install.packages("stringr")}
 require("stringr")
@@ -21,20 +24,7 @@ uncompete_results<-fromJSON(file = file.path(base_dir, 'supporting_data','ecm_pr
 compete_results<-fromJSON(file = file.path(base_dir, 'results','ecm_results.json'))
 
 # ============================================================================
-# Set high-level plotting parameters
-# ============================================================================
-
-# Set plot names
-plot_names <- c('Total Energy', 'Total Carbon', 'Total Cost')
-# Set plot axis labels
-plot_axis_labels<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (MMTons)"), 'Energy Cost (Billion $)')
-# Set plot colors for uncompeted baseline, efficient and low/high results
-plot_col_uc_base = "gray60"
-plot_col_uc_eff = "gray80"
-plot_col_uc_lowhigh = "gray90"
-
-# ============================================================================
-# Set high-level ECM variables
+# Set high-level variables needed across all plot types
 # ============================================================================
 
 # Set ECM adoption scenarios
@@ -47,7 +37,26 @@ meas_names <- meas_names[order(meas_names)]
 # Set years in modeling time horizon and reorganize in ascending order
 years<-row.names(as.matrix(
   compete_results[[meas_names[1]]]$'Markets and Savings (Overall)'$'Technical potential'$'Baseline Energy Use (MMBtu)'))
+# Set an intended starting and ending year for the plotted results
+start_yr = 2010
+end_yr = 2040
+# Filter and order the year range
+years<-years[(years>=start_yr)&(years<=end_yr)]
 years<-years[order(years)]
+
+# ============================================================================
+# Set high-level variables needed to generate individual ECM plots
+# ============================================================================
+
+# Set names of plot files and axes
+# Plot of individual ECM energy, carbon, and cost totals
+plot_names_ecms <- c('Total Energy', 'Total Carbon', 'Total Cost')
+plot_axis_labels_ecm<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (MMTons)"), 'Energy Cost (Billion $)')
+# Set colors for uncompeted baseline, efficient and low/high results
+plot_col_uc_base = "gray60"
+plot_col_uc_eff = "gray80"
+plot_col_uc_lowhigh = "gray90"
+
 # Set variable names to use in accessing all uncompeted energy, carbon, and cost results from JSON data
 var_names_uncompete <- c('energy', 'carbon', 'cost')
 # Set output units for each variable type
@@ -67,13 +76,47 @@ var_names_compete_eff_m <- c(
 var_names_compete_eff_l <- c(
   'Efficient Energy Use (low) (MMBtu)', 'Efficient CO₂ Emissions (low) (MMTons)', 'Efficient Energy Cost (low) (USD)') 
 var_names_compete_eff_h <- c(
-  'Efficient Energy Use (high) (MMBtu)', 'Efficient CO₂ Emissions (high) (MMTons)', 'Efficient Energy Cost (high) (USD)') 
-
-# Set column names for Excel file
-col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
+  'Efficient Energy Use (high) (MMBtu)', 'Efficient CO₂ Emissions (high) (MMTons)', 'Efficient Energy Cost (high) (USD)')
 
 # ============================================================================
-# Generate plots for total energy, carbon, and cost
+# Set high-level variables needed to generate aggregated savings plots
+# ============================================================================
+
+# Names for aggregated ECM savings plots
+plot_names_agg <- c('Total Energy Savings', 'Total Avoided Carbon', 'Total Cost Savings')
+# Axis labels for annual aggregate savings plots
+plot_axis_labels_agg_ann<-c('Annual Primary Energy Use Savings (Quads)',
+							expression("Annual Avoided"~ CO[2] ~" Emissions (MMTons)"),
+							'Annual Energy Cost Savings (Billion $)')
+# Axis labels for cumulative aggregate savings plots
+plot_axis_labels_agg_cum<-c('Cumulative Primary Energy Use Savings (Quads)',
+							expression("Cumulative Avoided"~ CO[2] ~" Emissions (MMTons)"),
+							'Cumulative Energy Cost Savings (Billion $)')
+							
+# Set list of possible climate zones and associated colors for plotting
+czones_out<-c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
+czones_out_col<-brewer.pal(length(czones_out), "Dark2")
+# Set list of possible building classes and associated colors for plotting
+bclasses_out<-c('Residential (New)', 'Residential (Existing)',
+                'Commercial (New)', 'Commercial (Existing)')
+bclasses_out_col<-brewer.pal(length(bclasses_out), "Dark2")
+# Set list of possible end uses and associated colors for plotting
+euses_out<-c('Heating', 'Cooling', 'Ventilation', 'Lighting', 'Water Heating',
+             'Refrigeration', 'Electronics', 'Other')
+euses_out_col<-brewer.pal(length(euses_out), "Dark2")
+
+# Set names of variables used to retrieve savings data to aggregate
+var_names_compete_save <- c(
+  'Energy Savings (MMBtu)', 'Avoided CO₂ Emissions (MMTons)', 'Energy Cost Savings (USD)')
+# Set names of variables to filter aggregated savings by
+filter_var<-c('Climate Zone', 'Building Class', 'End Use')
+
+# # Set column names for Excel file
+# col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
+
+# ============================================================================
+# Loop through all adoption scenarios, plotting variables, ECMs, and
+# competition scenarios, gather data needed for plots, and implement plots 
 # ============================================================================
 
 # Loop through all adoption scenarios
@@ -85,28 +128,28 @@ for (a in 1:length(adopt_scenarios)){
     # Set plot colors
     plot_col_c_base = "midnightblue"
     plot_col_c_eff = "lightskyblue"
-    # Set XLSX summary data file name
-    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
+    # # Set XLSX summary data file name
+    # xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
   }else{
     # Set plot colors
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
-    # Set XLSX summary data file name
-    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
+    # # Set XLSX summary data file name
+    # xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
   }
   
   # Loop through all plotting variables
   for (v in 1:length(var_names_uncompete)){
 
-    # Initialize data frame to write to XLSX sheet (note: number of rows equals to
-    # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
-    # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
-    xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
-                                 nrow = (length(meas_names)*4 + 2)))
-    # Set column names for the XLSX sheet
-    colnames(xlsx_data) = col_names_xlsx
-    # Add variable units to the XLSX data frame
-    xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
+    # # Initialize data frame to write to XLSX sheet (note: number of rows equals to
+    # # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
+    # # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
+    # xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
+    #                             nrow = (length(meas_names)*4 + 2)))
+    # # Set column names for the XLSX sheet
+    # colnames(xlsx_data) = col_names_xlsx
+    # # Add variable units to the XLSX data frame
+    # xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
 
     # Set a factor to convert the results data to final plotting units for given variable
     # (quads for energy, MMT for carbon, and billion $ for cost)
@@ -116,39 +159,68 @@ for (a in 1:length(adopt_scenarios)){
         unit_translate = 1 # carbon results data are already imported in MMT units
       }
     
-      # Initialize results vector (3 rows accommodate mean, low, and high results values;
-      # 4 columns accommodate 2 outputs (baseline and efficient) x 2 adoption scenarios)
-      results <- matrix(list(), 3, 2*length(comp_schemes))
-      # Initialize uncertainty flag for the adoption scenario
-      uncertainty = FALSE
-      # Set the file name for the plot based on the adoption scenario and plotting variable
-      if (adopt_scenarios[a] == 'Technical potential'){
-        plot_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', paste(plot_names[v],"-TP.pdf", sep=""))
+    # Initialize a matrix for storing individual ECM energy, carbon, or cost totals (3 rows
+    # accommodate mean, low, and high totals values; 4 columns accommodate 2 outputs
+    # (baseline and efficient) x 2 adoption scenarios)
+    results <- matrix(list(), 3, 2*length(comp_schemes))
+
+    # Initialize a matrix for storing aggregated ECM savings results (3 rows accommodate
+    # 3 filtering variables (climate zone, building class, end use); 3 columns accomodate
+    # the possible name categories for each filtering variable, the aggregated savings data
+    # associated with each of those categories, and the colors associated with those categories
+    results_agg <- matrix(list(), 3, 3)
+    # Initialize climate zone names, annual by-climate aggregated savings data, and line colors
+    results_agg[1,1:3] <- c(list(czones_out),
+                            list(rep(list(matrix(0, length(years))), length(czones_out))),
+                            list(czones_out_col))
+    # Initialize building class names, annual by-building aggregated savings data and line colors
+    results_agg[2,1:3] <- c(list(bclasses_out),
+                            list(rep(list(matrix(0, length(years))), length(bclasses_out))),
+                            list(bclasses_out_col))
+    # Initialize end use names, annual by-end use aggregated savings data and line colors
+    results_agg[3,1:3] <- c(list(euses_out),
+                            list(rep(list(matrix(0, length(years))), length(euses_out))),
+                            list(euses_out_col))
+      
+    # Initialize uncertainty flag for the adoption scenario 
+    uncertainty = FALSE  
+    # Set the file name for the plot based on the adoption scenario and plotting variable  
+    if (adopt_scenarios[a] == 'Technical potential'){
+      plot_file_name_ecms = file.path(
+      	base_dir, 'results', 'plots', 'tech_potential', var_names_uncompete[v],
+      	paste(plot_names_ecms[v],"-TP", sep=""))
+      plot_file_name_agg = file.path(
+      	base_dir, 'results', 'plots', 'tech_potential', var_names_uncompete[v],
+      	paste(plot_names_agg[v],"-TP", sep=""))
       }else{
-        plot_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', paste(plot_names[v],"-MAP.pdf", sep = ""))
+        plot_file_name_ecms = file.path(
+        	base_dir, 'results', 'plots', 'max_adopt_potential', var_names_uncompete[v],
+            paste(plot_names_ecms[v],"-MAP", sep = ""))
+        plot_file_name_agg = file.path(
+        	base_dir, 'results', 'plots', 'max_adopt_potential', var_names_uncompete[v],
+            paste(plot_names_agg[v],"-MAP", sep=""))
       }
-    
-      # Open PDF plot device
-      pdf(plot_file_name,width=13,height=14)
-      # Set number of rows and columns per page in PDF output
-      par(mfrow=c(4,4))
-      # Reconfigure space around each side of the plot for best fit
-      par(mar=c(5.1,5.1,3.1,2.1))
+    # Open PDF device for plotting each ECM's energy, carbon, or cost totals 
+    pdf(paste(plot_file_name_ecms, "-byECM.pdf", sep=""),width=13,height=14)
+    # Set number of rows and columns per page in PDF output
+    par(mfrow=c(4,4))
+    # Reconfigure space around each side of the plot for best fit
+    par(mar=c(5.1,5.1,3.1,2.1))
     
     # Loop through all ECMs
     for (m in 1:length(meas_names)){
     
-      # Add ECM name to XLSX data frame
-      row_ind_start = (m-1)*4 + 1
-      xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
+      # # Add ECM name to XLSX data frame
+      # row_ind_start = (m-1)*4 + 1
+      # xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
       
       # Set applicable climate zones, end uses, and building classes for ECM and add to XLSX data frame
       czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Climate Zones')
       bldg_types = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Building Classes')
       end_uses = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable End Uses')
-      xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
-      xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
-      xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
+      # xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
+      # xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
+      # xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
       
       # If there are more than three end use names, set a single end use name of 'Multiple' such that
       # the end use name label will fit easily within each plot region
@@ -157,8 +229,8 @@ for (a in 1:length(adopt_scenarios)){
       }
 
       # Find the index for accessing the item in the list of uncompeted results that corresponds
-      # to data for the current ECM. Note: competed results are accessed directly by ECM name,
-      # and do not require an index
+      # to energy, carbon, or cost total data for the current ECM. Note: competed energy, carbon, and
+      # cost totals are accessed directly by ECM name, and do not require an index
       for (uc in 1:length(uncompete_results)){
         if (uncompete_results[[uc]]$'name' == meas_names[m]){
           uc_name_ind = uc
@@ -168,15 +240,16 @@ for (a in 1:length(adopt_scenarios)){
       # Loop through all competition schemes
       for (cp in 1:length(comp_schemes)){
           
-        # Add name of results scenario (baseline/efficient + competed/uncompeted) to XLSX data frame
-        xlsx_data[(row_ind_start + (cp-1)*2):(row_ind_start + (cp-1)*2 + 1), 2] = c(
-          paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
+        # # Add name of results scenario (baseline/efficient + competed/uncompeted) to XLSX data frame
+        # xlsx_data[(row_ind_start + (cp-1)*2):(row_ind_start + (cp-1)*2 + 1), 2] = c(
+        #  paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
         
         # Set matrix for temporarily storing finalized baseline and efficient results
         r_temp <- matrix(NA, 6, length(years))  
         # Find data for uncompeted energy, carbon, and/or cost
         if (comp_schemes[cp] == "uncompeted"){
-          # Set the appropriate database of uncompeted results (access keys vary based on plotted variable)
+          # Set the appropriate database of uncompeted energy, carbon, or cost totals
+          # (access keys vary based on plotted variable)
           if (var_names_uncompete[v] != "cost"){
             results_database = 
               uncompete_results[[uc_name_ind]]$'markets'[[adopt_scenarios[a]]]$
@@ -186,8 +259,8 @@ for (a in 1:length(adopt_scenarios)){
                 uncompete_results[[uc_name_ind]]$'markets'[[adopt_scenarios[a]]]$
                 'master_mseg'[[var_names_uncompete[v]]]$'energy'$'total'
             }
-          # Order the uncompeted results by year and determine low/high bounds on each result value
-          # (if applicable)
+          # Order the uncompeted ECM energy, carbon, or cost totals by year and determine low/high
+          # bounds on each total value (if applicable)
           for (yr in 1:length(years)){
             r_temp[1:3, yr] = results_database$'baseline'[years[yr]][[1]]
             # Set mean, low, and high values for case with ECM input/output uncertainty
@@ -205,11 +278,17 @@ for (a in 1:length(adopt_scenarios)){
           }
         # Find data for competed energy, carbon, and/or cost
         }else{
-          # Set the appropriate database of competed results
+          # Set the appropriate database of ECM competed energy, carbon, or cost totals
           results_database = compete_results[[meas_names[m]]]$
             'Markets and Savings (Overall)'[[adopt_scenarios[a]]]
-          # Order the competed results by year and determine low/high bounds on each result value
-          # (if applicable)
+          # Set the appropriate database of ECM competed energy, carbon , or cost savings,
+          # which are broken out by each of the three filtering variables (climate zone,
+          # building class, end use)
+          results_database_agg = compete_results[[meas_names[m]]]$
+            'Markets and Savings (by Category)'[[adopt_scenarios[a]]][[var_names_compete_save[v]]]
+          
+          # Order competed ECM energy, carbon, or cost totals by year and determine low/high bounds
+          # on each total value (if applicable)`
           for (yr in 1:length(years)){
             base_uncertain_check = sapply(c("Baseline", "low"), grepl, names(results_database))
             if (length(which((base_uncertain_check[,1]&base_uncertain_check[,2])==TRUE)>0)) {
@@ -244,9 +323,89 @@ for (a in 1:length(adopt_scenarios)){
               }else{
                 r_temp[4:6, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
               }
+            
+            # Find the amount of the ECM's energy, carbon, or cost savings that can be
+            # attributed to each of the three aggregate savings filtering variables
+            # (climate zone, building class, end use) and add those savings to the
+            # aggregated total for each filter variable across all ECMs
+            
+            # Loop through the three variables used to filter aggregated savings, each
+            # represented by a row in the 'results_agg' matrix
+            for (fv in (1:nrow(results_agg))){
+              # Set the name categories associated with the given savings filter
+              # variable (e.g., 'Residential (New)', 'Residential (Existing)', etc. for
+              # building class)
+              fv_opts <- results_agg[fv, 1][[1]]
+              
+              # Initialize a vector used to store the ECM's energy, carbon, or cost
+              # savings that are attributable to the given filter variable; this
+              # vector must be as long as the number of category names for the
+              # filter variable, so a savings total can be stored for each category  
+              add_val = matrix(0, length(fv_opts))
+              
+              # Retrieve the savings data for the ECM that is attributable to each
+              # filter variable name category. The data are stored in a three-level
+              # nested dict with climate zone at the top level, building class at
+              # the middle level, and end use at the bottom level. All three of these
+              # levels must be looped through to retrieve the savings data.
+              
+              # Loop through all climate zones
+              for (levone in (1:length(results_agg[1, 1][[1]]))){  
+                # Set the climate zone name to use in proceeding down to the
+                # building class level of the dict
+                czone = results_agg[1, 1][[1]][[levone]]
+                # Reduce the dict to the building class level
+                r_agg_temp = results_database_agg[[czone]]
+                # Loop through all building classes
+                for (levtwo in (1:length(results_agg[2, 1][[1]]))){
+                  # Set the building class name to use in proceeding down to the
+                  # end use level of the dict
+                  bldg = results_agg[2, 1][[1]][[levtwo]]
+                  # Reduce the dict to the end use level
+                  r_agg_temp = results_database_agg[[czone]][[bldg]]
+                  # Loop through all end uses
+                  for (levthree in (1:length(results_agg[3, 1][[1]]))){
+                    # Set the end use name to use in retrieving data values
+                    euse = results_agg[3, 1][[1]][[levthree]]
+                    # Reset the predefined 'Electronics' end use name (short for
+                    # later use in plot legends) to the longer 'Computers and Electronics'
+                    # name used in the dict
+                    if (euse == "Electronics"){
+                    	euse = "Computers and Electronics"
+                    }
+                    # Reduce the dict to the level of the retrieved data values
+                    r_agg_temp = results_database_agg[[czone]][[bldg]][[euse]]  
+                    
+                    # If data values exist, add them to the ECM's energy/carbon/cost
+                    # savings-by-filter variable vector initialized above
+                    if (length(r_agg_temp)>1){
+                      # Determine which index to use in adding the retrieved data to
+                      # the ECM's energy/carbon/cost savings-by-filter variable vector
+                      if (fv == 1){
+                        index = levone
+                      }else if (fv == 2){
+                        index = levtwo
+                      }else{
+                        index = levthree
+                      }
+                      # Add retrieved data to ECM's savings-by-filter variable vector
+                      add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
+                    }
+                  }                  
+                }  
+              }
+
+              # Add ECM's savings-by-filter variable vector data to the aggregated total for
+              # each filter variable across all ECMs
+              for (fvo in 1:length(fv_opts)){
+                results_agg[fv, 2][[1]][[fvo]][yr] = results_agg[fv, 2][[1]][[fvo]][yr] + add_val[fvo]
+              }
+            }
           }
         }
-        # Set the column start and stop indexes to use in updating the matrix of results
+
+        # Set the column start and stop indexes to use in updating the matrix of ECM
+        # energy, carbon or cost totals
         col_ind_start = ((cp-1)*(length(comp_schemes))) + 1
         col_ind_end = col_ind_start + 1 # note this accommodates baseline and efficient outcomes
         # Update results matrix with mean, low, and high baseline and efficient outcomes
@@ -256,14 +415,15 @@ for (a in 1:length(adopt_scenarios)){
           cbind(list(r_temp[3,]), list(r_temp[6,])))
       }
 
-      # Set uncompeted and competed baseline results for given adoption scenario,
-      # plotting variable, and ECM (mean and low/high values for competed case)  
+      # Set uncompeted and competed baseline energy, carbon, or cost totals for given
+      # adoption scenario, plotting variable, and ECM (mean and low/high values
+      # for competed case)  
       base_uc = unlist(results[1, 1]) * unit_translate
       base_c_m = unlist(results[1, 3]) * unit_translate
       base_c_l = unlist(results[2, 3]) * unit_translate
       base_c_h = unlist(results[3, 3]) * unit_translate
-      # Set uncompeted and competed efficient results for adoption scenario,
-      # plotting variable, and ECM (mean and low/high values)
+      # Set uncompeted and competed efficient energy, carbon, or cost totals for
+      # adoption scenario, plotting variable, and ECM (mean and low/high values)
       eff_uc_m = unlist(results[1, 2]) * unit_translate
       eff_uc_l = unlist(results[2, 2]) * unit_translate
       eff_uc_h = unlist(results[3, 2]) * unit_translate
@@ -271,11 +431,11 @@ for (a in 1:length(adopt_scenarios)){
       eff_c_l = unlist(results[2, 4]) * unit_translate
       eff_c_h = unlist(results[3, 4]) * unit_translate
       
-      # Add ECM results to XLSX data frame
-      xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
-        rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
+      # # Add ECM energy, carbon, or cost totals to XLSX data frame
+      # xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
+      #  rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
       
-      # Initialize or update summed results across all ECMs
+      # Initialize or update summed energy, carbon, or cost totals across all ECMs
       if (m == 1){
         base_c_all = base_c_m
         eff_c_m_all = eff_c_m
@@ -288,7 +448,8 @@ for (a in 1:length(adopt_scenarios)){
         eff_c_h_all = eff_c_h_all + eff_c_h
       }
       
-      # Find the min. and max. values in the data to be plotted
+      # Find the min. and max. values in the ECM energy, carbon, or cost totals data
+      # to be plotted
       min_val = min(c(base_uc, base_c_m, base_c_l, base_c_h,
                       eff_uc_m, eff_uc_l, eff_uc_h,
                       eff_c_m, eff_c_l, eff_c_h))
@@ -298,13 +459,13 @@ for (a in 1:length(adopt_scenarios)){
       # Set limits of y axis for plot based on min. and max. values in data
       ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
 
-      # Initialize the plot with uncompeted baseline results
+      # Initialize the plot with uncompeted baseline ECM energy, carbon, or cost totals
       plot(years, base_uc, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
            xlab=NA, ylab=NA, col=plot_col_uc_base, main = meas_names[m], xaxt="n", yaxt="n")
         
-      # Determine legend parameters based on whether uncertainty is present in results
+      # Determine legend parameters based on whether uncertainty is present in totals
       if (uncertainty == TRUE){
-        # Set legend parameters for a plot with uncertainty in the results
+        # Set legend names for a plot with uncertainty in the ECM totals
         legend_param = c(
           "Baseline (Uncompeted)", "Baseline (Competed)",
           "Efficient (Uncompeted)", "Efficient (Competed)",
@@ -316,7 +477,7 @@ for (a in 1:length(adopt_scenarios)){
         lwd_param = c(5, 3, 3.5, rep(1, 5))
         lty_param = c(rep(1, 4), rep(6, 3))
         }else{
-          # Set legend parameters for a plot with no uncertainty in the results
+          # Set legend names for a plot with no uncertainty in the ECM totals
           legend_param = c("Baseline (Uncompeted)", "Baseline (Competed)",
                            "Efficient (Uncompeted)", "Efficient (Competed)")
           col_param = c(plot_col_uc_base, plot_col_c_base, plot_col_uc_eff, plot_col_c_eff)
@@ -325,7 +486,7 @@ for (a in 1:length(adopt_scenarios)){
         }
 
       # Add low/high bounds on uncompeted and competed baseline and efficient
-      # results, if applicable
+      # ECM energy, carbon, or cost totals, if applicable
       if (uncertainty == TRUE){
           lines(years, eff_uc_l, lwd=1, lty=6, col=plot_col_uc_eff)
           lines(years, eff_uc_h, lwd=1, lty=6, col=plot_col_uc_eff)
@@ -335,7 +496,7 @@ for (a in 1:length(adopt_scenarios)){
           lines(years, eff_c_h, lwd=1, lty=6 , col=plot_col_c_eff)
       }
 
-      # Add mean uncompeted efficient results
+      # Add mean uncompeted efficient ECM energy, carbon, or cost totals
       lines(years, eff_uc_m, lwd=3, col=plot_col_uc_eff)
       # Add mean competed baseline results
       lines(years, base_c_m, lwd=3.5, col=plot_col_c_base)
@@ -344,7 +505,7 @@ for (a in 1:length(adopt_scenarios)){
 
       # Add x and y axis labels
       mtext("Year", side=1, line=3.5, cex=0.925)
-      mtext(plot_axis_labels[v], side=2, line=3.75, cex=0.925)
+      mtext(plot_axis_labels_ecm[v], side=2, line=3.75, cex=0.925)
       # Add tick marks and labels to bottom and left axes
       axis(side=1, at=pretty(c(min(years), max(years))),
            labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
@@ -357,36 +518,37 @@ for (a in 1:length(adopt_scenarios)){
       text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50", pos=4)
     }
   
-    # Add results across all ECMs to XLSX data frame
-    row_ind_start = (length(meas_names))*4 + 1
-    xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
-    xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
-    # Add data to XLSX data frame
-    xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
+    # # Add results across all ECMs to XLSX data frame
+    # row_ind_start = (length(meas_names))*4 + 1
+    # xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
+    # xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
+    # # Add data to XLSX data frame
+    # xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
     
-    # Plot results across all ECMs
+    # Plot energy, carbon, and cost totals across all ECMs
     
-    # Find the min. and max. values in the data to be plotted
+    # Find the min. and max. values in the totals to be plotted
     min_val = min(c(base_c_all,
                     eff_c_m_all, eff_c_l_all, eff_c_h_all))
     max_val = max(c(base_c_all,
                     eff_c_m_all, eff_c_l_all, eff_c_h_all))
-    # Set limits of y axis for plot based on min. and max. values in data
+    # Set limits of y axis for plot based on min. and max. values in totals
     ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
 
-    # Initialize the plot with uncompeted baseline results across all ECMs
+    # Initialize the plot with uncompeted baseline energy, carbon, or cost totals
+    # across all ECMs
     plot(years, base_c_all, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
          xlab=NA, ylab=NA, col=plot_col_c_base, main = "All ECMs", xaxt="n", yaxt="n")
     # Add low bounds on uncompeted and competed baseline and efficient
-    # results, if applicable
+    # energy, carbon, or cost totals, if applicable
     if (uncertainty == TRUE){
       lines(years, eff_c_l_all, lwd=1, lty=6 , col=plot_col_c_eff)
       lines(years, eff_c_h_all, lwd=1, lty=6 , col=plot_col_c_eff)
     }
-    # Add mean competed efficient results across all ECMs
+    # Add mean competed efficient energy, carbon, or cost totals across all ECMs
     lines(years, eff_c_m_all, lwd=2, col=plot_col_c_eff)
     
-    # Annotate the plot with 2030 savings figure
+    # Annotate the plot with 2030 total savings figure
     # Find x and y values for annotation
     xval_2030 = 2030
     yval_2030_eff = eff_c_m_all[which(years=="2030")]
@@ -400,9 +562,10 @@ for (a in 1:length(adopt_scenarios)){
          paste(toString(sprintf("%.1f", yval_2030_base-yval_2030_eff)),
                toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
     
-    # Add x and y axis labels
+    # Add x and y axis labels to plot of energy, carbon, or cost totals
+    # across all ECMs
     mtext("Year", side=1, line=3.5, cex=0.925)
-    mtext(plot_axis_labels[v], side=2, line=3.75, cex=0.925)
+    mtext(plot_axis_labels_ecm[v], side=2, line=3.75, cex=0.925)
     # Add tick marks and labels to bottom and left axes
     axis(side=1, at=pretty(c(min(years), max(years))),
          labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
@@ -411,23 +574,135 @@ for (a in 1:length(adopt_scenarios)){
     axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
     axis(side=4, at=ylims, labels = NA)
 
-    # Add plot legend
+    # Add plot legend to plot of energy, carbon, or cost totals across all ECMs
     par(xpd=TRUE)
     plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
     legend("top", legend=legend_param, lwd=lwd_param, col=col_param, lty=lty_param, 
        bty="n", border = FALSE, merge = TRUE, cex=1.15)
     # Close plot device
     dev.off()
+    # # Write data to XLSX sheet
+    # # First variable and adoption scenario - create XLSX file
+    # if (v == 1){
+    #  write.xlsx(x = xlsx_data, file = xlsx_file_name,
+    #             sheetName = plot_names_ecms[v], row.names = FALSE, append = FALSE)
+    #  # Subsequent variable and adoption scenario - add to XLSX file
+    #  }else{
+    #  write.xlsx(x = xlsx_data, file = xlsx_file_name,
+    #             sheetName = plot_names_ecms[v], row.names = FALSE, append = TRUE)
+    #  }
     
-    # Write data to XLSX sheet
-    # First variable and adoption scenario - create XLSX file
-    if (v == 1){
-      write.xlsx(x = xlsx_data, file = xlsx_file_name,
-                 sheetName = plot_names[v], row.names = FALSE, append = FALSE)
-      # Subsequent variable and adoption scenario - add to XLSX file
-      }else{
-      write.xlsx(x = xlsx_data, file = xlsx_file_name,
-                 sheetName = plot_names[v], row.names = FALSE, append = TRUE)
+    # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,
+    # filtered by climate zone, building class, and end use
+	
+	# Generate single PDF device to plot aggregate savings under all three filters
+	pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
+    # Set number of rows and columns per page in PDF output
+    par(mfrow=c(3,1))
+    # Reconfigure space around each side of the plot for best fit
+    par(mar=c(5.1, 7.1, 3.1, 7.1))
+    
+    # Loop through all three savings filter variables and add plot of aggregated savings
+    # under each filter to the PDF device
+    for (f in (1:nrow(results_agg))){
+      # Initialize vector for storing total annual savings across all category names
+      # for the given filter variable
+      total_ann = matrix(0, length(years))
+      # Initialize vector for storing ranks of annual savings for each category
+      # for the given filter variable
+      total_ranks = matrix(0, length(results_agg[f, 2][[1]]))
+      
+      # Loop through all categories under the filter variable and add aggregate savings
+      # under that category to the total aggregate savings for the given filter variable  
+      for (cat in (1:length(results_agg[f, 2][[1]]))){
+        # Add annual savings for category to total annual savings
+        total_ann = total_ann + results_agg[f, 2][[1]][[cat]]*unit_translate
+		# Add maximum value of annual savings for category, for ranking purposes
+        total_ranks[cat] = max(results_agg[f, 2][[1]][[cat]]*unit_translate)
       }
+      
+      # Use the total annual savings data to develop total cumulative savings
+      
+      # Initialize vector for storing total cumulative savings across all category names
+      total_cum = matrix(0, length(total_ann))
+      # Loop through each year in the total annual savings data and develop a total
+      # cumulative savings value for that year
+      for (yr in (1:length(total_ann))){
+      	# For first year, total cumulative savings equals total annual savings; in
+      	# subsequent years, total cumulative savings equals total annual savings
+      	# plus total cumulative savings for the year before
+      	if (yr == 1){
+      		total_cum[yr] = total_ann[yr]
+      	}else{
+      		total_cum[yr] = total_ann[yr] + total_cum[yr-1]
+      	}	
+      }
+      
+      # Plot total annual/cumulative savings and savings by filter variable category
+      
+      # Develop x limits for the plot
+      xlim = pretty(c(min(years), max(years)))
+      
+      # Develop y limits for total cumulative savings
+      min_val_cum = min(total_cum)
+      max_val_cum = max(total_cum)
+      ylim_cum = pretty(c(min_val_cum, max_val_cum))
+      
+      # Develop y limits for total annual savings
+      min_val_ann = min(total_ann)
+      max_val_ann = max(total_ann)
+      ylim_ann = pretty(c(min_val_ann, max_val_ann))
+      
+      # Initialize plot region for total cumulative savings
+      plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
+           ylim = c(min(ylim_cum), max(ylim_cum)),
+           main = paste(plot_names_ecms[v], 'by', filter_var[f], sep=" "),
+           axes=FALSE, xlab=NA, ylab=NA)
+      # Add total cumulative savings line
+      lines(years, total_cum, col="gray50", lwd=4, lty=3)
+      # Add x axis and axis labels
+      axis(side=1, at=pretty(c(min(years), max(years))),
+           labels=pretty(c(min(years), max(years))), cex.axis = 1.25)
+      mtext("Year", side=1, line=3.25, cex=0.9)  
+      # Add y axis and axis labels for total cumulative savings
+      axis(side=4, at=ylim_cum, labels = ylim_cum, cex.axis = 1.25, las=1)
+      mtext(plot_axis_labels_agg_cum[v], side=4, line=4, cex=0.9) 
+      
+      # Add plot of total annual savings and savings by filter variable category name
+      par(new=TRUE)
+      
+      # Loop through each filter variable category name to add to plot
+      for (catnm in (1:(length(results_agg[f, 2][[1]])))){
+        if (catnm == 1){  
+          # Initialize plot region for total annual savings and savings by filter
+          # variable category
+          plot(years, results_agg[f, 2][[1]][[catnm]]*unit_translate, typ='l',
+          	   xlim = c(min(xlim), max(xlim)), ylim = c(min(ylim_ann), max(ylim_ann)),
+               xlab=NA, ylab=NA, col=results_agg[f, 3][[1]][catnm], main = NA,
+               xaxt="n", yaxt="n", lwd=1.5)
+                    axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
+        }else{
+          # Add lines for savings by filter variable category
+          lines(years, results_agg[f, 2][[1]][[catnm]]*unit_translate, col=results_agg[f, 3][[1]][catnm], lwd=2)
+        }
+      }
+      # Add total annual savings line
+      lines(years, total_ann, col="gray30", lwd=4)
+      # Add y axis labels for total annual savings and savings by filter variable category
+      mtext(plot_axis_labels_agg_ann[v], side=2, line=4, cex=0.9) 
+      
+      # Add a legend
+      
+      # Set legend names
+      legend_entries = c('Total (Annual)', 'Total (Cumulative)',
+      					 results_agg[f, 1][[1]][order(total_ranks, decreasing=TRUE)])
+      # Set legend colors
+      color_entries = c('gray30', 'gray50', results_agg[f, 3][[1]][order(total_ranks, decreasing=TRUE)])
+      legend(min(xlim), max(ylim_ann), legend=legend_entries,
+      		 lwd=c(4, 4, rep(2, (length(legend_entries) - 2))),
+             col=color_entries, lty=c(1, 3, rep(1, (length(legend_entries)-2))), 
+       		 bty="n", border = FALSE, merge = TRUE, cex=0.8)
+    }
+    dev.off()
   }
 }
