@@ -2,23 +2,26 @@
 # Load required packages and files
 # ============================================================================
 
-# Load RColorBrewer
-if(!require("RColorBrewer")){install.packages("RColorBrewer")}
-require("RColorBrewer")
-# Load rjson for reading in JSON files
-if(!require("rjson")){install.packages("rjson")}
-require("rjson")
+# Define function to load required packages
+package_loader <- function(pkg_list) {
+  for(pkg_name in pkg_list){
+    # require returns TRUE invisibly if it was able to load package
+    if(!require(pkg_name, character.only = TRUE, quietly = TRUE, warn.conflicts=FALSE)){
+    	options(warn=-1)  # (Help) suppress warning messages
+      # If package was not able to be loaded then download and install
+      install.packages(pkg_name, dependencies = TRUE)
+      # Load package after installing
+      require(pkg_name, character.only = TRUE, quietly=TRUE, warn.conflicts=FALSE)
+    }
+  }
+}
+
+# Load indicated packages
+package_loader(c("RColorBrewer", "rjson", "WriteXLS", "stringr", "TeachingDemos"))
+
 # Specify JSON file encoding
 options("encoding" = "UTF-8")
-# # Load WriteXLS for writing out raw data to xlsx-formatted files
-if(!require("WriteXLS")){install.packages("WriteXLS")}
-require("WriteXLS")
-# Load package for counting commas in a string
-if(!require("stringr")){install.packages("stringr")}
-require("stringr")
-# Load package for use with adding text to plots
-if(!require("TeachingDemos")){install.packages("TeachingDemos")}
-require("TeachingDemos")
+
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
