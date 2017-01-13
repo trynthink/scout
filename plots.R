@@ -899,15 +899,21 @@ for (a in 1:length(adopt_scenarios)){
 		order = order(unlist(results_finmets[, 5])[restrict], decreasing=TRUE)    	
     	# Finally, record the index numbers of the filtered/ranked ECMs
     	final_index = restrict[order]
+    	# Handle cases where there are less than 5 cost effective ECMs to rank
+    	if (length(meas_names[final_index])<5){
+    		ecm_length = length(meas_names[final_index])
+    	}else{
+    		ecm_length = 5
+    	}
     	# Set top 5 ECM names (add rank number next to each name)
-    	meas_names_lgnd = meas_names[final_index][1:5]
+    	meas_names_lgnd = meas_names[final_index][1:ecm_length]
     	for (mn in 1:length(meas_names_lgnd)){
     		meas_names_lgnd[mn] = paste(toString(mn), meas_names_lgnd[mn], sep=" ")
     	}
     	# Set x axis savings values for top 5 ECMs
-    	label_vals_x = unlist(results_finmets[, 5])[final_index][1:5]
+    	label_vals_x = unlist(results_finmets[, 5])[final_index][1:ecm_length]
     	# Set y axis financial metrics values for top 5 ECMs
-    	label_vals_y = unlist(results_finmets[, fmp])[final_index][1:5]
+    	label_vals_y = unlist(results_finmets[, fmp])[final_index][1:ecm_length]
     	    	
     	
     	# Set y limits for the plot
@@ -915,11 +921,11 @@ for (a in 1:length(adopt_scenarios)){
     	# y axis range for each financial metric type; if not, adjust y axis range
     	# to accomodate out of range y values for top 5 ECMs
     	# Adjust top of range as needed
-    	if (max(label_vals_y)>max(plot_lims_finmets[[fmp]])){
+    	if ((is.finite(label_vals_y)) & (max(label_vals_y)>max(plot_lims_finmets[[fmp]]))){
     		plot_lims_finmets[[fmp]][2] = max(label_vals_y) # + 0.5*max(label_vals_y)
     	}
     	# Adjust bottom of range as needed
-    	if (min(label_vals_y)<min(plot_lims_finmets[[fmp]])){
+    	if ((is.finite(label_vals_y)) & (min(label_vals_y)<min(plot_lims_finmets[[fmp]]))){
     		plot_lims_finmets[[fmp]][1] = min(label_vals_y) # + 0.5*min(label_vals_y)
     	} 
     	# Make pretty labels for y axis range
@@ -969,12 +975,14 @@ for (a in 1:length(adopt_scenarios)){
         # Add y axis tick marks and axis labels
         axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
         mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.25, cex=0.9)
-        # Add number ranking labels to top 5 ECM points
-        text(label_vals_x, label_vals_y,
-             labels = seq(1, 5), pos=3, cex=0.6, col="black")
-        # Add a legend with top 5 ECM names
-        legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
-               legend = meas_names_lgnd, cex=0.7)
+        if (is.finite(label_vals_y)){
+        	# Add number ranking labels to top 5 ECM points
+        	text(label_vals_x, label_vals_y,
+             	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
+        	# Add a legend with top 5 ECM names
+        	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
+               	   legend = meas_names_lgnd, cex=0.7)
+        }
     }
     
     # Add a series of legends to the second page of the PDF device that distinguish
