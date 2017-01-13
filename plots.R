@@ -10,12 +10,15 @@ if(!require("rjson")){install.packages("rjson")}
 require("rjson")
 # Specify JSON file encoding
 options("encoding" = "UTF-8")
-# # Load XLSX for writing out raw data to MS Excel
-# if(!require("xlsx")){install.packages("xlsx")}
-# require("xlsx")
+# # Load WriteXLS for writing out raw data to xlsx-formatted files
+if(!require("WriteXLS")){install.packages("WriteXLS")}
+require("WriteXLS")
 # Load package for counting commas in a string
 if(!require("stringr")){install.packages("stringr")}
 require("stringr")
+# Load package for use with adding text to plots
+if(!require("TeachingDemos")){install.packages("TeachingDemos")}
+require("TeachingDemos")
 # Get current working directory path
 base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
@@ -90,7 +93,7 @@ plot_col_uc_lowhigh = "gray90"
 # Set variable names to use in accessing all uncompeted energy, carbon, and cost results from JSON data
 var_names_uncompete <- c('energy', 'carbon', 'cost')
 # Set output units for each variable type
-var_units <- c('Quads', 'MMTons', 'Billion $')
+var_units <- c('Quads', 'Mt', 'Billion $')
 # Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data. Note
 # that each variable potentially has a '(low)' and '(high)' variant in the JSON.
 var_names_compete_base_m <- c(
@@ -125,7 +128,7 @@ plot_axis_labels_agg_cum<-c('Cumulative Primary Energy Use Savings (Quads)',
 # Set names of variables used to retrieve savings data to aggregate
 var_names_compete_save <- c(
   'Energy Savings (MMBtu)', 'Avoided CO₂ Emissions (MMTons)', 'Energy Cost Savings (USD)')
-# Set names of variables to filter aggregated savings by
+# Set names of variables to filter aggregated savings
 filter_var<-c('Climate Zone', 'Building Class', 'End Use')
 
 # ============================================================================
@@ -160,8 +163,8 @@ fin_metrics <- c(
 	list(c('Portfolio Level', 'Cost of Conserved Energy ($/MMBtu saved)')),
 	list(c('Portfolio Level', 'Cost of Conserved CO₂ ($/MTon CO₂ avoided)')))
 
-# # Set column names for Excel file
-# col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
+# Set column names for Excel file
+col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
 
 # ============================================================================
 # Loop through all adoption scenarios, plotting variables, ECMs, and
@@ -172,33 +175,37 @@ fin_metrics <- c(
 for (a in 1:length(adopt_scenarios)){
 
   # Set plot colors for competed baseline, efficient, and low/high results
-  # (varies by adoption scenario); also set XLSX summary data file name for adoption scenario
+  # (varies by adoption scenario); also set Excel summary data file name for adoption scenario
   if (adopt_scenarios[a] == "Technical potential"){
     # Set plot colors
     plot_col_c_base = "midnightblue"
     plot_col_c_eff = "lightskyblue"
-    # # Set XLSX summary data file name
-    # xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
+    # # Set Excel summary data file name
+    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'tech_potential', "Summary_Data-TP.xlsx")
   }else{
     # Set plot colors
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
-    # # Set XLSX summary data file name
-    # xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
+    # # Set Excel summary data file name
+    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
   }
   
+  # Preallocate list for variable names to be used later to export data
+  # to xlsx-formatted Excel files
+  xlsx_var_name_list <- vector("character", length=length(var_names_uncompete))
+
   # Loop through all plotting variables
   for (v in 1:length(var_names_uncompete)){
 
-    # # Initialize data frame to write to XLSX sheet (note: number of rows equals to
-    # # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
-    # # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
-    # xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
-    #                             nrow = (length(meas_names)*4 + 2)))
-    # # Set column names for the XLSX sheet
-    # colnames(xlsx_data) = col_names_xlsx
-    # # Add variable units to the XLSX data frame
-    # xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
+    # Initialize data frame to write to Excel worksheet (note: number of rows equals to
+    # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
+    # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
+    xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
+                                nrow = (length(meas_names)*4 + 2)))
+    # Set column names for the worksheet
+    colnames(xlsx_data) = col_names_xlsx
+    # Add variable units to the Excel worksheet data frame
+    xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
 
     # Set a factor to convert the results data to final plotting units for given variable
     # (quads for energy, MMT for carbon, and billion $ for cost)
@@ -276,17 +283,18 @@ for (a in 1:length(adopt_scenarios)){
     # Loop through all ECMs
     for (m in 1:length(meas_names)){
     
-      # # Add ECM name to XLSX data frame
-      # row_ind_start = (m-1)*4 + 1
-      # xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
+      # Add ECM name to Excel worksheet data frame
+      row_ind_start = (m-1)*4 + 1
+      xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
       
-      # Set applicable climate zones, end uses, and building classes for ECM and add to XLSX data frame
+      # Set applicable climate zones, end uses, and building classes for ECM
+      # and add to Excel worksheet data frame
       czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Climate Zones')
       bldg_types = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Building Classes')
       end_uses = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable End Uses')
-      # xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
-      # xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
-      # xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
+      xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
+      xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
+      xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
       
       # If there are more than three end use names, set a single end use name of 'Multiple' such that
       # the end use name label will fit easily within each plot region
@@ -306,9 +314,10 @@ for (a in 1:length(adopt_scenarios)){
       # Loop through all competition schemes
       for (cp in 1:length(comp_schemes)){
           
-        # # Add name of results scenario (baseline/efficient + competed/uncompeted) to XLSX data frame
-        # xlsx_data[(row_ind_start + (cp-1)*2):(row_ind_start + (cp-1)*2 + 1), 2] = c(
-        #  paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
+        # Add name of results scenario (baseline/efficient + competed/uncompeted)
+        # to Excel worksheet data frame
+        xlsx_data[(row_ind_start + (cp-1)*2):(row_ind_start + (cp-1)*2 + 1), 2] = c(
+         paste("Baseline ", comp_schemes[cp], sep = ""), paste("Efficient ", comp_schemes[cp], sep = ""))
         
         # Set matrix for temporarily storing finalized baseline and efficient results
         r_temp <- matrix(NA, 6, length(years))  
@@ -587,9 +596,9 @@ for (a in 1:length(adopt_scenarios)){
       eff_c_l = unlist(results[2, 4]) * unit_translate
       eff_c_h = unlist(results[3, 4]) * unit_translate
       
-      # # Add ECM energy, carbon, or cost totals to XLSX data frame
-      # xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
-      #  rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
+      # Add ECM energy, carbon, or cost totals to Excel worksheet data frame
+      xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
+       rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
       
       # Initialize or update summed energy, carbon, or cost totals across all ECMs
       if (m == 1){
@@ -674,12 +683,12 @@ for (a in 1:length(adopt_scenarios)){
       text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50", pos=4)
     }
   
-    # # Add results across all ECMs to XLSX data frame
-    # row_ind_start = (length(meas_names))*4 + 1
-    # xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
-    # xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
-    # # Add data to XLSX data frame
-    # xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
+    # Add results across all ECMs to Excel worksheet data frame
+    row_ind_start = (length(meas_names))*4 + 1
+    xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
+    xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
+    # Add data to Excel worksheet data frame
+    xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
     
     # Plot energy, carbon, and cost totals across all ECMs
     
@@ -737,22 +746,12 @@ for (a in 1:length(adopt_scenarios)){
        bty="n", border = FALSE, merge = TRUE, cex=1.15)
     # Close plot device
     dev.off()
-    # # Write data to XLSX sheet
-    # # First variable and adoption scenario - create XLSX file
-    # if (v == 1){
-    #  write.xlsx(x = xlsx_data, file = xlsx_file_name,
-    #             sheetName = plot_names_ecms[v], row.names = FALSE, append = FALSE)
-    #  # Subsequent variable and adoption scenario - add to XLSX file
-    #  }else{
-    #  write.xlsx(x = xlsx_data, file = xlsx_file_name,
-    #             sheetName = plot_names_ecms[v], row.names = FALSE, append = TRUE)
-    #  }
-    
+
     # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,
     # filtered by climate zone, building class, and end use
 	
-	# Generate single PDF device to plot aggregate savings under all three filters
-	pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
+		# Generate single PDF device to plot aggregate savings under all three filters
+		pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
     # Set number of rows and columns per page in PDF output
     par(mfrow=c(3,1))
     # Reconfigure space around each side of the plot for best fit
@@ -891,12 +890,18 @@ for (a in 1:length(adopt_scenarios)){
     		restrict = which(
     			(unlist(results_finmets[, fmp]) >= plot_ablines_finmets[fmp]) &
     			(unlist(results_finmets[, fmp]) < 999))
-    	}else{
+    	} else{
     		restrict = which(unlist(results_finmets[, fmp]) <= plot_ablines_finmets[fmp])
-       	}
-       	# Second, find the ranking of those ECMs that meet the cost effectiveness
-       	# threshold
-		order = order(unlist(results_finmets[, 5])[restrict], decreasing=TRUE)    	
+     	}
+			# Set vector of cost effective savings results
+      results_restrict<-unlist(results_finmets[, 5])[restrict]
+      # Sum total cost effective savings
+      total_save <- sum(results_restrict)
+
+      # Second, find the ranking of those ECMs that meet the cost effectiveness
+      # threshold
+      order = order(results_restrict, decreasing=TRUE)   
+
     	# Finally, record the index numbers of the filtered/ranked ECMs
     	final_index = restrict[order]
     	# Handle cases where there are less than 5 cost effective ECMs to rank
@@ -921,11 +926,11 @@ for (a in 1:length(adopt_scenarios)){
     	# y axis range for each financial metric type; if not, adjust y axis range
     	# to accomodate out of range y values for top 5 ECMs
     	# Adjust top of range as needed
-    	if ((is.finite(label_vals_y)) & (max(label_vals_y)>max(plot_lims_finmets[[fmp]]))){
+    	if ((is.finite(max(label_vals_y))) & (max(label_vals_y)>max(plot_lims_finmets[[fmp]]))){
     		plot_lims_finmets[[fmp]][2] = max(label_vals_y) # + 0.5*max(label_vals_y)
     	}
     	# Adjust bottom of range as needed
-    	if ((is.finite(label_vals_y)) & (min(label_vals_y)<min(plot_lims_finmets[[fmp]]))){
+    	if ((is.finite(min(label_vals_y))) & (min(label_vals_y)<min(plot_lims_finmets[[fmp]]))){
     		plot_lims_finmets[[fmp]][1] = min(label_vals_y) # + 0.5*min(label_vals_y)
     	} 
     	# Make pretty labels for y axis range
@@ -962,27 +967,29 @@ for (a in 1:length(adopt_scenarios)){
     	}
     	# Add a line to distinguish the cost effectiveness threshold
     	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
-       	# Add individual ECM points to the cost effectiveness plot
-       	points(
-    		results_finmets[,5], results_finmets[, fmp],
-           	col=unlist(results_finmets[,6]),
-           	pch=unlist(results_finmets[,7]),
-           	bg=unlist(results_finmets[,8]), lwd=1,
-           	cex = 1.2)
-        # Add x axis tick marks and axis labels
-        axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
-        mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
-        # Add y axis tick marks and axis labels
-        axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
-        mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.25, cex=0.9)
-        if (is.finite(label_vals_y)){
-        	# Add number ranking labels to top 5 ECM points
-        	text(label_vals_x, label_vals_y,
-             	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
-        	# Add a legend with top 5 ECM names
-        	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
-               	   legend = meas_names_lgnd, cex=0.7)
-        }
+     	# Add individual ECM points to the cost effectiveness plot
+     	points(results_finmets[,5], results_finmets[, fmp],
+           	 col=unlist(results_finmets[,6]),
+           	 pch=unlist(results_finmets[,7]),
+           	 bg=unlist(results_finmets[,8]), lwd=1,
+           	 cex = 1.2)
+      # Add x axis tick marks and axis labels
+      axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
+      mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
+      # Add y axis tick marks and axis labels
+      axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
+			# Add label with total cost effective savings
+			label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)), var_units[v], sep=" ")
+      shadowtext(0-max(xlim)/50, max(ylim_fm), label_text, cex=0.7, bg="gray98", col="black", pos=4, offset=0, r=0.2)
+      mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.25, cex=0.9)
+      if (is.finite(max(label_vals_y))){
+      	# Add number ranking labels to top 5 ECM points
+      	text(label_vals_x, label_vals_y,
+           	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
+      	# Add a legend with top 5 ECM names
+      	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
+             	   legend = meas_names_lgnd, cex=0.7)
+      }
     }
     
     # Add a series of legends to the second page of the PDF device that distinguish
@@ -1011,5 +1018,21 @@ for (a in 1:length(adopt_scenarios)){
           pch = rep(16, length(euses_out_finmets_lgnd) + 1),
           bty="n", cex=0.8, title=expression(bold('End Use')))  
     dev.off()
+
+    # Create variable name to store data to be written to one worksheet
+    # of an Excel spreadsheet
+    xlsx_unique_var_name <- paste("dataset", v, sep="")
+
+    # Add variable name to a list of variable names that will indicate to the
+    # WriteXLS function the data to be written to the Excel spreadsheet
+    xlsx_var_name_list[v] <- xlsx_unique_var_name
+
+    # Assign current data to the variable name generated and stored for use
+    # in writing out the Excel data
+    assign(xlsx_unique_var_name, xlsx_data)
   }
+
+  # Write data to Excel xlsx-formatted spreadsheet with worksheets
+  # named using the SheetNames attribute
+  WriteXLS(xlsx_var_name_list, ExcelFileName = xlsx_file_name, SheetNames = plot_names_ecms)
 }
