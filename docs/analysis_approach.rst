@@ -125,7 +125,6 @@ Calculating total baseline energy, |CO2|, and cost (uncompeted)
 .. _Fuel-specific energy costs: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=3-AEO2016&region=1-0&cases=ref2016&start=2013&end=2040&f=A&sourcekey=0
 .. _emissions: http://www.eia.gov/forecasts/aeo/data/browser/#/?id=17-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
 .. _stocks-and-flows: https://en.wikipedia.org/wiki/Stock_and_flow
-.. _Social Cost of Carbon: https://www.whitehouse.gov/sites/default/files/omb/inforeg/scc_tsd_final_clean_8_26_16.pdf
 
 .. ADD LINK TO FIRST BULLET IN THIS SECTION WITH FURTHER DETAILS REGARDING THE DEVELOPMENT OF ORIGINAL DATASETS TO AUGMENT THE AEO DATA
 .. ADD LINK TO THE JSON FILE ONCE IT IS ADDED TO THE REPO
