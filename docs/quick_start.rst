@@ -84,14 +84,11 @@ If you'd like to confirm that numpy was installed successfully, you can start Py
 
    python3
 
-and import numpy (within the Python interactive shell, indicated by the ``>>>`` prompt).:: 
+and import numpy (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
 
    import numpy
 
 If no error or warning messages appear, then the installation was successful and you can exit Python by typing ``quit()``.
-
-
-.. _qs-mac-text-editor:
 
 3. Install a text editor
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +97,7 @@ A third-party text editor will make it easier to change Scout files. There are `
 
 .. _many different text editors: https://en.wikipedia.org/wiki/Comparison_of_text_editors
 
-For the purposes of this tutorial, the following instructions will step through how to install `Sublime Text`_, an easy to use text editor with a graphical interface that can be configured to satisfy the specified requirements. This tutorial is provided to illustrate the steps required to configure a text editor for viewing and modifying Python and JSON files and should not be construed as an endorsement or promotion of Sublime Text.
+For the purposes of this documentation, the following instructions will step through how to install `Sublime Text`_, an easy to use text editor with a graphical interface that can be configured to satisfy the specified requirements. These instructions are provided to illustrate the steps required to configure a text editor for viewing and modifying Python and JSON files and should not be construed as an endorsement or promotion of Sublime Text.
 
 .. _Sublime Text: http://www.sublimetext.com
 
@@ -180,10 +177,20 @@ Follow the instructions in the installer to complete the installation.
 Windows
 -------
 
+0. Determine whether you have 32-bit or 64-bit Windows installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some of the software prerequisites for Scout have different versions for 32-bit and 64-bit installations of Windows. If you are unsure of whether your computer is running 32-bit or 64-bit Windows, you can follow `these instructions`_ from Microsoft to find out.
+
+.. _these instructions: https://support.microsoft.com/en-us/help/827218/how-to-determine-whether-a-computer-is-running-a-32-bit-version-or-64-bit-version-of-the-windows-operating-system
+
 1. Install Python 3
 ~~~~~~~~~~~~~~~~~~~
 
-Download the executable installer for Windows available on the Python Software Foundation `downloads page`_. Run the installer and follow the on-screen prompts as you would with any other software installer. Be sure that the option "Add Python 3.x to PATH", where x denotes the current version of Python 3, in the installer is checked.
+.. tip::
+   If you have 64-bit Windows installed on your computer, downloading and installing the 64-bit version of Python is recommended. 
+
+Download the executable installer for Windows available on the Python Software Foundation `downloads page`_. Run the installer and follow the on-screen prompts as you would with any other software installer. Be sure that the option in the installer "Add Python 3.x to PATH," where x denotes the current version of Python 3, is checked.
 
 .. _downloads page: https://www.python.org/downloads/
 
@@ -193,26 +200,131 @@ Download the executable installer for Windows available on the Python Software F
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 installation is complete, the numpy package needs to be installed. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
+Once Python 3 installation is complete, the numpy package needs to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
 
    py -3 -m pip install numpy
 
+.. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
+
+If you would like to confirm that numpy was installed successfully, you can open an interactive session of Python in a command prompt window by typing::
+
+   py -3
+
+and then importing numpy (within the Python interactive session, indicated by a ``>>>`` prompt)::
+
+   import numpy
+
+If no error or warning messages appear, numpy was installed successfully. Exit the interactive session of Python by typing::
+
+   quit()
 
 3. Install a text editor
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 While Windows comes with a plain text editor, Notepad, there are `many different text editors`_ available for Windows that will make it much easier to view and change Scout files. You are welcome to use the editor of your choice, but whatever you choose should have |editor requirements|.
 
-Sublime Text is an easy to use cross-platform text editor that can be configured to have the necessary features for authoring Python and JSON files. The instructions are the same as those :ref:`provided for Mac users <qs-mac-text-editor>`, except that on Windows, an installer places the application and supporting files in the correct location. Also, the shortcut key commands and the process for installing pep8 and pyflakes will be slightly different in Windows. Follow the instructions already outlined for installing Python packages using pip to install pep8 and pyflakes.
+`Sublime Text`_ is an easy to use cross-platform text editor that can be configured to have the necessary features for authoring Python and JSON files. The following instructions are provided to illustrate the steps required to configure a text editor for viewing and modifying Python and JSON files and should not be construed as an endorsement or promotion of Sublime Text.
+
+1. Install Sublime Text
+***********************
+
+To set up Sublime Text for working with Scout, `download Sublime Text 3`_ and run the installer. The installer will automatically place the application and supporting files in the appropriate locations on your system.
+
+After installing Sublime Text, there are several additional configuration steps that will help get the editor ready for viewing and editing Python and JSON files.
+
+2. Install Package Control
+**************************
+
+First, open Sublime Text and, following the directions_ provided by the developer, install Package Control.
+
+.. _directions: https://packagecontrol.io/installation
+
+Once installed, Package Control is opened via the Command Palette (Tools > Command Palette or Ctrl+Shift+P). Begin typing "Package Control" into the Command Palette. If a list of options beginning with "Package Control" appear, then the installation was successful. If not, refer back to the `Package Control website`_ for troubleshooting help.
+
+.. _Package Control website: https://packagecontrol.io/docs
+
+We will use Package Control to install the additional features needed for checking Python files. 
+
+3. Install SublimeLinter prerequisites
+**************************************
+
+Before proceeding further, `open a command prompt`_ window and type the following commands to use pip to install the pep8 and pyflakes packages::
+
+   py -3 -m pip install pep8
+   py -3 -m pip install pyflakes
+
+Once you have 
+
+4. Install SublimeLinter
+************************
+
+Return to Sublime Text and open Package Control using the Command Palette (Tools > Command Palette or Ctrl+Shift+P). Begin typing "Package Control: Install Package" in the Command Palette and click that option once it appears in the list. (Arrow keys can also be used to move up and down in the list.) In the search field that appears, begin typing "SublimeLinter" and click the package name when it appears in the list to install the package. If installation was successful for this (or any other) package, the package name will appear in Preferences > Package Settings.
+
+5. Install specific code linters
+********************************
+
+Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
+
+6. Configure Python syntax-specific preferences
+***********************************************
+
+Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." ("asdf.py" will be deleted later.) Open the Python syntax-specific settings (Preferences > Settings – Syntax Specific) and between the braces, paste::
+
+   "spell_check": true,
+   "tab_size": 4,
+   "translate_tabs_to_spaces": true,
+   "rulers": [80]
+
+Save the modified file and close the window, then delete "asdf.py."
+
+Quit and reopen Sublime Text to apply all of the settings changes and new packages that have been installed.
 
 4. Install R
 ~~~~~~~~~~~~
 
-Download R from CRAN_ and run the executable, again following the instructions in the installer. The downloads page includes links to pages with additional details regarding installation and the configuration of R specific to Windows. In particular, the `R FAQ explains`_ whether you should use the 32-bit or 64-bit version of R. After running the R installer, no further configuration is required for this initial setup.
+Download R from CRAN_ and run the executable, again following the instructions in the installer. The downloads page includes links to pages with additional details regarding installation and the configuration of R specific to Windows. In particular, the `R FAQ explains`_ whether you should use the 32-bit or 64-bit version of R. After running the R installer, no further configuration of R is required for this initial setup.
 
 .. _CRAN: https://cloud.r-project.org/bin/windows/base/
 .. _R FAQ explains: https://cloud.r-project.org/bin/windows/base/rw-FAQ.html#Should-I-run-32_002dbit-or-64_002dbit-R_003f
+
+5. Install Perl
+~~~~~~~~~~~~~~~
+
+1. Verify status of Perl installation
+*************************************
+
+Before installing Perl, confirm that it is not already installed on your system. `Open a command prompt`_ window and at the prompt, type::
+
+   perl -v
+
+If you get a response that begins with ``'perl' is not recognized``, Perl is not installed on your system and you should continue to the next step. If you get a response that includes a version number for Perl, you have a valid Perl installation on your system and no further configuration of your system is required before moving on to the :ref:`tutorials`.
+
+2. Download and install Perl
+****************************
+
+From the `Strawberry Perl website`_, download the "recommended version" that is appropriate for your system configuration, either 32- or 64-bit. Open the Strawberry Perl installer and follow the instructions to complete the installation of Perl.
+
+.. _Strawberry Perl website: http://strawberryperl.com
+
+No further steps are required to set up Perl. If you would like to verify that the installation was successful, close any currently open command prompt windows, open a new command prompt and type ``perl -v`` again. The response should indicate that a version of Perl is now installed. If not, visit the `Strawberry Perl support page`_ for additional resources.
+
+.. _Strawberry Perl support page: http://strawberryperl.com/support.html
+
+3. (Optional) Verify Perl installation in R
+*******************************************
+
+Perl is required for one of the packages that Scout uses in R. If you would like, you can verify that your Perl installation is recognized in R. To begin, open R (sometimes called R GUI) from the Start Menu. In the R console window that opens, at the prompt (indicated by a ">" character), type::
+
+   install.packages("WriteXLS")
+
+You will be prompted to select a "CRAN mirror," which is the server from which you will download the "WriteXLS" package. Once the installation is complete, at the R prompt, type::
+
+   library("WriteXLS")
+   testPerl()
+
+If your Perl installation is successfully recognized by R, the messages "Perl found." and "All required Perl modules were found." will print to the R console window. 
+   
 
 .. rubric:: Footnotes
 .. [#] pip/pip3 is typically installed at the same time that Python 3 is installed.
