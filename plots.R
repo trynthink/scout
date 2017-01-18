@@ -829,25 +829,20 @@ for (a in 1:length(adopt_scenarios)){
       # Add plot of total annual savings and savings by filter variable category name
       par(new=TRUE)
       
+      # Initialize plot region for total annual savings and savings by filter
+      # variable category
+      plot(years, total_ann, typ='l',
+           xlim = c(min(xlim), max(xlim)), ylim = c(min(ylim_ann), max(ylim_ann)),
+           xlab=NA, ylab=NA, col="gray30", main = NA,
+           xaxt="n", yaxt="n", lwd=4)
       # Loop through each filter variable category name to add to plot
       for (catnm in (1:(length(results_agg[f, 2][[1]])))){
-        if (catnm == 1){  
-          # Initialize plot region for total annual savings and savings by filter
-          # variable category
-          plot(years, results_agg[f, 2][[1]][[catnm]]*unit_translate, typ='l',
-          	   xlim = c(min(xlim), max(xlim)), ylim = c(min(ylim_ann), max(ylim_ann)),
-               xlab=NA, ylab=NA, col=results_agg[f, 3][[1]][catnm], main = NA,
-               xaxt="n", yaxt="n", lwd=1.5)
-                    axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
-        }else{
-          # Add lines for savings by filter variable category
-          lines(years, results_agg[f, 2][[1]][[catnm]]*unit_translate,
-          		col=results_agg[f, 3][[1]][catnm], lwd=2)
-        }
+        # Add lines for savings by filter variable category
+        lines(years, results_agg[f, 2][[1]][[catnm]]*unit_translate,
+          	  col=results_agg[f, 3][[1]][catnm], lwd=2)
       }
-      # Add total annual savings line
-      lines(years, total_ann, col="gray30", lwd=4)
       # Add y axis labels for total annual savings and savings by filter variable category
+      axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
       mtext(plot_axis_labels_agg_ann[v], side=2, line=4, cex=0.9) 
       
       # Add a legend
