@@ -9,6 +9,7 @@ import gzip
 import pickle
 from os import getcwd, path
 from ast import literal_eval
+import math
 
 
 class UsefulInputFiles(object):
@@ -110,7 +111,9 @@ class UsefulVars(object):
             ('Refrigeration', ["refrigeration", "other (grid electric)"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
-            ('Other', ["cooking", "drying", "MELs", "other (grid electric)"])])
+            ('Other', [
+                "cooking", "drying", "ceiling fan", "fans & pumps",
+                "MELs", "other (grid electric)"])])
 
 
 class Measure(object):
@@ -263,16 +266,12 @@ class Engine(object):
                 if any([x in euse[1] for x in m.end_use["primary"]]) and \
                         euse[0] not in end_uses:
                     # Handle special freezers case as 'Refrigeration'
-                    if "other (grid electric)" in m.end_use["primary"] and \
-                            "freezers" in m.technology:
-                        end_uses.append("Refrigeration")
-                    # Handle all other technologies associated with
-                    # 'other (grid electric)' end use as 'Other'
-                    elif "other (grid electric)" in m.end_use["primary"] and \
-                            "freezers" not in m.technology:
-                        end_uses.append("Other")
-                    else:
+                    if (euse[0] == "Refrigeration" and
+                        "refrigeration" in m.end_use["primary"] or
+                        "freezers" in m.technology) or \
+                            euse[0] != "Refrigeration":
                         end_uses.append(euse[0])
+
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
             self.output[m.name] = OrderedDict([
@@ -512,7 +511,8 @@ class Engine(object):
                             payback_e[yr][x], payback_ec[yr][x], \
                             cce[yr][x], cce_bens[yr][x], ccc[yr][x], \
                             ccc_bens[yr][x] = self.metric_update(
-                                m, int(life_base), int(life_meas_tmp[x]),
+                                m, int(round(life_base)),
+                                int(round(life_meas_tmp[x])),
                                 scostbase, scostmeas_delt_tmp[x],
                                 esave_tmp[x] / nunits_tot[yr],
                                 ecostsave_tmp[x] / nunits_tot[yr],
@@ -530,8 +530,9 @@ class Engine(object):
                         energy_anpv_com[yr], carb_anpv_com[yr], \
                         irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        self.metric_update(m, int(life_base), int(
-                            life_meas), scostbase, scostmeas_delt,
+                        self.metric_update(
+                            m, int(round(life_base)),
+                            int(round(life_meas)), scostbase, scostmeas_delt,
                             esave[yr] / nunits_tot[yr],
                             ecostsave[yr] / nunits_tot[yr],
                             csave[yr] / nunits_tot[yr],
@@ -773,20 +774,28 @@ class Engine(object):
             # IRR and payback given capital + energy cash flows
             try:
                 irr_e = numpy.irr(cashflows_s + cashflows_e)
+                if math.isnan(irr_e):
+                    raise(ValueError)
             except:
                 irr_e = 999
             try:
                 payback_e = self.payback(cashflows_s + cashflows_e)
             except (ValueError, LinAlgError):
+                if math.isnan(payback_e):
+                    raise(ValueError)
                 payback_e = 999
             # IRR and payback given capital + energy + carbon cash flows
             try:
                 irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
+                if math.isnan(irr_ec):
+                    raise(ValueError)
             except:
                 irr_ec = 999
             try:
                 payback_ec = \
                     self.payback(cashflows_s + cashflows_e + cashflows_c)
+                if math.isnan(payback_ec):
+                    raise(ValueError)
             except (ValueError, LinAlgError):
                 payback_ec = 999
         else:
@@ -1103,12 +1112,30 @@ class Engine(object):
                     mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 else:
                     mkt_fracs[ind][yr] = 0
+
+        # Check for competing ECMs that apply to but a fraction of the competed
+        # market, and apportion the remaining fraction of this market across
+        # the other competing ECMs
+        added_sbmkt_fracs = self.find_added_sbmkt_fracs(
+            mkt_fracs, measures_adj, mseg_key, adopt_scheme)
+
+        # Loop through competing measures and apply competed market shares
+        # and gains from sub-market fractions to each ECM's total energy,
+        # carbon, and cost impacts
+        for ind, m in enumerate(measures_adj):
+            # Set measure markets and market adjustment information
+            # Establish starting energy/carbon/cost totals and current
+            # contributing primary energy/carbon/cost information for measure
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adj_dicts(
+                    m, mseg_key, adopt_scheme)
+            for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals based on its updated competed market share
                 self.compete_adj(
-                    mkt_fracs[ind], mast, adj, mast_list_base,
-                    mast_list_eff, adj_list_eff, adj_list_base, yr,
-                    mseg_key, m, adopt_scheme, mkt_entry_yrs)
+                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast, adj,
+                    mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
+                    yr, mseg_key, m, adopt_scheme, mkt_entry_yrs)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across competing commercial measures.
@@ -1237,12 +1264,6 @@ class Engine(object):
         # that is captured by each measure; use market shares to make
         # adjustments to each measure's master microsegment values
         for ind, m in enumerate(measures_adj):
-            # Set measure markets and market adjustment information
-            # Establish starting energy/carbon/cost totals and current
-            # contributing primary energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
 
@@ -1341,12 +1362,75 @@ class Engine(object):
                 else:
                     mkt_fracs[ind][yr] = 0
 
+        # Check for competing ECMs that apply to but a fraction of the competed
+        # market, and apportion the remaining fraction of this market across
+        # the other competing ECMs
+        added_sbmkt_fracs = self.find_added_sbmkt_fracs(
+            mkt_fracs, measures_adj, mseg_key, adopt_scheme)
+
+        # Loop through competing measures and apply competed market shares
+        # and gains from sub-market fractions to each ECM's total energy,
+        # carbon, and cost impacts
+        for ind, m in enumerate(measures_adj):
+            # Set measure markets and market adjustment information
+            # Establish starting energy/carbon/cost totals and current
+            # contributing primary energy/carbon/cost information for measure
+            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                adj_list_base = self.compete_adj_dicts(
+                    m, mseg_key, adopt_scheme)
+            for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals based on its updated competed market share
                 self.compete_adj(
-                    mkt_fracs[ind], mast, adj, mast_list_base,
-                    mast_list_eff, adj_list_eff, adj_list_base, yr,
-                    mseg_key, m, adopt_scheme, mkt_entry_yrs)
+                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast, adj,
+                    mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
+                    yr, mseg_key, m, adopt_scheme, mkt_entry_yrs)
+
+    def find_added_sbmkt_fracs(
+            self, mkt_fracs, measures_adj, mseg_key, adopt_scheme):
+        """Add to competed ECM market shares to account for sub-market scaling.
+
+        Notes:
+            In cases where one or more competing ECM only applies to a fraction
+            of its applicable baseline market (e.g., it is assigned with a
+            sub-market scaling fraction/fractions), the fraction of the market
+            that the ECM(s) does not apply to should be apportioned across the
+            other competing ECMs and added to their competed market shares.
+            This function determines the added fraction that should be added to
+            each ECM's competed market share.
+
+        Args:
+            mkt_fracs (list): ECM market shares (before considering sub-mkts.).
+            measures_adj (object): Competing ECM objects.
+            mseg_key (string): Competed market microsegment information.
+            adopt_scheme (string): Assumed consumer adoption scenario.
+
+        Returns:
+            Market fractions to add to each ECM's competed market share to
+            reflect sub-market scaling in one or more competing ECMs.
+        """
+        # Set the fraction of the competed market that each ECM does not apply
+        # to (to be apportioned across the other competing ECMs)
+        noapply_sbmkt_fracs = [
+            1 - m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                "contributing mseg keys and values"][mseg_key][
+                "sub-market scaling"] for m in measures_adj]
+
+        # Determine the total weighted inapplicable fraction of the competed
+        # market that must be apportioned across competing ECMs
+        noapply_sbmkt_fracs_tot = {
+            yr: sum([noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for
+                     ind in range(len(measures_adj))]) for
+            yr in self.handyvars.aeo_years}
+        # Apportion the total inapplicable fraction across competing ECMs;
+        # ensure that the apportionment removes each ECM's contribution to this
+        # total fraction
+        added_sbmkt_fracs = [
+            {yr: noapply_sbmkt_fracs_tot[yr] * mkt_fracs[ind][yr] -
+             noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for yr in
+             self.handyvars.aeo_years} for ind in range(0, len(measures_adj))]
+
+        return added_sbmkt_fracs
 
     def secondary_adj(
             self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
@@ -1596,8 +1680,8 @@ class Engine(object):
             adj_list_base
 
     def compete_adj(
-            self, adj_fracs, mast, adj, mast_list_base, mast_list_eff,
-            adj_list_eff, adj_list_base, yr, mseg_key, measure,
+            self, adj_fracs, added_sbmkt_fracs, mast, adj, mast_list_base,
+            mast_list_eff, adj_list_eff, adj_list_base, yr, mseg_key, measure,
             adopt_scheme, mkt_entry_yrs):
         """Scale down measure stock/energy/carbon/cost totals to reflect competition.
 
@@ -1610,6 +1694,7 @@ class Engine(object):
 
         Args:
             adj_fracs (dict): Competed market share(s) for the measure.
+            added_sbmkt_fracs: Additional market share from sub-market scaling.
             mast (dict): Initial overall stock/energy/carbon/cost totals to
                 adjust based on competed market share(s).
             adj (dict): Contributing microsegment data to use in adjusting
@@ -1638,8 +1723,8 @@ class Engine(object):
         # year)
         adj_frac_comp = copy.deepcopy(adj_fracs[yr])
 
-        # Weight the competed market share adjustment for the stock captured
-        # by the measure in the current year against that of the stock captured
+        # Weight the market share adjustment for the stock captured by the
+        # measure in the current year against that of the stock captured
         # by the measure in all previous years, yielding a total weighted
         # market share adjustment
 
@@ -1653,9 +1738,9 @@ class Engine(object):
             # First year in time horizon or a competed measure market entry
             # year in a technical potential scenario; weighted market share
             # equals market share for the captured stock in this year only
-            if ind == 0 or (int(wyr) in mkt_entry_yrs and
-                            adopt_scheme == "Technical potential"):
-                adj_frac_tot = copy.deepcopy(adj_fracs[wyr])
+            if ind == 0:
+                adj_frac_tot = copy.deepcopy(adj_fracs[wyr]) + \
+                    added_sbmkt_fracs[wyr]
             # Subsequent year; weighted market share averages market share
             # for captured stock in current year and all previous years
             else:
@@ -1663,7 +1748,8 @@ class Engine(object):
                 # yielding a simple moving average of the market share
                 wt_comp = 1 / len(weighting_yrs)
                 # Calculate weighted combination of market shares
-                adj_frac_tot = adj_fracs[wyr] * wt_comp + \
+                adj_frac_tot = (
+                    adj_fracs[wyr] + added_sbmkt_fracs[wyr]) * wt_comp + \
                     adj_frac_tot * (1 - wt_comp)
 
         # For a primary microsegment with secondary effects, record market

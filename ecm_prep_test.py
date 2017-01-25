@@ -9274,7 +9274,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'natural gas', 'water heating', None, "
                              "'existing')"): {
@@ -9335,7 +9336,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ2', 'single family home', "
                              "'natural gas', 'water heating', None, 'new')"): {
                                 "stock": {
@@ -9395,7 +9397,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ2', 'single family home', "
                              "'natural gas', 'water heating', None, "
                              "'existing')"): {
@@ -9456,7 +9459,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}}},
+                                    "measure": 10},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'natural gas', 'water heating', None, 'new')"): {
@@ -9749,7 +9753,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'natural gas', 'water heating', None, "
                              "'existing')"): {
@@ -9810,7 +9815,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ2', 'single family home', "
                              "'natural gas', 'water heating', None, 'new')"): {
                                 "stock": {
@@ -9870,7 +9876,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}},
+                                    "measure": 10},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ2', 'single family home', "
                              "'natural gas', 'water heating', None, "
                              "'existing')"): {
@@ -9931,7 +9938,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 3, "2010": 3}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 5, "2010": 5},
-                                    "measure": 10}}},
+                                    "measure": 10},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'natural gas', 'water heating', None, 'new')"): {
@@ -10248,7 +10256,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
                              "'lighting', 'reflector (halogen)', "
@@ -10314,7 +10323,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 2, "2010": 2},
-                                    "measure": 15}}},
+                                    "measure": 15},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
@@ -10603,7 +10613,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
                              "'lighting', 'reflector (halogen)', "
@@ -10669,7 +10680,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 2, "2010": 2},
-                                    "measure": 15}}},
+                                    "measure": 15},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
@@ -10977,7 +10989,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -11047,7 +11060,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 18, "2010": 18},
-                                    "measure": 18}}},
+                                    "measure": 18},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity',"
@@ -11337,7 +11351,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity',"
                              "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -11407,7 +11422,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 18, "2010": 18},
-                                    "measure": 18}}},
+                                    "measure": 18},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ5', 'single family home', "
                              "'electricity',"
@@ -11730,7 +11746,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}}},
+                                    "measure": 20},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
@@ -12029,7 +12046,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                                 "2009": 30, "2010": 30}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": 20}}},
+                                    "measure": 20},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             ("('primary', AIA_CZ1', 'single family home', "
                              "'electricity',"
@@ -12219,52 +12237,52 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
         cls.markets_ok_out_test1 = {
             "Technical potential": {
                 "master_mseg": {
-                    "stock": {
-                        "total": {
-                            "all": {'2010': 1240, '2009': 1240},
-                            "measure": {'2010': 744, '2009': 744}},
-                        "competed": {
-                            "all": {'2010': 620, '2009': 620},
-                            "measure": {'2010': 124, '2009': 124}}},
-                    "energy": {
-                        "total": {
-                            "baseline": {'2010': 2480, '2009': 2480},
-                            "efficient": {'2010': 1488, '2009': 1488}},
-                        "competed": {
-                            "baseline": {'2010': 1240, '2009': 1240},
-                            "efficient": {'2010': 248, '2009': 248}}},
-                    "carbon": {
-                        "total": {
-                            "baseline": {'2010': 3720, '2009': 3720},
-                            "efficient": {'2010': 2232, '2009': 2232}},
-                        "competed": {
-                            "baseline": {'2010': 1860, '2009': 1860},
-                            "efficient": {'2010': 372, '2009': 372}}},
+                    'stock': {
+                        'total': {
+                            'all': {'2009': 1240, '2010': 1240},
+                            'measure': {'2009': 744, '2010': 744}},
+                        'competed': {
+                            'all': {'2009': 620, '2010': 620},
+                            'measure': {'2009': 124, '2010': 124}}},
+                    'energy': {
+                        'total': {
+                            'baseline': {'2009': 2480, '2010': 2480},
+                            'efficient': {'2009': 1488, '2010': 1488}},
+                        'competed': {
+                            'baseline': {'2009': 1240, '2010': 1240},
+                            'efficient': {'2009': 248, '2010': 248}}},
+                    'carbon': {
+                        'total': {
+                            'baseline': {'2009': 3720, '2010': 3720},
+                            'efficient': {'2009': 2232, '2010': 2232}},
+                        'competed': {
+                            'baseline': {'2009': 1860, '2010': 1860},
+                            'efficient': {'2009': 372, '2010': 372}}},
                     'cost': {
                         'stock': {
-                            'competed': {
-                                'efficient': {'2010': 692, '2009': 692},
-                                "baseline": {'2010': 340, '2009': 340}},
                             'total': {
-                                'efficient': {'2010': 692, '2009': 692},
-                                "baseline": {'2010': 340, '2009': 340}}},
-                        "energy": {
-                            "total": {
-                                "baseline": {'2010': 680, '2009': 680},
-                                "efficient": {'2010': 408, '2009': 408}},
-                            "competed": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 68, '2009': 68}}},
-                        "carbon": {
-                            "total": {
-                                "baseline": {'2010': 1020, '2009': 1020},
-                                "efficient": {'2010': 612, '2009': 612}},
-                            "competed": {
-                                "baseline": {'2010': 510, '2009': 510},
-                                "efficient": {'2010': 102, '2009': 102}}}},
-                    "lifetime": {
-                        "baseline": {'2010': 5.86, '2009': 5.86},
-                        "measure": 13.29}},
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 612, '2010': 612}},
+                            'competed': {
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 612, '2010': 612}}},
+                        'energy': {
+                            'total': {
+                                'baseline': {'2009': 680, '2010': 680},
+                                'efficient': {'2009': 408, '2010': 408}},
+                            'competed': {
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 68, '2010': 68}}},
+                        'carbon': {
+                            'total': {
+                                'baseline': {'2009': 1020, '2010': 1020},
+                                'efficient': {'2009': 612, '2010': 612}},
+                            'competed': {
+                                'baseline': {'2009': 510, '2010': 510},
+                                'efficient': {'2009': 102, '2010': 102}}}},
+                        "lifetime": {
+                            "baseline": {'2010': 5.86, '2009': 5.86},
+                            "measure": 13.29}},
                 "mseg_adjust": {
                     "contributing mseg keys and values": {
                         ("('primary', AIA_CZ1', 'single family home', "
@@ -12315,7 +12333,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'natural gas', 'water heating', None, "
                          "'existing')"): {
@@ -12365,7 +12384,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ2', 'single family home', "
                          "'natural gas', 'water heating', None, 'new')"): {
                             "stock": {
@@ -12414,7 +12434,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ2', 'single family home', "
                          "'natural gas', 'water heating', None, "
                          "'existing')"): {
@@ -12464,43 +12485,19 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity',"
-                         "'lighting', 'reflector (incandescent)', "
-                         "'existing')"): {
-                            "stock": {
-                                "total": {
-                                    "all": {"2009": 100, "2010": 100},
-                                    "measure": {"2009": 60, "2010": 60}},
-                                "competed": {
-                                    "all": {"2009": 50, "2010": 50},
-                                    "measure": {"2009": 10, "2010": 10}}},
-                            "energy": {
-                                "total": {
-                                    "baseline": {"2009": 200, "2010": 200},
-                                    "efficient": {"2009": 120, "2010": 120}},
-                                "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 20, "2010": 20}}},
-                            "carbon": {
-                                "total": {
-                                    "baseline": {"2009": 300, "2010": 300},
-                                    "efficient": {"2009": 180, "2010": 180}},
-                                "competed": {
-                                    "baseline": {"2009": 150, "2010": 150},
-                                    "efficient": {"2009": 30, "2010": 30}}},
-                            "cost": {
+                             "'electricity',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
                                 "stock": {
                                     "total": {
-                                        "baseline": {
-                                            "2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 260, "2010": 260}},
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
                                     "competed": {
-                                        "baseline": {"2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 260, "2010": 260}}},
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
                                 "energy": {
                                     "total": {
                                         "baseline": {"2009": 200, "2010": 200},
@@ -12518,10 +12515,45 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     "competed": {
                                         "baseline": {"2009": 150, "2010": 150},
                                         "efficient": {
-                                            "2009": 30, "2010": 30}}}},
-                            "lifetime": {
-                                "baseline": {"2009": 1, "2010": 1},
-                                "measure": 20}},
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'electricity',"
                          "'lighting', 'reflector (halogen)', 'existing')"): {
@@ -12576,7 +12608,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                             "2009": 30, "2010": 30}}}},
                             "lifetime": {
                                 "baseline": {"2009": 2, "2010": 2},
-                                "measure": 15}},
+                                "measure": 15},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ5', 'single family home', "
                          "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -12631,7 +12664,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                             "2009": 30, "2010": 30}}}},
                             "lifetime": {
                                 "baseline": {"2009": 18, "2010": 18},
-                                "measure": 18}}},
+                                "measure": 18},
+                            "sub-market scaling": 1}},
                     "competed choice parameters": {
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'natural gas', 'water heating', None, 'new')"): {
@@ -12830,52 +12864,52 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Heating': {}}}}},
             "Max adoption potential": {
                 "master_mseg": {
-                    "stock": {
-                        "total": {
-                            "all": {'2010': 1240, '2009': 1240},
-                            "measure": {'2010': 744, '2009': 744}},
-                        "competed": {
-                            "all": {'2010': 620, '2009': 620},
-                            "measure": {'2010': 124, '2009': 124}}},
-                    "energy": {
-                        "total": {
-                            "baseline": {'2010': 2480, '2009': 2480},
-                            "efficient": {'2010': 1488, '2009': 1488}},
-                        "competed": {
-                            "baseline": {'2010': 1240, '2009': 1240},
-                            "efficient": {'2010': 248, '2009': 248}}},
-                    "carbon": {
-                        "total": {
-                            "baseline": {'2010': 3720, '2009': 3720},
-                            "efficient": {'2010': 2232, '2009': 2232}},
-                        "competed": {
-                            "baseline": {'2010': 1860, '2009': 1860},
-                            "efficient": {'2010': 372, '2009': 372}}},
+                    'stock': {
+                        'total': {
+                            'all': {'2009': 1240, '2010': 1240},
+                            'measure': {'2009': 744, '2010': 744}},
+                        'competed': {
+                            'all': {'2009': 620, '2010': 620},
+                            'measure': {'2009': 124, '2010': 124}}},
+                    'energy': {
+                        'total': {
+                            'baseline': {'2009': 2480, '2010': 2480},
+                            'efficient': {'2009': 1488, '2010': 1488}},
+                        'competed': {
+                            'baseline': {'2009': 1240, '2010': 1240},
+                            'efficient': {'2009': 248, '2010': 248}}},
+                    'carbon': {
+                        'total': {
+                            'baseline': {'2009': 3720, '2010': 3720},
+                            'efficient': {'2009': 2232, '2010': 2232}},
+                        'competed': {
+                            'baseline': {'2009': 1860, '2010': 1860},
+                            'efficient': {'2009': 372, '2010': 372}}},
                     'cost': {
                         'stock': {
-                            'competed': {
-                                'efficient': {'2010': 692, '2009': 692},
-                                "baseline": {'2010': 340, '2009': 340}},
                             'total': {
-                                'efficient': {'2010': 692, '2009': 692},
-                                "baseline": {'2010': 340, '2009': 340}}},
-                        "energy": {
-                            "total": {
-                                "baseline": {'2010': 680, '2009': 680},
-                                "efficient": {'2010': 408, '2009': 408}},
-                            "competed": {
-                                "baseline": {'2010': 340, '2009': 340},
-                                "efficient": {'2010': 68, '2009': 68}}},
-                        "carbon": {
-                            "total": {
-                                "baseline": {'2010': 1020, '2009': 1020},
-                                "efficient": {'2010': 612, '2009': 612}},
-                            "competed": {
-                                "baseline": {'2010': 510, '2009': 510},
-                                "efficient": {'2010': 102, '2009': 102}}}},
-                    "lifetime": {
-                        "baseline": {'2010': 5.86, '2009': 5.86},
-                        "measure": 13.29}},
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 612, '2010': 612}},
+                            'competed': {
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 612, '2010': 612}}},
+                        'energy': {
+                            'total': {
+                                'baseline': {'2009': 680, '2010': 680},
+                                'efficient': {'2009': 408, '2010': 408}},
+                            'competed': {
+                                'baseline': {'2009': 340, '2010': 340},
+                                'efficient': {'2009': 68, '2010': 68}}},
+                        'carbon': {
+                            'total': {
+                                'baseline': {'2009': 1020, '2010': 1020},
+                                'efficient': {'2009': 612, '2010': 612}},
+                            'competed': {
+                                'baseline': {'2009': 510, '2010': 510},
+                                'efficient': {'2009': 102, '2010': 102}}}},
+                        "lifetime": {
+                            "baseline": {'2010': 5.86, '2009': 5.86},
+                            "measure": 13.29}},
                 "mseg_adjust": {
                     "contributing mseg keys and values": {
                         ("('primary', AIA_CZ1', 'single family home', "
@@ -12926,7 +12960,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'natural gas', 'water heating', None, "
                          "'existing')"): {
@@ -12976,7 +13011,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ2', 'single family home', "
                          "'natural gas', 'water heating', None, 'new')"): {
                             "stock": {
@@ -13025,7 +13061,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ2', 'single family home', "
                          "'natural gas', 'water heating', None, "
                          "'existing')"): {
@@ -13075,43 +13112,19 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                         "efficient": {"2009": 3, "2010": 3}}}},
                             "lifetime": {
                                 "baseline": {"2009": 5, "2010": 5},
-                                "measure": 10}},
+                                "measure": 10},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
-                         "'electricity',"
-                         "'lighting', 'reflector (incandescent)', "
-                         "'existing')"): {
-                            "stock": {
-                                "total": {
-                                    "all": {"2009": 100, "2010": 100},
-                                    "measure": {"2009": 60, "2010": 60}},
-                                "competed": {
-                                    "all": {"2009": 50, "2010": 50},
-                                    "measure": {"2009": 10, "2010": 10}}},
-                            "energy": {
-                                "total": {
-                                    "baseline": {"2009": 200, "2010": 200},
-                                    "efficient": {"2009": 120, "2010": 120}},
-                                "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 20, "2010": 20}}},
-                            "carbon": {
-                                "total": {
-                                    "baseline": {"2009": 300, "2010": 300},
-                                    "efficient": {"2009": 180, "2010": 180}},
-                                "competed": {
-                                    "baseline": {"2009": 150, "2010": 150},
-                                    "efficient": {"2009": 30, "2010": 30}}},
-                            "cost": {
+                             "'electricity',"
+                             "'lighting', 'reflector (incandescent)', "
+                             "'existing')"): {
                                 "stock": {
                                     "total": {
-                                        "baseline": {
-                                            "2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 260, "2010": 260}},
+                                        "all": {"2009": 100, "2010": 100},
+                                        "measure": {"2009": 60, "2010": 60}},
                                     "competed": {
-                                        "baseline": {"2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 260, "2010": 260}}},
+                                        "all": {"2009": 50, "2010": 50},
+                                        "measure": {"2009": 10, "2010": 10}}},
                                 "energy": {
                                     "total": {
                                         "baseline": {"2009": 200, "2010": 200},
@@ -13129,10 +13142,45 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     "competed": {
                                         "baseline": {"2009": 150, "2010": 150},
                                         "efficient": {
-                                            "2009": 30, "2010": 30}}}},
-                            "lifetime": {
-                                "baseline": {"2009": 1, "2010": 1},
-                                "measure": 20}},
+                                            "2009": 30, "2010": 30}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 200, "2010": 200},
+                                            "efficient": {
+                                                "2009": 120, "2010": 120}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 100, "2010": 100},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 300, "2010": 300},
+                                            "efficient": {
+                                                "2009": 180, "2010": 180}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 150, "2010": 150},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 20},
+                                "sub-market scaling": 1},
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'electricity',"
                          "'lighting', 'reflector (halogen)', 'existing')"): {
@@ -13187,7 +13235,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                             "2009": 30, "2010": 30}}}},
                             "lifetime": {
                                 "baseline": {"2009": 2, "2010": 2},
-                                "measure": 15}},
+                                "measure": 15},
+                            "sub-market scaling": 1},
                         ("('primary', AIA_CZ5', 'single family home', "
                          "'electricity',"
                          "'cooling', 'supply', 'ASHP', 'new')"): {
@@ -13242,7 +13291,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                             "2009": 30, "2010": 30}}}},
                             "lifetime": {
                                 "baseline": {"2009": 18, "2010": 18},
-                                "measure": 18}}},
+                                "measure": 18},
+                            "sub-market scaling": 1}},
                     "competed choice parameters": {
                         ("('primary', AIA_CZ1', 'single family home', "
                          "'natural gas', 'water heating', None, 'new')"): {

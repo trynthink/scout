@@ -528,7 +528,7 @@ for (a in 1:length(adopt_scenarios)){
 	          # to gray, representative of 'Multiple' applicable climate zones; otherwise
 	          # set to the point outline color appropriate to the matched climate zone
 	          if (length(czone_match)>1){
-	          	results_finmets[m, 6] = "gray30"
+	          	results_finmets[m, 6] = "gray50"
 	          }else{
 	          	results_finmets[m, 6] = czones_out_col[czone_match]
 	          }
@@ -564,7 +564,7 @@ for (a in 1:length(adopt_scenarios)){
 	          # gray, representative of 'Multiple' applicable end uses; otherwise set
 	          # to the point fill color appropriate for the matched end use
 	          if (length(euse_match[is.finite(euse_match)])>1){
-	          	results_finmets[m, 8] ="gray30"
+	          	results_finmets[m, 8] ="gray50"
 	          }else{
 	          	results_finmets[m, 8] = euses_out_finmets_col[euse_match[is.finite(euse_match)]]
 	          }
@@ -999,7 +999,7 @@ for (a in 1:length(adopt_scenarios)){
     legend("topleft", legend = c(czones_out_lgnd, 'Multiple'),
            pt.lwd = rep(1, length(czones_out_lgnd) + 1), pt.cex = 1.2,
            pt.bg = rep(NA, length(czones_out_lgnd) + 1),
-           col = c(czones_out_col, "gray30"),
+           col = c(czones_out_col, "gray50"),
            pch = rep(21, length(czones_out_lgnd) + 1),
            bty="n", cex=0.8, title=expression(bold('Climate Zone'))) 
     # Add legend for applicable building type
@@ -1012,7 +1012,7 @@ for (a in 1:length(adopt_scenarios)){
     # Add legend for applicable end use
     legend("topright", legend = c(euses_out_finmets_lgnd, 'Multiple'),
           pt.lwd = rep(1, length(euses_out_finmets_lgnd) + 1),
-          pt.cex = 1.2, col = c(euses_out_finmets_col, "gray30"),
+          pt.cex = 1.2, col = c(euses_out_finmets_col, "gray50"),
           pch = rep(16, length(euses_out_finmets_lgnd) + 1),
           bty="n", cex=0.8, title=expression(bold('End Use')))  
     dev.off()

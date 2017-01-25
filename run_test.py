@@ -578,7 +578,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 30, "2010": 40},
                         "efficient": {"2009": 25, "2010": 25}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
+                         "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 4.6])}}
         cls.ok_master_mseg_dist4 = {
             "stock": {
                 "total": {
@@ -632,7 +632,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 30, "2010": 40},
                         "efficient": {"2009": 25, "2010": 25}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 5.6])}}
+                         "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 4.6])}}
         cls.ok_out_point_res = [{
             "savings and portfolio metrics": {
                 "Technical potential": {
@@ -1595,6 +1595,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "technology": ["windows"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -1706,7 +1707,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -1825,7 +1827,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -1843,6 +1846,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #     "climate_zone": ["AIA_CZ1"],
         #     "bldg_type": ["single family home"],
         #     "end_use": {"primary": ["cooling"], "secondary": None},
+        #     "technology": ["windows"],
         #     "market_entry_year": None,
         #     "market_exit_year": None,
         #     "yrs_on_mkt": ["2009", "2010"],
@@ -1989,7 +1993,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                                             [5, 6, 7])}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.adjust_key1: {
         #                         "b1": {"2009": -0.95, "2010": -0.95},
@@ -2150,7 +2155,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                                             [5, 6, 7])}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.adjust_key1: {
         #                         "b1": {"2009": -0.95, "2010": -0.95},
@@ -2174,6 +2180,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "technology": ["windows"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -2285,7 +2292,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -2346,7 +2354,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -2466,7 +2475,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -2527,7 +2537,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -2545,6 +2556,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "technology": ["ASHP"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -2656,7 +2668,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -2776,7 +2789,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -2794,6 +2808,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #     "climate_zone": ["AIA_CZ1"],
         #     "bldg_type": ["single family home"],
         #     "end_use": {"primary": ["cooling"], "secondary": None},
+        #     "technology": ["ASHP"],
         #     "market_entry_year": None,
         #     "market_exit_year": None,
         #     "yrs_on_mkt": ["2009", "2010"],
@@ -2915,7 +2930,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 5, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.adjust_key2: {
         #                         "b1": {"2009": -0.95, "2010": -0.95},
@@ -3051,7 +3067,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 5, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.adjust_key2: {
         #                         "b1": {"2009": -0.95, "2010": -0.95},
@@ -3075,6 +3092,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "technology": ["ASHP"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -3186,7 +3204,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3247,7 +3266,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -3366,7 +3386,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3427,7 +3448,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -3444,6 +3466,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
             "end_use": {"primary": ["cooling"], "secondary": None},
+            "technology": ["ASHP"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -3555,7 +3578,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3616,7 +3640,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3677,7 +3702,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -3796,7 +3822,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3857,7 +3884,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -3918,7 +3946,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
                                 "b1": {"2009": -0.95, "2010": -0.95},
@@ -5200,6 +5229,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
+            "technology": ["reflector (LED)"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -5311,7 +5341,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -5372,7 +5403,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {
@@ -5499,7 +5531,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -5560,7 +5593,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {
@@ -5587,6 +5621,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": ["heating", "secondary heating", "cooling"]},
+            "technology": ["reflector (LED)"],
             "market_entry_year": 2010,
             "market_exit_year": None,
             "yrs_on_mkt": ["2010"],
@@ -5698,7 +5733,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
                                     "total": {
@@ -5757,7 +5793,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {
@@ -5886,7 +5923,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
                                     "total": {
@@ -5945,7 +5983,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {
@@ -5973,7 +6012,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #     "bldg_type": ["assembly"],
         #     "end_use": {
         #         "primary": ["lighting"],
-        #         "secondary": ["heating", "secondary heating", "cooling"]},
+        #         "secondary": ["heating", "secondary heating", "cooling"]},\
+        #     "technology": ["reflector (LED)"],
         #     "market_entry_year": 2010,
         #     "market_exit_year": None,
         #     "yrs_on_mkt": ["2010"],
@@ -6093,7 +6133,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 15, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1},
         #                     cls.overlap_key_scnd: {
         #                         "stock": {
         #                             "total": {
@@ -6156,7 +6197,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 15, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.overlap_key: {
         #                         "rate distribution": {
@@ -6296,7 +6338,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 15, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1},
         #                     cls.overlap_key_scnd: {
         #                         "stock": {
         #                             "total": {
@@ -6359,7 +6402,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         #                                         "2009": 15, "2010": 5}}}},
         #                         "lifetime": {
         #                             "baseline": {"2009": 1, "2010": 1},
-        #                             "measure": {"2009": 1, "2010": 1}}}},
+        #                             "measure": {"2009": 1, "2010": 1}},
+        #                         "sub-market scaling": 1}},
         #                 "competed choice parameters": {
         #                     cls.overlap_key: {
         #                         "rate distribution": {
@@ -6391,6 +6435,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
+            "technology": ["reflector (LED)"],
             "market_entry_year": None,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
@@ -6502,7 +6547,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -6563,7 +6609,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -6624,7 +6671,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {
@@ -6751,7 +6799,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -6812,7 +6861,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
                                  'reflector (LED)')): {
@@ -6873,7 +6923,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}}},
+                                    "measure": {"2009": 1, "2010": 1}},
+                                "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
                                 "rate distribution": {

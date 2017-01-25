@@ -450,7 +450,9 @@ class UsefulVars(object):
             ('Refrigeration', ["refrigeration", "other (grid electric)"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
-            ('Other', ["cooking", "drying", "MELs", "other (grid electric)"])])
+            ('Other', [
+                "cooking", "drying", "ceiling fan", "fans & pumps",
+                "MELs", "other (grid electric)"])])
         # Use the above output categories to establish a dictionary with blank
         # values at terminal leaf nodes; this dict will eventually store
         # partitioning fractions needed to breakout the measure results
@@ -1310,6 +1312,11 @@ class Measure(object):
                     if mseg["stock"] == "NA":
                         sqft_subst = 1
 
+                # If sub-market scaling fraction is non-numeric (indicating
+                # it is not applicable to current microsegment), set to 1
+                if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
+                    mkt_scale_frac = 1
+
                 # If a sub-market scaling fraction is to be applied to the
                 # current baseline microsegment, check that the source
                 # information for the fraction is sufficient; if not, remove
@@ -1635,7 +1642,7 @@ class Measure(object):
                     # specified by the user and must be added, store the
                     # relative performance of the efficient lighting equipment
                     # for later use in updating these secondary microsegments
-                    if mskeys[4] == "lighting" and mskeys[0] == "primary" and\
+                    if mskeys[4] == "lighting" and mskeys[0] == "primary" and \
                             light_scnd_autoperf is True:
                         light_scnd_autoperf = rel_perf
                 else:
@@ -1692,7 +1699,7 @@ class Measure(object):
                                 "WARNING: Measure '" + self.name +
                                 "' lacks consumer choice data " +
                                 "for end use '" + str(mskeys[4]) +
-                                "'; using default choice data for" +
+                                "'; using default choice data for " +
                                 "heating end use")
                             choice_params = {
                                 "b1": {key: -0.003 for
@@ -1743,7 +1750,7 @@ class Measure(object):
                                 "WARNING: Measure '" + self.name +
                                 "' lacks consumer choice data " +
                                 "for end use '" + str(mskeys[4]) +
-                                "'; using default choice data for" +
+                                "'; using default choice data for " +
                                 "heating end use")
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
@@ -1996,6 +2003,9 @@ class Measure(object):
                             "' for ECM '" + self.name + "' does not map to "
                             "output breakout categories")
 
+                    # Record contributing microsegment data needed for ECM
+                    # competition in the analysis engine
+
                     # Case with no existing 'windows' contributing microsegment
                     # for the current climate zone, building type, fuel type,
                     # and end use (create new 'contributing mseg keys and
@@ -2028,9 +2038,17 @@ class Measure(object):
                                 self.markets[adopt_scheme]["mseg_adjust"][
                                     "contributing mseg keys and values"][
                                     str(contrib_mseg_key)], add_dict)
+                    # Record the sub-market scaling fraction associated with
+                    # the current contributing microsegment
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "contributing mseg keys and values"][
+                        str(contrib_mseg_key)]["sub-market scaling"] = \
+                        mkt_scale_frac
 
-                    # Add all updated information to existing master mseg dict
-                    # and move to next iteration of the loop through key chains
+                    # Add all updated contributing microsegment stock, energy
+                    # carbon, cost, and lifetime information to existing master
+                    # mseg dict and move to next iteration of the loop through
+                    # key chains
                     self.markets[adopt_scheme]["master_mseg"] = \
                         self.add_keyvals(self.markets[adopt_scheme][
                             "master_mseg"], add_dict)
@@ -2286,7 +2304,8 @@ class Measure(object):
                         cval_bldgtyp = cval_bldgtyp[mskeys[2]]
                         # Case with $/ft^2 floor to $/unit cost conversion
                         # for lighting technology (multiple units per house)
-                        if any([k in mskeys[5] for k in cval_bldgtyp.keys()]):
+                        if mskeys[5] is not None and any([
+                                k in mskeys[5] for k in cval_bldgtyp.keys()]):
                             convert_units *= next(
                                 x[1] for x in cval_bldgtyp.items() if
                                 x[0] in mskeys[5])
@@ -2573,11 +2592,6 @@ class Measure(object):
                 # baseline technology
                 captured_base_frac = 1 - captured_eff_frac
 
-            # If sub-market scaling fraction is non-numeric (indicating
-            # it is not applicable to current microsegment), set to 1
-            if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
-                mkt_scale_frac = 1
-
             # Stock, energy, and carbon adjustments
             stock_total[yr] = stock_total_init[yr] * mkt_scale_frac
             energy_total[yr] = energy_total_init[yr] * mkt_scale_frac
@@ -2644,29 +2658,29 @@ class Measure(object):
                 # stock in new homes already captured by the efficient
                 # technology multiplied by (1 / efficient lifetime); if not,
                 # the efficient replacement fraction is 0
-                # if self.market_entry_year is None or (int(
-                #     self.market_entry_year) < int(
-                #         self.handyvars.aeo_years[0])):
-                #     turnover_meas = life_meas - (
-                #         int(yr) - int(self.handyvars.aeo_years[0]))
-                # else:
-                #     turnover_meas = life_meas - (
-                #         int(yr) - self.market_entry_year)
-                # # Handle case where efficient measure lifetime is a numpy array
-                # if type(life_meas) == numpy.ndarray:
-                #     for ind, l in enumerate(life_meas):
-                #         if turnover_meas[ind] <= 0:
-                #             captured_eff_replace_frac = \
-                #                 captured_eff_frac * (1 / l)
-                #         else:
-                #             captured_eff_replace_frac = 0
-                # # Handle case where efficient measure lifetime is a point value
-                # else:
-                #     if turnover_meas <= 0:
-                #         captured_eff_replace_frac = captured_eff_frac * \
-                #             (1 / life_meas)
-                #     else:
-                #         captured_eff_replace_frac = 0
+                if self.market_entry_year is None or (int(
+                    self.market_entry_year) < int(
+                        self.handyvars.aeo_years[0])):
+                    turnover_meas = life_meas - (
+                        int(yr) - int(self.handyvars.aeo_years[0]))
+                else:
+                    turnover_meas = life_meas - (
+                        int(yr) - self.market_entry_year)
+                # Handle case where efficient measure lifetime is a numpy array
+                if type(life_meas) == numpy.ndarray:
+                    for ind, l in enumerate(life_meas):
+                        if turnover_meas[ind] <= 0:
+                            captured_eff_replace_frac = \
+                                captured_eff_frac * (1 / l)
+                        else:
+                            captured_eff_replace_frac = 0
+                # Handle case where efficient measure lifetime is a point value
+                else:
+                    if turnover_meas <= 0:
+                        captured_eff_replace_frac = captured_eff_frac * \
+                            (1 / life_meas)
+                    else:
+                        captured_eff_replace_frac = 0
 
                 # For now, set efficient replacement fraction to zero. This
                 # reflects a simplifying assumption that once each efficient
@@ -3564,8 +3578,10 @@ class Measure(object):
             by the number.
         """
         for (k, i) in dict1.items():
-            # Do not divide any energy, carbon, or lifetime information
-            if (k == "energy" or k == "carbon" or k == "lifetime"):
+            # Do not divide any energy, carbon, lifetime, or sub-market
+            # scaling information
+            if (k == "energy" or k == "carbon" or k == "lifetime" or
+                    k == "sub-market scaling"):
                 continue
             else:
                 if isinstance(i, dict):
@@ -4236,76 +4252,20 @@ class MeasurePackage(Measure):
             x for x in self.contributing_ECMs if cm_key in x.markets[
                 adopt_scheme]["mseg_adjust"][
                 "contributing mseg keys and values"].keys()]
-        # Determine which overlapping measures are of the full service and
-        # add-on types (handled differently below)
-        if len(overlap_meas) > 0:
-            # Full service subset of overlapping measures
-            overlap_meas_fserv = [
-                x for x in overlap_meas if x.measure_type == "full service"]
-            # Add-on subset of overlapping measures
-            overlap_meas_add = [
-                x for x in overlap_meas if x.measure_type == "add-on"]
-        else:
-            overlap_meas_fserv, overlap_meas_add = ([] for n in range(2))
 
         # Update the contributing microsegment data for the individual measure
         # if the microsegment is shared with other measures in the package
         if len(overlap_meas) > 1:
-            # Scale contributing microsegment energy, carbon, and associated
-            # cost data by total number of overlapping measures in the package
-            for k in ["energy", "carbon"]:
+            # Scale contributing microsegment energy, carbon and associated
+            # cost data, as well as lifetime and sub-market scaling data,
+            # by total number of overlapping measures in the package
+            for k in ["stock", "energy", "carbon", "lifetime"]:
                 msegs_meas[k] = self.div_keyvals_float(
                     msegs_meas[k], len(overlap_meas))
-                msegs_meas["cost"][k] = self.div_keyvals_float(
-                    msegs_meas["cost"][k], len(overlap_meas))
-            # Scale contributing microsegment stock and lifetime data
-            # differently depending on measure type
-
-            # Case where individual measure is of the full service type
-            if meas_typ == "full service":
-                # Scale contributing microsegment stock and lifetime data by
-                # total number of overlapping full service measures in package
-                for k in ["stock", "lifetime"]:
-                    msegs_meas[k] = self.div_keyvals_float(
-                        msegs_meas[k], len(overlap_meas_fserv))
-                msegs_meas["cost"]["stock"] = self.div_keyvals_float(
-                    msegs_meas["cost"]["stock"], len(overlap_meas_fserv))
-            # Case where individual measure is of the add-on type
-            elif meas_typ == "add-on":
-                # Scale contributing microsegment stock and lifetime data
-                # differently depending on existence of overlapping full
-                # service measures
-
-                # Case where overlapping full-service measures are present
-                if len(overlap_meas_fserv) > 0:
-                    # Add-on measure assumes the stock and lifetime data of the
-                    # full service measure(s) it overlaps with; update the
-                    # measure's stock and lifetime values to zero
-                    for k in ["stock", "lifetime"]:
-                        msegs_meas[k] = self.div_keyvals_float(
-                            msegs_meas[k], 0)
-                    # Add-on measure assumes the baseline stock cost of the
-                    # full service measure(s) it overlaps with, and
-                    # incrementally adds to the stock cost of the measure(s)
-                    for x in ["total", "competed"]:
-                        scost = msegs_meas["cost"]["stock"][x]
-                        # Calculate incremental stock cost of the add-on over
-                        # the baseline equipment it was originally paired with
-                        scost["efficient"] = {key: (
-                            scost["efficient"][key] - scost["baseline"][key])
-                            for key in scost["efficient"].keys()}
-                        # Update baseline stock cost of add-on to zero
-                        scost["baseline"] = {
-                            key: 0 for key in scost["baseline"].keys()}
-                # Case where only overlapping add-on measures are present
-                else:
-                    # Scale add-on measure stock and lifetime data
-                    # by total number of overlapping add-on measures in package
-                    for k in ["stock", "lifetime"]:
-                        msegs_meas[k] = self.div_keyvals_float(
-                            msegs_meas[k], len(overlap_meas_add))
-                    msegs_meas["cost"]["stock"] = self.div_keyvals_float(
-                        msegs_meas["cost"]["stock"], len(overlap_meas_add))
+                if k in ["stock", "energy", "carbon"]:
+                    msegs_meas["cost"][k] = self.div_keyvals_float(
+                        msegs_meas["cost"][k], len(overlap_meas))
+            msegs_meas["sub-market scaling"] /= len(overlap_meas)
 
         # Check for additional energy savings and/or installed cost benefits
         # from packaging and apply these benefits if applicable
