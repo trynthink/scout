@@ -4,14 +4,14 @@
 
 # Define function to load required packages
 package_loader <- function(pkg_list) {
+  options(warn=-1) # Suppress sometimes misleading package load warning messages
   for(pkg_name in pkg_list){
     # require returns TRUE invisibly if it was able to load package
     if(!require(pkg_name, character.only = TRUE, quietly = TRUE, warn.conflicts=FALSE)){
-    	options(warn=-1)  # (Help) suppress warning messages
       # If package was not able to be loaded then download and install
-      install.packages(pkg_name, dependencies = TRUE)
+      install.packages(pkg_name)
       # Load package after installing
-      require(pkg_name, character.only = TRUE, quietly=TRUE, warn.conflicts=FALSE)
+      library(pkg_name, character.only = TRUE, quietly=TRUE, warn.conflicts=FALSE)
     }
   }
 }
