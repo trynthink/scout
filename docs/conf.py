@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Scout'
-copyright = '2016, Chioke Harris and Jared Langevin'
+copyright = '2016-2017, Chioke Harris and Jared Langevin'
 author = 'Chioke Harris and Jared Langevin'
 
 # The version info for the project you're documenting, acts as replacement for
