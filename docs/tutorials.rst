@@ -909,12 +909,20 @@ In :numref:`financial-metrics-example-plot`, the ENERGY STAR Electric Storage Wa
 
 The shape, fill color, and outline color of each point indicate the applicable building type(s), end use(s), and climate zone(s) for each ECM shown on the plot. Comparing the relative locations of these various points might suggest where there are categories that are more generally cost-effective than others. In :numref:`financial-metrics-example-plot`, for example, the top five ECMs are predominantly of the residential building type across all financial metrics; moreover, HVAC shows up more than any other single end use category in the top five ECMs. As with the second figure type, however, such outcomes must be interpreted in light of the particular set of ECMs that underpin the analysis; in this example, this finding is partly explained by the prevalence of residential HVAC ECMs among the ECMs included in the analysis.
 
+Viewing tabular outputs
+~~~~~~~~~~~~~~~~~~~~~~~
 
-.. Viewing tabular outputs
-   ~~~~~~~~~~~~~~~~~~~~~~~
+The plot generation script in R also produces Excel-formatted files containing summaries of the results. The summary results for each adoption scenario are stored in the corresponding scenario folder within the results/plots directory. The structure of the results in the files corresponding to each scenario is identical. Each file has three tabs, corresponding to energy use, |CO2| emissions, and energy cost results. These results correspond to the data that are shown in the ECM-specific plots, as in :numref:`tech-potential-energy-plot-example`, and the tabular results can be used to create custom visualizations different from those automatically generated with plots.R.
 
-.. SOMETHING ABOUT EXCEL OUTPUTS HERE
-.. NOTE THAT ALL DATA ARE STILL AVAILABLE IN A UNIVERSALLY ACCESSIBLE JSON FILE
+.. tip::
+   If you are experienced with R, you can also modify plots.R to tailor the figures to your preferences.
+
+On each tab, the first six columns provide information about the ECM and the type of data reported in each row. The first column contains the name of the ECM for the data in each row and the fourth through sixth columns provide details regarding the climate zones, building classes, and end uses that apply to each ECM. The second column indicates the type of data in each row, and the third column provides the units of the values in the row. Each column beyond the sixth column corresponds to a year in the simulation, with the year for each column indicated in the header (i.e., first) row. 
+
+For a given set of results data on a single tab, each ECM in the simulation appears in four rows. These four rows correspond to the uncompeted and competed baseline results, as well as the ("efficient") results with the ECM applied, again with and without competition. For each ECM, these rows correspond to the four primary lines that appear in the ECM-specific results figures, as in :numref:`tech-potential-energy-plot-example`. There are also two rows that report the sum of all ECMs for both the competed baseline and efficient cases. These rows are distinguished by not having any detail information in the fourth through sixth columns.
+
+.. note::
+   For each ECM in the results, in addition to the *total* energy use, |CO2| emissions, and energy cost results contained in the Excel files, the ecm_results.json file includes those results broken out by each of the applicable baseline market parameters -- |baseline-market| -- that apply to each ECM. These results breakdowns are provided for both the baseline and efficient cases (without and with the ECM applied, respectively).
 
 .. _associative arrays: https://en.wikipedia.org/wiki/Associative_array
 .. _Python dictionaries: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
