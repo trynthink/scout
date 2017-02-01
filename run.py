@@ -103,8 +103,9 @@ class UsefulVars(object):
                 'lodging', 'large office', 'small office', 'warehouse',
                 'other'])])
         self.out_break_enduses = OrderedDict([
-            ('Heating', ["heating", "secondary heating"]),
-            ('Cooling', ["cooling"]),
+            ('Heating (Equip.)', ["heating", "secondary heating"]),
+            ('Cooling (Equip.)', ["cooling"]),
+            ('Envelope', ["heating", "secondary heating", "cooling"]),
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
@@ -265,11 +266,21 @@ class Engine(object):
             for euse in self.handyvars.out_break_enduses.items():
                 if any([x in euse[1] for x in m.end_use["primary"]]) and \
                         euse[0] not in end_uses:
-                    # Handle special freezers case as 'Refrigeration'
+                    # * Note: classify special freezers ECM case as
+                    # 'Refrigeration'; classify 'supply' side heating/cooling
+                    # ECMs as 'Heating (Equip.)'/'Cooling (Equip.)' and
+                    # 'demand' side heating/cooling ECMs as 'Envelope'
                     if (euse[0] == "Refrigeration" and
                         "refrigeration" in m.end_use["primary"] or
-                        "freezers" in m.technology) or \
-                            euse[0] != "Refrigeration":
+                        "freezers" in m.technology) or (
+                        euse[0] != "Refrigeration" and (
+                            euse[0] in ["Heating (Equip.)",
+                                        "Cooling (Equip.)"] and
+                            "supply" in m.technology_type["primary"]) or (
+                            euse[0] == "Envelope" and "demand" in
+                            m.technology_type["primary"]) or (euse[0] not in [
+                                "Heating (Equip.)", "Cooling (Equip.)",
+                                "Envelope"])):
                         end_uses.append(euse[0])
 
             # Set measure climate zone(s), building sector(s), and end use(s)

@@ -68,17 +68,20 @@ bclasses_out_finmets_shp<-c(21, 22)
 bclasses_out_finmets_lgnd<-c('Residential', 'Commercial')
 # Set list of possible end uses and associated colors/legend entries for
 # aggregate savings plot
-euses_out_agg<-c('Heating', 'Cooling', 'Ventilation', 'Lighting', 'Water Heating',
-             'Refrigeration', 'Electronics', 'Other')
-euses_out_agg_col<-brewer.pal(length(euses_out_agg), "Dark2")
-# Set list of possible end uses and associated colors/legend entries for
+euses_out_agg<-c('Heating (Equip.)', 'Cooling (Equip.)', 'Envelope',
+	'Ventilation', 'Lighting', 'Water Heating', 'Refrigeration', 'Electronics', 'Other')
+euses_out_agg_col<-brewer.pal(length(euses_out_agg), "Paired")
+# Set list of possible end use names from the raw data and associated colors/legend entries for
 # cost effectiveness plot
 euses_out_finmets<-c(
-	list(c('Heating', 'Cooling', 'Ventilation')), list('Lighting'),
+	list(c('Heating (Equip.)', 'Cooling (Equip.)', 'Ventilation')),
+	list(c('Envelope')),
+	list('Lighting'),
     list('Water Heating'), list('Refrigeration'), list('Computers and Electronics'),
     list('Other'))
 euses_out_finmets_col<-brewer.pal(length(euses_out_finmets), "Dark2")
-euses_out_finmets_lgnd<-c('HVAC', 'Lighting', 'Water Heating', 'Refrigeration', 'Electronics', 'Other')
+euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting', 
+					      'Water Heating', 'Refrigeration', 'Electronics', 'Other')
 
 # ============================================================================
 # Set high-level variables needed to generate individual ECM plots
@@ -753,8 +756,8 @@ for (a in 1:length(adopt_scenarios)){
     # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,
     # filtered by climate zone, building class, and end use
 	
-		# Generate single PDF device to plot aggregate savings under all three filters
-		pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
+	# Generate single PDF device to plot aggregate savings under all three filters
+	pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
     # Set number of rows and columns per page in PDF output
     par(mfrow=c(3,1))
     # Reconfigure space around each side of the plot for best fit
@@ -804,12 +807,12 @@ for (a in 1:length(adopt_scenarios)){
       # Develop y limits for total cumulative savings
       min_val_cum = min(total_cum)
       max_val_cum = max(total_cum)
-      ylim_cum = pretty(c(min_val_cum, max_val_cum))
+      ylim_cum = round(pretty(c(min_val_cum, max_val_cum)))
       
       # Develop y limits for total annual savings
       min_val_ann = min(total_ann)
       max_val_ann = max(total_ann)
-      ylim_ann = pretty(c(min_val_ann, max_val_ann))
+      ylim_ann = round(pretty(c(min_val_ann, max_val_ann)))
       
       # Initialize plot region for total cumulative savings
       plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
@@ -935,7 +938,7 @@ for (a in 1:length(adopt_scenarios)){
     	ylim_fm = pretty(plot_lims_finmets[[fmp]])
     	
    		# Initialize plot region for ECM cost effectiveness 
-    	plot(1, typ='p',
+    	plot(1, typ='n',
              xlim = c(0, max(xlim)), ylim = c(min(ylim_fm), max(ylim_fm)),
              xlab=NA, ylab=NA,
              main = plot_title_labels_finmets[fmp],

@@ -442,8 +442,9 @@ class UsefulVars(object):
                 'lodging', 'large office', 'small office', 'warehouse',
                 'other'])])
         self.out_break_enduses = OrderedDict([
-            ('Heating', ["heating", "secondary heating"]),
-            ('Cooling', ["cooling"]),
+            ('Heating (Equip.)', ["heating", "secondary heating"]),
+            ('Cooling (Equip.)', ["cooling"]),
+            ('Envelope', ["heating", "secondary heating", "cooling"]),
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
@@ -1955,14 +1956,25 @@ class Measure(object):
                         # use may map to either the 'Refrigeration' output
                         # breakout or the 'Other' output breakout, depending on
                         # the technology type specified in the measure
-                        # definition
+                        # definition. Also note that 'supply' side
+                        # heating/cooling microsegments map to the
+                        # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
+                        # 'demand' side heating/cooling microsegments map to
+                        # the 'Envelope' end use
                         if mskeys[4] == "other (grid electric)":
                             if mskeys[5] == "freezers":
                                 out_eu = "Refrigeration"
                             else:
                                 out_eu = "Other"
                         elif mskeys[4] in eu[1]:
-                            out_eu = eu[0]
+                            if (eu[0] in ["Heating (Equip.)",
+                                          "Cooling (Equip.)"] and
+                                mskeys[5] == "supply") or (
+                                eu[0] == "Envelope" and
+                                mskeys[5] == "demand") or (
+                                eu[0] not in ["Heating (Equip.)",
+                                              "Cooling (Equip.)", "Envelope"]):
+                                out_eu = eu[0]
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
@@ -1999,7 +2011,7 @@ class Measure(object):
                     # be mapped to an output breakout category
                     except:
                         raise ValueError(
-                            "Baseline market key chain: '" + mskeys +
+                            "Baseline market key chain: '" + str(mskeys) +
                             "' for ECM '" + self.name + "' does not map to "
                             "output breakout categories")
 
@@ -4018,6 +4030,9 @@ class MeasurePackage(Measure):
         structure_type (list): Applicable structure types for package.
         fuel_type (dict): Applicable primary fuel type for package.
         end_use (dict): Applicable primary end use type for package.
+        technology (list): Applicable technologies for package.
+        technology_type (dict): Applicable technology types (supply/demand) for
+            package.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a package's master market microsegments (stock,
                energy, carbon, cost),
@@ -4059,7 +4074,8 @@ class MeasurePackage(Measure):
         self.climate_zone, self.bldg_type, self.structure_type, \
             self.fuel_type, self.technology = (
                 [] for n in range(5))
-        self.end_use = {"primary": [], "secondary": None}
+        self.end_use, self.technology_type = (
+                {"primary": [], "secondary": None} for n in range(2))
         self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
@@ -4148,6 +4164,10 @@ class MeasurePackage(Measure):
             # Add measure technologies
             self.technology.extend(
                 list(set(m.technology) - set(self.technology)))
+            # Add measure technology types
+            self.technology_type["primary"].extend(
+                list(set(m.technology_type["primary"]) -
+                     set(self.technology_type["primary"])))
 
             # Generate a dictionary with data about all the
             # microsegments that contribute to the packaged measure's
@@ -4417,7 +4437,7 @@ class MeasurePackage(Measure):
                 else:
                     raise KeyError(
                         "Output data dicts to merge for ECM '" + self.name +
-                        "are not identically structured")
+                        " are not identically structured")
 
         return pkg_brk
 
@@ -4512,6 +4532,10 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             if len(meas_summary_data) == 1:
                 # Initialize the missing measure as an object
                 meas_obj = Measure(handyvars, **meas_summary_data[0])
+                # Reset measure technology type variable to its value in the
+                # high level summary data (reformatted during initialization)
+                meas_obj.technology_type = meas_summary_data[0][
+                    "technology_type"]
                 # Assemble folder path for measure competition data
                 meas_folder_name = path.join(*handyfiles.ecm_compete_data)
                 # Assemble file name for measure competition data
