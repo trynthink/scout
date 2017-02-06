@@ -10400,8 +10400,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Residential (New)': {
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
-                                'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10411,7 +10410,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 0, "2010": 0},
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10538,7 +10537,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Envelope': {}}},
                         'AIA CZ5': {
                             'Residential (New)': {
-                                'Cooling (Equip.)': {}, 'Ventilation': {},
+                                'Cooling (Equip.)': {},
+                                'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
@@ -10546,7 +10546,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {},
                                 'Envelope': {}},
                             'Residential (Existing)': {
-                                'Cooling (Equip.)': {}, 'Ventilation': {},
+                                'Cooling (Equip.)': {},
+                                'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
@@ -10786,8 +10787,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Residential (New)': {
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
-                                'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10797,7 +10797,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 0, "2010": 0},
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -10924,7 +10924,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Envelope': {}}},
                         'AIA CZ5': {
                             'Residential (New)': {
-                                'Cooling (Equip.)': {}, 'Ventilation': {},
+                                'Cooling (Equip.)': {},
+                                'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
@@ -10932,7 +10933,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {},
                                 'Envelope': {}},
                             'Residential (Existing)': {
-                                'Cooling (Equip.)': {}, 'Ventilation': {},
+                                'Cooling (Equip.)': {},
+                                'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
@@ -10962,8 +10964,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
-            "structure_type": ["new"],
-            "climate_zone": ["AIA_CZ5"],
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ5"],
             "bldg_type": ["multi family home"],
             "fuel_type": ["electricity"],
             "fuel_switch_to": None,
@@ -11196,8 +11198,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Residential (New)': {
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
-                                'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11207,7 +11208,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 0, "2010": 0},
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11592,8 +11593,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Residential (New)': {
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
-                                'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11603,7 +11603,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 0, "2010": 0},
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11953,7 +11953,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {}, 'Envelope': {}},
                             'Residential (Existing)': {
                                 'Cooling (Equip.)': {}, 'Ventilation': {},
-                                'Lighting': {},
+                                'Lighting': {
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -12253,7 +12254,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {}, 'Envelope': {}},
                             'Residential (Existing)': {
                                 'Cooling (Equip.)': {}, 'Ventilation': {},
-                                'Lighting': {},
+                                'Lighting': {
+                                    "2009": 1, "2010": 1},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -12895,15 +12897,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
-                            'Cooling (Equip.)': {}, 'Ventilation': {},
-                            'Lighting': {"2009": 0.161, "2010": 0.161},
+                            'Cooling (Equip.)': {},
+                            'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
                             'Computers and Electronics': {},
                             'Heating (Equip.)': {}, 'Envelope': {}},
                         'Residential (Existing)': {
-                            'Cooling (Equip.)': {}, 'Ventilation': {},
-                            'Lighting': {"2009": 0, "2010": 0},
+                            'Cooling (Equip.)': {},
+                            'Ventilation': {},
+                            'Lighting': {
+                                "2009": 0.8870968, "2010": 0.8870968},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0, "2010": 0},
                             'Computers and Electronics': {},
@@ -13011,14 +13016,16 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Heating (Equip.)': {}, 'Envelope': {}}},
                     'AIA CZ5': {
                         'Residential (New)': {
-                            'Cooling (Equip.)': {"2009": 0.806, "2010": 0.806},
+                            'Cooling (Equip.)': {
+                                "2009": 0.7526882, "2010": 0.7526882},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
                             'Computers and Electronics': {},
                             'Heating (Equip.)': {}, 'Envelope': {}},
                         'Residential (Existing)': {
-                            'Cooling (Equip.)': {"2009": 0, "2010": 0},
+                            'Cooling (Equip.)': {
+                                "2009": 0, "2010": 0},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
@@ -13522,15 +13529,18 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                 "mseg_out_break": {
                     'AIA CZ1': {
                         'Residential (New)': {
-                            'Cooling (Equip.)': {}, 'Ventilation': {},
-                            'Lighting': {"2009": 0.161, "2010": 0.161},
+                            'Cooling (Equip.)': {},
+                            'Ventilation': {},
+                            'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0.016, "2010": 0.016},
                             'Computers and Electronics': {},
                             'Heating (Equip.)': {}, 'Envelope': {}},
                         'Residential (Existing)': {
-                            'Cooling (Equip.)': {}, 'Ventilation': {},
-                            'Lighting': {"2009": 0, "2010": 0},
+                            'Cooling (Equip.)': {},
+                            'Ventilation': {},
+                            'Lighting': {
+                                "2009": 0.8870968, "2010": 0.8870968},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0, "2010": 0},
                             'Computers and Electronics': {},
@@ -13638,7 +13648,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Heating (Equip.)': {}, 'Envelope': {}}},
                     'AIA CZ5': {
                         'Residential (New)': {
-                            'Cooling (Equip.)': {"2009": 0.806, "2010": 0.806},
+                            'Cooling (Equip.)': {
+                                "2009": 0.7526882, "2010": 0.7526882},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},

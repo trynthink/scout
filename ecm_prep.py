@@ -4173,20 +4173,30 @@ class MeasurePackage(Measure):
             # microsegments that contribute to the packaged measure's
             # master microsegment
             for adopt_scheme in self.handyvars.adopt_schemes:
-                # Set contributing microsegment data for package measure
+                # Set contributing microsegment data for individual measure
                 msegs_meas = m.markets[adopt_scheme]["mseg_adjust"]
+                # Set total energy use for individual measure (used to
+                # break out results by climate, building class, and end use
+                mseg_out_break_adj = m.markets[adopt_scheme]["master_mseg"][
+                    "energy"]["total"]["baseline"]
                 # Set contributing microsegment data to update for package
                 msegs_pkg = self.markets[adopt_scheme]["mseg_adjust"]
                 # Loop through all measures in package and add contributing
                 # microsegment data for measure
                 for k in msegs_meas.keys():
-                    # Add the measure's contributing microsegment markets
+                    # Add the measure's contributing microsegment markets;
+                    # in cases where a measure's markets overlap with those of
+                    # other measures in the package, remove these overlaps and
+                    # adjust the measure's total energy use accordingly for
+                    # the purpose of accurate output breakout calculations
                     if k == "contributing mseg keys and values":
                         for cm in msegs_meas[k].keys():
-                            msegs_pkg[k], msegs_meas[k][cm] = \
+                            msegs_pkg[k], msegs_meas[k][cm], \
+                                mseg_out_break_adj = \
                                 self.merge_contrib_msegs(
                                     msegs_pkg[k], msegs_meas[k][cm],
-                                    cm, m.measure_type, adopt_scheme)
+                                    cm, m.measure_type, adopt_scheme,
+                                    mseg_out_break_adj)
                     # Add all other contributing microsegment data for
                     # the measure
                     elif k in ["competed choice parameters",
@@ -4199,12 +4209,9 @@ class MeasurePackage(Measure):
                 # uses it applies to (normalized by the measure's total
                 # baseline energy use below to yield output partitioning
                 # fractions)
-                self.markets[adopt_scheme]["mseg_out_break"] = \
-                    self.merge_out_break(
-                    self.markets[adopt_scheme]["mseg_out_break"],
-                    m.markets[adopt_scheme]["mseg_out_break"],
-                    m.markets[adopt_scheme]["master_mseg"][
-                        'energy']['total']['baseline'])
+                self.merge_out_break(self.markets[adopt_scheme][
+                    "mseg_out_break"], m.markets[adopt_scheme][
+                    "mseg_out_break"], mseg_out_break_adj)
 
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
@@ -4243,13 +4250,13 @@ class MeasurePackage(Measure):
             # will eventually be used to breakout the packaged measure's
             # energy and carbon markets/savings by climate zone, building
             # type, and end use
-            self.markets[adopt_scheme]["mseg_out_break"] = self.div_keyvals(
-                self.markets[adopt_scheme]["mseg_out_break"],
-                self.markets[adopt_scheme]["master_mseg"][
-                    'energy']['total']['baseline'])
+            self.div_keyvals(self.markets[adopt_scheme]["mseg_out_break"],
+                             self.markets[adopt_scheme]["master_mseg"][
+                                'energy']['total']['baseline'])
 
     def merge_contrib_msegs(
-            self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme):
+            self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme,
+            mseg_out_break_adj):
         """Add a measure's contributing microsegment data to a packaged measure.
 
         Args:
@@ -4261,6 +4268,9 @@ class MeasurePackage(Measure):
                 microsegment currently being added (e.g. czone->bldg, etc.)
             meas_typ (string): Individual measure type (full service / add-on).
             adopt_scheme (string): Assumed consumer adoption scenario.
+            mseg_out_break_adj (dict): Total energy use data for the
+                individual measure, used to breakout results by climate zone,
+                building class, and end use.
 
         Returns:
             Updated contributing microsegment information for the package that
@@ -4277,14 +4287,38 @@ class MeasurePackage(Measure):
         # if the microsegment is shared with other measures in the package
         if len(overlap_meas) > 1:
             # Scale contributing microsegment energy, carbon and associated
-            # cost data, as well as lifetime and sub-market scaling data,
+            # cost data, as well as lifetime and sub-market fraction data,
             # by total number of overlapping measures in the package
             for k in ["stock", "energy", "carbon", "lifetime"]:
-                msegs_meas[k] = self.div_keyvals_float(
-                    msegs_meas[k], len(overlap_meas))
+                # Scale down contributing microsegment energy data and
+                # adjust total energy use for the measure accordingly, where
+                # total energy is used in breaking out measure results
+                # by climate zone, building class, and end use
+                if k == "energy":
+                    # Set total pre-scaled contributing microsegment energy
+                    total_energy_orig = copy.deepcopy(
+                        msegs_meas[k]["total"]["baseline"])
+                    # Scale down contributing microsegment energy based on
+                    # number of overlapping measures
+                    self.div_keyvals_float(
+                        msegs_meas[k], len(overlap_meas))
+                    # Adjust the measure's total energy use to reflect the
+                    # scaled down contributing microsegment energy use
+                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - (
+                        total_energy_orig[yr] - msegs_meas[k]["total"][
+                            "baseline"][yr]) for yr in
+                        self.handyvars.aeo_years}
+                # Scale down carbon and lifetime data
+                else:
+                    # Scale down contributing microsegment data based on
+                    # number of overlapping measures
+                    self.div_keyvals_float(
+                        msegs_meas[k], len(overlap_meas))
+                # Scale down cost data
                 if k in ["stock", "energy", "carbon"]:
                     msegs_meas["cost"][k] = self.div_keyvals_float(
                         msegs_meas["cost"][k], len(overlap_meas))
+            # Scale down sub-market fraction
             msegs_meas["sub-market scaling"] /= len(overlap_meas)
 
         # Check for additional energy savings and/or installed cost benefits
@@ -4299,7 +4333,7 @@ class MeasurePackage(Measure):
         else:
             msegs_pkg[cm_key] = self.add_keyvals(msegs_pkg[cm_key], msegs_meas)
 
-        return msegs_pkg, msegs_meas
+        return msegs_pkg, msegs_meas, mseg_out_break_adj
 
     def update_dict(self, dict1, dict2):
         """Merge data from one dict into another dict.
@@ -4421,24 +4455,28 @@ class MeasurePackage(Measure):
         """
         for (k, i), (k2, i2) in zip(
                 sorted(pkg_brk.items()), sorted(meas_brk.items())):
-            if isinstance(i, dict) and len(i.keys()) > 0:
+            if isinstance(i2, dict) and (
+                    list(i2.keys()) != self.handyvars.aeo_years):
                 self.merge_out_break(i, i2, meas_brk_unnorm)
             else:
-                if k == k2:
+                if k == k2 and (isinstance(i, dict) == isinstance(i2, dict)):
                     # If individual measure output breakout data is
                     # available to add to the current terminal leaf
-                    # node for the package, set the leaf node value
-                    # to the unnormalized breakout data (by year)
-                    # * Note: terminal leaf nodes for the package are
-                    # only updated once
-                    if isinstance(i2, dict) and len(i2.keys()) > 0:
-                        for yr in self.handyvars.aeo_years:
-                            i[yr] = i2[yr] * meas_brk_unnorm[yr]
+                    # node for the package, either set the leaf node value
+                    # to the unnormalized breakout data if no data already
+                    # exist, or otherwise add the unnormalized breakout data
+                    # for the individual measure to that of the package
+                    if len(i.keys()) == 0:
+                        pkg_brk[k] = {yr: i2[yr] * meas_brk_unnorm[yr] for
+                                      yr in self.handyvars.aeo_years}
+                    else:
+                        pkg_brk[k] = {yr: pkg_brk[k][yr] +
+                                      i2[yr] * meas_brk_unnorm[yr] for
+                                      yr in self.handyvars.aeo_years}
                 else:
                     raise KeyError(
                         "Output data dicts to merge for ECM '" + self.name +
                         " are not identically structured")
-
         return pkg_brk
 
 
@@ -4552,8 +4590,14 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                             "' for package '" + p["name"] + "': " +
                             str(e)) from None
                 for adopt_scheme in handyvars.adopt_schemes:
+                    meas_obj.markets[adopt_scheme]["master_mseg"] = \
+                        meas_summary_data[0]["markets"][adopt_scheme][
+                            "master_mseg"]
                     meas_obj.markets[adopt_scheme]["mseg_adjust"] = \
                         meas_comp_data[adopt_scheme]
+                    meas_obj.markets[adopt_scheme]["mseg_out_break"] = \
+                        meas_summary_data[0]["markets"][adopt_scheme][
+                            "mseg_out_break"]
                 # Add missing measure object to the existing list
                 measure_list_package.append(meas_obj)
             # Raise an error if no existing data exist for the missing
@@ -4762,14 +4806,16 @@ def main(base_dir):
         m_exist = [
             me for me in meas_prepped_pkgs if me["name"] == m["name"]]
         # Add a package dict to the list requiring further prepartion if:
-        # a) any of the package's contributing measures have been
-        # updated, b) the package is new, or c) package
-        # "contributing_ECMs" and/or "benefits" parameters have been
-        # edited from a previous version
+        # a) any of the package's contributing measures have been updated,
+        # b) the package is new, c) package does not already have competition
+        # data prepared for it; or d) package "contributing_ECMs" and/or
+        # "benefits" parameters have been edited from a previous version
         if any([x["name"] in m["contributing_ECMs"] for
-                x in meas_toprep_indiv]) or len(m_exist) == 0 or (
-            len(m_exist) == 1 and any([m[x] != m_exist[0][x] for x in [
-                "contributing_ECMs", "benefits"]])):
+                x in meas_toprep_indiv]) or len(m_exist) == 0 or \
+            all([m["name"] not in y for y in listdir(path.join(
+                *handyfiles.ecm_compete_data))]) or (
+                len(m_exist) == 1 and any([m[x] != m_exist[0][x] for x in [
+                    "contributing_ECMs", "benefits"]])):
             meas_toprep_package.append(m)
         # Raise an error if the current package matches the name of
         # multiple previously prepared packages
