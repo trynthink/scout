@@ -137,7 +137,7 @@ class UserSearchKeywordInputTest(CommonUnitTest):
 
     # Verify that the function successfully reads the user input
     # strings and converts them into lists in the desired format
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
     def test_handling_of_user_strings_from_stdin(self, patched_input):
         for idx, input_str in enumerate(self.user_input_strings):
             # Patch provided text through as the return value from
@@ -181,7 +181,7 @@ class FixMoveConflictsTest(CommonUnitTest):
         self.conflict_list_l1 = ['Novel Electric Clothes Dryer, Low-cost']
 
     # Test the successful selection of a subset of the conflicting entries
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
     def test_move_conflicts(self, patched_input_still_move):
         # Specify the text string input by the user and returned
         # by the input function
@@ -204,7 +204,7 @@ class FixMoveConflictsTest(CommonUnitTest):
 
     # Test the successful selection of a single entry (and verify that
     # extraneous comma entries from the user are also handled properly)
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
     def test_move_conflicts_list_length_1(self, patched_input_still_move):
         # Specify the text string input by the user and returned
         # by the input function (including an extraneous comma to
@@ -226,7 +226,7 @@ class FixMoveConflictsTest(CommonUnitTest):
 
     # Test the case where the user gives no input to the function
     # (the input() function returns an empty string)
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
     def test_move_conflicts_no_user_selections(self, patched_input_nothing):
         # Specify the text obtained from the user at the input field
         patched_input_nothing.return_value = ''
@@ -250,8 +250,8 @@ class FixMoveConflictsTest(CommonUnitTest):
 
     # Test the case where there are conflicting entries found but the
     # user inputs one or more ECM numeric values that are out of range
-    @patch.object(run_setup, 'input')
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
+    @patch.object(run_setup, 'input', create=True)
     def test_move_conflicts_out_of_range_entry(self, err_input, ok_input):
         # Set up patched input with an out of range value input
         # by the user
@@ -275,8 +275,8 @@ class FixMoveConflictsTest(CommonUnitTest):
 
     # Test the case where the user provides non-numeric inputs in whole
     # or in part, thus preventing valid selections from being made
-    @patch.object(run_setup, 'input')
-    @patch.object(run_setup, 'input')
+    @patch.object(run_setup, 'input', create=True)
+    @patch.object(run_setup, 'input', create=True)
     def test_move_conflicts_non_numeric_entry(self, invalid_input, ok_input):
         invalid_input.return_value = 'stuff, 3'
         ok_input.return_value = '2,'
