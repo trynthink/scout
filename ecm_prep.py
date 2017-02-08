@@ -13,6 +13,7 @@ import gzip
 import pickle
 from functools import reduce  # forward compatibility for Python 3
 import operator
+from optparse import OptionParser
 
 
 class MyEncoder(json.JSONEncoder):
@@ -997,7 +998,7 @@ class Measure(object):
                 "Scout building type(s) " + str(self.bldg_type) +
                 "in ECM '" + self.name + "'")
 
-    def fill_mkts(self, msegs, msegs_cpl, convert_data):
+    def fill_mkts(self, msegs, msegs_cpl, convert_data, verbose):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -1005,6 +1006,8 @@ class Measure(object):
             msegs_cpl (dict): Baseline technology cost, performance, and
                 lifetime.
             convert_data (dict): Measure -> baseline cost unit conversions.
+            verbose (bool or NoneType): Determines whether to print all
+                user warnings and messages.
 
         Returns:
             Updated measure stock, energy/carbon, and cost market microsegment
@@ -1022,8 +1025,13 @@ class Measure(object):
         # are valid before attempting to retrieve data on this baseline market
         self.check_mkt_inputs()
 
-        # Notify user that measure is being updated
-        print("Updating ECM '" + self.name + "'...")
+        # Notify user that ECM is being updated; suppress new line
+        # if not in verbose mode ('Success' is appended to this message on
+        # the same line of the console upon completion of ECM update)
+        if verbose:
+            print("Updating ECM '" + self.name + "'...")
+        else:
+            print("Updating ECM '" + self.name + "'...", end="", flush=True)
 
         # If multiple runs are required to handle probability distributions on
         # measure inputs, set a number to seed each random draw of cost,
@@ -1032,8 +1040,13 @@ class Measure(object):
         if self.handyvars.nsamples is not None:
             rnd_sd = numpy.random.randint(10000)
 
-        # Initialize a counter of valid key chains
-        key_chain_ct = 0
+        # Initialize a counter of valid key chains and a cost conversion flag
+        key_chain_ct, cost_converts = (0 for n in range(2))
+        # Initialize counters of missing baseline technology cost/performance/
+        # lifetime data and consumer data, as well as lists of technology names
+        # that have yielded warnings
+        missing_base_cpl, missing_base_consumer = (0 for n in range(2))
+        tech_cpl_warnings, euse_consume_warnings = ([] for n in range(2))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -1501,22 +1514,30 @@ class Measure(object):
                         base_cpl["installed cost"]["units"]
 
                 except:
-                    warnings.warn(
-                        "WARNING: Measure '" + self.name +
-                        "' has invalid baseline cost/performance/lifetime " +
-                        "for technology '" + str(mskeys[-2]) +
-                        "'; setting equal to measure characteristics")
-                    cost_base, perf_base, life_base = [
-                        dict.fromkeys(self.handyvars.aeo_years, x) for
-                        x in [cost_meas, perf_meas, life_meas]]
-                    cost_base_units, perf_base_units = [cost_units, perf_units]
+                    # Record missing baseline data for primary technologies;
+                    # if in verbose mode and the user has not already been
+                    # warned about missing data for the given technology,
+                    # print warning message; exclude the technology from
+                    # further analysis
+                    if mskeys[0] == "primary":
+                        if mskeys[-2] not in tech_cpl_warnings:
+                            tech_cpl_warnings.append(mskeys[-2])
+                            verboseprint(
+                                "WARNING: ECM '" + self.name +
+                                "' missing valid baseline "
+                                "cost/performance/lifetime data " +
+                                "for technology '" + str(mskeys[-2]) +
+                                "'; removing technology from analysis")
+                        missing_base_cpl += 1
+                        continue
 
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
                 if mskeys[0] == "primary" and cost_base_units != cost_units:
                     cost_meas, cost_units = self.convert_costs(
                         convert_data, bldg_sect, mskeys, cost_meas,
-                        cost_units, cost_base_units)
+                        cost_units, cost_base_units, options.verbose)
+                    cost_converts += 1
                     # Add microsegment building type to cost conversion
                     # tracking list for cases where cost conversion need
                     # occur only once per building type
@@ -1560,7 +1581,7 @@ class Measure(object):
                         else:
                             # Set the original measure relative savings value
                             # (potentially adjusted via re-baselining)
-                            perf_meas_orig = copy.deepcopy(perf_meas)
+                            perf_meas_orig = perf_meas
                             # Loop through all years in modeling time horizon
                             # and calculate relative measure performance
                             for yr in self.handyvars.aeo_years:
@@ -1584,7 +1605,7 @@ class Measure(object):
                                                 (1 - perf_meas_orig)) /
                                                 perf_base[yr])
                                     except ZeroDivisionError:
-                                        warnings.warn(
+                                        verboseprint(
                                             "WARNING: Measure '" + self.name +
                                             "' has baseline " +
                                             "or measure performance of zero;" +
@@ -1620,7 +1641,7 @@ class Measure(object):
                             try:
                                 rel_perf[yr] = (perf_base[yr] / perf_meas)
                             except ZeroDivisionError:
-                                warnings.warn(
+                                verboseprint(
                                     "WARNING: Measure '" + self.name +
                                     "' has measure performance of zero; " +
                                     "baseline and measure performance set " +
@@ -1631,7 +1652,7 @@ class Measure(object):
                             try:
                                 rel_perf[yr] = (perf_meas / perf_base[yr])
                             except ZeroDivisionError:
-                                warnings.warn(
+                                verboseprint(
                                     "WARNING: Measure '" + self.name +
                                     "' has baseline performance of zero; " +
                                     "baseline and measure performance set " +
@@ -1696,12 +1717,20 @@ class Measure(object):
                                 "competed market share"]["parameters"]
                         # Update invalid consumer choice parameters
                         except:
-                            warnings.warn(
-                                "WARNING: Measure '" + self.name +
-                                "' lacks consumer choice data " +
-                                "for end use '" + str(mskeys[4]) +
-                                "'; using default choice data for " +
-                                "heating end use")
+                            # Record missing consumer data for primary
+                            # technologies; if in verbose mode and the user
+                            # has not already been warned about missing data
+                            # for the given technology, print warning message
+                            if mskeys[0] == "primary":
+                                if mskeys[4] not in euse_consume_warnings:
+                                    euse_consume_warnings.append(mskeys[4])
+                                    verboseprint(
+                                        "WARNING: ECM '" + self.name +
+                                        "' missing valid consumer choice "
+                                        "data for end use '" + str(mskeys[4]) +
+                                        "'; using default choice data for " +
+                                        "heating end use")
+                                missing_base_consumer += 1
                             choice_params = {
                                 "b1": {key: -0.003 for
                                        key in self.handyvars.aeo_years},
@@ -1747,12 +1776,19 @@ class Measure(object):
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][mskeys[4]]}
                         except:
-                            warnings.warn(
-                                "WARNING: Measure '" + self.name +
-                                "' lacks consumer choice data " +
-                                "for end use '" + str(mskeys[4]) +
-                                "'; using default choice data for " +
-                                "heating end use")
+                            # Record missing consumer data for primary
+                            # technologies; if in verbose mode and the user
+                            # has not already been warned about missing data
+                            # for the given technology, print warning message
+                            if mskeys[4] not in euse_consume_warnings:
+                                euse_consume_warnings.append(mskeys[4])
+                                verboseprint(
+                                    "WARNING: ECM '" + self.name +
+                                    "' missing valid consumer choice data " +
+                                    "for end use '" + str(mskeys[4]) +
+                                    "'; using default choice data for " +
+                                    "heating end use")
+                            missing_base_consumer += 1
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
                                                  "distributions"]["heating"]}
@@ -2140,8 +2176,7 @@ class Measure(object):
                 # microsegments; this yields partitioning fractions that will
                 # eventually be used to breakout measure energy and carbon
                 # markets/savings by climate zone, building type, and end use
-                self.markets[adopt_scheme]["mseg_out_break"] = \
-                    self.div_keyvals(
+                self.div_keyvals(
                     self.markets[adopt_scheme]["mseg_out_break"],
                     self.markets[adopt_scheme]["master_mseg"][
                         'energy']['total']['baseline'])
@@ -2153,10 +2188,50 @@ class Measure(object):
                 "definition of ECM '" + self.name + "'")
 
         # Print update on measure status
-        print("ECM '" + self.name + "' successfully updated")
 
-    def convert_costs(self, convert_data, bldg_sect, mskeys,
-                      cost_meas, cost_meas_units, cost_base_units):
+        # If not in verbose mode, suppress summaries about missing data;
+        # otherwise, summarize the extent of the missing data
+        if not verbose:
+            # Missing baseline cost, performance, and lifetime data and
+            # consumer data summaries are blank
+            bcpl_msg, bcc_msg = ("" for n in range(2))
+            # If one or more conversion to ECM unit cost has been made, note
+            # this in the update message
+            if cost_converts == 0:
+                cc_msg = ""
+            else:
+                cc_msg = " (cost units converted)"
+        else:
+            # Summarize percentage of baseline cost, performance, and lifetime
+            # data that were missing (if any)
+            if missing_base_cpl == 0:
+                bcpl_msg = ""
+            else:
+                bcpl_msg = "\n" + " - " + str(
+                    round((missing_base_cpl / key_chain_ct) * 100)) + \
+                    " % of baseline technologies were missing valid" + \
+                    " baseline cost, performance, or lifetime data and" + \
+                    " removed from analysis"
+            # Summarize percentage of baseline consumer choice data that
+            # were missing (if any)
+            if missing_base_consumer == 0:
+                bcc_msg = ""
+            else:
+                bcc_msg = "\n" + " - " + str(
+                    round((missing_base_consumer / key_chain_ct) * 100)) + \
+                    " % of remaining baseline technologies were missing" + \
+                    " valid consumer choice data"
+            cc_msg = ""
+        # Print message to console; if in verbose mode, print to new line,
+        # otherwise append to existing message on the console
+        if not verbose:
+            print(" Success" + bcpl_msg + bcc_msg + cc_msg)
+        else:
+            print("ECM '" + self.name + "' successfully updated" +
+                  bcpl_msg + bcc_msg + cc_msg)
+
+    def convert_costs(self, convert_data, bldg_sect, mskeys, cost_meas,
+                      cost_meas_units, cost_base_units, verbose):
         """Convert measure cost to comparable baseline cost units.
 
         Args:
@@ -2168,6 +2243,8 @@ class Measure(object):
             cost_meas (float): Initial user-defined measure cost.
             cost_meas_units (string): Initial user-defined measure cost units.
             cost_base_units (string): Comparable baseline cost units.
+            verbose (bool or NoneType): Determines whether to print all
+                user warnings and messages.
 
         Returns:
             Updated measure costs and cost units that are consistent with
@@ -2399,28 +2476,29 @@ class Measure(object):
 
         # Case where cost conversion has succeeded
         if cost_meas_units_fin == cost_base_units:
-            # Notify user of cost conversion
-
-            # Set base user message
-            if not isinstance(cost_meas, numpy.ndarray):
-                user_message = "Measure '" + self.name + \
-                    "' cost converted from " + \
-                    str(cost_meas) + " " + cost_meas_units + " to " + \
-                    str(round(cost_meas_fin, 2)) + " " + cost_meas_units_fin
-            else:
-                user_message = "Measure '" + self.name + \
-                    "' cost converted from " + \
-                    str(numpy.mean(cost_meas)) + " " + cost_meas_units + \
-                    " to " + str(round(numpy.mean(cost_meas_fin), 2)) + " " + \
-                    cost_meas_units_fin
-            # Add building type information to base message in cases where cost
-            # conversion depends on building type (e.g., for envelope
-            # components)
-            if cost_meas_noyr in self.handyvars.cconv_bybldg_units or \
-                    isinstance(self.installed_cost, dict):
-                user_message += " for '" + mskeys[2] + "'"
-            # Print user message
-            print(user_message)
+            # If in verbose mode, notify user of cost conversion details
+            if verbose:
+                # Set base user message
+                if not isinstance(cost_meas, numpy.ndarray):
+                    user_message = "ECM '" + self.name + \
+                        "' cost converted from " + \
+                        str(cost_meas) + " " + cost_meas_units + " to " + \
+                        str(round(cost_meas_fin, 2)) + " " + \
+                        cost_meas_units_fin
+                else:
+                    user_message = "ECM '" + self.name + \
+                        "' cost converted from " + \
+                        str(numpy.mean(cost_meas)) + " " + cost_meas_units + \
+                        " to " + str(round(numpy.mean(cost_meas_fin), 2)) + \
+                        " " + cost_meas_units_fin
+                # Add building type information to base message in cases where
+                # cost conversion depends on building type (e.g., for envelope
+                # components)
+                if cost_meas_noyr in self.handyvars.cconv_bybldg_units or \
+                        isinstance(self.installed_cost, dict):
+                    user_message += " for '" + mskeys[2] + "'"
+                # Print user message
+                print(user_message)
         # Case where cost conversion has not succeeded
         else:
             raise ValueError(
@@ -3469,7 +3547,7 @@ class Measure(object):
                     self.add_keyvals(i, i2)
                 else:
                     if dict1[k] is None:
-                        dict1[k] = copy.deepcopy(dict2[k2])
+                        dict1[k] = copy.copy(dict2[k2])
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
@@ -3510,7 +3588,7 @@ class Measure(object):
                     self.add_keyvals(i, i2)
                 else:
                     if dict1[k] is None:
-                        dict1[k] = copy.deepcopy(dict2[k2])
+                        dict1[k] = copy.copy(dict2[k2])
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
@@ -3928,7 +4006,7 @@ class Measure(object):
         # Loop through the initial set of candidate key chains generated above
         for kc in dict_keys:
             # Copy the input dictionary containing valid key chains
-            dict_check = copy.deepcopy(msegs)
+            dict_check = msegs
             # Loop through all keys in the candidate key chain and move down
             # successive levels of the input dict until either the end of the
             # key chain is reached or a key is not found in the list of valid
@@ -4044,7 +4122,7 @@ class MeasurePackage(Measure):
 
     def __init__(self, measure_list_package, p, bens, handyvars):
         self.handyvars = handyvars
-        self.contributing_ECMs = copy.deepcopy(measure_list_package)
+        self.contributing_ECMs = measure_list_package
         self.name = p
         # Check to ensure that measure name is proper length for plotting
         if len(self.name) > 40:
@@ -4296,7 +4374,7 @@ class MeasurePackage(Measure):
                 # by climate zone, building class, and end use
                 if k == "energy":
                     # Set total pre-scaled contributing microsegment energy
-                    total_energy_orig = copy.deepcopy(
+                    total_energy_orig = copy.copy(
                         msegs_meas[k]["total"]["baseline"])
                     # Scale down contributing microsegment energy based on
                     # number of overlapping measures
@@ -4528,7 +4606,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, convert_data) for m in meas_update_objs]
+    [m.fill_mkts(msegs, msegs_cpl, convert_data, options.verbose) for
+     m in meas_update_objs]
 
     return meas_update_objs
 
@@ -4721,7 +4800,6 @@ def main(base_dir):
     # Custom format all warning messages (ignore everything but
     # message itself) *** Note: sometimes yields error; investigate ***
     # warnings.formatwarning = custom_formatwarning
-
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
     # Instantiate useful variables object
@@ -4918,7 +4996,7 @@ def main(base_dir):
             meas_file_name = m.name + ".pkl.gz"
             with gzip.open(path.join(
                     base_dir, meas_folder_name, meas_file_name), 'w') as zp:
-                pickle.dump(meas_prepped_compete[ind], zp, protocol=4)
+                pickle.dump(meas_prepped_compete[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
@@ -4934,8 +5012,14 @@ def main(base_dir):
 if __name__ == "__main__":
     import time
     start_time = time.time()
-    # Allow either user-defined or standard EnergyPlus performance file
-    # directory
+    # Handle command line '-v' argument specifying verbose mode
+    parser = OptionParser()
+    parser.add_option("-v", action="store_true", dest="verbose",
+                      help="print all warnings to stdout")
+    (options, args) = parser.parse_args()
+    # Set function that only prints message when in verbose mode
+    verboseprint = print if options.verbose else lambda *a, **k: None
+    # Set current working directory
     base_dir = getcwd()
     main(base_dir)
     hours, rem = divmod(time.time() - start_time, 3600)

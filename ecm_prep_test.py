@@ -700,6 +700,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #     for a series of sample measures.
 
 #     Attributes:
+#         verbose (NoneType): Determines whether to print all user messages.
 #         sample_mseg_in (dict): Sample baseline microsegment stock/energy.
 #         sample_cpl_in (dict): Sample baseline technology cost, performance,
 #             and lifetime.
@@ -787,6 +788,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #                 "distillate": {"2009": 14.81, "2010": 14.87},
 #                 "other fuel": {"2009": 14.81, "2010": 14.87}}}
 #         handyvars.ccosts = {"2009": 33, "2010": 33}
+#         cls.verbose = None       
 #         cls.sample_mseg_in = {
 #             "AIA_CZ1": {
 #                 "assembly": {
@@ -6438,7 +6440,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #         # Run function on all measure objects and check output
 #         for idx, measure in enumerate(self.ok_tpmeas_fullchk_in):
 #             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                               convert_data={})
+#                               convert_data={}, self.verbose)
 #             self.dict_check(
 #                 measure.markets['Technical potential']['master_mseg'],
 #                 self.ok_tpmeas_fullchk_msegout[idx])
@@ -6467,7 +6469,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #         # Run function on all measure objects and check output
 #         for idx, measure in enumerate(self.ok_tpmeas_partchk_in):
 #             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                               convert_data={})
+#                               convert_data={}, self.verbose)
 #             self.dict_check(
 #                 measure.markets['Technical potential']['master_mseg'],
 #                 self.ok_tpmeas_partchk_msegout[idx])
@@ -6486,7 +6488,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #         # output
 #         for idx, measure in enumerate(self.ok_mapmeas_partchk_in):
 #             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                               convert_data={})
+#                               convert_data={}, self.verbose)
 #             self.dict_check(
 #                 measure.markets['Max adoption potential']['master_mseg'],
 #                 self.ok_mapmas_partchck_msegout[idx])
@@ -6507,7 +6509,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #             # Generate lists of energy and cost output values
 #             measure.fill_mkts(
 #                 self.sample_mseg_in, self.sample_cpl_in,
-#                 convert_data={})
+#                 convert_data={}, self.verbose)
 #             test_outputs = measure.markets[
 #                 'Technical potential']['master_mseg']
 #             test_e = test_outputs["energy"]["total"]["efficient"]["2009"]
@@ -6535,7 +6537,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #         # Run function on all measure objects and check output
 #         for idx, measure in enumerate(self.ok_partialmeas_in):
 #             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                               convert_data={})
+#                               convert_data={}, self.verbose)
 #             self.dict_check(
 #                 measure.markets['Technical potential']['master_mseg'],
 #                 self.ok_partialmeas_out[idx])
@@ -6550,7 +6552,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #         for idx, measure in enumerate(self.failmeas_in):
 #             with self.assertRaises(ValueError):
 #                 measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                                   convert_data={})
+#                                   convert_data={}, self.verbose)
 
 #     def test_mseg_warn(self):
 #         """Test 'fill_mkts' function given incomplete inputs.
@@ -6565,7 +6567,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 #             # is marked inactive where necessary
 #             with warnings.catch_warnings(record=True) as w:
 #                 mw.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-#                              convert_data={})
+#                              convert_data={}, self.verbose)
 #                 # Check correct number of warnings is yielded
 #                 self.assertEqual(len(w), len(self.ok_warnmeas_out[idx]))
 #                 # Check correct type of warnings is yielded
@@ -8382,6 +8384,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
     to align with comparable baseline cost units.
 
     Attributes:
+        verbose (NoneType): Determines whether to print all user messages.
         sample_measure_in (dict): Sample measure attributes.
         sample_convertdata_ok_in (dict): Sample cost conversion input data.
         sample_bldgsect_ok_in (list): List of valid building sectors for
@@ -8455,6 +8458,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "original energy (competed and captured)": {},
                         "adjusted energy (total captured)": {},
                         "adjusted energy (competed and captured)": {}}}}}
+        cls.verbose = None
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
@@ -8864,7 +8868,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[0],
             self.sample_mskeys_ok_in[0], self.cost_meas_ok_in,
             self.cost_meas_units_ok_in_yronly,
-            self.cost_base_units_ok_in[0])
+            self.cost_base_units_ok_in[0], self.verbose)
         numpy.testing.assert_almost_equal(
             func_output[0], self.ok_out_costs_yronly, decimal=2)
         self.assertEqual(func_output[1], self.cost_base_units_ok_in[0])
@@ -8876,10 +8880,11 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                 self.sample_convertdata_ok_in, self.sample_bldgsect_ok_in[k],
                 self.sample_mskeys_ok_in[k], self.cost_meas_ok_in,
                 self.cost_meas_units_ok_in_all[k],
-                self.cost_base_units_ok_in[k])
+                self.cost_base_units_ok_in[k], self.verbose)
             numpy.testing.assert_almost_equal(
                 func_output[0], self.ok_out_costs_all[k], decimal=2)
-            self.assertEqual(func_output[1], self.cost_base_units_ok_in[k])
+            self.assertEqual(
+                func_output[1], self.cost_base_units_ok_in[k])
 
     def test_convertcost_fail(self):
         """Test 'convert_costs' function given invalid inputs."""
@@ -8890,7 +8895,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     self.sample_bldgsect_ok_in[k],
                     self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
                     self.cost_meas_units_fail_in[k],
-                    self.cost_base_units_ok_in[k])
+                    self.cost_base_units_ok_in[k], self.verbose)
 
 
 # class UpdateMeasuresTest(unittest.TestCase, CommonMethods):

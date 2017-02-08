@@ -10,6 +10,7 @@ import pickle
 from os import getcwd, path
 from ast import literal_eval
 import math
+from optparse import OptionParser
 
 
 class UsefulInputFiles(object):
@@ -1732,7 +1733,7 @@ class Engine(object):
 
         # Competed stock market share (represents adjustment for current
         # year)
-        adj_frac_comp = copy.deepcopy(adj_fracs[yr])
+        adj_frac_comp = adj_fracs[yr]
 
         # Weight the market share adjustment for the stock captured by the
         # measure in the current year against that of the stock captured
@@ -1750,7 +1751,7 @@ class Engine(object):
             # year in a technical potential scenario; weighted market share
             # equals market share for the captured stock in this year only
             if ind == 0:
-                adj_frac_tot = copy.deepcopy(adj_fracs[wyr]) + \
+                adj_frac_tot = adj_fracs[wyr] + \
                     added_sbmkt_fracs[wyr]
             # Subsequent year; weighted market share averages market share
             # for captured stock in current year and all previous years
@@ -2128,7 +2129,14 @@ def main(base_dir):
     measures_objlist = [Measure(handyvars, **m) for m in meas_summary if
                         m["name"] in active_meas_all and m["remove"] is False]
 
-    # Load and set competition data for active measure objects
+    # Load and set competition data for active measure objects; suppress
+    # new line if not in verbose mode ('Data load complete' is appended to
+    # this message on the same line of the console upon data load completion)
+    if options.verbose:
+        print('Importing ECM competition data...')
+    else:
+        print('Importing ECM competition data...', end="", flush=True)
+
     for m in measures_objlist:
         # Assemble folder path for measure competition data
         meas_folder_name = path.join(*handyfiles.meas_compete_data)
@@ -2148,8 +2156,14 @@ def main(base_dir):
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
-        print("Imported ECM '" + m.name + "' competition data")
-    print('ECM competition data load complete')
+        # Print data import message for each ECM if in verbose mode
+        verboseprint("Imported ECM '" + m.name + "' competition data")
+    # Print message to console; if in verbose mode, print to new line,
+    # otherwise append to existing message on the console
+    if options.verbose:
+        print('ECM competition data load complete')
+    else:
+        print('Data load complete')
 
     # Instantiate an Engine object using active measures list
     a_run = Engine(handyvars, measures_objlist)
@@ -2157,20 +2171,25 @@ def main(base_dir):
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
     for adopt_scheme in handyvars.adopt_schemes:
-        # Calculate each measure's uncompeted savings and metrics
+        # Calculate each measure's uncompeted savings and metrics,
+        # and print progress update to user
+        print("Calculating uncompeted '" + adopt_scheme +
+              "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "uncompeted")
-        print("Uncompeted '" + adopt_scheme +
-              "' savings/metrics calculations complete")
+        print("Calculations complete")
         # Update each measure's competed markets to reflect the
-        # removal of savings overlaps with competing measures
+        # removal of savings overlaps with competing measures,
+        # and print progress update to user
+        print("Competing ECMs for '" + adopt_scheme + "' scenario...",
+              end="", flush=True)
         a_run.compete_measures(adopt_scheme)
-        print("ECM competition complete for '" +
-              adopt_scheme + "' scenario")
+        print("Competition complete")
         # Calculate each measure's competed measure savings and metrics
-        # using updated competed markets
+        # using updated competed markets, and print progress update to user
+        print("Calculating competed '" + adopt_scheme +
+              "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "competed")
-        print("Competed '" + adopt_scheme +
-              "' savings/metrics calculations complete")
+        print("Calculations complete")
         # Write selected outputs to a summary JSON file for post-processing
         a_run.finalize_outputs(adopt_scheme)
 
@@ -2184,6 +2203,13 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     base_dir = getcwd()
+    # Handle command line '-v' argument specifying verbose mode
+    parser = OptionParser()
+    parser.add_option("-v", action="store_true", dest="verbose",
+                      help="print all warnings to stdout")
+    (options, args) = parser.parse_args()
+    # Set function that only prints message when in verbose mode
+    verboseprint = print if options.verbose else lambda *a, **k: None
     main(base_dir)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
