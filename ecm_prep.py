@@ -3547,7 +3547,7 @@ class Measure(object):
                     self.add_keyvals(i, i2)
                 else:
                     if dict1[k] is None:
-                        dict1[k] = copy.copy(dict2[k2])
+                        dict1[k] = copy.deepcopy(dict2[k2])
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
@@ -3588,7 +3588,7 @@ class Measure(object):
                     self.add_keyvals(i, i2)
                 else:
                     if dict1[k] is None:
-                        dict1[k] = copy.copy(dict2[k2])
+                        dict1[k] = copy.deepcopy(dict2[k2])
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
@@ -4006,7 +4006,7 @@ class Measure(object):
         # Loop through the initial set of candidate key chains generated above
         for kc in dict_keys:
             # Copy the input dictionary containing valid key chains
-            dict_check = msegs
+            dict_check = copy.deepcopy(msegs)
             # Loop through all keys in the candidate key chain and move down
             # successive levels of the input dict until either the end of the
             # key chain is reached or a key is not found in the list of valid
@@ -4374,7 +4374,7 @@ class MeasurePackage(Measure):
                 # by climate zone, building class, and end use
                 if k == "energy":
                     # Set total pre-scaled contributing microsegment energy
-                    total_energy_orig = copy.copy(
+                    total_energy_orig = copy.deepcopy(
                         msegs_meas[k]["total"]["baseline"])
                     # Scale down contributing microsegment energy based on
                     # number of overlapping measures
