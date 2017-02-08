@@ -4122,7 +4122,7 @@ class MeasurePackage(Measure):
 
     def __init__(self, measure_list_package, p, bens, handyvars):
         self.handyvars = handyvars
-        self.contributing_ECMs = measure_list_package
+        self.contributing_ECMs = copy.deepcopy(measure_list_package)
         self.name = p
         # Check to ensure that measure name is proper length for plotting
         if len(self.name) > 40:
@@ -4628,7 +4628,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
     # contribute to this package
     for p in packages:
         # Notify user that measure is being updated
-        print("Updating measure '" + p["name"] + "'...")
+        print("Updating ECM '" + p["name"] + "'...", end="", flush=True)
 
         # Establish a list of names for measures that contribute to the
         # package
@@ -4711,7 +4711,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # Merge measures in the package object
             packaged_measure.merge_measures()
             # Print update on measure status
-            print("ECM '" + p["name"] + "' successfully updated")
+            print("Success")
 
         # Add the new packaged measure to the measure list (if it exists)
         # for further evaluation like any other regular measure
