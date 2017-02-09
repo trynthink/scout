@@ -466,6 +466,9 @@ class DataToListFormatTest(unittest.TestCase):
                    ('LT', 1, 1, 'EL', 'EXT', 2011, 103, 104, -1, 'LED'),
                    ('HS', 1, 1, 0, 0, 2010, 299, 0, 0, ''),
                    ('HS', 1, 1, 0, 0, 2011, 299, 0, 0, ''),
+                   ('TVS', 1, 1, 'EL', 'TV&R', 2010, 35,
+                    757, -1, ''),
+                   ('TVS', 1, 1, 'EL', 'TV&R', 2011, 355., 787, -1, '')
                    ]
 
     # Convert supply data into numpy array with column names
@@ -544,7 +547,9 @@ class DataToListFormatTest(unittest.TestCase):
                    'electricity', 'lighting',
                    'general service (LED)'],
                   ['new england', 'single family home', 'new homes'],
-                  ['new england', 'single family home', 'total homes']
+                  ['new england', 'single family home', 'total homes'],
+                  ['new england', 'single family home',
+                   'electricity', 'TVs', 'TV']
                   ]
 
     # Define a set of filters that should yield zeros for stock/energy
@@ -606,13 +611,13 @@ class DataToListFormatTest(unittest.TestCase):
                np.hstack([supply_array[0:16], supply_array[18:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               np.hstack([supply_array[:-15], supply_array[-13:]])],
+               np.hstack([supply_array[:-17], supply_array[-15:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               np.hstack([supply_array[:-13], supply_array[-11:]])],
+               np.hstack([supply_array[:-15], supply_array[-13:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               np.hstack([supply_array[:-11], supply_array[-9:]])],
+               np.hstack([supply_array[:-13], supply_array[-11:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -623,15 +628,18 @@ class DataToListFormatTest(unittest.TestCase):
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
               [{"2010": 101, "2011": 101},
-               np.hstack([supply_array[0:-9], supply_array[-7:]])],
+               np.hstack([supply_array[0:-11], supply_array[-9:]])],
               [{'stock': {"2010": 20, "2011": 20},
                 'energy': {"2010": 21, "2011": 21}},
                np.hstack([supply_array[0:18], supply_array[20:]])],
               [{'stock': {"2010": 102, "2011": 103},
                 'energy': {"2010": 103, "2011": 104}},
-               np.hstack([supply_array[0:-7], supply_array[-5:]])],
-              [{"2010": 299, "2011": 299}, supply_array[0:-2]],
-              [{"2010": 3, "2011": 4}, supply_array]]
+               np.hstack([supply_array[0:-9], supply_array[-7:]])],
+              [{"2010": 299, "2011": 299},
+               np.hstack([supply_array[0:-4], supply_array[-2:]])],
+              [{"2010": 3, "2011": 4}, supply_array],
+              [{'stock': {"2010": 35, "2011": 355},
+                'energy': {"2010": 757, "2011": 787}}, supply_array[:-2]]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above
@@ -703,7 +711,8 @@ class RegexConstructionTest(unittest.TestCase):
                       'WOOD_HT'], ''],
                      [['HT', 5, 3, 'EL', 'ELEC_RAD'], ''],
                      [['HS', 1, 1], ''],
-                     [['SQ', 1, 1], '']]
+                     [['SQ', 1, 1], ''],
+                     [['TVS', 7, 3, 'EL'], '']]
 
     # Define the desired final regular expressions output using the
     # regex conversion function in mseg
@@ -715,7 +724,8 @@ class RegexConstructionTest(unittest.TestCase):
                      ('.*HT\W+.*\W+5\W+.*\W+3\W+.*\W+(LG|KS|CL|GE|WD)\W+.*\W+WOOD_HT\W+.*\W+', 'NA'),
                      ('.*HT\W+.*\W+5\W+.*\W+3\W+.*\W+EL\W+.*\W+ELEC_RAD\W+.*\W+', 'NA'),
                      ('.*HS\W+.*\W+1\W+.*\W+1\W+.*\W+', 'NA'),
-                     ('.*SQ\W+.*\W+1\W+.*\W+1\W+.*\W+', 'NA')]
+                     ('.*SQ\W+.*\W+1\W+.*\W+1\W+.*\W+', 'NA'),
+                     ('.*TVS\W+.*\W+7\W+.*\W+3\W+.*\W+EL\W+.*\W+', 'NA')]
 
     # Compare the regular expressions with the conversion function output
     def test_regex_creation_function(self):
@@ -755,7 +765,9 @@ class JSONTranslatorTest(unittest.TestCase):
                    'secondary heating', 'secondary heating (kerosene)',
                    'demand', 'windows conduction'],
                   ['new england', 'single family home', 'new homes'],
-                  ['new england', 'single family home', 'total homes']]
+                  ['new england', 'single family home', 'total homes'],
+                  ['west south central', 'mobile home', 'electricity',
+                   'TVs', 'TV']]
 
     # Define nonsense filter examples (combinations of building types,
     # end uses, etc. that are not possible and thus wouldn't appear in
@@ -826,7 +838,8 @@ class JSONTranslatorTest(unittest.TestCase):
               [['SH', 1, 1,
                ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND'],
               [['HS', 1, 1], ''],
-              [['HT', 1, 1, 'EL', 'ELEC_RAD'], '']]
+              [['HT', 1, 1, 'EL', 'ELEC_RAD'], ''],
+              [['TVS', 7, 3, 'EL'], '']]
     nonsense_out = [[['LT', 4, 3, 'GS', 'ROOM_AIR'], ''],
                     [['CL', 1, 1, 'SL', 'ROOM_AIR'], ''],
                     [['RF', 1, 1, 'EL', ('LFL', 'T-8')], ''],

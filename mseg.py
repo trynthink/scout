@@ -103,7 +103,7 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'refrigeration': 'RF',
               'cooking': 'CK',
               'drying': 'DR',
-              'TVs': {'TV': 'TV',
+              'TVs': {'TV': 'TVS',
                       'set top box': 'STB',
                       'DVD': 'DVD',
                       'home theater & audio': 'HTS',
