@@ -13,9 +13,44 @@ class UsefulVars(object):
 
     Attributes:
         setup_file (str): Scout setup/configuration JSON file name
+        ecm_folder_location (str): Path to the folder with the ECM JSON files
     """
     def __init__(self):
         self.setup_file = 'run_setup.json'
+        self.ecm_folder_location = './ecm_definitions'
+        self.market_filters = ['climate_zone', 'bldg_type', 'structure_type']
+
+
+class IndexLists(object):
+    """Stores indices for articulating or matching baseline market values
+
+    Attributes:
+        climate_zone (list): List of possible climate zone values
+            in ECM definitions
+        structure_type (list): Lists valid structure types for ECMs
+        building_type (list): Lists building type families
+        building_type_map (list): Specifies the relationship between
+            the building type groups and the particular building type
+            values that can be specified in an ECM definition
+    """
+    def __init__(self):
+        self.climate_zone = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3',
+                             'AIA_CZ4', 'AIA_CZ5']
+        self.structure_type = ['new', 'retrofit']
+        self.building_type = ['residential', 'commercial']
+        self.building_type_map = {
+            'residential': [
+                'all residential', 'single family home',
+                'multi family home', 'mobile home'],
+            'commercial': [
+                'all commercial', 'assembly', 'education', 'food sales',
+                'food service', 'health care', 'lodging', 'large office',
+                'small office', 'mercantile/service', 'warehouse', 'other']}
+        self.climate_zone_pr = ['AIA Climate Zone 1', 'AIA Climate Zone 2',
+                                'AIA Climate Zone 3', 'AIA Climate Zone 4',
+                                'AIA Climate Zone 5']
+        self.building_type_pr = ['Residential', 'Commercial']
+        self.structure_type_pr = ['New Construction', 'Retrofit']
 
 
 def user_input_ecm_kw(prompt_text):
@@ -284,6 +319,239 @@ def ecm_list_update(active_list, inactive_list):
     return active_list, inactive_list
 
 
+def user_input_baseline_market_filters(market_cat):
+    """Obtain user selections for the baseline market filtering categories
+
+    Based on the indicated baseline market category given by the
+    input argument, this function prompts the user to indicate
+    which of the available options should be applied to determine
+    which ECMs should remain in the active list.
+
+    Args:
+        market_cat (str): Applicable baseline market string used to
+            indicate what data should be requested from the user
+
+    Returns:
+        A list of filters corresponding to the values that should
+        match with the updated list of active ECMs.
+
+        This function returns False if the user explicitly requests
+        all of the options for a given baseline market (i.e., the
+        user specifies all five climate zones).
+    """
+    # Instantiate index lists object
+    il = IndexLists()
+
+    # Set function-specific variables regarding the options to be
+    # presented to the user and the corresponding descriptive string
+    if market_cat == 'climate_zone':
+        user_options = il.climate_zone_pr
+        selection_name = 'climate zones'
+        json_keys = il.climate_zone
+    elif market_cat == 'bldg_type':
+        user_options = il.building_type_pr
+        selection_name = 'building types'
+        json_keys = il.building_type
+    elif market_cat == 'structure_type':
+        user_options = il.structure_type_pr
+        selection_name = 'structure types'
+        json_keys = il.structure_type
+
+    # Describe the filtering available to the user
+    print('Please indicate the', selection_name, 'for which you want '
+          'to include applicable ECMs in the analysis. If you want to '
+          'include all of the', selection_name, 'simply type "enter" '
+          'or "return" to skip.\n')
+
+    # Print and label the options for the user
+    for idx, val in enumerate(user_options):
+        print(idx+1, '-', val)
+
+    # Prompt the user for input
+    selections = input('\nPlease enter your selections, separated by commas: ')
+
+    # Convert user input into a list of integers corresponding to the
+    # list entries for the ECMs to move, and handle cases where the
+    # user provides non-numeric text to the input
+    while True:
+        # Convert the user input into a list of integers with
+        # no extraneous trailing or leading spaces
+        try:
+            user_select_keep_numbers = [
+                int(x.strip()) for x in selections.split(',') if x.strip()]
+        # Handle the exception if a non-integer entry is passed
+        # to the input by requesting the user attempt to enter
+        # their desired entries from the list again
+        except ValueError:
+            input('An invalid non-numeric entry was given. '
+                  'Please try again: ')
+        # When a valid input is received, interrupt the loop
+        else:
+            break
+
+    # Check that values aren't out of range and prompt the user for
+    # the list of desired entries until only valid entries are given
+    if user_select_keep_numbers:
+        while max(user_select_keep_numbers) > len(user_options):
+            selections = input('An out of range number was given. '
+                               'Please try again: ')
+            user_select_keep_numbers = [
+                int(x.strip()) for x in selections.split(',') if x.strip()]
+
+    # Build the list of keys to match against individual ECM JSON data
+    user_match_filters = [json_keys[i-1] for i in user_select_keep_numbers]
+
+    # Set the target return value of this function to boolean False
+    # to prevent further evaluation function calls to subset the list
+    # of active ECMs if the user has effectively selected "all"
+    if len(user_match_filters) == len(json_keys):
+        user_match_filters = False
+
+    return user_match_filters
+
+
+def evaluate_ecm_json(json_contents, filters, market_cat):
+    """Determine whether a given ECM should remain in the active list
+
+    IMPORTANT! - This function should not be called if the user has
+    indicated that they want to keep all of the options for a given
+    applicable baseline market category (e.g., they want to keep
+    ECMs from all of the climate zones).
+
+    For a given ECM, use the baseline market information from the
+    definition and the filter options specified by the user,
+    determine whether or not the ECM should remain in the active list.
+
+    Note that "filters" is generated by a different function and
+    is automatic, so this function does not have to handle incomplete
+    or incorrect text strings provided by the user (as a result of
+    e.g., typos) for various baseline market category fields.
+
+    Args:
+        json_contents (dict): The contents of a single ECM JSON definition file
+        filters (list): A list of strings to use to determine whether
+            the current ECM should be active or not
+        market_cat (str): The name of the key in the ECM JSON to which
+            the strings in the 'filters' variable correspond. Valid
+            values include e.g., "climate_zone", "bldg_type".
+
+    Returns:
+        Boolean value indicating whether or not the ECM (contents)
+        passed to the function should be kept on the active list,
+        where keep = True, move to inactive = False
+    """
+
+    # Extract the relevant values from the key in the dict indicated
+    # by the 'market_cat' variable
+    json_vals = json_contents[market_cat]
+
+    # Set the return value (active_bool) to False initially
+    active_bool = False
+
+    # Determine whether the filter values are in the current ECM
+    if json_vals == 'all':
+        # If the JSON is set to "all" for the current field of
+        # interest, then there's certainly a match with whatever
+        # filters the user has requested
+        active_bool = True
+    # Special handling for building type
+    elif market_cat == 'bldg_type':
+        # Do not need for loop through filters since only two
+        # building type values can be passed to this function,
+        # and if both apply, this function should not be called
+        # in the first place
+
+        il = IndexLists()  # Instantiate object
+
+        # Make the value(s) in json_vals into a list
+        # if it is not already
+        if not isinstance(json_vals, list):
+            json_vals = [json_vals]
+
+        # Set active_bool based on whether or not there are any matching
+        # building types present in the ECM; note that the isdisjoint
+        # set evaluation returns FALSE if matches are found;
+        # 'filters[0]' will always match one of the two building type
+        # keys specified in the building_type_map attribute of IndexLists
+        if not set(il.building_type_map[filters[0]]).isdisjoint(json_vals):
+            active_bool = True
+    else:
+        # Cycle through all of the filter values
+        for entry in filters:
+            # If any of the entries in the list of filters match for
+            # this ECM, set the active status of this ECM to True
+            if entry in json_vals:
+                active_bool = True
+
+    return active_bool
+
+
+def ecm_list_market_update(ecm_folder, active_list, inactive_list,
+                           filters, market_cat):
+    """Update the active and inactive lists based on the user-selected filters
+
+    Based on the filters identified by the user for a given baseline
+    market parameter, this function opens each ECM and (after checking
+    to ensure that it is on the active list) checks to see if it
+    passes the filters and can thus be retained on the active list
+    or if it should be moved to the inactive list. The active and
+    and inactive lists are updated after reviewing each ECM
+
+    Args:
+        ecm_folder (str): The path to the folder where the ECM JSON
+            definition files are located
+        active_list (list): A list of ECM names that are set to be
+            active (i.e., included) when executing run.py
+        inactive_list (list): A list of ECN names corresponding to the
+            ECMs that will not be included in an analysis using run.py
+        filters (list): A list of strings to use to determine whether
+            the current ECM should be active or not
+        market_cat (str): Applicable baseline market string used to
+            indicate what data should be requested from the user
+
+    Returns:
+        Updated lists of active and inactive ECMs.
+    """
+
+    # Get list of files in the ECM folder
+    file_list = os.listdir(ecm_folder)
+
+    # Clean up list of files to include only ECM JSONs
+    file_list = [name for name in file_list if name.endswith('.json')]
+
+    # Try to remove the package ECMs JSON definition file if it is
+    # present, otherwise continue
+    try:
+        file_list.remove('package_ecms.json')
+    except ValueError:
+        pass
+
+    # Work through the list of ECMs
+    for ecm_file in file_list:
+        # Construct file path
+        ecm_file_path = ecm_folder + '/' + ecm_file
+
+        # Import JSON file
+        with open(ecm_file_path, 'r') as fobj:
+            ecm_json_contents = json.load(fobj)
+
+        # Check if the ECM is currently in the active list, and if
+        # it is, determine whether it should remain in that list
+        if ecm_json_contents['name'] in active_list:
+            # Find out whether or not this ECM should be included
+            # in the active list
+            keep = evaluate_ecm_json(ecm_json_contents, filters, market_cat)
+
+            # Update the active and inactive lists based on the
+            # evaluation of the ECM by the evaluate_ecm_json function
+            if not keep:
+                active_list.remove(ecm_json_contents['name'])
+                inactive_list.append(ecm_json_contents['name'])
+
+    # Return the updated list of active ECMs and ECMs to be moved to inactive
+    return active_list, inactive_list
+
+
 def main():
     # Clear the console window before printing any text
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -303,6 +571,31 @@ def main():
     # Execute function to update lists
     active, inactive = ecm_list_update(setup_json['active'],
                                        setup_json['inactive'])
+
+    # Clear the console window again
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    # Print instructions regarding additional filtering opportunities
+    print('\nNow, you will be prompted to further reduce the '
+          'list of ECMs to include in the analysis, if you desire. '
+          'Your selections in the subsequent prompts will override '
+          'the previous step, but will only apply to the active ECM '
+          'list.\nHit "enter" or "return" to skip a question.\n')
+
+    # Loop through the baseline market fields available, prompt
+    # the user, and update the list of active ECMs accordingly
+    for market in ref.market_filters:
+        user_filter_choices = user_input_baseline_market_filters(market)
+
+        # If False, do not proceed, otherwise use filters to select
+        # the appropriate ECMs and move them from the active to the
+        # inactive list
+        if user_filter_choices:
+            active, inactive = ecm_list_market_update(ref.ecm_folder_location,
+                                                      active,
+                                                      inactive,
+                                                      user_filter_choices,
+                                                      market)
 
     # Update configuration/setup object with new ECM lists
     setup_json['active'] = active

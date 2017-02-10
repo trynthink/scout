@@ -6,8 +6,10 @@
 import run_setup
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 from collections import Counter
+import os
+import json
 
 
 class CommonUnitTest(unittest.TestCase):
@@ -416,6 +418,359 @@ class ECMListUpdatingTest(CommonUnitTest):
         # with the expected output
         self.assertTrue(self.compare(actual_active, self.expected_active))
         self.assertTrue(self.compare(actual_inactive, self.expected_inactive))
+
+
+class UserBaselineMarketSelectionsTest(unittest.TestCase):
+    # Test the output of the baseline market selection function when
+    # passed a list of numeric selections from the user representing
+    # a subset of the available climate zones
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_climate_zone_selections(self, user_txt):
+        # Define user text input to select climate zones
+        user_txt.return_value = '2, 3, 4'
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = 'climate_zone'
+
+        # Define the expected list of climate zones output by the function
+        expected_output = ['AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4']
+
+        # Test user input function
+        self.assertEqual(
+            run_setup.user_input_baseline_market_filters(baseline_mkt),
+            expected_output)
+
+    # Test the baseline market selection against a user input to
+    # select a subset of the available building types
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_building_type_selections(self, user_txt):
+        # Define user text input to select building types
+        user_txt.return_value = '2,'
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = 'bldg_type'
+
+        # Define the expected building type selection output by the function
+        expected_output = ['commercial']
+
+        # Test user input function for building type output
+        self.assertEqual(
+            run_setup.user_input_baseline_market_filters(baseline_mkt),
+            expected_output)
+
+    # Test the baseline market selection against a user input to
+    # select a subset of the available structure types
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_structure_type_selections(self, user_txt):
+        # Define user text input to select structure types
+        user_txt.return_value = '1'
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = 'structure_type'
+
+        # Define the expected structure type selection output by the function
+        expected_output = ['new']
+
+        # Test user input function for structure type output
+        self.assertEqual(
+            run_setup.user_input_baseline_market_filters(baseline_mkt),
+            expected_output)
+
+    # Test the baseline market selection function when passed an
+    # invalid input followed by a valid input for climate zone selection
+    @patch.object(run_setup, 'input', create=True)
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_climate_zone_invalid_entry(self, a, b):
+        # Define improper first attempt and acceptable second attempt
+        # at a climate zone selection
+        a.return_value = '1, 3, 5, 6,'
+        b.return_value = '1, 2, 3'
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = 'climate_zone'
+
+        # Define the expected climate zones for the second (valid)
+        # user input passed to the function
+        expected_output = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3']
+
+        # Test user input function for climate zone input with
+        # a rejected first input
+        self.assertEqual(
+            run_setup.user_input_baseline_market_filters(baseline_mkt),
+            expected_output)
+
+    # Test the baseline market user selection function when the user
+    # attempts to first input an invalid text string, followed by a
+    # valid input for the building type
+    @patch.object(run_setup, 'input', create=True)
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_building_type_non_numeric_entry(self, a, b):
+        # Define improper first attempt and acceptable second
+        # attempt at a building type selection
+        a.return_value = 'residential'
+        b.return_value = '1'
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = 'bldg_type'
+
+        # Define the expected building type returned for the valid user input
+        expected_output = ['residential']
+
+        # Test user input function for building type input with an
+        # invalid and rejected first input from the user
+        self.assertEqual(
+            run_setup.user_input_baseline_market_filters(baseline_mkt),
+            expected_output)
+
+    # Test whether the baseline user market selection function
+    # correctly returns the boolean False when, for any of the
+    # available baseline market parameters, the user specifies
+    # all of the options
+    @patch.object(run_setup, 'input', create=True)
+    def test_user_baseline_all_selected(self, user_txt):
+        # Define user input for each of the input types consistent with
+        # user input selecting all of the options for a given baseline market
+        user_txt.side_effect = ['1,2,3,4,5', '1,2', '1,2']
+
+        # Specify market category text to pass to function under test
+        baseline_mkt = ['climate_zone', 'bldg_type', 'structure_type']
+
+        # Test that the function returns False when all of the options
+        # for a given baseline market are selected
+        for mkt in baseline_mkt:
+            self.assertFalse(
+                run_setup.user_input_baseline_market_filters(mkt))
+
+
+class ECMJSONEvaluationTest(unittest.TestCase):
+    # Set up partially complete "imported" ECMs (i.e., dicts) to use
+    # as test articles
+    def setUp(self):
+        # Sample ECM definitions, including only the portion of the
+        # ECM that affects the filters presented to the user, plus
+        # a few additional fields to ensure that the functions will
+        # not fail as a result of extraneous fields
+        self.ecm1 = {
+            'name': 'ENERGY STAR Air Source HP v. 5.0',
+            'climate_zone': 'all',
+            'bldg_type': 'all residential',
+            'structure_type': 'existing',
+            'end_use': ['cooling', 'heating'],
+            'fuel_type': 'electricity',
+            'technology': 'ASHP',
+            'market_entry_year': 2015}
+        self.ecm2 = {
+            'name': 'Commercial Gas Boiler, 90.1 c. 2013',
+            'climate_zone': ['AIA_CZ3', 'AIA_CZ4'],
+            'bldg_type': 'all commercial',
+            'structure_type': 'all',
+            'end_use': 'heating',
+            'fuel_type': 'natural gas',
+            'technology': 'gas_boiler',
+            'market_entry_year': 2013}
+        self.ecm3 = {
+            'name': 'ENERGY STAR Windows v. 6.0',
+            'climate_zone': ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3'],
+            'bldg_type': 'all residential',
+            'structure_type': 'all',
+            'end_use': ['heating', 'secondary heating', 'cooling'],
+            'fuel_type': 'all',
+            'technology': ['windows conduction', 'windows solar'],
+            'market_entry_year': 2015}
+        self.ecm4 = {
+            'name': 'Commercial Lighting, IECC c. 2015',
+            'climate_zone': 'all',
+            'bldg_type': ['assembly', 'education', 'small office',
+                          'large office', 'lodging'],
+            'structure_type': 'all',
+            'end_use': 'lighting',
+            'fuel_type': 'electricity',
+            'technology': ['F32T8', 'T8 F32 EEMag (e)'],
+            'market_entry_year': 2015}
+
+        # Constructed list of sample ECM definitions
+        self.ecms = [self.ecm1, self.ecm2, self.ecm3, self.ecm4]
+
+    # Test the ECM baseline market matching function for a single
+    # climate zone requested by the user
+    def test_single_climate_zone_user_selection(self):
+        # Specify the filters given by the user and the string for the
+        # corresponding JSON/dict key
+        filter_str = ['AIA_CZ5']
+        filter_cat = 'climate_zone'
+
+        # Specify the expected response from the function under test
+        expected_response = [True, False, False, True]
+
+        # Test the function with each of the ECMs using the specified
+        # filter string to verify that it returns the correct status
+        for idx, ecm_obj in enumerate(self.ecms):
+            self.assertIs(
+                run_setup.evaluate_ecm_json(ecm_obj, filter_str, filter_cat),
+                expected_response[idx])
+
+    # Test the ECM baseline market matching function for a case
+    # where multiple climate zones have been requested by the user
+    def test_multiple_climate_zones_user_selection(self):
+        # Specify the filters given by the user and the string for the
+        # corresponding JSON/dict key
+        filter_str = ['AIA_CZ5', 'AIA_CZ4']
+        filter_cat = 'climate_zone'
+
+        # Specify the expected response from the function under test
+        expected_response = [True, True, False, True]
+
+        # Test the function with each of the ECMs using the specified
+        # filter string to verify that it returns the correct status
+        for idx, ecm_obj in enumerate(self.ecms):
+            self.assertIs(
+                run_setup.evaluate_ecm_json(ecm_obj, filter_str, filter_cat),
+                expected_response[idx])
+
+    # Test the ECM baseline market matching function for a case
+    # where the ECMs should be limited to one of the two groups
+    # of building types
+    def test_building_type_user_selection(self):
+        # Specify the filters given by the user and the string for the
+        # corresponding JSON/dict key
+        filter_str = ['residential']
+        filter_cat = 'bldg_type'
+
+        # Specify the expected response from the function under test
+        expected_response = [True, False, True, False]
+
+        # Test the function with each of the ECMs using the specified
+        # filter string to verify that it returns the correct status
+        for idx, ecm_obj in enumerate(self.ecms):
+            self.assertIs(
+                run_setup.evaluate_ecm_json(ecm_obj, filter_str, filter_cat),
+                expected_response[idx])
+
+    # Test the ECM baseline market matching function for a case where
+    # the ECMs should be limited to one of the two structure types
+    def test_structure_type_user_selection(self):
+        # Specify the filters given by the user and the string for the
+        # corresponding JSON/dict key
+        filter_str = ['new']
+        filter_cat = 'structure_type'
+
+        # Specify the expected response from the function under test
+        expected_response = [False, True, True, True]
+
+        # Test the function with each of the ECMs using the specified
+        # filter string to verify that it returns the correct status
+        for idx, ecm_obj in enumerate(self.ecms):
+            self.assertIs(
+                run_setup.evaluate_ecm_json(ecm_obj, filter_str, filter_cat),
+                expected_response[idx])
+
+
+class ECMListMarketSelectionUpdatingTest(CommonUnitTest):
+    # Set up several key variables for the tests of the ECM
+    # list update function
+    def setUp(self):
+        # Define several ECMs as JSON objects mimicking the form that
+        # the file contents take when they are first opened and before
+        # they are converted into dicts by json.load()
+        self.ecm1 = json.dumps({
+            'name': 'ENERGY STAR Air Source HP v. 5.0',
+            'climate_zone': 'all',
+            'bldg_type': 'all residential',
+            'structure_type': 'existing',
+            'end_use': ['cooling', 'heating'],
+            'fuel_type': 'electricity',
+            'technology': 'ASHP',
+            'market_entry_year': 2015})
+        self.ecm2 = json.dumps({
+            'name': 'Commercial Gas Boiler, 90.1 c. 2013',
+            'climate_zone': ['AIA_CZ3', 'AIA_CZ4'],
+            'bldg_type': 'all commercial',
+            'structure_type': 'all',
+            'end_use': 'heating',
+            'fuel_type': 'natural gas',
+            'technology': 'gas_boiler',
+            'market_entry_year': 2013})
+        self.ecm3 = json.dumps({
+            'name': 'ENERGY STAR Windows v. 6.0',
+            'climate_zone': ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3'],
+            'bldg_type': 'all residential',
+            'structure_type': 'all',
+            'end_use': ['heating', 'secondary heating', 'cooling'],
+            'fuel_type': 'all',
+            'technology': ['windows conduction', 'windows solar'],
+            'market_entry_year': 2015})
+        self.ecm4 = json.dumps({
+            'name': 'Commercial Lighting, IECC c. 2015',
+            'climate_zone': 'all',
+            'bldg_type': ['assembly', 'education', 'small office',
+                          'large office', 'lodging'],
+            'structure_type': 'all',
+            'end_use': 'lighting',
+            'fuel_type': 'electricity',
+            'technology': ['F32T8', 'T8 F32 EEMag (e)'],
+            'market_entry_year': 2015})
+        self.ecm5 = json.dumps({
+            'name': 'ENERGY STAR Gas Boiler v. 3.0',
+            'climate_zone': 'all',
+            'bldg_type': 'all residential',
+            'structure_type': 'all',
+            'end_use': ['heating'],
+            'fuel_type': ['natural gas', 'distillate'],
+            'technology': ['boiler (NG)', 'boiler (distillate)'],
+            'market_entry_year': 2014})
+
+        # Lists of active and inactive ECMs
+        self.active_list = [
+            'ENERGY STAR Air Source HP v. 5.0',
+            'Commercial Gas Boiler, 90.1 c. 2013',
+            'ENERGY STAR Windows v. 6.0',
+            'Commercial Lighting, IECC c. 2015']
+        self.inactive_list = ['ENERGY STAR Gas Boiler v. 3.0']
+
+    # Patch through the mock_open functionality and the os.listdir command
+    @patch('builtins.open', new_callable=mock_open)
+    @patch.object(os, 'listdir', create=True)
+    def test_ecm_list_baseline_market_updating(self, mock_listdir, mock_fopen):
+        # Set up file list to be returned by the mocked os.listdir
+        # call, including the package_ecms.json file and a few folders
+        # that should be skipped automatically by the function
+        mock_listdir.return_value = [
+            'ecm1.json', 'ecm2.json', 'ecm3.json', 'ecm4.json', 'ecm5.json']
+
+        # Specify the climate zone baseline market and the climate zone
+        # filters to apply to the dummy ECMs in setUp()
+        market_cat = 'climate_zone'
+        filters = ['AIA_CZ1', 'AIA_CZ2']
+
+        # Patch through the output from the file open line in the
+        # function to be the ECM JSON objects in setUp()
+        handlers = (mock_open(read_data=self.ecm1).return_value,
+                    mock_open(read_data=self.ecm2).return_value,
+                    mock_open(read_data=self.ecm3).return_value,
+                    mock_open(read_data=self.ecm4).return_value,
+                    mock_open(read_data=self.ecm5).return_value)
+        mock_fopen.side_effect = handlers
+
+        # Define the anticipated active and inactive ECM lists
+        # output by the function under test based on the specified
+        # baseline market category and filters applied
+        expect_active = [
+            'ENERGY STAR Air Source HP v. 5.0',
+            'ENERGY STAR Windows v. 6.0',
+            'Commercial Lighting, IECC c. 2015']
+        expect_inactive = [
+            'Commercial Gas Boiler, 90.1 c. 2013',
+            'ENERGY STAR Gas Boiler v. 3.0']
+
+        # Call the function to be tested and obtain the updated
+        # active and inactive ECM lists output by the function
+        active, inactive = run_setup.ecm_list_market_update(
+            'whatever', self.active_list, self.inactive_list,
+            filters, market_cat)
+
+        # Test that both the active and inactive ECM lists are as expected
+        self.assertTrue(self.compare(active, expect_active))
+        self.assertTrue(self.compare(inactive, expect_inactive))
 
 
 # Offer external code execution (include all lines below this point in all
