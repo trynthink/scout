@@ -50,7 +50,7 @@ class IndexLists(object):
                                 'AIA Climate Zone 3', 'AIA Climate Zone 4',
                                 'AIA Climate Zone 5']
         self.building_type_pr = ['Residential', 'Commercial']
-        self.structure_type_pr = ['New Construction', 'Retrofit']
+        self.structure_type_pr = ['New Construction', 'Existing/Retrofit']
 
 
 def user_input_ecm_kw(prompt_text):
@@ -77,7 +77,7 @@ def user_input_ecm_kw(prompt_text):
     return kw_to_move
 
 
-def ecm_regex_select(ecm_names_list, list_of_match_str):
+def ecm_kw_regex_select(ecm_names_list, list_of_match_str):
     """Identify matching, non-matching ECM names using a list of search terms
 
     This function searches a list of ECM names to find all of the ECM
@@ -123,7 +123,7 @@ def ecm_regex_select(ecm_names_list, list_of_match_str):
     return matches, non_matches
 
 
-def fix_move_conflicts(conflict_ecm_list, move_order_text):
+def fix_ecm_move_conflicts(conflict_ecm_list, move_order_text):
     """Get user input to sort out ECMs moved in both directions
 
         It is possible that with a given set of active and inactive
@@ -211,7 +211,7 @@ def fix_move_conflicts(conflict_ecm_list, move_order_text):
     return keep_in_place
 
 
-def ecm_list_update(active_list, inactive_list):
+def ecm_list_kw_update(active_list, inactive_list):
     """Update the lists of ECMs based on the keywords specified by the user
 
     Taking the lists of ECM names that are indicated as active and
@@ -257,17 +257,18 @@ def ecm_list_update(active_list, inactive_list):
     kw_to_active = user_input_ecm_kw(to_active_prompt_text)
 
     # Update active and inactive lists and identify moves
-    move_to_inactive, active_list = ecm_regex_select(active_list,
-                                                     kw_to_inactive)
-    move_to_active, inactive_list = ecm_regex_select(inactive_list,
-                                                     kw_to_active)
+    move_to_inactive, active_list = ecm_kw_regex_select(active_list,
+                                                        kw_to_inactive)
+    move_to_active, inactive_list = ecm_kw_regex_select(inactive_list,
+                                                        kw_to_active)
 
     # ACTIVE ECM LIST AND ASSOCIATED MOVES ----------------------------
     # Check if the keywords given for selecting inactive ECMs to move
     # to the active list would select any of the ECMs about to move
     # to the inactive list
     if kw_to_active and move_to_inactive:
-        back_to_active, _ = ecm_regex_select(move_to_inactive, kw_to_active)
+        back_to_active, _ = ecm_kw_regex_select(move_to_inactive,
+                                                kw_to_active)
 
         # If there are any ECMs that are selected to move to the
         # inactive list that could then be moved back to active
@@ -275,8 +276,8 @@ def ecm_list_update(active_list, inactive_list):
         # resolve what to do with those ECMs based on user input
         if back_to_active:
             # Get user input on how to move the ECMs
-            keep_active = fix_move_conflicts(back_to_active,
-                                             'active to inactive')
+            keep_active = fix_ecm_move_conflicts(back_to_active,
+                                                 'active to inactive')
 
             # Update the active list by restoring the ECMs that had
             # been slated for removal and rebuild the list of ECMs
@@ -291,7 +292,8 @@ def ecm_list_update(active_list, inactive_list):
     # the inactive list would select any of the ECMs about to move the
     # the active list
     if kw_to_inactive and move_to_active:
-        back_to_inactive, _ = ecm_regex_select(move_to_active, kw_to_inactive)
+        back_to_inactive, _ = ecm_kw_regex_select(move_to_active,
+                                                  kw_to_inactive)
 
         # If there are any ECMs that are selected to move to the
         # active list that could then be moved back to inactive
@@ -299,8 +301,8 @@ def ecm_list_update(active_list, inactive_list):
         # resolve what to do with those ECMs based on user input
         if back_to_inactive:
             # Get user input on how to move the ECMs
-            keep_inactive = fix_move_conflicts(back_to_inactive,
-                                               'inactive to active')
+            keep_inactive = fix_ecm_move_conflicts(back_to_inactive,
+                                                   'inactive to active')
 
             # Update the inactive list by restoring the ECMs that had
             # been slated for removal and rebuild the list of ECMs to
@@ -569,8 +571,8 @@ def main():
         setup_json = json.load(fobj)
 
     # Execute function to update lists
-    active, inactive = ecm_list_update(setup_json['active'],
-                                       setup_json['inactive'])
+    active, inactive = ecm_list_kw_update(setup_json['active'],
+                                          setup_json['inactive'])
 
     # Clear the console window again
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -578,9 +580,9 @@ def main():
     # Print instructions regarding additional filtering opportunities
     print('\nNow, you will be prompted to further reduce the '
           'list of ECMs to include in the analysis, if you desire. '
-          'Your selections in the subsequent prompts will override '
-          'the previous step, but will only apply to the active ECM '
-          'list.\nHit "enter" or "return" to skip a question.\n')
+          'Your selections in the subsequent prompts will only apply '
+          'to the active ECM list.\nHit "enter" or "return" to skip '
+          'a question.\n')
 
     # Loop through the baseline market fields available, prompt
     # the user, and update the list of active ECMs accordingly

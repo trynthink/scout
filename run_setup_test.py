@@ -154,23 +154,23 @@ class UserSearchKeywordInputTest(CommonUnitTest):
             self.assertEqual(actual_out, self.expected_out[idx])
 
 
-class RegexMatchingTest(CommonUnitTest):
+class RegexECMNameMatchingTest(CommonUnitTest):
     # Test that the function returns the correct list of entries
     # that match the given search term
     def test_ECM_list_matching_search_terms(self):
         for idx, str_list in enumerate(self.search_string_sets):
-            out, _ = run_setup.ecm_regex_select(self.active_list, str_list)
+            out, _ = run_setup.ecm_kw_regex_select(self.active_list, str_list)
             self.assertTrue(self.compare(self.active_list_match[idx], out))
 
     # Test that the function returns the correct list of non-matching
     # entries from the original list
     def test_ECM_list_non_matching_search_term(self):
         for idx, str_list in enumerate(self.search_string_sets):
-            _, out = run_setup.ecm_regex_select(self.active_list, str_list)
+            _, out = run_setup.ecm_kw_regex_select(self.active_list, str_list)
             self.assertTrue(self.compare(self.active_list_non_match[idx], out))
 
 
-class FixMoveConflictsTest(CommonUnitTest):
+class FixECMMoveConflictsTest(CommonUnitTest):
     # Set up example lists of conflicting entries from which
     # responses can be drawn
     def setUp(self):
@@ -198,7 +198,7 @@ class FixMoveConflictsTest(CommonUnitTest):
 
         # Note that empty move order text is passed to the function
         # since no one will see the messages printed anyway
-        keep = run_setup.fix_move_conflicts(self.conflict_list_l4, '')
+        keep = run_setup.fix_ecm_move_conflicts(self.conflict_list_l4, '')
 
         # Compare the expected and actual output - the list
         # of ECMs to keep in place
@@ -220,7 +220,7 @@ class FixMoveConflictsTest(CommonUnitTest):
 
         # Note that empty move order text is passed to the function
         # since no one will see the messages printed anyway
-        keep = run_setup.fix_move_conflicts(self.conflict_list_l1, '')
+        keep = run_setup.fix_ecm_move_conflicts(self.conflict_list_l1, '')
 
         # Compare the expected and actual output - the list
         # of ECMs to keep in place
@@ -244,7 +244,7 @@ class FixMoveConflictsTest(CommonUnitTest):
 
         # Note that empty move order text is passed to the function
         # since no one will see the messages printed anyway
-        keep = run_setup.fix_move_conflicts(self.conflict_list_l4, '')
+        keep = run_setup.fix_ecm_move_conflicts(self.conflict_list_l4, '')
 
         # Compare the expected and actual output - the list
         # of ECMs to keep in place
@@ -269,7 +269,7 @@ class FixMoveConflictsTest(CommonUnitTest):
         # Call the function under test, passing an empty string for the
         # move direction text since the printed messages are not seen
         # when testing the function
-        keep = run_setup.fix_move_conflicts(self.conflict_list_l4, '')
+        keep = run_setup.fix_ecm_move_conflicts(self.conflict_list_l4, '')
 
         # Compare the expected and actual output - the list
         # of ECMs to keep in place
@@ -294,14 +294,14 @@ class FixMoveConflictsTest(CommonUnitTest):
         # Call the function under test, passing an empty string for the
         # move direction text since the printed messages are not seen
         # when testing the function
-        keep = run_setup.fix_move_conflicts(self.conflict_list_l4, '')
+        keep = run_setup.fix_ecm_move_conflicts(self.conflict_list_l4, '')
 
         # Compare the expected and actual output - the list
         # of ECMs to keep in place
         self.assertTrue(self.compare(expect_keep, keep))
 
 
-class ECMListUpdatingTest(CommonUnitTest):
+class ECMListKeywordSelectionUpdatingTest(CommonUnitTest):
     # Note that the user input entries patched to the function under
     # test in this block MUST be given as lists or the function
     # (and these tests) will not perform as expected
@@ -334,7 +334,7 @@ class ECMListUpdatingTest(CommonUnitTest):
             'ENERGY STAR Water Heater v.5.0']
 
         # Obtain outputs from the function under test
-        actual_active, actual_inactive = run_setup.ecm_list_update(
+        actual_active, actual_inactive = run_setup.ecm_list_kw_update(
             self.active_list, self.inactive_list)
 
         # Compare the active and inactive lists output by the function
@@ -347,7 +347,7 @@ class ECMListUpdatingTest(CommonUnitTest):
     # sets of keywords will have one or more conflicts to resolve
     @patch('run_setup.user_input_ecm_kw', side_effect=[
         ['Prospective', 'ENERGY STAR', 'Novel'], ['Low-cost']])
-    @patch('run_setup.fix_move_conflicts', side_effect=[
+    @patch('run_setup.fix_ecm_move_conflicts', side_effect=[
         ['Novel Electric Clothes Dryer, Low-cost'],
         ['low-cost energy star refrigerator v.3.0']])
     def test_ecm_list_update_with_conflicting_moves(self, patch_fix, patch_kw):
@@ -374,7 +374,7 @@ class ECMListUpdatingTest(CommonUnitTest):
             'Low-cost Prospective Integrated Heat Pump']
 
         # Obtain outputs from the function under test
-        actual_active, actual_inactive = run_setup.ecm_list_update(
+        actual_active, actual_inactive = run_setup.ecm_list_kw_update(
             self.active_list, self.inactive_list)
 
         # Compare the active and inactive lists output by the function
@@ -411,7 +411,7 @@ class ECMListUpdatingTest(CommonUnitTest):
             'Low-cost Prospective Integrated Heat Pump']
 
         # Obtain outputs from the function under test
-        actual_active, actual_inactive = run_setup.ecm_list_update(
+        actual_active, actual_inactive = run_setup.ecm_list_kw_update(
             self.active_list, self.inactive_list)
 
         # Compare the active and inactive lists output by the function
