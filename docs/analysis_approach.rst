@@ -36,6 +36,7 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 .. _national labs: http://www.nrel.gov/ap/retrofits/
 
 .. _Building America climate zones: http://apps1.eere.energy.gov/buildings/publications/pdfs/building_america/ba_climateguide_7_1.pdf
+.. _AIA climate zones: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg
 .. _three residential: http://www.eia.gov/forecasts/aeo/assumptions/pdf/residential.pdf
 .. _eleven commercial: http://www.eia.gov/forecasts/aeo/assumptions/pdf/commercial.pdf
 .. _AEO: https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf
@@ -44,13 +45,12 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 
 * Applicable baseline market parameters
 
-   * Climate zone (correspond to the eight `Building America climate zones`_).
+   * Climate zone (correspond to the five `AIA climate zones`_).
    * Building type (correspond to `three residential`_ and `eleven commercial`_ building types used in the EIA Annual Energy Outlook (AEO)).
    * Building vintage ("new" and/or "existing").
    * Fuel type ("electricity", "natural gas", "distillate", or "other").
    * End use (correspond to the major residential__ and commercial__ energy end uses defined in the AEO).
-   * Technology type (defined as either affecting energy "demand" (e.g., envelope components such as window or wall retrofits) or energy "supply" (e.g., improvements to HVAC equipment).
-   * Technology name (on the demand side, technology names correspond to the names of residential__ and commercial__ thermal load components; on the supply side, technology names generally correspond to major equipment types used in the AEO_ [#]_).
+   * Technology name (for envelope components, technology names correspond to the names of residential__ and commercial__ thermal load components; for building equipment, technology names generally correspond to major equipment types used in the AEO_ [#]_).
 
 .. anonymous links for the multiple cases of "residential" or "commercial" as the link text
 .. __: https://www.eia.gov/forecasts/aeo/data/browser/#/?id=4-AEO2016&cases=ref2016~ref_no_cpp&sourcekey=0
@@ -154,7 +154,7 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 
          * New additions – defined as the technology units associated with new building construction; it is a fraction of the total existing technology units, determined by the ratio of new buildings to total buildings (residential) or new square footage to total square footage (commercial). The NEMS residential__ and commercial__ sub-module documentation outlines the derivation of the new and total buildings stock and square footage data.
          * Retrofits – defined as the technology units up for replacement before the end of their useful lifetime; it is a fraction of the total existing technology units, determined based on available literature on typical residential__ and commercial__ building equipment retrofit rates.
-         * Replacements – defined as the technology units at the end of their useful lifetime; it is a fraction of the total existing technology units, determined by 1/lifetime of the existing technology, excepting technical potential cases (next bullet).
+         * Replacements – defined as the technology units at the end of their useful lifetime; it is a fraction of the total existing technology units, determined by 1/lifetime of the existing technology, excepting technical potential cases (see next bullet).
 
 .. __: http://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2013).pdf
 .. __: http://www.eia.gov/forecasts/aeo/nems/documentation/commercial/pdf/m066(2013).pdf
@@ -176,7 +176,7 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 
    * While the total baseline and efficient ECM energy, |CO2|, and operating costs calculated in this step account for stocks-and-flows, they do not account for competition across multiple ECMs for the same baseline market. ECM competition is handled in :ref:`step 3 <analysis-step-3>`.
 
-Once user ECM definitions have been finalized in this step, the names of the ECMs are added to "run_setup.json," which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by removing ECM names that are not of interest to their analysis from the list. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets.
+Once user ECM definitions have been finalized in this step, the names of the ECMs are added to "run_setup.json," which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by moving the names of ECMs that are not of interest in their analysis from the "active" to "inactive" lists in the "run_setup.json" file. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets. Users may also run the "run_setup.py" module, which can automatically move ECMs based on keyword searches of ECM names, as well as select ECMs based on the user's desired climate zone(s), building type(s), and structure type(s).
 
 .. _analysis-step-3:
 
@@ -190,14 +190,14 @@ Calculating uncompeted ECM energy savings and financial metrics
 
 * Uncompeted ECM energy savings, avoided |CO2| emissions, and operating cost savings impacts are calculated by subtracting the total uncompeted efficient energy, |CO2|, and operating costs calculated in :ref:`step 2 <analysis-step-2>` from total uncompeted baseline energy, |CO2|, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Note that each of these total figures are calculated for technical potential and maximum adoption potential scenarios, and therefore ECM impacts and financial metrics are also described in terms of these scenarios.
 
-* ECM _`financial metrics` are calculated by normalizing ECM savings impacts to the total number of competed stock units and comparing unit savings to the ECM's incremental capital cost over the comparable "business-as-usual" technology.
+* ECM _`financial metrics` are calculated by normalizing ECM savings impacts to the total number of stock units and comparing unit savings to the ECM's incremental capital cost over the comparable "business-as-usual" technology.
 
    * Consumer-level metrics are relevant to building owners making ECM adoption decisions. These metrics remain unchanged following ECM competition.
 
       * Internal Rate of Return (IRR) is the discount rate that balances the net present value of the ECM cost (negative cash flow) against the savings realized by the ECM on a per-unit basis (positive effective cash flow). 
       * Simple Payback Period divides the per-unit cost of the ECM by its per-unit annual energy savings compared to the "business-as-usual" unit.
 
-   * Uncompeted portfolio-level metrics are relevant to organizations evaluating large portfolios of ECMs. The values for these metrics change as total (portfolio-wide) energy/CO2/cost savings impacts are reduced following :ref:`ECM competition <ECM-competition>`. 
+   * Uncompeted portfolio-level metrics are relevant to organizations evaluating large portfolios of ECMs. The values for these metrics change as total (portfolio-wide) energy/|CO2|/cost savings impacts are reduced following :ref:`ECM competition <ECM-competition>`. 
 
       * Cost of Conserved Energy (CCE) divides the per-unit cost of the ECM by its discounted [#]_ per-unit lifetime savings compared to the "business-as-usual" unit. In one variant of the CCE calculation, discounted lifetime cost savings from avoided |CO2| emissions are added to the numerator of the calculation, using `Social Cost of Carbon`_ estimates as a carbon tax.    
       * Cost of Conserved |CO2| (CCC) follows the same calculation as CCE, but uses avoided |CO2| emissions in the denominator and energy cost savings in the numerator (if applicable).
@@ -208,7 +208,7 @@ Competing ECMs and updating savings and financial metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ECMs with overlaps in their applicable baseline markets compete for the overlapping portions of these markets on the basis of their cost effectiveness from a consumer perspective. In general, ECMs with lower incremental capital costs and higher operational cost savings across their lifetimes capture larger portions of the overlapping baseline markets.
-* For example, R-5, R-7, or R-10 window ECMs could each replace the same "business-as-usual" window technology. The initial savings impacts calculated for each of these ECMs will be based on the entire applicable baseline market. Those savings impacts must be scaled by the share of the baseline window market each ECM is modeled as capturing to avoid double counting of savings. Assuming the R-7 window is most cost effective and R-10 is least cost effective, the market shares might be 35%, R-5; 45%, R-7; and 20%, R-10.
+* For example, R-5, R-7, or R-10 window ECMs could each replace the same "business-as-usual" window technology. The initial savings impacts calculated for each of these ECMs will be based on the entire applicable baseline market. Those savings impacts must be scaled by the share of the baseline window market each ECM is modeled as capturing to avoid double counting of savings. Assuming the R-7 window is most cost effective and R-10 is least cost effective, the market shares might be R-5, 35%; R-7, 45%; and R-10, 20%.
 * This use of market shares to reflect ECM competition ensures that competing ECMs with similar levels of cost effectiveness will have similar savings impacts after adjusting for competition.
 * In general, ECM competition calculations in Scout weigh an ECM's annualized capital and operating costs against the capital and operating costs for competing ECMs to determine each ECM's competed market share. However, the specific calculation steps differ somewhat between the residential and commercial building sectors.
 * Once ECM market shares are determined, uncompeted ECM savings impact estimates are multiplied by these market shares to arrive at competed ECM energy savings, avoided |CO2| emissions, and operating cost savings impacts. 
@@ -220,7 +220,7 @@ Competing ECMs and updating savings and financial metrics
 ECM-specific results from the analysis of the portfolio of ECMs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Filter variables summarize an ECM's applicable climate zone(s), building type(s), building vintage(s), fuel type(s), and end use(s). 
+* Filter variables summarize an ECM's applicable climate zone(s), building class(es), and end use(s). 
 * Baseline and efficient results summarize an ECM's total baseline and efficient energy use, |CO2|, emissions and operating costs, as well as the savings realized by comparing the efficient case to the baseline case. Baseline and efficient results  are reported as totals for the ECM and also broken down by building sector (residential/commercial), climate zone, and end use [#]_.
 * Financial metrics summarize an ECM's consumer and portfolio-level `financial metrics`_.
 * Average and 5th/95th percentile values are reported for all efficient markets, savings, and financial metrics outputs to accommodate ECM input uncertainty analysis.
