@@ -23,7 +23,9 @@ Users may define entirely new ECMs or modify existing ECM definitions located in
 
 .. _ecm-sources:
 
-Acceptable sources for ECM input definitions include: RSMeans_ (for installed cost); `EnergyPlus/OpenStudio`_ (for energy efficiency, see :ref:`step 2 <analysis-step-2>`); databases from EIA_, `ENERGY STAR`_, and national labs; peer-reviewed journal publications or reports; and product literature.
+Acceptable sources for ECM input definitions include: RSMeans_ (for installed cost); databases from EIA_, `ENERGY STAR`_, and national labs; peer-reviewed journal publications or reports; and product literature.
+
+.. Acceptable sources for ECM input definitions include: RSMeans_ (for installed cost); `EnergyPlus/OpenStudio`_ (for energy efficiency, see :ref:`step 2 <analysis-step-2>`); databases from EIA_, `ENERGY STAR`_, and national labs; peer-reviewed journal publications or reports; and product literature.
 
 Selections for the applicable baseline market parameters are used in :ref:`step 2 <analysis-step-2>` to retrieve total energy use, |CO2|, and operating cost data for the baseline market. The ECM can then be applied to that baseline market to calculate savings impacts. The specific values available for all of the applicable baseline market parameters are included in the :ref:`ecm-applicable-baseline-market` section.
 
@@ -63,7 +65,8 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 * Energy efficiency                                        
 
    * Energy efficiency is specified at the unit level in absolute terms (e.g., U-value and solar heat gain coefficient for a window, or COP for a heat pump) using the :ref:`required units <ecm-performance-units>` or as a percentage relative savings value. 
-   * Relative savings percentages can be drawn from results of EnergyPlus/OpenStudio simulations. In such cases, the user flags the use of EnergyPlus/OpenStudio results in the energy efficiency input definition, and these results are filled in as part of :ref:`step 2 <analysis-step-2>` of the ECM analysis process.
+
+..   * Relative savings percentages can be drawn from results of EnergyPlus/OpenStudio simulations. In such cases, the user flags the use of EnergyPlus/OpenStudio results in the energy efficiency input definition, and these results are filled in as part of :ref:`step 2 <analysis-step-2>` of the ECM analysis process.
 
 * Installed cost
 
@@ -90,22 +93,24 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 Step 2: Finalize ECM definition
 -------------------------------
 
-ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways using the "measures_prep.py" script: 1) ECM energy efficiency is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of energy efficiency data in :ref:`step 1 <analysis-step-1>`.
+ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized using the "ecm_prep.py" script. The total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, not accounting for ECM competition.
+
+.. ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways using the "ecm_prep.py" script: 1) ECM energy efficiency is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of energy efficiency data in :ref:`step 1 <analysis-step-1>`.
 
 .. _OpenStudio Measures: http://nrel.github.io/OpenStudio-user-documentation/getting_started/about_measures/
 .. _EnergyPlus whole building energy simulation engine: https://energyplus.net/
 .. _commercial reference building models: http://energy.gov/eere/buildings/commercial-reference-buildings
 .. _on GitHub: https://github.com/NREL/OpenStudio-PTool/tree/master/design_docs
 
-.. _analysis-step-2-energyplus:
+.. analysis-step-2-energyplus: (CONVERT BACK TO SECTION REFERENCE TAG)
 
-Finalizing ECM efficiency input via EnergyPlus/OpenStudio
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. Finalizing ECM efficiency input via EnergyPlus/OpenStudio
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Scout ECMs applicable to commercial buildings can be represented as `OpenStudio Measures`_ and simulated with the `EnergyPlus whole building energy simulation engine`_. EnergyPlus is capable of representing detailed heating, cooling, lighting, and other energy uses in buildings; it is thus well suited to represent ECMs that may affect energy use across multiple end uses (e.g., advanced envelope materials that affect both heating and cooling loads; high efficiency lighting that reduces cooling loads and increases heating loads; integrated heat pumps that save heating, cooling, and water heating energy; and building controls that save heating, cooling, lighting, and/or plug load energy).
-* OpenStudio Measures are applied to 16 `commercial reference building models`_ across five building vintages [#]_ and eight Building America climate zones [#]_.
-* Measure energy use outputs are specified by climate zone, building type, building vintage, fuel type, and end use. By comparing Measure energy use outputs against the energy use outputs of an equivalent baseline model with no Measures applied and mapping OpenStudio building types and vintages to those of Scout, relative energy savings percentages can be calculated and then used to specify a Scout ECM's energy efficiency.  
-* An initial set of OpenStudio Measures for Scout is under active development `on GitHub`_.  
+.. * Scout ECMs applicable to commercial buildings can be represented as `OpenStudio Measures`_ and simulated with the `EnergyPlus whole building energy simulation engine`_. EnergyPlus is capable of representing detailed heating, cooling, lighting, and other energy uses in buildings; it is thus well suited to represent ECMs that may affect energy use across multiple end uses (e.g., advanced envelope materials that affect both heating and cooling loads; high efficiency lighting that reduces cooling loads and increases heating loads; integrated heat pumps that save heating, cooling, and water heating energy; and building controls that save heating, cooling, lighting, and/or plug load energy).
+   * OpenStudio Measures are applied to 16 `commercial reference building models`_ across five building vintages [#]_ and eight Building America climate zones [#]_.
+   * Measure energy use outputs are specified by climate zone, building type, building vintage, fuel type, and end use. By comparing Measure energy use outputs against the energy use outputs of an equivalent baseline model with no Measures applied and mapping OpenStudio building types and vintages to those of Scout, relative energy savings percentages can be calculated and then used to specify a Scout ECM's energy efficiency.  
+   * An initial set of OpenStudio Measures for Scout is under active development `on GitHub`_.  
 
 .. _Annual Energy Outlook (AEO) reference case: https://www.eia.gov/forecasts/aeo/tables_ref.cfm
 

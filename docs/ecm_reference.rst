@@ -689,7 +689,9 @@ In cases where the energy efficiency is specified with one or more of the option
          "small office": "BTU out/BTU in"}},
     ...}
 
-Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, using EnergyPlus data, explained in the :ref:`ecm-features-energyplus` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
+.. Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, using EnergyPlus data, explained in the :ref:`ecm-features-energyplus` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
+
+Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
 
 .. _json-energy_efficiency_source:
 
