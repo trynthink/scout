@@ -103,19 +103,19 @@ The end use names appear verbatim in the first column of the tables for resident
 | lighting              |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | refrigeration         |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| fans & pumps          |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| computers             |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| TVs                   |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
 | other (grid electric) |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | all                   |      X      |      X      |      X     |      X     |
 +-----------------------+-------------+-------------+------------+------------+
 
-.. ceiling fans are currently not shown
+.. | ceiling fan           |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | fans & pumps          |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | computers             |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | TVs                   |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
 
 **Commercial**
 
@@ -155,8 +155,10 @@ Technology
 
 Technology names appear verbatim. The lighting technology names are in the body of the table, categorized by illumination technology (e.g., incandescent, fluorescent) and application or fixture type.
 
-.. note::
+.. tip::
+   If the technology name for a given end use and fuel type is indicated as ``null``, the ECM definition should have the *unquoted* string text "null" written into the :ref:`json-technology` field.
 
+.. note::
    "all" is available as an option to specify all of the technology names that apply to all of the building types, fuel types, and end uses specified for the applicable baseline market. In addition, "all" can be made specific to a particular end use by specifying "all" followed by the end use name -- "all heating" or "all water heating," for example. This shorthand will capture all of the technologies in the named end use that apply to the building types and fuel types included in the applicable baseline market. For example, if the building type is "single family homes" and the fuel type is specified as ["electricity", "natural gas"] then "all heating" will include all of the heating technologies for residential buildings that use electricity or natural gas.
 
 **Residential -- Supply**
@@ -216,13 +218,17 @@ Technology names appear verbatim. The lighting technology names are in the body 
 
 * refrigeration: ``null``
 
-* fans and pumps: ``null``
-
-* computers: desktop PC, laptop PC, network equipment, monitors
-
-* TVs: home theater & audio, set top box, video game consoles, DVD, TV
-
 * other (grid electric): dishwasher, other MELs, clothes washing, freezers
+
+.. * ceiling fan: ``null``
+
+.. * fans and pumps: ``null``
+
+.. * computers: desktop PC, laptop PC, network equipment, monitors
+
+.. * TVs: home theater & audio, set top box, video game consoles, DVD, TV
+
+
 
 **Residential -- Demand**
 
@@ -318,6 +324,11 @@ Energy efficiency units
      * Boilers and furnaces (AFUE)
      * All other equipment types (COP)
 
+   * Secondary heating
+
+      * Electricity (COP)
+      * All other fuel types (AFUE)
+
    * Cooling (COP)
    * Water heating (EF)
    * Refrigeration (kWh/yr)
@@ -339,9 +350,7 @@ Energy efficiency units
    * Fans & pumps (HP/W)
    * TVs (W)
    * Computers (W)
-   * Secondary heating
-      * Electricity (COP)
-      * All other fuel types (AFUE)
+
 
 **Commercial -- Equipment (Supply)**
 
