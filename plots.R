@@ -89,7 +89,8 @@ euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting',
 
 # Set names of plot files and axes
 # Plot of individual ECM energy, carbon, and cost totals
-plot_names_ecms <- c('Total Energy', 'Total Carbon', 'Total Cost')
+file_names_ecms <- c('Total Energy', 'Total CO2', 'Total Cost')
+plot_names_ecms <- c('Total Energy', expression("Total"~ CO[2]), 'Total Cost')
 plot_axis_labels_ecm<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
 # Set colors for uncompeted baseline, efficient and low/high results
 plot_col_uc_base = "gray60"
@@ -98,6 +99,7 @@ plot_col_uc_lowhigh = "gray90"
 
 # Set variable names to use in accessing all uncompeted energy, carbon, and cost results from JSON data
 var_names_uncompete <- c('energy', 'carbon', 'cost')
+results_folder_names <- c('energy', 'co2', 'cost')
 # Set output units for each variable type
 var_units <- c('Quads', 'Mt', 'Billion $')
 # Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data. Note
@@ -122,7 +124,7 @@ var_names_compete_eff_h <- c(
 # ============================================================================
 
 # Names for aggregated ECM savings plots
-plot_names_agg <- c('Total Energy Savings', 'Total Avoided Carbon', 'Total Cost Savings')
+plot_names_agg <- c('Total Energy Savings', 'Total Avoided CO2', 'Total Cost Savings')
 # Axis labels for annual aggregate savings plots
 plot_axis_labels_agg_ann<-c('Annual Primary Energy Use Savings (Quads)',
 							expression("Annual Avoided"~ CO[2] ~" Emissions (Mt)"),
@@ -144,7 +146,7 @@ filter_var<-c('Climate Zone', 'Building Class', 'End Use')
 # Set the year to take a 'snapshot' of cost effectiveness in
 snap_yr = "2030"
 # Names for ECM cost effectiveness plots
-plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided Carbon', 'Cost Effective Operation Cost Savings') 
+plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided CO2', 'Cost Effective Operation Cost Savings') 
 # X axis labels for cost effectiveness plots
 plot_axis_labels_finmets_x<-c(
 	paste(snap_yr, 'Primary Energy Use Savings (Quads), Competed', sep=" "),
@@ -214,11 +216,11 @@ for (a in 1:length(adopt_scenarios)){
     xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
 
     # Set a factor to convert the results data to final plotting units for given variable
-    # (quads for energy, MMT for carbon, and billion $ for cost)
+    # (quads for energy, Mt for CO2, and billion $ for cost)
     if ((var_names_uncompete[v] == "energy") | (var_names_uncompete[v] == "cost")){
       unit_translate = 1/1000000000 # converts energy from MBtu -> quads or cost from $ -> billion $
       }else{
-        unit_translate = 1 # carbon results data are already imported in MMT units
+        unit_translate = 1 # CO2 results data are already imported in Mt units
       }
     
     # Initialize a matrix for storing individual ECM energy, carbon, or cost totals (3 rows
@@ -255,28 +257,28 @@ for (a in 1:length(adopt_scenarios)){
     if (adopt_scenarios[a] == 'Technical potential'){
       # ECM energy, carbon, and cost totals
       plot_file_name_ecms = file.path(
-      	base_dir, 'results', 'plots', 'tech_potential', var_names_uncompete[v],
-      	paste(plot_names_ecms[v],"-TP", sep=""))
+      	base_dir, 'results', 'plots', 'tech_potential', results_folder_names[v],
+      	paste(file_names_ecms[v],"-TP", sep=""))
       # Aggregate energy, carbon, and cost savings
       plot_file_name_agg = file.path(
-      	base_dir, 'results', 'plots', 'tech_potential', var_names_uncompete[v],
+      	base_dir, 'results', 'plots', 'tech_potential', results_folder_names[v],
       	paste(plot_names_agg[v],"-TP", sep=""))
       # ECM cost effectiveness
       plot_file_name_finmets = file.path(
-      	base_dir, 'results', 'plots', 'tech_potential', var_names_uncompete[v],
+      	base_dir, 'results', 'plots', 'tech_potential', results_folder_names[v],
       	paste(plot_names_finmets[v],"-TP.pdf", sep=""))
       }else{
         # ECM energy, carbon, and cost totals
         plot_file_name_ecms = file.path(
-        	base_dir, 'results', 'plots', 'max_adopt_potential', var_names_uncompete[v],
-            paste(plot_names_ecms[v],"-MAP", sep = ""))
+        	base_dir, 'results', 'plots', 'max_adopt_potential', results_folder_names[v],
+            paste(file_names_ecms[v],"-MAP", sep = ""))
         # Aggregate energy, carbon, and cost savings
         plot_file_name_agg = file.path(
-        	base_dir, 'results', 'plots', 'max_adopt_potential', var_names_uncompete[v],
+        	base_dir, 'results', 'plots', 'max_adopt_potential', results_folder_names[v],
             paste(plot_names_agg[v],"-MAP", sep=""))
         # ECM cost effectiveness
         plot_file_name_finmets = file.path(
-        	base_dir, 'results', 'plots', 'max_adopt_potential', var_names_uncompete[v],
+        	base_dir, 'results', 'plots', 'max_adopt_potential', results_folder_names[v],
             paste(plot_names_finmets[v],"-MAP.pdf", sep=""))
       }
     # Open PDF device for plotting each ECM's energy, carbon, or cost totals 
@@ -817,7 +819,7 @@ for (a in 1:length(adopt_scenarios)){
       # Initialize plot region for total cumulative savings
       plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
            ylim = c(min(ylim_cum), max(ylim_cum)),
-           main = paste(plot_names_ecms[v], 'by', filter_var[f], sep=" "),
+           main = bquote(bold(.(plot_names_ecms[v][[1]])~ 'by'~ .(filter_var[f]))),
            axes=FALSE, xlab=NA, ylab=NA)
       # Add total cumulative savings line
       lines(years, total_cum, col="gray50", lwd=4, lty=3)
@@ -1035,5 +1037,5 @@ for (a in 1:length(adopt_scenarios)){
 
   # Write data to Excel xlsx-formatted spreadsheet with worksheets
   # named using the SheetNames attribute
-  WriteXLS(xlsx_var_name_list, ExcelFileName = xlsx_file_name, SheetNames = plot_names_ecms)
+  WriteXLS(xlsx_var_name_list, ExcelFileName = xlsx_file_name, SheetNames = file_names_ecms)
 }
