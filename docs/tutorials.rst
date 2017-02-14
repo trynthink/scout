@@ -798,7 +798,7 @@ To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) o
    cd Documents/projects/scout-run_scheme
    python3 ecm_prep.py
 
-As each ECM is processed by "ecm_prep.py", the ECM name is printed to the command window within a message indicating that it has been updated successfully. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
+As each ECM is processed by "ecm_prep.py", the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
 If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 3 <tuts-3>`.
 
@@ -830,9 +830,9 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    cd Documents/projects/scout-run_scheme
    python3 run.py
 
-While executing, "run.py" will print updates to the command window. This text is principally to assure users that the analysis is proceeding apace.
+While executing, "run.py" will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
 
-Once complete, the command window will return to an open prompt. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
+Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
 
 
 .. _tuts-4:
