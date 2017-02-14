@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
 
-"""Docstring
+"""Prompt users with options to revise the list of active ECMs
+
+This module prints user prompts to the stdout (Terminal/console/command
+window) with options for users to modify the list of active and
+inactive ECMs.
+
+Users are first prompted to provide keywords that are matched against
+the names of each ECM and used to move ECMs both from the active to the
+inactive list and vice versa.
+
+Following these updates to the active and inactive lists, the user is
+prompted opportunities to move ECMs only from the active to the
+inactive lists based on their desired selections of subsets of some of
+the applicable baseline market categories.
 """
 
 import re
@@ -14,6 +27,9 @@ class UsefulVars(object):
     Attributes:
         setup_file (str): Scout setup/configuration JSON file name
         ecm_folder_location (str): Path to the folder with the ECM JSON files
+        market_filters (list): List of strings corresponding to the
+            keys in the JSON for the applicable baseline market
+            parameters that are handled by this module
     """
     def __init__(self):
         self.setup_file = 'run_setup.json'
@@ -32,6 +48,15 @@ class IndexLists(object):
         building_type_map (list): Specifies the relationship between
             the building type groups and the particular building type
             values that can be specified in an ECM definition
+        climate_zone_pr (list): List of climate zone names in the same
+            order as the climate_zone attribute, but in the format
+            to be printed for user selection (_pr = for printing)
+        building_type_pr (list): List of building types in the same
+            order as the building_type attribute, but in the desired
+            format for printing for the user (_pr = for printing)
+        structure_type_pr (list): List of structure types in the same
+            order as the structure_type attribute, but in the desired
+            format for printing for user selection (_pr = for printing)
     """
     def __init__(self):
         self.climate_zone = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3',
@@ -238,10 +263,13 @@ def ecm_list_kw_update(active_list, inactive_list):
     # Text to print to the console, broken into short blocks
     print('You can use short strings to quickly move groups of ECMs '
           'from the active to inactive lists and vice versa. '
-          'For example, you can specify "Prospective" to select all '
-          'ECMs that have the word "Prospective" in their name.\n')
+          'For example, you can specify "Prospective" (without the double '
+          'quotes) to select all ECMs that have the word Prospective '
+          'in their name.\n')
     print('You may input more than one search term. Please separate '
-          'each term with a comma, for example, "Efficient, 20%".\n')
+          'each term with a comma, for example: Efficient, 20%\n')
+    print('Search terms are not case-sensitive. Search terms should '
+          'not be enclosed by any quotes or other special characters.\n')
     print('If you are unsure of the ECMs currently listed as active '
           'and inactive, inspect the lists in the run_setup.json file.\n')
 
