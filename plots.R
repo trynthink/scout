@@ -171,8 +171,14 @@ fin_metrics <- c(
 	list(c('Portfolio Level', 'Cost of Conserved Energy ($/MMBtu saved)')),
 	list(c('Portfolio Level', 'Cost of Conserved CO₂ ($/MTon CO₂ avoided)')))
 
-# Set column names for Excel file
-col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Units', 'Climate Zones', 'Building Classes', 'End Uses', years)
+# ============================================================================
+# Set high-level variables needed to generate XLSX data
+# ============================================================================
+# Define cost-effectiveness metrics column names
+xlsx_names_finmets <- c(paste("IRR (%),", snap_yr),
+					    paste("Payback (years),", snap_yr),
+					    paste("CCE ($/MMBtu saved),", snap_yr),
+					    paste("CCC ($/t CO2 avoided),", snap_yr))
 
 # ============================================================================
 # Loop through all adoption scenarios, plotting variables, ECMs, and
@@ -210,10 +216,19 @@ for (a in 1:length(adopt_scenarios)){
     # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
     xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
                                 nrow = (length(meas_names)*4 + 2)))
+    # Define column names for the annual total energy, carbon, or cost results that are written
+    # to the XLSX file
+    xlsx_names_years = matrix(NA, length(years))
+    for (yn in (1:length(year_names))){
+    	# Append variable units to each year name
+    	xlsx_names_years[yn] = paste(years[yn], " (", var_units[v], ")", sep="")
+    }
+    # Set column names for XLSX file
+	col_names_xlsx<- c(
+		'ECM Name', 'Results Scenario', 'Climate Zones', 'Building Classes', 'End Uses',
+		xlsx_names_finmets, xlsx_names_years)
     # Set column names for the worksheet
     colnames(xlsx_data) = col_names_xlsx
-    # Add variable units to the Excel worksheet data frame
-    xlsx_data[, 3] = rep(var_units[v], nrow(xlsx_data))
 
     # Set a factor to convert the results data to final plotting units for given variable
     # (quads for energy, Mt for CO2, and billion $ for cost)
@@ -300,9 +315,9 @@ for (a in 1:length(adopt_scenarios)){
       czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Climate Zones')
       bldg_types = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Building Classes')
       end_uses = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable End Uses')
-      xlsx_data[row_ind_start:(row_ind_start + 3), 4] = czones
-      xlsx_data[row_ind_start:(row_ind_start + 3), 5] = bldg_types
-      xlsx_data[row_ind_start:(row_ind_start + 3), 6] = end_uses
+      xlsx_data[row_ind_start:(row_ind_start + 3), 3] = czones
+      xlsx_data[row_ind_start:(row_ind_start + 3), 4] = bldg_types
+      xlsx_data[row_ind_start:(row_ind_start + 3), 5] = end_uses
       
       # If there are more than three end use names, set a single end use name of 'Multiple' such that
       # the end use name label will fit easily within each plot region
@@ -513,8 +528,22 @@ for (a in 1:length(adopt_scenarios)){
 	          		results_finmets[m, fm][[1]] = 
 	          		results_database_finmets[[fin_metrics[[fm]][1]]][[
 	          			fin_metrics[[fm]][2]]][[years[yr]]][[1]] * unit_translate_finmet
-	          	}		 	
+	          	}
+	          	# Replace all 999 or 99900 values (proxies for NaN) with NA
+	          	results_finmets[m, fm][[1]][((results_finmets[m, fm][[1]] == 999) |
+	          								 (results_finmets[m, fm][[1]] == 99900))] <- NA		 	
 	          }
+
+	          # Add ECM cost effectiveness metrics data to XLSX sheet
+	          # Add ECM IRR/payback metrics (not dependent on competition)
+	          xlsx_data[row_ind_start:(row_ind_start + 3),
+              			6: (6 + ((length(plot_title_labels_finmets))/2) - 1)] =
+              			as.matrix(results_finmets[m,1:2])
+              # Add ECM competed CCE/CCC metrics
+              xlsx_data[(row_ind_start + 2):(row_ind_start + 3),
+              			(6 + ((length(plot_title_labels_finmets))/2)):
+              			(6 + (length(plot_title_labels_finmets)))] =
+              			as.matrix(results_finmets[m,3:4])
 	          # Retrieve, ECM energy, carbon, or cost savings data, convert to final units
 	          results_finmets[m, (length(fin_metrics)+1)][[1]] =
 	          	results_database[[var_names_compete_save[v]]][years[yr]][[1]] * unit_translate
@@ -604,9 +633,10 @@ for (a in 1:length(adopt_scenarios)){
       eff_c_l = unlist(results[2, 4]) * unit_translate
       eff_c_h = unlist(results[3, 4]) * unit_translate
       
-      # Add ECM energy, carbon, or cost totals to Excel worksheet data frame
-      xlsx_data[row_ind_start:(row_ind_start + 3), 7:ncol(xlsx_data)] = 
-       rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
+      # Add annual ECM energy, carbon, or cost totals to XLSX worksheet data frame
+      xlsx_data[row_ind_start:(row_ind_start + 3),
+                (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = 
+                rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
       
       # Initialize or update summed energy, carbon, or cost totals across all ECMs
       if (m == 1){
@@ -696,7 +726,9 @@ for (a in 1:length(adopt_scenarios)){
     xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
     xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
     # Add data to Excel worksheet data frame
-    xlsx_data[row_ind_start:(row_ind_start + 1), 7:ncol(xlsx_data)] = rbind(base_c_all, eff_c_m_all)
+    xlsx_data[row_ind_start:(row_ind_start + 1),
+              (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] =
+              rbind(base_c_all, eff_c_m_all)
     
     # Plot energy, carbon, and cost totals across all ECMs
     
@@ -896,14 +928,14 @@ for (a in 1:length(adopt_scenarios)){
     	} else{
     		restrict = which(unlist(results_finmets[, fmp]) <= plot_ablines_finmets[fmp])
      	}
-			# Set vector of cost effective savings results
-      results_restrict<-unlist(results_finmets[, 5])[restrict]
-      # Sum total cost effective savings
-      total_save <- sum(results_restrict)
+		# Set vector of cost effective savings results
+      	results_restrict<-unlist(results_finmets[, 5])[restrict]
+      	# Sum total cost effective savings
+      	total_save <- sum(results_restrict)
 
-      # Second, find the ranking of those ECMs that meet the cost effectiveness
-      # threshold
-      order = order(results_restrict, decreasing=TRUE)   
+      	# Second, find the ranking of those ECMs that meet the cost effectiveness
+      	# threshold
+      	order = order(results_restrict, decreasing=TRUE)   
 
     	# Finally, record the index numbers of the filtered/ranked ECMs
     	final_index = restrict[order]
@@ -939,6 +971,12 @@ for (a in 1:length(adopt_scenarios)){
     	# Make pretty labels for y axis range
     	ylim_fm = pretty(plot_lims_finmets[[fmp]])
     	
+    	# Ensure that results to be plotted are all within the final y axis range, and that no
+    	# NA values are included in the results
+    	results_finmets_filtr = results_finmets[(
+    		results_finmets[, fmp]<=max(ylim_fm) & results_finmets[, fmp]>= min(ylim_fm) &
+    		is.finite(unlist(results_finmets[, fmp]))), ]
+    	
    		# Initialize plot region for ECM cost effectiveness 
     	plot(1, typ='n',
              xlim = c(0, max(xlim)), ylim = c(min(ylim_fm), max(ylim_fm)),
@@ -971,10 +1009,10 @@ for (a in 1:length(adopt_scenarios)){
     	# Add a line to distinguish the cost effectiveness threshold
     	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
      	# Add individual ECM points to the cost effectiveness plot
-     	points(results_finmets[,5], results_finmets[, fmp],
-           	 col=unlist(results_finmets[,6]),
-           	 pch=unlist(results_finmets[,7]),
-           	 bg=unlist(results_finmets[,8]), lwd=1,
+     	points(results_finmets_filtr[,5], results_finmets_filtr[, fmp],
+           	 col=unlist(results_finmets_filtr[,6]),
+           	 pch=unlist(results_finmets_filtr[,7]),
+           	 bg=unlist(results_finmets_filtr[,8]), lwd=1,
            	 cex = 1.2)
       # Add x axis tick marks and axis labels
       axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
