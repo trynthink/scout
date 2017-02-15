@@ -309,7 +309,7 @@ The LED troffers ECM that you've now written can be simulated with Scout by foll
 Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the end of each section.
+There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the beginning of each section.
 
 .. PHRASING
 
@@ -317,6 +317,8 @@ There are many ways in which an ECM definition can be augmented, beyond the basi
 
 Baseline market shorthand values
 ********************************
+
+:download:`Example <examples/Whole Building Submetering (Prospective).json>` -- Whole Building Sub-metering ECM (:ref:`Details <ecm-example-shorthand>`)
 
 If an ECM applies to multiple building types, end uses, or other applicable baseline market categories [#]_, the specification of the baseline market and, in some cases, other fields, can be greatly simplified by using shorthand strings. When specifying the applicable baseline market, for example, an ECM might represent a technology that can be installed in any residential building, indicated with the "all residential" string for the building type key. ::
 
@@ -360,7 +362,9 @@ Separate installed costs can also be specified for each of the residential build
       "lodging": 6015},
     ...}
 
-A :download:`whole building sub-metering ECM <examples/Whole Building Submetering (Prospective).json>` illustrates the use of shorthand terms by employing the "all" shorthand term for most of the applicable baseline market fields (|baseline-market|) and the "all commercial" shorthand term as one of the building types and to define separate installed costs for the various building types that apply to the ECM. If you would like to see additional examples, many of the other examples available to download in this section use shorthand terms for one or more of their applicable baseline market fields.
+.. _ecm-example-shorthand:
+
+A whole building sub-metering ECM is available for download that illustrates the use of shorthand terms by employing the "all" shorthand term for most of the applicable baseline market fields (|baseline-market|) and the "all commercial" shorthand term as one of the building types and to define separate installed costs for the various building types that apply to the ECM. If you would like to see additional examples, many of the other examples available to download in this section use shorthand terms for one or more of their applicable baseline market fields.
 
 
 .. _ecm-features-detailed-input:
@@ -368,7 +372,7 @@ A :download:`whole building sub-metering ECM <examples/Whole Building Submeterin
 Detailed input specification
 ****************************
 
-.. THE SCHEMA WOULD BENEFIT FROM A CONSISTENT TERM FOR WHEN CPL VALUES ARE SPLIT UP WITH GREATER DETAIL
+:download:`Example <examples/Thermoelastic HP (Prospective).json>` -- Thermoelastic Heat Pump ECM (:ref:`Details <ecm-example-detailed-input>`)
 
 The energy efficiency, installed cost, and lifetime values in an ECM definition can be specified as a point value or with separate values for one or more of the applicable baseline market keys (|baseline-market|). As shown in :numref:`table-detailed-input-options`, the allowable baseline market keys are different for the energy efficiency, installed cost, and lifetime values.
 
@@ -499,13 +503,17 @@ When a detailed input specification is given, the corresponding source informati
 
 Finally, any ECM that includes one or more detailed input specifications should have some discussion of the detailed specification and any underlying assumptions included in either the :ref:`json-_notes` field in the JSON or the :ref:`json-notes` field for the source information for each detailed input specification. As the complexity of the specification increases, the detail of the explanation should similarly increase.
 
-A :download:`thermoelastic heat pump ECM <examples/Thermoelastic HP (Prospective).json>` illustrates the use of the detailed input specification approach for the installed cost data and units, as well as the page information for the installed cost source.
+.. _ecm-example-detailed-input:
+
+A thermoelastic heat pump ECM is available for download to illustrate the use of the detailed input specification approach for the installed cost data and units, as well as the page information for the installed cost source.
 
 
 .. _ecm-features-relative-savings:
 
 Relative energy efficiency units
 ********************************
+
+:download:`Example <examples/Occupant-Centered Controls (Prospective).json>` -- Occupant-centered Controls ECM (:ref:`Details <ecm-example-relative-savings>`)
 
 In addition to the absolute units used in the :ref:`initial example <example-ecm-1>`, any ECM can have energy efficiency specified with the units "relative savings (constant)" or "relative savings (dynamic)". In either case, the energy efficiency value should be given as a decimal value between 0 and 1, corresponding to the percentage improvement from the baseline (i.e., the existing stock) -- a value of 0.2 corresponds to a 20% energy savings relative to the baseline.
 
@@ -546,7 +554,9 @@ If appropriate for a given ECM, absolute and relative units can also be mixed in
       "cooling": ["relative savings (dynamic)", 2016]},
     ...}
 
-An occupant-centered controls ECM available for :download:`download <examples/Occupant-Centered Controls (Prospective).json>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
+.. _ecm-example-relative-savings:
+
+An occupant-centered controls ECM available for download, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
 
 
 .. ecm-features-energyplus: (CONVERT BACK TO SECTION REFERENCE TAG)
@@ -600,13 +610,15 @@ An occupant-centered controls ECM available for :download:`download <examples/Oc
          "URL": "http://energy.gov/sites/prod/files/2014/03/f12/Non-Vapor%20Compression%20HVAC%20Report.pdf"}]},
     ...}
 
-.. <<< DOWNLOADABLE >>>
+.. <<< DOWNLOADABLE EXAMPLE >>>
 
 
 .. _ecm-features-market-scaling-fractions:
 
 Market scaling fractions
 ************************
+
+:download:`Example <examples/AFDD (Prospective).json>` -- Automated Fault Detection and Diagnosis ECM (:ref:`Details <ecm-example-market-scaling-fractions>`)
 
 If an ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular building type, end use, fuel type, and technologies that are relevant, the market scaling fraction can be used to specify the fraction of the applicable baseline market that is truly applicable to that ECM. The market scaling fraction thus reduces the size of all or a portion of the applicable baseline market beyond what is achievable using only the baseline market fields. All scaling fraction values should be between greater than 0 and less than 1, where a value of 0.4, for example, indicates that 40% of the baseline market selected applies to that ECM.
 
@@ -634,7 +646,9 @@ As an example, for a multi-function fuel-fired heat pump ECM for commercial buil
 
 As shown in the example, if the ECM applies to multiple building types, climate zones, or technologies, for example, different scaling fraction values can be supplied for some or all of the baseline market. The method for specifying multiple scaling fraction values is similar to that outlined in the :ref:`ecm-features-detailed-input` sub-section. This detailed breakdown of the market scaling fraction can only include keys that are included in the applicable baseline market. For example, if the applicable baseline market includes only residential buildings, no commercial building types should appear in the market scaling fraction breakdown. If all residential buildings are in the applicable baseline market, however, the market scaling fractions can be separately specified for each residential building type.
 
-The automated fault detection and diagnosis (AFDD) ECM available for :download:`download <examples/AFDD (Prospective).json>` illustrates the use of the market scaling fraction to limit the applicability of the ECM to only buildings with building automation systems (BAS), since that is a prerequisite for the implementation of the AFDD technology described in the ECM.
+.. _ecm-example-market-scaling-fractions:
+
+The automated fault detection and diagnosis (AFDD) ECM available for download illustrates the use of the market scaling fraction to limit the applicability of the ECM to only buildings with building automation systems (BAS), since that is a prerequisite for the implementation of the AFDD technology described in the ECM.
 
 
 .. _ecm-features-measure-type:
@@ -642,13 +656,17 @@ The automated fault detection and diagnosis (AFDD) ECM available for :download:`
 Add-on type ECMs
 ****************
 
+:download:`Example <examples/Plug-and-Play Sensors (Prospective).json>` -- Plug-and-Play Sensors ECM (:ref:`Details <ecm-example-measure-type>`)
+
 Technologies that affect the operation of or augment the efficiency of the existing components of a building must be defined differently in an ECM than technologies that replace a building component. Examples include sensors and control systems, window films, and daylighting systems. These technologies improve or affect the operation of another building system -- HVAC or other building equipment, windows, and lighting, respectively -- but do not replace those building systems.
 
 For these technologies, several of the fields of the ECM must be configured slightly differently. First, the applicable baseline market should be set for the end uses and technologies that are affected by the technology, not those that describe the technology. For example, an automated fault detection and diagnosis (AFDD) system that affects heating and cooling systems should have the end uses "heating" and "cooling," not some type of electronics or miscellaneous electric load (MEL) end use. Second, the energy efficiency values should have :ref:`relative savings <ecm-features-relative-savings>`  units and the installed cost units should match those specified in the :ref:`ECM Definition Reference <ecm-installed-cost-units>`, noting that they are different for sensors and controls ECMs. Finally, the :ref:`json-measure_type` field should have the value ``"add-on"`` instead of ``"full service"``.
 
-A plug-and-play sensors ECM available to :download:`download <examples/Plug-and-Play Sensors (Prospective).json>` to illustrate the use of the "add-on" ECM type.
+.. _ecm-example-measure-type:
 
-.. <<< DOWNLOADABLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
+A plug-and-play sensors ECM available to download to illustrate the use of the "add-on" ECM type.
+
+.. <<< DOWNLOADABLE EXAMPLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
 
 
 .. _ecm-features-multiple-fuel-types:
@@ -666,13 +684,15 @@ To configure these ECMs, the :ref:`json-fuel_type` field should be populated wit
     "fuel_switch_to": "natural gas",
     ...}
 
-.. <<< DOWNLOADABLE >>>
+.. <<< DOWNLOADABLE EXAMPLE >>>
 
 
 .. _ecm-features-distributions:
 
 Probability distributions
 *************************
+
+:download:`Example <examples/ENERGY STAR LED Bulbs v. 1.2 c. 2012.json>` -- LED Bulbs ECM (:ref:`Details <ecm-example-distributions>`)
 
 Probability distributions can be added to the installed cost, energy efficiency, and lifetime specified for ECMs to represent uncertainty or known, quantified variability in one or more of those values. In a single ECM, a probability distribution can be applied to any one or more of these parameters. Probability distributions cannot be specified for any other parameters in an ECM, such as the market entry or exit years, market scaling fractions, or to either the energy savings increase or cost reduction parameters in :ref:`package ECMs <package-ecms>`. 
 
@@ -695,7 +715,9 @@ Probability distributions can be specified in any location in the energy efficie
       "water heating": 1.15},
     ...}
 
-An ENERGY STAR LED bulbs ECM is available for :download:`download <examples/ENERGY STAR LED Bulbs v. 1.2 c. 2012.json>` to illustrate the use of probability distributions, in that case, on installed cost and product lifetime.
+.. _ecm-example-distributions:
+
+An ENERGY STAR LED bulbs ECM is available for download to illustrate the use of probability distributions, in that case, on installed cost and product lifetime.
 
 
 .. _editing-ecms:
