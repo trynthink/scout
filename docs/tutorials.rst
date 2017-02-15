@@ -822,23 +822,96 @@ To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) o
 
 As each ECM is processed by "ecm_prep.py", the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
-If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 3 <tuts-3>`.
+If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
 
 If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy efficiency that do not match the baseline cost and efficiency data in the ECM.
 
 
-.. _tuts-3:
+.. _tuts-ecm-list-setup:
 
-Tutorial 3: Running an analysis
--------------------------------
+Tutorial 3: Modifying the active ECMs list
+------------------------------------------
 
-Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by ``run.py`` following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+Prior to running an analysis, the list of ECMs that will be included in that analysis can be revised to suit your interests. For example, if your primary interest is in ECMs that are applicable to commercial buildings, you could choose to include only those ECMs in your analysis. 
 
-If some ECMs should be excluded from a given analysis, these ECMs can be specified in the "run_setup.json" file. All of the existing ECMs should appear in this file under *only* one of two keys, "active" and "inactive." Each of these keys should be followed by a list (enclosed by brackets). If all ECMs are in the active list, the "inactive" value should be an empty list. As new ECMs are added and pre-processed, their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list. To exclude one or more ECMs from the analysis, simply copy and paste their names from the "active" to the "inactive" list, and reverse the process to restore ECMs that have been excluded. 
+The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded from the analysis) ECMs are specified in the "run_setup.json" file. There are two ways to modify the lists of ECMs: by :ref:`manually editing them <ecm-list-setup-manual>` or :ref:`using the automatic configuration module <ecm-list-setup-automatic>`.
+
+If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 4 <tuts-analysis>`, as all ECMs are included by default.
+
+.. tip::
+   As new ECMs are added and pre-processed (by running ecm_prep.py), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by ecm_prep.py. 
+
+
+.. _ecm-list-setup-automatic:
+
+Automatic configuration
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The automatic configuration module "run_setup.py" can perform a limited set of adjustments to the active and inactive ECM lists in "run_setup.json."
+
+1. Move ECMs from the active to the inactive list, and vice versa, based on searching the ECM names for matches with user-provided keywords
+2. Move ECMs from the active to the inactive list if they do not apply to the climate zone(s), building type, and/or structure type of interest
+
+For each of the changes supported by the module, messages will be printed to the command window that will explain what information should be input by the user. When entering multiple values, all entries should be separated by commas. Any question can be skipped to ignore the filtering option by pressing the "enter" or "return" key.
+
+For the first set of changes, moving ECMs by searching their names for matches with user-provided keywords, the user will be prompted to enter their desired keywords for each move separately, first for moving ECMs from the active to the inactive list, and then for the opposite move. Keyword matching is not case-sensitive and multiple keywords should be separated by commas. Potential inputs from the user might be, for example: ::
+
+   ENERGY STAR, prospective, 20%
+
+or ::
+
+   iecc
+
+If the user provides keywords for both moves (active to inactive and vice versa) and there are any ECMs that would be picked up by one or more keywords for the moves in each direction, the result would be an ECM being moved from active to inactive and then immediately back to active (or vice versa). For example, if the keyword "prospective" was provided for the move from active to inactive and "heat pump" for the move from inactive to active, an ECM with the name "Integrated Heat Pump (Prospective)" in either list would be matched by both keywords. To resolve these conflicts, the user would be prompted to decide whether each of these ECMs should end up in the active or inactive lists. 
+
+Following these changes, the user will be asked whether additional ECMs should be moved to the inactive list if they are not applicable to the user's climate zone(s), building type, and/or structure type of interest. For example, a user will be prompted to select the building type (limited to only all residential or all commercial buildings) by number. ::
+
+   1 - Residential
+   2 - Commercial
+
+If the user is only interested in residential buildings, they would input ::
+
+   1
+
+Before running the ECM active and inactive configuration module, it might be helpful to open "run_setup.json" and review the existing list of active and inactive ECMs. 
+
+To run the module, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Run the module by starting Python with the module file name "run_setup.py."
+
+**Windows** ::
+
+   cd Documents\projects\scout-run_scheme
+   py -3 run_setup.py
+
+**Mac** ::
+
+   cd Documents/projects/scout-run_scheme
+   python3 run_setup.py
+
+If desired, the :ref:`manual editing <ecm-list-setup-manual>` instructions can be used to perform any further fine tuning of the active and inactive ECM lists.
+
+
+.. _ecm-list-setup-manual:
+
+Manual configuration
+~~~~~~~~~~~~~~~~~~~~
+
+The "run_setup.json" file specifies whether each ECM will be included in or excluded from an analysis. Like the ECM definition JSON files, this file can be opened in your text editor of choice and modified to change which ECMs are active and inactive.
+
+All of the ECM names should appear in this file under *exactly* one of two keys, "active" or "inactive." Each of these keys should be followed by a list (enclosed by square brackets) with the desired ECM names. If all ECMs are in the active list, the "inactive" value should be an empty list. 
+
+To exclude one or more ECMs from the analysis, copy and paste their names from the "active" to the "inactive" list, and reverse the process to restore ECMs that have been excluded. Each ECM name in the list should be separated from the next by a comma.
 
 .. tip::
 
-   When editing the "run_setup.json" file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
+   When manually editing the "run_setup.json" file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
+
+
+.. _tuts-analysis:
+
+Tutorial 4: Running an analysis
+-------------------------------
+
+Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by ``run.py`` following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
 
 To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run "run.py" as a Python script.
 
@@ -854,12 +927,12 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
 
 While executing, "run.py" will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
 
-Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
+Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 5 <tuts-results>` explains how the data can be converted into plots.
 
 
-.. _tuts-4:
+.. _tuts-results:
 
-Tutorial 4: Viewing and understanding outputs
+Tutorial 5: Viewing and understanding outputs
 ---------------------------------------------
 
 Generating/updating figures
