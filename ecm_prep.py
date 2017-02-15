@@ -110,6 +110,11 @@ class UsefulVars(object):
             $/ft^2 floor; $/node -> $/ft^2 floor -> $/unit).
         cconv_bybldg_units (list): Flags cost unit conversions that must
             be re-initiated for each new microsegment building type.
+        cconv_bytech_units_res (list): Flags cost unit conversions that must
+            be re-initiated for each new microsegment technology type (
+            applies only to the residential sector, where conversions from
+            $/ft^2 floor to $/unit depend on number of units per household,
+            which varies according to technology type).
     """
 
     def __init__(self, base_dir):
@@ -472,8 +477,9 @@ class UsefulVars(object):
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
         self.cconv_bybldg_units = [
-            "$/occupant", "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
-            "$/ft^2 footprint", "$/ft^2 floor"]
+            "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
+            "$/ft^2 footprint", "$/ft^2 floor", "$/occupant", "$/node"]
+        self.cconv_bytech_units_res = ["$/ft^2 floor", "$/occupant", "$/node"]
         self.cconv_topkeys_map = {
             "whole building": ["$/ft^2 floor", "$/node", "$/occupant"],
             "heating and cooling": [
@@ -1040,13 +1046,14 @@ class Measure(object):
         if self.handyvars.nsamples is not None:
             rnd_sd = numpy.random.randint(10000)
 
-        # Initialize a counter of valid key chains and a cost conversion flag
-        key_chain_ct, cost_converts = (0 for n in range(2))
-        # Initialize counters of missing baseline technology cost/performance/
-        # lifetime data and consumer data, as well as lists of technology names
-        # that have yielded warnings
-        missing_base_cpl, missing_base_consumer = (0 for n in range(2))
-        tech_cpl_warnings, euse_consume_warnings = ([] for n in range(2))
+        # Initialize a counter of key chains with valid stock/energy data;
+        # key chains with valid cost/performance/lifetime data; key chains
+        # with valid consumer choice data; and a cost conversion flag
+        valid_keys_stk_energy, valid_keys_cpl, valid_keys_consume, \
+            cost_converts = (0 for n in range(4))
+        # Initialize lists of technology names that have yielded warnings
+        # for invalid cost/performance/lifetime data and consumer data
+        cpl_warn, consume_warn = ([] for n in range(2))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -1187,14 +1194,24 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                # Set cost attributes to values previously calculated for
-                # current mseg building type
-                if mskeys[2] in bldgs_costconverted.keys():
+                # Set ECM cost attribute to value previously calculated for
+                # current microsegment building type, provided microsegment
+                # does not require re-initiating cost conversions for each
+                # new technology type (applicable to residential sector)
+                if mskeys[2] in bldgs_costconverted.keys() and (
+                    bldg_sect != "residential" or all([
+                        x not in self.cost_units for x in
+                        self.handyvars.cconv_bytech_units_res])):
                     cost_meas, cost_units = [x for x in bldgs_costconverted[
                         mskeys[2]]]
-                # Set cost attributes to initial values
-                elif ind == 0 or any([x in self.cost_units for x in
-                                     self.handyvars.cconv_bybldg_units]):
+                # Re-initialize ECM cost attribute for each new building
+                # type or technology type if required for the given cost units
+                elif ind == 0 or any([
+                    x in self.cost_units for x in
+                    self.handyvars.cconv_bybldg_units]) or (
+                    bldg_sect == "residential" and any([
+                        y in self.cost_units for y in
+                        self.handyvars.cconv_bytech_units_res])):
                     cost_meas, cost_units = [
                         self.installed_cost, self.cost_units]
                 elif isinstance(self.installed_cost, dict) or \
@@ -1315,12 +1332,12 @@ class Measure(object):
                 continue
             # Otherwise update all stock/energy/cost information for each year
             else:
-                # Restrict valid key chain count to "primary" microsegment
-                # key chains only, as the key chain count is used later in
-                # stock and stock cost calculations, which secondary
-                # microsegments do not contribute to
+                # Restrict count of key chains with valid stock/energy data to
+                # "primary" microsegment key chains only (the key chain
+                # count is used later in stock and stock cost calculations,
+                # which secondary microsegments do not contribute to)
                 if mskeys[0] == "primary":
-                    key_chain_ct += 1
+                    valid_keys_stk_energy += 1
                     # Flag use of ft^2 floor area as stock when number of stock
                     # units is unavailable for a primary microsegment
                     if mseg["stock"] == "NA":
@@ -1413,8 +1430,6 @@ class Measure(object):
                             "WARNING (CRITICAL): '" + self.name + "' has "
                             "insufficient sub-market source information and "
                             "will be removed from analysis")
-                        # Reset valid key chain count to 999 flag
-                        key_chain_ct = 999
                         # Reset measure 'active' attribute to zero
                         self.remove = True
                         # Break from all further baseline stock/energy/carbon
@@ -1508,11 +1523,13 @@ class Measure(object):
                             life_base = {
                                 yr: life_base[yr] * (24/3) for
                                 yr in self.handyvars.aeo_years}
+                        # Add to count of primary microsegment key chains with
+                        # valid cost/performance/lifetime data
+                        valid_keys_cpl += 1
 
                     # Set baseline cost units
                     cost_base_units = \
                         base_cpl["installed cost"]["units"]
-
                 except:
                     # Record missing baseline data for primary technologies;
                     # if in verbose mode and the user has not already been
@@ -1520,15 +1537,14 @@ class Measure(object):
                     # print warning message; exclude the technology from
                     # further analysis
                     if mskeys[0] == "primary":
-                        if mskeys[-2] not in tech_cpl_warnings:
-                            tech_cpl_warnings.append(mskeys[-2])
+                        if mskeys[-2] not in cpl_warn:
+                            cpl_warn.append(mskeys[-2])
                             verboseprint(
                                 "WARNING: ECM '" + self.name +
                                 "' missing valid baseline "
                                 "cost/performance/lifetime data " +
                                 "for technology '" + str(mskeys[-2]) +
                                 "'; removing technology from analysis")
-                        missing_base_cpl += 1
                         continue
 
                 # Convert user-defined measure cost units to align with
@@ -1715,6 +1731,9 @@ class Measure(object):
                                 raise ValueError
                             choice_params = base_cpl["consumer choice"][
                                 "competed market share"]["parameters"]
+                            # Add to count of primary microsegment key chains
+                            # with valid consumer choice data
+                            valid_keys_consume += 1
                         # Update invalid consumer choice parameters
                         except:
                             # Record missing consumer data for primary
@@ -1722,15 +1741,14 @@ class Measure(object):
                             # has not already been warned about missing data
                             # for the given technology, print warning message
                             if mskeys[0] == "primary":
-                                if mskeys[4] not in euse_consume_warnings:
-                                    euse_consume_warnings.append(mskeys[4])
+                                if mskeys[4] not in consume_warn:
+                                    consume_warn.append(mskeys[4])
                                     verboseprint(
                                         "WARNING: ECM '" + self.name +
                                         "' missing valid consumer choice "
                                         "data for end use '" + str(mskeys[4]) +
                                         "'; using default choice data for " +
                                         "heating end use")
-                                missing_base_consumer += 1
                             choice_params = {
                                 "b1": {key: -0.003 for
                                        key in self.handyvars.aeo_years},
@@ -1775,20 +1793,22 @@ class Measure(object):
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][mskeys[4]]}
+                            # Add to count of primary microsegment key chains
+                            # with valid consumer choice data
+                            valid_keys_consume += 1
                         except:
                             # Record missing consumer data for primary
                             # technologies; if in verbose mode and the user
                             # has not already been warned about missing data
                             # for the given technology, print warning message
-                            if mskeys[4] not in euse_consume_warnings:
-                                euse_consume_warnings.append(mskeys[4])
+                            if mskeys[4] not in consume_warn:
+                                consume_warn.append(mskeys[4])
                                 verboseprint(
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid consumer choice data " +
                                     "for end use '" + str(mskeys[4]) +
                                     "'; using default choice data for " +
                                     "heating end use")
-                            missing_base_consumer += 1
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
                                                  "distributions"]["heating"]}
@@ -2102,14 +2122,10 @@ class Measure(object):
                             "master_mseg"], add_dict)
 
         # Further normalize a measure's lifetime and stock information (where
-        # the latter is based on square footage) to the number of valid
-        # microsegments that contribute to the measure's overall master
-        # microsegment. Before proceeeding with this calculation, ensure the
-        # number of valid contributing microsegments is non-zero, and that the
-        # measure has not been flagged for removal from the analysis due to
-        # insufficient sub-market scaling source information (key_chain_ct =
-        # 999 in this case)
-        if key_chain_ct != 0 and key_chain_ct != 999:
+        # the latter is based on square footage) to the number of microsegments
+        # that contribute to the measure's overall master microsegment and
+        # have valid stock/energy and cost/performance/lifetime data
+        if valid_keys_cpl != 0:
 
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Calculate overall average baseline and measure lifetimes
@@ -2122,12 +2138,13 @@ class Measure(object):
                         "master_mseg"]["lifetime"]["baseline"][yr] / \
                         self.markets[adopt_scheme][
                         "master_mseg"]["stock"]["total"]["all"][yr]
-                # Divide summed measure lifetimes by total number of valid
-                # contributing microsegment key chains
+                # Divide summed measure lifetimes by total number of
+                # contributing microsegment key chains with valid
+                # cost/performance/lifetime data
                 self.markets[adopt_scheme][
                     "master_mseg"]["lifetime"]["measure"] = \
                     self.markets[adopt_scheme]["master_mseg"][
-                    "lifetime"]["measure"] / key_chain_ct
+                    "lifetime"]["measure"] / valid_keys_cpl
 
                 # In microsegments where square footage must be used as stock,
                 # the square footages cannot be summed to calculate the master
@@ -2153,7 +2170,7 @@ class Measure(object):
                         structure_types = 1
                     # Create a factor for reduction of msegs with ft^2 floor
                     # area stock
-                    reduce_num = key_chain_ct / (
+                    reduce_num = valid_keys_cpl / (
                         len(ms_lists[0]) * len(ms_lists[1]) * structure_types)
                     # Adjust master microsegment by above factor
                     self.markets[adopt_scheme]["master_mseg"] = \
@@ -2180,9 +2197,10 @@ class Measure(object):
                     self.markets[adopt_scheme]["mseg_out_break"],
                     self.markets[adopt_scheme]["master_mseg"][
                         'energy']['total']['baseline'])
-        # Generate an error message when no valid contributing microsegments
+        # Generate an error message when no contributing microsegments
+        # with a full set of stock/energy and cost/performance/lifetime data
         # have been found for the measure's master microsegment
-        elif key_chain_ct == 0:
+        else:
             raise KeyError(
                 "No data retrieved for applicable baseline market "
                 "definition of ECM '" + self.name + "'")
@@ -2204,21 +2222,23 @@ class Measure(object):
         else:
             # Summarize percentage of baseline cost, performance, and lifetime
             # data that were missing (if any)
-            if missing_base_cpl == 0:
+            if valid_keys_cpl == valid_keys_stk_energy:
                 bcpl_msg = ""
             else:
                 bcpl_msg = "\n" + " - " + str(
-                    round((missing_base_cpl / key_chain_ct) * 100)) + \
+                    round((1 - (valid_keys_cpl / valid_keys_stk_energy)) *
+                          100)) + \
                     " % of baseline technologies were missing valid" + \
                     " baseline cost, performance, or lifetime data and" + \
                     " removed from analysis"
             # Summarize percentage of baseline consumer choice data that
             # were missing (if any)
-            if missing_base_consumer == 0:
+            if valid_keys_consume == valid_keys_stk_energy:
                 bcc_msg = ""
             else:
                 bcc_msg = "\n" + " - " + str(
-                    round((missing_base_consumer / key_chain_ct) * 100)) + \
+                    round((1 - (valid_keys_consume / valid_keys_stk_energy)) *
+                          100)) + \
                     " % of remaining baseline technologies were missing" + \
                     " valid consumer choice data"
             cc_msg = ""
@@ -2493,10 +2513,19 @@ class Measure(object):
                         " " + cost_meas_units_fin
                 # Add building type information to base message in cases where
                 # cost conversion depends on building type (e.g., for envelope
-                # components)
-                if cost_meas_noyr in self.handyvars.cconv_bybldg_units or \
-                        isinstance(self.installed_cost, dict):
+                # components) or technology type (e.g., for residential
+                # controls ECMs)
+                if (bldg_sect != "residential" or cost_meas_noyr not in
+                    self.handyvars.cconv_bytech_units_res) and \
+                    (cost_meas_noyr in self.handyvars.cconv_bybldg_units or
+                     isinstance(self.installed_cost, dict)):
                     user_message += " for '" + mskeys[2] + "'"
+                elif (cost_meas_noyr in
+                      self.handyvars.cconv_bytech_units_res and
+                        bldg_sect == "residential"):
+                    user_message += " for '" + mskeys[2] + \
+                        "' and technology '" + str(mskeys[-2]) + "'"
+
                 # Print user message
                 print(user_message)
         # Case where cost conversion has not succeeded
@@ -4534,7 +4563,7 @@ class MeasurePackage(Measure):
         for (k, i), (k2, i2) in zip(
                 sorted(pkg_brk.items()), sorted(meas_brk.items())):
             if isinstance(i2, dict) and (
-                    list(i2.keys()) != self.handyvars.aeo_years):
+                    sorted(list(i2.keys())) != self.handyvars.aeo_years):
                 self.merge_out_break(i, i2, meas_brk_unnorm)
             else:
                 if k == k2 and (isinstance(i, dict) == isinstance(i2, dict)):
