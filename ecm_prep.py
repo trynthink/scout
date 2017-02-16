@@ -2800,13 +2800,6 @@ class Measure(object):
                             (1 / life_meas)
                     else:
                         captured_eff_replace_frac = 0
-
-                # For now, set efficient replacement fraction to zero. This
-                # reflects a simplifying assumption that once each efficient
-                # technology captures a piece of its baseline market, that
-                # market segment remains with the efficient technology across
-                # the remainder of the time horizon
-                captured_eff_replace_frac = 0
             else:
                 captured_eff_replace_frac, captured_base_replace_frac = \
                     (0 for n in range(2))
