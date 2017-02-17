@@ -211,22 +211,23 @@ for (a in 1:length(adopt_scenarios)){
   # Loop through all plotting variables
   for (v in 1:length(var_names_uncompete)){
 
+    # Finalize column names for the annual total energy, carbon, or cost results that are written
+    # to the XLSX file
+    xlsx_names_years = matrix(NA, length(years))
+    for (yn in (1:length(xlsx_names_years))){
+    	# Append variable units to each year name
+    	xlsx_names_years[yn] = paste(years[yn], " (", var_units[v], ")", sep="")
+    }
+    
+    # Define all column names for XLSX file
+	col_names_xlsx<- c('ECM Name', 'Results Scenario', 'Climate Zones', 'Building Classes', 'End Uses',
+					   xlsx_names_finmets, xlsx_names_years)
+
     # Initialize data frame to write to Excel worksheet (note: number of rows equals to
     # number of ECMs * number of results scenarios (baseline/efficient + competed/uncompeted) plus
     # two additional rows to accommodate baseline/efficient competed results summed across all ECMs)
     xlsx_data<-data.frame(matrix(ncol = length(col_names_xlsx),
                                 nrow = (length(meas_names)*4 + 2)))
-    # Define column names for the annual total energy, carbon, or cost results that are written
-    # to the XLSX file
-    xlsx_names_years = matrix(NA, length(years))
-    for (yn in (1:length(year_names))){
-    	# Append variable units to each year name
-    	xlsx_names_years[yn] = paste(years[yn], " (", var_units[v], ")", sep="")
-    }
-    # Set column names for XLSX file
-	col_names_xlsx<- c(
-		'ECM Name', 'Results Scenario', 'Climate Zones', 'Building Classes', 'End Uses',
-		xlsx_names_finmets, xlsx_names_years)
     # Set column names for the worksheet
     colnames(xlsx_data) = col_names_xlsx
 
