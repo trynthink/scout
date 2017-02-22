@@ -335,12 +335,22 @@ Similarly, an ECM that applies to any climate zone can use "all" as the value fo
 These shorthand terms, when they encompass only a subset of the valid entries for a given field (e.g., "all commercial," which does not include any residential building types), can also be mixed in a list with other valid entries for that field. ::
 
    {...
-    "bldg_type": ["all residential", "small office", "mercantile/service"],
+    "bldg_type": ["all residential", "small office", "lodging"],
     ...}
 
 The :ref:`ECM definition reference <ecm-applicable-baseline-market>` specifies whether these shorthand terms are available for each of the applicable baseline market fields and what shorthand strings are valid for each field.
 
-If these shorthand terms are used to specify the applicable baseline market fields, they can also be used for a :ref:`detailed input specification <ecm-features-detailed-input>` for energy efficiency, installed cost, or lifetime. For example, if an ECM applies to "all residential," "small office," and "lodging" building types, the installed cost could be specified separately for each of these building types. ::
+If these shorthand terms are used to specify the applicable baseline market fields, the energy efficiency, installed cost, and lifetime may be specified with a single value. For example, if an ECM applies to "all residential," "small office," and "lodging" building types, they could all share the same installed cost. ::
+
+   {...
+    "bldg_type": ["all residential", "small office", "lodging"],
+    ...
+    "installed cost": 5825,
+    ...}
+
+.. _shorthand-detailed-input-specification:
+
+Alternately, a :ref:`detailed input specification <ecm-features-detailed-input>` for energy efficiency, installed cost, or lifetime can be used. Using the same building types example, if a detailed input specification is used for the installed cost, a cost value must be given for *all* of the specified building types. ::
 
    {...
     "installed_cost": {
@@ -349,11 +359,9 @@ If these shorthand terms are used to specify the applicable baseline market fiel
       "lodging": 6015},
     ...}
 
-Separate installed costs can also be specified for each of the residential building types, even if they are indicated as a group using the "all residential" shorthand for the building type field. ::
+Again using the same example, separate installed costs can also be specified for each of the residential building types, even if they are indicated as a group in the building type field using the "all residential" shorthand. ::
 
    {...
-    "bldg_type": ["all residential", "small office", "lodging"],
-    ...
     "installed_cost": {
       "single family home": 5775,
       "multi family home": 5693,
@@ -401,6 +409,9 @@ A detailed input specification for any of the fields should consist of a dict wi
       "AIA_CZ4": 1.4,
       "AIA_CZ5": 1.28},
     ...}
+
+.. note::
+   If a detailed input specification is used, all of the applicable baseline market keys *must* be given and have a corresponding value. For example, an ECM that applies to three building types and has a detailed input specification for installed cost must have a cost value for all three building types. (Exceptions may apply if the partial shortcuts "all residential" and "all commercial" are used -- see the :ref:`baseline market shorthand values <shorthand-detailed-input-specification>` documentation.)
 
 ECMs that describe technologies that perform functions across multiple end uses will necessarily require an energy efficiency definition that is specified by fuel type. Air-source heat pumps, which provide both heating and cooling, are an example of such a technology. ::
 
