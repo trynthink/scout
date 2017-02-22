@@ -503,7 +503,7 @@ class Engine(object):
                         energy_anpv_com[yr], carb_anpv_com[yr], \
                         irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
                         cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = (
-                            numpy.zeros(len(scostmeas_delt_tmp)) for
+                            numpy.repeat(None, len(scostmeas_delt_tmp)) for
                             v in range(14))
 
                     # Run measure energy/carbon/cost savings and lifetime

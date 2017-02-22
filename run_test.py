@@ -210,8 +210,8 @@ class CommonMethods(object):
             # (for input uncertainty test cases)
             elif isinstance(i, numpy.ndarray):
                 self.assertTrue(type(i) == type(i2))
-                numpy.testing.assert_array_almost_equal(
-                    i, i2, decimal=2)
+                for x in range(0, len(i)):
+                    self.assertAlmostEqual(i[x], i2[x], places=2)
 
             # At the terminal/leaf node, formatted as a point value
             else:
@@ -861,8 +861,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 0.4018692)])
                     },
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)
                     }},
                 "energy cost": {
                     "residential": {
@@ -880,8 +880,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.260023)])
                     },
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)
                     }},
                 "carbon cost": {
                     "residential": {
@@ -899,12 +899,12 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 3.164032)])
                     },
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)
                     }}},
                 "irr (w/ energy costs)": {
                     "2009": numpy.array([3.65, 3.74, 3.96, 3.18, 2.89]),
-                    "2010": numpy.array([2.42, 2.58, 2.24, 2.30, 2.15])},
+                    "2010": numpy.array([2.43, 2.58, 2.24, 2.30, 2.15])},
                 "irr (w/ energy and carbon costs)": {
                     "2009": numpy.array([4.71, 4.88, 5.31, 2.91, 5.39]),
                     "2010": numpy.array([4.60, 4.90, 4.26, 4.37, 4.09])},
@@ -981,8 +981,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 0.9818692),
                             numpy.pmt(0.07, 2, 0.8518692)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
 
                 "energy cost": {
                     "residential": {
@@ -999,8 +999,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 2, 2.712027)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
                 "carbon cost": {
                     "residential": {
                         "2009": numpy.array([
@@ -1016,8 +1016,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 2, 2.712027)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([3.37, 6.88, 4.34, 4.22, 3.08]),
                  "2010": numpy.array([5.35, 7.58, 3.93, 6.61, 4.92])},
@@ -1025,7 +1025,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": numpy.array([4.44, 8.82, 5.65, 5.50, 4.08]),
                  "2010": numpy.array([8.45, 11.80, 6.33, 10.34, 7.80])},
             "payback (w/ energy costs)":
-                {"2009": numpy.array([0.26, 0.14, 0.21, 0.21, 0.28]),
+                {"2009": numpy.array([0.255, 0.135, 0.205, 0.21, 0.275]),
                  "2010": numpy.array([0.17, 0.12, 0.22, 0.14, 0.18])},
             "payback (w/ energy and carbon costs)":
                 {"2009": numpy.array([0.20, 0.11, 0.16, 0.17, 0.22]),
@@ -1093,8 +1093,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 0.4018692),
                             numpy.pmt(0.07, 5, 4.080817)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
                 "energy cost": {
                     "residential": {
                         "2009": numpy.array([
@@ -1110,8 +1110,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 5, 6.150296)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
                 "carbon cost": {
                     "residential": {
                         "2009": numpy.array([
@@ -1127,8 +1127,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 5, 6.150296)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([1.00, 1.00, 3.45, 3.45, 4.00]),
                  "2010": numpy.array([0.50, 0.50, 2.44, 2.44, 2.99])},
@@ -1208,8 +1208,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 0.9818692),
                             numpy.pmt(0.07, 5, 4.530817)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
                 "energy cost": {
                     "residential": {
                         "2009": numpy.array([
@@ -1225,8 +1225,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 5, 6.150296)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}},
                 "carbon cost": {
                     "residential": {
                         "2009": numpy.array([
@@ -1242,8 +1242,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             numpy.pmt(0.07, 2, 2.712027),
                             numpy.pmt(0.07, 5, 6.150296)])},
                     "commercial": {
-                        "2009": numpy.repeat(numpy.nan, 5),
-                        "2010": numpy.repeat(numpy.nan, 5)}}},
+                        "2009": numpy.repeat(None, 5),
+                        "2010": numpy.repeat(None, 5)}}},
             "irr (w/ energy costs)":
                 {"2009": numpy.array([0.96, 2.70, 4.34, 4.22, 3.63]),
                  "2010": numpy.array([1.94, 3.05, 3.93, 6.61, 5.45])},
@@ -1251,7 +1251,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": numpy.array([1.94, 4.56, 5.65, 5.50, 4.54]),
                  "2010": numpy.array([4.88, 7.11, 6.33, 10.34, 8.18])},
             "payback (w/ energy costs)":
-                {"2009": numpy.array([0.51, 0.27, 0.21, 0.21, 0.28]),
+                {"2009": numpy.array([0.51, 0.27, 0.205, 0.21, 0.275]),
                  "2010": numpy.array([0.34, 0.25, 0.22, 0.14, 0.18])},
             "payback (w/ energy and carbon costs)":
                 {"2009": numpy.array([0.34, 0.18, 0.16, 0.17, 0.22]),

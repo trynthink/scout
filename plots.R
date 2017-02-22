@@ -719,7 +719,8 @@ for (a in 1:length(adopt_scenarios)){
       axis(side=4, at=ylims, labels = NA)
       
       # Add ECM end use labels
-      text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50", pos=4)
+      text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
+           pos=4, cex=0.93)
     }
   
     # Add results across all ECMs to Excel worksheet data frame
@@ -807,6 +808,8 @@ for (a in 1:length(adopt_scenarios)){
       # Initialize vector for storing ranks of annual savings for each category
       # for the given filter variable
       total_ranks = matrix(0, length(results_agg[f, 2][[1]]))
+      # Initialize matrix for determining min./max. y values in plot
+      min_max_ann = matrix(0, length(results_agg[f, 2][[1]]), 2)
       
       # Loop through all categories under the filter variable and add aggregate savings
       # under that category to the total aggregate savings for the given filter variable  
@@ -815,6 +818,9 @@ for (a in 1:length(adopt_scenarios)){
         total_ann = total_ann + results_agg[f, 2][[1]][[cat]]*unit_translate
 		# Add maximum value of annual savings for category, for ranking purposes
         total_ranks[cat] = max(results_agg[f, 2][[1]][[cat]]*unit_translate)
+        # Record min./max. y values for category
+        min_max_ann[cat, 1:2] = c(min(results_agg[f, 2][[1]][[cat]]*unit_translate), 
+        					          max(results_agg[f, 2][[1]][[cat]]*unit_translate))
       }
       
       # Use the total annual savings data to develop total cumulative savings
@@ -842,13 +848,12 @@ for (a in 1:length(adopt_scenarios)){
       # Develop y limits for total cumulative savings
       min_val_cum = min(total_cum)
       max_val_cum = max(total_cum)
-      ylim_cum = round(pretty(c(min_val_cum, max_val_cum)))
+      ylim_cum = round(pretty(c(min_val_cum, max_val_cum)), 2)
       
       # Develop y limits for total annual savings
-      min_val_ann = min(total_ann)
-      max_val_ann = max(total_ann)
-      ylim_ann = round(pretty(c(min_val_ann, max_val_ann)))
-      
+      min_val_ann = min(c(min_max_ann[,1], min(total_ann)))
+      max_val_ann = max(c(min_max_ann[,2], max(total_ann)))
+      ylim_ann = round(pretty(c(min_val_ann, max_val_ann)), 2)       
       # Initialize plot region for total cumulative savings
       plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
            ylim = c(min(ylim_cum), max(ylim_cum)),
@@ -1023,7 +1028,7 @@ for (a in 1:length(adopt_scenarios)){
 			# Add label with total cost effective savings
 			label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)), var_units[v], sep=" ")
       shadowtext(0-max(xlim)/50, max(ylim_fm), label_text, cex=0.7, bg="gray98", col="black", pos=4, offset=0, r=0.2)
-      mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.25, cex=0.9)
+      mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.75, cex=0.9)
       if (is.finite(max(label_vals_y))){
       	# Add number ranking labels to top 5 ECM points
       	text(label_vals_x, label_vals_y,
