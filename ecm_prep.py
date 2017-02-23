@@ -73,6 +73,7 @@ class UsefulVars(object):
             on measure inputs.
         aeo_years (list): Modeling time horizon.
         demand_tech (list): All demand-side heating/cooling technologies.
+        zero_cost_tech (list): All baseline technologies with cost of zero.
         inverted_relperf_list (list) = Performance units that require
             an inverted relative performance calculation (e.g., an air change
             rate where lower numbers indicate higher performance).
@@ -133,8 +134,9 @@ class UsefulVars(object):
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
             'windows solar', 'ventilation', 'other heat gain', 'wall']
-        self.inverted_relperf_list = [
-            "ACH50", "CFM/ft^2 floor", "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
+        self.zero_cost_tech = ['infiltration']
+        self.inverted_relperf_list = ["ACH50", "CFM/ft^2 @ 0.3 in. w.c.",
+                                      "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
         self.valid_submkt_urls = [
             '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov',
             '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
@@ -1484,33 +1486,32 @@ class Measure(object):
                     if life_meas < 1:
                         life_meas = 1
 
-                # Set baseline technology cost, cost units, performance,
-                # performance units, and lifetime, if data are available
-                # on these parameters; if data are not available, use
-                # measure cost, performance, and lifetime.
-                try:
-                    # Check for cases where baseline data are available but
-                    # set to either zero or "NA" values. In such cases,
-                    # set baseline cost, performance, and lifetime to
-                    # measure cost, performance, and lifetime
-                    if any([x[1] in [0, "NA"] or y[1] in [0, "NA"] or
-                            z[1] in [0, "NA"] for x, y, z in zip(
-                        base_cpl["installed cost"]["typical"].items(),
-                        base_cpl["performance"]["typical"].items(),
-                            base_cpl["lifetime"]["average"].items())]):
-                        raise ValueError
+                # For primary microsegments, set baseline technology cost,
+                # cost units, performance, performance units, and lifetime, if
+                # data are available on these parameters; if data are not
+                # available, remove microsegment from further analysis
+                if mskeys[0] == "primary":
+                    try:
+                        # Check for cases where baseline data are available but
+                        # set to zero or "NA" values (excepting cases where
+                        # baseline cost is expected to be zero). In such cases,
+                        # set baseline cost, performance, and lifetime to
+                        # measure cost, performance, and lifetime
+                        if any([(x[1] in [0, "NA"] and mskeys[-2] not in
+                                 self.handyvars.zero_cost_tech) or
+                                y[1] in [0, "NA"] or
+                                z[1] in [0, "NA"] for x, y, z in zip(
+                            base_cpl["installed cost"]["typical"].items(),
+                            base_cpl["performance"]["typical"].items(),
+                                base_cpl["lifetime"]["average"].items())]):
+                            raise ValueError
 
-                    # Set baseline performance and performance units
-                    perf_base, perf_base_units = [
-                        base_cpl["performance"]["typical"],
-                        base_cpl["performance"]["units"]]
-                    # Set baseline cost and lifetime; note that these
-                    # parameters are set to zero for secondary microsegments,
-                    # which contribute only to performance calculations
-                    if mskeys[0] == "secondary":
-                        cost_base, life_base = (dict.fromkeys(
-                            self.handyvars.aeo_years, 0) for n in range(2))
-                    else:
+                        # Set baseline performance and performance units
+                        perf_base, perf_base_units = [
+                            base_cpl["performance"]["typical"],
+                            base_cpl["performance"]["units"]]
+
+                        # Set baseline cost and lifetime
                         cost_base, life_base = [
                             base_cpl["installed cost"]["typical"],
                             base_cpl["lifetime"]["average"]]
@@ -1527,16 +1528,14 @@ class Measure(object):
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
 
-                    # Set baseline cost units
-                    cost_base_units = \
-                        base_cpl["installed cost"]["units"]
-                except:
-                    # Record missing baseline data for primary technologies;
-                    # if in verbose mode and the user has not already been
-                    # warned about missing data for the given technology,
-                    # print warning message; exclude the technology from
-                    # further analysis
-                    if mskeys[0] == "primary":
+                        # Set baseline cost units
+                        cost_base_units = \
+                            base_cpl["installed cost"]["units"]
+                    except:
+                        # Record missing baseline data; if in verbose mode and
+                        # the user has not already been warned about missing
+                        # data for the given technology, print warning; exclude
+                        # technologies without data from further analysis
                         if mskeys[-2] not in cpl_warn:
                             cpl_warn.append(mskeys[-2])
                             verboseprint(

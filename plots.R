@@ -322,7 +322,7 @@ for (a in 1:length(adopt_scenarios)){
       
       # If there are more than three end use names, set a single end use name of 'Multiple' such that
       # the end use name label will fit easily within each plot region
-      if (str_count(end_uses, ",") > 2){
+      if (str_count(end_uses, ",") > 1){
         end_uses = "Multiple"
       }
 
@@ -851,8 +851,12 @@ for (a in 1:length(adopt_scenarios)){
       ylim_cum = round(pretty(c(min_val_cum, max_val_cum)), 2)
       
       # Develop y limits for total annual savings
-      min_val_ann = min(c(min_max_ann[,1], min(total_ann)))
       max_val_ann = max(c(min_max_ann[,2], max(total_ann)))
+      min_val_ann = min(c(min_max_ann[,1], min(total_ann)))
+      # Force very small negative min. y value to zero
+      if ((abs(min_val_ann)/max_val_ann) < 0.01){
+      	min_val_ann = 0
+      }
       ylim_ann = round(pretty(c(min_val_ann, max_val_ann)), 2)       
       # Initialize plot region for total cumulative savings
       plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
@@ -913,8 +917,6 @@ for (a in 1:length(adopt_scenarios)){
     par(mfrow=c(2,2))
     # Reconfigure space around each side of the plot for best fit
     par(mar=c(5.1,5.1,3.1,2.1))
-    # Set x limits for the plot
-    xlim = pretty(c(min(unlist(results_finmets[,5])), max(unlist(results_finmets[,5]))))
 
     # Loop through each financial metric and add cost effectiveness plot for financial
     # metric to open PDF device
@@ -926,13 +928,16 @@ for (a in 1:length(adopt_scenarios)){
     	
     	# First, find the ECMs that meet the cost effectiveness threshold (note: for 
     	# IRR 'cost effective' is above the threshold, for all other metrics
-    	# 'cost effective' is below the threshold)
+    	# 'cost effective' is below the threshold); restrict only to ECMs with
+    	# a cost effectiveness result inside the -1000 < y < 1000 range
     	if (fmp==1){
     		restrict = which(
-    			(unlist(results_finmets[, fmp]) >= plot_ablines_finmets[fmp]) &
-    			(unlist(results_finmets[, fmp]) < 999))
-    	} else{
-    		restrict = which(unlist(results_finmets[, fmp]) <= plot_ablines_finmets[fmp])
+    		(results_finmets[, fmp] >= plot_ablines_finmets[fmp]) &
+    		(results_finmets[, fmp] > -1000 & results_finmets[, fmp] < 1000))
+    	}else{
+    		restrict = which(
+    		(results_finmets[, fmp] <= plot_ablines_finmets[fmp]) &
+    		(results_finmets[, fmp] > -1000 & results_finmets[, fmp] < 1000))
      	}
 		# Set vector of cost effective savings results
       	results_restrict<-unlist(results_finmets[, 5])[restrict]
@@ -960,7 +965,6 @@ for (a in 1:length(adopt_scenarios)){
     	label_vals_x = unlist(results_finmets[, 5])[final_index][1:ecm_length]
     	# Set y axis financial metrics values for top 5 ECMs
     	label_vals_y = unlist(results_finmets[, fmp])[final_index][1:ecm_length]
-    	    	
     	
     	# Set y limits for the plot
     	# Ensure that all of the top 5 ECMs' y values are accomodated by the default
@@ -976,67 +980,104 @@ for (a in 1:length(adopt_scenarios)){
     	} 
     	# Make pretty labels for y axis range
     	ylim_fm = pretty(plot_lims_finmets[[fmp]])
-    	
+	
     	# Ensure that results to be plotted are all within the final y axis range, and that no
     	# NA values are included in the results
     	results_finmets_filtr = results_finmets[(
     		results_finmets[, fmp]<=max(ylim_fm) & results_finmets[, fmp]>= min(ylim_fm) &
     		is.finite(unlist(results_finmets[, fmp]))), ]
     	
-   		# Initialize plot region for ECM cost effectiveness 
-    	plot(1, typ='n',
-             xlim = c(0, max(xlim)), ylim = c(min(ylim_fm), max(ylim_fm)),
-             xlab=NA, ylab=NA,
-             main = plot_title_labels_finmets[fmp],
-           	 xaxt="n", yaxt="n")
-    	# Determine the plot region boundaries
-    	plot_extremes <- par("usr")
-    	# Add a polygon (going all the way to the boundaries) to
-    	# distinguish the 'cost effective' region on each plot; again,
-    	# IRR 'cost effectiveness' is above the threshold value, while
-    	# 'cost effectiveness' under all other metrics is under the threshold value
-    	if (fmp==1){
-    		polygon(
-    			c(rep(min(plot_extremes[1:2]), 2),
-    			  rep(max(plot_extremes[1:2]), 2)),
-    			c(plot_ablines_finmets[fmp],
-    			  rep(max(plot_extremes[3:4]), 2),
-    			  plot_ablines_finmets[fmp]),
-    			col="gray95", border=FALSE)
-    	}else{
-    		polygon(
-    			c(rep(min(plot_extremes[1:2]), 2),
-    			  rep(max(plot_extremes[1:2]),2)),
-    			c(min(plot_extremes[3:4]),
-    			  rep(plot_ablines_finmets[fmp], 2),
-    			  min(plot_extremes[3:4])),
-    			col="gray95", border=FALSE)	
-    	}
-    	# Add a line to distinguish the cost effectiveness threshold
-    	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
-     	# Add individual ECM points to the cost effectiveness plot
-     	points(results_finmets_filtr[,5], results_finmets_filtr[, fmp],
-           	 col=unlist(results_finmets_filtr[,6]),
-           	 pch=unlist(results_finmets_filtr[,7]),
-           	 bg=unlist(results_finmets_filtr[,8]), lwd=1,
-           	 cex = 1.2)
-      # Add x axis tick marks and axis labels
-      axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
-      mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
-      # Add y axis tick marks and axis labels
-      axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
-			# Add label with total cost effective savings
-			label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)), var_units[v], sep=" ")
-      shadowtext(0-max(xlim)/50, max(ylim_fm), label_text, cex=0.7, bg="gray98", col="black", pos=4, offset=0, r=0.2)
-      mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.75, cex=0.9)
-      if (is.finite(max(label_vals_y))){
-      	# Add number ranking labels to top 5 ECM points
-      	text(label_vals_x, label_vals_y,
-           	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
-      	# Add a legend with top 5 ECM names
-      	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
-             	   legend = meas_names_lgnd, cex=0.7)
-      }
+   		if (length(results_finmets_filtr) > 0){
+	   		# Retrieve the data needed to set x and y limits for the plot and plot individual
+	   		# ECM points, handling cases with one ECM or multiple ECMs 
+	    	if (length(dim(results_finmets_filtr))>0){
+	    		# Set x limits for the plot
+	    		xlim = pretty(c(0, max(unlist(results_finmets_filtr[,5]))))
+	    		# Retrieve x and y coordinates from matrix
+	    		results_x <- results_finmets_filtr[, 5]
+	    		results_y <- results_finmets_filtr[, fmp]
+	    		# Retrieve point formatting parameters from matrix
+	    		results_col<- unlist(results_finmets_filtr[, 6])
+	    		results_pch<- unlist(results_finmets_filtr[, 7])
+	    		results_bg<- unlist(results_finmets_filtr[, 8])
+	    		# Check for cases where points overlap with the top 5 ECM names listed in upper right
+	    		overlap_chk <- results_finmets_filtr[
+	    			(results_finmets_filtr[, fmp]>0.67*max(ylim_fm) &
+	    			 results_finmets_filtr[, 5]>0.5*max(xlim)), ]
+	    	}else{
+	    		# Set x limits for the plot
+	    		xlim = pretty(c(0, max(unlist(results_finmets_filtr[5]))))
+	    		# Retrieve x and y coordinates from vector
+	    		results_x <- results_finmets_filtr[5]
+	    		results_y <- results_finmets_filtr[fmp]
+	    		# Retrieve point formatting parameters from vector
+	    		results_col<- unlist(results_finmets_filtr[6])
+	    		results_pch<- unlist(results_finmets_filtr[7])
+	    		results_bg<- unlist(results_finmets_filtr[8])
+	    		# Check for cases where points overlap with the top 5 ECM names listed in upper right
+	    		overlap_chk <- results_finmets_filtr[
+	    			(results_finmets_filtr[fmp]>0.67*max(ylim_fm) &
+	    			 results_finmets_filtr[5]>0.5*max(xlim))]
+	    	}
+	    	
+	    	# If there are overlaps between any points and the top 5 ECM names in the upper right
+	    	# of the plot, extend the y axis upper limit to mitigate the overlaps
+	    	if (length(overlap_chk)>0){
+	    		ylim_fm = pretty(c(min(ylim_fm), max(ylim_fm) + 0.33*max(ylim_fm)))
+	    	}
+	
+	   		# Initialize plot region for ECM cost effectiveness 
+	    	plot(1, typ='n', xlim = c(min(xlim), max(xlim)),
+	    	     ylim = c(min(ylim_fm), max(ylim_fm)), xlab=NA, ylab=NA,
+	    	     main = plot_title_labels_finmets[fmp], xaxt="n", yaxt="n")
+	    	# Determine the plot region boundaries
+	    	plot_extremes <- par("usr")
+	    	# Add a polygon (going all the way to the boundaries) to
+	    	# distinguish the 'cost effective' region on each plot; again,
+	    	# IRR 'cost effectiveness' is above the threshold value, while
+	    	# 'cost effectiveness' under all other metrics is under the threshold value
+	    	if (fmp==1){
+	    		polygon(
+	    			c(rep(min(plot_extremes[1:2]), 2),
+	    			  rep(max(plot_extremes[1:2]), 2)),
+	    			c(plot_ablines_finmets[fmp],
+	    			  rep(max(plot_extremes[3:4]), 2),
+	    			  plot_ablines_finmets[fmp]),
+	    			col="gray95", border=FALSE)
+	    	}else{
+	    		polygon(
+	    			c(rep(min(plot_extremes[1:2]), 2),
+	    			  rep(max(plot_extremes[1:2]),2)),
+	    			c(min(plot_extremes[3:4]),
+	    			  rep(plot_ablines_finmets[fmp], 2),
+	    			  min(plot_extremes[3:4])),
+	    			col="gray95", border=FALSE)	
+	    	}
+	    	# Add a line to distinguish the cost effectiveness threshold
+	    	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
+	     	# Add individual ECM points to the cost effectiveness plot
+	     	points(results_x, results_y, col=results_col, pch=results_pch,
+	     	       bg=results_bg, lwd=1, cex = 1.2)
+	      	# Add x axis tick marks and axis labels
+	      	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
+	      	mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
+	      	# Add y axis tick marks and axis labels
+	      	axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
+		  	# Add label with total cost effective savings
+		  	label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)),
+		  	                   var_units[v], sep=" ")
+	      	shadowtext(0-max(xlim)/50, max(ylim_fm), label_text, cex=0.7,
+	      	           bg="gray98", col="black", pos=4, offset=0, r=0.2)
+	     	mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.75, cex=0.9)
+	     	if (is.finite(max(label_vals_y))){
+	      		# Add number ranking labels to top 5 ECM points
+	     	 	text(label_vals_x, label_vals_y,
+	     	      	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
+	     	 	# Add a legend with top 5 ECM names
+	     	 	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
+	             	   legend = meas_names_lgnd, cex=0.7)
+	      	}
+	    }
     }
     
     # Add a series of legends to the second page of the PDF device that distinguish
