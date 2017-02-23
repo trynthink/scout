@@ -1,0 +1,78 @@
+{
+  "name": "Prospective Commercial SSL-Cool White",
+  "climate_zone": "all",
+  "bldg_type": [
+    "assembly", "education", "small office", "large office", "lodging"],
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": "LED Edison",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "",
+    "source_data": {
+       "title": "Building Technologies Office Multi-Year Program Plan",
+        "author": null,
+        "organization": "Department of Energy",
+        "year": 2016,
+        "pages": null,
+        "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 226,
+  "energy_efficiency_units": "lm/W",
+  "energy_efficiency_source": {
+    "notes": "",
+    "source_data": {
+       "title": "Building Technologies Office Multi-Year Program Plan",
+        "author": null,
+        "organization": "Department of Energy",
+        "year": 2016,
+        "pages": null,
+        "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+  }},
+  "installed_cost": 0.35,
+  "cost_units": "2020$/1000 lm",
+  "installed_cost_source": {
+    "notes": "",
+    "source_data": {
+       "title": "Building Technologies Office Multi-Year Program Plan",
+        "author": null,
+        "organization": "Department of Energy",
+        "year": 2016,
+        "pages": null,
+        "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+  }},
+  "product_lifetime": 7.99,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assume EPA Energy Star SSL rating of 35,000 hours for commercial grade luminaires and usage of 12 hours/day (EIA assumption)",
+    "source_data": {
+      "title": "Energy Star Program Requirements for Luminaires",
+      "author": null,
+      "organization": "U.S. EPA",
+      "year": 2012,
+      "pages": 15,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/Final_Luminaires_V1_2_1.pdf"
+  }},
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "2.1.C",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "DOE",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-15"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

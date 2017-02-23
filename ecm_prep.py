@@ -1054,8 +1054,11 @@ class Measure(object):
         valid_keys_stk_energy, valid_keys_cpl, valid_keys_consume, \
             cost_converts = (0 for n in range(4))
         # Initialize lists of technology names that have yielded warnings
-        # for invalid cost/performance/lifetime data and consumer data
-        cpl_warn, consume_warn = ([] for n in range(2))
+        # for invalid cost/performance/lifetime data and consumer data,
+        # and a list of the climate zones, building types, and structure types
+        # of removed primary microsegments (used to remove associated
+        # secondary microsegments)
+        cpl_warn, consume_warn, removed_primary = ([] for n in range(3))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -1489,7 +1492,8 @@ class Measure(object):
                 # For primary microsegments, set baseline technology cost,
                 # cost units, performance, performance units, and lifetime, if
                 # data are available on these parameters; if data are not
-                # available, remove microsegment from further analysis
+                # available, remove primary microsegment from further analysis,
+                # and later remove any associated secondary microsegments
                 if mskeys[0] == "primary":
                     try:
                         # Check for cases where baseline data are available but
@@ -1544,7 +1548,16 @@ class Measure(object):
                                 "cost/performance/lifetime data " +
                                 "for technology '" + str(mskeys[-2]) +
                                 "'; removing technology from analysis")
+                        # Record climate zone, building type, and structure
+                        # type of removed primary microsegment (used to
+                        # remove associated secondary microsegments)
+                        removed_primary.append((
+                            mskeys[1], mskeys[2], mskeys[-1]))
                         continue
+                elif (mskeys[1], mskeys[2], mskeys[-1]) in removed_primary:
+                    # Remove any secondary microsegments associated with
+                    # previously removed primary microsegments
+                    continue
 
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
