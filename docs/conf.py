@@ -367,6 +367,14 @@ rst_prolog = """
 .. |baseline-market| replace::
    :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-structure_type`, :ref:`json-fuel_type`, :ref:`json-end_use`, and :ref:`json-technology`
 
+.. |html-filepath| raw:: html
+
+   <span class="filepath">
+
+.. |html-fp-end| raw:: html
+
+   </span>
+
 .. _uniform: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.uniform.html#numpy.random.uniform
 .. _normal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.normal.html#numpy.random.normal
 .. _lognormal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.lognormal.html#numpy.random.lognormal

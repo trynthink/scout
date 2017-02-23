@@ -1,7 +1,7 @@
 .. _analysis-approach:
 
-Scout Analysis Approach
-=======================
+Analysis Approach
+=================
 
 A full analysis in Scout has three primary steps, shown with some additional detail in :numref:`scout-overview`.
 
@@ -19,7 +19,7 @@ A full analysis in Scout has three primary steps, shown with some additional det
 Step 1: Develop initial ECM definition(s)
 -----------------------------------------
 
-Users may define entirely new ECMs or modify existing ECM definitions located in the "ecm_definitions" directory. Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes -- energy efficiency, installed cost, and lifetime -- may be assigned a probability distribution [#]_ instead of a point value; these attributes also require source information from the user. 
+Users may define entirely new ECMs or modify existing ECM definitions located in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Each Scout ECM definition centers around seven user-specified attributes. Three of these seven attributes -- energy efficiency, installed cost, and lifetime -- may be assigned a probability distribution [#]_ instead of a point value; these attributes also require source information from the user. 
 
 .. _ecm-sources:
 
@@ -93,9 +93,9 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 Step 2: Finalize ECM definition
 -------------------------------
 
-ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized using the "ecm_prep.py" script. The total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, not accounting for ECM competition.
+ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized using the |html-filepath| ecm_prep.py |html-fp-end| module. The total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, not accounting for ECM competition.
 
-.. ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways using the "ecm_prep.py" script: 1) ECM energy efficiency is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of energy efficiency data in :ref:`step 1 <analysis-step-1>`.
+.. ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized in two ways using the |html-filepath| ecm_prep.py |html-fp-end| script: 1) ECM energy efficiency is updated with results from EnergyPlus/OpenStudio simulations, and 2) the total (stock-wide) energy use, |CO2| emissions, and operating costs of the ECM are calculated for baseline and efficient cases, without accounting for ECM competition. Note that the former is only required when a user has flagged EnergyPlus/OpenStudio as the source of energy efficiency data in :ref:`step 1 <analysis-step-1>`.
 
 .. _OpenStudio Measures: http://nrel.github.io/OpenStudio-user-documentation/getting_started/about_measures/
 .. _EnergyPlus whole building energy simulation engine: https://energyplus.net/
@@ -117,7 +117,7 @@ ECM definitions from :ref:`step 1 <analysis-step-1>` are finalized using the "ec
 Calculating total baseline energy, |CO2|, and cost (uncompeted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a _`2010-2040 projection` of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case` simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE.
+   * Total uncompeted energy use, |CO2| emissions, and operating cost baselines are calculated for each ECM from a _`2010-2040 projection` of U.S. building stock, energy use, and unit characteristics. These baseline data are mostly drawn from the inputs and outputs of the EIA `Annual Energy Outlook (AEO) reference case`_ simulations. [#]_ Where AEO data are not available, such as for building envelope component and electronics technologies, BTO develops original datasets using multiple sources external to DOE.
 
       * Baseline stock data represent the total number of units of a certain incumbent or "business-as-usual" technology associated with a given baseline market and year in the projection period. An example is the number of air-source heat pump units in all existing single family homes in mixed dry climates in the year 2020. When a number of units value is not available or not applicable for a baseline market, such as for building envelope component technologies, total building floor area square footage associated with that baseline market and year is used to quantify the baseline stock.
       * Baseline energy use data represent the total energy use attributed to a certain baseline market and year in the projection period. For example, the energy used to provide heating in all existing single family homes in mixed dry climates in the year 2031.
@@ -132,12 +132,11 @@ Calculating total baseline energy, |CO2|, and cost (uncompeted)
 .. _stocks-and-flows: https://en.wikipedia.org/wiki/Stock_and_flow
 
 .. ADD LINK TO FIRST BULLET IN THIS SECTION WITH FURTHER DETAILS REGARDING THE DEVELOPMENT OF ORIGINAL DATASETS TO AUGMENT THE AEO DATA
-.. ADD LINK TO THE JSON FILE ONCE IT IS ADDED TO THE REPO
 
 Calculating total efficient energy, |CO2|, and cost (uncompeted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * Total uncompeted energy use, |CO2|  emissions, and operating cost baselines calculated for an ECM from the input data are used to generate the total uncompeted energy use, |CO2| emissions, and operating costs with the ECM implemented - hereby referred to as the "efficient" case - as follows:
+   * Total uncompeted energy use, |CO2|  emissions, and operating cost baselines calculated for an ECM from the input data are used to generate the total uncompeted energy use, |CO2| emissions, and operating costs with the ECM implemented - herein referred to as the "efficient" case - as follows:
 
       * calculate an efficient energy fraction for the ECM; this is the fraction of per unit energy use under a full ECM implementation compared to the per unit energy use of a baseline case with no ECM implementation,
       * multiply the efficient energy fraction by the ECM's total baseline energy use to yield an efficient energy use total, and
@@ -176,14 +175,14 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 
    * While the total baseline and efficient ECM energy, |CO2|, and operating costs calculated in this step account for stocks-and-flows, they do not account for competition across multiple ECMs for the same baseline market. ECM competition is handled in :ref:`step 3 <analysis-step-3>`.
 
-Once user ECM definitions have been finalized in this step, the names of the ECMs are added to "run_setup.json," which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by moving the names of ECMs that are not of interest in their analysis from the "active" to "inactive" lists in the "run_setup.json" file. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets. Users may also run the "run_setup.py" module, which can automatically move ECMs based on keyword searches of ECM names, as well as select ECMs based on the user's desired climate zone(s), building type(s), and structure type(s).
+Once user ECM definitions have been finalized in this step, the names of the ECMs are added to |html-filepath| run_setup.json\ |html-fp-end|, which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by moving the names of ECMs that are not of interest in their analysis from the "active" to "inactive" lists in the |html-filepath| run_setup.json |html-fp-end| file. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets. Users may also run the |html-filepath| run_setup.py |html-fp-end| module, which can automatically move ECMs based on keyword searches of ECM names, as well as select ECMs based on the user's desired climate zone(s), building type(s), and structure type(s).
 
 .. _analysis-step-3:
 
 Step 3: Simulate ECM impact
 ---------------------------
 
-The final step, contained in the "run.py" module, calculates each ECM's total energy savings, avoided |CO2| emissions, and operating cost savings impacts based on the total uncompeted energy use, |CO2| emissions, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Cost savings impacts are used to calculate per-unit financial metrics for the ECMs. Here, both competed and uncompeted ECM impacts and financial metrics are calculated. 
+The final step, contained in the |html-filepath| run.py |html-fp-end| module, calculates each ECM's total energy savings, avoided |CO2| emissions, and operating cost savings impacts based on the total uncompeted energy use, |CO2| emissions, and operating costs calculated in :ref:`step 2 <analysis-step-2>`. Cost savings impacts are used to calculate per-unit financial metrics for the ECMs. Here, both competed and uncompeted ECM impacts and financial metrics are calculated. 
 
 Calculating uncompeted ECM energy savings and financial metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

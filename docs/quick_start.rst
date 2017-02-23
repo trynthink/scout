@@ -144,14 +144,14 @@ Open the Command Palette and select "Package Control: Install Package" again to 
 6. Configure Python syntax-specific preferences
 ***********************************************
 
-Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." ("asdf.py" will be deleted later.) Open the Python syntax-specific settings (Sublime Text > Preferences > Settings – Syntax Specific) and between the braces, paste::
+Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name |html-filepath| asdf.py\ |html-fp-end|. (|html-filepath|\ asdf.py |html-fp-end| will be deleted later.) Open the Python syntax-specific settings (Sublime Text > Preferences > Settings – Syntax Specific) and between the braces, paste::
 
    "spell_check": true,
    "tab_size": 4,
    "translate_tabs_to_spaces": true,
    "rulers": [80]
 
-Save the modified file and close the window. Once complete, delete "asdf.py."
+Save the modified file and close the window. Once complete, delete |html-filepath| asdf.py\ |html-fp-end|.
 
 Quit and reopen Sublime Text to apply all of the settings changes and new packages that have been installed.
 
@@ -269,14 +269,14 @@ Open the Command Palette and select "Package Control: Install Package" again to 
 6. Configure Python syntax-specific preferences
 ***********************************************
 
-Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name "asdf.py." ("asdf.py" will be deleted later.) Open the Python syntax-specific settings (Preferences > Settings – Syntax Specific) and between the braces, paste::
+Finally, the Python-specific settings for Sublime Text need to be updated. Open a new file in Sublime Text and save it with the file name |html-filepath| asdf.py\ |html-fp-end|. (|html-filepath|\ asdf.py |html-fp-end| will be deleted later.) Open the Python syntax-specific settings (Preferences > Settings – Syntax Specific) and between the braces, paste::
 
    "spell_check": true,
    "tab_size": 4,
    "translate_tabs_to_spaces": true,
    "rulers": [80]
 
-Save the modified file and close the window, then delete "asdf.py."
+Save the modified file and close the window, then delete |html-filepath| asdf.py\ |html-fp-end|.
 
 Quit and reopen Sublime Text to apply all of the settings changes and new packages that have been installed.
 

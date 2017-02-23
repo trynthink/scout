@@ -17,7 +17,7 @@ The example in this tutorial will demonstrate how to write new ECMs so that they
 
 As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
-Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the "ecm_definitions" directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
+Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
 
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
@@ -61,13 +61,17 @@ Your first ECM definition
 
 The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section. For all of the fields in the ECM definition, details regarding acceptable values, structure, and formatting are provided in the :ref:`ECM JSON schema <json-schema>`.
 
+If after completing this tutorial you feel that you would benefit from looking at additional ECM definitions, you can browse the :repo_file:`ECM definition JSON files <ecm_definitions>` available on GitHub.
+
 For this example, we will be creating an ECM for LED troffers for commercial buildings. Troffers are square or rectangular light fixtures designed to be used in a modular dropped ceiling grid commonly seen in offices and other commercial spaces.
 
 The finished ECM specification is available to :download:`download </examples/led_troffers.json>` for reference.
 
-To begin, the ECM should be given a short, but descriptive name. Details regarding the characteristics of the technology that will be included elsewhere in the ECM definition, such as the cost, efficiency, or lifetime, need not be included in the title. The key for the name is simply ``name``. ::
+To begin, the ECM should be given a descriptive name less than 40 characters long (including spaces). Details regarding the characteristics of the technology that will be included elsewhere in the ECM definition, such as the cost, efficiency, or lifetime, need not be included in the name. The key for the name is simply ``name``. ::
 
    {"name": "LED Troffers"}
+
+If the ECM describes a technology currently under development, the name should contain the word "Prospective" in parentheses. If the ECM describes or is derived from a published standard or specification, its version number or year should be included in the name.
 
 .. note::
    In this tutorial, JSON entries will be shown with leading and trailing ellipses to indicate that there is additional data in the ECM definition that appears before and/or after the text of interest. ::
@@ -310,8 +314,6 @@ Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the beginning of each section.
-
-.. PHRASING
 
 .. _ecm-features-shorthand:
 
@@ -577,7 +579,7 @@ An occupant-centered controls ECM available for download, like all controls ECMs
 
 .. For commercial building types, energy efficiency values can be specified using data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM. EnergyPlus simulation data cannot be combined with :ref:`probability distributions <ecm-features-distributions>` on energy efficiency.
 
-.. Results from EnergyPlus that can be used for energy efficiency inputs in ECMs are stored in CSV files. Each EnergyPlus CSV file is specific to a single building type and can include energy efficiency data for many simulated ECMs. These files should be placed in the directory "energyplus_data" (inside the "ecm_definitions" folder). To import energy efficiency data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict in a specific form: ``"energy_efficiency": {"EnergyPlus file": "ECM_name"}``. Here, "ECM_name" will determine which rows will be read in the EnergyPlus files. The "ECM_name" string should match exactly with the text in the "measure" column in the EnergyPlus CSV files corresponding to the relevant data. Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM energy efficiency units should always be "relative savings (constant)." 
+.. Results from EnergyPlus that can be used for energy efficiency inputs in ECMs are stored in CSV files. Each EnergyPlus CSV file is specific to a single building type and can include energy efficiency data for many simulated ECMs. These files should be placed in the \html-filepath| ./ecm_definitions/energyplus_data |html-fp-end| directory. To import energy efficiency data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict in a specific form: ``"energy_efficiency": {"EnergyPlus file": "ECM_name"}``. Here, "ECM_name" will determine which rows will be read in the EnergyPlus files. The "ECM_name" string should match exactly with the text in the "measure" column in the EnergyPlus CSV files corresponding to the relevant data. Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM energy efficiency units should always be "relative savings (constant)." 
 
 .. The source(s) for the energy efficiency data that were used as inputs to the EnergyPlus simulations should be indicated in the :ref:`json-energy_efficiency_source` field. The data should be drawn from credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. Information about the source(s) should be included in the ECM definition in the same format as when EnergyPlus data are not used.
 
@@ -736,7 +738,7 @@ An ENERGY STAR LED bulbs ECM is available for download to illustrate the use of 
 Editing existing ECMs
 ~~~~~~~~~~~~~~~~~~~~~
 
-All of the ECM definitions are stored in the "ecm_definitions" folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
+All of the ECM definitions are stored in the |html-filepath| ./ecm_definitions |html-fp-end| folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
 
 Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well. 
 
@@ -755,7 +757,7 @@ A package ECM might make sense, for example, in a case where a particular groupi
 
 .. _tenant fit-out: https://www.designingbuildings.co.uk/wiki/Fit_out_of_buildings
 
-Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. A version of the "package_ecms.json" file with a single blank ECM package definition is available for :download:`download <examples/blank_package_ecms.json>`. 
+Package ECMs are specified in the |html-filepath| package_ecms.json |html-fp-end| file, located in the |html-filepath| ./ecm_definitions |html-fp-end| folder. A version of the |html-filepath| package_ecms.json |html-fp-end| file with a single blank ECM package definition is available for :download:`download <examples/blank_package_ecms.json>`. 
 
 In the package ECMs JSON definition file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the efficiency or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
 
@@ -771,7 +773,7 @@ In the package ECMs JSON definition file, each ECM package is specified in a sep
          "pages": "15-17"}]
     }}}
 
-All of the intended packages should be specified in the "package_ecms.json" file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
+All of the intended packages should be specified in the |html-filepath| package_ecms.json |html-fp-end| file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
 
    [{"name": "First package name", 
      "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
@@ -815,11 +817,11 @@ Tutorial 2: Preparing ECMs for analysis
 
 .. ADD LINKS TO INDICATED JSON INPUT FILES
 
-The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the supporting_data/stock_energy_tech_data directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
+The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the |html-filepath| ./supporting_data/stock_energy_tech_data |html-fp-end| directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
 
-Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with an informative file name and placed in the "ecm_definitions" directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
+Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with a brief but descriptive file name and placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
 
-To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``), and run the script.
+To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|), and run the script.
 
 **Windows** ::
 
@@ -831,9 +833,9 @@ To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) o
    cd Documents/projects/scout-run_scheme
    python3 ecm_prep.py
 
-As each ECM is processed by "ecm_prep.py", the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
+As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
-If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
+If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./supporting_data/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./supporting_data |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
 
 If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy efficiency that do not match the baseline cost and efficiency data in the ECM.
 
@@ -845,12 +847,12 @@ Tutorial 3: Modifying the active ECMs list
 
 Prior to running an analysis, the list of ECMs that will be included in that analysis can be revised to suit your interests. For example, if your primary interest is in ECMs that are applicable to commercial buildings, you could choose to include only those ECMs in your analysis. 
 
-The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded from the analysis) ECMs are specified in the "run_setup.json" file. There are two ways to modify the lists of ECMs: by :ref:`manually editing them <ecm-list-setup-manual>` or :ref:`using the automatic configuration module <ecm-list-setup-automatic>`.
+The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded from the analysis) ECMs are specified in the |html-filepath| run_setup.json |html-fp-end| file. There are two ways to modify the lists of ECMs: by :ref:`manually editing them <ecm-list-setup-manual>` or :ref:`using the automatic configuration module <ecm-list-setup-automatic>`.
 
 If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 4 <tuts-analysis>`, as all ECMs are included by default.
 
 .. tip::
-   As new ECMs are added and pre-processed (by running ecm_prep.py), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by ecm_prep.py. 
+   As new ECMs are added and pre-processed (by running |html-filepath| ecm_prep.py\ |html-fp-end|), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by |html-filepath| ecm_prep.py\ |html-fp-end|. 
 
 
 .. _ecm-list-setup-automatic:
@@ -858,7 +860,7 @@ If you would like to run your analysis with all of the ECMs and have not previou
 Automatic configuration
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The automatic configuration module "run_setup.py" can perform a limited set of adjustments to the active and inactive ECM lists in "run_setup.json."
+The automatic configuration module |html-filepath| run_setup.py |html-fp-end| can perform a limited set of adjustments to the active and inactive ECM lists in |html-filepath| run_setup.json\ |html-fp-end|.
 
 1. Move ECMs from the active to the inactive list, and vice versa, based on searching the ECM names for matches with user-provided keywords
 2. Move ECMs from the active to the inactive list if they do not apply to the climate zone(s), building type, and/or structure type of interest
@@ -884,9 +886,9 @@ If the user is only interested in residential buildings, they would input ::
 
    1
 
-Before running the ECM active and inactive configuration module, it might be helpful to open "run_setup.json" and review the existing list of active and inactive ECMs. 
+Before running the ECM active and inactive configuration module, it might be helpful to open |html-filepath| run_setup.json |html-fp-end| and review the existing list of active and inactive ECMs. 
 
-To run the module, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Run the module by starting Python with the module file name "run_setup.py."
+To run the module, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Run the module by starting Python with the module file name |html-filepath| run_setup.py\ |html-fp-end|.
 
 **Windows** ::
 
@@ -906,7 +908,7 @@ If desired, the :ref:`manual editing <ecm-list-setup-manual>` instructions can b
 Manual configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-The "run_setup.json" file specifies whether each ECM will be included in or excluded from an analysis. Like the ECM definition JSON files, this file can be opened in your text editor of choice and modified to change which ECMs are active and inactive.
+The |html-filepath| run_setup.json |html-fp-end| file specifies whether each ECM will be included in or excluded from an analysis. Like the ECM definition JSON files, this file can be opened in your text editor of choice and modified to change which ECMs are active and inactive.
 
 All of the ECM names should appear in this file under *exactly* one of two keys, "active" or "inactive." Each of these keys should be followed by a list (enclosed by square brackets) with the desired ECM names. If all ECMs are in the active list, the "inactive" value should be an empty list. 
 
@@ -914,7 +916,7 @@ To exclude one or more ECMs from the analysis, copy and paste their names from t
 
 .. tip::
 
-   When manually editing the "run_setup.json" file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
+   When manually editing the |html-filepath| run_setup.json |html-fp-end| file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
 
 
 .. _tuts-analysis:
@@ -922,9 +924,9 @@ To exclude one or more ECMs from the analysis, copy and paste their names from t
 Tutorial 4: Running an analysis
 -------------------------------
 
-Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by ``run.py`` following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
 
-To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run "run.py" as a Python script.
+To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run |html-filepath| run.py |html-fp-end| as a Python script.
 
 **Windows** ::
 
@@ -936,9 +938,9 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    cd Documents/projects/scout-run_scheme
    python3 run.py
 
-While executing, "run.py" will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
+While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
 
-Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 5 <tuts-results>` explains how the data can be converted into plots.
+Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 5 <tuts-results>` explains how the data can be converted into plots.
 
 
 .. _tuts-results:
@@ -956,12 +958,12 @@ The uncompeted and competed ECM results can be converted into graphical form usi
 
 Additional packages are required to run the plot generation R script. Running the script should install the packages automatically, though you may be prompted to choose a server from which to download the packages. If the packages do not install automatically, additional troubleshooting may be required. [#]_
 
-The plot image files can be found in the "plots" folder inside the "results" folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
+The plot image files can be found in sub-folders within the |html-filepath| ./results/plots |html-fp-end| folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
 
 Interpreting results figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The results figures from the plot generation script "plots.R" are generated for both :ref:`adoption scenarios <ECM diffusion>`, and for one of three "metrics of interest": primary energy use, |CO2| emissions, and energy operating cost. Within the plots folder ("results/plots"), the folder hierarchy reflects these six cases (two adoption scenarios and three metrics of interest). For each case, the results are presented in three different sets of figures.
+The results figures from the plot generation script |html-filepath| plots.R |html-fp-end| are generated for both :ref:`adoption scenarios <ECM diffusion>`, and for one of three "metrics of interest": primary energy use, |CO2| emissions, and energy operating cost. Within the |html-filepath| ./results/plots |html-fp-end| folder, the folder hierarchy reflects these six cases (two adoption scenarios and three metrics of interest). For each case, the results are presented in three different sets of figures.
 
 .. Note that the extremely inelegant link substitution here is to get around the problem that reStructuredText does not support nested inline markup, thus preventing the use of the |CO2| substitution within a standard :ref:`text <pointer>` internal hyperlink; see the emphasized hyperlink example here: http://docutils.sourceforge.net/FAQ.html#is-nested-inline-markup-possible; see also http://stackoverflow.com/questions/4743845/format-text-in-a-link-in-restructuredtext
 
@@ -971,7 +973,7 @@ The results figures from the plot generation script "plots.R" are generated for 
 
 .. |Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO2 plotted against a metric of interest.| replace:: Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO\ :sub:`2` plotted against a metric of interest.
 
-Within each of the plots sub-folders (i.e., "results/plots/(adoption scenario)/(metric of interest)"), each of these sets of figures is contained within a single PDF file.
+Within each of the plots sub-folders (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|), each of these sets of plots is contained within a single PDF file.
 
 .. _Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO2 plotted against a metric of interest.:
 .. _results-cost-effectiveness:
@@ -979,7 +981,7 @@ Within each of the plots sub-folders (i.e., "results/plots/(adoption scenario)/(
 Cost-effectiveness figures
 **************************
 
-The cost-effectiveness figures have file names that begin with "Cost Effective," followed by the metric of interest and then the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), for example, "Cost Effective Energy Savings-MAP.pdf."
+The cost-effectiveness figures have file names that begin with "Cost Effective," followed by the metric of interest and then the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), for example, |html-filepath| Cost Effective Energy Savings-MAP.pdf\ |html-fp-end|.
 
 Each PDF file contains four plots corresponding to the four financial metrics used to assess ECM cost-effectiveness: internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved |CO2| (CCC). For each plot, the applicable financial metric is on the y-axis, and the *reductions* in the metric of interest -- energy *savings*, *avoided* |CO2| emissions, or energy cost *savings* -- are plotted on the x-axis. All of the data shown include ECM competition and are drawn from a single year, which is indicated in the x-axis label.
 
@@ -1000,7 +1002,7 @@ The shape, fill color, and outline color of each point indicate the applicable b
 Baseline market-aggregated figures
 **********************************
 
-The results figures with metrics of interest grouped by the baseline market parameters :ref:`climate zone <json-climate_zone>`, building class [#]_, and :ref:`end use <json-end_use>` have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-Aggregate," for example, "Total Energy Savings-MAP-Aggregate.pdf."
+The results figures with metrics of interest grouped by the baseline market parameters :ref:`climate zone <json-climate_zone>`, building class [#]_, and :ref:`end use <json-end_use>` have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-Aggregate," for example, |html-filepath| Total Energy Savings-MAP-Aggregate.pdf\ |html-fp-end|.
 
 Each PDF contains three plot areas, one for each of the three baseline market parameters. The x-axis corresponds to the modeling horizon (years 2009 through 2040), and the y-axis corresponds to the *reductions* in the metric of interest -- energy *savings*, *avoided* |CO2| emissions, or energy cost *savings* -- indicated in the file name. These plots summarize only the results that account for :ref:`ECM competition <ECM-competition>`. The dotted line on each plot corresponds to the right side y-axis and represents the cumulative results for all the ECMs in the analysis. The line is the same for all three plots within a single PDF. For these figures, while the data are shown as lines instead of points, the data exist as point values for each year in the modeling time horizon and line segments between each year are interpolated and do not represent actual model data.
 
@@ -1025,7 +1027,7 @@ In the version of the :numref:`aggregate-by-end-use-plot-example` that shows ene
 ECM-specific figures
 ********************
 
-The figures with results for the metric of interest for each ECM included in the analysis all have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-byECM," for example, "Total Cost-MAP-byECM.pdf."
+The figures with results for the metric of interest for each ECM included in the analysis all have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-byECM," for example, |html-filepath| Total Cost-MAP-byECM.pdf\ |html-fp-end|.
 
 The PDF file includes a single plot for each ECM, with the modeling horizon (years 2009 through 2040) on the x-axis and the parameter indicated in the PDF file name on the y-axis -- energy, cost, or |CO2| emissions. A legend is included at the end of the figure on the last page of each PDF. Immediately preceding the legend is a summary plot showing the combined effect of all of the ECMs included in the analysis. 
 
@@ -1048,7 +1050,7 @@ In addition to these comparisons, the uncertainty range (if applicable) around "
 
 When comparing the uncompeted or competed results in plots like those shown in :numref:`tech-potential-energy-plot-example` and :numref:`max-adopt-potential-energy-plot-example`, a difference between the baseline (dark) and efficient (light) cases indicates a potential reduction in the metric of interest plotted. In the absence of competition, the efficient case for both ECMs in :numref:`tech-potential-energy-plot-example` show the immediate realization of the entire savings potential, which is characteristic of the technical potential scenario. 
 
-While for many categories, the uncompeted baseline will decline into the future as technology improvements and new standards improve the efficiency of the building and equipment stock, there may be cases where the baseline increases over time. In general, this trend arises due to increases in the size of the stock, increases in home square footage (for residential ECMs), or increases in the capacity or size of the equipment (e.g., increases in the interior volume of refrigerators) that outpace improvements in the performance of the applicable equipment or building envelope component. This type of trend in the baseline appears in :numref:`tech-potential-energy-plot-example` for the ENERGY STAR Refrigerator ECM. Results for some ECMs show large variations in the baseline for years prior to the current year. These variations are an artifact of the configuration of the National Energy Modeling System (NEMS), which is used to generate the AEO__ projections.
+While for many categories, the uncompeted baseline will decline into the future as technology improvements and new standards improve the efficiency of the building and equipment stock, there may be cases where the baseline increases over time. In general, this trend arises due to increases in the size of the stock, increases in home square footage (for residential ECMs), or increases in the capacity or size of the equipment (e.g., increases in the interior volume of refrigerators) that outpace improvements in the performance of the applicable equipment or building envelope component. This type of trend in the baseline appears in :numref:`tech-potential-energy-plot-example` for the ENERGY STAR refrigerator ECM. Results for some ECMs show large variations in the baseline for years prior to the current year. These variations are an artifact of the configuration of the National Energy Modeling System (NEMS), which is used to generate the AEO__ projections.
 
 .. __: http://www.eia.gov/forecasts/aeo/
 
@@ -1065,17 +1067,17 @@ The effect of probability distributions are reflected in the results of the ECMs
 Viewing tabular outputs
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The plot generation script in R also produces Excel-formatted files containing summaries of the results. The summary results for each adoption scenario are stored in the corresponding scenario folder within the results/plots directory. The structure of the results in the files corresponding to each scenario is identical. Each file has three tabs, corresponding to energy use, |CO2| emissions, and energy cost results. These results correspond to the data that are shown in the ECM-specific plots, as in :numref:`tech-potential-energy-plot-example`, and the tabular results can be used to create custom visualizations different from those automatically generated with plots.R.
+The plot generation script in R also produces Excel-formatted files containing summaries of the results. The summary results for each adoption scenario are stored in the corresponding scenario folder within the |html-filepath| ./results/plots |html-fp-end| directory. The structure of the results in the files corresponding to each scenario is identical. Each file has three tabs, corresponding to energy use, |CO2| emissions, and energy cost results. These results correspond to the data that are shown in the ECM-specific plots, as in :numref:`tech-potential-energy-plot-example`, and the tabular results can be used to create custom visualizations different from those automatically generated with |html-filepath| plots.R\ |html-fp-end|.
 
 .. tip::
-   If you are experienced with R, you can also modify plots.R to tailor the figures to your preferences.
+   If you are experienced with R, you can also modify |html-filepath| plots.R |html-fp-end| to tailor the figures to your preferences.
 
 On each tab, the first six columns provide information about the ECM and the type of data reported in each row. The first column contains the name of the ECM for the data in each row and the fourth through sixth columns provide details regarding the climate zones, building classes, and end uses that apply to each ECM. The second column indicates the type of data in each row, and the third column provides the units of the values in the row. Each column beyond the sixth column corresponds to a year in the simulation, with the year for each column indicated in the header (i.e., first) row. 
 
 For a given set of results data on a single tab, each ECM in the simulation appears in four rows. These four rows correspond to the uncompeted and competed baseline results, as well as the ("efficient") results with the ECM applied, again with and without competition. For each ECM, these rows correspond to the four primary lines that appear in the ECM-specific results figures, as in :numref:`tech-potential-energy-plot-example`. There are also two rows that report the sum of all ECMs for both the competed baseline and efficient cases. These rows are distinguished by not having any detail information in the fourth through sixth columns.
 
 .. note::
-   For each ECM in the results, in addition to the *total* energy use, |CO2| emissions, and energy cost results contained in the Excel files, the ecm_results.json file includes those results broken out by each of the applicable baseline market parameters -- |baseline-market| -- that apply to each ECM. These results breakdowns are provided for both the baseline and efficient cases (without and with the ECM applied, respectively).
+   For each ECM in the results, in addition to the *total* energy use, |CO2| emissions, and energy cost results contained in the Excel files, the |html-filepath| ecm_results.json |html-fp-end| file includes those results broken out by each of the applicable baseline market parameters -- |baseline-market| -- that apply to each ECM. These results breakdowns are provided for both the baseline and efficient cases (without and with the ECM applied, respectively).
 
 .. _associative arrays: https://en.wikipedia.org/wiki/Associative_array
 .. _Python dictionaries: https://docs.python.org/3/tutorial/datastructures.html#dictionaries

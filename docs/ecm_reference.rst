@@ -884,7 +884,7 @@ fuel_switch_to
 * **Children:** none
 * **Type:** string, list
 
-If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this filed can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
+If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this field can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
 
    {...
     "fuel_switch_to": "natural gas",
