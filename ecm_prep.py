@@ -135,7 +135,7 @@ class UsefulVars(object):
             'equipment gain', 'floor', 'infiltration', 'people gain',
             'windows solar', 'ventilation', 'other heat gain', 'wall']
         self.zero_cost_tech = ['infiltration']
-        self.inverted_relperf_list = ["ACH50", "CFM/ft^2 @ 0.3 in. w.c.",
+        self.inverted_relperf_list = ["ACH", "CFM/ft^2 @ 0.3 in. w.c.",
                                       "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
         self.valid_submkt_urls = [
             '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov',
