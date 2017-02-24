@@ -988,22 +988,24 @@ class Engine(object):
                         "'[a-zA-Z0-9_() /&-]+',\s'(.*)\,.*demand.*",
                         msu).group(1)
 
+                # Initialize list to store matched key chains
+                supply_demand_overlp = []
                 # Loop through all measures to find key chain matches
                 for ind, m in enumerate(self.measures):
                     # Register a match between a supply-side heating/cooling
                     # microsegment and demand-side heating/cooling microsegment
                     if 'supply' in msu:
-                        supply_demand_overlp = [
+                        supply_demand_overlp.extend([
                             x for x in mkts_adj[ind][
                                 "contributing mseg keys and values"].keys() if
-                            msu_split in x and 'demand' in x]
+                            msu_split in x and 'demand' in x])
                     # Register a match between a demand-side heating/cooling
                     # microsegment and supply-side heating/cooling microsegment
                     else:
-                        supply_demand_overlp = [
+                        supply_demand_overlp.extend([
                             x for x in mkts_adj[ind][
                                 "contributing mseg keys and values"].keys() if
-                            msu_split in x and 'supply' in x]
+                            msu_split in x and 'supply' in x])
 
                 # If there are overlaps for the given contributing microsegment
                 # across the supply-side and demand-side of heating and

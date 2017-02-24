@@ -80,6 +80,8 @@ class UsefulVars(object):
         valid_submkt_urls (list) = Valid URLs for sub-market scaling fractions.
         consumer_price_ind (numpy.ndarray) = Historical Consumer Price Index.
         ss_conv (dict): Site-source conversion factors by fuel type.
+        fuel_switch_conv (dict): Performance unit conversions for expected
+            fuel switching cases.
         carb_int (dict): Carbon intensities by fuel type (MMTon/quad).
         ecosts (dict): Energy costs by building and fuel type ($/MMBtu).
         ccosts (dict): Carbon costs ($/MTon).
@@ -160,6 +162,17 @@ class UsefulVars(object):
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
             "other fuel": {yr: 1 for yr in self.aeo_years}}
+        # Set performance unit conversions that are needed to handle
+        # expected fuel switching cases in the residential sector. The
+        # conversion dict is keyed first by the fuel the ECM is switching to,
+        # then by the baseline performance units that must be converted, then
+        # by the ECM performance units that must be converted to, followed by
+        # the conversion value
+        self.fuel_switch_conv = {
+            "electricity": {"AFUE": {"COP": 1}},
+            "natural gas": {"COP": {"AFUE": 1}},
+            "distillate": {"COP": {"AFUE": 1}},
+            "other fuel": {"COP": {"AFUE": 1}}}
         # Set CO2 intensity by fuel type
         carb_int_init = {
             "residential": {
@@ -840,7 +853,9 @@ class Measure(object):
             b) 'mseg_adjust': all microsegments that contribute to each master
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
-               variables (e.g., climate zone, building type, end use, etc.)
+               variables (climate zone, building class, end use)
+        out_break_norm (dict): Total energy use data to use in normalizing
+            savings values summed by climate zone, building class, and end use.
     """
 
     def __init__(self, handyvars, **kwargs):
@@ -877,7 +892,7 @@ class Measure(object):
             self.market_exit_year = int(self.handyvars.aeo_years[-1]) + 1
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
-        self.markets = {}
+        self.markets, self.out_break_norm = ({} for n in range(2))
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = OrderedDict([(
                 "master_mseg", OrderedDict([(
@@ -938,6 +953,8 @@ class Measure(object):
                 (
                 "mseg_out_break", copy.deepcopy(
                     self.handyvars.out_break_in))])
+            self.out_break_norm[adopt_scheme] = {
+                yr: 0 for yr in self.handyvars.aeo_years}
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -1515,6 +1532,23 @@ class Measure(object):
                             base_cpl["performance"]["typical"],
                             base_cpl["performance"]["units"]]
 
+                        # Convert baseline performance units to ECM performance
+                        # units as needed in the case of fuel switching
+                        if self.fuel_switch_to is not None:
+                            # Set conversion dictionary
+                            conv_dict = self.handyvars.fuel_switch_conv[
+                                self.fuel_switch_to]
+                            # Provided baseline performance units are in
+                            # the conversion dict, find unit conversion factor
+                            if perf_base_units in conv_dict:
+                                conv_val = conv_dict[perf_base_units][
+                                    perf_units]
+                                # Convert baseline performance to ECM units
+                                perf_base = {yr: perf_base[yr] * conv_val for
+                                             yr in self.handyvars.aeo_years}
+                                # Set baseline performance units to ECM units
+                                perf_base_units = perf_units
+
                         # Set baseline cost and lifetime
                         cost_base, life_base = [
                             base_cpl["installed cost"]["typical"],
@@ -1667,7 +1701,18 @@ class Measure(object):
                             self.handyvars.inverted_relperf_list:
                         for yr in self.handyvars.aeo_years:
                             try:
-                                rel_perf[yr] = (perf_base[yr] / perf_meas)
+                                # In cases where an ECM enhances the
+                                # performance of a baseline technology,
+                                # add the ECM and baseline performance values
+                                # and compare to the baseline performance
+                                # value; otherwise, compare the ECM performance
+                                # value to the baseline performance value
+                                if self.measure_type == "add-on":
+                                    rel_perf[yr] = (
+                                        perf_base[yr] /
+                                        (perf_meas + perf_base[yr]))
+                                else:
+                                    rel_perf[yr] = (perf_base[yr] / perf_meas)
                             except ZeroDivisionError:
                                 verboseprint(
                                     "WARNING: Measure '" + self.name +
@@ -2074,7 +2119,13 @@ class Measure(object):
                             for yr in self.handyvars.aeo_years:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     out_cz][out_bldg][
-                                    out_eu][yr] += add_energy[yr]
+                                    out_eu][yr] += abs(add_energy[yr])
+                        # Add to the total energy value used to normalize
+                        # savings values summed by climate zone, building
+                        # type, and end use
+                        for yr in self.out_break_norm[adopt_scheme].keys():
+                            self.out_break_norm[
+                                adopt_scheme][yr] += abs(add_energy[yr])
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
                     except:
@@ -2207,8 +2258,7 @@ class Measure(object):
                 # markets/savings by climate zone, building type, and end use
                 self.div_keyvals(
                     self.markets[adopt_scheme]["mseg_out_break"],
-                    self.markets[adopt_scheme]["master_mseg"][
-                        'energy']['total']['baseline'])
+                    self.out_break_norm[adopt_scheme])
         # Generate an error message when no contributing microsegments
         # with a full set of stock/energy and cost/performance/lifetime data
         # have been found for the measure's master microsegment
@@ -4802,10 +4852,15 @@ def split_clean_data(meas_prepped_objs):
         # analysis engine)
         del m.handyvars
         # For measure packages, replace 'contributing_ECMs'
-        # objects list with a list of these measures' names
+        # objects list with a list of these measures' names; for
+        # individual measures, delete the total energy value used
+        # to normalize savings values summed by climate zone, building
+        # type, and end use
         if isinstance(m, MeasurePackage):
             m.contributing_ECMs = [
                 x.name for x in m.contributing_ECMs]
+        else:
+            del m.out_break_norm
         # Append updated measure __dict__ attribute to list of
         # summary data across all measures
         meas_prepped_summary.append(m.__dict__)
