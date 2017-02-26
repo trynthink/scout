@@ -1,0 +1,24 @@
+{
+  "active": [
+    "Commercial Fenestration, IECC c. 2015",
+    "Commercial Floors, IECC c. 2015",
+    "Commercial Gas Boiler, 90.1 c. 2013",
+    "Commercial Gas Furnace, 90.1 c. 2013",
+    "Commercial Lighting, IECC c. 2015",
+    "Commercial Roofs, IECC c. 2015",
+    "Commercial Walls, IECC c. 2015",
+    "ENERGY STAR Air Source HP v. 5.0",
+    "ENERGY STAR Central AC v 5.0",
+    "ENERGY STAR Fluorescent Bulbs v. 1.2",
+    "ENERGY STAR Gas Boiler v. 3.0",
+    "ENERGY STAR Gas Furnace v. 4.0",
+    "ENERGY STAR LED Bulbs v. 1.2 c. 2012",
+    "ENERGY STAR Rooftop HP v. 2.2",
+    "ENERGY STAR RTU v. 2.2",
+    "ENERGY STAR Windows v. 6.0",
+    "Incandescent Bulbs, Fed. Min. c. 2012",
+    "Residential Floors, IECC c. 2015",
+    "Residential Walls, IECC c. 2015"
+  ],
+  "inactive": []
+}

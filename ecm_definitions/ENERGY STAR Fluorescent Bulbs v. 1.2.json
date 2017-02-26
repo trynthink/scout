@@ -1,0 +1,88 @@
+{
+  "name": "ENERGY STAR Fluorescent Bulbs v. 1.2",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": [
+      "reflector (LED)",
+      "reflector (CFL)",
+      "reflector (incandescent)",
+      "reflector (halogen)",
+      "general service (CFL)",
+      "general service (incandescent)",
+      "general service (LED)"
+    ],
+  "market_entry_year": 2012,
+  "market_entry_year_source": {
+    "notes": "Year in which ENERGY STAR standard went into effect",
+    "source_data": {
+      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 1.2",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2012,
+      "pages": 2,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/Final_Luminaires_V1_2_1.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 65,
+  "energy_efficiency_units": "lm/W",
+  "energy_efficiency_source": {
+    "notes": "Applies to linear, compact, and circline luminaires",
+    "source_data": {
+      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 1.2",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2012,
+      "pages": 10,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/Final_Luminaires_V1_2_1.pdf"
+    }
+  },
+  "installed_cost": 1.94,
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "Average cost of 0.0023/lm for CFL at 65 lm/W for 13 W bulb",
+    "source_data": {
+      "title": "NREL National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2013,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "product_lifetime": 8.2,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime of 9000 hours, translated to years and assuming 3h/day use",
+    "source_data": {
+      "title": "NREL National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2013,
+      "pages": null,
+      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=5&ctId=30"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Typical wattage residential CFL bulbs that meet the ENERGY STAR performance standard in 2015",
+  "_notes": "Assumes standard bulb is for 60 W replacement, and between 10-15 W",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-10-31 15:57:34 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
