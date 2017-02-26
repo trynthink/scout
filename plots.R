@@ -123,8 +123,10 @@ var_names_compete_eff_h <- c(
 # Set high-level variables needed to generate aggregated savings plots
 # ============================================================================
 
-# Names for aggregated ECM savings plots
+# File names for aggregated ECM savings plots
 plot_names_agg <- c('Total Energy Savings', 'Total Avoided CO2', 'Total Cost Savings')
+# Titles for aggregated ECM savings plots
+plot_titles_agg <- c('Energy Savings', expression("Avoided"~ CO[2]), 'Cost Savings')
 # Axis labels for annual aggregate savings plots
 plot_axis_labels_agg_ann<-c('Annual Primary Energy Use Savings (Quads)',
 							expression("Annual Avoided"~ CO[2] ~" Emissions (Mt)"),
@@ -861,7 +863,7 @@ for (a in 1:length(adopt_scenarios)){
       # Initialize plot region for total cumulative savings
       plot(1, typ="n", xlim = c(min(xlim), max(xlim)),
            ylim = c(min(ylim_cum), max(ylim_cum)),
-           main = bquote(bold(.(plot_names_ecms[v][[1]])~ 'by'~ .(filter_var[f]))),
+           main = bquote(bold(.(plot_titles_agg[v][[1]])~ 'by'~ .(filter_var[f]))),
            axes=FALSE, xlab=NA, ylab=NA)
       # Add total cumulative savings line
       lines(years, total_cum, col="gray50", lwd=4, lty=3)
