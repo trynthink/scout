@@ -854,7 +854,7 @@ class Measure(object):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use)
-        out_break_norm (dict): Total energy use data to use in normalizing
+        out_break_norm (dict): Total absolute energy use data to normalize
             savings values summed by climate zone, building class, and end use.
     """
 
@@ -4202,6 +4202,8 @@ class MeasurePackage(Measure):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (e.g., climate zone, building type, end use, etc.)
+        out_break_norm (dict): Total absolute energy use data to normalize
+            savings values summed by climate zone, building class, and end use.
     """
 
     def __init__(self, measure_list_package, p, bens, handyvars):
@@ -4238,7 +4240,7 @@ class MeasurePackage(Measure):
                 [] for n in range(5))
         self.end_use, self.technology_type = (
                 {"primary": [], "secondary": None} for n in range(2))
-        self.markets = {}
+        self.markets, self.out_break_norm = ({} for n in range(2))
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
                 "master_mseg": {
@@ -4292,6 +4294,8 @@ class MeasurePackage(Measure):
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
+            self.out_break_norm[adopt_scheme] = {
+                    yr: 0 for yr in self.handyvars.aeo_years}
 
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
@@ -4338,9 +4342,8 @@ class MeasurePackage(Measure):
                 # Set contributing microsegment data for individual measure
                 msegs_meas = m.markets[adopt_scheme]["mseg_adjust"]
                 # Set total energy use for individual measure (used to
-                # break out results by climate, building class, and end use
-                mseg_out_break_adj = m.markets[adopt_scheme]["master_mseg"][
-                    "energy"]["total"]["baseline"]
+                # break out results by climate, building class, and end use)
+                mseg_out_break_adj = m.out_break_norm[adopt_scheme]
                 # Set contributing microsegment data to update for package
                 msegs_pkg = self.markets[adopt_scheme]["mseg_adjust"]
                 # Loop through all measures in package and add contributing
@@ -4374,6 +4377,12 @@ class MeasurePackage(Measure):
                 self.merge_out_break(self.markets[adopt_scheme][
                     "mseg_out_break"], m.markets[adopt_scheme][
                     "mseg_out_break"], mseg_out_break_adj)
+
+                # Add adjusted total energy use for the individual measure
+                # to the total energy use for the packaged measure
+                for yr in self.handyvars.aeo_years:
+                    self.out_break_norm[adopt_scheme][yr] += \
+                        mseg_out_break_adj[yr]
 
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
@@ -4411,10 +4420,9 @@ class MeasurePackage(Measure):
             # contributing measures; this yields partitioning fractions that
             # will eventually be used to breakout the packaged measure's
             # energy and carbon markets/savings by climate zone, building
-            # type, and end use
+            # class, and end use
             self.div_keyvals(self.markets[adopt_scheme]["mseg_out_break"],
-                             self.markets[adopt_scheme]["master_mseg"][
-                                'energy']['total']['baseline'])
+                             self.out_break_norm[adopt_scheme])
 
     def merge_contrib_msegs(
             self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme,
@@ -4464,9 +4472,9 @@ class MeasurePackage(Measure):
                     # number of overlapping measures
                     self.div_keyvals_float(
                         msegs_meas[k], len(overlap_meas))
-                    # Adjust the measure's total energy use to reflect the
-                    # scaled down contributing microsegment energy use
-                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - (
+                    # Adjust the measure's total absolute energy use to reflect
+                    # the scaled down contributing microsegment energy use
+                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - abs(
                         total_energy_orig[yr] - msegs_meas[k]["total"][
                             "baseline"][yr]) for yr in
                         self.handyvars.aeo_years}
@@ -4851,16 +4859,14 @@ def split_clean_data(meas_prepped_objs):
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
+        # Delete the total energy value used to normalize savings values summed
+        # by climate zone, building type, and end use
+        del m.out_break_norm
         # For measure packages, replace 'contributing_ECMs'
-        # objects list with a list of these measures' names; for
-        # individual measures, delete the total energy value used
-        # to normalize savings values summed by climate zone, building
-        # type, and end use
+        # objects list with a list of these measures' names
         if isinstance(m, MeasurePackage):
             m.contributing_ECMs = [
                 x.name for x in m.contributing_ECMs]
-        else:
-            del m.out_break_norm
         # Append updated measure __dict__ attribute to list of
         # summary data across all measures
         meas_prepped_summary.append(m.__dict__)

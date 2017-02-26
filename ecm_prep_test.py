@@ -10167,7 +10167,10 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating (Equip.)': {},
-                                'Envelope': {}}}}}}},
+                                'Envelope': {}}}}}},
+            "out_break_norm": {
+                "Technical potential": {"2009": 80, "2010": 80},
+                "Max adoption potential": {"2009": 80, "2010": 80}}},
             {
             "name": "sample measure pkg 2",
             "market_entry_year": None,
@@ -10961,7 +10964,10 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating (Equip.)': {},
-                                'Envelope': {}}}}}}},
+                                'Envelope': {}}}}}},
+            "out_break_norm": {
+                "Technical potential": {"2009": 400, "2010": 400},
+                "Max adoption potential": {"2009": 400, "2010": 400}}},
             {
             "name": "sample measure pkg 3",
             "market_entry_year": None,
@@ -10987,47 +10993,47 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                     "master_mseg": {
                         "stock": {
                             "total": {
-                                "all": {"2009": 1000, "2010": 1000},
-                                "measure": {"2009": 600, "2010": 600}},
+                                "all": {"2009": 1100, "2010": 1100},
+                                "measure": {"2009": 660, "2010": 660}},
                             "competed": {
-                                "all": {"2009": 500, "2010": 500},
-                                "measure": {"2009": 100, "2010": 100}}},
+                                "all": {"2009": 550, "2010": 550},
+                                "measure": {"2009": 110, "2010": 110}}},
                         "energy": {
                             "total": {
-                                "baseline": {"2009": 2000, "2010": 2000},
-                                "efficient": {"2009": 1200, "2010": 1200}},
+                                "baseline": {"2009": 2200, "2010": 2200},
+                                "efficient": {"2009": 1320, "2010": 1320}},
                             "competed": {
-                                "baseline": {"2009": 1000, "2010": 1000},
-                                "efficient": {"2009": 200, "2010": 200}}},
+                                "baseline": {"2009": 1100, "2010": 1100},
+                                "efficient": {"2009": 220, "2010": 220}}},
                         "carbon": {
                             "total": {
-                                "baseline": {"2009": 3000, "2010": 3000},
-                                "efficient": {"2009": 1800, "2010": 1800}},
+                                "baseline": {"2009": 3300, "2010": 3300},
+                                "efficient": {"2009": 1980, "2010": 1980}},
                             "competed": {
-                                "baseline": {"2009": 1500, "2010": 1500},
-                                "efficient": {"2009": 300, "2010": 300}}},
+                                "baseline": {"2009": 1650, "2010": 1650},
+                                "efficient": {"2009": 330, "2010": 330}}},
                         "cost": {
                             "stock": {
                                 "total": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 180, "2010": 180}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}},
                                 "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 180, "2010": 180}}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}}},
                             "energy": {
                                 "total": {
-                                    "baseline": {"2009": 200, "2010": 200},
-                                    "efficient": {"2009": 120, "2010": 120}},
+                                    "baseline": {"2009": 400, "2010": 400},
+                                    "efficient": {"2009": 240, "2010": 240}},
                                 "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 20, "2010": 20}}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 40, "2010": 40}}},
                             "carbon": {
                                 "total": {
-                                    "baseline": {"2009": 300, "2010": 300},
-                                    "efficient": {"2009": 180, "2010": 180}},
+                                    "baseline": {"2009": 600, "2010": 600},
+                                    "efficient": {"2009": 360, "2010": 360}},
                                 "competed": {
-                                    "baseline": {"2009": 150, "2010": 150},
-                                    "efficient": {"2009": 30, "2010": 30}}}},
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 60, "2010": 60}}}},
                         "lifetime": {
                             "baseline": {"2009": 18, "2010": 18},
                             "measure": 18}},
@@ -11213,7 +11219,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                    "2009": 0.5, "2010": 0.5},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11343,7 +11349,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                         'AIA CZ5': {
                             'Residential (New)': {
                                 'Cooling (Equip.)': {
-                                    "2009": 1, "2010": 1},
+                                    "2009": 0.5, "2010": 0.5},
                                 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11352,9 +11358,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {},
                                 'Envelope': {}},
                             'Residential (Existing)': {
-                                'Cooling (Equip.)': {
-                                    "2009": 0, "2010": 0
-                                },
+                                'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11382,47 +11386,47 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                     "master_mseg": {
                         "stock": {
                             "total": {
-                                "all": {"2009": 1000, "2010": 1000},
-                                "measure": {"2009": 600, "2010": 600}},
+                                "all": {"2009": 1100, "2010": 1100},
+                                "measure": {"2009": 660, "2010": 660}},
                             "competed": {
-                                "all": {"2009": 500, "2010": 500},
-                                "measure": {"2009": 100, "2010": 100}}},
+                                "all": {"2009": 550, "2010": 550},
+                                "measure": {"2009": 110, "2010": 110}}},
                         "energy": {
                             "total": {
-                                "baseline": {"2009": 2000, "2010": 2000},
-                                "efficient": {"2009": 1200, "2010": 1200}},
+                                "baseline": {"2009": 2200, "2010": 2200},
+                                "efficient": {"2009": 1320, "2010": 1320}},
                             "competed": {
-                                "baseline": {"2009": 1000, "2010": 1000},
-                                "efficient": {"2009": 200, "2010": 200}}},
+                                "baseline": {"2009": 1100, "2010": 1100},
+                                "efficient": {"2009": 220, "2010": 220}}},
                         "carbon": {
                             "total": {
-                                "baseline": {"2009": 3000, "2010": 3000},
-                                "efficient": {"2009": 1800, "2010": 1800}},
+                                "baseline": {"2009": 3300, "2010": 3300},
+                                "efficient": {"2009": 1980, "2010": 1980}},
                             "competed": {
-                                "baseline": {"2009": 1500, "2010": 1500},
-                                "efficient": {"2009": 300, "2010": 300}}},
+                                "baseline": {"2009": 1650, "2010": 1650},
+                                "efficient": {"2009": 330, "2010": 330}}},
                         "cost": {
                             "stock": {
                                 "total": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 180, "2010": 180}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}},
                                 "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 180, "2010": 180}}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 360, "2010": 360}}},
                             "energy": {
                                 "total": {
-                                    "baseline": {"2009": 200, "2010": 200},
-                                    "efficient": {"2009": 120, "2010": 120}},
+                                    "baseline": {"2009": 400, "2010": 400},
+                                    "efficient": {"2009": 240, "2010": 240}},
                                 "competed": {
-                                    "baseline": {"2009": 100, "2010": 100},
-                                    "efficient": {"2009": 20, "2010": 20}}},
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {"2009": 40, "2010": 40}}},
                             "carbon": {
                                 "total": {
-                                    "baseline": {"2009": 300, "2010": 300},
-                                    "efficient": {"2009": 180, "2010": 180}},
+                                    "baseline": {"2009": 600, "2010": 600},
+                                    "efficient": {"2009": 360, "2010": 360}},
                                 "competed": {
-                                    "baseline": {"2009": 150, "2010": 150},
-                                    "efficient": {"2009": 30, "2010": 30}}}},
+                                    "baseline": {"2009": 300, "2010": 300},
+                                    "efficient": {"2009": 60, "2010": 60}}}},
                         "lifetime": {
                             "baseline": {"2009": 18, "2010": 18},
                             "measure": 18}},
@@ -11608,7 +11612,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {
-                                    "2009": 1, "2010": 1},
+                                    "2009": 0.5, "2010": 0.5},
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
@@ -11738,7 +11742,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                         'AIA CZ5': {
                             'Residential (New)': {
                                 'Cooling (Equip.)': {
-                                    "2009": 1, "2010": 1},
+                                    "2009": 0.5, "2010": 0.5},
                                 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11747,9 +11751,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Heating (Equip.)': {},
                                 'Envelope': {}},
                             'Residential (Existing)': {
-                                'Cooling (Equip.)': {
-                                    "2009": 0, "2010": 0
-                                },
+                                'Cooling (Equip.)': {},
                                 'Ventilation': {},
                                 'Lighting': {},
                                 'Refrigeration': {}, 'Other': {},
@@ -11772,7 +11774,10 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
                                 'Heating (Equip.)': {},
-                                'Envelope': {}}}}}}},
+                                'Envelope': {}}}}}},
+            "out_break_norm": {
+                "Technical potential": {"2009": 2200, "2010": 2200},
+                "Max adoption potential": {"2009": 2200, "2010": 2200}}},
             {
             "name": "sample measure pkg 4",
             "market_entry_year": None,
@@ -12394,7 +12399,10 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'Refrigeration': {}, 'Other': {},
                                 'Water Heating': {},
                                 'Computers and Electronics': {},
-                                'Heating (Equip.)': {}, 'Envelope': {}}}}}}}]
+                                'Heating (Equip.)': {}, 'Envelope': {}}}}}},
+            "out_break_norm": {
+                "Technical potential": {"2009": 200, "2010": 200},
+                "Max adoption potential": {"2009": 200, "2010": 200}}}]
         cls.sample_measures_in = [ecm_prep.Measure(
             handyvars, **x) for x in sample_measures_in]
         # Reset sample measure technology types (initialized as string)
@@ -12403,6 +12411,10 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
         # Reset sample measure markets (initialized to None)
         for ind, m in enumerate(cls.sample_measures_in):
             m.markets = sample_measures_in[ind]["markets"]
+        # Reset total absolute energy use figure used to normalize sample
+        # measure energy savings summed by climate, building, and end use
+        for ind, m in enumerate(cls.sample_measures_in):
+            m.out_break_norm = sample_measures_in[ind]["out_break_norm"]
         cls.sample_package_name = "Package - CAC + CFLs + NGWH"
         cls.sample_package_in_test1 = ecm_prep.MeasurePackage(
             cls.sample_measures_in, cls.sample_package_name,
@@ -12913,7 +12925,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Cooling (Equip.)': {},
                             'Ventilation': {},
                             'Lighting': {
-                                "2009": 0.8870968, "2010": 0.8870968},
+                                "2009": 0.5510753,
+                                "2010": 0.5510753},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0, "2010": 0},
                             'Computers and Electronics': {},
@@ -13022,15 +13035,14 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                     'AIA CZ5': {
                         'Residential (New)': {
                             'Cooling (Equip.)': {
-                                "2009": 0.7526882, "2010": 0.7526882},
+                                "2009": 0.4166667, "2010": 0.4166667},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
                             'Computers and Electronics': {},
                             'Heating (Equip.)': {}, 'Envelope': {}},
                         'Residential (Existing)': {
-                            'Cooling (Equip.)': {
-                                "2009": 0, "2010": 0},
+                            'Cooling (Equip.)': {},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
@@ -13545,7 +13557,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                             'Cooling (Equip.)': {},
                             'Ventilation': {},
                             'Lighting': {
-                                "2009": 0.8870968, "2010": 0.8870968},
+                                "2009": 0.5510753,
+                                "2010": 0.5510753},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {"2009": 0, "2010": 0},
                             'Computers and Electronics': {},
@@ -13654,14 +13667,14 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                     'AIA CZ5': {
                         'Residential (New)': {
                             'Cooling (Equip.)': {
-                                "2009": 0.7526882, "2010": 0.7526882},
+                                "2009": 0.4166667, "2010": 0.4166667},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},
                             'Computers and Electronics': {},
                             'Heating (Equip.)': {}, 'Envelope': {}},
                         'Residential (Existing)': {
-                            'Cooling (Equip.)': {"2009": 0, "2010": 0},
+                            'Cooling (Equip.)': {},
                             'Ventilation': {}, 'Lighting': {},
                             'Refrigeration': {}, 'Other': {},
                             'Water Heating': {},

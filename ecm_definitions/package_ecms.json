@@ -1,1 +1,12 @@
-[]
+[{"name": "Package: Lighting & Cooling Upgrade",
+  "contributing_ECMs": [
+  		"ENERGY STAR Central AC v 5.0", "ENERGY STAR LED Bulbs v. 1.2 c. 2012"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0.05, "source": {
+     "notes": "Explanatory text related to source data and/or values given.",
+     "source_data": [{
+        "title": "Reference Title",
+        "author": "Author Name(s)",
+        "organization": "Organization Name",
+        "year": "2016",
+        "pages": null,
+        "URL": "http://buildings.energy.gov/"}]}}}]
