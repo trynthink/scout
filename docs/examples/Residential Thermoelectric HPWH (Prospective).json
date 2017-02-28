@@ -1,0 +1,73 @@
+{
+  "name": "Res. Thermoelectric HPWH (Prospective)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2022,
+  "market_entry_year_source": {
+    "notes": "",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 1.5,
+  "energy_efficiency_units": "EF",
+  "energy_efficiency_source": {
+    "notes": "Original source gives efficiency as COP, assume COP and EF are equivalent; performance based on 'Achievements' sub-bullet on slide 4 of source.",
+    "source_data": {
+      "title": "Heat Pump Water Heater Using Solid-State Energy Converters",
+      "author": "Uttam Ghoshal",
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 4,
+      "URL": "https://energy.gov/sites/prod/files/2016/04/f30/30003_Ghoshal_040616-1605.pdf"
+    }
+  },
+  "installed_cost": 640,
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "2020 'typical' electric resistance storage water heater, average of two total installed costs given.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "Navigant Consulting",
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 14,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "2020 'typical' electric resistance storage water heater, average of two equipment lifetimes given.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "Navigant Consulting",
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 14,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "U.S. Department of Energy",
+    "email": "chioke.harris@ee.doe.gov",
+    "timestamp": "2017-02-28"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
