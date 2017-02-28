@@ -1,5 +1,5 @@
 {
-  "name": "ENERGY STAR Central AC v 5.0",
+  "name": "ENERGY STAR Central AC v. 5.0",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": ["uniform", 4.40, 5.40],
+  "energy_efficiency": 4.40,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412 (see EIA source)",
