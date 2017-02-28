@@ -162,17 +162,6 @@ class UsefulVars(object):
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
             "other fuel": {yr: 1 for yr in self.aeo_years}}
-        # Set performance unit conversions that are needed to handle
-        # expected fuel switching cases in the residential sector. The
-        # conversion dict is keyed first by the fuel the ECM is switching to,
-        # then by the baseline performance units that must be converted, then
-        # by the ECM performance units that must be converted to, followed by
-        # the conversion value
-        self.fuel_switch_conv = {
-            "electricity": {"AFUE": {"COP": 1}},
-            "natural gas": {"COP": {"AFUE": 1}},
-            "distillate": {"COP": {"AFUE": 1}},
-            "other fuel": {"COP": {"AFUE": 1}}}
         # Set CO2 intensity by fuel type
         carb_int_init = {
             "residential": {
@@ -1532,22 +1521,15 @@ class Measure(object):
                             base_cpl["performance"]["typical"],
                             base_cpl["performance"]["units"]]
 
-                        # Convert baseline performance units to ECM performance
-                        # units as needed in the case of fuel switching
-                        if self.fuel_switch_to is not None:
-                            # Set conversion dictionary
-                            conv_dict = self.handyvars.fuel_switch_conv[
-                                self.fuel_switch_to]
-                            # Provided baseline performance units are in
-                            # the conversion dict, find unit conversion factor
-                            if perf_base_units in conv_dict:
-                                conv_val = conv_dict[perf_base_units][
-                                    perf_units]
-                                # Convert baseline performance to ECM units
-                                perf_base = {yr: perf_base[yr] * conv_val for
-                                             yr in self.handyvars.aeo_years}
-                                # Set baseline performance units to ECM units
-                                perf_base_units = perf_units
+                        # Handle 1-1 conversion between COP and AFUE if needed
+                        # (e.g., for fuel switching between natural gas
+                        # and electric, or for replacements of electric
+                        # boilers (AFUE) with heat pumps (COP))
+                        if (perf_units == "COP" and
+                            perf_base_units == "AFUE") or (
+                                perf_units == "AFUE" and
+                                perf_base_units == "COP"):
+                            perf_base_units = perf_units
 
                         # Set baseline cost and lifetime
                         cost_base, life_base = [
