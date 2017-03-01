@@ -1,0 +1,73 @@
+{
+  "name": "ENERGY STAR Commercial Gas WH v. 1.0",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "natural gas",
+  "technology": "gas_water_heater",
+  "market_entry_year": 2013,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.94,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "Energy star standard",
+    "source_data": {
+      "title": "Energy Star Program Requirements for Commercial Water Heaters Partner Commitments",
+      "author": null,
+      "organization": "U.S. EPA",
+      "year": 2013,
+      "pages": 5,
+      "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Commercial%20Water%20Heaters%20Program%20Requirements%20V1.0.pdf"
+    }
+  },
+  "installed_cost": 72.4,
+  "cost_units": "2013$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "median of median of 2013 typical total installed cost range ($4500); assume EIA typical input capacity of 200 kBTU/h",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. EIA",
+      "year": 2016,
+      "pages": 89,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "average stated 2013 lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 89,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "DOE",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-10"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
