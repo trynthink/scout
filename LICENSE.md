@@ -1,10 +1,10 @@
 # License
 
-Copyright (c) 2016 Chioke Harris and Jared Langevin
+Copyright (c) 2015-2017 Chioke Harris and Jared Langevin
 
-This software is provided under two licenses. Anyone interested in using or modifying the software may do so subject to the terms of the Apache 2.0 license. If you meet the requirements below, you may use the BSD license as an alternate license:
+This software is provided under two licenses. Anyone interested in using, modifying, or contributing to the software may do so subject to the terms of the Apache 2.0 license. If you meet the requirements below, you may use the BSD license as an alternate license:
 
-* your use of this software is as a part of your employment,
+* your use of or contributions to this software are as a part of your employment,
 * you have released the intellectual property rights for your work to your employer, and
 * your employer cannot support open-source licenses that include a patent grant.
 
@@ -16,8 +16,7 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 ### BSD License
 
