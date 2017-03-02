@@ -1530,6 +1530,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     Attributes:
         handyvars (object): Useful variables across the class.
         test_adopt_scheme (string): Sample consumer adoption scheme.
+        test_adj_frac (dict): Sample fraction to use in removing supply-demand
+            overlaps.
         adjust_key1 (string): First sample string for competed demand-side and
             supply-side market microsegment key chain being tested.
         adjust_key2 (string): Second sample string for competed demand-side and
@@ -1584,6 +1586,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars()
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
+        cls.test_adj_frac = {yr: 0.5 for yr in cls.handyvars.aeo_years}
         cls.adjust_key1 = str(
             ('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
              'cooling', 'demand', 'windows', 'existing'))
@@ -5117,14 +5120,16 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run.htcl_adj(
-            self.measures_demand, self.adjust_key1, self.test_adopt_scheme)
+            self.measures_demand, self.adjust_key1,
+            self.test_adopt_scheme, self.test_adj_frac)
         # Run the measure competition routine on sample supply-side measures
         self.a_run.compete_res_primary(
             self.measures_supply, self.adjust_key2, self.test_adopt_scheme)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run.htcl_adj(
-            self.measures_supply, self.adjust_key2, self.test_adopt_scheme)
+            self.measures_supply, self.adjust_key2,
+            self.test_adopt_scheme, self.test_adj_frac)
 
         # Check updated competed master microsegments for each sample measure
         # following competition/supply-demand overlap adjustments
@@ -5158,7 +5163,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     #         x.markets[self.test_adopt_scheme]["competed"]["mseg_adjust"][
     #             "supply-demand adjustment"]["savings"].keys()) > 0]
     #     self.a_run_dist.htcl_adj(
-    #         meas_overlap_adj, self.test_adopt_scheme)
+    #         meas_overlap_adj, self.test_adopt_scheme, test_adj_frac)
     #     # Check updated competed master microsegments for each sample measure
     #     # following competition/supply-demand overlap adjustments
     #     for ind, d in enumerate(self.a_run_dist.measures):
