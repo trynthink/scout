@@ -26,7 +26,7 @@ Results specify U.S. energy, |CO2|, and cost savings
    * primary energy savings (in quadrillion Btus),
    * avoided |CO2| emissions (in million metric tons),
    * operational cost savings, and
-   * per unit cost effectiveness, expressed by multiple financial metrics including `internal rate of return (IRR)`_, `simple payback`_, `cost of conserved energy (CCE)`_, and cost of conserved carbon (CCC) (conceptually equivalent to CCE, but should be compared with |CO2| prices).
+   * per unit cost effectiveness, expressed by multiple financial metrics including `internal rate of return (IRR)`_, `simple payback`_, `cost of conserved energy (CCE)`_, and cost of conserved |CO2| (CCC) (conceptually equivalent to CCE, but should be compared with |CO2| prices).
 
 * Results may be aggregated across multiple ECMs and filtered by variables such as climate zone, building type/vintage, and end use.
 

@@ -17,7 +17,7 @@ The example in this tutorial will demonstrate how to write new ECMs so that they
 
 As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
-Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the "ecm_definitions" directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
+Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
 
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
@@ -61,13 +61,17 @@ Your first ECM definition
 
 The required information for defining this ECM will be covered in the same order as the :ref:`list of parameters <ecm-contents>` in the :ref:`analysis-approach` section. For all of the fields in the ECM definition, details regarding acceptable values, structure, and formatting are provided in the :ref:`ECM JSON schema <json-schema>`.
 
+If after completing this tutorial you feel that you would benefit from looking at additional ECM definitions, you can browse the :repo_file:`ECM definition JSON files <ecm_definitions>` available on GitHub.
+
 For this example, we will be creating an ECM for LED troffers for commercial buildings. Troffers are square or rectangular light fixtures designed to be used in a modular dropped ceiling grid commonly seen in offices and other commercial spaces.
 
 The finished ECM specification is available to :download:`download </examples/led_troffers.json>` for reference.
 
-To begin, the ECM should be given a short, but descriptive name. Details regarding the characteristics of the technology that will be included elsewhere in the ECM definition, such as the cost, efficiency, or lifetime, need not be included in the title. The key for the name is simply ``name``. ::
+To begin, the ECM should be given a descriptive name less than 40 characters long (including spaces). Details regarding the characteristics of the technology that will be included elsewhere in the ECM definition, such as the cost, efficiency, or lifetime, need not be included in the name. The key for the name is simply ``name``. ::
 
    {"name": "LED Troffers"}
+
+If the ECM describes a technology currently under development, the name should contain the word "Prospective" in parentheses. If the ECM describes or is derived from a published standard or specification, its version number or year should be included in the name.
 
 .. note::
    In this tutorial, JSON entries will be shown with leading and trailing ellipses to indicate that there is additional data in the ECM definition that appears before and/or after the text of interest. ::
@@ -187,7 +191,9 @@ For the example of LED troffers, all lighting data should be provided in the uni
          "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
     ...}
 
-Many additional options exist that enable more complex definitions of energy efficiency, such as incorporating :ref:`probability distributions <ecm-features-distributions>`, providing a :ref:`detailed efficiency breakdown <ecm-features-detailed-input>` by elements of the applicable baseline market, using :ref:`EnergyPlus simulation data <ecm-features-energyplus>`, and using :ref:`relative instead of absolute units <ecm-features-relative-savings>`. Detailed examples for all of the options is in the :ref:`ecm-features` section.
+.. Many additional options exist that enable more complex definitions of energy efficiency, such as incorporating :ref:`probability distributions <ecm-features-distributions>`, providing a :ref:`detailed efficiency breakdown <ecm-features-detailed-input>` by elements of the applicable baseline market, using :ref:`EnergyPlus simulation data <ecm-features-energyplus>`, and using :ref:`relative instead of absolute units <ecm-features-relative-savings>`. Detailed examples for all of the options are in the :ref:`ecm-features` section.
+
+Many additional options exist that enable more complex definitions of energy efficiency, such as incorporating :ref:`probability distributions <ecm-features-distributions>`, providing a :ref:`detailed efficiency breakdown <ecm-features-detailed-input>` by elements of the applicable baseline market, and using :ref:`relative instead of absolute units <ecm-features-relative-savings>`. Detailed examples for all of the options are in the :ref:`ecm-features` section.
 
 
 .. _first-ecm-installed-cost:
@@ -307,14 +313,16 @@ The LED troffers ECM that you've now written can be simulated with Scout by foll
 Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the end of each section.
-
-.. PHRASING
+There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the beginning of each section.
 
 .. _ecm-features-shorthand:
 
 Baseline market shorthand values
 ********************************
+
+.. _ecm-download-shorthand:
+
+:download:`Example <examples/Whole Building Submetering (Prospective).json>` -- Whole Building Sub-metering ECM (:ref:`Details <ecm-example-shorthand>`)
 
 If an ECM applies to multiple building types, end uses, or other applicable baseline market categories [#]_, the specification of the baseline market and, in some cases, other fields, can be greatly simplified by using shorthand strings. When specifying the applicable baseline market, for example, an ECM might represent a technology that can be installed in any residential building, indicated with the "all residential" string for the building type key. ::
 
@@ -331,12 +339,22 @@ Similarly, an ECM that applies to any climate zone can use "all" as the value fo
 These shorthand terms, when they encompass only a subset of the valid entries for a given field (e.g., "all commercial," which does not include any residential building types), can also be mixed in a list with other valid entries for that field. ::
 
    {...
-    "bldg_type": ["all residential", "small office", "mercantile/service"],
+    "bldg_type": ["all residential", "small office", "lodging"],
     ...}
 
 The :ref:`ECM definition reference <ecm-applicable-baseline-market>` specifies whether these shorthand terms are available for each of the applicable baseline market fields and what shorthand strings are valid for each field.
 
-If these shorthand terms are used to specify the applicable baseline market fields, they can also be used for a :ref:`detailed input specification <ecm-features-detailed-input>` for energy efficiency, installed cost, or lifetime. For example, if an ECM applies to "all residential," "small office," and "lodging" building types, the installed cost could be specified separately for each of these building types. ::
+If these shorthand terms are used to specify the applicable baseline market fields, the energy efficiency, installed cost, and lifetime may be specified with a single value. For example, if an ECM applies to "all residential," "small office," and "lodging" building types, they could all share the same installed cost. ::
+
+   {...
+    "bldg_type": ["all residential", "small office", "lodging"],
+    ...
+    "installed cost": 5825,
+    ...}
+
+.. _shorthand-detailed-input-specification:
+
+Alternately, a :ref:`detailed input specification <ecm-features-detailed-input>` for energy efficiency, installed cost, or lifetime can be used. Using the same building types example, if a detailed input specification is used for the installed cost, a cost value must be given for *all* of the specified building types. ::
 
    {...
     "installed_cost": {
@@ -345,11 +363,9 @@ If these shorthand terms are used to specify the applicable baseline market fiel
       "lodging": 6015},
     ...}
 
-Separate installed costs can also be specified for each of the residential building types, even if they are indicated as a group using the "all residential" shorthand for the building type field. ::
+Again using the same example, separate installed costs can also be specified for each of the residential building types, even if they are indicated as a group in the building type field using the "all residential" shorthand. ::
 
    {...
-    "bldg_type": ["all residential", "small office", "lodging"],
-    ...
     "installed_cost": {
       "single family home": 5775,
       "multi family home": 5693,
@@ -358,7 +374,9 @@ Separate installed costs can also be specified for each of the residential build
       "lodging": 6015},
     ...}
 
-A :download:`whole building sub-metering ECM <examples/Whole Building Submetering (Prospective).json>` illustrates the use of shorthand terms by employing the "all" shorthand term for most of the applicable baseline market fields (|baseline-market|) and the "all commercial" shorthand term as one of the building types and to define separate installed costs for the various building types that apply to the ECM. If you would like to see additional examples, many of the other examples available to download in this section use shorthand terms for one or more of their applicable baseline market fields.
+.. _ecm-example-shorthand:
+
+A whole building sub-metering ECM is :ref:`available for download <ecm-download-shorthand>` that illustrates the use of shorthand terms by employing the "all" shorthand term for most of the applicable baseline market fields (|baseline-market|) and the "all commercial" shorthand term as one of the building types and to define separate installed costs for the various building types that apply to the ECM. If you would like to see additional examples, many of the other examples available to download in this section use shorthand terms for one or more of their applicable baseline market fields.
 
 
 .. _ecm-features-detailed-input:
@@ -366,7 +384,9 @@ A :download:`whole building sub-metering ECM <examples/Whole Building Submeterin
 Detailed input specification
 ****************************
 
-.. THE SCHEMA WOULD BENEFIT FROM A CONSISTENT TERM FOR WHEN CPL VALUES ARE SPLIT UP WITH GREATER DETAIL
+.. _ecm-download-detailed-input:
+
+:download:`Example <examples/Thermoelastic HP (Prospective).json>` -- Thermoelastic Heat Pump ECM (:ref:`Details <ecm-example-detailed-input>`)
 
 The energy efficiency, installed cost, and lifetime values in an ECM definition can be specified as a point value or with separate values for one or more of the applicable baseline market keys (|baseline-market|). As shown in :numref:`table-detailed-input-options`, the allowable baseline market keys are different for the energy efficiency, installed cost, and lifetime values.
 
@@ -395,6 +415,9 @@ A detailed input specification for any of the fields should consist of a dict wi
       "AIA_CZ4": 1.4,
       "AIA_CZ5": 1.28},
     ...}
+
+.. note::
+   If a detailed input specification is used, all of the applicable baseline market keys *must* be given and have a corresponding value. For example, an ECM that applies to three building types and has a detailed input specification for installed cost must have a cost value for all three building types. (Exceptions may apply if the partial shortcuts "all residential" and "all commercial" are used -- see the :ref:`baseline market shorthand values <shorthand-detailed-input-specification>` documentation.)
 
 ECMs that describe technologies that perform functions across multiple end uses will necessarily require an energy efficiency definition that is specified by fuel type. Air-source heat pumps, which provide both heating and cooling, are an example of such a technology. ::
 
@@ -489,13 +512,17 @@ In the fourth example, where the energy efficiency is specified by climate zone 
       "water heating": "EF"},
     ...}
 
-While all of the examples shown use absolute units, :ref:`relative savings values <ecm-features-relative-savings>`, :ref:`EnergyPlus energy efficiency data <ecm-features-energyplus>` (for commercial buildings), and :ref:`probability distributions <ecm-features-distributions>` can also be used with detailed input specifications. If an ECM can be described using one or more :ref:`shorthand terms <ecm-features-shorthand>`, these strings can be used as keys for a detailed input specification; this ability is particularly helpful when using the "all residential" and/or "all commercial" building type shorthand strings.
+.. While all of the examples shown use absolute units, :ref:`relative savings values <ecm-features-relative-savings>`, :ref:`EnergyPlus energy efficiency data <ecm-features-energyplus>` (for commercial buildings), and :ref:`probability distributions <ecm-features-distributions>` can also be used with detailed input specifications. If an ECM can be described using one or more :ref:`shorthand terms <ecm-features-shorthand>`, these strings can be used as keys for a detailed input specification; this ability is particularly helpful when using the "all residential" and/or "all commercial" building type shorthand strings.
+
+While all of the examples shown use absolute units, :ref:`relative savings values <ecm-features-relative-savings>` and :ref:`probability distributions <ecm-features-distributions>` can also be used with detailed input specifications. If an ECM can be described using one or more :ref:`shorthand terms <ecm-features-shorthand>`, these strings can be used as keys for a detailed input specification; this ability is particularly helpful when using the "all residential" and/or "all commercial" building type shorthand strings.
 
 When a detailed input specification is given, the corresponding source information need not be specified in the same type of nested dict format, particularly if all of the data are drawn from a single source. Even if multiple sources are required, all of the sources may be given with separate dicts in a single list under the :ref:`json-source_data` key, along with an explanation of what data are drawn from each source given in the :ref:`json-notes` field.
 
 Finally, any ECM that includes one or more detailed input specifications should have some discussion of the detailed specification and any underlying assumptions included in either the :ref:`json-_notes` field in the JSON or the :ref:`json-notes` field for the source information for each detailed input specification. As the complexity of the specification increases, the detail of the explanation should similarly increase.
 
-A :download:`thermoelastic heat pump ECM <examples/Thermoelastic HP (Prospective).json>` illustrates the use of the detailed input specification approach for the installed cost data and units, as well as the page information for the installed cost source.
+.. _ecm-example-detailed-input:
+
+A thermoelastic heat pump ECM is :ref:`available for download <ecm-download-detailed-input>` to illustrate the use of the detailed input specification approach for the installed cost data and units, as well as the page information for the installed cost source.
 
 
 .. _ecm-features-relative-savings:
@@ -503,9 +530,16 @@ A :download:`thermoelastic heat pump ECM <examples/Thermoelastic HP (Prospective
 Relative energy efficiency units
 ********************************
 
+.. _ecm-download-relative-savings:
+
+:download:`Example <examples/Occupant-Centered Controls (Prospective).json>` -- Occupant-centered Controls ECM (:ref:`Details <ecm-example-relative-savings>`)
+
 In addition to the absolute units used in the :ref:`initial example <example-ecm-1>`, any ECM can have energy efficiency specified with the units "relative savings (constant)" or "relative savings (dynamic)". In either case, the energy efficiency value should be given as a decimal value between 0 and 1, corresponding to the percentage improvement from the baseline (i.e., the existing stock) -- a value of 0.2 corresponds to a 20% energy savings relative to the baseline.
 
 .. note::
+   Absolute efficiency units are preferred (except for sensors and controls ECMs). Absolute units are more commonly reported in test results and product specifications. In addition, using relative savings leaves some uncertainty regarding whether there are discrepancies between the baseline used to calculate the savings percentage and the baseline in Scout.
+
+.. note
    Absolute efficiency units are preferred (except for sensors and controls ECMs and when :ref:`using EnergyPlus data <ecm-features-energyplus>`). Absolute units are more commonly reported in test results and product specifications. In addition, using relative savings leaves some uncertainty regarding whether there are discrepancies between the baseline used to calculate the savings percentage and the baseline in Scout.
 
 When the units are "relative savings (constant)," the value that is given is assumed to be the same in every year, independent of improvement in the efficiency of technologies comprising the baseline. That is, an "energy_efficiency" value of 0.3 with the units "relative savings (constant)" means that the ECM will achieve a 30% reduction in energy use compared to the baseline in the current year and a 30% reduction in energy use compared to the baseline in all future years.
@@ -539,22 +573,23 @@ If appropriate for a given ECM, absolute and relative units can also be mixed in
       "cooling": ["relative savings (dynamic)", 2016]},
     ...}
 
-An occupant-centered controls ECM available for :download:`download <examples/Occupant-Centered Controls (Prospective).json>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
+.. _ecm-example-relative-savings:
+
+An occupant-centered controls ECM :ref:`available for download <ecm-download-relative-savings>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
 
 
-.. _ecm-features-energyplus:
+.. ecm-features-energyplus: (CONVERT BACK TO SECTION REFERENCE TAG)
 
-EnergyPlus efficiency data
-**************************
+.. EnergyPlus efficiency data
+  **************************
 
-For commercial building types, energy efficiency values can be specified using data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM. EnergyPlus simulation data cannot be combined with :ref:`probability distributions <ecm-features-distributions>` on energy efficiency.
+.. For commercial building types, energy efficiency values can be specified using data from an :ref:`EnergyPlus simulation <analysis-step-2-energyplus>`. EnergyPlus simulation data include results for all of the energy uses that are affected by the ECM, including end uses that are not in the applicable baseline market for the ECM. These effects on other end uses are automatically incorporated into the final results for the ECM. EnergyPlus simulation data cannot be combined with :ref:`probability distributions <ecm-features-distributions>` on energy efficiency.
 
-Results from EnergyPlus that can be used for energy efficiency inputs in ECMs are stored in CSV files. Each EnergyPlus CSV file is specific to a single building type and can include energy efficiency data for many simulated ECMs. These files should be placed in the directory "energyplus_data" (inside the "ecm_definitions" folder). To import energy efficiency data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict in a specific form: ``"energy_efficiency": {"EnergyPlus file": "ECM_name"}``. Here, "ECM_name" will determine which rows will be read in the EnergyPlus files. The "ECM_name" string should match exactly with the text in the "measure" column in the EnergyPlus CSV files corresponding to the relevant data. Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM energy efficiency units should always be "relative savings (constant)." 
+.. Results from EnergyPlus that can be used for energy efficiency inputs in ECMs are stored in CSV files. Each EnergyPlus CSV file is specific to a single building type and can include energy efficiency data for many simulated ECMs. These files should be placed in the \html-filepath| ./ecm_definitions/energyplus_data |html-fp-end| directory. To import energy efficiency data from these files, the user sets the "energy_efficiency" attribute for an ECM to a dict in a specific form: ``"energy_efficiency": {"EnergyPlus file": "ECM_name"}``. Here, "ECM_name" will determine which rows will be read in the EnergyPlus files. The "ECM_name" string should match exactly with the text in the "measure" column in the EnergyPlus CSV files corresponding to the relevant data. Only the EnergyPlus file(s) that correspond to an ECM's building type(s) will be read. When EnergyPlus data are being used, ECM energy efficiency units should always be "relative savings (constant)." 
 
-The source(s) for the energy efficiency data that were used as inputs to the EnergyPlus simulations should be indicated in the :ref:`json-energy_efficiency_source` field. The data should be drawn from credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. Information about the source(s) should be included in the ECM definition in the same format as when EnergyPlus data are not used.
+.. The source(s) for the energy efficiency data that were used as inputs to the EnergyPlus simulations should be indicated in the :ref:`json-energy_efficiency_source` field. The data should be drawn from credible sources, such as :ref:`those outlined <ecm-sources>` in the :ref:`analysis-approach` section. Information about the source(s) should be included in the ECM definition in the same format as when EnergyPlus data are not used.
 
-An LED troffers ECM is used to illustrate the format for specifying EnergyPlus simulation data for the energy efficiency. LED troffers are an ideal technology to simulate using EnergyPlus, as the significant reduction in waste heat generated by LED lamps compared to fluorescent and incandescent lamps can have an effect on the HVAC energy use in a building, an effect captured by the EnergyPlus simulation. ::
-
+.. An LED troffers ECM is used to illustrate the format for specifying EnergyPlus simulation data for the energy efficiency. LED troffers are an ideal technology to simulate using EnergyPlus, as the significant reduction in waste heat generated by LED lamps compared to fluorescent and incandescent lamps can have an effect on the HVAC energy use in a building, an effect captured by the EnergyPlus simulation. ::
    {...
     "energy_efficiency": {"EnergyPlus file": "LED_troffers"},
     "energy_efficiency_units": "relative savings (constant)",
@@ -569,12 +604,11 @@ An LED troffers ECM is used to illustrate the format for specifying EnergyPlus s
          "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
     ...}
 
-Window and opaque envelope (i.e., insulation and air sealing) ECMs are also ideal for EnergyPlus simulation, as they similarly will have an effect on HVAC operation by reducing the heading and cooling load in a building and the potential energy savings are affected by whether or not equipment is resized to correspond to the reduced loads.
+.. Window and opaque envelope (i.e., insulation and air sealing) ECMs are also ideal for EnergyPlus simulation, as they similarly will have an effect on HVAC operation by reducing the heading and cooling load in a building and the potential energy savings are affected by whether or not equipment is resized to correspond to the reduced loads.
 
-In both of these cases, solid state lighting and window and envelope technologies, without EnergyPlus simulation data Scout will automatically account for the energy use effects from changes in heating and cooling loads. Using results from EnergyPlus can only improve the accuracy of this accounting.
+.. In both of these cases, solid state lighting and window and envelope technologies, without EnergyPlus simulation data Scout will automatically account for the energy use effects from changes in heating and cooling loads. Using results from EnergyPlus can only improve the accuracy of this accounting.
 
-In some cases, an ECM could apply to both residential and commercial buildings. Since EnergyPlus data can only be used to specify energy efficiency for commercial buildings, the energy efficiency values can be specified separately for residential and commercial buildings using the :ref:`detailed input specification <ecm-features-detailed-input>` approach. For example, a thermoelastic heat pump might apply to all building types, with some differences in efficiency. EnergyPlus simulation data can be used to specify the efficiency for commercial buildings, while residential unit efficiency can be specified with absolute or relative values or a probability distribution. For the purposes of this example, energy efficiency is assumed to be uniform across residential building types and the EnergyPlus simulation results address commercial buildings, thus the efficiency can be specified under the :ref:`simplified building type keys <ecm-features-shorthand>` "all residential" and "all commercial." Because heat pumps provide both heating and cooling service but generally with different efficiencies, separate values are given for the heating and cooling end use for residential buildings. ::
-
+.. In some cases, an ECM could apply to both residential and commercial buildings. Since EnergyPlus data can only be used to specify energy efficiency for commercial buildings, the energy efficiency values can be specified separately for residential and commercial buildings using the :ref:`detailed input specification <ecm-features-detailed-input>` approach. For example, a thermoelastic heat pump might apply to all building types, with some differences in efficiency. EnergyPlus simulation data can be used to specify the efficiency for commercial buildings, while residential unit efficiency can be specified with absolute or relative values or a probability distribution. For the purposes of this example, energy efficiency is assumed to be uniform across residential building types and the EnergyPlus simulation results address commercial buildings, thus the efficiency can be specified under the :ref:`simplified building type keys <ecm-features-shorthand>` "all residential" and "all commercial." Because heat pumps provide both heating and cooling service but generally with different efficiencies, separate values are given for the heating and cooling end use for residential buildings. ::
    {...
     "energy_efficiency": {
       "all residential": {
@@ -595,13 +629,17 @@ In some cases, an ECM could apply to both residential and commercial buildings. 
          "URL": "http://energy.gov/sites/prod/files/2014/03/f12/Non-Vapor%20Compression%20HVAC%20Report.pdf"}]},
     ...}
 
-.. <<< DOWNLOADABLE >>>
+.. <<< DOWNLOADABLE EXAMPLE >>>
 
 
 .. _ecm-features-market-scaling-fractions:
 
 Market scaling fractions
 ************************
+
+.. _ecm-download-market-scaling-fractions:
+
+:download:`Example <examples/AFDD (Prospective).json>` -- Automated Fault Detection and Diagnosis ECM (:ref:`Details <ecm-example-market-scaling-fractions>`)
 
 If an ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular building type, end use, fuel type, and technologies that are relevant, the market scaling fraction can be used to specify the fraction of the applicable baseline market that is truly applicable to that ECM. The market scaling fraction thus reduces the size of all or a portion of the applicable baseline market beyond what is achievable using only the baseline market fields. All scaling fraction values should be between greater than 0 and less than 1, where a value of 0.4, for example, indicates that 40% of the baseline market selected applies to that ECM.
 
@@ -629,7 +667,9 @@ As an example, for a multi-function fuel-fired heat pump ECM for commercial buil
 
 As shown in the example, if the ECM applies to multiple building types, climate zones, or technologies, for example, different scaling fraction values can be supplied for some or all of the baseline market. The method for specifying multiple scaling fraction values is similar to that outlined in the :ref:`ecm-features-detailed-input` sub-section. This detailed breakdown of the market scaling fraction can only include keys that are included in the applicable baseline market. For example, if the applicable baseline market includes only residential buildings, no commercial building types should appear in the market scaling fraction breakdown. If all residential buildings are in the applicable baseline market, however, the market scaling fractions can be separately specified for each residential building type.
 
-The automated fault detection and diagnosis (AFDD) ECM available for :download:`download <examples/AFDD (Prospective).json>` illustrates the use of the market scaling fraction to limit the applicability of the ECM to only buildings with building automation systems (BAS), since that is a prerequisite for the implementation of the AFDD technology described in the ECM.
+.. _ecm-example-market-scaling-fractions:
+
+The automated fault detection and diagnosis (AFDD) ECM :ref:`available for download <ecm-download-market-scaling-fractions>` illustrates the use of the market scaling fraction to limit the applicability of the ECM to only buildings with building automation systems (BAS), since that is a prerequisite for the implementation of the AFDD technology described in the ECM.
 
 
 .. _ecm-features-measure-type:
@@ -637,19 +677,29 @@ The automated fault detection and diagnosis (AFDD) ECM available for :download:`
 Add-on type ECMs
 ****************
 
+.. _ecm-download-measure-type:
+
+:download:`Example <examples/Plug-and-Play Sensors (Prospective).json>` -- Plug-and-Play Sensors ECM (:ref:`Details <ecm-example-measure-type>`)
+
 Technologies that affect the operation of or augment the efficiency of the existing components of a building must be defined differently in an ECM than technologies that replace a building component. Examples include sensors and control systems, window films, and daylighting systems. These technologies improve or affect the operation of another building system -- HVAC or other building equipment, windows, and lighting, respectively -- but do not replace those building systems.
 
 For these technologies, several of the fields of the ECM must be configured slightly differently. First, the applicable baseline market should be set for the end uses and technologies that are affected by the technology, not those that describe the technology. For example, an automated fault detection and diagnosis (AFDD) system that affects heating and cooling systems should have the end uses "heating" and "cooling," not some type of electronics or miscellaneous electric load (MEL) end use. Second, the energy efficiency values should have :ref:`relative savings <ecm-features-relative-savings>`  units and the installed cost units should match those specified in the :ref:`ECM Definition Reference <ecm-installed-cost-units>`, noting that they are different for sensors and controls ECMs. Finally, the :ref:`json-measure_type` field should have the value ``"add-on"`` instead of ``"full service"``.
 
-A plug-and-play sensors ECM available to :download:`download <examples/Plug-and-Play Sensors (Prospective).json>` to illustrate the use of the "add-on" ECM type.
+.. _ecm-example-measure-type:
 
-.. <<< DOWNLOADABLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
+A plug-and-play sensors ECM is :ref:`available to download <ecm-download-measure-type>` to illustrate the use of the "add-on" ECM type.
+
+.. <<< DOWNLOADABLE EXAMPLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
 
 
 .. _ecm-features-multiple-fuel-types:
 
 Multiple fuel types
 *******************
+
+.. _ecm-download-multiple-fuel-types:
+
+:download:`Example <examples/Residential Thermoelectric HPWH (Prospective).json>` -- Thermoelectric Heat Pump Water Heater (:ref:`Details <ecm-example-multiple-fuel-types>`)
 
 Some technologies, especially those that serve multiple end uses, might yield much greater energy savings if they are permitted to supplant technologies with different fuel types. Heat pumps, for example, can provide heating and cooling using a single fuel type (typically electricity), but could replace an HVAC system that uses different fuels for heating and cooling. The :ref:`json-fuel_switch_to` field, used in conjunction with the :ref:`json-fuel_type` field in the baseline market enables ECMs that serve multiple end uses and could replace technologies with various fuel types.
 
@@ -661,13 +711,21 @@ To configure these ECMs, the :ref:`json-fuel_type` field should be populated wit
     "fuel_switch_to": "natural gas",
     ...}
 
-.. <<< DOWNLOADABLE >>>
+If all of the fuel types apply, the :ref:`json-fuel_type` field can be specified using the ``"all"`` :ref:`shorthand value <ecm-features-shorthand>`.
+
+.. _ecm-example-multiple-fuel-types:
+
+A residential thermoelectric heat pump water heater is :ref:`available to download <ecm-download-multiple-fuel-types>` to illustrate the setup of the :ref:`json-fuel_type` and :ref:`json-fuel_switch_to` fields to denote, for this particular example, an electric water heater that can replace water heaters of all fuel types.
 
 
 .. _ecm-features-distributions:
 
 Probability distributions
 *************************
+
+.. _ecm-download-distributions:
+
+:download:`Example <examples/ENERGY STAR LED Bulbs v. 1.2 c. 2012.json>` -- LED Bulbs ECM (:ref:`Details <ecm-example-distributions>`)
 
 Probability distributions can be added to the installed cost, energy efficiency, and lifetime specified for ECMs to represent uncertainty or known, quantified variability in one or more of those values. In a single ECM, a probability distribution can be applied to any one or more of these parameters. Probability distributions cannot be specified for any other parameters in an ECM, such as the market entry or exit years, market scaling fractions, or to either the energy savings increase or cost reduction parameters in :ref:`package ECMs <package-ecms>`. 
 
@@ -690,7 +748,9 @@ Probability distributions can be specified in any location in the energy efficie
       "water heating": 1.15},
     ...}
 
-An ENERGY STAR LED bulbs ECM is available for :download:`download <examples/ENERGY STAR LED Bulbs v. 1.2 c. 2012.json>` to illustrate the use of probability distributions, in that case, on installed cost and product lifetime.
+.. _ecm-example-distributions:
+
+An ENERGY STAR LED bulbs ECM is :ref:`available for download <ecm-download-distributions>` to illustrate the use of probability distributions, in that case, on installed cost and product lifetime.
 
 
 .. _editing-ecms:
@@ -698,7 +758,7 @@ An ENERGY STAR LED bulbs ECM is available for :download:`download <examples/ENER
 Editing existing ECMs
 ~~~~~~~~~~~~~~~~~~~~~
 
-All of the ECM definitions are stored in the "ecm_definitions" folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
+All of the ECM definitions are stored in the |html-filepath| ./ecm_definitions |html-fp-end| folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
 
 Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well. 
 
@@ -717,7 +777,9 @@ A package ECM might make sense, for example, in a case where a particular groupi
 
 .. _tenant fit-out: https://www.designingbuildings.co.uk/wiki/Fit_out_of_buildings
 
-Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_definitions" folder. In that JSON file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the efficiency or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
+Package ECMs are specified in the |html-filepath| package_ecms.json |html-fp-end| file, located in the |html-filepath| ./ecm_definitions |html-fp-end| folder. A version of the |html-filepath| package_ecms.json |html-fp-end| file with a single blank ECM package definition is available for :download:`download <examples/blank_package_ecms.json>`. 
+
+In the package ECMs JSON definition file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the efficiency or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
 
    {"name": "First package name", 
     "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
@@ -731,7 +793,7 @@ Package ECMs are specified in the "package_ecms.json" file, located in the "ecm_
          "pages": "15-17"}]
     }}}
 
-All of the intended packages should be specified in the "package_ecms.json" file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
+All of the intended packages should be specified in the |html-filepath| package_ecms.json |html-fp-end| file. For example, the contents of the file should take the following form if there are three desired packages, with three, two, and four ECMs, respectively. ::
 
    [{"name": "First package name", 
      "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
@@ -775,11 +837,11 @@ Tutorial 2: Preparing ECMs for analysis
 
 .. ADD LINKS TO INDICATED JSON INPUT FILES
 
-The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the supporting_data/stock_energy_tech_data directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
+The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the |html-filepath| ./supporting_data/stock_energy_tech_data |html-fp-end| directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
 
-Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with an informative file name and placed in the "ecm_definitions" directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
+Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with a brief but descriptive file name and placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
 
-To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``), and run the script.
+To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|), and run the script.
 
 **Windows** ::
 
@@ -791,27 +853,100 @@ To run the pre-processing script ``ecm_prep.py``, open a Terminal window (Mac) o
    cd Documents/projects/scout-run_scheme
    python3 ecm_prep.py
 
-As each ECM is processed by "ecm_prep.py", the ECM name is printed to the command window within a message indicating that it has been updated successfully. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within "ecm_prep.py." The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
+As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
-If "ecm_prep.py" runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to ``run_setup.json``, a file that indicates which ECMs should be included in :ref:`the analysis <analysis-step-3>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the "competition_data" folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the ``ecm_prep.json`` file in the "supporting_data" folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 3 <tuts-3>`.
+If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./supporting_data/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./supporting_data |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
 
 If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy efficiency that do not match the baseline cost and efficiency data in the ECM.
 
 
-.. _tuts-3:
+.. _tuts-ecm-list-setup:
 
-Tutorial 3: Running an analysis
--------------------------------
+Tutorial 3: Modifying the active ECMs list
+------------------------------------------
 
-Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by ``run.py`` following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+Prior to running an analysis, the list of ECMs that will be included in that analysis can be revised to suit your interests. For example, if your primary interest is in ECMs that are applicable to commercial buildings, you could choose to include only those ECMs in your analysis. 
 
-If some ECMs should be excluded from a given analysis, these ECMs can be specified in the "run_setup.json" file. All of the existing ECMs should appear in this file under *only* one of two keys, "active" and "inactive." Each of these keys should be followed by a list (enclosed by brackets). If all ECMs are in the active list, the "inactive" value should be an empty list. As new ECMs are added and pre-processed, their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list. To exclude one or more ECMs from the analysis, simply copy and paste their names from the "active" to the "inactive" list, and reverse the process to restore ECMs that have been excluded. 
+The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded from the analysis) ECMs are specified in the |html-filepath| run_setup.json |html-fp-end| file. There are two ways to modify the lists of ECMs: by :ref:`manually editing them <ecm-list-setup-manual>` or :ref:`using the automatic configuration module <ecm-list-setup-automatic>`.
+
+If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 4 <tuts-analysis>`, as all ECMs are included by default.
+
+.. tip::
+   As new ECMs are added and pre-processed (by running |html-filepath| ecm_prep.py\ |html-fp-end|), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by |html-filepath| ecm_prep.py\ |html-fp-end|. 
+
+
+.. _ecm-list-setup-automatic:
+
+Automatic configuration
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The automatic configuration module |html-filepath| run_setup.py |html-fp-end| can perform a limited set of adjustments to the active and inactive ECM lists in |html-filepath| run_setup.json\ |html-fp-end|.
+
+1. Move ECMs from the active to the inactive list, and vice versa, based on searching the ECM names for matches with user-provided keywords
+2. Move ECMs from the active to the inactive list if they do not apply to the climate zone(s), building type, and/or structure type of interest
+
+For each of the changes supported by the module, messages will be printed to the command window that will explain what information should be input by the user. When entering multiple values, all entries should be separated by commas. Any question can be skipped to ignore the filtering option by pressing the "enter" or "return" key.
+
+For the first set of changes, moving ECMs by searching their names for matches with user-provided keywords, the user will be prompted to enter their desired keywords for each move separately, first for moving ECMs from the active to the inactive list, and then for the opposite move. Keyword matching is not case-sensitive and multiple keywords should be separated by commas. Potential inputs from the user might be, for example: ::
+
+   ENERGY STAR, prospective, 20%
+
+or ::
+
+   iecc
+
+If the user provides keywords for both moves (active to inactive and vice versa) and there are any ECMs that would be picked up by one or more keywords for the moves in each direction, the result would be an ECM being moved from active to inactive and then immediately back to active (or vice versa). For example, if the keyword "prospective" was provided for the move from active to inactive and "heat pump" for the move from inactive to active, an ECM with the name "Integrated Heat Pump (Prospective)" in either list would be matched by both keywords. To resolve these conflicts, the user would be prompted to decide whether each of these ECMs should end up in the active or inactive lists. 
+
+Following these changes, the user will be asked whether additional ECMs should be moved to the inactive list if they are not applicable to the user's climate zone(s), building type, and/or structure type of interest. For example, a user will be prompted to select the building type (limited to only all residential or all commercial buildings) by number. ::
+
+   1 - Residential
+   2 - Commercial
+
+If the user is only interested in residential buildings, they would input ::
+
+   1
+
+Before running the ECM active and inactive configuration module, it might be helpful to open |html-filepath| run_setup.json |html-fp-end| and review the existing list of active and inactive ECMs. 
+
+To run the module, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Run the module by starting Python with the module file name |html-filepath| run_setup.py\ |html-fp-end|.
+
+**Windows** ::
+
+   cd Documents\projects\scout-run_scheme
+   py -3 run_setup.py
+
+**Mac** ::
+
+   cd Documents/projects/scout-run_scheme
+   python3 run_setup.py
+
+If desired, the :ref:`manual editing <ecm-list-setup-manual>` instructions can be used to perform any further fine tuning of the active and inactive ECM lists.
+
+
+.. _ecm-list-setup-manual:
+
+Manual configuration
+~~~~~~~~~~~~~~~~~~~~
+
+The |html-filepath| run_setup.json |html-fp-end| file specifies whether each ECM will be included in or excluded from an analysis. Like the ECM definition JSON files, this file can be opened in your text editor of choice and modified to change which ECMs are active and inactive.
+
+All of the ECM names should appear in this file under *exactly* one of two keys, "active" or "inactive." Each of these keys should be followed by a list (enclosed by square brackets) with the desired ECM names. If all ECMs are in the active list, the "inactive" value should be an empty list. 
+
+To exclude one or more ECMs from the analysis, copy and paste their names from the "active" to the "inactive" list, and reverse the process to restore ECMs that have been excluded. Each ECM name in the list should be separated from the next by a comma.
 
 .. tip::
 
-   When editing the "run_setup.json" file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
+   When manually editing the |html-filepath| run_setup.json |html-fp-end| file, be especially careful that there are commas separating each of the ECMs in the "active" and "inactive" lists, and that there is no comma after the last ECM in either list.
 
-To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location ``Documents/projects/scout-run_scheme``). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run "run.py" as a Python script.
+
+.. _tuts-analysis:
+
+Tutorial 4: Running an analysis
+-------------------------------
+
+Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+
+To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run |html-filepath| run.py |html-fp-end| as a Python script.
 
 **Windows** ::
 
@@ -823,14 +958,14 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    cd Documents/projects/scout-run_scheme
    python3 run.py
 
-While executing, "run.py" will print updates to the command window. This text is principally to assure users that the analysis is proceeding apace.
+While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
 
-Once complete, the command window will return to an open prompt. The complete competed and uncompeted ECM data are stored in the "ecm_results.json" file located in the "results" folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 4 <tuts-4>` explains how the data can be converted into plots.
+Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 5 <tuts-results>` explains how the data can be converted into plots.
 
 
-.. _tuts-4:
+.. _tuts-results:
 
-Tutorial 4: Viewing and understanding outputs
+Tutorial 5: Viewing and understanding outputs
 ---------------------------------------------
 
 Generating/updating figures
@@ -841,35 +976,128 @@ The uncompeted and competed ECM results can be converted into graphical form usi
    setwd('~/Documents/projects/scout-run_scheme')
    source('plots.R')
 
-An additional package is required to run the plot generation R script. Running the script should install the package automatically. If it does not, additional troubleshooting may be required. [#]_
+Additional packages are required to run the plot generation R script. Running the script should install the packages automatically, though you may be prompted to choose a server from which to download the packages. If the packages do not install automatically, additional troubleshooting may be required. [#]_
 
-The plot image files can be found in the "plots" folder inside the "results" folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
+The plot image files can be found in sub-folders within the |html-filepath| ./results/plots |html-fp-end| folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
 
 Interpreting results figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Each PDF file includes a single plot for each ECM, with the modeling horizon (years 2009 through 2040) on the x-axis and the parameter indicated in the PDF file name on the y-axis -- energy, cost, or |CO2| emissions. A legend is included at the end of the figures on the last page of each PDF.
+The results figures from the plot generation script |html-filepath| plots.R |html-fp-end| are generated for both :ref:`adoption scenarios <ECM diffusion>`, and for one of three "metrics of interest": primary energy use, |CO2| emissions, and energy operating cost. Within the |html-filepath| ./results/plots |html-fp-end| folder, the folder hierarchy reflects these six cases (two adoption scenarios and three metrics of interest). For each case, the results are presented in three different sets of figures.
 
-The y-axis scale for each figure is adjusted automatically to be appropriate for the data shown. Care should be taken when inspecting two adjacent plots, since what look like a similar energy or |CO2| savings values at a glance, might in fact be quite different depending on the y-axes. The y-axis markings must be used to determine the magnitudes in the plots and to compare between plots.
+.. Note that the extremely inelegant link substitution here is to get around the problem that reStructuredText does not support nested inline markup, thus preventing the use of the |CO2| substitution within a standard :ref:`text <pointer>` internal hyperlink; see the emphasized hyperlink example here: http://docutils.sourceforge.net/FAQ.html#is-nested-inline-markup-possible; see also http://stackoverflow.com/questions/4743845/format-text-in-a-link-in-restructuredtext
 
-Interpretation of the results figures is facilitated with relevant comparisons of pairs of lines. 
+1. |Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO2 plotted against a metric of interest.|_
+2. :ref:`A metric of interest aggregated by climate zone, building class, and end use. <results-aggregated>`
+3. :ref:`Both uncompeted and competed results for a metric of interest presented separately for each ECM. <results-by-ecm>`
 
-* Uncompeted Baseline vs. Competed Baseline -- Represents the direct or indirect [#]_ effects of ECM competition on the total baseline market and associated energy, carbon, or cost that can be affected by each ECM. 
-* Uncompeted Baseline vs. Uncompeted "Efficient" -- The potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM in the absence of alternative technologies that provide the same services. 
-* Competed Baseline vs. Competed "Efficient" -- The potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM when other ECMs could provide equivalent service but with different energy/|CO2|/cost tradeoffs.
+.. |Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO2 plotted against a metric of interest.| replace:: Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO\ :sub:`2` plotted against a metric of interest.
 
-In addition to these comparisons, the uncertainty range (if applicable) around "efficient" results and the effect of uncertainty on competing ECMs should be examined.
+Within each of the plots sub-folders (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|), each of these sets of plots is contained within a single PDF file.
+
+.. _Internal rate of return, simple payback, cost of conserved energy, and cost of conserved CO2 plotted against a metric of interest.:
+.. _results-cost-effectiveness:
+
+Cost-effectiveness figures
+**************************
+
+The cost-effectiveness figures have file names that begin with "Cost Effective," followed by the metric of interest and then the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), for example, |html-filepath| Cost Effective Energy Savings-MAP.pdf\ |html-fp-end|.
+
+Each PDF file contains four plots corresponding to the four financial metrics used to assess ECM cost-effectiveness: internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved |CO2| (CCC). For each plot, the applicable financial metric is on the y-axis, and the *reductions* in the metric of interest -- energy *savings*, *avoided* |CO2| emissions, or energy cost *savings* -- are plotted on the x-axis. All of the data shown include ECM competition and are drawn from a single year, which is indicated in the x-axis label.
+
+.. _financial-metrics-plot-example:
+.. figure:: images/Cost_Effective_Energy_Savings-MAP.*
+
+   Each cost-effectiveness figure shows all four cost-effectiveness metrics calculated in Scout for each ECM: internal rate of return, simple payback, cost of conserved energy, and cost of conserved |CO2|. For this example figure, data from the maximum adoption potential scenario, inclusive of the effects of ECM competition, are shown. Each point corresponds to a single ECM. The climate zone(s), building type(s), and end use(s) are indicated by each point according to the legend. For the portfolio of ECMs analyzed for this example, the same ECMs generally appear in the list of cost-effective ECMs with the greatest savings, listed in order of total savings in the top right corner of each plot. Several ECMs that appear in the other plots are missing from the internal rate of return plot because they describe technologies currently commercialized with a calculated incremental installed cost of 0. Because those technologies have zero incremental cost, an internal rate of return cannot be calculated for them. Total cost-effective savings, based on the thresholds for each cost-effective metric, indicated by dotted horizontal lines, are generally similar.
+
+:numref:`financial-metrics-plot-example` shows an example of the cost-effectiveness figures. All of the cost-effectiveness metrics are plotted against reductions in the metric of interest drawn from a specific year and from one of the two adoption scenarios, 2030 energy savings from the maximum adoption scenario in the case of :numref:`financial-metrics-plot-example`. The data shown include the effects of :ref:`ECM competition <ECM-competition>`. The various financial metrics can be used to evaluate the potential cost-effectiveness of the ECMs included in an analysis. The relevance of each metric in evaluating ECM cost-effectiveness will depend on the various economic and non-economic (e.g., policy) factors that might impact the particular individual or organization using these results.
+
+On each plot, a dotted horizontal line represents a target threshold for the given financial metric, and the cost-effective region above or below each threshold is highlighted in gray. The thresholds used are positive IRR, five year payback, the U.S. average retail electricity price, and the `Social Cost of Carbon`_ for IRR, simple payback, CCE, and CCC respectively. Above or below those lines, depending on whether higher or lower values are more favorable for that metric, the ECM might not be cost-effective in its target market. Total cost-effective savings (from all of the ECMs) for the metric of interest shown in the figure are reported in the top left corner of each plot area. Cost-effectiveness thresholds used in the plots should not be considered "official guidance" or canonical, but rather are provided as a starting point for further investigation of the results. Acceptable thresholds for each financial metric vary by building owner and type, thus each threshold shown is an indication of the range around which an ECM might not be cost-effective.
+
+The shape, fill color, and outline color of each point indicate the applicable building type(s), end use(s), and climate zone(s) for each ECM shown on the plot. Comparing the relative locations of these various points might suggest where there are categories that are more generally cost-effective than others. As with the :ref:`baseline market-aggregated figures <results-aggregated>`, outcomes must be interpreted in light of the particular set of ECMs included in the underlying analysis. For example, in :numref:`financial-metrics-plot-example`, the top five ECMs are generally commercial building envelope components, likely because they are included in current IECC model code and are thus highly cost-effective. In an analysis that focused on prospective ECMs (excluding these near-baseline ECMs), those ECMs with a high performance to cost ratio are most likely to appear in the top five list.
+
+
+.. _results-aggregated:
+
+Baseline market-aggregated figures
+**********************************
+
+The results figures with metrics of interest grouped by the baseline market parameters :ref:`climate zone <json-climate_zone>`, building class [#]_, and :ref:`end use <json-end_use>` have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-Aggregate," for example, |html-filepath| Total Energy Savings-MAP-Aggregate.pdf\ |html-fp-end|.
+
+Each PDF contains three plot areas, one for each of the three baseline market parameters. The x-axis corresponds to the modeling horizon (years 2009 through 2040), and the y-axis corresponds to the *reductions* in the metric of interest -- energy *savings*, *avoided* |CO2| emissions, or energy cost *savings* -- indicated in the file name. These plots summarize only the results that account for :ref:`ECM competition <ECM-competition>`. The dotted line on each plot corresponds to the right side y-axis and represents the cumulative results for all the ECMs in the analysis. The line is the same for all three plots within a single PDF. For these figures, while the data are shown as lines instead of points, the data exist as point values for each year in the modeling time horizon and line segments between each year are interpolated and do not represent actual model data.
+
+.. _aggregate-by-end-use-plot-example:
+.. figure:: images/Total_Energy_Savings-MAP-Aggregate.*
+
+   In this figure, primary energy use reductions are summarized by :ref:`end use <json-end_use>`, :ref:`climate zone <json-climate_zone>`, and building class for the maximum adoption potential scenario, including ECM competition. Data are presented for each year in the modeling time horizon. The spike in total energy savings from 2011 to 2012 comes from the introduction of a lighting ECM where the baseline lighting technology has a lifetime of less than one year. The contribution of lighting to that spike can be seen in the end use breakdown plot. As a result of the short baseline lighting lifetime, the entire lighting stock turns over in 2012. The replacement technology described by the ECM has a longer lifetime, thus the savings in 2013, both for the lighting end use and in total, are necessarily lower than 2012 since the newly replaced bulbs are still in service. Total energy savings are the same for most climate zones except climate zone 1, which could be a result of the baseline or the particular ECMs included in the analysis for this example figure. The range of results by building class is principally a result of there being relatively more ECMs that apply to existing residential buildings and, particularly in the near future, the relatively larger gains possible from improving existing buildings with new technologies as compared to improving the energy performance of new buildings relative to contemporary code minimums.
+
+In general, the figures like :numref:`aggregate-by-end-use-plot-example` can be used to see at a glance the contributions from various end uses to overall results, as well as the distribution of results among building types and climate zones. While some end uses might appear to contribute more to the total annual or cumulative energy savings (or avoided |CO2| emissions or cost savings), the baseline energy use is different for each end use, and some end uses might appear to contribute more to the savings in part because their baseline energy use is greater. Similarly, while some building types or climate zones might show greater energy savings (or improvement in other metrics) than others, they may also have significantly different baseline energy use. 
+
+These results are highly sensitive to the ECMs that are included in the analysis. While an introductory set of ECMs are provided with Scout, if ECMs added by a user are limited to a single end use, for example, it is reasonable to expect that greater reductions in energy use will come from that end use than other end uses.
+
+In the building class plot, differences in the potential savings from new and existing buildings are a result of the building stock being dominated by existing buildings, thus yielding much larger savings than from new buildings.
+
+For most end uses, ECMs and the baseline technologies have similar lifetimes. As the ECMs in that end use diffuse into the equipment and building stock, the total savings will gradually decline year after year, only yielding further increases if more efficient prospective ECMs become available in subsequent years. Changes in the annual savings for the metrics of interest may follow a different trend if the lifetimes of baseline technologies and competing ECMs are different, as appears in the lighting end use shown in :numref:`aggregate-by-end-use-plot-example`. The spike in energy savings around 2011 and 2012 comes from the rapid initial lighting turnover, which occurs because the primary baseline lighting technology has a lifetime of less than one year. The energy savings decline in subsequent years arises from the longer lifetimes of the replacement lighting technologies. The general pattern of concomitant increases in energy efficiency and bulb life for new lighting technologies means that as these technologies enter the market, the potential for energy savings in subsequent years is reduced by the dramatic reductions in lighting stock turnover.
+
+In the version of the :numref:`aggregate-by-end-use-plot-example` that shows energy savings under the technical potential scenario, there are sharp increases in the energy savings in some end uses. These increases come from several key ECMs that have enough of a disparity in energy efficiency from the baseline technologies to yield dramatic overnight savings. These rapid increases are a result of the ECM adoption assumptions in the technical potential scenario, and should be viewed as an extreme upper bound on the potential for primary energy use reductions in the end uses, climate zones, and building classes shown.
+
+
+.. _results-by-ecm:
+
+ECM-specific figures
+********************
+
+The figures with results for the metric of interest for each ECM included in the analysis all have file names that begin with the metric of interest, followed by the adoption scenario (coded as "TP" for technical potential or "MAP" for maximum adoption potential), and ending with "-byECM," for example, |html-filepath| Total Cost-MAP-byECM.pdf\ |html-fp-end|.
+
+The PDF file includes a single plot for each ECM, with the modeling horizon (years 2009 through 2040) on the x-axis and the parameter indicated in the PDF file name on the y-axis -- energy, cost, or |CO2| emissions. A legend is included at the end of the figure on the last page of each PDF. Immediately preceding the legend is a summary plot showing the combined effect of all of the ECMs included in the analysis. 
+
+The y-axis scale for each plot is adjusted automatically to be appropriate for the data shown. Care should be taken when inspecting two adjacent plots, since what look like similar changes in energy, |CO2|, or operating cost values at a glance, might in fact be quite different depending on the y-axes. The y-axis markings must be used to determine the magnitudes in the plots and to compare between plots.
+
+Except for the "All ECMs" plot (illustrated in :numref:`tech-potential-energy-plot-example`), each plot shows at least four data series. The two darker, thicker lines correspond to the baseline data with and without ECM competition effects (i.e., "competed" and "uncompeted," respectively) and represent the portion of all U.S. buildings' energy use (or |CO2| emissions or operating cost expenses) that could be affected by the introduction of the ECM shown in that plot. The two thinner, lighter lines correspond to the "efficient" results with and without ECM competition effects and reflect the impact of the introduction of the ECM on the baseline energy, |CO2| or operating cost. 
+
+These figures are most readily interpreted by comparing relevant pairs of lines.
+
+* **Uncompeted baseline and competed baseline** -- the direct or indirect [#]_ effects of ECM competition on the total baseline market and associated energy, |CO2|, or cost that can be affected by each ECM
+* **Uncompeted baseline and uncompeted "efficient"** -- the potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM in the absence of alternative technologies that provide the same services
+* **Competed baseline and competed "efficient"** -- the potential for energy savings, cost savings, and avoided |CO2| emissions from the ECM when other ECMs could provide equivalent service but with different energy/|CO2|/cost tradeoffs
+
+In addition to these comparisons, the uncertainty range (if applicable) around "efficient" results and the effect of that uncertainty on competing ECMs should be examined. :numref:`max-adopt-potential-energy-plot-example` illustrates results for an ECM that includes a probability distribution in its definition and the effect of that distribution on related ECMs.
 
 .. _tech-potential-energy-plot-example:
-.. figure:: images/total_energy_TP.*
+.. figure:: images/Total_Energy-TP-byECM.*
 
-   Primary energy use baselines, and improvements with the adoption of two ECMs – RTU Control Retrofit and Reduce Infiltration – are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the large overnight energy use reductions when the ECM is applied to the baseline market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs’ impacts change under :ref:`competition <ECM-competition>`. Note that for these figures, the primary energy use y-axis scale is different. For the RTU Control Retrofit ECM, the ECM is outcompeted by other commercial cooling ECMs, and its baseline and efficient energy use go to zero. The Reduce Infiltration ECM shows a reduced (but non-zero) baseline after adjusting for competition; this reflects both the direct impact of other demand-side heating and cooling ECMs capturing part of this ECM’s baseline market, as well as the indirect impact of supply-side heating and cooling ECMs reducing the total heating and cooling energy that can be lost through infiltration. Uncertainty in the results after competition arises due to uncertainty present in a competing ECM, but even after adjusting for competition, there are still some energy savings compared to the baseline. Large variations in the baseline in both ECMs prior to the current year are an artifact of NEMS, which is used for the AEO__ projections.
+   Primary energy use baselines, and improvements with the adoption of two ECMs -- ENERGY STAR Refrigerator v. 5.0 and Residential Occupant Controls (i.e., occupancy-based controls) -- are shown for the range of years in the model. The data shown are from the :ref:`technical potential <ECM diffusion>` adoption scenario, which is reflected in the abrupt single-year changes in energy use when the ECM enters the market. The data are derived from a model that included many ECMs besides those shown, thus the ECMs’ impacts change under :ref:`competition <ECM-competition>`. Affected end uses are shown at the top of each plot to help determine which ECMs might be competing with each other. The "All ECMs" figure on the right side shows the aggregate reductions in the metric of interest from all of the ECMs included in the analysis, and the dotted line at the year 2030 indicates the total savings in that year.
+
+When comparing the uncompeted or competed results in plots like those shown in :numref:`tech-potential-energy-plot-example` and :numref:`max-adopt-potential-energy-plot-example`, a difference between the baseline (dark) and efficient (light) cases indicates a potential reduction in the metric of interest plotted. In the absence of competition, the efficient case for both ECMs in :numref:`tech-potential-energy-plot-example` show the immediate realization of the entire savings potential, which is characteristic of the technical potential scenario. 
+
+While for many categories, the uncompeted baseline will decline into the future as technology improvements and new standards improve the efficiency of the building and equipment stock, there may be cases where the baseline increases over time. In general, this trend arises due to increases in the size of the stock, increases in home square footage (for residential ECMs), or increases in the capacity or size of the equipment (e.g., increases in the interior volume of refrigerators) that outpace improvements in the performance of the applicable equipment or building envelope component. This type of trend in the baseline appears in :numref:`tech-potential-energy-plot-example` for the ENERGY STAR refrigerator ECM. Results for some ECMs show large variations in the baseline for years prior to the current year. These variations are an artifact of the configuration of the National Energy Modeling System (NEMS), which is used to generate the AEO__ projections.
 
 .. __: http://www.eia.gov/forecasts/aeo/
 
-:numref:`tech-potential-energy-plot-example` shows two ECMs plotted with and without competition under the technical potential scenario. For the RTU Control Retrofit ECM, a gap is present between the uncompeted baseline (dark gray) and efficient (light gray) energy use, which indicates the energy savings potential of the ECM when the effects of competition with other ECMs are not considered. Note that in the absence of competition, the efficient case shows the overnight energy savings characteristic of the technical potential scenario. The competed baseline (dark blue) and efficient (light blue) energy are both zero for this ECM, which indicates that the ECM is not competitive with some other ECM that provides cooling for commercial buildings and was included in the same analysis. The up and down variations in the baselines prior to the current year appear in many other ECMs is indicative of adjustments made by EIA in the historical AEO data and should not be a subject of attention.
+When ECM competition is introduced, the baseline reflects the year of market entry of each ECM and its competitiveness relative to the other ECMs included in the analysis. Prior to the market availability of an ECM, the competed baseline will reflect the portion of the market left over from competing ECMs. Once the ECM is available, it can begin to recapture some of the market, depending on its competitiveness. If the ECM is more competitive, then it will capture a greater portion of the total available market. If the competed baseline appears to follow the same trend as the uncompeted baseline, the ECM is not capturing any (or any more) of the available market. In :numref:`tech-potential-energy-plot-example`, the refrigerator ECM captures the largest portion of the potential market in its first year of availability, and then captures a portion of the new equipment in each subsequent year for a few years before reaching a point where other competing ECMs prevent it from capturing further market share. The residential occupancy-based controls ECM in :numref:`tech-potential-energy-plot-example` shows a similar trend in its energy savings when accounting for ECM competition.
 
-The Reduce Infiltration ECM similarly shows a gap between the uncompeted baseline and efficient energy use, which again indicates the energy savings potential of this ECM in the absence of competition with other ECMs. As with the RTU Control Retrofit ECM, the baseline and efficient energy use of the Reduce Infiltration ECM are scaled down following competition with other ECMs; these competing ECMs may be demand-side heating and cooling ECMs that directly capture part of the Reduce Infiltration ECM's baseline market, or could be supply-side heating and cooling ECMs that indirectly reduce the total amount of heating and cooling energy that can be lost through infiltration. Competition only slightly affects the Reduce Infiltration ECM’s energy use and energy savings potential. Note that uncertainty also appears in the plot for the Reduce Infiltration ECM, though only for the competed efficient result; this indicates there is uncertainty in a competing ECM, but not in this ECM.
+.. _max-adopt-potential-energy-plot-example:
+.. figure:: images/Total_Energy-MAP-byECM.*
+
+   The ENERGY STAR Central AC ECM includes a probability distribution on one or more of the installed cost, efficiency, or product lifetime, which is reflected in the results. The 5th and 95th percentile bounds for each affected value are shown with dashed lines of the same color. The two ECMs shown on the left are combined into the package ECM on the right. The package ECM results reflect the effect of the probability distributions in the contributing ECMs.
+
+The effect of probability distributions are reflected in the results of the ECMs that include them in their definitions, as well as in the competed results for any competing ECMs and in any packages that include the ECM. The effects of uncertainty will always appear in the results with the ECM applied (i.e., the "efficient" results), though if the spread of the distribution is quite small, it might be difficult to see the dashed lines showing those effects in plots :numref:`max-adopt-potential-energy-plot-example`. In addition, if a probability distribution is applied to the installed cost or energy efficiency of the ECM, it will create uncertainty in the capital and/or operating cost of the ECM, and thus will introduce uncertainty in :ref:`ECM competition <ECM-competition>`, which is reflected in the competed baseline for the ECM. The ENERGY STAR air conditioning ECM in :numref:`max-adopt-potential-energy-plot-example` shows this effect.
+
+
+Viewing tabular outputs
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The plot generation script in R also produces Excel-formatted files containing summaries of the results. The summary results for each adoption scenario are stored in the corresponding scenario folder within the |html-filepath| ./results/plots |html-fp-end| directory. The structure of the results in the files corresponding to each scenario is identical. Each file has three tabs, corresponding to energy use, |CO2| emissions, and energy cost results. These results correspond to the data that are shown in the ECM-specific plots, as in :numref:`tech-potential-energy-plot-example`, and the tabular results can be used to create custom visualizations different from those automatically generated with |html-filepath| plots.R\ |html-fp-end|.
+
+.. tip::
+   If you are experienced with R, you can also modify |html-filepath| plots.R |html-fp-end| to tailor the figures to your preferences.
+
+On each tab, the first five columns provide information about the ECM and the type of data reported in each row. The first column contains the name of the ECM for the data in each row and the third through fifth columns provide details regarding the climate zones, building classes, and end uses that apply to each ECM. The second column indicates the type of data in each row -- one of the four series shown in :numref:`tech-potential-energy-plot-example`, the baseline and efficient results, with and without ECM competition. The sixth through ninth columns contain results for the financial metrics: internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved |CO2| (CCC). The columns beyond the ninth column contain the results for the metric of interest (energy use, |CO2| emissions, or energy cost) indicated by the worksheet tab name. Each of those columns corresponds to a year in the simulation, with the year indicated in the first row. 
+
+For a given set of results data on a single tab, each ECM included in the simulation appears in four rows. These four rows correspond to the uncompeted and competed baseline results, as well as the ("efficient") results with the ECM applied, again with and without competition. For each ECM, these rows correspond to the four primary lines that appear in the ECM-specific results figures, as in :numref:`tech-potential-energy-plot-example`. There are also two rows that report the sum of all ECMs for both the competed baseline and efficient cases. These rows are distinguished by not having any detail information in the third through ninth columns.
+
+.. note::
+   For each ECM in the results, in addition to the *total* energy use, |CO2| emissions, and energy cost results contained in the Excel files, the |html-filepath| ecm_results.json |html-fp-end| file includes those results broken out by each of the applicable baseline market parameters -- |baseline-market| -- that apply to each ECM. These results breakdowns are provided for both the baseline and efficient cases (without and with the ECM applied, respectively).
 
 .. _associative arrays: https://en.wikipedia.org/wiki/Associative_array
 .. _Python dictionaries: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
@@ -886,5 +1114,6 @@ The Reduce Infiltration ECM similarly shows a gap between the uncompeted baselin
 .. [#] The "applicable baseline market" is comprised of the |baseline-market| fields.
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
 .. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
-.. [#] If the warning "there is no package called 'rjson'" appears in the R Console window, try running the script again. If the warning is repeated, the rjson package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select "rjson" from the list of packages that appears. On a Mac, search in the list for "rjson," click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
+.. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
+.. [#] Building class corresponds to the four combinations of :ref:`building type <json-bldg_type>` and :ref:`structure type <json-structure_type>`.
 .. [#] When ECMs are competed against each other, demand-side heating and cooling ECMs that improve the performance of the building envelope reduce the energy required to meet heating and cooling needs (supply-side energy), and that reduction in energy requirements for heating and cooling is reflected in a reduced baseline for supply-side heating and cooling ECMs. At the same time, supply-side heating and cooling ECMs that are more efficient reduce the energy used to provide heating and cooling services, thus reducing the baseline energy for demand-side ECMs. The description of :ref:`ECM competition <ecm-competition>` in Step 3 of the analysis approach section includes further details regarding supply-side and demand-side heating and cooling energy use balancing.

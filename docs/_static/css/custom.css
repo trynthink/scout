@@ -49,3 +49,7 @@
   position: absolute;
   z-index: 99;
 }
+
+.filepath {
+  color: #c41d33;
+}

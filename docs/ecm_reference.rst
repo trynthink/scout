@@ -103,19 +103,19 @@ The end use names appear verbatim in the first column of the tables for resident
 | lighting              |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | refrigeration         |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| fans & pumps          |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| computers             |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
-| TVs                   |      X      |             |            |            |
-+-----------------------+-------------+-------------+------------+------------+
 | other (grid electric) |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | all                   |      X      |      X      |      X     |      X     |
 +-----------------------+-------------+-------------+------------+------------+
 
-.. ceiling fans are currently not shown
+.. | ceiling fan           |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | fans & pumps          |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | computers             |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
+   | TVs                   |      X      |             |            |            |
+   +-----------------------+-------------+-------------+------------+------------+
 
 **Commercial**
 
@@ -155,8 +155,10 @@ Technology
 
 Technology names appear verbatim. The lighting technology names are in the body of the table, categorized by illumination technology (e.g., incandescent, fluorescent) and application or fixture type.
 
-.. note::
+.. tip::
+   If the technology name for a given end use and fuel type is indicated as ``null``, the ECM definition should have the *unquoted* string text "null" written into the :ref:`json-technology` field.
 
+.. note::
    "all" is available as an option to specify all of the technology names that apply to all of the building types, fuel types, and end uses specified for the applicable baseline market. In addition, "all" can be made specific to a particular end use by specifying "all" followed by the end use name -- "all heating" or "all water heating," for example. This shorthand will capture all of the technologies in the named end use that apply to the building types and fuel types included in the applicable baseline market. For example, if the building type is "single family homes" and the fuel type is specified as ["electricity", "natural gas"] then "all heating" will include all of the heating technologies for residential buildings that use electricity or natural gas.
 
 **Residential -- Supply**
@@ -216,13 +218,17 @@ Technology names appear verbatim. The lighting technology names are in the body 
 
 * refrigeration: ``null``
 
-* fans and pumps: ``null``
-
-* computers: desktop PC, laptop PC, network equipment, monitors
-
-* TVs: home theater & audio, set top box, video game consoles, DVD, TV
-
 * other (grid electric): dishwasher, other MELs, clothes washing, freezers
+
+.. * ceiling fan: ``null``
+
+.. * fans and pumps: ``null``
+
+.. * computers: desktop PC, laptop PC, network equipment, monitors
+
+.. * TVs: home theater & audio, set top box, video game consoles, DVD, TV
+
+
 
 **Residential -- Demand**
 
@@ -318,6 +324,11 @@ Energy efficiency units
      * Boilers and furnaces (AFUE)
      * All other equipment types (COP)
 
+   * Secondary heating
+
+      * Electricity (COP)
+      * All other fuel types (AFUE)
+
    * Cooling (COP)
    * Water heating (EF)
    * Refrigeration (kWh/yr)
@@ -339,9 +350,7 @@ Energy efficiency units
    * Fans & pumps (HP/W)
    * TVs (W)
    * Computers (W)
-   * Secondary heating
-      * Electricity (COP)
-      * All other fuel types (AFUE)
+
 
 **Commercial -- Equipment (Supply)**
 
@@ -689,7 +698,9 @@ In cases where the energy efficiency is specified with one or more of the option
          "small office": "BTU out/BTU in"}},
     ...}
 
-Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, using EnergyPlus data, explained in the :ref:`ecm-features-energyplus` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
+.. Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, using EnergyPlus data, explained in the :ref:`ecm-features-energyplus` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
+
+Energy efficiency can also be specified with relative units, as described in the :ref:`ecm-features-relative-savings` section, or with probability distributions on some or all values, detailed in the :ref:`ecm-features-distributions` section.
 
 .. _json-energy_efficiency_source:
 
@@ -873,7 +884,7 @@ fuel_switch_to
 * **Children:** none
 * **Type:** string, list
 
-If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this filed can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
+If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this field can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
 
    {...
     "fuel_switch_to": "natural gas",

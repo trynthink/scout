@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Scout'
-copyright = '2016, Chioke Harris and Jared Langevin'
+copyright = '2017'
 author = 'Chioke Harris and Jared Langevin'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -367,12 +367,22 @@ rst_prolog = """
 .. |baseline-market| replace::
    :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-structure_type`, :ref:`json-fuel_type`, :ref:`json-end_use`, and :ref:`json-technology`
 
+.. |html-filepath| raw:: html
+
+   <span class="filepath">
+
+.. |html-fp-end| raw:: html
+
+   </span>
+
 .. _uniform: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.uniform.html#numpy.random.uniform
 .. _normal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.normal.html#numpy.random.normal
 .. _lognormal: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.lognormal.html#numpy.random.lognormal
 .. _triangular: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.triangular.html#numpy.random.triangular
 .. _weibull: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.weibull.html#numpy.random.weibull
 .. _gamma: https://docs.scipy.org/doc/numpy/reference/generated/numpy.random.gamma.html#numpy.random.gamma
+
+.. _Social Cost of Carbon: https://www.whitehouse.gov/sites/default/files/omb/inforeg/scc_tsd_final_clean_8_26_16.pdf
 """
 
 
