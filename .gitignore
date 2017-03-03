@@ -55,8 +55,17 @@ ehthumbs.db
 # Logs and databases #
 ######################
 
-.log
-.sqlite
+*.log
+*.sqlite
+
+# Software/language support files #
+###################################
+
+node_modules/
+.python-version
+.Rapp.history
+*.sublime-project
+*.sublime-workspace
 
 # Rendered reStructuredText documentation folders #
 ###################################################
