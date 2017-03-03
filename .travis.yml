@@ -10,6 +10,7 @@ language: python
 python:
   - "3.4"
   - "3.5"
+  - "3.6"
 
 # Download and set up anaconda
 before_install:
@@ -19,6 +20,10 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   # Update conda itself
   - conda update --yes conda
+  # Set up grunt by installing grunt-cli
+  # and the dependencies listed in package.json
+  - npm install -g grunt-cli
+  - npm install
 
 # Install packages
 install: 
@@ -29,3 +34,4 @@ install:
 # Run test(s)
 script: 
   - python3 -m unittest discover -p '*_test.py'
+  - grunt travis -v
