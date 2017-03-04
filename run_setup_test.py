@@ -10,6 +10,29 @@ from unittest.mock import patch, mock_open
 from collections import Counter
 import os
 import json
+import sys
+
+
+class NullDevice(object):
+    """Class to capture any output to stdout from the function under test.
+
+    Create non-operative write and flush methods to redirect output
+    from the run_setup function so that it is not printed to the console.
+
+    The write method is used to print the stdout to the console,
+    while the flush function is simply a requirement for an object
+    receiving stdout content.
+    """
+    def write(self, x):
+        pass
+
+    def flush(self):
+        pass
+
+# Send the standard output (stdout) to nowhere, effectively, to prevent
+# the user prompts printed by the run_setup module from appearing in
+# the console when testing those functions
+sys.stdout = NullDevice()
 
 
 class CommonUnitTest(unittest.TestCase):
@@ -777,7 +800,7 @@ class ECMListMarketSelectionUpdatingTest(CommonUnitTest):
 # test files)
 def main():
     """Trigger default behavior of running all test fixtures in the file."""
-    unittest.main(buffer=True)
+    unittest.main()
 
 if __name__ == '__main__':
     main()

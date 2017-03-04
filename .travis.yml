@@ -27,9 +27,8 @@ before_install:
 
 # Install packages
 install: 
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy xlrd
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy
   - source activate testenv
-#  - python setup.py install
 
 # Run test(s)
 script: 
