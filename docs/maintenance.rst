@@ -56,6 +56,45 @@ Before contributing to or updating the documentation, try to think of documentat
 
 .. _Beautiful Docs: https://github.com/PharkMillups/beautiful-docs
 
+
+Setting up your system to work with the documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+   These instructions are written with the assumption that you already have Homebrew and Python3 installed.
+
+Included with the documentation is an automated task runner that will do a few useful things. 
+
+1. Run sphinx to build an HTML version of the documentation
+2. Open/refresh a browser tab that previews the documentation HTML
+3. Repeat 1 and 2 each time changes are made to the documentation source files (\*.rst, \*.py, and any file in ./images and ./examples)
+
+The task runner uses Grunt_, and for Grunt to work properly on your computer, you'll need to install a few prerequisites and do some configuration on your local scout repository.
+
+.. _Grunt: http://gruntjs.com
+
+First, Grunt requires npm from node.js, which should be installed using Homebrew. ::
+
+   brew install node
+
+Next, make sure you're in the scout documentation directory (if needed, use ``cd`` to change your working directory in Terminal) and then install the Grunt command line interface (CLI). THe ``-g`` option indicates that the Grunt CLI should be installed globally (i.e., for all users).
+
+   cd ~/Documents/scout/docs
+   npm install -g grunt-cli
+
+Finally, install the prerequisites for the specific Grunt file for the documentation (given in the |html-filepath| docs/packages.json |html-fp-end| file). ::
+
+   npm install
+
+Now your system is set up to run Grunt for the documentation. In a separate Terminal tab (opened with |cmd|-T), since the Grunt process will run continuously, start the Grunt task runner. ::
+
+   grunt
+
+This should compile the HTML documentation and open a new browser tab or window in your default browser to preview the built HTML version of the documentation. You can proceed with making changes to the documentation source. Each time a change is made, the HTML will automatically be rebuilt and the browser window or tab refreshed.
+
+Once you are done making changes to the documentation, you can type Ctrl-c in the applicable Terminal tab to stop Grunt.
+
+
 .. http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
 
 .. SUBSECTIONS AND CONTENT TO ADD
