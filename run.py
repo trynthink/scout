@@ -274,14 +274,14 @@ class Engine(object):
                     if (euse[0] == "Refrigeration" and
                         "refrigeration" in m.end_use["primary"] or
                         "freezers" in m.technology) or (
-                        euse[0] != "Refrigeration" and (
+                        euse[0] != "Refrigeration" and ((
                             euse[0] in ["Heating (Equip.)",
                                         "Cooling (Equip.)"] and
                             "supply" in m.technology_type["primary"]) or (
                             euse[0] == "Envelope" and "demand" in
                             m.technology_type["primary"]) or (euse[0] not in [
                                 "Heating (Equip.)", "Cooling (Equip.)",
-                                "Envelope"])):
+                                "Envelope"]))):
                         end_uses.append(euse[0])
 
             # Set measure climate zone(s), building sector(s), and end use(s)

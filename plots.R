@@ -639,7 +639,7 @@ for (a in 1:length(adopt_scenarios)){
       # Add annual ECM energy, carbon, or cost totals to XLSX worksheet data frame
       xlsx_data[row_ind_start:(row_ind_start + 3),
                 (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = 
-                rbind(base_uc, eff_uc_m, base_c_m, eff_uc_m)
+                rbind(base_uc, eff_uc_m, base_c_m, eff_c_m)
       
       # Initialize or update summed energy, carbon, or cost totals across all ECMs
       if (m == 1){
@@ -711,7 +711,7 @@ for (a in 1:length(adopt_scenarios)){
 
       # Add x and y axis labels
       mtext("Year", side=1, line=3.5, cex=0.925)
-      mtext(plot_axis_labels_ecm[v], side=2, line=3.75, cex=0.925)
+      mtext(plot_axis_labels_ecm[v], side=2, line=3.65, cex=0.925)
       # Add tick marks and labels to bottom and left axes
       axis(side=1, at=pretty(c(min(years), max(years))),
            labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
@@ -774,7 +774,7 @@ for (a in 1:length(adopt_scenarios)){
     # Add x and y axis labels to plot of energy, carbon, or cost totals
     # across all ECMs
     mtext("Year", side=1, line=3.5, cex=0.925)
-    mtext(plot_axis_labels_ecm[v], side=2, line=3.75, cex=0.925)
+    mtext(plot_axis_labels_ecm[v], side=2, line=3.65, cex=0.925)
     # Add tick marks and labels to bottom and left axes
     axis(side=1, at=pretty(c(min(years), max(years))),
          labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
