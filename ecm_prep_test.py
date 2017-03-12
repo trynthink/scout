@@ -13926,13 +13926,16 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove", 'technology', 'technology_type', 'yrs_on_mkt'],
+             "name", "out_break_norm", "remove", 'technology',
+             'technology_type', 'yrs_on_mkt'],
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "remove", 'technology', 'technology_type', 'yrs_on_mkt'],
+             "name", "out_break_norm", "remove", 'technology',
+             'technology_type', 'yrs_on_mkt'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
-             "technology", "technology_type", "market_entry_year",
-             "market_exit_year", 'markets', 'contributing_ECMs', 'name',
-             'remove', 'structure_type', 'yrs_on_mkt']]
+             "technology", "technology_type",
+             "market_entry_year", "market_exit_year", 'markets',
+             'contributing_ECMs', 'name', "out_break_norm", 'remove',
+             'structure_type', 'yrs_on_mkt']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
     def test_cleanup(self):

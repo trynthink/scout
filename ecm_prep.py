@@ -4723,10 +4723,13 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             if len(meas_summary_data) == 1:
                 # Initialize the missing measure as an object
                 meas_obj = Measure(handyvars, **meas_summary_data[0])
-                # Reset measure technology type variable to its value in the
+                # Reset measure technology type and total energy (used to
+                # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
                 meas_obj.technology_type = meas_summary_data[0][
                     "technology_type"]
+                meas_obj.out_break_norm = meas_summary_data[0][
+                    "out_break_norm"]
                 # Assemble folder path for measure competition data
                 meas_folder_name = path.join(*handyfiles.ecm_compete_data)
                 # Assemble file name for measure competition data
@@ -4841,9 +4844,6 @@ def split_clean_data(meas_prepped_objs):
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
-        # Delete the total energy value used to normalize savings values summed
-        # by climate zone, building type, and end use
-        del m.out_break_norm
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names
         if isinstance(m, MeasurePackage):
