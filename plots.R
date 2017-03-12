@@ -17,7 +17,7 @@ package_loader <- function(pkg_list) {
 }
 
 # Load indicated packages
-package_loader(c("RColorBrewer", "rjson", "WriteXLS", "stringr", "TeachingDemos"))
+package_loader(c("RColorBrewer", "rjson", "WriteXLS", "stringr", "TeachingDemos", "scales"))
 
 # Specify JSON file encoding
 options("encoding" = "UTF-8")
@@ -140,6 +140,8 @@ var_names_compete_save <- c(
   'Energy Savings (MMBtu)', 'Avoided CO₂ Emissions (MMTons)', 'Energy Cost Savings (USD)')
 # Set names of variables to filter aggregated savings
 filter_var<-c('Climate Zone', 'Building Class', 'End Use')
+# Set transparent background for legend
+transparent_back<-alpha("white", 0.75)
 
 # ============================================================================
 # Set high-level variables needed to generate ECM cost effectiveness plots
@@ -903,10 +905,15 @@ for (a in 1:length(adopt_scenarios)){
       color_entries = c(
       	'gray30', 'gray50',
       	results_agg[f, 3][[1]][order(total_ranks, decreasing=TRUE)])
-      legend(min(xlim), max(ylim_ann), legend=legend_entries,
+      # Find plot extremes for setting legend position
+      plot_extremes <- par("usr")
+      # Plot legend
+      legend((plot_extremes[1] + abs(plot_extremes[2] - plot_extremes[1])*0.005),
+             (plot_extremes[4] - abs(plot_extremes[4] - plot_extremes[3])*0.005),
+      	     legend=legend_entries,
       		 lwd=c(4, 4, rep(2, (length(legend_entries) - 2))),
              col=color_entries, lty=c(1, 3, rep(1, (length(legend_entries)-2))), 
-       		 bty="n", border = FALSE, merge = TRUE, cex=0.8)
+       		 bg=transparent_back, box.col="NA", cex=0.8)
     }
     dev.off()
     

@@ -43,31 +43,24 @@
       "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
     }
   },
-  "installed_cost": 3.2,
-  "cost_units": "2013$/ft^2 floor",
+  "installed_cost": 5.03,
+  "cost_units": "2016$/ft^2 footprint",
   "installed_cost_source": {
-    "notes": "Insulating slab, R-20",
+    "notes": "4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)",
     "source_data": {
-      "title": "NREL National Residential Efficiency Measures Database",
+      "title": "RSMeans 2016 Building Construction Data",
       "author": null,
-      "organization": "National Renewable Energy Laboratory",
-      "year": 2013,
+      "organization": "Gordion Group",
+      "year": 2016,
       "pages": null,
-      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
+      "URL": "https://www.rsmeansonline.com/SearchData"
     }
   },
   "product_lifetime": 100,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Assumed to be the same as lifetime of the home",
-    "source_data": {
-      "title": "NREL National Residential Efficiency Measures Database",
-      "author": null,
-      "organization": "National Renewable Energy Laboratory",
-      "year": 2013,
-      "pages": null,
-      "URL": "http://www.nrel.gov/ap/retrofits/measures.cfm?gId=14&ctId=338"
-    }
+    "source_data": null
   },
   "measure_type": "full service",
   "fuel_switch_to": null,

@@ -40,10 +40,10 @@
        "year": 2016,
        "pages": 61,
        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-  "product_lifetime": 17,
+  "product_lifetime": 16,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of average stated lifetime for side-mount refrigerators",
+    "notes": "median of average stated lifetime for side-mount refrigerators, adjusted from 17 to 16 to match baseline refrigerator lifetime (in Scout 'cpl_res_com_cz.json' file)",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "U.S. EIA",
