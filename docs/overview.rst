@@ -11,7 +11,7 @@ What is Scout and who should use it?
 * Scout is a software program that estimates the national energy savings, avoided |CO2| emissions, and operating cost impact potential of various :ref:`energy conservation measures (ECMs) <overview-ecms>` in the U.S. residential and commercial building sectors.
 * With Scout, users can explore both the savings impact and cost-effectiveness of ECMs under multiple adoption scenarios across the entire U.S. or a subset of climate zone(s).
 * Scout can help organizations with large building energy efficiency programs or portfolios frame their high-level program benefits and costs. Researchers, building managers, architects/engineers, and the general public can also use Scout to determine where certain energy-saving technologies or approaches of interest fit into the larger U.S. market for building energy efficiency.
-* Scout is under active development by the U.S. Department of Energy Building Technologies Office (BTO). The software can be downloaded or forked_ from the `GitHub repository`_, however users are encouraged to wait until an initial release of the software is made.
+* Scout is under active development by the U.S. Department of Energy Building Technologies Office (BTO). The latest release of the software can be downloaded or forked_ from the `GitHub repository`_.
 
 .. _forked: https://help.github.com/articles/fork-a-repo/
 .. _GitHub repository: https://www.github.com/trynthink/scout
