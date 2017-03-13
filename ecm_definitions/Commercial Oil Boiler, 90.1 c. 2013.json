@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Oil Boiler, ASHRAE 90.1 2013",
+  "name": "Commercial Oil Boiler, 90.1 2013",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",

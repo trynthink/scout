@@ -1,11 +1,11 @@
 {
-  "name": "Commercial Oil WH, ASHRAE 90.1 c. 2013",
+  "name": "Commercial Oil Furnace, 90.1 2013",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": "water heating",
+  "end_use": "heating",
   "fuel_type": "distillate",
-  "technology": "oil_water_heater",
+  "technology": "oil_furnace",
   "market_entry_year": 2013,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -13,33 +13,33 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.78,
+  "energy_efficiency": 0.81,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2013 standard",
+    "notes": "Fed min standard and ASHRAE 2013 standard",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 119,
+      "organization": "U.S. EIA",
+      "year": 2013,
+      "pages": 86,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 66.95,
+  "installed_cost": 11.2,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "assume the typical installed cost for 2013 ($7030); Asumme the EIA listed threshold for input capacity of 105,000 Btu/h",
+    "notes": "median of range for total installed cost for 2013 typical value ($4480); assume the EIA typical capacity of 400 kBTU/h",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. EIA",
       "year": 2016,
-      "pages": 119,
+      "pages": 86,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "product_lifetime": 13,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "average stated 2013 lifetime",
@@ -48,7 +48,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2016,
-      "pages": 119,
+      "pages": 85,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
