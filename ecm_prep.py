@@ -1893,22 +1893,9 @@ class Measure(object):
                 # energy for the microsegment's climate zone, building
                 # type, and structure type
                 if mskeys[4] == "lighting" and self.end_use[
-                        "secondary"] != [None] and mskeys[-1] == "new":
+                        "secondary"] != [None]:
                     # Initialize total lighting energy
                     energy_total_scnd = True
-                    # New building fraction
-                    vint_frac = {
-                        yr: new_constr["new fraction"][yr] for yr
-                        in self.handyvars.aeo_years}
-                elif mskeys[4] == "lighting" and self.end_use[
-                    "secondary"] != [None] and \
-                        mskeys[-1] == "existing":
-                    # Initialize total lighting energy
-                    energy_total_scnd = True
-                    # Existing building fraction
-                    vint_frac = {
-                        yr: (1 - new_constr["new fraction"][yr]) for yr
-                        in self.handyvars.aeo_years}
                 else:
                     energy_total_scnd = False
 
@@ -1942,7 +1929,7 @@ class Measure(object):
                 # microsegment (used to adjust secondary effects)
                 if energy_total_scnd is True:
                     energy_total_scnd = self.find_scnd_overlp(
-                        vint_frac, reduce(
+                        new_existing_frac, site_source_conv_base, reduce(
                             operator.getitem, mskeys[1:5], msegs),
                         energy_tot=dict.fromkeys(
                             self.handyvars.aeo_years, 0))
@@ -2244,7 +2231,7 @@ class Measure(object):
         # Generate an error message when no contributing microsegments
         # with a full set of stock/energy and cost/performance/lifetime data
         # have been found for the measure's master microsegment
-        else:
+        elif self.remove is False:
             raise KeyError(
                 "No data retrieved for applicable baseline market "
                 "definition of ECM '" + self.name + "'")
@@ -2673,8 +2660,9 @@ class Measure(object):
 
                 # Initialize original primary microsegment stock information
                 secnd_adj_sbmkt["original energy (total)"][
-                    secnd_mseg_adjkey] = dict.fromkeys(
-                        self.handyvars.aeo_years, 0)
+                    secnd_mseg_adjkey] = {
+                        key: energy_total_scnd[key] for key in
+                        self.handyvars.aeo_years}
                 # Initialize sub-market adjusted microsegment stock information
                 secnd_adj_sbmkt["adjusted energy (sub-market)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
@@ -2920,9 +2908,6 @@ class Measure(object):
             # primary microsegment
             if mskeys[0] == "primary" and mskeys[4] == "lighting" and \
                     secnd_mseg_adjkey is not None:
-                # Total stock
-                secnd_adj_sbmkt["original energy (total)"][
-                    secnd_mseg_adjkey][yr] += energy_total_scnd[yr]
                 # Sub-market stock
                 secnd_adj_sbmkt["adjusted energy (sub-market)"][
                     secnd_mseg_adjkey][yr] += energy_total[yr]
@@ -3550,7 +3535,7 @@ class Measure(object):
         # Output list of key chains
         return ms_iterable, ms_lists
 
-    def find_scnd_overlp(self, vint_frac, dict1, energy_tot):
+    def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate, building, and structure type.
 
         Note:
@@ -3559,6 +3544,7 @@ class Measure(object):
 
         Args:
             vint_frac (dict): New/existing fraction by year.
+            ss_conv (dict): Site/source conversion factors by year.
             dict1 (dict): Dict of lighting stock/energy data for given
             climate zone, building type, and structure type.
             energy_tot (float): Total lighting energy value.
@@ -3575,13 +3561,13 @@ class Measure(object):
             # energy data has not been reached
             elif isinstance(i, dict) and k != "energy":
                 self.find_scnd_overlp(
-                    vint_frac, i, energy_tot)
+                    vint_frac, ss_conv, i, energy_tot)
             # If terminal node energy data has been reached, add energy
             # data to the total energy use variable
             elif k == "energy":
                 for yr in self.handyvars.aeo_years:
                     energy_tot[yr] += dict1["energy"][yr] * \
-                        vint_frac[yr]
+                        vint_frac[yr] * ss_conv[yr]
             # Raise error if no energy data are available
             else:
                 raise ValueError(
@@ -4633,7 +4619,7 @@ class MeasurePackage(Measure):
 
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
-                     cbecs_sf_byvint, base_dir):
+                     cbecs_sf_byvint, base_dir, verbose):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -4651,6 +4637,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         handyvars (object): Global variables of use across Measure methods.
         cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         base_dir (string): Base directory.
+        verbose (bool or NoneType): Determines whether to print all
+            user warnings and messages.
 
     Returns:
         A list of dicts, each including a set of measure attributes that has
@@ -4680,7 +4668,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             if 'EnergyPlus file' in m.energy_efficiency.keys()]
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, convert_data, options.verbose) for
+    [m.fill_mkts(msegs, msegs_cpl, convert_data, verbose) for
      m in meas_update_objs]
 
     return meas_update_objs
@@ -5030,7 +5018,7 @@ def main(base_dir):
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
-            cbecs_sf_byvint, base_dir)
+            cbecs_sf_byvint, base_dir, options.verbose)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
