@@ -18,6 +18,13 @@ rs*.txt
 *_cdiv.json
 *_cz.json
 
+# Scout-generated JSON databases #
+##################################
+
+ecm_results.json
+run_setup.json
+ecm_prep.json
+
 # Presentation files #
 ######################
 

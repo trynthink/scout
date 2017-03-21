@@ -4953,14 +4953,20 @@ def main(base_dir):
     handyvars = UsefulVars(base_dir, handyfiles)
 
     # Import file to write prepared measure attributes data to for
-    # subsequent use in the analysis engine
-    with open(path.join(base_dir, *handyfiles.ecm_prep), 'r') as es:
+    # subsequent use in the analysis engine (if file does not exist,
+    # provide empty list as substitute, since file will be created
+    # later when writing ECM data)
+    try:
+        es = open(path.join(base_dir, *handyfiles.ecm_prep), 'r')
         try:
             meas_summary = json.load(es)
         except ValueError as e:
             raise ValueError(
                 "Error reading in '" + handyfiles.ecm_prep +
                 "': " + str(e)) from None
+        es.close()
+    except FileNotFoundError:
+        meas_summary = []
 
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
@@ -5087,15 +5093,21 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        # Import analysis engine setup file to write prepared measure names
-        # to
-        with open(path.join(base_dir, handyfiles.run_setup), 'r') as am:
+        # Import analysis engine setup file to write prepared ECM names
+        # to (if file does not exist, provide empty active/inactive ECM
+        # list as substitute, since file will be overwritten/created
+        # later when writing ECM data)
+        try:
+            am = open(path.join(base_dir, handyfiles.run_setup), 'r')
             try:
                 run_setup = json.load(am, object_pairs_hook=OrderedDict)
             except ValueError as e:
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.run_setup + "': " + str(e)) from None
+            am.close()
+        except FileNotFoundError:
+            run_setup = {"active": [], "inactive": []}
 
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
