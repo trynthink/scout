@@ -620,7 +620,9 @@ class Engine(object):
         Notes:
             Calculate internal rate of return, simple payback, and cost of
             conserved energy/carbon from cash flows and energy/carbon
-            savings across the measure lifetime.
+            savings across the measure lifetime. In the cash flows, represent
+            the benefits of longer lifetimes for lighting equipment ECMs over
+            comparable baseline technologies.
 
         Args:
             m (object): Measure object.
@@ -651,15 +653,17 @@ class Engine(object):
         # 3) Cash flows considering capital costs and carbon costs
         # 4) Cash flows considering capital, energy, and carbon costs
 
-        # Determine when over the course of the measure lifetime (if at all)
-        # a cost gain is realized from an avoided purchase of the baseline
-        # technology due to longer measure lifetime; store this information in
-        # a list of year indicators for subsequent use below.  Example: an LED
-        # bulb lasts 30 years compared to a baseline bulb's 10 years, meaning
-        # 3 purchases of the baseline bulb would have occured by the time the
-        # LED bulb has reached the end of its life.
+        # For lighting equipment ECMs only: determine when over the course of
+        # the ECM lifetime (if at all) a cost gain is realized from an avoided
+        # purchase of the baseline lighting technology due to longer measure
+        # lifetime; store this information in a list of year indicators for
+        # subsequent use below.  Example: an LED bulb lasts 30 years compared
+        # to a baseline bulb's 10 years, meaning 3 purchases of the baseline
+        # bulb would have occurred by the time the LED bulb has reached the
+        # end of its life.
         added_stockcost_gain_yrs = []
-        if life_meas > life_base:
+        if (life_meas > life_base) and ("lighting" in m.end_use[
+                "primary"]) and (m.measure_type == "full service"):
             for i in range(1, life_meas):
                 if i % life_base == 0:
                     added_stockcost_gain_yrs.append(i - 1)

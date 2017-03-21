@@ -67,7 +67,8 @@ class CommonTestMeasures(object):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
                     "mseg_out_break": {}}}}
         self.sample_measure2 = {
             "name": "sample measure 2",
@@ -101,7 +102,8 @@ class CommonTestMeasures(object):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -113,7 +115,8 @@ class CommonTestMeasures(object):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
                     "mseg_out_break": {}}}}
         self.sample_measure3 = {
             "name": "sample measure 3 (commercial)",
@@ -147,7 +150,8 @@ class CommonTestMeasures(object):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -159,7 +163,102 @@ class CommonTestMeasures(object):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
+                    "mseg_out_break": {}}}}
+        self.sample_measure4 = {
+            "name": "sample measure 4",
+            "active": 1,
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity (grid)"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["lighting"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["general service (CFL)"],
+                           "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {},
+                        "competed choice parameters": {},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
+                    },
+                    "mseg_out_break": {}},
+                "Max adoption potential": {
+                    "master_mseg": {},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {},
+                        "competed choice parameters": {},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
+                    "mseg_out_break": {}}}}
+        self.sample_measure5 = {
+            "name": "sample measure 5 (commercial)",
+            "active": 1,
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["assembly"],
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["lighting"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["F32T8"],
+                           "secondary": None},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {},
+                        "competed choice parameters": {},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
+                    "mseg_out_break": {}},
+                "Max adoption potential": {
+                    "master_mseg": {},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {},
+                        "competed choice parameters": {},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}
+                                }}},
                     "mseg_out_break": {}}}}
 
 
@@ -356,8 +455,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars()
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
-        cls.sample_measure_res = CommonTestMeasures().sample_measure
-        cls.sample_measure_com = CommonTestMeasures().sample_measure3
+        cls.sample_measure_res = CommonTestMeasures().sample_measure4
+        cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Max adoption potential'
         cls.ok_rate = 0.07
         cls.ok_master_mseg_point = {
@@ -1448,7 +1547,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars()
-        sample_measure = CommonTestMeasures().sample_measure
+        sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
         cls.ok_product_lifetime = 6.2
