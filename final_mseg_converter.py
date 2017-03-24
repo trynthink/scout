@@ -84,7 +84,8 @@ class UsefulVars(object):
 
     def __init__(self):
         self.addl_cpl_data = 'cpl_envelope_mels.json'
-        self.conv_factors = 'meas_costconvert.json'
+        self.conv_factors = ('supporting_data/convert_data/'
+                             'ecm_cost_convert.json')
         self.aeo_metadata = 'metadata.json'
 
     def configure_for_energy_square_footage_stock_data(self):

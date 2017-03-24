@@ -11,6 +11,7 @@ import numpy as np
 import re
 import json
 import types
+import argparse
 from contextlib import suppress
 import argparse
 
@@ -159,7 +160,7 @@ def EIA_filename_identifier():
 
 
 def file_processor(file_name, func_name, col_index, files_list,
-                   min_yrs, max_yrs, pivot_yr=0):
+                   min_yrs, max_yrs, pivot_yr=0, skip_header_lines=None):
     """Import and process data to obtain the year range from a data file.
 
     To ensure that the EIA data files that are imported are also
@@ -177,13 +178,20 @@ def file_processor(file_name, func_name, col_index, files_list,
             imported and checked and have not yet been.
         min_years (list): The earliest years found in the imported data.
         max_years (list): The latest years found in the imported data.
-        pivot_yr (int): Optional pivot year needed for some data
-            that must be adjusted to be in the form YYYY.
-
+        pivot_yr (int): Optional pivot year needed for some data that
+            must be adjusted to be in the form YYYY.
+        skip_header_lines (int): Optional number of lines in the
+            header of the file imported using the function 'func_name'
+            to be skipped when importing the data.
     """
 
     # Call the external function that imports the data at file_name
-    data_object = func_name(file_name)
+    # (and passes through the number of header lines to skip in the
+    # file, if applicable)
+    if skip_header_lines:
+        data_object = func_name(file_name, skip_header_lines)
+    else:
+        data_object = func_name(file_name)
 
     # Extract the years from the imported data, using the function
     # appropriate for the location of the years in the data, and
@@ -211,6 +219,26 @@ def main():
     the AEO data, the major files are imported here and the minimum and
     maximum years from each file are compared to determine the range
     that is common for all of those files. """
+
+    # Set up to support user option to specify the year for the
+    # AEO data being imported (default if the option is not used
+    # should be current year)
+    parser = argparse.ArgumentParser()
+    help_string = 'Specify year of AEO data to be imported'
+    parser.add_argument('-y', '--year', type=int, help=help_string,
+                        choices=[2015, 2017])
+
+    # Get import year specified by user (if any)
+    aeo_import_year = parser.parse_args().year
+
+    # Specify the number of header and footer lines to skip based on the
+    # optional AEO year indicated by the user when this module is called
+    if aeo_import_year == 2015:
+        nlt_cp_skip_header = 20
+        lt_skip_header = 35
+    else:
+        nlt_cp_skip_header = 25
+        lt_skip_header = 37
 
     # Instantiate lists to store minimum and maximum years identified
     # from the data
@@ -250,16 +278,16 @@ def main():
         supply = rm.array_row_remover(supply, rm.UsefulVars().unused_supply_re)
         return supply
 
-    def import_residential_cpl_non_lighting_data(file_name):
+    def import_residential_cpl_non_lighting_data(file_name, skip_header_lines):
         eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
-                                   dtype=None, skip_header=nlt_cp_skip_header,
-                                   comments=None)
+                                   dtype=None, comments=None,
+                                   skip_header=skip_header_lines)
         return eia_nlt_cp
 
-    def import_residential_cpl_lighting_data(file_name):
-        eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names, dtype=None,
-                               skip_header=lt_skip_header,
-                               skip_footer=54, comments=None)
+    def import_residential_cpl_lighting_data(file_name, skip_header_lines):
+        eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names,
+                               dtype=None, comments=None,
+                               skip_header=skip_header_lines, skip_footer=54)
         return eia_lt
 
     def import_commercial_service_demand_data(file_name):  # KSDOUT.txt
@@ -298,12 +326,14 @@ def main():
     min_yrs, max_yrs = file_processor(rmt.EIAData().r_nlt_costperf,
                                       import_residential_cpl_non_lighting_data,
                                       ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                      files_, min_yrs, max_yrs)
+                                      files_, min_yrs, max_yrs,
+                                      skip_header_lines=nlt_cp_skip_header)
 
     min_yrs, max_yrs = file_processor(rmt.EIAData().r_lt_all,
                                       import_residential_cpl_lighting_data,
                                       ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                      files_, min_yrs, max_yrs)
+                                      files_, min_yrs, max_yrs,
+                                      skip_header_lines=lt_skip_header)
 
     min_yrs, max_yrs = file_processor(cm.EIAData().serv_dmd,
                                       import_commercial_service_demand_data,
@@ -314,7 +344,7 @@ def main():
                                       import_commercial_energy_stock_data,
                                       ['Year'],
                                       files_, min_yrs, max_yrs,
-                                      cm.UsefulVars().pivot_year)
+                                      pivot_yr=cm.UsefulVars().pivot_year)
 
     min_yrs, max_yrs = file_processor(cmt.EIAData().cpl_data,
                                       import_commercial_cpl_data,

@@ -3,6 +3,7 @@
 import re
 import numpy
 import json
+import argparse
 
 
 class EIAData(object):
@@ -592,6 +593,17 @@ def main():
     """ Import text and JSON files; run through JSON objects; find
     analogous text information; replace JSON values; update JSON """
 
+    # Set up to support user option to specify the year for the
+    # AEO data being imported (default if the option is not used
+    # should be current year)
+    parser = argparse.ArgumentParser()
+    help_string = 'Specify year of AEO data to be imported'
+    parser.add_argument('-y', '--year', type=int, help=help_string,
+                        choices=[2015, 2017])
+
+    # Get import year specified by user (if any)
+    aeo_import_year = parser.parse_args().year
+
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
@@ -616,10 +628,18 @@ def main():
         metajson = json.load(metadata)
 
     # Calculate number of years in the AEO data; expecting 32 years
+    # for AEO 2015 data, 42 years in AEO 2017 data (though 38 years
+    # are common across all input EIA data files)
+
+    # Use AEO data import year specified by user (if any) to determine
+    # how to specify the year range to be used for processing the data
+    if aeo_import_year == 2015:
+        yrs_range = metajson['max year'] - metajson['min year'] + 1
+    else:
+        yrs_range = 42
     # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
     # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA
     # IN THE RANGE OF YEARS OF THE DATA REPORTED
-    yrs_range = metajson['max year'] - metajson['min year'] + 1
 
     # json.dump cannot convert ("serialize") numbers of the type
     # np.int64 to integers, but all of the integers in 'result' are

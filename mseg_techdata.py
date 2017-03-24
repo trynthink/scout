@@ -5,6 +5,7 @@ import numpy
 import json
 import mseg
 import copy
+import argparse
 
 
 class EIAData(object):
@@ -944,21 +945,44 @@ def main():
     exporting updated dict to a JSON, translate the dict from a census division
     breakdown to a climate zone breakdown """
 
+    # Set up to support user option to specify the year for the
+    # AEO data being imported (default if the option is not used
+    # should be current year)
+    parser = argparse.ArgumentParser()
+    help_string = 'Specify year of AEO data to be imported'
+    parser.add_argument('-y', '--year', type=int, help=help_string,
+                        choices=[2015, 2017])
+
+    # Get import year specified by user (if any)
+    aeo_import_year = parser.parse_args().year
+
+    # Specify the number of header and footer lines to skip based on the
+    # optional AEO year indicated by the user when this module is called
+    if aeo_import_year == 2015:
+        nlt_cp_skip_header = 20
+        lt_skip_header = 35
+    else:
+        nlt_cp_skip_header = 25
+        lt_skip_header = 37
+
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
 
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,
-                                  dtype=None, skip_header=20, comments=None)
+                                  dtype=None, comments=None,
+                                  skip_header=nlt_cp_skip_header)
 
     # Import EIA non-lighting residential lifetime data
     eia_nlt_l = numpy.genfromtxt(eiadata.r_nlt_life, names=r_nlt_l_names,
-                                 dtype=None, skip_header=19, comments=None)
+                                 dtype=None, comments=None,
+                                 skip_header=19)
 
     # Import EIA lighting residential cost, performance and lifetime data
-    eia_lt = numpy.genfromtxt(eiadata.r_lt_all, names=r_lt_names, dtype=None,
-                              skip_header=35, skip_footer=54, comments=None)
+    eia_lt = numpy.genfromtxt(eiadata.r_lt_all, names=r_lt_names,
+                              dtype=None, comments=None,
+                              skip_header=lt_skip_header, skip_footer=54)
 
     # Establish the modeling time horizon based on metadata generated
     # from EIA AEO data files

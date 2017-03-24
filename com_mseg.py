@@ -701,9 +701,16 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # quotechar '"' is appropriate; the skipinitialspace option
         # ensures proper reading of double-quoted text strings in the
         # AEO data that have the delimiter inside them (e.g., cooking
-        # equipment descriptions)
-        filecont = csv.reader(thefile, delimiter=delim_char,
-                              skipinitialspace=True)
+        # equipment descriptions); the loop which csv.reader is called
+        # is used to detect NULL characters and act appropriately (by
+        # removing them prior to converting to a csv.reader object)
+        # if they are encountered
+        if '\0' in open(data_file_path).read():  # NULL bytes detected
+            filecont = csv.reader((x.replace('\0', '') for x in thefile),
+                                  delimiter=delim_char, skipinitialspace=True)
+        else:  # No NULL bytes, proceed normally
+            filecont = csv.reader(thefile,
+                                  delimiter=delim_char, skipinitialspace=True)
 
         # Create list to be populated with tuples of each row of data
         # from the data file
