@@ -387,7 +387,7 @@ class Engine(object):
                         (stock_base_cost_tot[yr] -
                          stock_meas_cost_tot[yr]) / nunits_tot[yr]
                 else:
-                    scostbase, scost_save = 0
+                    scostbase, scost_save = (0 for n in range(2))
 
                 # Calculate total annual energy/carbon and capital/energy/
                 # carbon cost savings for the measure vs. baseline. Total
@@ -457,12 +457,25 @@ class Engine(object):
                     type(nunits_meas) != numpy.ndarray and nunits_meas < 1 or
                         type(nunits_meas) == numpy.ndarray and all(
                             nunits_meas) < 1):
-                    stock_anpv_res[yr], energy_anpv_res[yr], \
-                        carb_anpv_res[yr], stock_anpv_com[yr], \
-                        energy_anpv_com[yr], carb_anpv_com[yr], \
-                        irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
-                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = [
-                            999 for n in range(14)]
+                    if yr == self.handyvars.aeo_years[0]:
+                        stock_anpv_res[yr], energy_anpv_res[yr], \
+                            carb_anpv_res[yr], stock_anpv_com[yr], \
+                            energy_anpv_com[yr], carb_anpv_com[yr], \
+                            irr_e[yr], irr_ec[yr], payback_e[yr], \
+                            payback_ec[yr], cce[yr], cce_bens[yr], \
+                            ccc[yr], ccc_bens[yr] = [999 for n in range(14)]
+                    else:
+                        yr_prev = str(int(yr) - 1)
+                        stock_anpv_res[yr], energy_anpv_res[yr], \
+                            carb_anpv_res[yr], stock_anpv_com[yr], \
+                            energy_anpv_com[yr], carb_anpv_com[yr], \
+                            irr_e[yr], irr_ec[yr], payback_e[yr], \
+                            payback_ec[yr], cce[yr], cce_bens[yr], \
+                            ccc[yr], ccc_bens[yr] = [x[yr_prev] for x in [
+                                stock_anpv_res, energy_anpv_res, carb_anpv_res,
+                                stock_anpv_com, energy_anpv_com, carb_anpv_com,
+                                irr_e, irr_ec, payback_e, payback_ec, cce,
+                                cce_bens, ccc, ccc_bens]]
                 # Otherwise, check whether any financial metric calculation
                 # inputs that can be arrays are in fact arrays
                 elif any(type(x) == numpy.ndarray for x in [
@@ -1484,9 +1497,10 @@ class Engine(object):
         # ensure that the apportionment removes each ECM's contribution to this
         # total fraction
         added_sbmkt_fracs = [
-            {yr: noapply_sbmkt_fracs_tot[yr] * mkt_fracs[ind][yr] -
-             noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for yr in
-             self.handyvars.aeo_years} for ind in range(0, len(measures_adj))]
+            {yr: ((noapply_sbmkt_fracs_tot[yr] -
+             noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr]) /
+             (len(measures_adj) - 1)) for yr in self.handyvars.aeo_years} for
+            ind in range(0, len(measures_adj))]
 
         return added_sbmkt_fracs
 
@@ -1796,9 +1810,11 @@ class Engine(object):
             # First year in time horizon or a competed measure market entry
             # year in a technical potential scenario; weighted market share
             # equals market share for the captured stock in this year only
-            if ind == 0:
-                adj_frac_tot = adj_fracs[wyr] + \
-                    added_sbmkt_fracs[wyr]
+            if ind == 0 or (
+                int(wyr) <= min([int(x) for x in mkt_entry_yrs])) or (
+                    adopt_scheme == "Technical potential" and
+                    wyr in mkt_entry_yrs):
+                adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
             # Subsequent year; weighted market share averages market share
             # for captured stock in current year and all previous years
             else:

@@ -1699,7 +1699,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -1951,7 +1951,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -2286,7 +2286,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -2663,7 +2663,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -2916,7 +2916,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "demand", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -3201,7 +3201,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -3576,7 +3576,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -5363,7 +5363,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "technology": ["reflector (LED)"],
             "technology_type": {
                 "primary": "supply", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
@@ -6575,7 +6575,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "technology": ["reflector (LED)"],
             "technology_type": {
                 "primary": "supply", "secondary": None},
-            "market_entry_year": None,
+            "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
             "markets": {
