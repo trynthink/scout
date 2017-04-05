@@ -1032,8 +1032,7 @@ class Engine(object):
                     if 'supply' in msu:
                         supply_demand_overlp.extend((
                             (key, val["energy"]["total"]["baseline"])
-                            for key, val in mkt if key not in
-                            [x[0] for x in supply_demand_overlp] and
+                            for key, val in mkt if
                             msu_split[0] in key and msu_split[1] in key and
                             msu_split[2] in key and ovrlp_tech in key))
 
@@ -1042,10 +1041,22 @@ class Engine(object):
                     else:
                         supply_demand_overlp.extend((
                             (key, val["energy"]["total"]["baseline"])
-                            for key, val in mkt if key not in
-                            [x[0] for x in supply_demand_overlp] and
+                            for key, val in mkt if
                             msu_split[0] in key and msu_split[1] in key and
                             msu_split[2] in key and ovrlp_tech in key))
+                # Find all unique microsegment key chains in list of matches
+                overlp_keys = numpy.unique([
+                    x[0] for x in supply_demand_overlp])
+                # Initialize dict for recording all overlapping heating/cooling
+                # energy for given climate, building, and structure combination
+                overlp_sum = {yr: 0 for yr in self.handyvars.aeo_years}
+                # Loop through all unique matched microsegment key chains;
+                # find the maximum total baseline energy associated with
+                # each key chain; add energy to overlapping energy total
+                for ms in overlp_keys:
+                    for yr in self.handyvars.aeo_years:
+                        overlp_sum[yr] += max([r[1][yr] for r in [
+                            x for x in supply_demand_overlp if x[0] == ms]])
 
                 # If there are overlaps for the given contributing microsegment
                 # across the supply-side and demand-side of heating and
@@ -1058,7 +1069,7 @@ class Engine(object):
                     tot_htcl = htcl_totals[
                         msu_split[0]][msu_split[1]][msu_split[2]]
                     # Find the fraction of total potential overlapping
-                    # heating/cooling energy that is actually overlapping, and
+                    # heating/cooling energy that does overlap, and
                     # add to a minimum scaling fraction of 0.5 (reflecting
                     # a case where all supply-side and demand-side heating/
                     # cooling microsegments are covered by ECMs in the
@@ -1066,8 +1077,7 @@ class Engine(object):
                     # current contributing microsegment values, thus removing
                     # supply-demand overlaps
                     adj_frac = {
-                        yr: (0.5 + ((tot_htcl[yr] - sum([
-                                x[1][yr] for x in supply_demand_overlp])) *
+                        yr: (0.5 + ((tot_htcl[yr] - overlp_sum[yr]) *
                              0.5 / tot_htcl[yr])) if tot_htcl[yr] != 0 else 1
                         for yr in self.handyvars.aeo_years}
                     # Apply the supply-demand adjustment fraction
@@ -1795,38 +1805,40 @@ class Engine(object):
 
         # Competed stock market share (represents adjustment for current
         # year)
-        adj_frac_comp = adj_fracs[yr]
+        adj_frac_comp = adj_fracs[yr] + added_sbmkt_fracs[yr]
 
         # Weight the market share adjustment for the stock captured by the
         # measure in the current year against that of the stock captured
         # by the measure in all previous years, yielding a total weighted
         # market share adjustment
 
-        # Determine the subset of all years leading up to current year in
-        # the modeling time horizon
-        weighting_yrs = sorted([
-            x for x in adj_fracs.keys() if int(x) <= int(yr)])
-        # Loop through the above set of years, successively updating the
-        # weighted market share using a simple moving average
-        for ind, wyr in enumerate(weighting_yrs):
-            # First year in time horizon or a competed measure market entry
-            # year in a technical potential scenario; weighted market share
-            # equals market share for the captured stock in this year only
-            if ind == 0 or (
-                int(wyr) <= min([int(x) for x in mkt_entry_yrs])) or (
-                    adopt_scheme == "Technical potential" and
-                    wyr in mkt_entry_yrs):
-                adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
-            # Subsequent year; weighted market share averages market share
-            # for captured stock in current year and all previous years
-            else:
-                # Weight according to the number of previous years,
-                # yielding a simple moving average of the market share
-                wt_comp = 1 / len(weighting_yrs)
-                # Calculate weighted combination of market shares
-                adj_frac_tot = (
-                    adj_fracs[wyr] + added_sbmkt_fracs[wyr]) * wt_comp + \
-                    adj_frac_tot * (1 - wt_comp)
+        if int(yr) < min(mkt_entry_yrs):
+            adj_frac_tot = adj_fracs[yr] + added_sbmkt_fracs[yr]
+        else:
+            # Determine the subset of all years leading up to current year in
+            # the modeling time horizon
+            weighting_yrs = sorted([
+                x for x in adj_fracs.keys() if
+                (int(x) <= int(yr) and int(x) >= min(mkt_entry_yrs))])
+            # Loop through the above set of years, successively updating the
+            # weighted market share using a simple moving average
+            for ind, wyr in enumerate(weighting_yrs):
+                # First year in time horizon or a competed measure market entry
+                # year in a technical potential scenario; weighted market share
+                # equals market share for the captured stock in this year only
+                if ind == 0 or (adopt_scheme == "Technical potential" and
+                                int(wyr) in mkt_entry_yrs):
+                    adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
+                # Subsequent year; weighted market share averages market share
+                # for captured stock in current year and all previous years
+                else:
+                    # Weight according to the number of previous years,
+                    # yielding a simple moving average of the market share
+                    wt_comp = 1 / len(weighting_yrs)
+                    # Calculate weighted combination of market shares
+                    adj_frac_tot = (
+                        adj_fracs[wyr] + added_sbmkt_fracs[wyr]) * wt_comp + \
+                        adj_frac_tot * (1 - wt_comp)
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -2219,7 +2231,8 @@ def main(base_dir):
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
-                meas_comp_data[adopt_scheme]
+                copy.deepcopy(
+                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
         # Print data import message for each ECM if in verbose mode
         verboseprint("Imported ECM '" + m.name + "' competition data")
 
