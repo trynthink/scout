@@ -512,7 +512,7 @@ class DataToListFormatTest(unittest.TestCase):
     # stock/energy data
     ok_filters = [['new england', 'single family home',
                    'electricity', 'heating', 'supply',
-                   'boiler (electric)'],
+                   'resistance heat'],
                   ['new england', 'single family home',
                    'electricity', 'secondary heating',
                    'supply', 'non-specific'],
@@ -566,7 +566,7 @@ class DataToListFormatTest(unittest.TestCase):
     # filter elements do not have any match in the microsegment dict keys
     fail_filters = [['the moon', 'single family home',
                      'electricity', 'heating', 'supply',
-                     'boiler (electric)'],
+                     'resistance heat'],
                     ['new england', 'single family cave',
                      'natural gas', 'secondary heating'],
                     ['new england', 'mobile home',

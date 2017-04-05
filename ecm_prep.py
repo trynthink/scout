@@ -339,7 +339,7 @@ class UsefulVars(object):
                             'TVs': [
                                 'home theater & audio', 'set top box',
                                 'video game consoles', 'DVD', 'TV'],
-                            'heating': ['GSHP', 'boiler (electric)', 'ASHP'],
+                            'heating': ['GSHP', 'resistance heat', 'ASHP'],
                             'ceiling fan': [None],
                             'fans & pumps': [None],
                             'refrigeration': [None],

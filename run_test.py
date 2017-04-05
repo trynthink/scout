@@ -41,7 +41,7 @@ class CommonTestMeasures(object):
                         "secondary": None},
             "technology_type": {"primary": "supply",
                                 "secondary": None},
-            "technology": {"primary": ["boiler (electric)",
+            "technology": {"primary": ["resistance heat",
                            "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "markets": {
@@ -89,7 +89,7 @@ class CommonTestMeasures(object):
                         "secondary": ["lighting"]},
             "technology_type": {"primary": "supply",
                                 "secondary": "supply"},
-            "technology": {"primary": ["boiler (electric)",
+            "technology": {"primary": ["resistance heat",
                            "ASHP", "GSHP", "room AC"],
                            "secondary": ["general service (LED)"]},
             "markets": {
@@ -137,7 +137,7 @@ class CommonTestMeasures(object):
                         "secondary": None},
             "technology_type": {"primary": "supply",
                                 "secondary": None},
-            "technology": {"primary": ["boiler (electric)",
+            "technology": {"primary": ["resistance heat",
                            "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "markets": {

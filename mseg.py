@@ -125,7 +125,7 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
 technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'electric WH': 'ELEC_WH',
                          'total homes (tech level)': 'ELEC_RAD',
-                         'boiler (electric)': 'ELEC_RAD',
+                         'resistance heat': 'ELEC_RAD',
                          'ASHP': 'ELEC_HP',
                          'GSHP': 'GEO_HP',
                          'central AC': 'CENT_AIR',

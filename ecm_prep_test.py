@@ -849,7 +849,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "stock": "NA",
                                     "energy": {"2009": 10, "2010": 10}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "stock": {"2009": 2, "2010": 2},
                                     "energy": {"2009": 2, "2010": 2}},
                                 "ASHP": {
@@ -975,7 +975,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "stock": "NA",
                                     "energy": {"2009": 1, "2010": 1}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "stock": {"2009": 2, "2010": 2},
                                     "energy": {"2009": 2, "2010": 2}},
                                 "ASHP": {
@@ -1015,7 +1015,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "stock": "NA",
                                     "energy": {"2009": 10, "2010": 10}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "stock": {"2009": 2, "2010": 2},
                                     "energy": {"2009": 2, "2010": 2}},
                                 "ASHP": {
@@ -1090,7 +1090,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "stock": "NA",
                                     "energy": {"2009": 1, "2010": 1}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "stock": {"2009": 2, "2010": 2},
                                     "energy": {"2009": 2, "2010": 2}},
                                 "ASHP": {
@@ -1410,7 +1410,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "performance": {
                                         "typical": {"2009": 2, "2010": 2},
                                         "best": {"2009": 2, "2010": 2},
@@ -2523,7 +2523,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "performance": {
                                         "typical": {"2009": 21, "2010": 21},
                                         "best": {"2009": 21, "2010": 21},
@@ -2868,7 +2868,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "performance": {
                                         "typical": {"2009": 2, "2010": 2},
                                         "best": {"2009": 2, "2010": 2},
@@ -3582,7 +3582,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "p": "NA",
                                                 "q": "NA"}}}}},
                             "supply": {
-                                "boiler (electric)": {
+                                "resistance heat": {
                                     "performance": {
                                         "typical": {"2009": 21, "2010": 21},
                                         "best": {"2009": 21, "2010": 21},
@@ -3981,8 +3981,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": ["heating", "cooling"],
-            "technology": ["boiler (electric)",
-                           "ASHP", "GSHP", "room AC"]},
+            "technology": ["resistance heat", "ASHP", "GSHP", "room AC"]},
             {
             "name": "sample measure 2",
             "markets": None,
@@ -4511,9 +4510,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": ["heating", "cooling"],
-            "technology": [
-                "boiler (electric)", "ASHP", "GSHP",
-                "room AC"]},
+            "technology": ["resistance heat", "ASHP", "GSHP", "room AC"]},
             {
             "name": "distrib measure 2",
             "markets": None,
@@ -4584,8 +4581,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": "cooling",
-            "technology": [
-                "boiler (electric)", "ASHP"]},
+            "technology": ["resistance heat", "ASHP"]},
             {
             "name": "partial measure 2",
             "markets": None,
@@ -4631,7 +4627,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "fuel_type": "electricity",
             "fuel_switch_to": None,
             "end_use": "cooling",
-            "technology": "boiler (electric)"},
+            "technology": "resistance heat"},
             {
             "name": "fail measure 2",
             "markets": None,
@@ -5025,7 +5021,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         cls.ok_tpmeas_fullchk_competechoiceout = [{
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'new')"): compete_choice_val,
+             "'resistance heat', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
@@ -5043,7 +5039,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'new')"): compete_choice_val,
+             "'resistance heat', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
              "'ASHP', 'new')"): compete_choice_val,
@@ -5061,7 +5057,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'room AC', 'new')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'existing')"): compete_choice_val,
+             "'resistance heat', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
              "'ASHP', 'existing')"): compete_choice_val,
@@ -5079,7 +5075,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "'room AC', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'boiler (electric)', 'existing')"): compete_choice_val,
+             "'resistance heat', 'existing')"): compete_choice_val,
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
              "'ASHP', 'existing')"): compete_choice_val,
@@ -5161,7 +5157,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "savings": {
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'new')"): {"2009": 0, "2010": 0},
+                 "'resistance heat', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
@@ -5179,7 +5175,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'new')"): {"2009": 0, "2010": 0},
+                 "'resistance heat', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
                  "'ASHP', 'new')"): {"2009": 0, "2010": 0},
@@ -5197,7 +5193,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'new')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'existing')"): {"2009": 0, "2010": 0},
+                 "'resistance heat', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
@@ -5215,7 +5211,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'existing')"): {"2009": 0, "2010": 0},
+                 "'resistance heat', 'existing')"): {"2009": 0, "2010": 0},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
                  "'ASHP', 'existing')"): {"2009": 0, "2010": 0},
@@ -5234,7 +5230,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "total": {
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'new')"): {
+                 "'resistance heat', 'new')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
@@ -5253,7 +5249,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'new')"): {
+                 "'resistance heat', 'new')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
@@ -5272,7 +5268,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'new')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'existing')"): {
+                 "'resistance heat', 'existing')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ1', 'single family home', "
                  "'electricity', 'heating', 'supply', "
@@ -5291,7 +5287,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                  "'room AC', 'existing')"): {"2009": 108.46, "2010": 108.8},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
-                 "'boiler (electric)', 'existing')"): {
+                 "'resistance heat', 'existing')"): {
                     "2009": 28.71, "2010": 28.80},
                 ("('primary', 'AIA_CZ2', 'single family home', "
                  "'electricity', 'heating', 'supply', "
@@ -6761,19 +6757,17 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": None},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.measure_instance = ecm_prep.Measure(
             cls.handyvars, **sample_measure_in)
         cls.ok_diffuse_params_in = None
         cls.ok_mskeys_in = [
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity', 'heating', 'supply', 'boiler (electric)',
+             'electricity', 'heating', 'supply', 'resistance heat',
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
-             'electricity', 'heating', 'supply', 'boiler (electric)',
+             'electricity', 'heating', 'supply', 'resistance heat',
              'existing')]
         cls.ok_mkt_scale_frac_in = 1
         cls.ok_new_bldg_constr = [{
@@ -7554,7 +7548,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
              'non-specific',
              'home theater & audio', 'set top box',
              'video game consoles', 'DVD', 'TV',
-             'boiler (electric)',
+             'resistance heat',
              'NGHP', 'furnace (NG)', 'boiler (NG)',
              'boiler (distillate)', 'furnace (distillate)',
              'resistance', 'furnace (kerosene)',
@@ -7647,7 +7641,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
              'non-specific',
              'home theater & audio', 'set top box',
              'video game consoles', 'DVD', 'TV',
-             'boiler (electric)',
+             'resistance heat',
              'NGHP', 'furnace (NG)', 'boiler (NG)',
              'boiler (distillate)', 'furnace (distillate)',
              'resistance', 'furnace (kerosene)',
@@ -7725,7 +7719,7 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
              'comm_GSHP-heat', 'rooftop_ASHP-heat', 'elec_boiler',
              'non-specific', 'furnace (NG)', 'boiler (NG)',
              'NGHP', 'room AC', 'ASHP', 'GSHP', 'central AC',
-             'boiler (electric)', 'boiler (distillate)',
+             'resistance heat', 'boiler (distillate)',
              'furnace (distillate)', 'resistance', 'furnace (kerosene)',
              'stove (wood)', 'furnace (LPG)',
              'gas_eng-driven_RTAC', 'gas_chiller',
@@ -7859,9 +7853,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": "lighting"},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP",
-                    "GSHP", "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": "general service (LED)"},
             "mseg_adjust": {
                 "contributing mseg keys and values": {},
@@ -7889,7 +7881,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
         cls.ok_out_primary = [
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply',
-             'boiler (electric)', 'new'),
+             'resistance heat', 'new'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply', 'ASHP',
              'new'),
@@ -7901,7 +7893,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'cooling', 'supply',
-             'boiler (electric)', 'new'),
+             'resistance heat', 'new'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'cooling', 'supply', 'ASHP',
              'new'),
@@ -7913,7 +7905,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'heating', 'supply',
-             'boiler (electric)', 'new'),
+             'resistance heat', 'new'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'heating', 'supply', 'ASHP',
              'new'),
@@ -7925,7 +7917,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'new'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'cooling', 'supply',
-             'boiler (electric)', 'new'),
+             'resistance heat', 'new'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'cooling', 'supply', 'ASHP',
              'new'),
@@ -7937,7 +7929,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'new'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply',
-             'boiler (electric)', 'existing'),
+             'resistance heat', 'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply', 'ASHP',
              'existing'),
@@ -7949,7 +7941,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'cooling', 'supply',
-             'boiler (electric)', 'existing'),
+             'resistance heat', 'existing'),
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'cooling', 'supply', 'ASHP',
              'existing'),
@@ -7961,7 +7953,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'heating', 'supply',
-             'boiler (electric)', 'existing'),
+             'resistance heat', 'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'heating', 'supply', 'ASHP',
              'existing'),
@@ -7973,7 +7965,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
              'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'cooling', 'supply',
-             'boiler (electric)', 'existing'),
+             'resistance heat', 'existing'),
             ('primary', 'AIA_CZ2', 'single family home',
              'electricity', 'cooling', 'supply', 'ASHP',
              'existing'),
@@ -8074,9 +8066,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": None},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
@@ -8193,9 +8183,7 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": None},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
@@ -8284,9 +8272,7 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": None},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP", "GSHP",
-                    "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
             handyvars, **sample_measure_in)
@@ -8420,7 +8406,7 @@ class AppendKeyValsTest(unittest.TestCase):
             'external (incandescent)', 'linear fluorescent (LED)',
             'reflector (halogen)', 'non-specific', 'home theater & audio',
             'set top box', 'video game consoles', 'DVD', 'TV',
-            'GSHP', 'boiler (electric)', 'NGHP', 'furnace (NG)',
+            'GSHP', 'resistance heat', 'NGHP', 'furnace (NG)',
             'boiler (NG)', 'boiler (distillate)', 'furnace (distillate)',
             'resistance', 'furnace (kerosene)', 'stove (wood)',
             'furnace (LPG)', 'secondary heating (wood)',
@@ -8541,9 +8527,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                 "primary": ["heating", "cooling"],
                 "secondary": ["lighting"]},
             "technology": {
-                "primary": [
-                    "boiler (electric)", "ASHP",
-                    "GSHP", "room AC"],
+                "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": ["general service (LED)"]},
             "mseg_adjust": {
                 "contributing mseg keys and values": {},

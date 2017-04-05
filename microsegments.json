@@ -17,7 +17,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -244,7 +244,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -471,7 +471,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -2020,7 +2020,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -2247,7 +2247,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -2474,7 +2474,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -4023,7 +4023,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -4250,7 +4250,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -4477,7 +4477,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -6026,7 +6026,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -6253,7 +6253,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -6480,7 +6480,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -8029,7 +8029,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -8256,7 +8256,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -8483,7 +8483,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -10032,7 +10032,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -10259,7 +10259,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -10486,7 +10486,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -12035,7 +12035,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -12262,7 +12262,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -12489,7 +12489,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -14038,7 +14038,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -14265,7 +14265,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -14492,7 +14492,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -16041,7 +16041,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -16268,7 +16268,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
@@ -16495,7 +16495,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"boiler (electric)" : 0,
+						"resistance heat" : 0,
 						"ASHP" : 0,
 						"GSHP" : 0
 					}
