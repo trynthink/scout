@@ -1531,6 +1531,19 @@ class Measure(object):
                                 perf_base_units == "COP"):
                             perf_base_units = perf_units
 
+                        # Handle case where user has defined a 'windows
+                        # conduction' technology without 'windows solar',
+                        # or vice versa, and the additional market must be
+                        # added at the baseline performance level (relative
+                        # savings percentage of zero)
+                        if not isinstance(perf_units, list) and \
+                            perf_units != 'relative savings (constant)' and (
+                            perf_base_units != perf_units and any([
+                                x is not None and "windows" in x for
+                                x in mskeys])):
+                            perf_meas, perf_units = [
+                                0, "relative savings (constant)"]
+
                         # Set baseline cost and lifetime
                         cost_base, life_base = [
                             base_cpl["installed cost"]["typical"],
@@ -2165,11 +2178,13 @@ class Measure(object):
                     # Divide summed baseline lifetimes * stock values for
                     # contributing microsegments by total stock across all
                     # contributing microsegments
-                    self.markets[adopt_scheme]["master_mseg"]["lifetime"][
-                        "baseline"][yr] = self.markets[adopt_scheme][
-                        "master_mseg"]["lifetime"]["baseline"][yr] / \
-                        self.markets[adopt_scheme][
-                        "master_mseg"]["stock"]["total"]["all"][yr]
+                    if self.markets[adopt_scheme][
+                            "master_mseg"]["stock"]["total"]["all"][yr] != 0:
+                        self.markets[adopt_scheme]["master_mseg"]["lifetime"][
+                            "baseline"][yr] = self.markets[adopt_scheme][
+                            "master_mseg"]["lifetime"]["baseline"][yr] / \
+                            self.markets[adopt_scheme][
+                            "master_mseg"]["stock"]["total"]["all"][yr]
                 # Divide summed measure lifetimes by total number of
                 # contributing microsegment key chains with valid
                 # cost/performance/lifetime data
@@ -2791,12 +2806,14 @@ class Measure(object):
                         captured_base_replace_frac = 0
                 # For a case where the current microsegment applies to
                 # existing structures, the baseline replacement fraction
-                # is the lesser of (1 / baseline lifetime) and the fraction
-                # of existing stock from previous years that has already been
-                # captured by the baseline technology
+                # is the lesser of (1 / baseline lifetime) + retrofit rate
+                # and the fraction of existing stock from previous years that
+                # has already been captured by the baseline technology
                 else:
-                    if (1 / life_base[yr]) <= captured_base_frac:
-                        captured_base_replace_frac = (1 / life_base[yr])
+                    if ((1 / life_base[yr]) + self.handyvars.retro_rate) <= \
+                            captured_base_frac:
+                        captured_base_replace_frac = (
+                            1 / life_base[yr]) + self.handyvars.retro_rate
                     else:
                         captured_base_replace_frac = captured_base_frac
 
@@ -2807,8 +2824,8 @@ class Measure(object):
                 # market entry year to begin replacing that efficient stock;
                 # if so, the efficient replacement fraction is the fraction of
                 # stock in new homes already captured by the efficient
-                # technology multiplied by (1 / efficient lifetime); if not,
-                # the efficient replacement fraction is 0
+                # technology multiplied by ((1 / efficient lifetime) + retrofit
+                # rate); if not, the efficient replacement fraction is 0
                 if self.market_entry_year is None or (int(
                     self.market_entry_year) < int(
                         self.handyvars.aeo_years[0])):
@@ -2820,16 +2837,23 @@ class Measure(object):
                 # Handle case where efficient measure lifetime is a numpy array
                 if type(life_meas) == numpy.ndarray:
                     for ind, l in enumerate(life_meas):
-                        if turnover_meas[ind] <= 0:
+                        if turnover_meas[ind] <= 0 and ((
+                                (1 / l) + self.handyvars.retro_rate) < 1):
                             captured_eff_replace_frac = \
-                                captured_eff_frac * (1 / l)
+                                captured_eff_frac * (
+                                    (1 / l) + self.handyvars.retro_rate)
+                        elif turnover_meas[ind] <= 0:
+                            captured_eff_replace_frac = captured_eff_frac
                         else:
                             captured_eff_replace_frac = 0
                 # Handle case where efficient measure lifetime is a point value
                 else:
-                    if turnover_meas <= 0:
+                    if turnover_meas <= 0 and ((
+                            (1 / life_meas) + self.handyvars.retro_rate) < 1):
                         captured_eff_replace_frac = captured_eff_frac * \
-                            (1 / life_meas)
+                            ((1 / life_meas) + self.handyvars.retro_rate)
+                    elif turnover_meas <= 0:
+                        captured_eff_replace_frac = captured_eff_frac
                     else:
                         captured_eff_replace_frac = 0
             else:
@@ -2869,12 +2893,10 @@ class Measure(object):
             # Primary microsegment not in the first year where current
             # microsegment applies to existing structure type
             elif mskeys[0] == "primary" and mskeys[-1] == "existing":
-                # Ensure that replacement plus retrofit fraction does not
-                # exceed 1
-                if captured_base_replace_frac + captured_eff_replace_frac + \
-                   self.handyvars.retro_rate <= 1:
-                    competed_frac = captured_base_replace_frac + \
-                        captured_eff_replace_frac + self.handyvars.retro_rate
+                # Ensure that replacement fraction does not exceed 1
+                if captured_base_replace_frac + captured_eff_replace_frac <= 1:
+                    competed_frac = \
+                        captured_base_replace_frac + captured_eff_replace_frac
                 else:
                     competed_frac = 1
             # For all other cases, set competed fraction to 0
@@ -2956,13 +2978,23 @@ class Measure(object):
                     stock_total_meas[yr] = stock_total[yr]
                 # All other cases
                 else:
+                    # For microsegments applying to existing stock, calculate
+                    # a fraction for mapping the portion of captured stock as
+                    # of the previous year to the stock total for the current
+                    # year, such that the captured portion remains consistent
+                    if "existing" in mskeys and \
+                        yr != self.handyvars.aeo_years[0] and \
+                            (stock_total[str(int(yr)-1)]) != 0:
+                        stock_adj_frac = stock_total[yr] / \
+                            stock_total[str(int(yr)-1)]
+                    else:
+                        stock_adj_frac = 1
                     # Update total number of stock units captured by the
                     # measure (reflects all previously captured stock +
                     # captured competed stock from the current year)
-                    stock_total_meas[yr] = \
-                        (stock_total_meas[str(int(yr) - 1)]) * (
-                            1 - captured_eff_replace_frac) + \
-                        stock_compete_meas[yr]
+                    stock_total_meas[yr] = (stock_total_meas[
+                        str(int(yr) - 1)]) * stock_adj_frac * (
+                        1 - captured_eff_replace_frac) + stock_compete_meas[yr]
 
                     # Ensure captured stock never exceeds total stock
 
@@ -3179,23 +3211,36 @@ class Measure(object):
                 self.name + "': " + str(invalid_names))
 
     def fill_attr(self):
-        """Fill out any secondary end use impact information and 'all' values.
+        """Fill out missing ECM attribute data.
 
         Note:
             Handles the following:
-            a) Splits the 'energy_efficiency', 'energy_efficiency_units',
+            a) Adds a 'windows conduction' technology market when only
+            'windows solar' is defined for the ECM, and vice versa (assuming
+            that both pertain to the same window unit).
+            b) Splits the 'energy_efficiency', 'energy_efficiency_units',
             'energy_fuel_type', 'end_use', 'technology', and 'technology_type'
             attributes into 'primary' and 'secondary' keys, ensuring that
             secondary end use impacts are properly processed by the remainder
             of the 'fill_mkts' routine. Note: if the user has not specified
             any secondary end use impacts, secondary key values for all
             relevant attributes are set to None.
-
-            b) Fills out any attributes marked 'all'. For example, if a user
+            c) Fills out any attributes marked 'all'. For example, if a user
             has specified 'all' for the 'climate_zone' measure attribute, this
             function will translate that entry into the full list of climate
             zones: ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'].
         """
+        # Ensure that 'windows conduction' and 'windows solar' markets are
+        # always defined together in the technology attribute
+        if not isinstance(self.technology, list) and \
+                self.technology is not None and "windows" in self.technology:
+            self.technology = ["windows conduction", "windows solar"]
+        elif isinstance(self.technology, list) and any([
+                x is not None and "windows" in x for x in self.technology]):
+            self.technology.extend(
+                list(set(["windows conduction", "windows solar"]) -
+                     set(self.technology)))
+
         # Split attributes relevant to representing secondary end use impacts
         # into 'primary' and 'secondary' keys
 

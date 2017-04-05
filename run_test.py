@@ -1605,8 +1605,8 @@ class PaybackTest(unittest.TestCase):
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
-                            [-10, 0, 1, 2], [10, 4, 7, 8, 10]]
-        cls.ok_out = [5.14, 0.71, 999, 0]
+                            [-10, 0, 1, 2], [10, 4, 7, 8, 10], [-100, 0, 1]]
+        cls.ok_out = [5.14, 0.71, 6.5, 0, 999]
 
     def test_cashflow_paybacks(self):
         """Test for correct outputs given valid inputs."""

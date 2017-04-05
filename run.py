@@ -855,8 +855,10 @@ class Engine(object):
             Simple payback period for the input cash flows.
         """
         # Separate initial investment and subsequent cash flows
-        # from "cashflows" input
-        investment, cashflows = cashflows[0], cashflows[1:]
+        # from "cashflows" input; extend cashflows up until 100 years
+        # out to ensure calculation of all paybacks under 100 years
+        investment, cashflows = cashflows[0], list(
+            cashflows[1:]) + [cashflows[-1]] * (100 - len(cashflows[1:]))
         # If initial investment is positive, payback = 0
         if investment >= 0:
             payback_val = 0
