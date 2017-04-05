@@ -8,6 +8,45 @@ __pycache__/
 #################################
 
 *out.txt
+ktek.*
+k*.txt
+rs*.txt
+
+# Populated microsegment JSON databases #
+#########################################
+
+*_cdiv.json
+*_cz.json
+
+# Scout-generated JSON databases #
+##################################
+
+ecm_results.json
+run_setup.json
+ecm_prep.json
+
+# Presentation files #
+######################
+
+*.pptx
+*.ppt
+*.key
+
+# Spreadsheet files #
+#####################
+
+*.xlsx
+*.xlsb
+*.xlsm
+*.xls
+*.numbers
+
+# Word processor files #
+########################
+
+*.docx
+*.doc
+*.pages
 
 # OS generated files #
 ######################
@@ -19,3 +58,37 @@ __pycache__/
 .Trashes
 Thumbs.db
 ehthumbs.db
+
+# Logs and databases #
+######################
+
+*.log
+*.sqlite
+
+# Software/language support files #
+###################################
+
+node_modules/
+.python-version
+.Rapp.history
+*.sublime-project
+*.sublime-workspace
+
+# Rendered reStructuredText documentation folders #
+###################################################
+
+_build
+
+# Packages and compressed files #
+#################################
+
+# Please commit the raw source files instead of compressed files
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
