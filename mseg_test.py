@@ -462,14 +462,13 @@ class DataToListFormatTest(unittest.TestCase):
                    ('LT', 1, 1, 'EL', 'GSL', 2010, 102, 103, -1, 'LED'),
                    ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
                    ('LT', 1, 2, 'EL', 'GSL', 2011, 103, 104, -1, 'LED'),
-                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'Inc'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2010, 103, 104, -1, 'INC'),
+                   ('LT', 1, 1, 'EL', 'GSL', 2011, 103, 104, -1, 'INC'),
                    ('LT', 1, 1, 'EL', 'EXT', 2011, 103, 104, -1, 'LED'),
                    ('HS', 1, 1, 0, 0, 2010, 299, 0, 0, ''),
                    ('HS', 1, 1, 0, 0, 2011, 299, 0, 0, ''),
-                   ('TVS', 1, 1, 'EL', 'TV&R', 2010, 35,
-                    757, -1, ''),
-                   ('TVS', 1, 1, 'EL', 'TV&R', 2011, 355., 787, -1, '')
-                   ]
+                   ('TVS', 1, 1, 'EL', 'TV&R', 2010, 35, 757, -1, ''),
+                   ('TVS', 1, 1, 'EL', 'TV&R', 2011, 355., 787, -1, '')]
 
     # Convert supply data into numpy array with column names
     supply_array = np.array(supply_data, dtype=[('ENDUSE', 'S3'),
@@ -549,8 +548,10 @@ class DataToListFormatTest(unittest.TestCase):
                   ['new england', 'single family home', 'new homes'],
                   ['new england', 'single family home', 'total homes'],
                   ['new england', 'single family home',
-                   'electricity', 'TVs', 'TV']
-                  ]
+                   'electricity', 'TVs', 'TV'],
+                  ['new england', 'single family home',
+                   'electricity', 'lighting',
+                   'general service (incandescent)']]
 
     # Define a set of filters that should yield zeros for stock/energy
     # data because they do not make sense
@@ -602,22 +603,22 @@ class DataToListFormatTest(unittest.TestCase):
                supply_array],
               [{'stock': {"2010": 10, "2011": 10},
                 'energy': {"2010": 11, "2011": 11}},
-               np.hstack([supply_array[0:10], supply_array[12:]])],
+               np.hstack([supply_array[:10], supply_array[12:]])],
               [{'stock': {"2010": 12, "2011": 12},
                 'energy': {"2010": 13, "2011": 13}},
-               np.hstack([supply_array[0:12], supply_array[14:]])],
+               np.hstack([supply_array[:12], supply_array[14:]])],
               [{'stock': {"2010": 18, "2011": 18},
                 'energy': {"2010": 19, "2011": 19}},
-               np.hstack([supply_array[0:16], supply_array[18:]])],
+               np.hstack([supply_array[:16], supply_array[18:]])],
               [{'stock': {"2010": 22, "2011": 22},
                 'energy': {"2010": 23, "2011": 23}},
-               np.hstack([supply_array[:-17], supply_array[-15:]])],
+               np.hstack([supply_array[:20], supply_array[22:]])],
               [{'stock': {"2010": 24, "2011": 24},
                 'energy': {"2010": 25, "2011": 25}},
-               np.hstack([supply_array[:-15], supply_array[-13:]])],
+               np.hstack([supply_array[:22], supply_array[24:]])],
               [{'stock': {"2010": 36, "2011": 36},
                 'energy': {"2010": 37, "2011": 37}},
-               np.hstack([supply_array[:-13], supply_array[-11:]])],
+               np.hstack([supply_array[:24], supply_array[26:]])],
               [{'stock': 'NA',
                 'energy': {"2010": 0.3, "2011": 0.3}},
                supply_array],
@@ -628,18 +629,21 @@ class DataToListFormatTest(unittest.TestCase):
                 'energy': {"2010": 1.75, "2011": 1.75}},
                supply_array],
               [{"2010": 101, "2011": 101},
-               np.hstack([supply_array[0:-11], supply_array[-9:]])],
+               np.hstack([supply_array[0:26], supply_array[28:]])],
               [{'stock': {"2010": 20, "2011": 20},
                 'energy': {"2010": 21, "2011": 21}},
                np.hstack([supply_array[0:18], supply_array[20:]])],
               [{'stock': {"2010": 102, "2011": 103},
                 'energy': {"2010": 103, "2011": 104}},
-               np.hstack([supply_array[0:-9], supply_array[-7:]])],
+               np.hstack([supply_array[0:28], supply_array[30:]])],
               [{"2010": 299, "2011": 299},
                np.hstack([supply_array[0:-4], supply_array[-2:]])],
               [{"2010": 3, "2011": 4}, supply_array],
               [{'stock': {"2010": 35, "2011": 355},
-                'energy': {"2010": 757, "2011": 787}}, supply_array[:-2]]]
+                'energy': {"2010": 757, "2011": 787}}, supply_array[:-2]],
+              [{'stock': {'2010': 103, '2011': 103},
+                'energy': {'2010': 104, '2011': 104}},
+               np.hstack([supply_array[:31], supply_array[33:]])]]
 
     # Define the set of outputs (empty dicts) that should be yielded
     # by the "nonsense_filters" given above

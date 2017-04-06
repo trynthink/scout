@@ -358,7 +358,7 @@ def stock_consume_select(data, comparefrom, file_type):
         compareto = str(row)
 
         # Establish the match
-        match = re.search(comparefrom, compareto)
+        match = re.search(comparefrom, compareto, re.IGNORECASE)
 
         # If there's a match, append values for the current microsegment
         if match:

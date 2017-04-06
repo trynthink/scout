@@ -272,9 +272,14 @@ def sd_mseg_percent(sd_array, sel, yrs):
 
         # Identify the technology name from the 'Description' column in
         # the data using a regex set up to match any text '.+?' that
-        # appears before the first occurrence of a space followed by a
-        # 2 and three other numbers (i.e., 2009 or 2035)
-        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['Description'])
+        # appears before the first occurrence of one or more spaces
+        # followed by a 2 and three other numbers (i.e., 2009 or 2035)
+        tech_name = re.search('.+?(?=\s+2[0-9]{3})', row['Description'])
+
+        # Also check the special case where the technology name is so
+        # long that the year number is partially truncated at the end
+        # of the string
+        exc_tech_name = re.search('.+?(?=\s+2[0-9]{1,2}$)', row['Description'])
 
         # If the regex matched, overwrite the original description with
         # the matching text, which describes the technology without
@@ -286,6 +291,12 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # summarized and returned from this function
         elif re.search('placeholder', row['Description']):
             rows_to_remove.append(idx)
+        # Else check for a special case where the year in the
+        # technology name sought by the tech_name regex didn't match
+        # because the year in the name is partially truncated at
+        # the end of the technology name string
+        elif exc_tech_name:
+            filtered['Description'][idx] = exc_tech_name.group(0)
         # Implicitly, if the text does not match either regex, it
         # is assumed that it does not need to be edited or removed
 
