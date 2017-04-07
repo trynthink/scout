@@ -3735,7 +3735,7 @@ class CommonUnitTest(unittest.TestCase):
                 '2018': [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004],
                 '2019': [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004],
                 '2020': [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]}},
-         'Range, Electric, 4 burner, oven, 11-inch griddle':
+         'Range, Electric, 4 burner, oven, 11-inch gr':
             {'installed cost':
                 {'typical':
                     {'2009': 0.001733047, '2010': 0.001733048,
@@ -3779,7 +3779,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2018': 0.0, '2019': 0.0, '2020': 0.0},
                  'source': 'EIA AEO',
                  'units': 'years'}},
-         'Range, Electric-induction, 4 burner, oven, 11-inch':
+         'Range, Electric-induction, 4 burner, oven, ':
             {'installed cost':
                 {'typical':
                     {'2009': 0.002026504, '2010': 0.002026506,

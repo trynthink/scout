@@ -310,12 +310,16 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # names now recorded in the 'Description' field
     technames = list(np.unique(filtered['Description']))
 
+    # Truncate the technology names to 43 characters to match the
+    # truncated strings used for the cost, performance, and lifetime data
+    trunc_technames = [entry[:43] for entry in technames]
+
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
-    tval = np.zeros((len(technames), len(yrs)))
+    tval = np.zeros((len(trunc_technames), len(yrs)))
 
     # Combine the data recorded for each unique technology
-    for idx, name in enumerate(technames):
+    for idx, name in enumerate(trunc_technames):
 
         # Extract entries for a given technology type number
         entries = filtered[filtered['Description'] == name]
@@ -335,7 +339,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
             tval = tval/np.sum(tval, axis=0)
             tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
 
-    return (tval, technames)
+    return (tval, trunc_technames)
 
 
 def catg_data_selector(db_array, sel, section_label, yrs):

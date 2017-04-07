@@ -822,8 +822,9 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
                           'lifetime': the_life}
 
         # Add the data for this technology to the master dict for the
-        # entire microsegment
-        complete_mseg_tech_data[tech] = tech_data_dict
+        # entire microsegment (limit the technology name length to
+        # less than 43 characters to match the stock and energy data)
+        complete_mseg_tech_data[tech[:43]] = tech_data_dict
 
         # If there were any non-matching names identified, replace the
         # preallocated empty list with the list of non-matching names;
