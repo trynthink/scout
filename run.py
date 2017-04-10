@@ -923,6 +923,17 @@ class Engine(object):
         # replacement, such as reduced waste heat from changes in lighting)
         msegs = sorted(numpy.unique(mseg_keys))
 
+        # Initialize a dict used to store data on overlaps between supply-side
+        # heating/cooling ECMs (e.g., HVAC equipment) and demand-side
+        # heating/cooling ECMs (e.g., envelope). If the current set of ECMs
+        # does not affect both supply-side and demand-side heating/cooling
+        # markets, this dict is set to None
+        if any(["supply" in x for x in msegs]) and \
+           any(["demand" in x for x in msegs]):
+            htcl_adj_data = {"supply": {}, "demand": {}}
+        else:
+            htcl_adj_data = None
+
         # Run through all unique contributing microsegments in the above list,
         # determining how the initial measure stock/energy/carbon/cost data
         # associated with each should be adjusted to reflect the effects of
@@ -934,6 +945,11 @@ class Engine(object):
             measures_adj = [self.measures[x] for x in range(
                 0, len(self.measures)) if msu in mkts_adj[x][
                 "contributing mseg keys and values"].keys()]
+            # Create short name for all ECM competition data pertaining to
+            # current contributing microsegment
+            msu_mkts = [m.markets[adopt_scheme]["competed"][
+                "mseg_adjust"]["contributing mseg keys and values"][msu] for
+                m in measures_adj]
 
             # If the current contributing microsegment is of the 'primary'
             # type, directly compete the microsegment across applicable
@@ -982,106 +998,31 @@ class Engine(object):
                                        secnd_mseg_adjkey, adopt_scheme)
 
             # For any contributing microsegment that pertains to heating or
-            # cooling, additional adjustments may be needed to reflect
+            # cooling, record data needed for additional adjustments to remove
             # overlaps between the supply-side and demand-side of heating
             # and cooling energy (note that supply-side and demand-side heating
             # and cooling ECMs are not directly competed)
 
             # Ensure the current contributing microsegment pertains to
-            # heating or cooling (marked by 'supply' or 'demand' keys)
-            if 'supply' in msu or 'demand' in msu:
-                # Establish criteria for matching a supply-side heating/
-                # cooling microsegment with a demand-side heating/cooling
-                # microsegment (same climate zone, building type, and structure
-                # type)
+            # heating or cooling (marked by 'supply' or 'demand' keys) and
+            # that both supply and demand-side ECMs are present in the analysis
+            if ('supply' in msu or 'demand' in msu) and \
+                    htcl_adj_data is not None:
+                htcl_adj_data = self.htcl_adj_rec(
+                    htcl_adj_data, msu, msu_mkts, htcl_totals)
 
-                # Convert contributing microsegment key chain string to a list
-                keys = literal_eval(msu)
-                # Pull out climate zone, building type, and structure type
-                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1]]]
-                # Initialize list used to track all overlapping microsegment
-                # key chains and associated total energy values
-                supply_demand_overlp = []
-
-                # Determine the technology type of the overlapping
-                # microsegments (demand-side microsegments overlap with supply
-                # side microsegments, and vice versa)
-                if 'supply' in msu:
-                    ovrlp_tech = "demand"
-                else:
-                    ovrlp_tech = "supply"
-
-                # Determine the subset of all heating/cooling microsegments in
-                # the analysis that potentially overlap with the current
-                # contributing microsegment
-                mkts_adj_overlp = [
-                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-                        "contributing mseg keys and values"].items() for
-                    m in self.measures if msu_split[0] in m.climate_zone and
-                    msu_split[1] in m.bldg_type and msu_split[2] in
-                    m.structure_type and any([[
-                        x in y for y in m.end_use.values() if y is not None for
-                        x in ["heating", "cooling", "secondary heating"]]]) and
-                    any([ovrlp_tech in y for y in m.technology_type.values() if
-                         y is not None])]
-
-                # Loop through all measures to find key chain matches
-                for mkt in mkts_adj_overlp:
-                    # Register a match between a supply-side heating/cooling
-                    # microsegment and demand-side heating/cooling microsegment
-                    if 'supply' in msu:
-                        supply_demand_overlp.extend((
-                            (key, val["energy"]["total"]["baseline"])
-                            for key, val in mkt if
-                            msu_split[0] in key and msu_split[1] in key and
-                            msu_split[2] in key and ovrlp_tech in key))
-
-                    # Register a match between a demand-side heating/cooling
-                    # microsegment and supply-side heating/cooling microsegment
-                    else:
-                        supply_demand_overlp.extend((
-                            (key, val["energy"]["total"]["baseline"])
-                            for key, val in mkt if
-                            msu_split[0] in key and msu_split[1] in key and
-                            msu_split[2] in key and ovrlp_tech in key))
-                # Find all unique microsegment key chains in list of matches
-                overlp_keys = numpy.unique([
-                    x[0] for x in supply_demand_overlp])
-                # Initialize dict for recording all overlapping heating/cooling
-                # energy for given climate, building, and structure combination
-                overlp_sum = {yr: 0 for yr in self.handyvars.aeo_years}
-                # Loop through all unique matched microsegment key chains;
-                # find the maximum total baseline energy associated with
-                # each key chain; add energy to overlapping energy total
-                for ms in overlp_keys:
-                    for yr in self.handyvars.aeo_years:
-                        overlp_sum[yr] += max([r[1][yr] for r in [
-                            x for x in supply_demand_overlp if x[0] == ms]])
-
-                # If there are overlaps for the given contributing microsegment
-                # across the supply-side and demand-side of heating and
-                # cooling energy, apply an adjustment to remove those overlaps
-                # for each measure that applies to this microsegment
-                if len(supply_demand_overlp) > 0:
-                    # Find the total heating/cooling energy use that could
-                    # possibly overlap for the given climate zone, building
-                    # type, and structure type combination
-                    tot_htcl = htcl_totals[
-                        msu_split[0]][msu_split[1]][msu_split[2]]
-                    # Find the fraction of total potential overlapping
-                    # heating/cooling energy that does overlap, and
-                    # add to a minimum scaling fraction of 0.5 (reflecting
-                    # a case where all supply-side and demand-side heating/
-                    # cooling microsegments are covered by ECMs in the
-                    # analysis). Use resulting fraction to scale down the
-                    # current contributing microsegment values, thus removing
-                    # supply-demand overlaps
-                    adj_frac = {
-                        yr: (0.5 + ((tot_htcl[yr] - overlp_sum[yr]) *
-                             0.5 / tot_htcl[yr])) if tot_htcl[yr] != 0 else 1
-                        for yr in self.handyvars.aeo_years}
-                    # Apply the supply-demand adjustment fraction
-                    self.htcl_adj(measures_adj, msu, adopt_scheme, adj_frac)
+        # Once all direct competition is finished, remove all recorded
+        # overlapping energy use and associated carbon/costs between
+        # supply-side and demand-side heating and cooling ECMs, provided both
+        # are present in the analysis
+        if htcl_adj_data is not None:
+            # Find the subset of ECMs that applies to heating and cooling
+            measures_htcl_adj = [m for m in self.measures if any([[
+                y in z for z in m.end_use.values() if z is not None for
+                y in ["heating", "cooling", "secondary heating"]]])]
+            # Remove energy, carbon, and cost overlaps between supply-side and
+            # demand-side heating/cooling ECMs
+            self.htcl_adj(measures_htcl_adj, adopt_scheme, htcl_adj_data)
 
     def compete_res_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across competing residential measures.
@@ -1628,56 +1569,249 @@ class Engine(object):
                         adj["carbon"]["competed"][x][yr] = [
                             (x[yr] * adj_frac_comp) for x in adjlist[6:]]
 
-    def htcl_adj(self, measures_adj, mseg, adopt_scheme, htcl_adj_frac):
-        """Remove overlaps in heating/cooling supply and demand energy.
+    def htcl_adj_rec(self, htcl_adj_data, msu, msu_mkts, htcl_totals):
+        """Record overlaps in heating/cooling supply and demand-side energy.
+
+        Args:
+            htcl_adj_data (dict): Overlapping supply or demand-side heating/
+                cooling energy use data to update with energy data for current
+                contributing microsegment.
+            msu (string): Current contributing microsegment key chain.
+            msu_mkts (dict): Energy, carbon, and cost data for the current
+                contributing microsegment, across all ECMs that apply to
+                this microsegment.
+            htcl_totals: Energy use totals for all possible climate zone,
+                building type, and structure type combinations.
+
+        Returns:
+            Updated supply or demand-side heating/cooling overlap data that
+            include overlapping energy use data from the current contributing
+            microsegment.
+        """
+        # Establish criteria for matching a supply-side heating/
+        # cooling microsegment with a demand-side heating/cooling
+        # microsegment (same climate zone, building type, and structure
+        # type)
+
+        # Convert contributing microsegment key chain string to a list
+        keys = literal_eval(msu)
+        # Pull out climate zone, building type, and structure type
+        msu_split = [str(x) for x in [keys[1], keys[2], keys[-1]]]
+        # Convert climate zone, building type, and structure type
+        # data into a string, to be used as a dict key below
+        msu_split_key = str(msu_split)
+        # Set the technology type of the current heating/cooling microsegment
+        # ('supply' or 'demand')
+        tech_typ = keys[-3]
+
+        # Determine whether overlapping heating/cooling energy use
+        # data have already been initialized for the given climate
+        # zone, building type, and structure type combination; if
+        # not, initialize with overlapping energy use data for all
+        # ECMs that apply to the current contributing microsegment; if
+        # so, add the overlapping data to what is already there
+        if msu_split_key not in htcl_adj_data[tech_typ].keys():
+            htcl_adj_data[tech_typ][msu_split_key] = {
+                # Record total potential overlapping supply-side
+                # and demand-side heating/cooling energy use for
+                # the given climate zone, building type, and
+                # structure type combination
+                "total": htcl_totals[msu_split[0]][msu_split[1]][
+                    msu_split[2]],
+                # Record the overlapping energy use that is actually
+                # affected by the current contributing microsegment,
+                # across all ECMs that apply to this microsegment
+                "total affected": {yr: sum([(
+                    m["energy"]["total"]["baseline"][yr]) for
+                    m in msu_mkts]) for
+                    yr in self.handyvars.aeo_years},
+                # Record the savings in the overlapping energy use
+                # affected by the current contributing microsegment,
+                # across all ECMs that apply to this microsegment
+                "affected savings": {yr: sum([(
+                    m["energy"]["total"]["baseline"][yr] -
+                    m["energy"]["total"]["efficient"][yr]) for
+                    m in msu_mkts]) for yr in self.handyvars.aeo_years}}
+        else:
+            for yr in self.handyvars.aeo_years:
+                # Add to affected overlapping energy use
+                htcl_adj_data[tech_typ][msu_split_key][
+                    "total affected"][yr] += sum([(
+                        m["energy"]["total"]["baseline"][yr]) for
+                        m in msu_mkts])
+                # Add to affected overlapping energy use savings
+                htcl_adj_data[tech_typ][msu_split_key][
+                    "affected savings"][yr] += sum([(
+                        m["energy"]["total"]["baseline"][yr] -
+                        m["energy"]["total"]["efficient"][yr]) for
+                        m in msu_mkts])
+
+        return htcl_adj_data
+
+    def htcl_adj(self, measures_htcl_adj, adopt_scheme, htcl_adj_data):
+        """Remove heating/cooling supply-demand energy/carbon/cost overlaps.
 
         Notes:
             These additional adjustments are required to remove overlaps
             across supply-side and demand-side heating/cooling energy
 
         Args:
-            measures_adj (list): Measures requiring additional
+            measures_adj (list): Measures requiring supply-demand
                 adjustments to energy/carbon/cost totals.
             adopt_scheme (string): Assumed consumer adoption scenario.
-            htcl_adj_frac (dict): Annual fractions to scale down measure
-                microsegment values by to remove supply-demand overlaps.
+            htcl_adj_data (dict): Overlapping supply or demand-side heating/
+                cooling energy use data to use in scaling down energy/carbon/
+                cost overlaps.
         """
-        # Loop through all measures requiring additional energy/carbon/cost
+        # Loop through all ECMs requiring additional energy/carbon/cost
         # adjustments
-        for m in measures_adj:
-            # Establish starting energy/carbon/cost totals and current
-            # contributing energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg, adopt_scheme)
-            # Adjust measure's energy/carbon/cost totals by half
-            # (reflecting an even partitioning of supply and demand
-            # energy, carbon, and cost potential)
-            for yr in self.handyvars.aeo_years:
-                # Apply adjustment fraction to total and competed
-                # baseline and efficient energy/carbon/cost data
-                for x in ["baseline", "efficient"]:
-                    # Determine appropriate adjustment data to use
-                    # for baseline or efficient case
-                    if x == "baseline":
-                        mastlist, adjlist = [mast_list_base, adj_list_base]
+        for m in measures_htcl_adj:
+            # Determine the subset of ECM contributing microsegment keys that
+            # apply to supply-side or demand-side heating/cooling
+            htcl_keys = [k for k in m.markets[adopt_scheme]["competed"][
+                "mseg_adjust"]["contributing mseg keys and values"].keys() if
+                "supply" in k or "demand" in k]
+            # Loop through the ECM's supply-side or demand-side heating/cooling
+            # contributing microsegments and scale down energy, carbon, and
+            # cost data for that microsegment to remove previously recorded
+            # overlaps across the heating/cooling supply-side and demand-side
+            for mseg in htcl_keys:
+                # Convert contributing microsegment key chain string to a list
+                keys = literal_eval(mseg)
+                # Pull out climate zone, building type, and structure type
+                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1]]]
+                # Convert climate zone, building type, and structure type
+                # data into a string, to be used as a dict key below
+                msu_split_key = str(msu_split)
+                # Set the technology type of the current microsegment, as well
+                # as the technology types of overlapping microsegments (e.g.,
+                # if the current microsegment is on the supply-side of
+                # heating/cooling, overlapping microsegments are on the demand
+                # side, and vice versa)
+                if 'supply' in mseg:
+                    tech_typ, tech_typ_overlp = ["supply", "demand"]
+                else:
+                    tech_typ, tech_typ_overlp = ["demand", "supply"]
+                # If no overlapping energy use data exist for the current
+                # microsegment's climate zone, building type, and structure
+                # type combination, move to next contributing microsegment
+                if msu_split_key not in htcl_adj_data[tech_typ].keys():
+                    continue
+
+                # If overlapping energy use data do exist for the current
+                # microsegment's climate zone, building type, and structure
+                # type combination, create short name for current microsegment
+                # energy data dict and overlapping energy data dict
+                tech_data = htcl_adj_data[tech_typ][msu_split_key]
+                overlp_data = htcl_adj_data[tech_typ_overlp][msu_split_key]
+                # Establish set of dicts used to adjust the contributing
+                # microsegment energy, carbon, and cost data and master energy,
+                # carbon, and cost data to remove the overlaps
+                mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                    adj_list_base = self.compete_adj_dicts(
+                        m, mseg, adopt_scheme)
+
+                # Adjust contributing and master energy/carbon/cost
+                # data to remove recorded supply-demand overlaps
+                for yr in self.handyvars.aeo_years:
+                    # Find the fraction of total possibly overlapping
+                    # heating/cooling energy for the given climate zone,
+                    # building type, and structure type combination that is
+                    # actually affected by ECMs in the analysis (e.g., if
+                    # looping through a supply-side contributing microsegment,
+                    # this is the portion of total energy affected by demand-
+                    # side microsegments in the analysis, and vice versa)
+                    if overlp_data["total"][yr] != 0:
+                        affected_frac = (overlp_data["total affected"][yr] /
+                                         overlp_data["total"][yr])
                     else:
-                        mastlist, adjlist = [mast_list_eff, adj_list_eff]
-                    # Adjust the total and competed energy, carbon, and
-                    # associated cost savings by the secondary adjustment
-                    # factor
-                    mast["cost"]["energy"]["total"][x][yr], \
-                        mast["cost"]["carbon"]["total"][x][yr], \
-                        mast["energy"]["total"][x][yr],\
-                        mast["carbon"]["total"][x][yr] = [
-                            x[yr] - (y[yr] * (1 - htcl_adj_frac[yr]))
-                            for x, y in zip(mastlist[1:5], adjlist[1:5])]
-                    mast["cost"]["energy"]["competed"][x][yr], \
-                        mast["cost"]["carbon"]["competed"][x][yr], \
-                        mast["energy"]["competed"][x][yr],\
-                        mast["carbon"]["competed"][x][yr] = [
-                            x[yr] - (y[yr] * (1 - htcl_adj_frac[yr]))
-                            for x, y in zip(mastlist[6:], adjlist[6:])]
+                        affected_frac = 0
+                    # Find overall relative performance for the technology
+                    # type of the current contributing microsegment in the
+                    # given climate zone, building type, and structure type
+                    # combination
+                    if (type(tech_data["total affected"][yr]) !=
+                        numpy.ndarray and
+                        tech_data["total affected"][yr] != 0) or (
+                        type(tech_data[
+                            "total affected"][yr]) == numpy.ndarray and
+                        all([x != 0 for x in
+                             tech_data["total affected"][yr]])):
+                        rel_perf_tech = (1 - (
+                            tech_data["affected savings"][yr] /
+                            tech_data["total affected"][yr]))
+                    else:
+                        rel_perf_tech = 1
+                    # Find overall relative performance for the overlapping
+                    # technology type in the given climate zone, building
+                    # type, and structure type combination
+                    if (type(overlp_data["total affected"][yr]) !=
+                        numpy.ndarray and
+                        overlp_data["total affected"][yr] != 0) or (
+                        type(overlp_data[
+                            "total affected"][yr]) == numpy.ndarray and
+                        all([x != 0 for x in
+                             overlp_data["total affected"][yr]])):
+                        rel_perf_tech_overlp = (1 - (
+                            overlp_data["affected savings"][yr] /
+                            overlp_data["total affected"][yr]))
+                    else:
+                        rel_perf_tech_overlp = 1
+                    # Calculate the ratio of relative performances between the
+                    # current microsegment and overlapping microsegments'
+                    # technology types in the given climate zone, building
+                    # type, and structure type combination
+                    if (all([type(x) != numpy.ndarray for x in [
+                        rel_perf_tech, rel_perf_tech_overlp]]) and
+                        (rel_perf_tech + rel_perf_tech_overlp) != 0) or (
+                        any([type(x) == numpy.ndarray for x in [
+                            rel_perf_tech, rel_perf_tech_overlp]]) and
+                        all([x != 0 for x in (
+                            rel_perf_tech + rel_perf_tech_overlp)])):
+                        save_ratio = rel_perf_tech / (
+                            rel_perf_tech + rel_perf_tech_overlp)
+                    else:
+                        save_ratio = 1
+
+                    # Use the affected overlap fraction, savings ratio, and
+                    # overlapping relative performance calculated above to
+                    # adjust the ECM's current contributing and master energy,
+                    # carbon, and cost data and remove any overlaps
+                    for x in ["baseline", "efficient"]:
+                        # Determine appropriate adjustment data and factors to
+                        # use for baseline or efficient case
+                        if x == "baseline":
+                            mastlist, adjlist = [mast_list_base, adj_list_base]
+                            # Adjust baseline data to reflect the fraction of
+                            # energy use affected by the overlapping
+                            # microsegments, plus the portion of affected
+                            # energy use saved by the overlapping microsegments
+                            adj_frac = (1 - affected_frac) + \
+                                affected_frac * (1 - save_ratio)
+                        else:
+                            mastlist, adjlist = [mast_list_eff, adj_list_eff]
+                            # Adjust efficient data in the same way as
+                            # baseline data, but with additional consideration
+                            # for the energy savings benefits of the
+                            # overlapping microsegments
+                            adj_frac = (1 - affected_frac) + \
+                                affected_frac * (1 - save_ratio) * \
+                                rel_perf_tech_overlp
+                        # Adjust the total and competed energy, carbon, and
+                        # associated cost data for both the ECM's current
+                        # contributing microsegment and master microsegment
+                        mast["cost"]["energy"]["total"][x][yr], \
+                            mast["cost"]["carbon"]["total"][x][yr], \
+                            mast["energy"]["total"][x][yr],\
+                            mast["carbon"]["total"][x][yr] = [
+                                x[yr] - (y[yr] * (1 - adj_frac))
+                                for x, y in zip(mastlist[1:5], adjlist[1:5])]
+                        mast["cost"]["energy"]["competed"][x][yr], \
+                            mast["cost"]["carbon"]["competed"][x][yr], \
+                            mast["energy"]["competed"][x][yr],\
+                            mast["carbon"]["competed"][x][yr] = [
+                                x[yr] - (y[yr] * (1 - adj_frac))
+                                for x, y in zip(mastlist[6:], adjlist[6:])]
 
     def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
         """Set the initial measure market data needed to adjust for overlaps.
@@ -2228,11 +2362,8 @@ def main(base_dir):
                     "ECM '" + meas_obj.name + "': " + str(e)) from None
 
         for adopt_scheme in handyvars.adopt_schemes:
-            m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
-                meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
-                copy.deepcopy(
-                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
+                meas_comp_data[adopt_scheme]
         # Print data import message for each ECM if in verbose mode
         verboseprint("Imported ECM '" + m.name + "' competition data")
 
