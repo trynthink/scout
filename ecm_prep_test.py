@@ -8514,8 +8514,6 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         sample_measure_in = {
             "name": "sample measure 2",
             "remove": False,
-            "installed_cost": 2,
-            "installed_cost_units": "COP",
             "market_entry_year": None,
             "market_exit_year": None,
             "market_scaling_fractions": None,
@@ -8605,34 +8603,6 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "commercial": "sample"}}},
             "cost unit conversions": {
                 "whole building": {
-                    "square footage to unit technology": {
-                        "original units": "$/ft^2 floor",
-                        "revised units": "$/unit",
-                        "conversion factor": {
-                            "description": "sample",
-                            "value": {
-                                "residential": {
-                                    "single family home": {
-                                        "linear fluorescent": 0.00175,
-                                        "general service": 0.02417,
-                                        "reflector": 0.003125,
-                                        "external": 0.004625,
-                                        "all other technologies": 0.000417},
-                                    "mobile home": {
-                                        "linear fluorescent": 0.00075,
-                                        "general service": 0.010625,
-                                        "reflector": 0.001375,
-                                        "external": 0.00229,
-                                        "all other technologies": 0.000417},
-                                    "multi family home": {
-                                        "linear fluorescent": 0.00108,
-                                        "general service": 0.014917,
-                                        "reflector": 0.00192,
-                                        "external": 0.00175,
-                                        "all other technologies": 0.00083}},
-                                "commercial": None},
-                            "units": "units/ft^2 floor",
-                            "source": "sample"}},
                     "wireless sensor network": {
                         "original units": "$/node",
                         "revised units": "$/ft^2 floor",
@@ -8643,7 +8613,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                                     "single family home": 0.0021,
                                     "mobile home": 0.0021,
                                     "multi family home": 0.0041},
-                                "commercial": 0.0005},
+                                "commercial": 0.002},
                             "units": "nodes/ft^2 floor",
                             "source": {
                                 "residential": "sample",
@@ -8657,11 +8627,11 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                             "value": {
                                 "residential": {
                                     "single family home": {
-                                        "Single-Family": 0.001},
+                                        "Single-Family": 0.001075},
                                     "mobile home": {
-                                        "Single-Family": 0.001},
+                                        "Single-Family": 0.001075},
                                     "multi family home": {
-                                        "Multifamily": 0.002}},
+                                        "Multifamily": 0.00215}},
                                 "commercial": {
                                     "assembly": {
                                         "Hospital": 0.005},
@@ -8936,6 +8906,8 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
             ('primary', 'marine', 'assembly', 'electricity', 'PCs',
+             None, 'new'),
+            ('primary', 'marine', 'single family home', 'electricity', 'PCs',
              None, 'new')]
         cls.cost_meas_ok_in = 10
         cls.cost_meas_units_ok_in_yronly = '2008$/ft^2 floor'
@@ -8946,16 +8918,14 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             '2013$/ft^2 floor', '2013$/node', '2013$/node',
             '2013$/occupant']
         cls.cost_meas_units_fail_in = [
-            '$/ft^2 facade', '$/kWh']
-        cls.cost_base_units_ok_in = [
-            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/ft^2 floor',
-            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/ft^2 floor',
-            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/unit', '2013$/unit',
-            '2013$/ft^2 floor', '2013$/unit', '2013$/unit']
+            '$/ft^2 facade', '$/kWh', '$/ft^2 floor']
+        cls.cost_base_units_fail_in = [
+            '2013$/ft^2 floor', '2013$/ft^2 floor', '2013$/unit']
+        cls.cost_base_units_ok_in = numpy.repeat('2013$/ft^2 floor', 13)
         cls.ok_out_costs_yronly = 11.11
         cls.ok_out_costs_all = [
             1.47, 0.2, 10.65, 6.18, 3.85, 0.01015, 0.182,
-            2, 8.757e-06, 0.0175, 0.005, 0.00061, 0.00029834]
+            2, 0.021, 10, 0.02, 0.041, 0.0215]
 
     def test_convertcost_ok_yronly(self):
         """Test 'convert_costs' function for year only conversion."""
@@ -8990,7 +8960,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                     self.sample_bldgsect_ok_in[k],
                     self.sample_mskeys_fail_in[k], self.cost_meas_ok_in,
                     self.cost_meas_units_fail_in[k],
-                    self.cost_base_units_ok_in[k], self.verbose)
+                    self.cost_base_units_fail_in[k], self.verbose)
 
 
 class UpdateMeasuresTest(unittest.TestCase, CommonMethods):

@@ -503,16 +503,6 @@ class UsefulVars(object):
             "heating equipment": ["$/kBtu/h heating"],
             "cooling equipment": ["$/kBtu/h cooling"]}
         self.cconv_tech_mltstage_map = {
-            "wireless sensor network": {
-                "key": ["$/node"],
-                "conversion stages": [
-                    "wireless sensor network",
-                    "square footage to unit technology"]},
-            "occupant-centered sensing and controls": {
-                "key": ["$/occupant"],
-                "conversion stages": [
-                    "occupant-centered sensing and controls",
-                    "square footage to unit technology"]},
             "windows": {
                 "key": ["$/ft^2 glazing"],
                 "conversion stages": ["windows", "walls"]},
@@ -526,7 +516,6 @@ class UsefulVars(object):
                 "key": ["$/ft^2 footprint"],
                 "conversion stages": ["footprint"]}}
         self.cconv_whlbldgkeys_map = {
-            "square footage to unit technology": ["$/ft^2 floor"],
             "wireless sensor network": ["$/node"],
             "occupant-centered sensing and controls": ["$/occupant"]}
 
@@ -1350,8 +1339,13 @@ class Measure(object):
                 if mskeys[0] == "primary":
                     valid_keys_stk_energy += 1
                     # Flag use of ft^2 floor area as stock when number of stock
-                    # units is unavailable for a primary microsegment
-                    if mseg["stock"] == "NA":
+                    # units is unavailable, or in any residential add-on ECM
+                    # case where user has not defined the add-on cost in terms
+                    # of '$/unit'
+                    if mseg["stock"] == "NA" or (
+                        bldg_sect == "residential" and
+                        '$/unit' not in cost_units and
+                            self.measure_type == "add-on"):
                         sqft_subst = 1
 
                 # If sub-market scaling fraction is non-numeric (indicating
@@ -1544,10 +1538,24 @@ class Measure(object):
                             perf_meas, perf_units = [
                                 0, "relative savings (constant)"]
 
+                        # Handle residential add-on ECM case where user has not
+                        # defined the add-on cost in terms of '$/unit'; in such
+                        # cases, baseline costs should always be zero, in units
+                        # of $/ft^2 floor
+                        if bldg_sect == "residential" and (
+                            '$/unit' not in cost_units and
+                                self.measure_type == "add-on"):
+                            cost_base, cost_base_units = \
+                                [{yr: 0 for yr in self.handyvars.aeo_years},
+                                 "$/ft^2 floor"]
+                        else:
+                            # Set baseline cost units
+                            cost_base, cost_base_units = \
+                                [base_cpl["installed cost"]["typical"],
+                                 base_cpl["installed cost"]["units"]]
+
                         # Set baseline cost and lifetime
-                        cost_base, life_base = [
-                            base_cpl["installed cost"]["typical"],
-                            base_cpl["lifetime"]["average"]]
+                        life_base = base_cpl["lifetime"]["average"]
                         # Adjust residential baseline lighting lifetimes to
                         # reflect the fact that input data assume 24 h/day of
                         # lighting use, rather than 3 h/day as assumed for
@@ -1560,10 +1568,6 @@ class Measure(object):
                         # Add to count of primary microsegment key chains with
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
-
-                        # Set baseline cost units
-                        cost_base_units = \
-                            base_cpl["installed cost"]["units"]
                     except:
                         # Record missing baseline data; if in verbose mode and
                         # the user has not already been warned about missing
@@ -2362,35 +2366,11 @@ class Measure(object):
                     raise KeyError("No conversion data for ECM '" +
                                    self.name + "' cost units" +
                                    cost_meas_units + "'") from e
-                # If a residential cost conversion to $/unit is required,
-                # retrieve data needed for this multi-stage conversion (e.g,
-                # from $/occupant or $/node to $/ft^2 floor to $/unit);
-                # otherwise, retrieve data needed for a single-stage conversion
-                # (e.g., from $/occupant or $/node to ft^2 floor, or from
-                # $/ft^2 floor to $/unit)
-                if whlbldg_key in ["occupant-centered sensing and controls",
-                                   "wireless sensor network"] and \
-                        cost_base_noyr == "$/unit":
-                    # Retrieve occupant-centered sensing and controls
-                    # or wireless sensor network conversion data
-                    node_keys = self.handyvars.cconv_tech_mltstage_map
-                    try:
-                        node_key = next(
-                            x for x in node_keys.keys() if
-                            cost_meas_noyr in node_keys[x]['key'])
-                    except StopIteration as e:
-                        raise KeyError("No conversion data for ECM '" +
-                                       self.name + "' cost units" +
-                                       cost_meas_units + "'") from e
-                    convert_units_data = [convert_data[
-                        'cost unit conversions'][top_key][x] for x in
-                        node_keys[node_key]["conversion stages"]]
-                else:
-                    # Retrieve square footage to unit technology
-                    # conversion data
-                    convert_units_data = [
-                        convert_data['cost unit conversions'][top_key][
-                            whlbldg_key]]
+                # Retrieve node to square footage or occupant to square
+                # footage conversion data
+                convert_units_data = [
+                    convert_data['cost unit conversions'][top_key][
+                        whlbldg_key]]
             elif top_key == "heating and cooling":
                 # Retrieve heating/cooling cost conversion data
                 htcl_keys = self.handyvars.cconv_htclkeys_map
