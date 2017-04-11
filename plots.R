@@ -45,7 +45,7 @@ years<-row.names(as.matrix(
   compete_results[[meas_names[1]]]$'Markets and Savings (Overall)'$
   'Technical potential'$'Baseline Energy Use (MMBtu)'))
 # Set an intended starting and ending year for the plotted results
-start_yr = 2010
+start_yr = 2015
 end_yr = 2040
 # Filter and order the year range
 years<-years[(years>=start_yr)&(years<=end_yr)]
@@ -167,7 +167,7 @@ plot_title_labels_finmets<-c(
 plot_lims_finmets <- c(
 	list(c(-50, 150)), list(c(0, 25)), list(c(-50, 150)), list(c(-500, 1000)))
 # Cost effectiveness threshold lines for each financial metric
-plot_ablines_finmets <- c(0, 5, 12, 50)
+plot_ablines_finmets <- c(0, 5, 13, 73)
 # Financial metric type and key names for retrieving JSON data on each
 fin_metrics <- c(
 	list(c('Consumer Level', 'IRR (%)')),
@@ -557,20 +557,20 @@ for (a in 1:length(adopt_scenarios)){
 	          # distinguish ECM points on the cost effectiveness plots by their climate
 	          # zone, building type, and end use categories
 	          
-	          # Determine appropriate ECM point outline color for applicable climate
-	          # zones
-	          # Set ECM's applicable climate zones
-	          czones = results_database_filters$'Applicable Climate Zones'
-	          # Match applicable climate zones to climate zone names used in plotting
-	          czone_match = which(czones_out %in% czones)
-	          # If more than one climate zone name was matched, set the outline color
-	          # to gray, representative of 'Multiple' applicable climate zones; otherwise
-	          # set to the point outline color appropriate to the matched climate zone
-	          if (length(czone_match)>1){
-	          	results_finmets[m, 6] = "gray50"
-	          }else{
-	          	results_finmets[m, 6] = czones_out_col[czone_match]
-	          }
+	          # # Determine appropriate ECM point outline color for applicable climate
+	          # # zones
+	          # # Set ECM's applicable climate zones
+	          # czones = results_database_filters$'Applicable Climate Zones'
+	          # # Match applicable climate zones to climate zone names used in plotting
+	          # czone_match = which(czones_out %in% czones)
+	          # # If more than one climate zone name was matched, set the outline color
+	          # # to gray, representative of 'Multiple' applicable climate zones; otherwise
+	          # # set to the point outline color appropriate to the matched climate zone
+	          # if (length(czone_match)>1){
+	          	# results_finmets[m, 6] = "gray50"
+	          # }else{
+	          	# results_finmets[m, 6] = czones_out_col[czone_match]
+	          # }
 	          # Determine appropriate ECM point shape for applicable building type
 	          # Set ECM's applicable building type
 	          bldg = results_database_filters$'Applicable Building Classes'
@@ -686,7 +686,7 @@ for (a in 1:length(adopt_scenarios)){
         lty_param = c(rep(1, 4), rep(6, 3))
         }else{
           # Set legend names for a plot with no uncertainty in the ECM totals
-          legend_param = c("Baseline (Uncompeted)", "Baseline (Competed)",
+          legend_param = c("AEO Baseline (Uncompeted)", "AEO Baseline (Competed)",
                            "Efficient (Uncompeted)", "Efficient (Competed)")
           col_param = c(plot_col_uc_base, plot_col_c_base, plot_col_uc_eff, plot_col_c_eff)
           lwd_param = c(5, 3, 3.5, rep(2, 2))
@@ -858,7 +858,7 @@ for (a in 1:length(adopt_scenarios)){
       max_val_ann = max(c(min_max_ann[,2], max(total_ann)))
       min_val_ann = min(c(min_max_ann[,1], min(total_ann)))
       # Force very small negative min. y value to zero
-      if ((abs(min_val_ann)/max_val_ann) < 0.01){
+      if ((max_val_ann > 0) & ((abs(min_val_ann)/max_val_ann) < 0.01)){
       	min_val_ann = 0
       }
       ylim_ann = round(pretty(c(min_val_ann, max_val_ann)), 2)       
@@ -913,7 +913,7 @@ for (a in 1:length(adopt_scenarios)){
       	     legend=legend_entries,
       		 lwd=c(4, 4, rep(2, (length(legend_entries) - 2))),
              col=color_entries, lty=c(1, 3, rep(1, (length(legend_entries)-2))), 
-       		 bg=transparent_back, box.col="NA", cex=0.8)
+       		 bg=transparent_back, box.col="NA", cex=0.95)
     }
     dev.off()
     
@@ -938,20 +938,20 @@ for (a in 1:length(adopt_scenarios)){
     	# First, find the ECMs that meet the cost effectiveness threshold (note: for 
     	# IRR 'cost effective' is above the threshold, for all other metrics
     	# 'cost effective' is below the threshold); restrict only to ECMs with
-    	# a cost effectiveness result inside the -1000 < y < 1000 range
+    	# a cost effectiveness result inside the -500 < y < 500 range
     	if (fmp==1){
     		restrict = which(
     		(results_finmets[, fmp] >= plot_ablines_finmets[fmp]) &
-    		(results_finmets[, fmp] > -1000 & results_finmets[, fmp] < 1000))
+    		(results_finmets[, fmp] > -500 & results_finmets[, fmp] < 500))
     	}else{
     		restrict = which(
     		(results_finmets[, fmp] <= plot_ablines_finmets[fmp]) &
-    		(results_finmets[, fmp] > -1000 & results_finmets[, fmp] < 1000))
+    		(results_finmets[, fmp] > -500 & results_finmets[, fmp] < 500))
      	}
 		# Set vector of cost effective savings results
       	results_restrict<-unlist(results_finmets[, 5])[restrict]
       	# Sum total cost effective savings
-      	total_save <- sum(results_restrict)
+      	total_save <- sum(results_restrict[results_restrict>=0])
 
       	# Second, find the ranking of those ECMs that meet the cost effectiveness
       	# threshold
@@ -1006,7 +1006,7 @@ for (a in 1:length(adopt_scenarios)){
 	    		results_x <- results_finmets_filtr[, 5]
 	    		results_y <- results_finmets_filtr[, fmp]
 	    		# Retrieve point formatting parameters from matrix
-	    		results_col<- unlist(results_finmets_filtr[, 6])
+	    		# results_col<- unlist(results_finmets_filtr[, 6])
 	    		results_pch<- unlist(results_finmets_filtr[, 7])
 	    		results_bg<- unlist(results_finmets_filtr[, 8])
 	    		# Check for cases where points overlap with the top 5 ECM names listed in upper right
@@ -1020,7 +1020,7 @@ for (a in 1:length(adopt_scenarios)){
 	    		results_x <- results_finmets_filtr[5]
 	    		results_y <- results_finmets_filtr[fmp]
 	    		# Retrieve point formatting parameters from vector
-	    		results_col<- unlist(results_finmets_filtr[6])
+	    		# results_col<- unlist(results_finmets_filtr[6])
 	    		results_pch<- unlist(results_finmets_filtr[7])
 	    		results_bg<- unlist(results_finmets_filtr[8])
 	    		# Check for cases where points overlap with the top 5 ECM names listed in upper right
@@ -1032,7 +1032,7 @@ for (a in 1:length(adopt_scenarios)){
 	    	# If there are overlaps between any points and the top 5 ECM names in the upper right
 	    	# of the plot, extend the y axis upper limit to mitigate the overlaps
 	    	if (length(overlap_chk)>0){
-	    		ylim_fm = pretty(c(min(ylim_fm), max(ylim_fm) + 0.33*max(ylim_fm)))
+	    		ylim_fm = pretty(c(min(ylim_fm), max(ylim_fm) + 0.5*max(ylim_fm)))
 	    	}
 	
 	   		# Initialize plot region for ECM cost effectiveness 
@@ -1065,8 +1065,8 @@ for (a in 1:length(adopt_scenarios)){
 	    	# Add a line to distinguish the cost effectiveness threshold
 	    	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
 	     	# Add individual ECM points to the cost effectiveness plot
-	     	points(results_x, results_y, col=results_col, pch=results_pch,
-	     	       bg=results_bg, lwd=1, cex = 1.2)
+	     	points(results_x, results_y, col="gray70", pch=results_pch,
+	     	       bg=results_bg, lwd=0.75, cex = 1.2)
 	      	# Add x axis tick marks and axis labels
 	      	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
 	      	mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
@@ -1075,7 +1075,7 @@ for (a in 1:length(adopt_scenarios)){
 		  	# Add label with total cost effective savings
 		  	label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)),
 		  	                   var_units[v], sep=" ")
-	      	shadowtext(0-max(xlim)/50, max(ylim_fm), label_text, cex=0.7,
+	      	shadowtext(0-max(xlim)/50, max(ylim_fm)-max(ylim_fm)/50, label_text, cex=0.85,
 	      	           bg="gray98", col="black", pos=4, offset=0, r=0.2)
 	     	mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.75, cex=0.9)
 	     	if (is.finite(max(label_vals_y))){
@@ -1084,7 +1084,7 @@ for (a in 1:length(adopt_scenarios)){
 	     	      	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
 	     	 	# Add a legend with top 5 ECM names
 	     	 	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
-	             	   legend = meas_names_lgnd, cex=0.7)
+	             	   legend = meas_names_lgnd, cex=0.85)
 	      	}
 	    }
     }
@@ -1095,21 +1095,21 @@ for (a in 1:length(adopt_scenarios)){
     # Initialize a blank plot region to put the legends in 
     plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
     # Add legend for applicable climate zone
-    legend("topleft", legend = c(czones_out_lgnd, 'Multiple'),
-           pt.lwd = rep(1, length(czones_out_lgnd) + 1), pt.cex = 1.2,
-           pt.bg = rep(NA, length(czones_out_lgnd) + 1),
-           col = c(czones_out_col, "gray50"),
-           pch = rep(21, length(czones_out_lgnd) + 1),
-           bty="n", cex=0.8, title=expression(bold('Climate Zone'))) 
+    # legend("topleft", legend = c(czones_out_lgnd, 'Multiple'),
+           # pt.lwd = rep(1, length(czones_out_lgnd) + 1), pt.cex = 1.2,
+           # pt.bg = rep(NA, length(czones_out_lgnd) + 1),
+           # col = c(czones_out_col, "gray50"),
+           # pch = rep(21, length(czones_out_lgnd) + 1),
+           # bty="n", cex=0.8, title=expression(bold('Climate Zone'))) 
     # Add legend for applicable building type
-    legend("top", legend = c(bclasses_out_finmets_lgnd, 'Multiple'),
+    legend("topleft", legend = c(bclasses_out_finmets_lgnd, 'Multiple'),
            col = rep("black", length(bclasses_out_finmets_lgnd) + 1),
            pt.lwd = rep(1, length(bclasses_out_finmets_lgnd) + 1),
            pt.bg = rep("black", length(bclasses_out_finmets_lgnd) + 1),
            pt.cex = 1.1, pch = c(bclasses_out_finmets_shp, 24),
            bty="n", cex=0.8, title=expression(bold('Building Type')))  
     # Add legend for applicable end use
-    legend("topright", legend = c(euses_out_finmets_lgnd, 'Multiple'),
+    legend("top", legend = c(euses_out_finmets_lgnd, 'Multiple'),
           pt.lwd = rep(1, length(euses_out_finmets_lgnd) + 1),
           pt.cex = 1.2, col = c(euses_out_finmets_col, "gray50"),
           pch = rep(16, length(euses_out_finmets_lgnd) + 1),
