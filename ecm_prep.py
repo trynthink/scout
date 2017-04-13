@@ -3003,14 +3003,11 @@ class Measure(object):
             if int(yr) <= self.market_entry_year:
                 rel_perf_uncomp_capt = rel_perf[yr]
             else:
-                total_capture = competed_captured_eff_frac + (
-                    1 - competed_frac) * captured_eff_frac
-                if total_capture != 0:
-                    rel_perf_uncomp_capt = (
-                        rel_perf_comp_capt * competed_captured_eff_frac +
-                        rel_perf_uncomp_capt * (
-                            total_capture - competed_captured_eff_frac)) / \
-                        total_capture
+                base_turnover_wt = (
+                    (1 / life_base[yr]) + self.handyvars.retro_rate)
+                rel_perf_uncomp_capt = (
+                    rel_perf[yr] * base_turnover_wt +
+                    rel_perf_uncomp_capt * (1 - base_turnover_wt))
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
