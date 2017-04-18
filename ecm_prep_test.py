@@ -12543,7 +12543,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'baseline': {'2009': 510, '2010': 510},
                                 'efficient': {'2009': 102, '2010': 102}}}},
                         "lifetime": {
-                            "baseline": {'2010': 5.86, '2009': 5.86},
+                            "baseline": {'2010': (41 / 1240),
+                                         '2009': (41 / 1240)},
                             "measure": 13.29}},
                 "mseg_adjust": {
                     "contributing mseg keys and values": {
@@ -13175,7 +13176,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 'baseline': {'2009': 510, '2010': 510},
                                 'efficient': {'2009': 102, '2010': 102}}}},
                         "lifetime": {
-                            "baseline": {'2010': 5.86, '2009': 5.86},
+                            "baseline": {'2010': (41 / 1240),
+                                         '2009': (41 / 1240)},
                             "measure": 13.29}},
                 "mseg_adjust": {
                     "contributing mseg keys and values": {

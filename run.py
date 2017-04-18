@@ -352,17 +352,17 @@ class Engine(object):
             # Total uncompeted baseline capital cost
             stock_meas_cost_tot = {
                 yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "cost"]["stock"]["competed"]["efficient"][yr] for
+                    "cost"]["stock"]["total"]["efficient"][yr] for
                 yr in self.handyvars.aeo_years}
             # Total uncompeted measure capital cost
             stock_base_cost_tot = {
                 yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "cost"]["stock"]["competed"]["baseline"][yr] for
+                    "cost"]["stock"]["total"]["baseline"][yr] for
                 yr in self.handyvars.aeo_years}
             # Total number of applicable stock units
             nunits_tot = {
                 yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "stock"]["competed"]["all"][yr] for
+                    "stock"]["total"]["all"][yr] for
                 yr in self.handyvars.aeo_years}
 
             # Set measure master microsegments for the current adoption and
@@ -449,7 +449,7 @@ class Engine(object):
                 # Calculate measure financial metrics
 
                 # Create short name for number of captured measure stock units
-                nunits_meas = markets["stock"]["competed"]["measure"][yr]
+                nunits_meas = markets["stock"]["total"]["measure"][yr]
                 # If the total baseline stock is zero or no measure units
                 # have been captured for a given year, set financial metrics
                 # to 999
@@ -485,8 +485,8 @@ class Engine(object):
                     # using as inputs to the "metric update" function
                     scostmeas_delt_tmp, esave_tmp, ecostsave_tmp, csave_tmp, \
                         ccostsave_tmp, life_meas_tmp = [
-                            scostmeas_delt, esave[yr], ecostsave[yr],
-                            csave[yr], ccostsave[yr], life_meas]
+                            scostmeas_delt, esave_tot[yr], ecostsave_tot[yr],
+                            csave_tot[yr], ccostsave_tot[yr], life_meas]
 
                     # Ensure consistency in length of all "metric_update"
                     # inputs that can be arrays
@@ -494,7 +494,7 @@ class Engine(object):
                     # Determine the length that any array inputs to
                     # "metric_update" should consistently have
                     len_arr = next((len(item) for item in [
-                        scostmeas_delt, esave[yr], life_meas] if
+                        scostmeas_delt, esave_tot[yr], life_meas] if
                         type(item) == numpy.ndarray), None)
 
                     # Ensure all array inputs to "metric_update" are of the
@@ -562,10 +562,10 @@ class Engine(object):
                         self.metric_update(
                             m, int(round(life_base)),
                             int(round(life_meas)), scostbase, scostmeas_delt,
-                            esave[yr] / nunits_tot[yr],
-                            ecostsave[yr] / nunits_tot[yr],
-                            csave[yr] / nunits_tot[yr],
-                            ccostsave[yr] / nunits_tot[yr])
+                            esave_tot[yr] / nunits_tot[yr],
+                            ecostsave_tot[yr] / nunits_tot[yr],
+                            csave_tot[yr] / nunits_tot[yr],
+                            ccostsave_tot[yr] / nunits_tot[yr])
 
             # Record final measure savings figures and financial metrics
 
@@ -1960,8 +1960,7 @@ class Engine(object):
                 # First year in time horizon or a competed measure market entry
                 # year in a technical potential scenario; weighted market share
                 # equals market share for the captured stock in this year only
-                if ind == 0 or (adopt_scheme == "Technical potential" and
-                                int(wyr) in mkt_entry_yrs):
+                if ind == 0 or int(wyr) in mkt_entry_yrs:
                     adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
                 # Subsequent year; weighted market share averages market share
                 # for captured stock in current year and all previous years

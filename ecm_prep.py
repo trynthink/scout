@@ -4396,10 +4396,14 @@ class MeasurePackage(Measure):
             # microsegments that contributed to the sums, to arrive at an
             # average baseline/measure lifetime for the packaged measure
             for yr in self.handyvars.aeo_years:
-                self.markets[adopt_scheme]["master_mseg"][
-                    "lifetime"]["baseline"][yr] = \
+                if self.markets[adopt_scheme][
+                        "master_mseg"]["stock"]["total"]["all"][yr] != 0:
                     self.markets[adopt_scheme]["master_mseg"][
-                    "lifetime"]["baseline"][yr] / key_chain_ct_package
+                        "lifetime"]["baseline"][yr] = \
+                        self.markets[adopt_scheme]["master_mseg"][
+                        "lifetime"]["baseline"][yr] / \
+                        self.markets[adopt_scheme][
+                            "master_mseg"]["stock"]["total"]["all"][yr]
             self.markets[adopt_scheme]["master_mseg"]["lifetime"][
                 "measure"] = self.markets[adopt_scheme][
                 "master_mseg"]["lifetime"]["measure"] / key_chain_ct_package
@@ -4558,8 +4562,14 @@ class MeasurePackage(Measure):
                     # efficient energy and carbon data (disallow result
                     # below zero)
                     msegs_meas[x][cs]["efficient"] = {
-                        key: 0 if eff[key] > 0 and (
-                            base[key] - eff[key]) * energy_ben > eff[key]
+                        key: 0 if (
+                            not isinstance(eff[key], numpy.ndarray) and
+                            eff[key] > 0 and (base[key] - eff[key]) *
+                            energy_ben > eff[key]) or (
+                            isinstance(eff[key], numpy.ndarray) and
+                            all([x > 0 for x in eff[key]]) and
+                            all(((base[key] - x) * energy_ben > x) for
+                                x in eff[key]))
                         else eff[key] - (base[key] - eff[key]) * energy_ben
                         for key in self.handyvars.aeo_years}
                     # Set short variable names for baseline and efficient
@@ -4570,8 +4580,14 @@ class MeasurePackage(Measure):
                     # efficient energy and carbon cost data (disallow result
                     # below zero)
                     msegs_meas["cost"][x][cs]["efficient"] = {
-                        key: 0 if eff_c[key] > 0 and (
-                            base_c[key] - eff_c[key]) * energy_ben > eff_c[key]
+                        key: 0 if (
+                            not isinstance(eff_c[key], numpy.ndarray) and
+                            eff_c[key] > 0 and (base_c[key] - eff_c[key]) *
+                            energy_ben > eff_c[key]) or (
+                            isinstance(eff_c[key], numpy.ndarray) and
+                            all([x > 0 for x in eff_c[key]]) and
+                            all(((base_c[key] - x) * energy_ben > x) for
+                                x in eff_c[key]))
                         else eff_c[key] - (base_c[key] - eff_c[key]) *
                         energy_ben for key in self.handyvars.aeo_years}
         # If additional installed cost benefits are not None and are non-zero,
