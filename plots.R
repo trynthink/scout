@@ -37,9 +37,14 @@ compete_results<-fromJSON(file = file.path(base_dir, 'results','ecm_results.json
 adopt_scenarios <- c('Technical potential', 'Max adoption potential')
 # Set ECM competition scenarios
 comp_schemes <- c('uncompeted', 'competed')
-# Set ECM names and order alphabetically
+# Set full list of ECM names from results file
 meas_names <- names(compete_results)
-meas_names <- meas_names[order(meas_names)]
+# Set list of ECM names excluding 'All ECMs' (representing results summed across all ECMs)
+meas_names_no_all <- meas_names[meas_names!= "All ECMs"]
+# Order the list of ECM names excluding 'All ECMs'
+meas_names_no_all <- meas_names_no_all[order(meas_names_no_all)]
+# Combine the 'All ECMs' name with the ordered list of the individual ECM names
+meas_names <- c('All ECMs', meas_names_no_all)
 # Set years in modeling time horizon and reorganize in ascending order
 years<-row.names(as.matrix(
   compete_results[[meas_names[1]]]$'Markets and Savings (Overall)'$
@@ -47,6 +52,8 @@ years<-row.names(as.matrix(
 # Set an intended starting and ending year for the plotted results
 start_yr = 2015
 end_yr = 2040
+# Set the year to take a 'snapshot' of certain results in 
+snap_yr = "2030"
 # Filter and order the year range
 years<-years[(years>=start_yr)&(years<=end_yr)]
 years<-years[order(years)]
@@ -147,8 +154,6 @@ transparent_back<-alpha("white", 0.75)
 # Set high-level variables needed to generate ECM cost effectiveness plots
 # ============================================================================
 
-# Set the year to take a 'snapshot' of cost effectiveness in
-snap_yr = "2030"
 # Names for ECM cost effectiveness plots
 plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided CO2', 'Cost Effective Operation Cost Savings') 
 # X axis labels for cost effectiveness plots
@@ -269,7 +274,7 @@ for (a in 1:length(adopt_scenarios)){
                             
     # Initialize a matrix for storing individual ECM financial metrics/savings and filter
     # variable data
-    results_finmets <- matrix(list(), length(meas_names), (length(fin_metrics) + 4))
+    results_finmets <- matrix(list(), length(meas_names_no_all), (length(fin_metrics) + 4))
       
     # Initialize uncertainty flag for the adoption scenario 
     uncertainty = FALSE  
@@ -349,8 +354,9 @@ for (a in 1:length(adopt_scenarios)){
         
         # Set matrix for temporarily storing finalized baseline and efficient results
         r_temp <- matrix(NA, 6, length(years))  
-        # Find data for uncompeted energy, carbon, and/or cost
-        if (comp_schemes[cp] == "uncompeted"){
+        # Find data for uncompeted energy, carbon, and/or cost; exclude the 'All ECMs' case
+        # (only competed data may be summed across all ECMs)
+        if ((comp_schemes[cp] == "uncompeted")&(meas_names[m] != "All ECMs")){
           # Set the appropriate database of uncompeted energy, carbon, or cost totals
           # (access keys vary based on plotted variable)
           if (var_names_uncompete[v] != "cost"){
@@ -384,15 +390,20 @@ for (a in 1:length(adopt_scenarios)){
           # Set the appropriate database of ECM competed energy, carbon, or cost totals
           results_database = compete_results[[meas_names[m]]]$
             'Markets and Savings (Overall)'[[adopt_scenarios[a]]]
-          # Set the appropriate database of ECM competed energy, carbon , or cost savings,
-          # which are broken out by each of the three filtering variables (climate zone,
-          # building class, end use)
-          results_database_agg = compete_results[[meas_names[m]]]$
-            'Markets and Savings (by Category)'[[adopt_scenarios[a]]][[var_names_compete_save[v]]]
-          # Set the appropriate database of ECM financial metrics data and data for categorizing
-          # cost effectiveness outcomes based on climate zone, building type, and end use
-          results_database_finmets = compete_results[[meas_names[m]]]$'Financial Metrics'
-          results_database_filters = compete_results[[meas_names[m]]]$'Filter Variables'
+          # Set the appropriate database of ECM competed energy, carbon, or cost totals
+          # broken down by climate zone, building class, and end use; exclude the 'All ECMs'
+          # case (breakdowns are not calculated for this case) 
+          if (meas_names[m] != "All ECMs"){
+	          # Set the appropriate database of ECM competed energy, carbon , or cost savings,
+	          # which are broken out by each of the three filtering variables (climate zone,
+	          # building class, end use)
+	          results_database_agg = compete_results[[meas_names[m]]]$
+	            'Markets and Savings (by Category)'[[adopt_scenarios[a]]][[var_names_compete_save[v]]]
+	          # Set the appropriate database of ECM financial metrics data and data for categorizing
+	          # cost effectiveness outcomes based on climate zone, building type, and end use
+	          results_database_finmets = compete_results[[meas_names[m]]]$'Financial Metrics'
+	          results_database_filters = compete_results[[meas_names[m]]]$'Filter Variables'
+	      }
           
           # Order competed ECM energy, carbon, or cost totals by year and determine low/high bounds
           # on each total value (if applicable)`
@@ -430,183 +441,184 @@ for (a in 1:length(adopt_scenarios)){
               }else{
                 r_temp[4:6, yr] = results_database[[var_names_compete_eff_m[v]]][years[yr]][[1]]
               }
-            
             # Find the amount of the ECM's energy, carbon, or cost savings that can be
             # attributed to each of the three aggregate savings filtering variables
             # (climate zone, building class, end use) and add those savings to the
-            # aggregated total for each filter variable across all ECMs
-            
-            # Loop through the three variables used to filter aggregated savings, each
-            # represented by a row in the 'results_agg' matrix
-            for (fv in (1:nrow(results_agg))){
-              # Set the name categories associated with the given savings filter
-              # variable (e.g., 'Residential (New)', 'Residential (Existing)', etc. for
-              # building class)
-              fv_opts <- results_agg[fv, 1][[1]]
-              
-              # Initialize a vector used to store the ECM's energy, carbon, or cost
-              # savings that are attributable to the given filter variable; this
-              # vector must be as long as the number of category names for the
-              # filter variable, so a savings total can be stored for each category  
-              add_val = matrix(0, length(fv_opts))
-              
-              # Retrieve the savings data for the ECM that is attributable to each
-              # filter variable name category. The data are stored in a three-level
-              # nested dict with climate zone at the top level, building class at
-              # the middle level, and end use at the bottom level. All three of these
-              # levels must be looped through to retrieve the savings data.
-              
-              # Loop through all climate zones
-              for (levone in (1:length(results_agg[1, 1][[1]]))){  
-                # Set the climate zone name to use in proceeding down to the
-                # building class level of the dict
-                czone = results_agg[1, 1][[1]][[levone]]
-                # Reduce the dict to the building class level
-                r_agg_temp = results_database_agg[[czone]]
-                # Loop through all building classes
-                for (levtwo in (1:length(results_agg[2, 1][[1]]))){
-                  # Set the building class name to use in proceeding down to the
-                  # end use level of the dict
-                  bldg = results_agg[2, 1][[1]][[levtwo]]
-                  # Reduce the dict to the end use level
-                  r_agg_temp = results_database_agg[[czone]][[bldg]]
-                  # Loop through all end uses
-                  for (levthree in (1:length(results_agg[3, 1][[1]]))){
-                    # Set the end use name to use in retrieving data values
-                    euse = results_agg[3, 1][[1]][[levthree]]
-                    # Reset the predefined 'Electronics' end use name (short for
-                    # later use in plot legends) to the longer 'Computers and Electronics'
-                    # name used in the dict
-                    if (euse == "Electronics"){
-                    	euse = "Computers and Electronics"
-                    }
-                    # Reduce the dict to the level of the retrieved data values
-                    r_agg_temp = results_database_agg[[czone]][[bldg]][[euse]]  
-                    
-                    # If data values exist, add them to the ECM's energy/carbon/cost
-                    # savings-by-filter variable vector initialized above
-                    if (length(r_agg_temp)>1){
-                      # Determine which index to use in adding the retrieved data to
-                      # the ECM's energy/carbon/cost savings-by-filter variable vector
-                      if (fv == 1){
-                        index = levone
-                      }else if (fv == 2){
-                        index = levtwo
-                      }else{
-                        index = levthree
-                      }
-                      # Add retrieved data to ECM's savings-by-filter variable vector
-                      add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
-                    }
-                  }                  
-                }  
-              }
-
-              # Add ECM's savings-by-filter variable vector data to the aggregated total for
-              # each filter variable across all ECMs
-              for (fvo in 1:length(fv_opts)){
-                results_agg[fv, 2][[1]][[fvo]][yr] = results_agg[fv, 2][[1]][[fvo]][yr] + add_val[fvo]
-              }
-            }
-	        
-	        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
-	        # retrieving the ECM's financial metrics, savings, and filter variable data needed to
-	        # develop those snapshots
-	        if (years[yr] == snap_yr){
-	          # Retrieve ECM portfolio-level and consumer-level financial metrics data
-	          for (fm in 1:length(fin_metrics)){
-	          	# Retrieve ECM portfolio-level metrics data (CCE, CCC); retrieve
-	          	# consumer-level data (IRR, payback)
-	          	if ((fin_metrics[[fm]][1]) == "Portfolio Level"){
-	          		# Portfolio-level data are keyed by adoption scenario
-	          		results_finmets[m, fm][[1]] = 
-	          			results_database_finmets[[fin_metrics[[fm]][1]]][[
-	          				adopt_scenarios[a]]][[fin_metrics[[fm]][2]]][[years[yr]]][[1]]
-	          	}else{
-	          		# Multiple IRR fractions in JSON data by 100 to convert to final % units
-	          		if ((fin_metrics[[fm]][2]) == "IRR (%)"){
-	          			unit_translate_finmet = 100
-	          		}else{
-	          			unit_translate_finmet = 1	
-	          		}
-	          		# Consumer-level data are NOT keyed by adoption scenario
-	          		results_finmets[m, fm][[1]] = 
-	          		results_database_finmets[[fin_metrics[[fm]][1]]][[
-	          			fin_metrics[[fm]][2]]][[years[yr]]][[1]] * unit_translate_finmet
-	          	}
-	          	# Replace all 999 or 99900 values (proxies for NaN) with NA
-	          	results_finmets[m, fm][[1]][((results_finmets[m, fm][[1]] == 999) |
-	          								 (results_finmets[m, fm][[1]] == 99900))] <- NA		 	
-	          }
-
-	          # Add ECM cost effectiveness metrics data to XLSX sheet
-	          # Add ECM IRR/payback metrics (not dependent on competition)
-	          xlsx_data[row_ind_start:(row_ind_start + 3),
-              			6: (6 + ((length(plot_title_labels_finmets))/2) - 1)] =
-              			as.matrix(results_finmets[m,1:2])
-              # Add ECM competed CCE/CCC metrics
-              xlsx_data[(row_ind_start + 2):(row_ind_start + 3),
-              			(6 + ((length(plot_title_labels_finmets))/2)):
-              			(6 + (length(plot_title_labels_finmets)))] =
-              			as.matrix(results_finmets[m,3:4])
-	          # Retrieve, ECM energy, carbon, or cost savings data, convert to final units
-	          results_finmets[m, (length(fin_metrics)+1)][[1]] =
-	          	results_database[[var_names_compete_save[v]]][years[yr]][[1]] * unit_translate
-	          
-	          # Determine the outline color, shape, and fill color parameters needed to
-	          # distinguish ECM points on the cost effectiveness plots by their climate
-	          # zone, building type, and end use categories
-	          
-	          # # Determine appropriate ECM point outline color for applicable climate
-	          # # zones
-	          # # Set ECM's applicable climate zones
-	          # czones = results_database_filters$'Applicable Climate Zones'
-	          # # Match applicable climate zones to climate zone names used in plotting
-	          # czone_match = which(czones_out %in% czones)
-	          # # If more than one climate zone name was matched, set the outline color
-	          # # to gray, representative of 'Multiple' applicable climate zones; otherwise
-	          # # set to the point outline color appropriate to the matched climate zone
-	          # if (length(czone_match)>1){
-	          	# results_finmets[m, 6] = "gray50"
-	          # }else{
-	          	# results_finmets[m, 6] = czones_out_col[czone_match]
-	          # }
-	          # Determine appropriate ECM point shape for applicable building type
-	          # Set ECM's applicable building type
-	          bldg = results_database_filters$'Applicable Building Classes'
-	          # Match applicable building classes to building type names used in plotting
-	          bldg_match = matrix(NA, length(bclasses_out_finmets))
-	          for (b in 1:length(bclasses_out_finmets)){
-	          	if (length(which(bldg%in%bclasses_out_finmets[[b]][[1]])>0)){
-	          		bldg_match[b] = b
-	          	}
-	          }
-	          # If more than one building type name was matched, set the point shape to
-	          # a triangle, representative of 'Multiple' applicable building types;
-	          # otherwise set to the point shape appropriate for the matched building type
-	          if (length(bldg_match[is.finite(bldg_match)])>1){
-	          	results_finmets[m, 7] = 24
-	          }else{
-	          	results_finmets[m, 7] = bclasses_out_finmets_shp[bldg_match[is.finite(bldg_match)]]
-	          } 
-			  # Determine appropriate ECM point fill color for applicable end uses
-	          # Set ECM's applicable end uses
-	          euse = results_database_filters$'Applicable End Uses'
-	          # Match applicable end uses to end use names used in plotting
-	          euse_match = matrix(NA, length(euses_out_finmets))
-	          for (e in 1:length(euses_out_finmets)){
-	          	if (length(which(euse%in% euses_out_finmets[[e]])>0)){
-	          		euse_match[e] = e
-	          	}
-	          }
-	          # If more than one end use name was matched, set the point fill color to
-	          # gray, representative of 'Multiple' applicable end uses; otherwise set
-	          # to the point fill color appropriate for the matched end use
-	          if (length(euse_match[is.finite(euse_match)])>1){
-	          	results_finmets[m, 8] ="gray50"
-	          }else{
-	          	results_finmets[m, 8] = euses_out_finmets_col[euse_match[is.finite(euse_match)]]
-	          }
+            # aggregated total for each filter variable across all ECMs; exclude the 'All ECMs'
+          	# case (filter variable breakdowns are not calculated for this case) 
+            if (meas_names[m] != "All ECMs"){
+	            # Loop through the three variables used to filter aggregated savings, each
+	            # represented by a row in the 'results_agg' matrix
+	            for (fv in (1:nrow(results_agg))){
+	              # Set the name categories associated with the given savings filter
+	              # variable (e.g., 'Residential (New)', 'Residential (Existing)', etc. for
+	              # building class)
+	              fv_opts <- results_agg[fv, 1][[1]]
+	              
+	              # Initialize a vector used to store the ECM's energy, carbon, or cost
+	              # savings that are attributable to the given filter variable; this
+	              # vector must be as long as the number of category names for the
+	              # filter variable, so a savings total can be stored for each category  
+	              add_val = matrix(0, length(fv_opts))
+	              
+	              # Retrieve the savings data for the ECM that is attributable to each
+	              # filter variable name category. The data are stored in a three-level
+	              # nested dict with climate zone at the top level, building class at
+	              # the middle level, and end use at the bottom level. All three of these
+	              # levels must be looped through to retrieve the savings data.
+	              
+	              # Loop through all climate zones
+	              for (levone in (1:length(results_agg[1, 1][[1]]))){  
+	                # Set the climate zone name to use in proceeding down to the
+	                # building class level of the dict
+	                czone = results_agg[1, 1][[1]][[levone]]
+	                # Reduce the dict to the building class level
+	                r_agg_temp = results_database_agg[[czone]]
+	                # Loop through all building classes
+	                for (levtwo in (1:length(results_agg[2, 1][[1]]))){
+	                  # Set the building class name to use in proceeding down to the
+	                  # end use level of the dict
+	                  bldg = results_agg[2, 1][[1]][[levtwo]]
+	                  # Reduce the dict to the end use level
+	                  r_agg_temp = results_database_agg[[czone]][[bldg]]
+	                  # Loop through all end uses
+	                  for (levthree in (1:length(results_agg[3, 1][[1]]))){
+	                    # Set the end use name to use in retrieving data values
+	                    euse = results_agg[3, 1][[1]][[levthree]]
+	                    # Reset the predefined 'Electronics' end use name (short for
+	                    # later use in plot legends) to the longer 'Computers and Electronics'
+	                    # name used in the dict
+	                    if (euse == "Electronics"){
+	                    	euse = "Computers and Electronics"
+	                    }
+	                    # Reduce the dict to the level of the retrieved data values
+	                    r_agg_temp = results_database_agg[[czone]][[bldg]][[euse]]  
+	                    
+	                    # If data values exist, add them to the ECM's energy/carbon/cost
+	                    # savings-by-filter variable vector initialized above
+	                    if (length(r_agg_temp)>1){
+	                      # Determine which index to use in adding the retrieved data to
+	                      # the ECM's energy/carbon/cost savings-by-filter variable vector
+	                      if (fv == 1){
+	                        index = levone
+	                      }else if (fv == 2){
+	                        index = levtwo
+	                      }else{
+	                        index = levthree
+	                      }
+	                      # Add retrieved data to ECM's savings-by-filter variable vector
+	                      add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
+	                    }
+	                  }                  
+	                }  
+	              }
+	
+	              # Add ECM's savings-by-filter variable vector data to the aggregated total for
+	              # each filter variable across all ECMs
+	              for (fvo in 1:length(fv_opts)){
+	                results_agg[fv, 2][[1]][[fvo]][yr] = results_agg[fv, 2][[1]][[fvo]][yr] + add_val[fvo]
+	              }
+	            }
+		        
+		        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
+		        # retrieving the ECM's financial metrics, savings, and filter variable data needed to
+		        # develop those snapshots
+		        if (years[yr] == snap_yr){
+		          # Retrieve ECM portfolio-level and consumer-level financial metrics data
+		          for (fm in 1:length(fin_metrics)){
+		          	# Retrieve ECM portfolio-level metrics data (CCE, CCC); retrieve
+		          	# consumer-level data (IRR, payback)
+		          	if ((fin_metrics[[fm]][1]) == "Portfolio Level"){
+		          		# Portfolio-level data are keyed by adoption scenario
+		          		results_finmets[(m - 1), fm][[1]] = 
+		          			results_database_finmets[[fin_metrics[[fm]][1]]][[
+		          				adopt_scenarios[a]]][[fin_metrics[[fm]][2]]][[years[yr]]][[1]]
+		          	}else{
+		          		# Multiple IRR fractions in JSON data by 100 to convert to final % units
+		          		if ((fin_metrics[[fm]][2]) == "IRR (%)"){
+		          			unit_translate_finmet = 100
+		          		}else{
+		          			unit_translate_finmet = 1	
+		          		}
+		          		# Consumer-level data are NOT keyed by adoption scenario
+		          		results_finmets[(m - 1), fm][[1]] = 
+		          		results_database_finmets[[fin_metrics[[fm]][1]]][[
+		          			fin_metrics[[fm]][2]]][[years[yr]]][[1]] * unit_translate_finmet
+		          	}
+		          	# Replace all 999 or 99900 values (proxies for NaN) with NA
+		          	results_finmets[(m - 1), fm][[1]][((results_finmets[(m - 1), fm][[1]] == 999) |
+		          								 (results_finmets[(m - 1), fm][[1]] == 99900))] <- NA		 	
+		          }
+	
+		          # Add ECM cost effectiveness metrics data to XLSX sheet
+		          # Add ECM IRR/payback metrics (not dependent on competition)
+		          xlsx_data[row_ind_start:(row_ind_start + 3),
+	              			6: (6 + ((length(plot_title_labels_finmets))/2) - 1)] =
+	              			as.matrix(results_finmets[(m - 1),1:2])
+	              # Add ECM competed CCE/CCC metrics
+	              xlsx_data[(row_ind_start + 2):(row_ind_start + 3),
+	              			(6 + ((length(plot_title_labels_finmets))/2)):
+	              			(6 + (length(plot_title_labels_finmets)))] =
+	              			as.matrix(results_finmets[(m - 1),3:4])
+		          # Retrieve, ECM energy, carbon, or cost savings data, convert to final units
+		          results_finmets[(m - 1), (length(fin_metrics)+1)][[1]] =
+		          	results_database[[var_names_compete_save[v]]][years[yr]][[1]] * unit_translate
+		          
+		          # Determine the outline color, shape, and fill color parameters needed to
+		          # distinguish ECM points on the cost effectiveness plots by their climate
+		          # zone, building type, and end use categories
+		          
+		          # # Determine appropriate ECM point outline color for applicable climate
+		          # # zones
+		          # # Set ECM's applicable climate zones
+		          # czones = results_database_filters$'Applicable Climate Zones'
+		          # # Match applicable climate zones to climate zone names used in plotting
+		          # czone_match = which(czones_out %in% czones)
+		          # # If more than one climate zone name was matched, set the outline color
+		          # # to gray, representative of 'Multiple' applicable climate zones; otherwise
+		          # # set to the point outline color appropriate to the matched climate zone
+		          # if (length(czone_match)>1){
+		          	# results_finmets[(m - 1), 6] = "gray50"
+		          # }else{
+		          	# results_finmets[(m - 1), 6] = czones_out_col[czone_match]
+		          # }
+		          # Determine appropriate ECM point shape for applicable building type
+		          # Set ECM's applicable building type
+		          bldg = results_database_filters$'Applicable Building Classes'
+		          # Match applicable building classes to building type names used in plotting
+		          bldg_match = matrix(NA, length(bclasses_out_finmets))
+		          for (b in 1:length(bclasses_out_finmets)){
+		          	if (length(which(bldg%in%bclasses_out_finmets[[b]][[1]])>0)){
+		          		bldg_match[b] = b
+		          	}
+		          }
+		          # If more than one building type name was matched, set the point shape to
+		          # a triangle, representative of 'Multiple' applicable building types;
+		          # otherwise set to the point shape appropriate for the matched building type
+		          if (length(bldg_match[is.finite(bldg_match)])>1){
+		          	results_finmets[(m - 1), 7] = 24
+		          }else{
+		          	results_finmets[(m - 1), 7] = bclasses_out_finmets_shp[bldg_match[is.finite(bldg_match)]]
+		          } 
+				  # Determine appropriate ECM point fill color for applicable end uses
+		          # Set ECM's applicable end uses
+		          euse = results_database_filters$'Applicable End Uses'
+		          # Match applicable end uses to end use names used in plotting
+		          euse_match = matrix(NA, length(euses_out_finmets))
+		          for (e in 1:length(euses_out_finmets)){
+		          	if (length(which(euse%in% euses_out_finmets[[e]])>0)){
+		          		euse_match[e] = e
+		          	}
+		          }
+		          # If more than one end use name was matched, set the point fill color to
+		          # gray, representative of 'Multiple' applicable end uses; otherwise set
+		          # to the point fill color appropriate for the matched end use
+		          if (length(euse_match[is.finite(euse_match)])>1){
+		          	results_finmets[(m - 1), 8] ="gray50"
+		          }else{
+		          	results_finmets[(m - 1), 8] = euses_out_finmets_col[euse_match[is.finite(euse_match)]]
+		          }
+		       }
           	}
           }	
         }
@@ -642,20 +654,7 @@ for (a in 1:length(adopt_scenarios)){
       xlsx_data[row_ind_start:(row_ind_start + 3),
                 (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = 
                 rbind(base_uc, eff_uc_m, base_c_m, eff_c_m)
-      
-      # Initialize or update summed energy, carbon, or cost totals across all ECMs
-      if (m == 1){
-        base_c_all = base_c_m
-        eff_c_m_all = eff_c_m
-        eff_c_l_all = eff_c_l
-        eff_c_h_all = eff_c_h
-      }else{
-        base_c_all = base_c_all + base_c_m
-        eff_c_m_all = eff_c_m_all + eff_c_m
-        eff_c_l_all = eff_c_l_all + eff_c_l
-        eff_c_h_all = eff_c_h_all + eff_c_h
-      }
-      
+            
       # Find the min. and max. values in the ECM energy, carbon, or cost totals data
       # to be plotted
       min_val = min(c(base_uc, base_c_m, base_c_l, base_c_h,
@@ -710,7 +709,7 @@ for (a in 1:length(adopt_scenarios)){
       lines(years, base_c_m, lwd=3.5, col=plot_col_c_base)
       # Add mean competed efficient results
       lines(years, eff_c_m, lwd=2, col=plot_col_c_eff)
-
+      
       # Add x and y axis labels
       mtext("Year", side=1, line=3.5, cex=0.925)
       mtext(plot_axis_labels_ecm[v], side=2, line=3.65, cex=0.925)
@@ -721,78 +720,30 @@ for (a in 1:length(adopt_scenarios)){
       # Add tick marks to top and right axes
       axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
       axis(side=4, at=ylims, labels = NA)
-      
-      # Add ECM end use labels
-      text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
+      # Annotate total savings in a snapshot year for the 'All ECMs' case;
+      # otherwise, annotate the applicable ECM end uses         
+      if (meas_names[m] == "All ECMs"){
+      	# Annotate the plot with snapshot year total savings figure
+	    # Find x and y values for annotation
+	    xval_snap = as.numeric(snap_yr)
+	    yval_snap_eff = eff_c_m[which(years==snap_yr)]
+	    yval_snap_base = base_c_m[which(years== snap_yr)]
+	    # Draw line segment connecting snapshot year baseline and efficient results
+	    points(xval_snap, yval_snap_base, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+	    points(xval_snap, yval_snap_eff, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+	    segments(xval_snap, yval_snap_eff, xval_snap, yval_snap_base, col="forestgreen", lty=3)
+	    # Add snapshot year savings figure
+	    text(xval_snap, yval_snap_eff - (yval_snap_eff - min(ylims))/7,
+	         paste(toString(sprintf("%.1f", yval_snap_base-yval_snap_eff)),
+	               toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
+	  }else{
+	  	# Add ECM end use labels
+      	text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
            pos=4, cex=0.93)
+	  }
     }
-  
-    # Add results across all ECMs to Excel worksheet data frame
-    row_ind_start = (length(meas_names))*4 + 1
-    xlsx_data[row_ind_start:(row_ind_start + 1), 1] = "All ECMs"
-    xlsx_data[row_ind_start:(row_ind_start+1), 2] = c("Baseline competed", "Efficient competed")
-    # Add data to Excel worksheet data frame
-    xlsx_data[row_ind_start:(row_ind_start + 1),
-              (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] =
-              rbind(base_c_all, eff_c_m_all)
-    
-    # Plot energy, carbon, and cost totals across all ECMs
-    
-    # Find the min. and max. values in the totals to be plotted
-    min_val = min(c(base_c_all,
-                    eff_c_m_all, eff_c_l_all, eff_c_h_all))
-    max_val = max(c(base_c_all,
-                    eff_c_m_all, eff_c_l_all, eff_c_h_all))
-    # Set limits of y axis for plot based on min. and max. values in totals
-    ylims = pretty(c(min_val-0.05*max_val, max_val+0.05*max_val))
-
-    # Initialize the plot with uncompeted baseline energy, carbon, or cost totals
-    # across all ECMs
-    plot(years, base_c_all, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
-         xlab=NA, ylab=NA, col=plot_col_c_base, main = "All ECMs", xaxt="n", yaxt="n")
-    # Add low bounds on uncompeted and competed baseline and efficient
-    # energy, carbon, or cost totals, if applicable
-    if (uncertainty == TRUE){
-      lines(years, eff_c_l_all, lwd=1, lty=6 , col=plot_col_c_eff)
-      lines(years, eff_c_h_all, lwd=1, lty=6 , col=plot_col_c_eff)
-    }
-    # Add mean competed efficient energy, carbon, or cost totals across all ECMs
-    lines(years, eff_c_m_all, lwd=2, col=plot_col_c_eff)
-    
-    # Annotate the plot with 2030 total savings figure
-    # Find x and y values for annotation
-    xval_2030 = 2030
-    yval_2030_eff = eff_c_m_all[which(years=="2030")]
-    yval_2030_base = base_c_all[which(years=="2030")]
-    # Draw line segment connecting 2030 baseline and efficient results
-    points(xval_2030, yval_2030_base, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
-    points(xval_2030, yval_2030_eff, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
-    segments(xval_2030, yval_2030_eff, xval_2030, yval_2030_base, col="forestgreen", lty=3)
-    # Add 2030 savings figure
-    text(xval_2030, yval_2030_eff - (yval_2030_eff - min(ylims))/7,
-         paste(toString(sprintf("%.1f", yval_2030_base-yval_2030_eff)),
-               toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
-    
-    # Add x and y axis labels to plot of energy, carbon, or cost totals
-    # across all ECMs
-    mtext("Year", side=1, line=3.5, cex=0.925)
-    mtext(plot_axis_labels_ecm[v], side=2, line=3.65, cex=0.925)
-    # Add tick marks and labels to bottom and left axes
-    axis(side=1, at=pretty(c(min(years), max(years))),
-         labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
-    axis(side=2, at=ylims, labels = ylims, cex.axis = 1.2, las=1)
-    # Add tick marks to top and right axes
-    axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
-    axis(side=4, at=ylims, labels = NA)
-
-    # Add plot legend to plot of energy, carbon, or cost totals across all ECMs
-    par(xpd=TRUE)
-    plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
-    legend("top", legend=legend_param, lwd=lwd_param, col=col_param, lty=lty_param, 
-       bty="n", border = FALSE, merge = TRUE, cex=1.15)
-    # Close plot device
     dev.off()
-
+  
     # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,
     # filtered by climate zone, building class, and end use
 	
@@ -926,7 +877,7 @@ for (a in 1:length(adopt_scenarios)){
     par(mfrow=c(2,2))
     # Reconfigure space around each side of the plot for best fit
     par(mar=c(5.1,5.1,3.1,2.1))
-
+ 
     # Loop through each financial metric and add cost effectiveness plot for financial
     # metric to open PDF device
     for (fmp in 1:length(fin_metrics)){
@@ -960,13 +911,13 @@ for (a in 1:length(adopt_scenarios)){
     	# Finally, record the index numbers of the filtered/ranked ECMs
     	final_index = restrict[order]
     	# Handle cases where there are less than 5 cost effective ECMs to rank
-    	if (length(meas_names[final_index])<5){
-    		ecm_length = length(meas_names[final_index])
+    	if (length(meas_names_no_all[final_index])<5){
+    		ecm_length = length(meas_names_no_all[final_index])
     	}else{
     		ecm_length = 5
     	}
     	# Set top 5 ECM names (add rank number next to each name)
-    	meas_names_lgnd = meas_names[final_index][1:ecm_length]
+    	meas_names_lgnd = meas_names_no_all[final_index][1:ecm_length]
     	for (mn in 1:length(meas_names_lgnd)){
     		meas_names_lgnd[mn] = paste(toString(mn), meas_names_lgnd[mn], sep=" ")
     	}

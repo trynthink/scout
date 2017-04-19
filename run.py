@@ -252,6 +252,11 @@ class Engine(object):
         self.handyvars = handyvars
         self.measures = measure_objects
         self.output = OrderedDict()
+        self.output["All ECMs"] = OrderedDict([
+            ("Markets and Savings (Overall)", OrderedDict())])
+        for adopt_scheme in self.handyvars.adopt_schemes:
+            self.output["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme] = OrderedDict()
         for m in self.measures:
             # Set measure climate zone, building sector, and end use
             # output category names for use in filtering and/or breaking
@@ -276,8 +281,8 @@ class Engine(object):
                     # ECMs as 'Heating (Equip.)'/'Cooling (Equip.)' and
                     # 'demand' side heating/cooling ECMs as 'Envelope'
                     if (euse[0] == "Refrigeration" and
-                        "refrigeration" in m.end_use["primary"] or
-                        "freezers" in m.technology) or (
+                        ("refrigeration" in m.end_use["primary"] or
+                         "freezers" in m.technology)) or (
                         euse[0] != "Refrigeration" and ((
                             euse[0] in ["Heating (Equip.)",
                                         "Cooling (Equip.)"] and
@@ -2075,6 +2080,9 @@ class Engine(object):
             adopt_scheme (string): Consumer adoption scenario to summarize
                 outputs for.
         """
+        # Initialize markets and savings totals across all ECMs
+        summary_vals_all_ecms = [{
+            yr: 0 for yr in self.handyvars.aeo_years} for n in range(12)]
         # Set up subscript translator for carbon variable strings
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # Loop through all measures and populate above dict of summary outputs
@@ -2113,6 +2121,10 @@ class Engine(object):
             # and portfolio metrics outputs
             summary_vals = [OrderedDict(
                 sorted(x.items())) for x in summary_vals]
+            # Add ECM markets and savings totals to totals across all ECMs
+            summary_vals_all_ecms = [{
+                yr: summary_vals_all_ecms[v][yr] + summary_vals[v][yr] for
+                yr in self.handyvars.aeo_years} for v in range(0, 12)]
 
             # Find mean and 5th/95th percentile values of each output
             # (note: if output is point value, all three of these values
@@ -2190,45 +2202,43 @@ class Engine(object):
 
             # Record low and high estimates on markets, if available
 
-            # Set shorter names for markets and savings output dicts
-            output_dict_overall = self.output[m.name][
+            # Set shorter name for markets and savings output dict
+            mkt_sv = self.output[m.name][
                 "Markets and Savings (Overall)"][adopt_scheme]
-            output_dict_bycat = self.output[m.name][
-                "Markets and Savings (by Category)"][adopt_scheme]
             # Record low and high baseline market values
             if energy_base_avg != energy_base_low:
-                for x in [output_dict_overall, output_dict_bycat]:
-                    x["Baseline Energy Use (low) (MMBtu)"] = energy_base_low
-                    x["Baseline Energy Use (high) (MMBtu)"] = energy_base_high
-                    x["Baseline CO2 Emissions (low) (MMTons)".
-                        translate(sub)] = carb_base_low
-                    x["Baseline CO2 Emissions (high) (MMTons)".
-                        translate(sub)] = carb_base_high
-                    x["Baseline Energy Cost (low) (USD)"] = \
-                        energy_cost_base_low
-                    x["Baseline Energy Cost (high) (USD)"] = \
-                        energy_cost_base_high
-                    x["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
-                        carb_cost_base_low
-                    x["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
-                        carb_cost_base_high
+                # for x in [output_dict_overall, output_dict_bycat]:
+                mkt_sv["Baseline Energy Use (low) (MMBtu)"] = energy_base_low
+                mkt_sv["Baseline Energy Use (high) (MMBtu)"] = energy_base_high
+                mkt_sv["Baseline CO2 Emissions (low) (MMTons)".
+                       translate(sub)] = carb_base_low
+                mkt_sv["Baseline CO2 Emissions (high) (MMTons)".
+                       translate(sub)] = carb_base_high
+                mkt_sv["Baseline Energy Cost (low) (USD)"] = \
+                    energy_cost_base_low
+                mkt_sv["Baseline Energy Cost (high) (USD)"] = \
+                    energy_cost_base_high
+                mkt_sv["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
+                    carb_cost_base_low
+                mkt_sv["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
+                    carb_cost_base_high
             # Record low and high efficient market values
             if energy_eff_avg != energy_eff_low:
-                for x in [output_dict_overall, output_dict_bycat]:
-                    x["Efficient Energy Use (low) (MMBtu)"] = energy_eff_low
-                    x["Efficient Energy Use (high) (MMBtu)"] = energy_eff_high
-                    x["Efficient CO2 Emissions (low) (MMTons)".
-                        translate(sub)] = carb_eff_low
-                    x["Efficient CO2 Emissions (high) (MMTons)".
-                        translate(sub)] = carb_eff_high
-                    x["Efficient Energy Cost (low) (USD)"] = \
-                        energy_cost_eff_low
-                    x["Efficient Energy Cost (high) (USD)"] = \
-                        energy_cost_eff_high
-                    x["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
-                        carb_cost_eff_low
-                    x["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
-                        carb_cost_eff_high
+                # for x in [output_dict_overall, output_dict_bycat]:
+                mkt_sv["Efficient Energy Use (low) (MMBtu)"] = energy_eff_low
+                mkt_sv["Efficient Energy Use (high) (MMBtu)"] = energy_eff_high
+                mkt_sv["Efficient CO2 Emissions (low) (MMTons)".
+                       translate(sub)] = carb_eff_low
+                mkt_sv["Efficient CO2 Emissions (high) (MMTons)".
+                       translate(sub)] = carb_eff_high
+                mkt_sv["Efficient Energy Cost (low) (USD)"] = \
+                    energy_cost_eff_low
+                mkt_sv["Efficient Energy Cost (high) (USD)"] = \
+                    energy_cost_eff_high
+                mkt_sv["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
+                    carb_cost_eff_low
+                mkt_sv["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
+                    carb_cost_eff_high
 
             # Record updated portfolio metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
@@ -2275,6 +2285,80 @@ class Engine(object):
                     OrderedDict([
                         ("IRR (%)", irr_e_avg),
                         ("Payback (years)", payback_e_avg)])
+
+        # Find mean and 5th/95th percentile values of each market/savings
+        # total across all ECMs (note: if total is point value, all three of
+        # these values will be the same)
+
+        # Mean of outputs across all ECMs
+        energy_base_all_avg, carb_base_all_avg, energy_cost_base_all_avg, \
+            carb_cost_base_all_avg, energy_eff_all_avg, carb_eff_all_avg, \
+            energy_cost_eff_all_avg, carb_cost_eff_all_avg, \
+            energy_save_all_avg, energy_costsave_all_avg, carb_save_all_avg, \
+            carb_costsave_all_avg = [{
+                k: numpy.mean(v) for k, v in z.items()} for
+                z in summary_vals_all_ecms]
+        # 5th percentile of outputs across all ECMs
+        energy_base_all_low, carb_base_all_low, energy_cost_base_all_low, \
+            carb_cost_base_all_low, energy_eff_all_low, carb_eff_all_low, \
+            energy_cost_eff_all_low, carb_cost_eff_all_low, \
+            energy_save_all_low, energy_costsave_all_low, carb_save_all_low, \
+            carb_costsave_all_low = [{
+                k: numpy.percentile(v, 5) for k, v in z.items()} for
+                z in summary_vals_all_ecms]
+        # 95th percentile of outputs across all ECMs
+        energy_base_all_high, carb_base_all_high, energy_cost_base_all_high, \
+            carb_cost_base_all_high, energy_eff_all_high, carb_eff_all_high, \
+            energy_cost_eff_all_high, carb_cost_eff_all_high, \
+            energy_save_all_high, energy_costsave_all_high, \
+            carb_save_all_high, carb_costsave_all_high = [{
+                k: numpy.percentile(v, 95) for k, v in z.items()} for
+                z in summary_vals_all_ecms]
+
+        # Record mean markets and savings across all ECMs
+        self.output["All ECMs"]["Markets and Savings (Overall)"][
+            adopt_scheme] = OrderedDict([
+                ("Baseline Energy Use (MMBtu)", energy_base_all_avg),
+                ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                 carb_base_all_avg),
+                ("Baseline Energy Cost (USD)", energy_cost_base_all_avg),
+                ("Baseline CO2 Cost (USD)".translate(sub),
+                 carb_cost_base_all_avg),
+                ("Energy Savings (MMBtu)", energy_save_all_avg),
+                ("Energy Cost Savings (USD)", energy_costsave_avg),
+                ("Avoided CO2 Emissions (MMTons)".translate(sub),
+                 carb_save_avg),
+                ("CO2 Cost Savings (USD)".translate(sub), carb_costsave_avg),
+                ("Efficient Energy Use (MMBtu)", energy_eff_all_avg),
+                ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                 carb_eff_all_avg),
+                ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
+                ("Efficient CO2 Cost (USD)".translate(sub),
+                 carb_cost_eff_all_avg)])
+
+        # Set shorter name for markets and savings output dict across all ECMs
+        mkt_sv_all = self.output["All ECMs"]["Markets and Savings (Overall)"][
+            adopt_scheme]
+
+        # Record low/high estimates on efficient markets across all ECMs, if
+        # available
+        if energy_eff_all_avg != energy_eff_all_low:
+            mkt_sv_all["Efficient Energy Use (low) (MMBtu)"] = \
+                energy_eff_all_low
+            mkt_sv_all["Efficient Energy Use (high) (MMBtu)"] = \
+                energy_eff_all_high
+            mkt_sv_all["Efficient CO2 Emissions (low) (MMTons)".
+                       translate(sub)] = carb_eff_all_low
+            mkt_sv_all["Efficient CO2 Emissions (high) (MMTons)".
+                       translate(sub)] = carb_eff_all_high
+            mkt_sv_all["Efficient Energy Cost (low) (USD)"] = \
+                energy_cost_eff_all_low
+            mkt_sv_all["Efficient Energy Cost (high) (USD)"] = \
+                energy_cost_eff_all_high
+            mkt_sv_all["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
+                carb_cost_eff_all_low
+            mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
+                carb_cost_eff_all_high
 
     def out_break_walk(self, adjust_dict, adjust_vals):
         """Partition measure results by climate, building sector, and end use.
