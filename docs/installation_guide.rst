@@ -10,24 +10,14 @@
 .. _linting: https://en.wikipedia.org/wiki/Lint_(software)
 
 
-.. _quick-start:
+.. _install-guide:
 
-Setup Guide
-===========
-
-If you're new to Scout, this page is the right place to get started.
-
-If you already have the :ref:`prerequisites <qs-prerequisites-list>` for Scout installed on your computer, move on to the :ref:`tutorials`.
-
-
-.. _qs-setup:
-
-Initial setup
--------------
+Installation Guide
+==================
 
 Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software.
 
-If you're comfortable at the command line, install or set up everything in this list of prerequisites and then skip straight to the :ref:`tutorials`.
+If you're comfortable at the command line, install or set up everything in this list of prerequisites and then skip straight to :ref:`step 2 <qsg-create-ecm-step>` of the Quick Start Guide.
 
 .. _qs-prerequisites-list:
 
