@@ -7,10 +7,13 @@ from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import gzip
 import pickle
-from os import getcwd, path
+from os import getcwd, path, pathsep, sep, environ, walk
 from ast import literal_eval
 import math
 from optparse import OptionParser
+import subprocess
+import sys
+import warnings
 
 
 class UsefulInputFiles(object):
@@ -1022,9 +1025,10 @@ class Engine(object):
         # are present in the analysis
         if htcl_adj_data is not None:
             # Find the subset of ECMs that applies to heating and cooling
-            measures_htcl_adj = [m for m in self.measures if any([[
-                y in z for z in m.end_use.values() if z is not None for
-                y in ["heating", "cooling", "secondary heating"]]])]
+            measures_htcl_adj = [m for m in self.measures if any([
+                z[0] in ["heating", "cooling", "secondary heating"] for
+                z in m.end_use.values() if z is not None])]
+
             # Remove energy, carbon, and cost overlaps between supply-side and
             # demand-side heating/cooling ECMs
             self.htcl_adj(measures_htcl_adj, adopt_scheme, htcl_adj_data)
@@ -1706,9 +1710,14 @@ class Engine(object):
                 # If overlapping energy use data do exist for the current
                 # microsegment's climate zone, building type, and structure
                 # type combination, create short name for current microsegment
-                # energy data dict and overlapping energy data dict
+                # energy data dict and overlapping energy data dict; Note: if
+                # no overlapping energy data dict can be found, move to next
+                # heating/cooling contributing microsegment in for loop
                 tech_data = htcl_adj_data[tech_typ][msu_split_key]
-                overlp_data = htcl_adj_data[tech_typ_overlp][msu_split_key]
+                try:
+                    overlp_data = htcl_adj_data[tech_typ_overlp][msu_split_key]
+                except:
+                    continue
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
@@ -2087,11 +2096,13 @@ class Engine(object):
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
-            # Set competed measure markets, savings, portfolio-level
-            # and consumer-level financial metrics
+            # Set competed measure markets and savings; competed and uncompeted
+            # portfolio-level financial metrics; and consumer-level
+            # financial metrics
             mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
             save = m.savings[adopt_scheme]["competed"]
-            metrics_port = m.portfolio_metrics[adopt_scheme]["competed"]
+            metrics_port_uc = m.portfolio_metrics[adopt_scheme]["uncompeted"]
+            metrics_port_c = m.portfolio_metrics[adopt_scheme]["competed"]
             metrics_consume = m.consumer_metrics
 
             # Group baseline/efficient markets, savings, and financial
@@ -2109,10 +2120,14 @@ class Engine(object):
                 save["energy"]["cost savings (total)"],
                 save["carbon"]["savings (total)"],
                 save["carbon"]["cost savings (total)"],
-                metrics_port["cce"],
-                metrics_port["cce (w/ carbon cost benefits)"],
-                metrics_port["ccc"],
-                metrics_port["ccc (w/ energy cost benefits)"],
+                metrics_port_uc["cce"],
+                metrics_port_uc["cce (w/ carbon cost benefits)"],
+                metrics_port_uc["ccc"],
+                metrics_port_uc["ccc (w/ energy cost benefits)"],
+                metrics_port_c["cce"],
+                metrics_port_c["cce (w/ carbon cost benefits)"],
+                metrics_port_c["ccc"],
+                metrics_port_c["ccc (w/ energy cost benefits)"],
                 metrics_consume["irr (w/ energy costs)"],
                 metrics_consume["irr (w/ energy and carbon costs)"],
                 metrics_consume["payback (w/ energy costs)"],
@@ -2135,8 +2150,9 @@ class Engine(object):
                 carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
                 energy_cost_eff_avg, carb_cost_eff_avg, energy_save_avg, \
                 energy_costsave_avg, carb_save_avg, carb_costsave_avg, \
-                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, irr_e_avg, \
-                irr_ec_avg, payback_e_avg, \
+                cce_avg_uc, cce_c_avg_uc, ccc_avg_uc, ccc_e_avg_uc, \
+                cce_avg_c, cce_c_avg_c, ccc_avg_c, ccc_e_avg_c, \
+                irr_e_avg, irr_ec_avg, payback_e_avg, \
                 payback_ec_avg = [{
                     k: numpy.mean(v) for k, v in z.items()} for
                     z in summary_vals]
@@ -2145,8 +2161,9 @@ class Engine(object):
                 carb_cost_base_low, energy_eff_low, carb_eff_low, \
                 energy_cost_eff_low, carb_cost_eff_low, energy_save_low, \
                 energy_costsave_low, carb_save_low, carb_costsave_low, \
-                cce_low, cce_c_low, ccc_low, ccc_e_low, irr_e_low, \
-                irr_ec_low, payback_e_low, payback_ec_low = [{
+                cce_low_uc, cce_c_low_uc, ccc_low_uc, ccc_e_low_uc, \
+                cce_low_c, cce_c_low_c, ccc_low_c, ccc_e_low_c, \
+                irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = [{
                     k: numpy.percentile(v, 5) for k, v in z.items()} for
                     z in summary_vals]
             # 95th percentile of outputs
@@ -2154,8 +2171,9 @@ class Engine(object):
                 carb_cost_base_high, energy_eff_high, carb_eff_high, \
                 energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
                 energy_costsave_high, carb_save_high, carb_costsave_high, \
-                cce_high, cce_c_high, ccc_high, ccc_e_high, irr_e_high, \
-                irr_ec_high, payback_e_high, payback_ec_high = [{
+                cce_high_uc, cce_c_high_uc, ccc_high_uc, ccc_e_high_uc, \
+                cce_high_c, cce_c_high_c, ccc_high_c, ccc_e_high_c, \
+                irr_e_high, irr_ec_high, payback_e_high, payback_ec_high = [{
                     k: numpy.percentile(v, 95) for k, v in z.items()} for
                     z in summary_vals]
 
@@ -2242,32 +2260,52 @@ class Engine(object):
 
             # Record updated portfolio metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
-            if cce_avg != cce_low:
+            if cce_avg_uc != cce_low_uc:
                 self.output[m.name]["Financial Metrics"]["Portfolio Level"][
                     adopt_scheme] = OrderedDict([
+                        ("Cost of Conserved Energy (uncompeted) "
+                         "($/MMBtu saved)", cce_avg_uc),
+                        ("Cost of Conserved Energy (uncompeted) (low)"
+                         "($/MMBtu saved)", cce_low_uc),
+                        ("Cost of Conserved Energy (uncompeted) (high)"
+                         "($/MMBtu saved)", cce_high_uc),
+                        (("Cost of Conserved CO2 (uncompeted) "
+                          "($/MTon CO2 avoided)").
+                         translate(sub), ccc_avg_uc),
+                        (("Cost of Conserved CO2 (uncompeted) (low) "
+                          "($/MTon CO2 avoided)").
+                         translate(sub), ccc_low_uc),
+                        (("Cost of Conserved CO2 (uncompeted) (high) "
+                          "($/MTon CO2 avoided)").
+                         translate(sub), ccc_high_uc),
                         ("Cost of Conserved Energy ($/MMBtu saved)",
-                            cce_avg),
+                            cce_avg_c),
                         ("Cost of Conserved Energy (low) ($/MMBtu saved)",
-                            cce_low),
+                            cce_low_c),
                         ("Cost of Conserved Energy (high) ($/MMBtu saved)",
-                            cce_high),
+                            cce_high_c),
                         (("Cost of Conserved CO2 "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg),
+                         translate(sub), ccc_avg_c),
                         (("Cost of Conserved CO2 (low) "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_low),
+                         translate(sub), ccc_low_c),
                         (("Cost of Conserved CO2 (high) "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_high)])
+                         translate(sub), ccc_high_c)])
             else:
                 self.output[m.name]["Financial Metrics"]["Portfolio Level"][
                     adopt_scheme] = OrderedDict([
+                        ("Cost of Conserved Energy (uncompeted) "
+                         "($/MMBtu saved)", cce_avg_uc),
+                        (("Cost of Conserved CO2 (uncompeted) "
+                          "($/MTon CO2 avoided)").
+                         translate(sub), ccc_avg_uc),
                         ("Cost of Conserved Energy ($/MMBtu saved)",
-                            cce_avg),
+                            cce_avg_c),
                         (("Cost of Conserved CO2 "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg)])
+                         translate(sub), ccc_avg_c)])
 
             # Record updated consumer metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
@@ -2497,10 +2535,59 @@ def main(base_dir):
         a_run.finalize_outputs(adopt_scheme)
 
     # Notify user that all analysis engine calculations are completed
-    print('All calculations complete; writing output data...')
+    print("All calculations complete; writing output data...", end="",
+          flush=True)
     # Write summary outputs for all measures to a JSON
     with open(path.join(base_dir, *handyfiles.meas_engine_out), "w") as jso:
         json.dump(a_run.output, jso, indent=2)
+    print("Data writing complete")
+
+    # Plot output data in R
+
+    # Notify user that the output data are being plotted
+    print('Plotting output data...', end="", flush=True)
+    # Define shell command for R plotting function
+    shell_command = "Rscript " + path.join(base_dir, "plots_shell.R")
+
+    # Ensure the presence of R/Perl in Windows user PATH environment variable
+    if sys.platform.startswith('win'):
+        if "R-" not in environ["PATH"]:
+            # Find the path to the user's Rscript.exe file
+            lookfor, r_path = ("R-", None)
+            for root, directory, files in walk(path.join("C:", sep)):
+                if lookfor in root and "Rscript.exe" in files:
+                    r_path = root
+                    break
+            # If Rscript.exe was not found, yield warning; else add to PATH
+            if r_path is None:
+                warnings.warn("R executable not found for plotting")
+            else:
+                environ["PATH"] += pathsep + r_path
+        if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
+            # Find the path to the user's perl.exe file
+            lookfor, perl_path = (["Perl", "perl"], None)
+            for root, directory, files in walk(path.join("C:", sep)):
+                if any([x in root for x in lookfor]) and "perl.exe" in files:
+                    perl_path = root
+                    break
+            # If perl.exe was not found, yield warning; else add to PATH
+            if perl_path is None:
+                warnings.warn(
+                    "Perl executable not found for plot XLSX writing")
+            else:
+                environ["PATH"] += pathsep + perl_path
+    # If user's operating system cannot be determined, yield warning message
+    elif sys.platform == "unknown":
+        warnings.warn("Could not determine OS for plotting routine")
+
+    # Run R code
+    p_out = subprocess.run(shell_command, shell=True)
+
+    # Notify user of plotting outcome
+    if p_out.returncode == 0:
+        print("Plotting complete")
+    else:
+        print("Plotting failed to complete")
 
 if __name__ == '__main__':
     import time

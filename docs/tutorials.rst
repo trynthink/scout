@@ -958,27 +958,17 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    cd Documents/projects/scout-run_scheme
    python3 run.py
 
-While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, or writing results to an output file. This text is principally to assure users that the analysis is proceeding apace.
+While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, writing results to an output file, and plotting results. This text is principally to assure users that the analysis is proceeding apace. Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder.
 
-Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder. While the JSON results file can be reviewed directly, :ref:`Tutorial 5 <tuts-results>` explains how the data can be converted into plots.
+Uncompeted and competed ECM results are automatically converted into graphical form by |html-filepath| run.py |html-fp-end| using R. Output plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
 
+.. note::
+   The first time you execute |html-filepath| run.py\ |html-fp-end|, any missing R packages needed to generate the plots will be installed. This installation process may take some time, but is only required once.  
 
 .. _tuts-results:
 
 Tutorial 5: Viewing and understanding outputs
 ---------------------------------------------
-
-Generating/updating figures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The uncompeted and competed ECM results can be converted into graphical form using R. To begin, open R (sometimes called R GUI) from the Applications folder (Mac) or the Start Menu (Windows). Like a Terminal window or command prompt, R will need to be switched to the project directory. The plot generation script can then be run. ::
-
-   setwd('~/Documents/projects/scout-run_scheme')
-   source('plots.R')
-
-Additional packages are required to run the plot generation R script. Running the script should install the packages automatically, though you may be prompted to choose a server from which to download the packages. If the packages do not install automatically, additional troubleshooting may be required. [#]_
-
-The plot image files can be found in sub-folders within the |html-filepath| ./results/plots |html-fp-end| folder. The plots are separated into folders by :ref:`adoption scenario <ECM diffusion>`.
 
 Interpreting results figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1092,9 +1082,9 @@ The plot generation script in R also produces Excel-formatted files containing s
 .. tip::
    If you are experienced with R, you can also modify |html-filepath| plots.R |html-fp-end| to tailor the figures to your preferences.
 
-On each tab, the first five columns provide information about the ECM and the type of data reported in each row. The first column contains the name of the ECM for the data in each row and the third through fifth columns provide details regarding the climate zones, building classes, and end uses that apply to each ECM. The second column indicates the type of data in each row -- one of the four series shown in :numref:`tech-potential-energy-plot-example`, the baseline and efficient results, with and without ECM competition. The sixth through ninth columns contain results for the financial metrics: internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved |CO2| (CCC). The columns beyond the ninth column contain the results for the metric of interest (energy use, |CO2| emissions, or energy cost) indicated by the worksheet tab name. Each of those columns corresponds to a year in the simulation, with the year indicated in the first row. 
+On each tab, the first five columns provide information about the ECM and the type of data reported in each row. The first column contains the name of the ECM for the data in each row and the third through fifth columns provide details regarding the climate zones, building classes, and end uses that apply to each ECM. The second column indicates the type of data in each row -- one of the four series shown in :numref:`tech-potential-energy-plot-example`, the baseline and efficient results, with and without ECM competition. The sixth through ninth columns contain results for the financial metrics: internal rate of return (IRR), simple payback, cost of conserved energy (CCE), and cost of conserved |CO2| (CCC). When any of the financial metrics cannot be calculated (e.g., simple payback for a negative incremental capital cost, or negative energy cost savings) the metric will be reported as the value 999. The columns beyond the ninth column contain the results for the metric of interest (energy use, |CO2| emissions, or energy cost) indicated by the worksheet tab name. Each of those columns corresponds to a year in the simulation, with the year indicated in the first row. 
 
-For a given set of results data on a single tab, each ECM included in the simulation appears in four rows. These four rows correspond to the uncompeted and competed baseline results, as well as the ("efficient") results with the ECM applied, again with and without competition. For each ECM, these rows correspond to the four primary lines that appear in the ECM-specific results figures, as in :numref:`tech-potential-energy-plot-example`. There are also two rows that report the sum of all ECMs for both the competed baseline and efficient cases. These rows are distinguished by not having any detail information in the third through ninth columns.
+For a given set of results data on a single tab, each ECM included in the simulation appears in four rows. These four rows correspond to the uncompeted and competed baseline results, as well as the ("efficient") results with the ECM applied, again with and without competition. For each ECM, these rows correspond to the four primary lines that appear in the ECM-specific results figures, as in :numref:`tech-potential-energy-plot-example`. There are also two rows that report the sum of all ECMs for both the competed baseline and efficient cases. These rows are distinguished by not having any information in the third through ninth columns.
 
 .. note::
    For each ECM in the results, in addition to the *total* energy use, |CO2| emissions, and energy cost results contained in the Excel files, the |html-filepath| ecm_results.json |html-fp-end| file includes those results broken out by each of the applicable baseline market parameters -- |baseline-market| -- that apply to each ECM. These results breakdowns are provided for both the baseline and efficient cases (without and with the ECM applied, respectively).

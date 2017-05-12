@@ -3409,7 +3409,10 @@ class Measure(object):
             if self.technology[mseg_type] == 'all' or \
                 (type(self.technology[mseg_type]) == list and any([
                  t is not None and 'all ' in t for t in
-                 self.technology[mseg_type]])):
+                 self.technology[mseg_type]])) or (
+                 type(self.technology[mseg_type]) == str and
+                 self.technology[mseg_type] is not None and
+                 'all ' in self.technology[mseg_type]):
                 # Record the initial 'technology' attribute the user has
                 # defined for the measure before this attribute is reset below
                 map_tech_orig = self.technology[mseg_type]
@@ -3421,10 +3424,13 @@ class Measure(object):
                 # would be reset as ['central AC', 'room AC'])
                 if self.technology[mseg_type] == 'all':
                     self.technology[mseg_type] = []
-                else:
+                elif isinstance(self.technology[mseg_type], list):
                     self.technology[mseg_type] = [
                         t for t in self.technology[mseg_type] if
                         'all ' not in t]
+                else:
+                    self.technology[mseg_type] = [self.technology[mseg_type]]
+
                 # Fill 'technology' attribute
                 for b in bldgsect_list:
                     # Case concerning a demand-side technology, for which the
@@ -3458,7 +3464,7 @@ class Measure(object):
                                  t not in self.technology[mseg_type] and
                                  (map_tech_orig == "all" or any([
                                      e in torig for torig in map_tech_orig if
-                                     'all ' in torig]))]
+                                     'all ' in torig])) or e in map_tech_orig]
 
     def create_keychain(self, mseg_type):
         """Create list of dictionary keys used to find baseline microsegments.

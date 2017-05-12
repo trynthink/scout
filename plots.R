@@ -5,22 +5,36 @@
 # Define function to load required packages
 package_loader <- function(pkg_list) {
   options(warn=-1) # Suppress sometimes misleading package load warning messages
+  # For Windows users, install packages in a directory with administrator priveleges
+  if (Sys.info()[1]=="Windows"){
+  	# Create directory for package install (default used by R GUI)
+  	dir_path = file.path('C:', 'Users', 'User', 'Documents','R', 'win-library')
+  	dir.create(dir_path, showWarnings = FALSE, recursive = TRUE)
+  }else{dir_path = NULL}
+  # Run through and install/load required packages	
   for(pkg_name in pkg_list){
-    # require returns TRUE invisibly if it was able to load package
-    if(!require(pkg_name, character.only = TRUE, quietly = TRUE, warn.conflicts=FALSE)){
-      # If package was not able to be loaded then download and install
-      install.packages(pkg_name)
+    # require returns TRUE invisibly if it was able to load package from either the
+    # default R library path or, in the case of a Windows user, a personal path that the user
+    # has administrator rights for 
+    if (!require(pkg_name, character.only = TRUE, quietly = TRUE, warn.conflicts=FALSE) &&
+	    !require(pkg_name, lib.loc = dir_path, character.only = TRUE,
+               quietly = TRUE, warn.conflicts=FALSE)){
+      # If package was not able to be loaded then download/install using default mirror, notify user
+      message("Installing R package ", pkg_name)
+      install.packages(pkg_name, repos='http://cran.us.r-project.org', lib = dir_path, quiet=TRUE)
+      # Try alternate install mirror if first mirror didn't install package to library directory
+      if (!require(pkg_name, lib.loc = dir_path, character.only = TRUE,
+                   quietly = TRUE, warn.conflicts=FALSE)){
+	  	install.packages(pkg_name, repos='http://cran.cnr.berkeley.edu', lib = dir_path, quiet=TRUE)
+	  }
       # Load package after installing
-      library(pkg_name, character.only = TRUE, quietly=TRUE, warn.conflicts=FALSE)
+      library(pkg_name, character.only = TRUE, quietly=TRUE, warn.conflicts=FALSE, lib.loc = dir_path)
     }
   }
 }
 
 # Load indicated packages
 package_loader(c("RColorBrewer", "rjson", "WriteXLS", "stringr", "TeachingDemos", "scales"))
-
-# Specify JSON file encoding
-options("encoding" = "UTF-8")
 
 # Get current working directory path
 base_dir = getwd()
@@ -98,7 +112,8 @@ euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting',
 # Plot of individual ECM energy, carbon, and cost totals
 file_names_ecms <- c('Total Energy', 'Total CO2', 'Total Cost')
 plot_names_ecms <- c('Total Energy', expression("Total"~ CO[2]), 'Total Cost')
-plot_axis_labels_ecm<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
+plot_axis_labels_ecm<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"),
+                        'Energy Cost (Billion $)')
 # Set colors for uncompeted baseline, efficient and low/high results
 plot_col_uc_base = "gray60"
 plot_col_uc_eff = "gray80"
@@ -109,22 +124,26 @@ var_names_uncompete <- c('energy', 'carbon', 'cost')
 results_folder_names <- c('energy', 'co2', 'cost')
 # Set output units for each variable type
 var_units <- c('Quads', 'Mt', 'Billion $')
-# Set variable names to use in accessing competed baseline energy, carbon, and cost results from JSON data. Note
-# that each variable potentially has a '(low)' and '(high)' variant in the JSON.
+# Set variable names to use in accessing competed baseline energy, carbon, and cost results from
+# JSON data. Note that each variable potentially has a '(low)' and '(high)' variant in the JSON.
 var_names_compete_base_m <- c(
   'Baseline Energy Use (MMBtu)', 'Baseline CO₂ Emissions (MMTons)', 'Baseline Energy Cost (USD)')
 var_names_compete_base_l <- c(
-  'Baseline Energy Use (low) (MMBtu)', 'Baseline CO₂ Emissions (low) (MMTons)', 'Baseline Energy Cost (low) (USD)')
+  'Baseline Energy Use (low) (MMBtu)', 'Baseline CO₂ Emissions (low) (MMTons)',
+  'Baseline Energy Cost (low) (USD)')
 var_names_compete_base_h <- c(
-  'Baseline Energy Use (high) (MMBtu)', 'Baseline CO₂ Emissions (high) (MMTons)', 'Baseline Energy Cost (high) (USD)')
-# Set variable names to use in accessing competed efficient energy, carbon, and cost results from JSON data. Note
-# that each variable potentially has a '(low)' and '(high)' variant in the JSON.
+  'Baseline Energy Use (high) (MMBtu)', 'Baseline CO₂ Emissions (high) (MMTons)',
+  'Baseline Energy Cost (high) (USD)')
+# Set variable names to use in accessing competed efficient energy, carbon, and cost results from
+# JSON data. Note that each variable potentially has a '(low)' and '(high)' variant in the JSON.
 var_names_compete_eff_m <- c(
   'Efficient Energy Use (MMBtu)', 'Efficient CO₂ Emissions (MMTons)', 'Efficient Energy Cost (USD)')
 var_names_compete_eff_l <- c(
-  'Efficient Energy Use (low) (MMBtu)', 'Efficient CO₂ Emissions (low) (MMTons)', 'Efficient Energy Cost (low) (USD)') 
+  'Efficient Energy Use (low) (MMBtu)', 'Efficient CO₂ Emissions (low) (MMTons)',
+  'Efficient Energy Cost (low) (USD)') 
 var_names_compete_eff_h <- c(
-  'Efficient Energy Use (high) (MMBtu)', 'Efficient CO₂ Emissions (high) (MMTons)', 'Efficient Energy Cost (high) (USD)')
+  'Efficient Energy Use (high) (MMBtu)', 'Efficient CO₂ Emissions (high) (MMTons)',
+  'Efficient Energy Cost (high) (USD)')
 
 # ============================================================================
 # Set high-level variables needed to generate aggregated savings plots
@@ -155,7 +174,8 @@ transparent_back<-alpha("white", 0.75)
 # ============================================================================
 
 # Names for ECM cost effectiveness plots
-plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided CO2', 'Cost Effective Operation Cost Savings') 
+plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided CO2',
+                       'Cost Effective Operation Cost Savings') 
 # X axis labels for cost effectiveness plots
 plot_axis_labels_finmets_x<-c(
 	paste(snap_yr, 'Primary Energy Use Savings (Quads), Competed', sep=" "),
@@ -174,11 +194,19 @@ plot_lims_finmets <- c(
 # Cost effectiveness threshold lines for each financial metric
 plot_ablines_finmets <- c(0, 5, 13, 73)
 # Financial metric type and key names for retrieving JSON data on each
+# (note: competed CCE/CCC variable names are listed below and used in the cost effectiveness plots;
+# IRR/payback variable values do not change after competition)
 fin_metrics <- c(
 	list(c('Consumer Level', 'IRR (%)')),
 	list(c('Consumer Level', 'Payback (years)')),
 	list(c('Portfolio Level', 'Cost of Conserved Energy ($/MMBtu saved)')),
 	list(c('Portfolio Level', 'Cost of Conserved CO₂ ($/MTon CO₂ avoided)')))
+# Uncompeted CCE/CCC financial metric key names for retrieving JSON data
+# (note: uncompeted CCE/CCC variables are not used in the cost effectiveness
+# plots, but their values are written out to the XLSX raw data summary)
+fin_metrics_port_uc <- c(
+	'Cost of Conserved Energy (uncompeted) ($/MMBtu saved)',
+	'Cost of Conserved CO₂ (uncompeted) ($/MTon CO₂ avoided)')
 
 # ============================================================================
 # Set high-level variables needed to generate XLSX data
@@ -210,7 +238,8 @@ for (a in 1:length(adopt_scenarios)){
     plot_col_c_base = "red3"
     plot_col_c_eff = "pink"
     # # Set Excel summary data file name
-    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential', "Summary_Data-MAP.xlsx")
+    xlsx_file_name = file.path(base_dir, 'results', 'plots', 'max_adopt_potential',
+                               "Summary_Data-MAP.xlsx")
   }
   
   # Preallocate list for variable names to be used later to export data
@@ -343,6 +372,9 @@ for (a in 1:length(adopt_scenarios)){
           uc_name_ind = uc
         }
       }
+      
+      # Set the appropriate database of ECM financial metrics data (used across both competition schemes)
+      results_database_finmets = compete_results[[meas_names[m]]]$'Financial Metrics'
 
       # Loop through all competition schemes
       for (cp in 1:length(comp_schemes)){
@@ -384,6 +416,15 @@ for (a in 1:length(adopt_scenarios)){
               }else{
                 r_temp[4:6, yr] = results_database$'efficient'[years[yr]][[1]]
               }
+            # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
+		    # retrieve the ECM's uncompeted CCE/CCC financial metrics data and write to XLSX file
+		    if (years[yr] == snap_yr){
+		      for (pm_uc in (1:length(fin_metrics_port_uc))){
+		        xlsx_data[(row_ind_start:(row_ind_start + 1)), (7 + pm_uc)] = 
+		        results_database_finmets[["Portfolio Level"]][[
+		        adopt_scenarios[a]]][[fin_metrics_port_uc[pm_uc]]][[years[yr]]][[1]]
+              }
+            }
           }
         # Find data for competed energy, carbon, and/or cost
         }else{
@@ -399,9 +440,8 @@ for (a in 1:length(adopt_scenarios)){
 	          # building class, end use)
 	          results_database_agg = compete_results[[meas_names[m]]]$
 	            'Markets and Savings (by Category)'[[adopt_scenarios[a]]][[var_names_compete_save[v]]]
-	          # Set the appropriate database of ECM financial metrics data and data for categorizing
-	          # cost effectiveness outcomes based on climate zone, building type, and end use
-	          results_database_finmets = compete_results[[meas_names[m]]]$'Financial Metrics'
+	          # Set the appropriate database of ECM data for categorizing cost effectiveness outcomes
+	          # based on climate zone, building type, and end use
 	          results_database_filters = compete_results[[meas_names[m]]]$'Filter Variables'
 	      }
           
@@ -521,12 +561,12 @@ for (a in 1:length(adopt_scenarios)){
 	            }
 		        
 		        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
-		        # retrieving the ECM's financial metrics, savings, and filter variable data needed to
-		        # develop those snapshots
+		        # retrieve the ECM's competed financial metrics, savings, and filter variable data needed
+		        # to develop those snapshots for the cost effectiveness plots
 		        if (years[yr] == snap_yr){
-		          # Retrieve ECM portfolio-level and consumer-level financial metrics data
+		          # Retrieve ECM competed portfolio-level and consumer-level financial metrics data
 		          for (fm in 1:length(fin_metrics)){
-		          	# Retrieve ECM portfolio-level metrics data (CCE, CCC); retrieve
+		          	# Retrieve ECM competed portfolio-level metrics data (CCE, CCC); retrieve
 		          	# consumer-level data (IRR, payback)
 		          	if ((fin_metrics[[fm]][1]) == "Portfolio Level"){
 		          		# Portfolio-level data are keyed by adoption scenario
@@ -534,7 +574,7 @@ for (a in 1:length(adopt_scenarios)){
 		          			results_database_finmets[[fin_metrics[[fm]][1]]][[
 		          				adopt_scenarios[a]]][[fin_metrics[[fm]][2]]][[years[yr]]][[1]]
 		          	}else{
-		          		# Multiple IRR fractions in JSON data by 100 to convert to final % units
+		          		# Multiply IRR fractions in JSON data by 100 to convert to final % units
 		          		if ((fin_metrics[[fm]][2]) == "IRR (%)"){
 		          			unit_translate_finmet = 100
 		          		}else{
@@ -545,17 +585,16 @@ for (a in 1:length(adopt_scenarios)){
 		          		results_database_finmets[[fin_metrics[[fm]][1]]][[
 		          			fin_metrics[[fm]][2]]][[years[yr]]][[1]] * unit_translate_finmet
 		          	}
-		          	# Replace all 999 or 99900 values (proxies for NaN) with NA
-		          	results_finmets[(m - 1), fm][[1]][((results_finmets[(m - 1), fm][[1]] == 999) |
-		          								 (results_finmets[(m - 1), fm][[1]] == 99900))] <- NA		 	
+		          	# Replace all 99900 values with 999 (proxy for NaN)
+		          	results_finmets[(m - 1), fm][[1]][results_finmets[(m - 1), fm][[1]] == 99900] = 999		 	
 		          }
 	
-		          # Add ECM cost effectiveness metrics data to XLSX sheet
-		          # Add ECM IRR/payback metrics (not dependent on competition)
+		          # Write ECM cost effectiveness metrics data to XLSX sheet
+		          # Write ECM IRR/payback metrics (note: not dependent on competition)
 		          xlsx_data[row_ind_start:(row_ind_start + 3),
 	              			6: (6 + ((length(plot_title_labels_finmets))/2) - 1)] =
 	              			as.matrix(results_finmets[(m - 1),1:2])
-	              # Add ECM competed CCE/CCC metrics
+	              # Write ECM competed CCE/CCC metrics
 	              xlsx_data[(row_ind_start + 2):(row_ind_start + 3),
 	              			(6 + ((length(plot_title_labels_finmets))/2)):
 	              			(6 + (length(plot_title_labels_finmets)))] =
