@@ -273,10 +273,19 @@ def main():
         lt_skip_header = 37
 
     def import_residential_energy_stock_data(file_name):
-        supply = np.genfromtxt(file_name, names=True,
-                               delimiter='\t', dtype=None)
-        supply = rm.array_row_remover(supply, rm.UsefulVars().unused_supply_re)
-        return supply
+        # The delimiters for RESDBOUT vary depending on the release
+        # year of the data
+        try:  # comma-delimited
+            ns_dtypes = rm.dtype_array(file_name)
+            ns_data = rm.data_import(file_name, ns_dtypes, ',',
+                                     ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
+                                      'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+        except:  # tab-delimited
+            ns_dtypes = rm.dtype_array(file_name, '\t')
+            ns_data = rm.data_import(file_name, ns_dtypes, '\t',
+                                     ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
+                                      'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+        return ns_data
 
     def import_residential_cpl_non_lighting_data(file_name, skip_header_lines):
         eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
