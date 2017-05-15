@@ -65,7 +65,10 @@ class CommonUnitTest(unittest.TestCase):
         ['energy star', 'low-cost'],
         ['Prospective', '20%'],
         ['Scenario 1'],
-        []]
+        [],
+        ['!energy star'],
+        ['!energy star', 'low-cost'],
+        ['! prospective', '!low-cost']]
 
     # Expected lists of ECM names that matched with the terms in the
     # corresponding list of strings when a function searches the
@@ -83,7 +86,35 @@ class CommonUnitTest(unittest.TestCase):
          'Low-cost Prospective Integrated Heat Pump',
          'Air Sealing Retrofit, Infiltration Reduction 20%'],
         [],
-        []]
+        [],
+        [
+         'Thermoelectric Heat Pump (Prospective)',
+         'OLED Manufacturing Cost Reduction',
+         'Low-cost Triple Pane Window, U-factor 0.20',
+         '(Prospective) Silica Nanoparticle Liquid-applied Insulation',
+         'Novel Electric Clothes Dryer, Low-cost',
+         '20 CFM Bathroom Ventilation Fan (Prospective)',
+         'SEER 20 Central AC System',
+         'Air Sealing Retrofit, Infiltration Reduction 20%',
+         'Low-cost Prospective Integrated Heat Pump'],
+        [
+         'Low-cost Triple Pane Window, U-factor 0.20',
+         'Low-cost Prospective Integrated Heat Pump',
+         'Novel Electric Clothes Dryer, Low-cost',
+         'Thermoelectric Heat Pump (Prospective)',
+         'OLED Manufacturing Cost Reduction',
+         '(Prospective) Silica Nanoparticle Liquid-applied Insulation',
+         '20 CFM Bathroom Ventilation Fan (Prospective)',
+         'SEER 20 Central AC System',
+         'Air Sealing Retrofit, Infiltration Reduction 20%'],
+        [
+         'ENERGY STAR Refrigerators v. 3.0',
+         'Window A/C (ENERGY STAR Most Efficient)',
+         'OLED Manufacturing Cost Reduction',
+         'SEER 20 Central AC System',
+         'Air Sealing Retrofit, Infiltration Reduction 20%',
+         'ENERGY STAR Water Heater v.5.0',
+         ]]
 
     # Expected lists of ECM names that were not matched by the function
     # inspecting the master list of ECM names using the corresponding
@@ -125,6 +156,20 @@ class CommonUnitTest(unittest.TestCase):
          'SEER 20 Central AC System',
          'Air Sealing Retrofit, Infiltration Reduction 20%',
          'ENERGY STAR Water Heater v.5.0',
+         'Low-cost Prospective Integrated Heat Pump'],
+        [
+         'ENERGY STAR Refrigerators v. 3.0',
+         'Window A/C (ENERGY STAR Most Efficient)',
+         'ENERGY STAR Water Heater v.5.0'],
+        [
+         'ENERGY STAR Refrigerators v. 3.0',
+         'Window A/C (ENERGY STAR Most Efficient)',
+         'ENERGY STAR Water Heater v.5.0'],
+        ['Thermoelectric Heat Pump (Prospective)',
+         'Low-cost Triple Pane Window, U-factor 0.20',
+         '(Prospective) Silica Nanoparticle Liquid-applied Insulation',
+         'Novel Electric Clothes Dryer, Low-cost',
+         '20 CFM Bathroom Ventilation Fan (Prospective)',
          'Low-cost Prospective Integrated Heat Pump']]
 
     # List of possible ECM names (the list of inactive ECMs, in this

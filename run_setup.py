@@ -130,12 +130,22 @@ def ecm_kw_regex_select(ecm_names_list, list_of_match_str):
         # Construct the regex search pattern from the list of strings given
         nom_regex = re.compile(r'(?:%s)' % '|'.join(list_of_match_str),
                                re.IGNORECASE).search
+        # Construct the inverse regex search pattern from list of strings given
+        nom_regex_inv = re.compile(r'(?:%s)' % '|'.join([
+            x.strip("! ") for x in list_of_match_str if "!" in x]),
+            re.IGNORECASE).search
 
         # Construct a list of all of the ECM names that matched the regex
         matches = [ecm for ecm in ecm_names_list if nom_regex(ecm)]
-
-        # Construct a list of all of the ECM names that did not match the regex
-        non_matches = [ecm for ecm in ecm_names_list if not nom_regex(ecm)]
+        # Construct list of all ECM names that matched the inverse regex
+        matches_inv = [ecm for ecm in ecm_names_list if nom_regex_inv(ecm)]
+        # Add all ECMs that do NOT match the inverse regex search term(s) to
+        # the list of matched ECMs
+        if len(matches_inv) > 0:
+            matches.extend([x for x in ecm_names_list if (
+                x not in matches_inv and x not in matches)])
+        # Construct list of all ECM names that were not matched
+        non_matches = [ecm for ecm in ecm_names_list if ecm not in matches]
 
     # If the list is empty, running the above process would result in
     # all of the ECM names matching, which is the opposite of what is
@@ -268,6 +278,11 @@ def ecm_list_kw_update(active_list, inactive_list):
           'in their name.\n')
     print('You may input more than one search term. Please separate '
           'each term with a comma, for example: Efficient, 20%\n')
+    print('Adding a "!" character before any of your terms will invert the '
+          'search for that term. For example, you can specify "Prospective, '
+          '!ENERGY STAR" (without the double quotes) to select all ECM names '
+          'that have the word Prospective or do NOT have the word ENERGY STAR '
+          'in their name.\n')
     print('Search terms are not case-sensitive. Search terms should '
           'not be enclosed by any quotes or other special characters.\n')
     print('If you are unsure of the ECMs currently listed as active '
