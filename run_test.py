@@ -10,6 +10,7 @@ import unittest
 import numpy
 import copy
 import itertools
+import os
 
 
 class CommonTestMeasures(object):
@@ -328,7 +329,8 @@ class TestMeasureInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -357,7 +359,8 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(handyvars, measure_list)
@@ -452,7 +455,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1591,7 +1595,8 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1646,7 +1651,8 @@ class PaybackTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1726,7 +1732,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
@@ -5403,7 +5410,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
@@ -7900,7 +7908,8 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars()
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,

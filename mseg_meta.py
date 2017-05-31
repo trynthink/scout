@@ -12,6 +12,7 @@ import re
 import json
 import types
 from contextlib import suppress
+import argparse
 
 
 def extract_year_range(data_array, colnames, min_years, max_years, pivot_yr=0):
@@ -223,6 +224,26 @@ def main():
     # have any data reported by year
     files_ = [file_ for file_ in files_ if file_ != 'rsclass.txt']
 
+    # Set up to support user option to specify the year for the
+    # AEO data being imported (default if the option is not used
+    # should be current year)
+    parser = argparse.ArgumentParser()
+    help_string = 'Specify year of AEO data to be imported'
+    parser.add_argument('-y', '--year', type=int, help=help_string,
+                        choices=[2015, 2017])
+
+    # Get import year specified by user (if any)
+    aeo_import_year = parser.parse_args().year
+
+    # Specify the number of header and footer lines to skip based on the
+    # optional AEO year indicated by the user when this module is called
+    if aeo_import_year == 2015:
+        nlt_cp_skip_header = 20
+        lt_skip_header = 35
+    else:
+        nlt_cp_skip_header = 25
+        lt_skip_header = 37
+
     def import_residential_energy_stock_data(file_name):
         supply = np.genfromtxt(file_name, names=True,
                                delimiter='\t', dtype=None)
@@ -231,12 +252,14 @@ def main():
 
     def import_residential_cpl_non_lighting_data(file_name):
         eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
-                                   dtype=None, skip_header=20, comments=None)
+                                   dtype=None, skip_header=nlt_cp_skip_header,
+                                   comments=None)
         return eia_nlt_cp
 
     def import_residential_cpl_lighting_data(file_name):
         eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names, dtype=None,
-                               skip_header=35, skip_footer=54, comments=None)
+                               skip_header=lt_skip_header,
+                               skip_footer=54, comments=None)
         return eia_lt
 
     def import_commercial_service_demand_data(file_name):  # KSDOUT.txt

@@ -5,7 +5,7 @@ import itertools
 import json
 from collections import OrderedDict
 from os import listdir, getcwd, stat, path
-from os.path import isfile, join
+from os.path import isfile, join, splitext
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -35,6 +35,7 @@ class UsefulInputFiles(object):
     Attributes:
         msegs_in (string): Database of baseline microsegment stock/energy.
         msegs_cpl_in (string): Database of baseline technology characteristics.
+        metadata = Baseline metadata including common min/max for year range.
         convert_data (string): Database of measure cost unit conversions.
         cbecs_sf_byvint (string): Commercial sq.ft. by vintage data.
         ecm_packages (string): Measure package data.
@@ -44,13 +45,24 @@ class UsefulInputFiles(object):
             to run measure competition in the analysis engine.
         run_setup (string): Names of active measures that should be run in
             the analysis engine.
+        cpi_data = Historical Consumer Price Index data.
+        ss_data = Site-source conversion data.
     """
 
     def __init__(self):
         self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                          "mseg_res_com_cz.json")
+        # UNCOMMENT WITH ISSUE 188
+        # self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+        #                  "mseg_res_com_cz_2017.json")
         self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
                              "cpl_res_com_cz.json")
+        # UNCOMMENT WITH ISSUE 188
+        # self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
+        #                      "cpl_res_com_cz_2017.json")
+        self.metadata = "metadata.json"
+        # UNCOMMENT WITH ISSUE 188
+        # self.metadata = "metadata_2017.json"
         self.cost_convert_in = ("supporting_data", "convert_data",
                                 "ecm_cost_convert.json")
         self.cbecs_sf_byvint = \
@@ -60,6 +72,9 @@ class UsefulInputFiles(object):
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
         self.run_setup = "run_setup.json"
+        self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
+        self.ss_data = ("supporting_data", "convert_data",
+                        "site_source_co2_conversions.json")
 
 
 class UsefulVars(object):
@@ -120,15 +135,23 @@ class UsefulVars(object):
             which varies according to technology type).
     """
 
-    def __init__(self, base_dir):
+    def __init__(self, base_dir, handyfiles):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.01
         self.nsamples = 100
+        # Load metadata including AEO year range
+        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+            try:
+                aeo_yrs = json.load(aeo_yrs)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.metadata + "': " + str(e)) from None
         # Set minimum AEO modeling year
-        aeo_min = 2009
+        aeo_min = aeo_yrs["min year"]
         # Set maximum AEO modeling year
-        aeo_max = 2040
+        aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
@@ -144,17 +167,24 @@ class UsefulVars(object):
             '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
             '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
             'www.navigantresearch.com']
-        self.consumer_price_ind = numpy.genfromtxt(
-            path.join(
-                base_dir, *("supporting_data", "convert_data", "cpi.csv")),
-            names=True, delimiter=',',
-            dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+        try:
+            self.consumer_price_ind = numpy.genfromtxt(
+                path.join(base_dir, *handyfiles.cpi_data),
+                names=True, delimiter=',',
+                dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                handyfiles.cpi_data + "': " + str(e)) from None
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data
-        with open(path.join(
-            base_dir, *("supporting_data", "convert_data",
-                        "site_source_co2_conversions.json")), 'r') as ss:
-            cost_ss_carb = json.load(ss)
+        with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
+            try:
+                cost_ss_carb = json.load(ss)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.ss_data + "': " + str(e)) from None
         # Set site to source conversions
         self.ss_conv = {
             "electricity": cost_ss_carb[
@@ -4911,8 +4941,16 @@ def main(base_dir):
     # warnings.formatwarning = custom_formatwarning
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
+
+    # UNCOMMENT WITH ISSUE 188
+    # # Ensure that all AEO-based JSON data are drawn from the same AEO version
+    # if len(numpy.unique([splitext(x)[0][-4:] for x in [
+    #         handyfiles.msegs_in, handyfiles.msegs_cpl_in,
+    #         handyfiles.metadata]])) > 1:
+    #     raise ValueError("Inconsistent AEO version used across input files")
+
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir)
+    handyvars = UsefulVars(base_dir, handyfiles)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine

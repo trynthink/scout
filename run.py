@@ -20,6 +20,7 @@ class UsefulInputFiles(object):
     """Class of input files to be opened by this routine.
 
     Attributes:
+        metadata = Baseline metadata including common min/max for year range.
         meas_summary_data (string): High-level measure summary data.
         meas_compete_data (string): Contributing microsegment data needed
             for measure competition.
@@ -30,6 +31,9 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self):
+        self.metadata = "metadata.json"
+        # UNCOMMENT WITH ISSUE 188
+        # self.metadata = "metadata_2017.json"
         self.meas_summary_data = \
             ("supporting_data", "ecm_prep.json")
         self.meas_compete_data = ("supporting_data", "ecm_competition_data")
@@ -55,12 +59,20 @@ class UsefulVars(object):
             the end use categories used in summarizing measure outputs.
     """
 
-    def __init__(self):
+    def __init__(self, base_dir, handyfiles):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
+        # Load metadata including AEO year range
+        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+            try:
+                aeo_yrs = json.load(aeo_yrs)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.metadata + "': " + str(e)) from None
         # Set minimum AEO modeling year
-        aeo_min = 2009
+        aeo_min = aeo_yrs["min year"]
         # Set maximum AEO modeling year
-        aeo_max = 2040
+        aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
@@ -2434,7 +2446,7 @@ def main(base_dir):
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
     # Instantiate useful variables object
-    handyvars = UsefulVars()
+    handyvars = UsefulVars(base_dir, handyfiles)
 
     # Import measure files
     with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
