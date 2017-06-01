@@ -1,0 +1,299 @@
+{
+	"envelope": {
+		"windows": {
+			"residential": {
+				"cost": {
+					"typical": 48.40,
+					"units": "2016$/ft^2 glazing",
+					"source": "RSMeans 2016 Building Construction Data, 2'x3' wood double hung window (#085210500010)"
+				},
+				"performance": {
+					"conduction": {
+						"typical": {
+							"sub arctic": 3.13,
+							"very cold": 3.13,
+							"cold": 3.13,
+							"marine": 2.86,
+							"mixed humid": 2.86,
+							"mixed dry": 2.86,
+							"hot dry": 2.5,
+							"hot humid": 2.5
+						},
+						"units": "R value",
+						"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+					},
+					"solar": {
+						"typical": {
+							"sub arctic": 0.4,
+							"very cold": 0.4,
+							"cold": 0.4,
+							"marine": 0.4,
+							"mixed humid": 0.4,
+							"mixed dry": 0.4,
+							"hot dry": 0.25,
+							"hot humid": 0.25
+						},
+						"units": "SHGC",
+						"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+					}
+				},
+				"lifetime": {
+					"average": 30,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15, assuming wood as the norm" 
+				}
+			},
+			"commercial": {
+				"cost": {
+					"typical": 56.20,
+					"units": "2016$/ft^2 glazing",
+					"source": "RSMeans 2016 Building Construction Data, 3'x4' aluminum window assembly (#B20201066400)"
+				},
+				"performance": {
+					"conduction": {
+						"typical": {
+							"sub arctic": 2.86,
+							"very cold": 2.86,
+							"cold": 2.86,
+							"marine": 1.75,
+							"mixed humid": 1.75,
+							"mixed dry": 1.75,
+							"hot dry": 0.82,
+							"hot humid": 0.82
+						},
+						"units": "R value",
+						"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 24 (new construction)"
+					},
+					"solar": {
+						"typical": {
+							"sub arctic": 0.49,
+							"very cold": 0.49,
+							"cold": 0.39,
+							"marine": 0.39,
+							"mixed humid": 0.39,
+							"mixed dry": 0.39,
+							"hot dry": 0.25,
+							"hot humid": 0.25
+						},
+						"units": "SHGC",
+						"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 25 (new construction)"
+					}
+				},
+				"lifetime": {
+					"average": 25,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15, assuming midpoint of aluminum and wood" 
+				}
+			}
+		},
+		"infiltration": {
+			"residential": {
+				"cost": {
+					"typical": 0,
+					"units": "2016$/ft^2 wall",
+					"source": "NA"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 3,
+						"very cold": 3,
+						"cold": 3,
+						"marine": 3,
+						"mixed humid": 3,
+						"mixed dry": 3,
+						"hot dry": 5,
+						"hot humid": 5
+					},
+					"units": "ACH",
+					"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15" 
+				}
+			},
+			"commercial": {
+				"cost": {
+					"typical": 0,
+					"units": "2016$/ft^2 wall",
+					"source": "NA"
+				},
+				"performance": {
+					"typical": 1.5,
+					"units": "CFM/ft^2 @ 0.3 in. w.c.",
+					"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, p. 29"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15" 
+				}
+			}
+		},
+		"wall": {
+			"residential": {
+				"cost": {
+					"typical": 8.86,
+					"units": "2016$/ft^2 wall",
+					"source": "RSMeans 2016 Building Construction Data, panel, shingle wall assembly (#B20101483150)"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 25,
+						"very cold": 25,
+						"cold": 25,
+						"marine": 20,
+						"mixed humid": 20,
+						"mixed dry": 20,
+						"hot dry": 13,
+						"hot humid": 13
+					},
+					"units": "R value",
+					"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15" 
+				}
+			},
+			"commercial": {
+				"cost": {
+					"typical": 27.35,
+					"units": "2016$/ft^2 wall",
+					"source": "RSMeans 2016 Building Construction Data, standard brick veneer wall assembly (#B20101305000)"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 15.6,
+						"very cold": 15.6,
+						"cold": 11.9,
+						"marine": 8.06,
+						"mixed humid": 8.06,
+						"mixed dry": 8.06,
+						"hot dry": 8.06,
+						"hot humid": 8.06
+					},
+					"units": "R value",
+					"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 20 (new construction), assuming typical steel framed wall w/ brick veneer"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 15" 
+				}
+			}
+		},
+		"ground": {
+			"residential": {
+				"cost": {
+					"typical": 5.03,
+					"units": "2016$/ft^2 footprint",
+					"source": "RSMeans 2016 Building Construction Data, 4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 10,
+						"very cold": 10,
+						"cold": 10,
+						"marine": 10,
+						"mixed humid": 10,
+						"mixed dry": 0,
+						"hot dry": 0,
+						"hot humid": 0
+					},
+					"units": "R value",
+					"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 11" 
+				}
+			},
+			"commercial": {
+				"cost": {
+					"typical": 5.03,
+					"units": "2016$/ft^2 footprint",
+					"source": "RSMeans 2016 Building Construction Data, 4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 8,
+						"very cold": 8,
+						"cold": 8,
+						"marine": 6,
+						"mixed humid": 6,
+						"mixed dry": 0,
+						"hot dry": 0,
+						"hot humid": 0
+					},
+					"units": "R value",
+					"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, p. 26"
+				},
+				"lifetime": {
+					"average": 100,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 11" 
+				}
+			}
+		},
+		"roof": {
+			"residential": {
+				"cost": {
+					"typical": 2.14,
+					"units": "2016$/ft^2 roof",
+					"source": "RSMeans 2016 Building Construction Data, shingle and tile, asphalt roofing assembly (#B30101401100)"
+				},
+				"performance": {
+					"typical": {
+						"sub arctic": 49,
+						"very cold": 49,
+						"cold": 49,
+						"marine": 49,
+						"mixed humid": 49,
+						"mixed dry": 38,
+						"hot dry": 38,
+						"hot humid": 30
+					},
+					"units": "R value",
+					"source": "U.S. Department of Energy, National Energy and Cost Savings for Single- and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, Table A.6"
+				},
+				"lifetime": {
+					"average": 25,
+					"range": 10,
+					"units": "years",
+					"source": "National Association of Homebuilders, Study of the Life Expectancy of Home Components, 2007, p. 13, midpoint of asphalt and wood" 
+				}
+			},
+			"commercial": {
+				"cost": {
+					"typical": 6.33,
+					"units": "2016$/ft^2 roof",
+					"source": "RSMeans 2016 Building Construction Data, built-up roofing systems (#075113200350) + 4'x8' 4 in. thick isocyanurate insulation (#072113101680)"
+				},
+				"performance": { 
+					"typical": 15.9,
+					"units": "R value",
+					"source": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 19 (new construction)"
+				},
+				"lifetime": {
+					"average": 30,
+					"range": 10,
+					"units": "years",
+					"source": "Typical least cost commercial roof service life reported in Coffelt et al., Life-Cycle Costs of Commercial Roof Systems, 2010" 
+				}
+			}
+		},
+	"MELs": {}
+	}
+}
