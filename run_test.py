@@ -1735,6 +1735,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
         cls.handyvars.aeo_years = ["2009", "2010"]
+        cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
             ('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
@@ -5412,6 +5413,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars.retro_rate = 0
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(

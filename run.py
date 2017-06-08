@@ -48,6 +48,7 @@ class UsefulVars(object):
 
     Attributes:
         adopt_schemes (list): Possible consumer adoption scenarios.
+        retro_rate (float): Rate at which existing stock is retrofitted.
         aeo_years (list) = Modeling time horizon.
         discount_rate (float): General rate to use in discounting cash flows.
         com_timeprefs (dict): Time preference premiums for commercial adopters.
@@ -61,6 +62,7 @@ class UsefulVars(object):
 
     def __init__(self, base_dir, handyfiles):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
+        self.retro_rate = 0.01
         # Load metadata including AEO year range
         with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
             try:
@@ -1786,7 +1788,8 @@ class Engine(object):
                     # Calculate the ratio of relative performances between the
                     # current microsegment and overlapping microsegments'
                     # technology types in the given climate zone, building
-                    # type, and structure type combination
+                    # type, and structure type combination; ensure that
+                    # neither performance value is negative for the comparison
                     if (all([type(x) != numpy.ndarray for x in [
                         rel_perf_tech, rel_perf_tech_overlp]]) and
                         (rel_perf_tech + rel_perf_tech_overlp) != 0) or (
@@ -1794,8 +1797,8 @@ class Engine(object):
                             rel_perf_tech, rel_perf_tech_overlp]]) and
                         all([x != 0 for x in (
                             rel_perf_tech + rel_perf_tech_overlp)])):
-                        save_ratio = rel_perf_tech / (
-                            rel_perf_tech + rel_perf_tech_overlp)
+                        save_ratio = abs(rel_perf_tech) / (abs(
+                            rel_perf_tech) + abs(rel_perf_tech_overlp))
                     else:
                         save_ratio = 1
 
@@ -1986,18 +1989,27 @@ class Engine(object):
                 # First year in time horizon or a competed measure market entry
                 # year in a technical potential scenario; weighted market share
                 # equals market share for the captured stock in this year only
-                if ind == 0 or int(wyr) in mkt_entry_yrs:
+                if ind == 0 or (adopt_scheme == "Technical potential" and
+                                int(wyr) in mkt_entry_yrs):
                     adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
                 # Subsequent year; weighted market share averages market share
                 # for captured stock in current year and all previous years
                 else:
-                    # Weight according to the number of previous years,
-                    # yielding a simple moving average of the market share
-                    wt_comp = 1 / len(weighting_yrs)
+                    # Weight previous years by the competed stock, determined
+                    # by the comparable baseline technology lifetime and
+                    # assumed retrofit rate
+                    wt_comp = (1 / adj["lifetime"]["baseline"][wyr]) + \
+                        self.handyvars.retro_rate
                     # Calculate weighted combination of market shares
                     adj_frac_tot = (
                         adj_fracs[wyr] + added_sbmkt_fracs[wyr]) * wt_comp + \
                         adj_frac_tot * (1 - wt_comp)
+
+        # Ensure that total captured market share is never above 1
+        if type(adj_frac_tot) != numpy.ndarray and adj_frac_tot > 1:
+            adj_frac_tot = 1
+        elif type(adj_frac_tot) == numpy.ndarray:
+            adj_frac_tot[numpy.where(adj_frac_tot > 1)] = 1
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated

@@ -1928,7 +1928,7 @@ class Measure(object):
                                          new_constr["new fraction"].items()}
 
                 # Update bass diffusion parameters needed to determine the
-                # fraction of the baseline microegment that will be captured
+                # fraction of the baseline microsegment that will be captured
                 # by efficient alternatives to the baseline technology
                 # (* BLANK FOR NOW, WILL CHANGE IN FUTURE *)
                 diffuse_params = None
@@ -2181,7 +2181,7 @@ class Measure(object):
                     else:
                         self.markets[adopt_scheme]["mseg_adjust"][
                             "contributing mseg keys and values"][
-                            str(contrib_mseg_key)] = self.add_keyvals_restrict(
+                            str(contrib_mseg_key)] = self.add_keyvals(
                                 self.markets[adopt_scheme]["mseg_adjust"][
                                     "contributing mseg keys and values"][
                                     str(contrib_mseg_key)], add_dict)
@@ -2227,6 +2227,17 @@ class Measure(object):
                     self.markets[adopt_scheme]["master_mseg"][
                     "lifetime"]["measure"] / valid_keys_cpl
 
+                # Remove stock multipliers from lifetime values in
+                # contributing microsegment (values used in competition later)
+                contrib_msegs = self.markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"]
+                for key in contrib_msegs.keys():
+                    contrib_msegs[key]["lifetime"]["baseline"] = {yr: (
+                        contrib_msegs[key]["lifetime"]["baseline"][yr] /
+                        contrib_msegs[key]["stock"]["total"]["all"][yr]) if
+                        contrib_msegs[key]["stock"]["total"]["all"][yr] != 0
+                        else 10 for yr in self.handyvars.aeo_years}
+
                 # In microsegments where square footage must be used as stock,
                 # the square footages cannot be summed to calculate the master
                 # microsegment stock values (as is the case when using no. of
@@ -2259,12 +2270,8 @@ class Measure(object):
                             adopt_scheme]["master_mseg"], reduce_num)
                     # Adjust all recorded microsegments that contributed to the
                     # master microsegment by above factor
-                    self.markets[adopt_scheme]["mseg_adjust"][
-                        "contributing mseg keys and values"] = \
-                        self.div_keyvals_float_restrict(
-                            self.markets[adopt_scheme]["mseg_adjust"][
-                                "contributing mseg keys and values"],
-                        reduce_num)
+                    contrib_msegs = self.div_keyvals_float_restrict(
+                        contrib_msegs, reduce_num)
                 else:
                     reduce_num = 1
 
