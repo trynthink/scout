@@ -1,0 +1,73 @@
+{
+  "name": "Commercial Oil Furnace, 90.1 2013",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "heating",
+  "fuel_type": "distillate",
+  "technology": "oil_furnace",
+  "market_entry_year": 2013,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.81,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "Fed min standard and ASHRAE 2013 standard",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. EIA",
+      "year": 2013,
+      "pages": 86,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 11.2,
+  "cost_units": "2013$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "median of range for total installed cost for 2013 typical value ($4480); assume the EIA typical capacity of 400 kBTU/h",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. EIA",
+      "year": 2016,
+      "pages": 86,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "average stated 2013 lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 85,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "DOE",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-01-30"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

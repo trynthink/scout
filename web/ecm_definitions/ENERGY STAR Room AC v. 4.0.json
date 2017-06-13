@@ -1,0 +1,70 @@
+{ 
+  "name": "ENERGY STAR Room AC v. 4.0",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "cooling",
+  "fuel_type": "all",
+  "technology": "room AC",
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": " ",
+    "source_data": [{
+       "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.0%20Room%20Air%20Conditioners%20Program%20Requirements.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.51,
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP.",
+    "source_data": [{
+      "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.0%20Room%20Air%20Conditioners%20Program%20Requirements.pdf"}]},
+  "installed_cost": 405,
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "median of range of total installed cost",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 33,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "product_lifetime": 9.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "median of stated average 2013 lifetime range",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 33,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "Replaces all room ACs at the end of life.",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Nov. 23 2016"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null 
+  }}

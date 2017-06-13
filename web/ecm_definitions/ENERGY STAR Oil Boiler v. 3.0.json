@@ -1,0 +1,70 @@
+{ 
+  "name": "ENERGY STAR Oil Boiler v. 3.0",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "heating",
+  "fuel_type": "distillate",
+  "technology": "boiler (distillate)",
+  "market_entry_year": 2014,
+  "market_entry_year_source": {
+    "notes": "",
+    "source_data": [{
+       "title": "ENERGY STAR Program Requirements Product Specification for Boilers",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2014,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.87,
+  "energy_efficiency_units": "AFUE",
+  "energy_efficiency_source": {
+    "notes": "",
+    "source_data": [{
+      "title": "ENERGY STAR Program Requirements Product Specification for Boilers",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2014,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"}]},
+  "installed_cost": 5300,
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "median of range of total installed cost for 2013 energy star oil-fired boiler",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 31,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "median of stated average 2013 lifetime range",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 31,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "Replaces all oil boilers at the end of life.",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Nov. 23 2016"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null 
+  }}

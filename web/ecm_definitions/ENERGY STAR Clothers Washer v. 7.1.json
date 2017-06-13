@@ -1,0 +1,70 @@
+{ 
+  "name": "ENERGY STAR Clothes Washer v. 7.1",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "other (grid electric)",
+  "fuel_type": "electricity",
+  "technology": "clothes washing",
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": " ",
+    "source_data": [{
+       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Washers",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%207.1%20Clothes%20Washers%20Program%20Requirements_0.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 1.7,
+  "energy_efficiency_units": "kWh/cycle",
+  "energy_efficiency_source": {
+    "notes": "assume a capacity of 3.5 ft^3 and top loading; Original std: IMEF>2.06",
+    "source_data": [{
+      "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Final%20Version%201%200%20Clothes%20Dryers%20Program%20Requirements.pdf"}]},
+  "installed_cost": 700,
+  "cost_units": "2013$/unit",
+  "installed_cost_source": {
+    "notes": "assume top-loading and median of Energy Star installed cost range",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "US EIA",
+       "year": 2016,
+       "pages": 73,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "product_lifetime": 10.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "median of stated average 2013 lifetime range",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "US EIA",
+       "year": 2016,
+       "pages": 73,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "Replaces all clothes washers at the end of life.",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Nov. 22 2016"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null 
+  }}
