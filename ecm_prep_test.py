@@ -13930,17 +13930,19 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             "energy savings increase": None,
             "cost reduction": None}
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles())
         sample_measindiv_dicts = [{
             "name": "cleanup 1",
             "market_entry_year": None,
             "market_exit_year": None,
+            "measure_type": "full service",
             "technology": {
                 "primary": None, "secondary": None}},
             {
             "name": "cleanup 2",
             "market_entry_year": None,
             "market_exit_year": None,
+            "measure_type": "full service",
             "technology": {
                 "primary": None, "secondary": None}}]
         cls.sample_measlist_in = [ecm_prep.Measure(
@@ -14010,15 +14012,15 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
              "name", "out_break_norm", "remove", 'technology',
-             'technology_type', 'yrs_on_mkt'],
+             'technology_type', 'yrs_on_mkt', 'measure_type'],
             ["market_entry_year", "market_exit_year", "markets",
              "name", "out_break_norm", "remove", 'technology',
-             'technology_type', 'yrs_on_mkt'],
+             'technology_type', 'yrs_on_mkt', 'measure_type'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
              "technology", "technology_type",
              "market_entry_year", "market_exit_year", 'markets',
              'contributing_ECMs', 'name', "out_break_norm", 'remove',
-             'structure_type', 'yrs_on_mkt']]
+             'structure_type', 'yrs_on_mkt', 'measure_type']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
     def test_cleanup(self):

@@ -4220,6 +4220,7 @@ class MeasurePackage(Measure):
         market_exit_year (int): Latest year of market exit across all
             measures in the package.
         yrs_on_mkt (list): List of years that the measure is active on market.
+        measure_type (string): "full service", "add-on", or "mixed".
         climate_zone (list): Applicable climate zones for package.
         bldg_type (list): Applicable building types for package.
         structure_type (list): Applicable structure types for package.
@@ -4268,6 +4269,14 @@ class MeasurePackage(Measure):
         self.yrs_on_mkt = [
             str(i) for i in range(
                 self.market_entry_year, self.market_exit_year)]
+        if all([m.measure_type == "full service" for m in
+                self.contributing_ECMs]):
+            self.measure_type = "full service"
+        elif all([m.measure_type == "add-on" for m in
+                  self.contributing_ECMs]):
+            self.measure_type = "add-on"
+        else:
+            self.measure_type = "mixed"
         self.climate_zone, self.bldg_type, self.structure_type, \
             self.fuel_type, self.technology = (
                 [] for n in range(5))

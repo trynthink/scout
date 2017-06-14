@@ -1,1 +1,23 @@
-[]
+[{"name": "Package: Cooling & Lighting Upgrade",
+  "contributing_ECMs": ["ENERGY STAR Central AC v. 5.0", "ENERGY STAR LED Bulbs v. 1.2 c. 2012"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0.05, "source": {
+     "notes": "Example for web UI.",
+     "source_data": [{
+        "title": "Reference Title",
+        "author": "Author Name(s)",
+        "organization": "Organization Name",
+        "year": "2016",
+        "pages": null,
+        "URL": "http://buildings.energy.gov/"}]}}},
+ {"name": "Package: Heating & Water Heating Upgrade",
+  "contributing_ECMs": ["ENERGY STAR Gas Furnace v. 4.0", "ENERGY STAR Gas Storage WH v. 3.0"],
+  "benefits": {"energy savings increase": 0.1, "cost reduction": 0.07, "source": {
+     "notes": "Explanatory text related to source data and/or values given.",
+     "notes": "Example for web UI.",
+     "source_data": [{
+        "title": "Reference Title",
+        "author": "Author Name(s)",
+        "organization": "Organization Name",
+        "year": "2016",
+        "pages": null,
+        "URL": "http://buildings.energy.gov/"}]}}}]
