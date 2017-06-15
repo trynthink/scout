@@ -11,6 +11,7 @@ class UsefulInputFiles(object):
         msegs_in (string): Database of baseline microsegment stock/energy.
         htcl_totals (string): Heating/cooling energy totals by climate zone,
             building type, and structure type.
+        metadata (dict): Baseline metadata including min/max for year range.
     """
 
     def __init__(self):
@@ -18,6 +19,7 @@ class UsefulInputFiles(object):
                          "mseg_res_com_cz.json")
         self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
                             "htcl_totals.json")
+        self.metadata = "metadata.json"
 
 
 class UsefulVars(object):
@@ -28,11 +30,19 @@ class UsefulVars(object):
         ss_conv (dict): Site-source conversion factors by fuel type.
     """
 
-    def __init__(self, base_dir):
+    def __init__(self, base_dir, handyfiles):
+        # Load metadata including AEO year range
+        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+            try:
+                aeo_yrs = json.load(aeo_yrs)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.metadata + "': " + str(e)) from None
         # Set minimum AEO modeling year
-        aeo_min = 2009
+        aeo_min = aeo_yrs["min year"]
         # Set maximum AEO modeling year
-        aeo_max = 2040
+        aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
@@ -193,7 +203,7 @@ def main():
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
     # Instantiate useful variables
-    handyvars = UsefulVars(base_dir)
+    handyvars = UsefulVars(base_dir, handyfiles)
 
     # Import baseline microsegment stock and energy data
     with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:

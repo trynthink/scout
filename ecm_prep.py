@@ -1621,6 +1621,14 @@ class Measure(object):
                     # Remove any secondary microsegments associated with
                     # previously removed primary microsegments
                     continue
+                else:
+                    # Set baseline cost and performance characteristics for any
+                    # remaining secondary microsegments to that of the measure
+                    # and baseline lifetime to one year
+                    cost_base, perf_base, life_base = [
+                        {yr: x for yr in self.handyvars.aeo_years} for x in [
+                         cost_meas, perf_meas, 1]]
+                    cost_base_units, perf_base_units = [cost_units, perf_units]
 
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
@@ -3042,6 +3050,8 @@ class Measure(object):
             else:
                 base_turnover_wt = (
                     (1 / life_base[yr]) + self.handyvars.retro_rate)
+                if base_turnover_wt > 1:
+                    base_turnover_wt = 1
                 rel_perf_uncomp_capt = (
                     rel_perf[yr] * base_turnover_wt +
                     rel_perf_uncomp_capt * (1 - base_turnover_wt))
