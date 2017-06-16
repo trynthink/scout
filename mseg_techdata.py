@@ -749,7 +749,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt, eia_lt_choice,
                                     "units": perf_units, "source": perf_source}
         # Update cost information
         data_dict["installed cost"] = {"typical": cost_typ, "best": cost_best,
-                                       "units": "2010$/unit",
+                                       "units": "2013$/unit",
                                        "source": cost_source}
         # Update lifetime information
         data_dict["lifetime"] = {"average": life_avg, "range": life_range,
