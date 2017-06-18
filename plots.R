@@ -720,14 +720,14 @@ for (a in 1:length(adopt_scenarios)){
         col_param = c(plot_col_uc_base, plot_col_c_base, plot_col_uc_eff,
                       plot_col_c_eff, plot_col_c_base,
                       plot_col_uc_eff, plot_col_c_eff)
-        lwd_param = c(5, 3, 3.5, rep(1, 5))
+        lwd_param = c(5, 3.5, 3, 2, rep(1, 3))
         lty_param = c(rep(1, 4), rep(6, 3))
         }else{
           # Set legend names for a plot with no uncertainty in the ECM totals
           legend_param = c("AEO Baseline (Uncompeted)", "AEO Baseline (Competed)",
                            "Efficient (Uncompeted)", "Efficient (Competed)")
           col_param = c(plot_col_uc_base, plot_col_c_base, plot_col_uc_eff, plot_col_c_eff)
-          lwd_param = c(5, 3, 3.5, rep(2, 2))
+          lwd_param = c(5, 3.5, 3, 2)
           lty_param = rep(1, 4)  
         }
 
@@ -781,6 +781,12 @@ for (a in 1:length(adopt_scenarios)){
            pos=4, cex=0.93)
 	  }
     }
+    # Add legend for all individual ECM plots
+    par(xpd=TRUE)
+    plot(1, type="n", axes=F, xlab="", ylab="") # creates blank plot square for legend
+    legend("top", legend=legend_param, lwd=lwd_param, col=col_param, lty=lty_param, 
+       bty="n", border = FALSE, merge = TRUE, cex=1.15)
+    # Close plot device
     dev.off()
   
     # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,

@@ -103,6 +103,7 @@ The end use names appear verbatim in the first column of the tables for resident
 | lighting              |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | refrigeration         |      X      |             |            |            |
++-----------------------+-------------+-------------+------------+------------+
 | other (grid electric) |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | all                   |      X      |      X      |      X     |      X     |
@@ -257,22 +258,18 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * lighting
 
-.. tip::
-
-   For linear fluorescent bulbs, the specification is given in the form Ty Fx, where x represents the wattage of the bulb and y indicates the diameter of the bulb. HO = high output.
-
-   * general service: '100W A19 Incandescent', '100W Equivalent A19 Halogen', '100W Equivalent CFL Bare Spiral', '100W Equivalent LED A Lamp',
-   * PAR-38: 'Halogen Infrared Reflector (HIR) PAR38', 'Halogen PAR38', 'LED PAR38'
-   * linear fixture: 'T5 F28', 'T8 F28 High-efficiency/High-Output', 'T8 F32 Commodity', 'T8 F59 High Efficiency', 'T8 F59 Typical Efficiency', 'T8 F96 High Output'
-   * low/high bay: 'T5 4xF54 HO High Bay', 'Mercury Vapor', 'Metal Halide', 'Sodium Vapor', 'SodiumVapor'
-   * other: 'LED Integrated Luminaire'
+   * general service: 100W A19 Incandescent, 100W Equivalent A19 Halogen, 100W Equivalent CFL Bare Spiral, 100W Equivalent LED A Lamp,
+   * PAR-38: Halogen Infrared Reflector (HIR) PAR38, Halogen PAR38, LED PAR38
+   * linear fixture: T5 F28, T8 F28 High-efficiency/High-Output, T8 F32 Commodity, T8 F59 High Efficiency, T8 F59 Typical Efficiency, T8 F96 High Output
+   * low/high bay: T5 4xF54 HO High Bay, Mercury Vapor, Metal Halide, Sodium Vapor, SodiumVapor
+   * other: LED Integrated Luminaire
 
 * refrigeration: Commercial Beverage Merchandisers, Commercial Compressor Rack Systems, Commercial Condensers, Commercial Ice Machines, Commercial Reach-In Freezers, Commercial Reach-In Refrigerators, Commercial Refrigerated Vending Machines, Commercial Supermarket Display Cases, Commercial Walk-In Freezers, Commercial Walk-In Refrigerators
 
 * cooking
 
-   * electricity: |tooltip| Range, Electric-induction, 4 burner, oven, |chunk-b| electric range with induction-style cooktop |close|; |tooltip| Range, Electric, 4 burner, oven, 11 griddle |chunk-b| electric range with standard coil or ceramic cooktop |close|
-   * natural gas: |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close| ; |tooltip| Range, Gas, 4 burner, oven, 11 griddle |chunk-b| natural gas range with standard oven |close|
+   * electricity: |tooltip| Range, Electric-induction, 4 burner, oven, |chunk-b| electric range with induction-style cooktop |close|
+   * natural gas: |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close|
 
 .. * PCs
 .. * non-PC office equipment

@@ -95,7 +95,7 @@ Open the |html-filepath| ./results/plots |html-fp-end| folder to view output plo
 Output plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
 
 
-.. _Download the latest version of Scout: https://github.com/trynthink/scout/archive/v0.1.zip
+.. _Download the latest version of Scout: https://github.com/trynthink/scout/releases/latest
 
 .. rubric:: Footnotes
 
