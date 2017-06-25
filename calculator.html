@@ -5,7 +5,7 @@
 		<meta http-equiv='X-UA-Compatible' content='IE=edge'>
 		<meta name='viewport' content='width=device-width, initial-scale=1'>
 		<!-- nothing else can come before this point in <head> -->
-		<title>scout: Market Calculator</title>
+		<title>scout: Baseline Energy Calculator</title>
 
 		<!-- jQuery (minified) (required for Bootstrap) -->
 		<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -51,7 +51,7 @@
 					<!-- <ul class='nav navbar-nav'>
 						<li><a href='dashboard.html'>Dashboard</a></li>
 						<li><a href='measures.html'>Measure Database</a></li>
-						<li class='active'><a href='calculator.html'>Market Calculator</a></li>
+						<li class='active'><a href='calculator.html'>Baseline Energy Calculator</a></li>
 					</ul>
 					<ul class='nav navbar-nav navbar-right'>
 						<li><a href='https://www.github.com/trynthink/scout/wiki'>Wiki/Docs</a></li>
@@ -63,7 +63,7 @@
 
 		<div class='jumbotron'>
 			<div class='container'>
-				<h1>Market Calculator</h1>
+				<h1>Baseline Energy Calculator</h1>
 				<p>Determine the energy use associated with building components, equipment, and other end uses in residential and commercial buildings.</p>
 			</div>
 		</div>
@@ -74,9 +74,9 @@
 				<div class='col-md-9'> <!-- LH column -->
 					<div class='row'> <!-- introductory text -->
 						<div class='col-md-12'>
-							<p>The Market Calculator yields the estimated energy use and CO<sub>2</sub> emissions associated with losses through the building envelope and appliances and devices within residential and commercial buildings in the United States. The energy use and CO<sub>2</sub> emissions can be divided by building type, climate zone, technology type, and other factors indicated below. CO<sub>2</sub> emissions reported here do not include direct emissions associated with losses of working fluids from heating, cooling, water heating, and refrigeration systems.</p>
+							<p>The Baseline Energy Calculator yields the estimated energy use and CO<sub>2</sub> emissions associated with losses through the building envelope and appliances and devices within residential and commercial buildings in the United States. The energy use and CO<sub>2</sub> emissions can be divided by building type, climate zone, technology type, and other factors indicated below. CO<sub>2</sub> emissions reported here do not include direct emissions associated with losses of working fluids from heating, cooling, water heating, and refrigeration systems.</p>
 
-							<p>To obtain an estimate for a market or markets of interest, the appropriate definitions must be selected below. In each category shown, at least one selection must be made to yield a complete market definition. In some categories, multiple selections are permitted. Categories where multiple selections are allowed are indicated as such. Selections for the relevant groups are made by simply clicking the appropriate terms. Selected terms are highlighted, and clicking them again will remove them from the chosen market segment. Follow the numbered steps below, making the desired selections at each step. Once selections have been made in each category, click the 'Update' button in the Market Size box on the right side of the screen to get the energy use in the selected market and the associated CO<sub>2</sub> emissions.</p>
+							<p>To obtain an estimate for an energy use segment of interest, the applicable category selections must be made below. In each category shown, at least one selection is required. In some categories, multiple selections are permitted. Categories where multiple selections are allowed are indicated as such. Selections for the relevant groups are made by simply clicking the appropriate terms. Selected terms are highlighted, and clicking them again will remove them. Follow the numbered steps below, making the desired selections at each step. Once selections have been made in each category, click the 'Update' button in the Segment Size box on the right side of the screen (or the bottom of the page on mobile devices) to obtain the energy use and the associated CO<sub>2</sub> emissions.</p>
 
 							<p> The underlying data for this calculator are from the 2015 <a href='http://www.eia.gov/forecasts/aeo/'>Annual Energy Outlook (AEO) <i class="fa fa-external-link"></i></a> released by the <a href='http://www.eia.gov/'>U.S. Energy Information Administration (EIA). <i class="fa fa-external-link"></i></a></p>
 
@@ -91,7 +91,7 @@
 						</div>
 					</div>
 
-					<div class='row'> <!-- market entry year -->
+					<div class='row'> <!-- sales entry year -->
 						<div class='col-md-8'>
 							<h4>1. Choose a projection year</h4>
 						</div>
@@ -101,7 +101,7 @@
 								<!-- populated using JavaScript -->
 							</select>
 						</div>
-					</div> <!-- /row market entry year -->
+					</div> <!-- /row sales entry year -->
 
 					<div class='row'> <!-- climate zone -->
 						<div class='col-md-8'>
@@ -151,7 +151,7 @@
 					<!-- Additional Selections -->
 					<div class='row row-end-use' id='end-use-row'>
 						<div class='col-md-12'>
-							<h4>5. Make selections from each of the dropdowns and button groups that appear below <!-- Additional market segments can be incorporated into the total using the "Add end use" button near the bottom of the page. --></h4>
+							<h4>5. Make selections from each of the dropdowns and button groups that appear below <!-- Additional category options can be incorporated into the total using the "Add end use" button near the bottom of the page. --></h4>
 							<select class='form-control' id='end-use'>
 							</select>
 						</div>
@@ -163,12 +163,12 @@
 					<div data-spy='affix' id='calc-panel'>
 						<div class='panel panel-default'>
 							<div class='panel-heading'>
-								<h3 class='panel-title' style='display: inline;'>Market Size</h3><label class='sr-only'>clicking the update button will update the energy and CO2 emissions numbers reported in the subsequent fields</label><!-- added for accessibility --><button type='submit' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
+								<h3 class='panel-title' style='display: inline;'>Segment Size</h3><label class='sr-only'>clicking the update button will update the energy and CO2 emissions numbers reported in the subsequent fields</label><!-- added for accessibility --><button type='submit' class='btn btn-success btn-sm pull-right' id='update' style='margin-top: -5px;'>Update</button>
 							</div>
 							<div class='panel-body'>
-								<h2 id='energy-num'>0</h2><span class='sr-only'>trillion BTU in the selected market</span> <!-- added for accessibility -->
+								<h2 id='energy-num'>0</h2><span class='sr-only'>trillion BTU for the category selections made</span> <!-- added for accessibility -->
 								<h3 id='units' aria-hidden='true'><small><span data-toggle='tooltip' title='Trillion British Thermal Units'>TBTU</span> (primary energy)</small></h3>
-								<h2 id='carbon-num'>0</h2><span class='sr-only'>million metric tons of CO2 in the selected market</span> <!-- added for accessibility -->
+								<h2 id='carbon-num'>0</h2><span class='sr-only'>million metric tons of CO2 for the category selections made</span> <!-- added for accessibility -->
 								<h3 id='units' aria-hidden='true'><small><span data-toggle='tooltip' title='Million Metric Tons'>Mt</span> CO<sub>2</sub></small></h3>
 								<!-- <button type='button' class='btn btn-default disabled'>Recall</button> -->
 								<!-- <button type='button' class='btn btn-primary disabled'>Save</button> -->

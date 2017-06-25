@@ -17,6 +17,7 @@ rs*.txt
 
 *_cdiv.json
 *_cz.json
+cpl_envelope_mels.json
 
 # Scout-generated JSON databases #
 ##################################
@@ -74,10 +75,11 @@ node_modules/
 *.sublime-project
 *.sublime-workspace
 
-# Rendered reStructuredText documentation folders #
-###################################################
+# Captive folders for rendered docs, run results #
+##################################################
 
 _build
+results/
 
 # Packages and compressed files #
 #################################
