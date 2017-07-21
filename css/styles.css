@@ -32,8 +32,14 @@ that the bottom of the button is even with the bottom of the text */
   margin-top: -10px;
 }
 
-.jumbotron {
+#jumbotron2015 {
 	background: linear-gradient(#1E824C, #00B16A);
+  color: #FFFFFF;
+  margin-top: 50px; /* pushes jumbotron content below fixed top navbar */
+}
+
+#jumbotron2017 {
+  background: linear-gradient(#3F51B5, #A57AB1);
   color: #FFFFFF;
   margin-top: 50px; /* pushes jumbotron content below fixed top navbar */
 }

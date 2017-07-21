@@ -61,10 +61,10 @@ $(document).ready(function(){
 		}
 	} // end populateMeasuresTableFromJSON
 
-	// Obtain data from JSON measure database to populate table
-	$.getJSON('measures.json', function(the_stuff){
-		populateMeasuresTableFromJSON(the_stuff)
-	});
+	// // Obtain data from JSON measure database to populate table
+	// $.getJSON('measures.json', function(the_stuff){
+	// 	populateMeasuresTableFromJSON(the_stuff)
+	// });
 
 
 	/////////////////////////////////////////////////////////////////////
