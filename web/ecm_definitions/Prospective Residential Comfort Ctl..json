@@ -15,8 +15,7 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "heating": 0.2,
-      "cooling": 0.2,
-      "ventilation": 0.2, 
+      "cooling": 0.2, 
       "lighting": 0.3},
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
