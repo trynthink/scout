@@ -43,8 +43,11 @@
       "pages": [536, 548],
       "URL": "https://www.researchgate.net/publication/269576957_A_knowledge_based_approach_for_selecting_energy-aware_and_comfort-driven_HVAC_temperature_set_points"}
       ]},
-  "installed_cost": 95,
-  "cost_units": "2017$/occupant",
+  "installed_cost": {
+      "single family home": 0.1,
+      "mobile home": 0.1, 
+      "multi family home": 0.2},
+  "cost_units": "2017$/ft^2 floor",
   "installed_cost_source":{
     "notes": "BTO Prioritization Tool analysis assuming 35% HVAC savings, 45% lighting energy savings, 80% PCs savings, and 1 year payback threshold",
     "source_data": {
