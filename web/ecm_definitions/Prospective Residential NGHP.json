@@ -64,7 +64,7 @@
     }
   },
   "measure_type": "full service",
-  "fuel_switch_to": null,
+  "fuel_switch_to": "natural gas",
   "market_scaling_fractions": {
     "electricity":{
       "heating": 1,
