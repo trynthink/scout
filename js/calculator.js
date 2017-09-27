@@ -26,7 +26,7 @@ $(document).ready(function(){
 
 	// Store needed data about site-to-source conversions and CO2 emissions
 	// from the appropriate JSON database
-	var ss_el, ss_ng, ss_ot, co2_el, co2_ng, co2_ot;
+	var ss_el, co2_el, co2_ng, co2_ot;
 	$.getJSON('data/site_source_co2_conversions.json', function(data){
 		ss_el = data['electricity']['site to source conversion'];
 		co2_el = data['electricity']['CO2 intensity'];
@@ -659,7 +659,7 @@ $(document).ready(function(){
 							hvac_tt = ['non-specific'];
 						}
 						var energy_conv = primaryEnergyConversion(HVAC_FT, proj_year);
-						var co2_conv = CO2Conversion(HVAC_FT, proj_year);
+						var co2_conv = CO2Conversion(HVAC_FT, $('input[name=bldg-class]:checked').val(), proj_year);
 						// Loop over all climate zones selected
 						for (var a = 0; a < climate_zone.length; a++) {
 							// Loop over all building types selected
@@ -684,7 +684,7 @@ $(document).ready(function(){
 							// For demand, loop over all possible fuel types
 							for (var k = 0; k < ft_select_f.length; k++) {
 								var energy_conv = primaryEnergyConversion(fuel_type_values[ft_select_f[k]], proj_year);
-								var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
+								var co2_conv = CO2Conversion(fuel_type_values[ft_select_f[k]], $('input[name=bldg-class]:checked').val(), proj_year);
 								// Loop over all building types selected
 								for (var i = 0; i < selected_buildings.length; i++) {
 									// Loop over all tech types selected
@@ -700,7 +700,7 @@ $(document).ready(function(){
 				}
 				else if (selected_end_use === 'water heating') {
 					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
-					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, $('input[name=bldg-class]:checked').val(), proj_year);
 
 					// Define function call based on the fuel type
 					if (ft_only_sel === 'electricity') {
@@ -741,7 +741,7 @@ $(document).ready(function(){
 					// [climate zone][building type][fuel type][end use]['energy'][year]
 
 					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
-					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, $('input[name=bldg-class]:checked').val(), proj_year);
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
 						// Loop over all building types selected
@@ -763,7 +763,7 @@ $(document).ready(function(){
 							for (var j = 0; j < other_tt.length; j++) {
 								amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][other_tt[j]]['energy'][proj_year] * ss_el[proj_year];
 								total_energy += amtToAdd;
-								total_co2 += amtToAdd/1e9 * co2_el[proj_year];
+								total_co2 += amtToAdd/1e9 * co2_el['residential'][proj_year];
 							}
 						}
 					}
@@ -777,7 +777,7 @@ $(document).ready(function(){
 						for (var i = 0; i < selected_buildings.length; i++) {
 							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use]['energy'][proj_year] * ss_el[proj_year];
 							total_energy += amtToAdd;
-							total_co2 += amtToAdd/1e9 * co2_el[proj_year];
+							total_co2 += amtToAdd/1e9 * co2_el['residential'][proj_year];
 						}
 					}
 				}
@@ -818,7 +818,7 @@ $(document).ready(function(){
 					if (radio_selection === 'supply') {
 
 						var energy_conv = primaryEnergyConversion(the_fuel, proj_year);
-						var co2_conv = CO2Conversion(the_fuel, proj_year);
+						var co2_conv = CO2Conversion(the_fuel, $('input[name=bldg-class]:checked').val(), proj_year);
 						// Loop over all climate zones selected
 						for (var a = 0; a < climate_zone.length; a++) {
 							// Loop over all building types selected
@@ -842,7 +842,7 @@ $(document).ready(function(){
 							// For demand, loop over all possible fuel types
 							for (var k = 0; k < ft_select_f.length; k++) {
 								var energy_conv = primaryEnergyConversion(com_fuel_type_values[ft_select_f[k]], proj_year);
-								var co2_conv = CO2Conversion(ft_select_f[k], proj_year);
+								var co2_conv = CO2Conversion(com_fuel_type_values[ft_select_f[k]], $('input[name=bldg-class]:checked').val(), proj_year);
 								// Loop over all building types selected
 								for (var i = 0; i < selected_buildings.length; i++) {
 									// Loop over all tech types selected
@@ -863,7 +863,7 @@ $(document).ready(function(){
 					var the_fuel = $('option:selected', '#fuel-type').val();
 
 					var energy_conv = primaryEnergyConversion(the_fuel, proj_year);
-					var co2_conv = CO2Conversion(the_fuel, proj_year);
+					var co2_conv = CO2Conversion(the_fuel, $('input[name=bldg-class]:checked').val(), proj_year);
 
 					// Loop over all climate zones selected
 					for (var a = 0; a < climate_zone.length; a++) {
@@ -882,7 +882,7 @@ $(document).ready(function(){
 					// [climate zone][building type][fuel type][end use][tech type]['energy'][year]
 
 					var energy_conv = primaryEnergyConversion(ft_only_sel, proj_year);
-					var co2_conv = CO2Conversion(ft_only_sel, proj_year);
+					var co2_conv = CO2Conversion(ft_only_sel, $('input[name=bldg-class]:checked').val(), proj_year);
 
 					// Select the correct equipment types for the fuel type specified
 					if (ft_only_sel === 'electricity') {var cook_tt = com_elec_cooking_equip_values;}
@@ -913,7 +913,7 @@ $(document).ready(function(){
                 for (var q = 0; q < com_lighting_indices[other_tt[j]].length; q++) {
                   amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][com_lighting_items[com_lighting_indices[other_tt[j]][q]]]['energy'][proj_year]/1e6 * ss_el[proj_year];
                   total_energy += amtToAdd;
-                  total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+                  total_co2 += amtToAdd/1e3 * co2_el['commercial'][proj_year];
                 }
               }
             }
@@ -930,7 +930,7 @@ $(document).ready(function(){
 							for (var j = 0; j < other_tt.length; j++) {
 								amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][other_tt[j]]['energy'][proj_year]/1e6 * ss_el[proj_year];
 								total_energy += amtToAdd;
-								total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+								total_co2 += amtToAdd/1e3 * co2_el['commercial'][proj_year];
 							}
 						}
 					}
@@ -944,7 +944,7 @@ $(document).ready(function(){
 						for (var i = 0; i < selected_buildings.length; i++) {
 							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use][ft_only_sel]['energy'][proj_year]/1e6 * ss_el[proj_year];
 							total_energy += amtToAdd;
-							total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+							total_co2 += amtToAdd/1e3 * co2_el['commercial'][proj_year];
 						}
 					}
 				}
@@ -957,7 +957,7 @@ $(document).ready(function(){
 						for (var i = 0; i < selected_buildings.length; i++) {
 							amtToAdd = data[climate_zone[a]][selected_buildings[i]]['electricity'][selected_end_use]['energy'][proj_year]/1e6 * ss_el[proj_year];
 							total_energy += amtToAdd;
-							total_co2 += amtToAdd/1e3 * co2_el[proj_year];
+							total_co2 += amtToAdd/1e3 * co2_el['commercial'][proj_year];
 						}
 					}
 				}
@@ -1012,12 +1012,12 @@ $(document).ready(function(){
 	// Extract CO2 emissions intensity factor (from primary energy in quads
 	// to million metric tons CO2) based on fuel type and the projection
 	// year selected by the user
-	function CO2Conversion(fuel_type, year) {
+	function CO2Conversion(fuel_type, bldg_class, year) {
 		// Look up the appropriate data based on the user's inputs and return the
 		// reported CO2 emissions intensity factor
-		if (fuel_type === 'electricity') { return co2_el[year]; }
-		else if (fuel_type === 'natural gas') { return co2_ng[year]; }
-		else { return co2_ot[year]; }
+		if (fuel_type === 'electricity') { return co2_el[bldg_class][year]; }
+		else if (fuel_type === 'natural gas') { return co2_ng[bldg_class][year]; }
+		else { return co2_ot[bldg_class][year]; }
 	}
 
 	// Insert a formatted 'row' div for a blank drop down menu into the HTML DOM 
