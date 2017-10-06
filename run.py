@@ -38,7 +38,8 @@ class UsefulInputFiles(object):
             ("supporting_data", "ecm_prep.json")
         self.meas_compete_data = ("supporting_data", "ecm_competition_data")
         self.active_measures = "run_setup.json"
-        self.meas_engine_out = ("results", "ecm_results.json")
+        self.meas_engine_out_ecms = ("results", "ecm_results.json")
+        self.meas_engine_out_agg = ("results", "agg_results.json")
         self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
                             "htcl_totals.json")
 
@@ -268,11 +269,11 @@ class Engine(object):
     def __init__(self, handyvars, measure_objects):
         self.handyvars = handyvars
         self.measures = measure_objects
-        self.output = OrderedDict()
-        self.output["All ECMs"] = OrderedDict([
+        self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
+        self.output_all["All ECMs"] = OrderedDict([
             ("Markets and Savings (Overall)", OrderedDict())])
         for adopt_scheme in self.handyvars.adopt_schemes:
-            self.output["All ECMs"]["Markets and Savings (Overall)"][
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme] = OrderedDict()
         for m in self.measures:
             # Set measure climate zone, building sector, and end use
@@ -312,7 +313,7 @@ class Engine(object):
 
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
-            self.output[m.name] = OrderedDict([
+            self.output_ecms[m.name] = OrderedDict([
                 ("Filter Variables", OrderedDict([
                     ("Applicable Climate Zones", czones),
                     ("Applicable Building Classes", bldgtypes),
@@ -324,15 +325,15 @@ class Engine(object):
                     ("Consumer Level", OrderedDict())]))])
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Initialize measure overall markets and savings
-                self.output[m.name]["Markets and Savings (Overall)"][
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme] = OrderedDict()
                 # Initialize measure markets and savings broken out by climate
                 # zone, building sector, and end use categories
-                self.output[m.name]["Markets and Savings (by Category)"][
+                self.output_ecms[m.name]["Markets and Savings (by Category)"][
                     adopt_scheme] = OrderedDict()
                 # Initialize measure financial metrics
-                self.output[m.name]["Financial Metrics"]["Portfolio Level"][
-                    adopt_scheme] = OrderedDict()
+                self.output_ecms[m.name]["Financial Metrics"][
+                    "Portfolio Level"][adopt_scheme] = OrderedDict()
 
     def calc_savings_metrics(self, adopt_scheme, comp_scheme):
         """Calculate and update measure savings and financial metrics.
@@ -2203,8 +2204,8 @@ class Engine(object):
 
             # Record updated markets and savings in Engine 'output'
             # attribute
-            self.output[m.name]["Markets and Savings (Overall)"][
-                adopt_scheme], self.output[m.name][
+            self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                adopt_scheme], self.output_ecms[m.name][
                     "Markets and Savings (by Category)"][
                     adopt_scheme] = (OrderedDict([
                         ("Baseline Energy Use (MMBtu)", energy_base_avg),
@@ -2230,22 +2231,22 @@ class Engine(object):
             # Scale down the measure's markets and savings by the
             # climate zone, building type, and end use partitioning
             # fractions previously established for the measure
-            for k in self.output[m.name][
+            for k in self.output_ecms[m.name][
                 "Markets and Savings (by Category)"][
                     adopt_scheme].keys():
-                self.output[m.name][
+                self.output_ecms[m.name][
                     'Markets and Savings (by Category)'][adopt_scheme][
                         k] = self.out_break_walk(
                         copy.deepcopy(m.markets[adopt_scheme][
                             "competed"]["mseg_out_break"]),
-                        self.output[m.name][
+                        self.output_ecms[m.name][
                             'Markets and Savings (by Category)'][
                             adopt_scheme][k])
 
             # Record low and high estimates on markets, if available
 
             # Set shorter name for markets and savings output dict
-            mkt_sv = self.output[m.name][
+            mkt_sv = self.output_ecms[m.name][
                 "Markets and Savings (Overall)"][adopt_scheme]
             # Record low and high baseline market values
             if energy_base_avg != energy_base_low:
@@ -2285,8 +2286,8 @@ class Engine(object):
             # Record updated portfolio metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
             if cce_avg_uc != cce_low_uc:
-                self.output[m.name]["Financial Metrics"]["Portfolio Level"][
-                    adopt_scheme] = OrderedDict([
+                self.output_ecms[m.name]["Financial Metrics"][
+                    "Portfolio Level"][adopt_scheme] = OrderedDict([
                         ("Cost of Conserved Energy (uncompeted) "
                          "($/MMBtu saved)", cce_avg_uc),
                         ("Cost of Conserved Energy (uncompeted) (low)"
@@ -2318,8 +2319,8 @@ class Engine(object):
                           "($/MTon CO2 avoided)").
                          translate(sub), ccc_high_c)])
             else:
-                self.output[m.name]["Financial Metrics"]["Portfolio Level"][
-                    adopt_scheme] = OrderedDict([
+                self.output_ecms[m.name]["Financial Metrics"][
+                    "Portfolio Level"][adopt_scheme] = OrderedDict([
                         ("Cost of Conserved Energy (uncompeted) "
                          "($/MMBtu saved)", cce_avg_uc),
                         (("Cost of Conserved CO2 (uncompeted) "
@@ -2334,8 +2335,8 @@ class Engine(object):
             # Record updated consumer metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
             if irr_e_avg != irr_e_low:
-                self.output[m.name]["Financial Metrics"]["Consumer Level"] = \
-                    OrderedDict([
+                self.output_ecms[m.name]["Financial Metrics"][
+                    "Consumer Level"] = OrderedDict([
                         ("IRR (%)", irr_e_avg),
                         ("IRR (low) (%)", irr_e_low),
                         ("IRR (high) (%)", irr_e_high),
@@ -2343,8 +2344,8 @@ class Engine(object):
                         ("Payback (low) (years)", payback_e_low),
                         ("Payback (high) (years)", payback_e_high)])
             else:
-                self.output[m.name]["Financial Metrics"]["Consumer Level"] = \
-                    OrderedDict([
+                self.output_ecms[m.name]["Financial Metrics"][
+                    "Consumer Level"] = OrderedDict([
                         ("IRR (%)", irr_e_avg),
                         ("Payback (years)", payback_e_avg)])
 
@@ -2378,7 +2379,7 @@ class Engine(object):
                 z in summary_vals_all_ecms]
 
         # Record mean markets and savings across all ECMs
-        self.output["All ECMs"]["Markets and Savings (Overall)"][
+        self.output_all["All ECMs"]["Markets and Savings (Overall)"][
             adopt_scheme] = OrderedDict([
                 ("Baseline Energy Use (MMBtu)", energy_base_all_avg),
                 ("Baseline CO2 Emissions (MMTons)".translate(sub),
@@ -2399,8 +2400,8 @@ class Engine(object):
                  carb_cost_eff_all_avg)])
 
         # Set shorter name for markets and savings output dict across all ECMs
-        mkt_sv_all = self.output["All ECMs"]["Markets and Savings (Overall)"][
-            adopt_scheme]
+        mkt_sv_all = self.output_all["All ECMs"][
+            "Markets and Savings (Overall)"][adopt_scheme]
 
         # Record low/high estimates on efficient markets across all ECMs, if
         # available
@@ -2504,7 +2505,7 @@ def main(base_dir):
             except Exception as e:
                 raise Exception(
                     "Error reading in competition data of " +
-                    "ECM '" + meas_obj.name + "': " + str(e)) from None
+                    "ECM '" + m.name + "': " + str(e)) from None
 
         for adopt_scheme in handyvars.adopt_schemes:
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
@@ -2561,9 +2562,14 @@ def main(base_dir):
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
           flush=True)
-    # Write summary outputs for all measures to a JSON
-    with open(path.join(base_dir, *handyfiles.meas_engine_out), "w") as jso:
-        json.dump(a_run.output, jso, indent=2)
+    # Write summary outputs for individual measures to a JSON
+    with open(path.join(
+            base_dir, *handyfiles.meas_engine_out_ecms), "w") as jso:
+        json.dump(a_run.output_ecms, jso, indent=2)
+    # Write summary outputs across all measures to a JSON
+    with open(path.join(
+            base_dir, *handyfiles.meas_engine_out_agg), "w") as jso:
+        json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
 
     # Plot output data in R

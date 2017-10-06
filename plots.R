@@ -41,7 +41,11 @@ base_dir = getwd()
 # Import uncompeted ECM energy, carbon, and cost data
 uncompete_results<-fromJSON(file = file.path(base_dir, 'supporting_data','ecm_prep.json'))
 # Import competed ECM energy, carbon, and cost data
-compete_results<-fromJSON(file = file.path(base_dir, 'results','ecm_results.json'))
+compete_results_ecms<-fromJSON(file = file.path(base_dir, 'results','ecm_results.json'))
+#.Import competed energy, carbon, and cost data summed across all ECMs
+compete_results_agg<-fromJSON(file = file.path(base_dir, 'results','agg_results.json'))
+# Combine aggregate and individual-level ECM results
+compete_results<-c(compete_results_agg, compete_results_ecms)
 
 # ============================================================================
 # Set high-level variables needed across multiple plot types

@@ -2419,7 +2419,7 @@ class Measure(object):
                         cost_meas_noyr in whlbldg_keys[x])
                 except StopIteration as e:
                     raise KeyError("No conversion data for ECM '" +
-                                   self.name + "' cost units" +
+                                   self.name + "' cost units '" +
                                    cost_meas_units + "'") from e
                 # Retrieve node to square footage or occupant to square
                 # footage conversion data
@@ -2584,13 +2584,13 @@ class Measure(object):
                     user_message = "ECM '" + self.name + \
                         "' cost converted from " + \
                         str(cost_meas) + " " + cost_meas_units + " to " + \
-                        str(round(cost_meas_fin, 2)) + " " + \
+                        str(round(cost_meas_fin, 3)) + " " + \
                         cost_meas_units_fin
                 else:
                     user_message = "ECM '" + self.name + \
                         "' cost converted from " + \
                         str(numpy.mean(cost_meas)) + " " + cost_meas_units + \
-                        " to " + str(round(numpy.mean(cost_meas_fin), 2)) + \
+                        " to " + str(round(numpy.mean(cost_meas_fin), 3)) + \
                         " " + cost_meas_units_fin
                 # Add building type information to base message in cases where
                 # cost conversion depends on building type (e.g., for envelope
@@ -3315,11 +3315,11 @@ class Measure(object):
                         self.technology_type]]
 
         # Fill out an 'all' climate zone input
-        if self.climate_zone == 'all':
+        if self.climate_zone == 'all' or 'all' in self.climate_zone:
             self.climate_zone = self.handyvars.in_all_map["climate_zone"]
 
         # Fill out an 'all' structure type input
-        if self.structure_type == 'all':
+        if self.structure_type == 'all' or 'all' in self.structure_type:
             self.structure_type = self.handyvars.in_all_map["structure_type"]
 
         # Fill out an 'all' building type, fuel type, end use, and/or
@@ -3424,7 +3424,8 @@ class Measure(object):
                     any([bta in b[1] for bta in self.bldg_type])]
 
             # Fill out an 'all' fuel type input
-            if self.fuel_type[mseg_type] == 'all':
+            if self.fuel_type[mseg_type] == 'all' or \
+                    'all' in self.fuel_type[mseg_type]:
                 # Reset measure 'fuel_type' attribute as a list and fill with
                 # all fuels for the measure's applicable building sector(s)
                 self.fuel_type[mseg_type] = []
@@ -3441,7 +3442,8 @@ class Measure(object):
                 fueltype_list = self.fuel_type[mseg_type]
 
             # Fill out an 'all' end use input
-            if self.end_use[mseg_type] == 'all':
+            if self.end_use[mseg_type] == 'all' or \
+                    'all' in self.end_use[mseg_type]:
                 # Reset measure 'end_use' attribute as a list and fill with
                 # all end uses for the measure's applicable building sector(s)
                 # and fuel type(s)
