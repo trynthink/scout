@@ -23,13 +23,13 @@
   "energy_efficiency": 0.32,
   "energy_efficiency_units": ["relative savings (dynamic)", 2020],
   "energy_efficiency_source": {
-    "notes": "",
+    "notes": "See Table 5",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
         "author": null,
         "organization": "Department of Energy",
         "year": 2016,
-        "pages": null,
+        "pages": 77,
         "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },

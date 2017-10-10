@@ -22,6 +22,7 @@ rs*.txt
 ##################################
 
 ecm_results.json
+agg_results.json
 run_setup.json
 ecm_prep.json
 

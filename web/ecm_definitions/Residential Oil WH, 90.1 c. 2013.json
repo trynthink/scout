@@ -8,7 +8,7 @@
   "technology": null,
   "market_entry_year": 2013,
   "market_entry_year_source": {
-    "notes": "",
+    "notes": "Year in which standard went into effect",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",
@@ -21,7 +21,7 @@
   "energy_efficiency": 0.565,
   "energy_efficiency_units": "EF",
   "energy_efficiency_source": {
-    "notes": "assume 50 gallon water tank",
+    "notes": "Assume 50 gallon water tank",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",

@@ -21,7 +21,7 @@
   "energy_efficiency": 3.51,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP.",
+    "notes": "Assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP.",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
        "author": "Energy Star",
