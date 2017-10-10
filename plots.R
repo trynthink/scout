@@ -69,7 +69,7 @@ years<-row.names(as.matrix(
   'Technical potential'$'Baseline Energy Use (MMBtu)'))
 # Set an intended starting and ending year for the plotted results
 start_yr = 2015
-end_yr = 2040
+end_yr = max(years)
 # Set the year to take a 'snapshot' of certain results in 
 snap_yr = "2030"
 # Filter and order the year range
@@ -340,7 +340,7 @@ for (a in 1:length(adopt_scenarios)){
             paste(plot_names_finmets[v],"-MAP.pdf", sep=""))
       }
     # Open PDF device for plotting each ECM's energy, carbon, or cost totals 
-    pdf(paste(plot_file_name_ecms, "-byECM.pdf", sep=""),width=13,height=14)
+    pdf(paste(plot_file_name_ecms, "-byECM.pdf", sep=""),width=15.5,height=14)
     # Set number of rows and columns per page in PDF output
     par(mfrow=c(4,4))
     # Reconfigure space around each side of the plot for best fit
@@ -758,8 +758,8 @@ for (a in 1:length(adopt_scenarios)){
       mtext(plot_axis_labels_ecm[v], side=2, line=3.65, cex=0.925)
       # Add tick marks and labels to bottom and left axes
       axis(side=1, at=pretty(c(min(years), max(years))),
-           labels=pretty(c(min(years), max(years))), cex.axis = 1.2)
-      axis(side=2, at=ylims, labels = ylims, cex.axis = 1.2, las=1)
+           labels=pretty(c(min(years), max(years))), cex.axis = 1.15)
+      axis(side=2, at=ylims, labels = ylims, cex.axis = 1.15, las=1)
       # Add tick marks to top and right axes
       axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
       axis(side=4, at=ylims, labels = NA)
