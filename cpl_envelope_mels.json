@@ -293,7 +293,29 @@
 					"source": "Typical least cost commercial roof service life reported in Coffelt et al., Life-Cycle Costs of Commercial Roof Systems, 2010" 
 				}
 			}
-		},
-	"MELs": {}
+		}
+	},
+	"MELs": {
+		"residential": {
+			"TVs": {
+				"TV": {
+					"performance" : {
+						"typical": {
+							"active": 90,
+							"off": 1.6
+						},
+						"units": "W",
+						"source": {
+							"title": "Energy Consumption of Consumer Electronics in U.S. Homes in 2013",
+							"author": "Bryan Urban, Victoria Shmakova, Brian Lim, and Kurt Roth",
+							"organization": "Fraunhofer USA",
+							"year": 2014,
+							"pages": 94,
+							"URL": "http://cta.tech/CTA/media/policyImages/Energy-Consumption-of-Consumer-Electronics.pdf"
+						}
+					}
+				}
+			}
+		}
 	}
 }
