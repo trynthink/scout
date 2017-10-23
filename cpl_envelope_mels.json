@@ -366,7 +366,8 @@
 							"author": "DOE Point of Contact Lucy deButts",
 							"organization": "U.S. Department of Energy",
 							"year": 2016,
-							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147"
+							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/f6fjd6u4kv2sxfj/Residential%20Ceiling%20Fans%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsx?dl=0"
 				    }
 				},
 				"performance": {
@@ -418,7 +419,8 @@
 							"author": "DOE Point of Contact Lucy deButts",
 							"organization": "U.S. Department of Energy",
 							"year": 2016,
-							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147"
+							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/f6fjd6u4kv2sxfj/Residential%20Ceiling%20Fans%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsx?dl=0"
 				    }
 				},
 				"lifetime": {
@@ -512,7 +514,8 @@
 							"author": "DOE Point of Contact Lucy deButts",
 							"organization": "U.S. Department of Energy",
 							"year": 2016,
-							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147"
+							"URL": "https://www.regulations.gov/document?D=EERE-2012-BT-STD-0045-0147",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/f6fjd6u4kv2sxfj/Residential%20Ceiling%20Fans%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsx?dl=0"
 				    }
 				}
 			},
@@ -556,7 +559,8 @@
 							"author": "DOE Point of Contact Jeremy Dommu",
 							"organization": "U.S. Department of Energy",
 							"year": 2013,
-							"URL": ""
+							"URL": "https://www.federalregister.gov/documents/2013/03/07/2013-05344/energy-conservation-standards-for-set-top-boxes-availability-of-initial-analysis",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/zbqabrveg95jh9q/Residential%20Set%20Top%20Boxes%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsm?dl=0"
 				    }
 				},
 				"performance": {
@@ -598,7 +602,8 @@
 							"author": "DOE Point of Contact Jeremy Dommu",
 							"organization": "U.S. Department of Energy",
 							"year": 2013,
-							"URL": ""
+							"URL": "https://www.federalregister.gov/documents/2013/03/07/2013-05344/energy-conservation-standards-for-set-top-boxes-availability-of-initial-analysis",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/zbqabrveg95jh9q/Residential%20Set%20Top%20Boxes%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsm?dl=0"
 				    }
 				},
 				"lifetime": {
@@ -672,7 +677,8 @@
 							"author": "DOE Point of Contact Jeremy Dommu",
 							"organization": "U.S. Department of Energy",
 							"year": 2013,
-							"URL": ""
+							"URL": "https://www.federalregister.gov/documents/2013/03/07/2013-05344/energy-conservation-standards-for-set-top-boxes-availability-of-initial-analysis",
+							"notes": "Details of cost, performance, lifetime calculations from DOE standard source data are availble in the following spreadsheet: https://www.dropbox.com/s/zbqabrveg95jh9q/Residential%20Set%20Top%20Boxes%20Stock%20Cost%20Performance%20Lifetime%20Calculations.xlsm?dl=0"
 				    }
 				}
 			}
