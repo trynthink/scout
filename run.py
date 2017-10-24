@@ -2,7 +2,6 @@
 import json
 import numpy
 import copy
-import re
 from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import gzip
@@ -2618,6 +2617,7 @@ def main(base_dir):
         print("Plotting complete")
     else:
         print("Plotting failed to complete")
+
 
 if __name__ == '__main__':
     import time

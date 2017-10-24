@@ -649,5 +649,6 @@ def main():
     # Replace JSON file with updated contents
     json.dump(setup_json, open(ref.setup_file, 'w'), indent=2)
 
+
 if __name__ == '__main__':
     main()

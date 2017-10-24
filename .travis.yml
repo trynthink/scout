@@ -27,10 +27,13 @@ before_install:
 
 # Install packages
 install: 
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy flake8
   - source activate testenv
 
 # Run test(s)
 script: 
   - python3 -m unittest discover -p '*_test.py'
   - grunt travis -v
+  - if [[ "$TRAVIS_PYTHON_VERSION" != "3.4" ]]; then
+      flake8 --exclude docs/conf.py --max-line-length=100;
+    fi

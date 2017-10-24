@@ -223,6 +223,7 @@ def main():
     with open(path.join(base_dir, *handyfiles.htcl_totals), 'w') as jso:
         json.dump(htcl_totals, jso, indent=2)
 
+
 if __name__ == '__main__':
     # Set current working directory
     base_dir = getcwd()

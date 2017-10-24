@@ -29,6 +29,7 @@ class NullDevice(object):
     def flush(self):
         pass
 
+
 # Send the standard output (stdout) to nowhere, effectively, to prevent
 # the user prompts printed by the run_setup module from appearing in
 # the console when testing those functions
@@ -846,6 +847,7 @@ class ECMListMarketSelectionUpdatingTest(CommonUnitTest):
 def main():
     """Trigger default behavior of running all test fixtures in the file."""
     unittest.main()
+
 
 if __name__ == '__main__':
     main()

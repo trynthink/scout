@@ -13,7 +13,6 @@ import json
 import types
 import argparse
 from contextlib import suppress
-import argparse
 
 
 def extract_year_range(data_array, colnames, min_years, max_years, pivot_yr=0):
@@ -389,6 +388,7 @@ def main():
     # Output a tiny JSON file with two integer values
     with open('metadata.json', 'w') as jso:
         json.dump(year_range_result, jso, indent=2)
+
 
 if __name__ == '__main__':
     main()

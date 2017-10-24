@@ -6217,7 +6217,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "bldg_type": ["assembly"],
             "end_use": {
                 "primary": ["lighting"],
-                "secondary": ["heating", "secondary heating", "cooling"]},\
+                "secondary": ["heating", "secondary heating", "cooling"]},
             "technology": ["reflector (LED)"],
             "technology_type": {
                "primary": "supply", "secondary": "demand"},
@@ -7950,6 +7950,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
 def main():
     """Trigger default behavior of running all test fixtures in the file."""
     unittest.main()
+
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ import itertools
 import json
 from collections import OrderedDict
 from os import listdir, getcwd, stat, path
-from os.path import isfile, join, splitext
+from os.path import isfile, join
 import copy
 import warnings
 from urllib.parse import urlparse

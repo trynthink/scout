@@ -1364,7 +1364,7 @@ def main():
         ns_data = data_import(eiadata.res_energy, ns_dtypes, ',',
                               ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
                                'HSHA', 'CSHA', 'CSHE', 'CSHN'])
-  
+
     # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
     # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA
     # IN THE RANGE OF YEARS OF THE DATA REPORTED

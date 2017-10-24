@@ -831,5 +831,6 @@ def main():
     with open(handyvars.json_out, 'w') as jso:
         json.dump(result, jso, indent=2)
 
+
 if __name__ == '__main__':
     main()

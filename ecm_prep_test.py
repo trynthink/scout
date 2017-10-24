@@ -6729,7 +6729,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles())
         cls.handyvars.retro_rate = 0.02
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3), dtype=[
@@ -8372,7 +8372,7 @@ class AppendKeyValsTest(unittest.TestCase):
         """Define variables and objects for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles())
         cls.ok_mktnames_out = [
             "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
             "single family home",
@@ -14033,6 +14033,7 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
 def main():
     """Trigger default behavior of running all test fixtures in the file."""
     unittest.main()
+
 
 if __name__ == "__main__":
     main()
