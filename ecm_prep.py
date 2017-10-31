@@ -1609,24 +1609,57 @@ class Measure(object):
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
                     except:
-                        # Record missing baseline data; if in verbose mode and
-                        # the user has not already been warned about missing
-                        # data for the given technology, print warning; exclude
-                        # technologies without data from further analysis
-                        if mskeys[-2] not in cpl_warn:
-                            cpl_warn.append(mskeys[-2])
-                            verboseprint(
-                                "WARNING: ECM '" + self.name +
-                                "' missing valid baseline "
-                                "cost/performance/lifetime data " +
-                                "for technology '" + str(mskeys[-2]) +
-                                "'; removing technology from analysis")
-                        # Record climate zone, building type, and structure
-                        # type of removed primary microsegment (used to
-                        # remove associated secondary microsegments)
-                        removed_primary.append((
-                            mskeys[1], mskeys[2], mskeys[-1]))
-                        continue
+                        # In cases with missing baseline technology cost,
+                        # performance, or lifetime data where the user
+                        # specifies the measure as an 'add-on' type AND
+                        # specifies relative savings for energy performance
+                        # units, set the baseline cost to zero and baseline
+                        # lifetime to that of the measure to ensure that all
+                        # subsequent stock and energy impact calculations will
+                        # continue for that baseline segment. Note: this marks
+                        # a special exception to the general rule that baseline
+                        # market segments without complete unit-level cost,
+                        # performance, and/or lifetime data will be removed
+                        # from further analysis. The exception is needed to
+                        # handle controls-focused ECMs that apply to baseline
+                        # market segments with poor technology-level data - for
+                        # example, residential vacancy sensors that reduce MELs
+                        # energy use by turning off power draws to circuits
+                        # when an occupant isn't home. The user will now be
+                        # able to evaluate such measures given measure relative
+                        # performance, incremental cost, and lifetime data
+                        if self.measure_type == "add-on" and (
+                                isinstance(perf_units, list) or
+                                perf_units == 'relative savings (constant)'):
+                            cost_base, cost_base_units = \
+                                [{yr: 0 for yr in self.handyvars.aeo_years},
+                                 cost_units]
+                            life_base = {yr: life_meas for
+                                         yr in self.handyvars.aeo_years}
+                            # Add to count of primary microsegment key chains
+                            # with valid cost/performance/lifetime data
+                            valid_keys_cpl += 1
+                        # For all other cases, record missing baseline data; if
+                        # in verbose mode and the user has not already been
+                        # warned about missing data for the given technology,
+                        # print warning; exclude technologies without data from
+                        # further analysis
+                        else:
+                            if mskeys[-2] not in cpl_warn:
+                                cpl_warn.append(mskeys[-2])
+                                verboseprint(
+                                    verbose,
+                                    "WARNING: ECM '" + self.name +
+                                    "' missing valid baseline "
+                                    "cost/performance/lifetime data " +
+                                    "for technology '" + str(mskeys[-2]) +
+                                    "'; removing technology from analysis")
+                            # Record climate zone, building type, and structure
+                            # type of removed primary microsegment (used to
+                            # remove associated secondary microsegments)
+                            removed_primary.append((
+                                mskeys[1], mskeys[2], mskeys[-1]))
+                            continue
                 elif (mskeys[1], mskeys[2], mskeys[-1]) in removed_primary:
                     # Remove any secondary microsegments associated with
                     # previously removed primary microsegments
@@ -1715,6 +1748,7 @@ class Measure(object):
                                                 perf_base[yr])
                                     except ZeroDivisionError:
                                         verboseprint(
+                                            verbose,
                                             "WARNING: Measure '" + self.name +
                                             "' has baseline " +
                                             "or measure performance of zero;" +
@@ -1762,6 +1796,7 @@ class Measure(object):
                                     rel_perf[yr] = (perf_base[yr] / perf_meas)
                             except ZeroDivisionError:
                                 verboseprint(
+                                    verbose,
                                     "WARNING: Measure '" + self.name +
                                     "' has measure performance of zero; " +
                                     "baseline and measure performance set " +
@@ -1773,6 +1808,7 @@ class Measure(object):
                                 rel_perf[yr] = (perf_meas / perf_base[yr])
                             except ZeroDivisionError:
                                 verboseprint(
+                                    verbose,
                                     "WARNING: Measure '" + self.name +
                                     "' has baseline performance of zero; " +
                                     "baseline and measure performance set " +
@@ -1848,6 +1884,7 @@ class Measure(object):
                                 if mskeys[4] not in consume_warn:
                                     consume_warn.append(mskeys[4])
                                     verboseprint(
+                                        verbose,
                                         "WARNING: ECM '" + self.name +
                                         "' missing valid consumer choice "
                                         "data for end use '" + str(mskeys[4]) +
@@ -1908,6 +1945,7 @@ class Measure(object):
                             if mskeys[4] not in consume_warn:
                                 consume_warn.append(mskeys[4])
                                 verboseprint(
+                                    verbose,
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid consumer choice data " +
                                     "for end use '" + str(mskeys[4]) +
@@ -4961,6 +4999,19 @@ def custom_formatwarning(msg, *a):
     return str(msg) + '\n'
 
 
+def verboseprint(verbose, msg):
+    """Print input message when the code is run in verbose mode.
+
+    Args:
+        verbose (boolean): Indicator of verbose mode ('-v' option on cmd line)
+        msg (string): Message to print to console when in verbose mode
+
+    Returns:
+        Printed console message when code is run in verbose mode.
+    """
+    print(msg) if verbose else lambda *a, **k: None
+
+
 def main(base_dir):
     """Import and prepare measure attributes for analysis engine.
 
@@ -5214,8 +5265,6 @@ if __name__ == "__main__":
     parser.add_option("-v", action="store_true", dest="verbose",
                       help="print all warnings to stdout")
     (options, args) = parser.parse_args()
-    # Set function that only prints message when in verbose mode
-    verboseprint = print if options.verbose else lambda *a, **k: None
     # Set current working directory
     base_dir = getcwd()
     main(base_dir)

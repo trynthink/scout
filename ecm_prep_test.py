@@ -831,7 +831,16 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "T5 F28": {
                                 "stock": "NA",
                                 "energy": {
-                                    "2009": 11, "2010": 11}}}}},
+                                    "2009": 11, "2010": 11}}},
+                        "PCs": {
+                            "stock": "NA",
+                            "energy": {"2009": 12, "2010": 12}},
+                        "MELs": {
+                            "distribution transformers": {
+                                "stock": "NA",
+                                "energy": {"2009": 24, "2010": 24}
+                            }
+                        }}},
                 "single family home": {
                     "total square footage": {"2009": 100, "2010": 200},
                     "total homes": {"2009": 1000, "2010": 1000},
@@ -910,6 +919,22 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "refrigeration": {
                             "stock": {"2009": 111, "2010": 111},
                             "energy": {"2009": 111, "2010": 111}},
+                        "TVs": {
+                            "TVs": {
+                                "stock": {"2009": 99, "2010": 99},
+                                "energy": {"2009": 9, "2010": 9}},
+                            "set top box": {
+                                "stock": {"2009": 99, "2010": 99},
+                                "energy": {"2009": 999, "2010": 999}}
+                            },
+                        "computers": {
+                            "desktop PC": {
+                                "stock": {"2009": 44, "2010": 44},
+                                "energy": {"2009": 4, "2010": 4}},
+                            "laptop PC": {
+                                "stock": {"2009": 55, "2010": 55},
+                                "energy": {"2009": 5, "2010": 5}}
+                            },
                         "other (grid electric)": {
                             "freezers": {
                                 "stock": {"2009": 222, "2010": 222},
@@ -1072,7 +1097,23 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                 "energy": {"2009": 13, "2010": 13}},
                             "external (LED)": {
                                 "stock": {"2009": 14, "2010": 14},
-                                "energy": {"2009": 14, "2010": 14}}}},
+                                "energy": {"2009": 14, "2010": 14}}},
+                        "TVs": {
+                            "TVs": {
+                                "stock": {"2009": 99, "2010": 99},
+                                "energy": {"2009": 9, "2010": 9}},
+                            "set top box": {
+                                "stock": {"2009": 99, "2010": 99},
+                                "energy": {"2009": 999, "2010": 999}}
+                            },
+                        "computers": {
+                            "desktop PC": {
+                                "stock": {"2009": 44, "2010": 44},
+                                "energy": {"2009": 4, "2010": 4}},
+                            "laptop PC": {
+                                "stock": {"2009": 55, "2010": 55},
+                                "energy": {"2009": 5, "2010": 5}}
+                            }},
                     "natural gas": {"water heating": {
                                     "stock": {"2009": 15, "2010": 15},
                                     "energy": {"2009": 15, "2010": 15}}}},
@@ -1305,7 +1346,11 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type": "bass diffusion",
                                             "parameters": {
                                                 "p": "NA",
-                                                "q": "NA"}}}}}}},
+                                                "q": "NA"}}}}},
+                        "PCs": 0,
+                        "MELs": {
+                            "distribution transformers": 0
+                        }}},
                 "single family home": {
                     "electricity": {
                         "heating": {
@@ -2050,73 +2095,204 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "parameters": {
                                         "p": "NA",
                                         "q": "NA"}}}},
+                        "TVs": {
+                            "TVs": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "set top box": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}
+                            },
+                        "computers": {
+                            "desktop PC": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "laptop PC": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}
+                            },
                         "other (grid electric)": {
                             "freezers": {
-                                    "performance": {
-                                        "typical": {"2009": 550, "2010": 550},
-                                        "best": {"2009": 450, "2010": 450},
-                                        "units": "kWh/yr",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 100, "2010": 100},
-                                        "best": {"2009": 200, "2010": 200},
-                                        "units": "2014$/unit",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 15, "2010": 15},
-                                        "range": {"2009": 3, "2010": 3},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
+                                "performance": {
+                                    "typical": {"2009": 550, "2010": 550},
+                                    "best": {"2009": 450, "2010": 450},
+                                    "units": "kWh/yr",
+                                    "source":
+                                    "EIA AEO"},
+                                "installed cost": {
+                                    "typical": {"2009": 100, "2010": 100},
+                                    "best": {"2009": 200, "2010": 200},
+                                    "units": "2014$/unit",
+                                    "source": "EIA AEO"},
+                                "lifetime": {
+                                    "average": {"2009": 15, "2010": 15},
+                                    "range": {"2009": 3, "2010": 3},
+                                    "units": "years",
+                                    "source": "EIA AEO"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": None,
+                                                   "2010": None},
+                                            "b2": {"2009": None,
+                                                   "2010": None}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
                             "other MELs": {
-                                    "performance": {
-                                        "typical": {"2009": 550, "2010": 550},
-                                        "best": {"2009": 450, "2010": 450},
-                                        "units": "kWh/yr",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 100, "2010": 100},
-                                        "best": {"2009": 200, "2010": 200},
-                                        "units": "2014$/unit",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 15, "2010": 15},
-                                        "range": {"2009": 3, "2010": 3},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}}},
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}}},
                     "natural gas": {
                         "water heating": {
                             "performance": {
@@ -3476,7 +3652,139 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type": "bass diffusion",
                                             "parameters": {
                                                 "p": "NA",
-                                                "q": "NA"}}}}}},
+                                                "q": "NA"}}}}},
+                        "TVs": {
+                            "TVs": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "set top box": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}
+                            },
+                        "computers": {
+                            "desktop PC": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}},
+                            "laptop PC": {
+                                "performance": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "installed cost": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "lifetime": {
+                                    "typical": {"2009": "NA", "2010": "NA"},
+                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "units": "NA",
+                                    "source": "NA"},
+                                "consumer choice": {
+                                    "competed market share": {
+                                        "source": "EIA AEO",
+                                        "model type":
+                                            "logistic regression",
+                                        "parameters": {
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
+                                    "competed market": {
+                                        "source": "COBAM",
+                                        "model type": "bass diffusion",
+                                        "parameters": {
+                                            "p": "NA",
+                                            "q": "NA"}}}}
+                            }},
                     "natural gas": {
                         "water heating": {
                                 "performance": {
@@ -4461,6 +4769,46 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/ft^2 floor",
+            "energy_efficiency": 0.25,
+            "energy_efficiency_units": "relative savings (constant)",
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "add-on",
+            "structure_type": ["new", "existing"],
+            "bldg_type": "assembly",
+            "climate_zone": "AIA_CZ1",
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": ["PCs", "MELs"],
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "technology": [None, "distribution transformers"]},
+            {
+            "name": "sample measure 20",
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/unit",
+            "energy_efficiency": 0.5,
+            "energy_efficiency_units": "relative savings (constant)",
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "add-on",
+            "structure_type": ["new", "existing"],
+            "bldg_type": "single family home",
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": ["TVs", "computers", "other (grid electric)"],
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "technology": ["TVs", "desktop PC", "laptop PC", "other MELs"]},
+            {
+            "name": "sample measure 21",
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/ft^2 floor",
             "energy_efficiency": 25,
             "energy_efficiency_units": "lm/W",
             "product_lifetime": 1,
@@ -4481,10 +4829,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 handyvars, **x) for x in ok_measures_in[0:3]]
         cls.ok_tpmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[3:18]]
+                handyvars, **x) for x in ok_measures_in[3:20]]
         cls.ok_mapmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[18:]]
+                handyvars, **x) for x in ok_measures_in[20:]]
         ok_distmeas_in = [{
             "name": "distrib measure 1",
             "markets": None,
@@ -4609,7 +4957,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_partialmeas_in]
         failmeas_in = [{
-            "name": "blank measure 1",
+            "name": "fail measure 1",
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/unit",
@@ -4656,7 +5004,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "blank measure 3",
+            "name": "fail measure 3",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4685,7 +5033,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "blank measure 4",
+            "name": "fail measure 4",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4712,10 +5060,32 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": [
                 "linear fluorescent (LED)",
                 "general service (LED)",
-                "external (LED)"]}]
-        cls.failmeas_in = [
+                "external (LED)"]},
+            {
+            "name": "fail measure 5",
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/ft^2 floor",
+            "energy_efficiency": 0.25,
+            "energy_efficiency_units": "relative savings (constant)",
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "bldg_type": "assembly",
+            "climate_zone": "AIA_CZ1",
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": ["PCs", "MELs"],
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "technology": [None, "distribution transformers"]}]
+        cls.failmeas_inputs_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in failmeas_in]
+                handyvars, **x) for x in failmeas_in[0:-1]]
+        cls.failmeas_missing_in = ecm_prep.Measure(
+            handyvars, **failmeas_in[-1])
         warnmeas_in = [{
             "name": "warn measure 1",
             "markets": None,
@@ -6354,6 +6724,99 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 682962.67, "2010": 658445.18},
                         "efficient": {"2009": 577081.35, "2010": 556317.05}}}},
             "lifetime": {"baseline": {"2009": 200.81, "2010": 200.81},
+                         "measure": 1}},
+            {
+            "stock": {
+                "total": {
+                    "all": {"2009": 11000000, "2010": 11000000},
+                    "measure": {"2009": 11000000, "2010": 11000000}},
+                "competed": {
+                    "all": {"2009": 11000000, "2010": 11000000},
+                    "measure": {"2009": 11000000, "2010": 11000000}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 114.84, "2010": 115.2},
+                    "efficient": {"2009": 86.13, "2010": 86.4}},
+                "competed": {
+                    "baseline": {"2009": 114.84, "2010": 115.2},
+                    "efficient": {"2009": 86.13, "2010": 86.4}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 6528.313, "2010": 6470.58},
+                    "efficient": {"2009": 4896.234, "2010": 4852.935}},
+                "competed": {
+                    "baseline": {"2009": 6528.313, "2010": 6470.58},
+                    "efficient": {"2009": 4896.234, "2010": 4852.935}}},
+            "cost": {
+                "stock": {
+                    "total": {
+                        "baseline": {"2009": 0, "2010": 0},
+                        "efficient": {"2009": 275000000, "2010": 275000000}},
+                    "competed": {
+                        "baseline": {"2009": 0, "2010": 0},
+                        "efficient": {"2009": 275000000, "2010": 275000000}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 1042.747, "2010": 984.96},
+                        "efficient": {"2009": 782.0604, "2010": 738.72}},
+                    "competed": {
+                        "baseline": {"2009": 1042.747, "2010": 984.96},
+                        "efficient": {"2009": 782.0604, "2010": 738.72}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 215434.31, "2010": 213529.15},
+                        "efficient": {"2009": 161575.74, "2010": 160146.86}},
+                    "competed": {
+                        "baseline": {"2009": 215434.31, "2010": 213529.15},
+                        "efficient": {"2009": 161575.74, "2010": 160146.86}}}},
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                         "measure": 1}},
+            {
+            "stock": {
+                "total": {
+                    "all": {"2009": 729, "2010": 729},
+                    "measure": {"2009": 729, "2010": 729}},
+                "competed": {
+                    "all": {"2009": 729, "2010": 729},
+                    "measure": {"2009": 729, "2010": 729}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 1177.11, "2010": 1180.8},
+                    "efficient": {"2009": 588.555, "2010": 590.4}},
+                "competed": {
+                    "baseline": {"2009": 1177.11, "2010": 1180.8},
+                    "efficient": {"2009": 588.555, "2010": 590.4}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 66915.2, "2010": 66323.45},
+                    "efficient": {"2009": 33457.6, "2010": 33161.72}},
+                "competed": {
+                    "baseline": {"2009": 66915.2, "2010": 66323.45},
+                    "efficient": {"2009": 33457.6, "2010": 33161.72}}},
+            "cost": {
+                "stock": {
+                    "total": {
+                        "baseline": {"2009": 0, "2010": 0},
+                        "efficient": {"2009": 18225, "2010": 18225}},
+                    "competed": {
+                        "baseline": {"2009": 0, "2010": 0},
+                        "efficient": {"2009": 18225, "2010": 18225}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 11935.9, "2010": 11418.34},
+                        "efficient": {"2009": 5967.948, "2010": 5709.168}},
+                    "competed": {
+                        "baseline": {"2009": 11935.9, "2010": 11418.34},
+                        "efficient": {"2009": 5967.948, "2010": 5709.168}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 2208201.73, "2010": 2188673.79},
+                        "efficient": {"2009": 1104100.86, "2010": 1094336.90}},
+                    "competed": {
+                        "baseline": {"2009": 2208201.73, "2010": 2188673.79},
+                        "efficient": {"2009": 1104100.86, "2010": 1094336.90}}}
+                        },
+            "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": 1}}]
         cls.ok_mapmas_partchck_msegout = [{
             "stock": {
@@ -6560,7 +7023,6 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         Raises:
             AssertionError: If function yields unexpected results.
         """
-        # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_tpmeas_partchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
                               self.convert_data, self.verbose)
@@ -6636,17 +7098,29 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_partialmeas_out[idx])
 
-    def test_mseg_fail(self):
+    def test_mseg_fail_inputs(self):
         """Test 'fill_mkts' function given invalid inputs.
+
+        Raises:
+            AssertionError: If ValueError is not raised.
+        """
+        # Run function on all measure objects and check output
+        for idx, measure in enumerate(self.failmeas_inputs_in):
+            with self.assertRaises(ValueError):
+                measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
+                                  self.convert_data, self.verbose)
+
+    def test_mseg_fail_missing(self):
+        """Test 'fill_mkts' function given a measure with missing baseline data.
 
         Raises:
             AssertionError: If KeyError is not raised.
         """
         # Run function on all measure objects and check output
-        for idx, measure in enumerate(self.failmeas_in):
-            with self.assertRaises(ValueError):
-                measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                                  self.convert_data, self.verbose)
+        with self.assertRaises(KeyError):
+            self.failmeas_missing_in.fill_mkts(
+                self.sample_mseg_in, self.sample_cpl_in,
+                self.convert_data, self.verbose)
 
     def test_mseg_warn(self):
         """Test 'fill_mkts' function given incomplete inputs.
@@ -7831,6 +8305,11 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
             "active": 1,
             "market_entry_year": None,
             "market_exit_year": None,
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/unit",
+            "energy_efficiency": 0.5,
+            "energy_efficiency_units": "relative savings (constant)",
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
@@ -8509,6 +8988,11 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
             "remove": False,
             "market_entry_year": None,
             "market_exit_year": None,
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/unit",
+            "energy_efficiency": 0.5,
+            "energy_efficiency_units": "relative savings (constant)",
             "market_scaling_fractions": None,
             "market_scaling_fractions_source": None,
             "measure_type": "full service",
