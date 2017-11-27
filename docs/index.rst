@@ -3,7 +3,9 @@ Welcome to Scout
 
 Scout is a software program that estimates the impacts of various energy conservation measures (ECMs) in the U.S. residential and commercial building sectors. To learn more about what Scout can do, check out :ref:`overview`.
 
-If you're eager to get started using Scout, the :ref:`quick-start-guide` is the best place to begin.
+If you're eager to run a full Scout analysis, the :ref:`quick-start-guide` is the best place to begin.
+
+For guidance on using the `Scout web interface`_, check out the :ref:`tutorials_web`.
 
 Scout is a project of the U.S. Department of Energy `Building Technologies Office (BTO)`_ and is freely available for public use.
 
@@ -19,6 +21,7 @@ Documentation Contents
    overview
    quick_start_guide
    installation_guide
+   tutorials_web
    tutorials
    analysis_approach
    thermal_load_components
@@ -32,3 +35,5 @@ Documentation Contents
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
+
+.. _Scout web interface: https://scout.energy.gov/home.html
