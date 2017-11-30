@@ -2108,8 +2108,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -2140,8 +2140,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -2174,8 +2174,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -2206,8 +2206,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -2273,8 +2273,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -3666,8 +3666,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -3698,8 +3698,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -3732,8 +3732,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {
@@ -3764,8 +3764,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "NA",
                                     "source": "NA"},
                                 "lifetime": {
-                                    "typical": {"2009": "NA", "2010": "NA"},
-                                    "best": {"2009": "NA", "2010": "NA"},
+                                    "average": {"2009": "NA", "2010": "NA"},
+                                    "range": {"2009": "NA", "2010": "NA"},
                                     "units": "NA",
                                     "source": "NA"},
                                 "consumer choice": {

@@ -67,10 +67,10 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         int_float = True
         try:
             float(a_string)
-        except:
+        except ValueError:
             try:
                 int(a_string)
-            except:
+            except ValueError:
                 int_float = False
         return int_float
 
@@ -90,7 +90,7 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         self.assertFalse(str.isdigit(self.first_row[0]))  # is not an integer
         try:  # is a float
             float(self.first_row[0])
-        except:
+        except ValueError:
             self.fail('Entry in first column cannot be coerced to a float.')
 
         # Check if the second entry (the time preference premium)

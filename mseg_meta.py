@@ -279,7 +279,7 @@ def main():
             ns_data = rm.data_import(file_name, ns_dtypes, ',',
                                      ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
                                       'HSHA', 'CSHA', 'CSHE', 'CSHN'])
-        except:  # tab-delimited
+        except (IndexError, ValueError):  # tab-delimited
             ns_dtypes = rm.dtype_array(file_name, '\t')
             ns_data = rm.data_import(file_name, ns_dtypes, '\t',
                                      ['SF', 'ST', 'FP', 'HSHE', 'HSHN',

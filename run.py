@@ -789,7 +789,10 @@ class Engine(object):
                         numpy.pmt(
                             self.handyvars.discount_rate, life_meas, x) for
                         x in [npv_s, npv_e, npv_c]]
-                except:
+                    if any([not math.isfinite(x) for x in [
+                            anpv_s_res, anpv_e_res, anpv_c_res]]):
+                        raise(ValueError)
+                except ValueError:
                     anpv_s_res, anpv_e_res, anpv_c_res = (
                         999 for n in range(3))
             # If measure does not apply to residential sector, set residential
@@ -813,7 +816,12 @@ class Engine(object):
                             anpv_c_com["rate " + str(ind + 1)] = \
                             [numpy.pmt(tps, life_meas, numpy.npv(tps, x))
                              for x in [cashflows_s, cashflows_e, cashflows_c]]
-                except:
+                        if any([not math.isfinite(x) for x in [
+                                anpv_s_com["rate " + str(ind + 1)],
+                                anpv_e_com["rate " + str(ind + 1)],
+                                anpv_c_com["rate " + str(ind + 1)]]]):
+                            raise(ValueError)
+                except ValueError:
                     anpv_s_com, anpv_e_com, anpv_c_com = (
                         999 for n in range(3))
             # If measure does not apply to commercial sector, set commercial
@@ -829,28 +837,24 @@ class Engine(object):
             # IRR and payback given capital + energy cash flows
             try:
                 irr_e = numpy.irr(cashflows_s + cashflows_e)
-                if math.isnan(irr_e):
+                if not math.isfinite(irr_e):
                     raise(ValueError)
-            except:
+            except ValueError:
                 irr_e = 999
             try:
                 payback_e = self.payback(cashflows_s + cashflows_e)
             except (ValueError, LinAlgError):
-                if math.isnan(payback_e):
-                    raise(ValueError)
                 payback_e = 999
             # IRR and payback given capital + energy + carbon cash flows
             try:
                 irr_ec = numpy.irr(cashflows_s + cashflows_e + cashflows_c)
-                if math.isnan(irr_ec):
+                if not math.isfinite(irr_ec):
                     raise(ValueError)
-            except:
+            except ValueError:
                 irr_ec = 999
             try:
                 payback_ec = \
                     self.payback(cashflows_s + cashflows_e + cashflows_c)
-                if math.isnan(payback_ec):
-                    raise(ValueError)
             except (ValueError, LinAlgError):
                 payback_ec = 999
         else:
@@ -1730,7 +1734,7 @@ class Engine(object):
                 tech_data = htcl_adj_data[tech_typ][msu_split_key]
                 try:
                     overlp_data = htcl_adj_data[tech_typ_overlp][msu_split_key]
-                except:
+                except KeyError:
                     continue
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,

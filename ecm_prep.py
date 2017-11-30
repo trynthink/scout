@@ -1539,8 +1539,7 @@ class Measure(object):
                         # Check for cases where baseline data are available but
                         # set to zero or "NA" values (excepting cases where
                         # baseline cost is expected to be zero). In such cases,
-                        # set baseline cost, performance, and lifetime to
-                        # measure cost, performance, and lifetime
+                        # raise a ValueError
                         if any([(x[1] in [0, "NA"] and mskeys[-2] not in
                                  self.handyvars.zero_cost_tech) or
                                 y[1] in [0, "NA"] or
@@ -1608,7 +1607,7 @@ class Measure(object):
                         # Add to count of primary microsegment key chains with
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
-                    except:
+                    except (TypeError, ValueError):
                         # In cases with missing baseline technology cost,
                         # performance, or lifetime data where the user
                         # specifies the measure as an 'add-on' type AND
@@ -1875,7 +1874,7 @@ class Measure(object):
                             # with valid consumer choice data
                             valid_keys_consume += 1
                         # Update invalid consumer choice parameters
-                        except:
+                        except ValueError:
                             # Record missing consumer data for primary
                             # technologies; if in verbose mode and the user
                             # has not already been warned about missing data
@@ -1937,7 +1936,7 @@ class Measure(object):
                             # Add to count of primary microsegment key chains
                             # with valid consumer choice data
                             valid_keys_consume += 1
-                        except:
+                        except KeyError:
                             # Record missing consumer data for primary
                             # technologies; if in verbose mode and the user
                             # has not already been warned about missing data
@@ -2200,11 +2199,10 @@ class Measure(object):
                                 adopt_scheme][yr] += abs(add_energy[yr])
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
-                    except:
-                        raise ValueError(
-                            "Baseline market key chain: '" + str(mskeys) +
-                            "' for ECM '" + self.name + "' does not map to "
-                            "output breakout categories")
+                    except KeyError:
+                        print("Baseline market key chain: '" + str(mskeys) +
+                              "' for ECM '" + self.name + "' does not map to "
+                              "output breakout categories")
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
