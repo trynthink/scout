@@ -1627,12 +1627,14 @@ class Measure(object):
                         # when an occupant isn't home. The user will now be
                         # able to evaluate such measures given measure relative
                         # performance, incremental cost, and lifetime data
-                        if self.measure_type == "add-on" and (
-                                isinstance(perf_units, list) or
-                                perf_units == 'relative savings (constant)'):
-                            cost_base, cost_base_units = \
-                                [{yr: 0 for yr in self.handyvars.aeo_years},
-                                 cost_units]
+                        if self.measure_type == "add-on" and \
+                                perf_units == "relative savings (constant)":
+                            cost_base = {yr: 0 for
+                                         yr in self.handyvars.aeo_years}
+                            if bldg_sect == "commercial" or sqft_subst == 1:
+                                cost_base_units = "$/ft^2 floor"
+                            else:
+                                cost_base_units = "$/unit"
                             life_base = {yr: life_meas for
                                          yr in self.handyvars.aeo_years}
                             # Add to count of primary microsegment key chains
@@ -1677,7 +1679,7 @@ class Measure(object):
                 if mskeys[0] == "primary" and cost_base_units != cost_units:
                     cost_meas, cost_units = self.convert_costs(
                         convert_data, bldg_sect, mskeys, cost_meas,
-                        cost_units, cost_base_units, options.verbose)
+                        cost_units, cost_base_units, verbose)
                     cost_converts += 1
                     # Add microsegment building type to cost conversion
                     # tracking list for cases where cost conversion need
@@ -1968,8 +1970,12 @@ class Measure(object):
                             new_constr["annual new"][yr] + \
                             new_constr["total new"][str(int(yr) - 1)]
                     # Calculate new vs. existing fraction of stock
-                    new_constr["new fraction"][yr] = \
-                        new_constr["total new"][yr] / new_constr["total"][yr]
+                    if new_constr["total new"][yr] <= new_constr["total"][yr]:
+                        new_constr["new fraction"][yr] = \
+                            new_constr["total new"][yr] / \
+                            new_constr["total"][yr]
+                    else:
+                        new_constr["new fraction"][yr] = 1
 
                 # Determine the fraction to use in scaling down the stock,
                 # energy, and carbon microsegments to the applicable structure
