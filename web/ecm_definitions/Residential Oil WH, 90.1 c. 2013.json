@@ -21,7 +21,7 @@
   "energy_efficiency": 0.565,
   "energy_efficiency_units": "EF",
   "energy_efficiency_source": {
-    "notes": "Assume 50 gallon water tank",
+    "notes": "0.59–0.0005V EF, Assume 50 gallon water tank",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",
@@ -29,21 +29,21 @@
        "year": 2016,
        "pages": 12,
        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-  "installed_cost": 500,
-  "cost_units": "2015$/unit",
+  "installed_cost": 2020,
+  "cost_units": "2016$/unit",
   "installed_cost_source": {
-    "notes": "TBD",
+    "notes": "Median of standards 2013 installed cost range",
     "source_data": [{
-       "title": "TBD",
-       "author": "TBD",
-       "organization": "TBD",
-       "year": null,
-       "pages": null,
-       "URL": "TBD"}]},
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "US EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 12,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of stated average 2013 lifetime range",
+    "notes": "mMedian of standards 2013 lifetime range",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",
