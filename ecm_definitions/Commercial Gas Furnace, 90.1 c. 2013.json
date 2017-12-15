@@ -29,7 +29,7 @@
   "installed_cost": 8.49,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Median of 'Current Standard' 2013 column total installed cost range divided by typical capacity (400 kBtu/h)",
+    "notes": "Median of 'typical' 2013 column total installed cost range divided by typical capacity (400 kBtu/h)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

@@ -32,7 +32,7 @@
   "installed_cost": 405,
   "cost_units": "2013$/unit",
   "installed_cost_source": {
-    "notes": "median of range of total installed cost",
+    "notes": "median of range of total installed cost for Energy Star",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",
