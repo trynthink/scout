@@ -26,10 +26,10 @@
       "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2013_I-P"
     }
   },
-  "installed_cost": 13.96,
+  "installed_cost": 15.42,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of total installed cost range for typical 2013 ($19550); assume the EIA listed median value for the range of heat input (1400 kBtu/h)",
+    "notes": "median of total installed cost range for the Current Standard 2013 ($18500); assume the EIA listed median value for the range of heat input (1200 kBtu/h)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

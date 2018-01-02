@@ -29,10 +29,10 @@
        "year": 2016,
        "pages": 12,
        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-  "installed_cost": 2020,
+  "installed_cost": 2130,
   "cost_units": "2016$/unit",
   "installed_cost_source": {
-    "notes": "Median of standards 2013 installed cost range",
+    "notes": "Median of 2013 'typical' installed cost range",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "US EIA",

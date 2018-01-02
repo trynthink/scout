@@ -29,13 +29,13 @@
   "installed_cost": 11.2,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of range for total installed cost for 2013 typical value ($4480); assume the EIA typical capacity of 400 kBTU/h",
+    "notes": "median of range for total installed cost for 2013 Current Standard value ($4480); assume the EIA typical capacity of 400 kBTU/h",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. EIA",
       "year": 2016,
-      "pages": 86,
+      "pages": 85,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },

@@ -26,16 +26,16 @@
       "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Commercial%20Water%20Heaters%20Program%20Requirements%20V1.0.pdf"
     }
   },
-  "installed_cost": 72.4,
+  "installed_cost": 27.15,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of median of 2013 typical total installed cost range ($4500); assume EIA typical input capacity of 200 kBTU/h",
+    "notes": "median of median of 2013 typical total installed cost range ($5430); assume EIA typical input capacity of 200 kBTU/h",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. EIA",
       "year": 2016,
-      "pages": 89,
+      "pages": 113,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -48,7 +48,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2016,
-      "pages": 89,
+      "pages": 113,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
