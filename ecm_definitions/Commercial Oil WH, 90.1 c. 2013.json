@@ -26,10 +26,10 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 66.95,
+  "installed_cost": 34.93,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "assume the typical installed cost for 2013 ($7030); Asumme the EIA listed threshold for input capacity of 105,000 Btu/h",
+    "notes": "assume the current standard installed cost for 2013 ($4890); Asumme the EIA listed threshold for input capacity of 140 kbtu/h",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

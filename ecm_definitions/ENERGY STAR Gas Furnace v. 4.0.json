@@ -46,7 +46,7 @@
       "AIA_CZ5": 2500},
   "cost_units": "2016$/unit",
   "installed_cost_source": {
-    "notes": "Median of total installed cost range for 'ENERGY STAR' 2013 column",
+    "notes": "Median of total installed cost range for 'ENERGY STAR' 2013 columns for North and South",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
