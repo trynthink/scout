@@ -1,54 +1,54 @@
 {
-  "name": "Commercial Electric WH, 90.1 c. 2013",
+  "name": "Commercial Gas Boiler, 90.1 c. 2016",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": "water heating",
-  "fuel_type": "electricity",
-  "technology": "elec_water_heater",
-  "market_entry_year": 2013,
+  "end_use": "heating",
+  "fuel_type": "natural gas",
+  "technology": "gas_boiler",
+  "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.98,
+  "energy_efficiency": 0.82,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2013 standard",
+    "notes": null,
     "source_data": {
-      "title": "ASHRAE Standard 90.1",
+      "title": "ASHRAE 90.1 Standard 2016",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2013,
-      "pages": null,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2013_I-P"
+      "year": 2016,
+      "pages": 117,
+      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
     }
   },
-  "installed_cost": 28.71,
+  "installed_cost": 26.60,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of 2013 typical total installed cost range ($5290), divide by the typical input capacity listed by EIA (54 kW) and convert to 184.25 kBtu/h",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. EIA",
-      "year": 2016,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "product_lifetime": 18,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "average stated 2013 lifetime",
+    "notes": "Median of 'typical' 2013 column total installed cost range divided by typical capacity (800 kBtu/h)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2016,
-      "pages": 116,
+      "pages": 89,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for 'Current Standard' 2013 column",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 89,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -56,13 +56,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Electric storage water heater for commercial buildings that meets the ASHRAE 90.1-2013 standard",
+  "_description": "Typical size commercial natural gas boiler that meets the ASHRAE 90.1 performance standard in 2016",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "DOE",
+    "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "2017-01-19"
+    "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
     "name": null,
