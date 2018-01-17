@@ -1083,17 +1083,19 @@ class Measure(object):
         if self.handyvars.nsamples is not None:
             rnd_sd = numpy.random.randint(10000)
 
-        # Initialize a counter of key chains with valid stock/energy data;
-        # key chains with valid cost/performance/lifetime data; key chains
-        # with valid consumer choice data; and a cost conversion flag
-        valid_keys_stk_energy, valid_keys_cpl, valid_keys_consume, \
-            cost_converts = (0 for n in range(4))
+        # Initialize a counter of key chains that yield "stock" and "energy"
+        # keys in the baseline data dict; that have valid stock/energy data;
+        # that have valid cost/performance/lifetime data; and that have valid
+        # consumer choice data. Also initialize a cost conversion flag
+        valid_keys, valid_keys_stk_energy, valid_keys_cpl, \
+            valid_keys_consume, cost_converts = (0 for n in range(5))
         # Initialize lists of technology names that have yielded warnings
-        # for invalid cost/performance/lifetime data and consumer data,
-        # and a list of the climate zones, building types, and structure types
-        # of removed primary microsegments (used to remove associated
-        # secondary microsegments)
-        cpl_warn, consume_warn, removed_primary = ([] for n in range(3))
+        # for invalid stock/energy data, cost/performance/lifetime data
+        # and consumer data, and a list of the climate zones, building types,
+        # and structure type of removed primary microsegments (used to remove
+        # associated secondary microsegments)
+        stk_energy_warn, cpl_warn, consume_warn, removed_primary = (
+            [] for n in range(4))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -1367,8 +1369,29 @@ class Measure(object):
                         mseg = {}
                     break
 
-            # If mseg dict isn't defined to "stock" info. level, go no further
-            if "stock" not in list(mseg.keys()) or mseg["stock"] == {}:
+            # Continue loop if key chain doesn't yield "stock"/"energy" keys
+            if any([x not in list(mseg.keys()) for x in ["stock", "energy"]]):
+                continue
+            # Continue loop if key chain yields "stock"/"energy" keys but
+            # the stock or energy data are missing
+            elif any([x == {} for x in [mseg["stock"], mseg["energy"]]]):
+                if mskeys[-2] not in stk_energy_warn:
+                    stk_energy_warn.append(mskeys[-2])
+                    verboseprint(
+                        verbose,
+                        "WARNING: ECM '" + self.name +
+                        "' missing valid baseline "
+                        "stock/energy data " +
+                        "for technology '" + str(mskeys[-2]) +
+                        "'; removing technology from analysis")
+                # Record climate zone, building type, and structure
+                # type of removed primary microsegment (used to
+                # remove associated secondary microsegments)
+                removed_primary.append((
+                    mskeys[1], mskeys[2], mskeys[-1]))
+                # Add to the overall number of key chains that yield "stock"/
+                # "energy" keys (but in this case, are missing data)
+                valid_keys += 1
                 continue
             # Otherwise update all stock/energy/cost information for each year
             else:
@@ -1377,6 +1400,7 @@ class Measure(object):
                 # count is used later in stock and stock cost calculations,
                 # which secondary microsegments do not contribute to)
                 if mskeys[0] == "primary":
+                    valid_keys += 1
                     valid_keys_stk_energy += 1
                     # Flag use of ft^2 floor area as stock when number of stock
                     # units is unavailable, or in any residential add-on ECM
@@ -1613,10 +1637,10 @@ class Measure(object):
                         # specifies the measure as an 'add-on' type AND
                         # specifies relative savings for energy performance
                         # units, set the baseline cost to zero and baseline
-                        # lifetime to that of the measure to ensure that all
-                        # subsequent stock and energy impact calculations will
-                        # continue for that baseline segment. Note: this marks
-                        # a special exception to the general rule that baseline
+                        # lifetime to 10 to ensure that all subsequent stock
+                        # and energy impact calculations will continue for that
+                        # baseline segment. Note: this marks a special
+                        # exception to the general rule that baseline
                         # market segments without complete unit-level cost,
                         # performance, and/or lifetime data will be removed
                         # from further analysis. The exception is needed to
@@ -1635,7 +1659,7 @@ class Measure(object):
                                 cost_base_units = "$/ft^2 floor"
                             else:
                                 cost_base_units = "$/unit"
-                            life_base = {yr: life_meas for
+                            life_base = {yr: 10 for
                                          yr in self.handyvars.aeo_years}
                             # Add to count of primary microsegment key chains
                             # with valid cost/performance/lifetime data
@@ -2264,7 +2288,7 @@ class Measure(object):
         # the latter is based on square footage) to the number of microsegments
         # that contribute to the measure's overall master microsegment and
         # have valid stock/energy and cost/performance/lifetime data
-        if valid_keys_cpl != 0:
+        if valid_keys_stk_energy != 0 and valid_keys_cpl != 0:
 
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Calculate overall average baseline and measure lifetimes
@@ -2357,9 +2381,9 @@ class Measure(object):
         # If not in verbose mode, suppress summaries about missing data;
         # otherwise, summarize the extent of the missing data
         if not verbose:
-            # Missing baseline cost, performance, and lifetime data and
-            # consumer data summaries are blank
-            bcpl_msg, bcc_msg = ("" for n in range(2))
+            # Missing baseline stock and energy data, cost, performance, and
+            # lifetime data and consumer data summaries are blank
+            bstk_msg, bcpl_msg, bcc_msg = ("" for n in range(3))
             # If one or more conversion to ECM unit cost has been made, note
             # this in the update message
             if cost_converts == 0:
@@ -2367,6 +2391,17 @@ class Measure(object):
             else:
                 cc_msg = " (cost units converted)"
         else:
+            # Summarize percentage of baseline stock and energy
+            # data that were missing (if any)
+            if valid_keys_stk_energy == valid_keys:
+                bstk_msg = ""
+            else:
+                bstk_msg = "\n" + " - " + str(
+                    round((1 - (valid_keys_stk_energy / valid_keys)) *
+                          100)) + \
+                    " % of baseline technologies were missing valid" + \
+                    " baseline stock or energy data and" + \
+                    " removed from analysis"
             # Summarize percentage of baseline cost, performance, and lifetime
             # data that were missing (if any)
             if valid_keys_cpl == valid_keys_stk_energy:
@@ -2386,16 +2421,16 @@ class Measure(object):
                 bcc_msg = "\n" + " - " + str(
                     round((1 - (valid_keys_consume / valid_keys_stk_energy)) *
                           100)) + \
-                    " % of remaining baseline technologies were missing" + \
+                    " % of baseline technologies were missing" + \
                     " valid consumer choice data"
             cc_msg = ""
         # Print message to console; if in verbose mode, print to new line,
         # otherwise append to existing message on the console
         if not verbose:
-            print(" Success" + bcpl_msg + bcc_msg + cc_msg)
+            print(" Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
         else:
             print("ECM '" + self.name + "' successfully updated" +
-                  bcpl_msg + bcc_msg + cc_msg)
+                  bstk_msg + bcpl_msg + bcc_msg + cc_msg)
 
     def convert_costs(self, convert_data, bldg_sect, mskeys, cost_meas,
                       cost_meas_units, cost_base_units, verbose):

@@ -1027,12 +1027,15 @@ class Engine(object):
             # cooling, record data needed for additional adjustments to remove
             # overlaps between the supply-side and demand-side of heating
             # and cooling energy (note that supply-side and demand-side heating
-            # and cooling ECMs are not directly competed)
+            # and cooling ECMs are not directly competed). NOTE: EXCLUDE
+            # SECONDARY HEATING/COOLING MICROSEGMENTS FOR NOW UNTIL
+            # REASONABLE APPROACH FOR ADJUSTING THESE IS IMPLEMENTED
 
             # Ensure the current contributing microsegment pertains to
             # heating or cooling (marked by 'supply' or 'demand' keys) and
             # that both supply and demand-side ECMs are present in the analysis
-            if ('supply' in msu or 'demand' in msu) and \
+            if ('primary' in msu and
+                ('supply' in msu or 'demand' in msu)) and \
                     htcl_adj_data is not None:
                 htcl_adj_data = self.htcl_adj_rec(
                     htcl_adj_data, msu, msu_mkts, htcl_totals)
@@ -1694,10 +1697,12 @@ class Engine(object):
         # adjustments
         for m in measures_htcl_adj:
             # Determine the subset of ECM contributing microsegment keys that
-            # apply to supply-side or demand-side heating/cooling
+            # apply to supply-side or demand-side heating/cooling. NOTE:
+            # EXCLUDE SECONDARY HEATING/COOLING MICROSEGMENTS FOR NOW UNTIL
+            # REASONABLE APPROACH FOR ADJUSTING THESE IS IMPLEMENTED
             htcl_keys = [k for k in m.markets[adopt_scheme]["competed"][
                 "mseg_adjust"]["contributing mseg keys and values"].keys() if
-                "supply" in k or "demand" in k]
+                "primary" in k and ("supply" in k or "demand" in k)]
             # Loop through the ECM's supply-side or demand-side heating/cooling
             # contributing microsegments and scale down energy, carbon, and
             # cost data for that microsegment to remove previously recorded
@@ -2614,13 +2619,21 @@ def main(base_dir):
         warnings.warn("Could not determine OS for plotting routine")
 
     # Run R code
-    p_out = subprocess.run(shell_command, shell=True)
-
-    # Notify user of plotting outcome
-    if p_out.returncode == 0:
+    try:
+        # Execute R code
+        subprocess.run(shell_command, shell=True)
+        # Notify user of plotting outcome if no error is thrown
         print("Plotting complete")
-    else:
-        print("Plotting failed to complete")
+    except AttributeError:
+        # If run module in subprocess throws exception, try subprocess.call()
+        # (used in Python versions before 3.5)
+        try:
+            # Execute R code
+            subprocess.call(shell_command, shell=True)
+            # Notify user of plotting outcome if no error is thrown
+            print("Plotting complete")
+        except Exception as err:
+            print("Plotting failed to complete: ", err)
 
 
 if __name__ == '__main__':

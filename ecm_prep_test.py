@@ -6769,7 +6769,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "competed": {
                         "baseline": {"2009": 215434.31, "2010": 213529.15},
                         "efficient": {"2009": 161575.74, "2010": 160146.86}}}},
-            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+            "lifetime": {"baseline": {"2009": 10, "2010": 10},
                          "measure": 1}},
             {
             "stock": {
@@ -6816,7 +6816,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 2208201.73, "2010": 2188673.79},
                         "efficient": {"2009": 1104100.86, "2010": 1094336.90}}}
                         },
-            "lifetime": {"baseline": {"2009": 1, "2010": 1},
+            "lifetime": {"baseline": {"2009": 10, "2010": 10},
                          "measure": 1}}]
         cls.ok_mapmas_partchck_msegout = [{
             "stock": {
