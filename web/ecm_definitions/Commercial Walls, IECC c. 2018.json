@@ -1,47 +1,47 @@
 {
-  "name": "Commercial Floors, IECC c. 2015",
+  "name": "Commercial Walls, IECC c. 2018",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": "ground",
-  "market_entry_year": 2015,
+  "technology": "wall",
+  "market_entry_year": 2018,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": {
-      "title": "2015 International Energy Conservation Code",
+      "title": "2018 International Energy Conservation Code",
       "author": null,
       "organization": "International Code Council",
-      "year": 2015,
+      "year": 2018,
       "pages": null,
-      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[RE].html"
+      "URL": "hhttps://codes.iccsafe.org/public/document/iecc2018/chapter-4-ce-commercial-energy-efficiency"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 15,
-      "AIA_CZ2": 10,
-      "AIA_CZ3": 10,
-      "AIA_CZ4": 10,
-      "AIA_CZ5": 0
-    },
+      "AIA_CZ1": 20.5,
+      "AIA_CZ2": 20.5,
+      "AIA_CZ3": 20.5,
+      "AIA_CZ4": 20.5,
+      "AIA_CZ5": 19.25
+      },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "See table 402.1.3; assumes unheated slab on grade floor; assumes following IECC -> AIA climate zone mapping: 2/3 -> 5; 4 -> 4; 5 -> 3; 6/7 -> 1/2; assumes climate zones with no IECC rating (AIA 5) have same floor insulation as NREL EnergyPlus commercial reference buildings",
+    "notes": "See table 402.1.3; assumes metal framed assembly; assumes following IECC -> AIA climate zone mapping: 6 -> 1; 5 -> 2; 4 -> 3; 3 -> 4; 2/3-> 5; takes average of performance levels for IECC zones 2/3",
     "source_data": {
-      "title": "2015 International Energy Conservation Code",
+      "title": "2018 International Energy Conservation Code",
       "author": null,
       "organization": "International Code Council",
-      "year": 2015,
-      "pages": 6,
-      "URL": "http://codes.iccsafe.org/app/book/content/2015-I-Codes/2015%20IECC%20HTML/Chapter%204%20[CE].html"}
+      "year": 2018,
+      "pages": null,
+      "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-ce-commercial-energy-efficiency"}
     },
-  "installed_cost": 5.03,
-  "cost_units": "2016$/ft^2 footprint",
+  "installed_cost": 27.35,
+  "cost_units": "2016$/ft^2 wall",
   "installed_cost_source": {
-    "notes": "4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)",
+    "notes": "Standard brick veneer wall assembly (#B20101305000)",
     "source_data": {
       "title": "RSMeans 2016 Building Construction Data",
       "author": null,
@@ -68,13 +68,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Slab on grade commercial floor that meets the IECC performance standard in 2015",
+  "_description": "Metal and brick commercial wall assembly that meets the IECC performance standard in 2018",
   "_notes": null,
   "_added_by": {
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-16 12:20:22 EST"
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "1/04/2018"
   },
   "_updated_by": {
     "name": null,
@@ -83,4 +83,3 @@
     "timestamp": null
   }
 }
-

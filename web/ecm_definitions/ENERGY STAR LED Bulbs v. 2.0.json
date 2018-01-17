@@ -1,5 +1,5 @@
 {
-  "name": "ENERGY STAR LED Bulbs v. 1.2 c. 2012",
+  "name": "ENERGY STAR LED Bulbs v. 2.0",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -14,16 +14,16 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-  "market_entry_year": 2012,
+  "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 1.2",
+      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 2.0",
       "author": null,
       "organization": "ENERGY STAR",
-      "year": 2012,
+      "year": 2015,
       "pages": 2,
-      "URL": "https://www.energystar.gov/sites/default/files/specs//private/Final_Luminaires_V1_2_1.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/Luminaires%20V2%200%20Final_0.pdf"
     }
   },
   "market_exit_year": null,
@@ -33,12 +33,12 @@
   "energy_efficiency_source": {
     "notes": "Solid state LED light engine/integrated LED lamp",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 1.2",
+      "title": "ENERGY STAR Program Requirements Product Specification for Luminaires (Light Fixtures) Version 2.0",
       "author": null,
       "organization": "ENERGY STAR",
       "year": 2012,
       "pages": 10,
-      "URL": "https://www.energystar.gov/sites/default/files/specs//private/Final_Luminaires_V1_2_1.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/Luminaires%20V2%200%20Final_0.pdf"
     }
   },
   "installed_cost": {

@@ -1,5 +1,5 @@
 { 
-  "name": "ENERGY STAR Solar WH v. 3.0",
+  "name": "ENERGY STAR Solar WH v. 3.2",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -15,7 +15,7 @@
        "organization": "US EPA",
        "year": 2015,
        "pages": 8,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Water%20Heaters%20Version%203%200%20Program%20Requirements_0.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_4.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 1.8,
@@ -28,7 +28,7 @@
        "organization": "US EPA",
        "year": 2015,
        "pages": 5,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Water%20Heaters%20Version%203%200%20Program%20Requirements_0.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_4.pdf"}]},
   "installed_cost": 8800,
   "cost_units": "2013$/unit",
   "installed_cost_source": {
@@ -61,7 +61,7 @@
     "name": "Valerie Nubbe",
     "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Nov. 23 2016"},
+    "timestamp": "Dec. 19, 2017"},
   "_updated_by": {
     "name": null,
     "organization": null,
