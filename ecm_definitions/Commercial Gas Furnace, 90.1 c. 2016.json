@@ -1,54 +1,54 @@
 {
-  "name": "Commercial Oil Boiler, 90.1 c. 2013",
+  "name": "Commercial Gas Furnace, 90.1 c. 2016",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "heating",
-  "fuel_type": "distillate",
-  "technology": "oil_boiler",
-  "market_entry_year": 2013,
+  "fuel_type": "natural gas",
+  "technology": "gas_furnace",
+  "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.82,
+  "energy_efficiency": 0.8,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2013 standard",
+    "notes": null,
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "ASHRAE 90.1 Standard 2016",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2013,
-      "pages": null,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2013_I-P"
+      "year": 2016,
+      "pages": 116,
+      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
     }
   },
-  "installed_cost": 15.42,
+  "installed_cost": 8.49,
   "cost_units": "2013$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of total installed cost range for the Current Standard 2013 ($18500); assume the EIA listed median value for the range of heat input (1200 kBtu/h)",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. EIA",
-      "year": 2016,
-      "pages": 91,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "product_lifetime": 30,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "average stated 2013 typical lifetime",
+    "notes": "Median of 'typical' 2013 column total installed cost range divided by typical capacity (400 kBtu/h)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2016,
-      "pages": 91,
+      "pages": 83,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for 'Current Standard' 2013 column",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2016,
+      "pages": 83,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -56,13 +56,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Oil boiler for commercial buildings that meets the ASHRAE 90.1-2013 standard",
+  "_description": "Typical size commercial natural gas furnace that meets the ASHRAE 90.1 performance standard in 2016",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "DOE",
+    "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "2017-01-13"
+    "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
     "name": null,

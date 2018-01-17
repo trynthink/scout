@@ -1,29 +1,29 @@
 {
-  "name": "Commercial Oil WH, 90.1 c. 2013",
+  "name": "Commercial Oil WH, 90.1 c. 2016",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "distillate",
   "technology": "oil_water_heater",
-  "market_entry_year": 2013,
+  "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.78,
+  "energy_efficiency": 0.80,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2013 standard",
+    "notes": "ASHRAE 2016 standard",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "ASHRAE 90.1 Standard 2016",
       "author": null,
-      "organization": "U.S. Energy Information Administration",
+      "organization": "ASHRAE",
       "year": 2016,
-      "pages": 119,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "pages": 133,
+      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
     }
   },
   "installed_cost": 34.93,
@@ -56,13 +56,13 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Oil storage water heater for commercial buildings that meets the ASHRAE 90.1-2013 standard",
+  "_description": "Oil storage water heater for commercial buildings that meets the ASHRAE 90.1-2016 standard",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "DOE",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "2017-01-30"
+    "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
     "name": null,
