@@ -1819,7 +1819,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -1880,7 +1880,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -1940,7 +1940,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -2000,7 +2000,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -2087,7 +2087,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                         "2009": numpy.array([5, 6, 7]),
                                         "2010": numpy.array([5, 6, 7])}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -2167,7 +2167,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                     [5, 6, 7])}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -2249,7 +2249,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                         "2009": numpy.array([5, 6, 7]),
                                         "2010": numpy.array([5, 6, 7])}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -2329,7 +2329,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                     [5, 6, 7])}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -2406,7 +2406,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -2467,7 +2467,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -2529,7 +2529,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -2589,7 +2589,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key1: {
@@ -2650,7 +2650,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -2712,7 +2712,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key1: {
@@ -2783,7 +2783,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -2844,7 +2844,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -2904,7 +2904,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -2965,7 +2965,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3040,7 +3040,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -3107,7 +3107,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3177,7 +3177,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 15, "2010": 15},
                                     "efficient": {"2009": 5, "2010": 5}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -3244,7 +3244,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3321,7 +3321,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -3382,7 +3382,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -3444,7 +3444,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3503,7 +3503,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -3564,7 +3564,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -3626,7 +3626,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3696,7 +3696,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 45, "2010": 45},
                                     "efficient": {"2009": 15, "2010": 15}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -3757,7 +3757,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -3819,7 +3819,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
@@ -3881,7 +3881,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -3940,7 +3940,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 45, "2010": 45},
                                     "efficient": {"2009": 15, "2010": 15}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.adjust_key2: {
@@ -4001,7 +4001,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -4063,7 +4063,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
@@ -4125,7 +4125,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.adjust_key2: {
@@ -4467,7 +4467,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 1.670251, "2010": 1.670251},
                         "efficient": {"2009": 0.5567503, "2010": 0.5567503}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -4513,7 +4513,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 20.82975, "2010": 20.82975},
                         "efficient": {"2009": 6.943250, "2010": 6.943250}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -4569,7 +4569,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         "efficient": {
                             "2009": 0.432947785, "2010": 0.432947785}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -4615,7 +4615,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 19.53341, "2010": 19.53341},
                         "efficient": {"2009": 6.511136, "2010": 6.511136}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -4661,7 +4661,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 31.66775, "2010": 31.66775},
                         "efficient": {"2009": 10.55592, "2010": 10.55592}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}}]
+                         "measure": 1}}]
         cls.measures_master_msegs_out_dist = [{
             "stock": {
                 "total": {
@@ -4789,7 +4789,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                             "2010": numpy.array([
                                 0.5567503, 2.931068, 0.006743571])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -4917,7 +4917,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                             "2010": numpy.array([
                                 6.943250, 5.057443, 7.495183])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -5047,7 +5047,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                             "2010": numpy.array([
                                 0.432947785, 0.004522088, 2.400830388])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -5175,7 +5175,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                             "2010": numpy.array([
                                 6.511136, 6.824341, 5.072499])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -5303,7 +5303,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                             "2010": numpy.array([
                                 10.55592, 10.67114, 10.02667])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}}]
+                         "measure": 1}}]
 
     def test_compete_res(self):
         """Test outcomes given valid sample measures w/ point value inputs."""
@@ -5483,7 +5483,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -5544,7 +5544,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -5606,7 +5606,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -5673,7 +5673,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 10, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -5734,7 +5734,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -5796,7 +5796,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -5877,7 +5877,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 30, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -5938,7 +5938,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
@@ -5998,7 +5998,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -6067,7 +6067,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 30, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -6128,7 +6128,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
@@ -6188,7 +6188,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -6275,7 +6275,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 30, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -6340,7 +6340,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
@@ -6404,7 +6404,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -6480,7 +6480,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 30, "2010": 30},
                                     "efficient": {"2009": 30, "2010": 10}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -6545,7 +6545,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             cls.overlap_key_scnd: {
                                 "stock": {
@@ -6609,7 +6609,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 15, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -6695,7 +6695,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 45, "2010": 45},
                                     "efficient": {"2009": 15, "2010": 15}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -6756,7 +6756,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -6818,7 +6818,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
@@ -6880,7 +6880,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -6947,7 +6947,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "baseline": {"2009": 45, "2010": 45},
                                     "efficient": {"2009": 15, "2010": 15}}}},
                         "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                                     "measure": {"2009": 1, "2010": 1}}},
+                                     "measure": 1}},
                     "mseg_adjust": {
                         "contributing mseg keys and values": {
                             cls.overlap_key: {
@@ -7008,7 +7008,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
                                  'electricity (grid)', 'lighting',
@@ -7070,7 +7070,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
                                  'electricity (grid)', 'lighting',
@@ -7132,7 +7132,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                                 "2009": 5, "2010": 5}}}},
                                 "lifetime": {
                                     "baseline": {"2009": 1, "2010": 1},
-                                    "measure": {"2009": 1, "2010": 1}},
+                                    "measure": 1},
                                 "sub-market scaling": 1},
                         "competed choice parameters": {
                             cls.overlap_key: {
@@ -7496,7 +7496,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 25.5, "2010": 18},
                         "efficient": {"2009": 8.5, "2010": 6}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -7542,7 +7542,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 0, "2010": 18},
                         "efficient": {"2009": 0, "2010": 6}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -7588,7 +7588,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 34.5, "2010": 33},
                         "efficient": {"2009": 11.5, "2010": 11}}}},
                 "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                             "measure": {"2009": 1, "2010": 1}}}]
+                             "measure": 1}}]
         cls.measures_master_msegs_out_dist = [{
             "stock": {
                 "total": {
@@ -7678,7 +7678,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             "2009": 8.5,
                             "2010": numpy.array([6.0, 6.5, 8.0])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -7768,7 +7768,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             "2009": 0,
                             "2010": numpy.array([6, 5, 3])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}},
+                         "measure": 1}},
             {
             "stock": {
                 "total": {
@@ -7859,7 +7859,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                             "2009": 11.5,
                             "2010": numpy.array([11.0, 11.0, 10.5])}}}},
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
-                         "measure": {"2009": 1, "2010": 1}}}]
+                         "measure": 1}}]
 
     def test_compete_com(self):
         """Test outcomes given sample measures w/ point value inputs."""

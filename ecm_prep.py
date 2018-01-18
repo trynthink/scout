@@ -1653,14 +1653,24 @@ class Measure(object):
                         # performance, incremental cost, and lifetime data
                         if self.measure_type == "add-on" and \
                                 perf_units == "relative savings (constant)":
+                            # Set baseline cost to zero with appropriate units
+                            # for the building sector of interest
                             cost_base = {yr: 0 for
                                          yr in self.handyvars.aeo_years}
                             if bldg_sect == "commercial" or sqft_subst == 1:
                                 cost_base_units = "$/ft^2 floor"
                             else:
                                 cost_base_units = "$/unit"
-                            life_base = {yr: 10 for
-                                         yr in self.handyvars.aeo_years}
+                            # Attempt to retrieve baseline lifetime data, if
+                            # that fails set baseline lifetime to 10 years
+                            try:
+                                if any([x[1] in [0, "NA"] for x in base_cpl[
+                                        "lifetime"]["average"].items()]):
+                                    raise ValueError
+                                life_base = base_cpl["lifetime"]["average"]
+                            except (TypeError, ValueError):
+                                life_base = {yr: 10 for
+                                             yr in self.handyvars.aeo_years}
                             # Add to count of primary microsegment key chains
                             # with valid cost/performance/lifetime data
                             valid_keys_cpl += 1
