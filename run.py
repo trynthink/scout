@@ -291,6 +291,7 @@ class Engine(object):
                     bldgtypes.append(bldg[0])
             # Find measure end use output categories
             for euse in self.handyvars.out_break_enduses.items():
+                # Find primary end use categories
                 if any([x in euse[1] for x in m.end_use["primary"]]) and \
                         euse[0] not in end_uses:
                     # * Note: classify special freezers ECM case as
@@ -309,6 +310,11 @@ class Engine(object):
                                 "Heating (Equip.)", "Cooling (Equip.)",
                                 "Envelope"]))):
                         end_uses.append(euse[0])
+                # Find secondary end use categories
+                if m.end_use["secondary"] is not None and any([
+                    x in m.end_use["secondary"] for x in [
+                        "heating", "cooling"]]) and "Envelope" not in end_uses:
+                    end_uses.append("Envelope")
 
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
@@ -1011,7 +1017,8 @@ class Engine(object):
                 # microsegment(s) (note that secondary microsegments do not
                 # affect stock totals, only energy/carbon and associated costs)
                 measures_adj_scnd = [self.measures[x] for x in range(
-                    0, len(self.measures)) if x in measures_adj and any(
+                    0, len(self.measures)) if self.measures[x] in
+                    measures_adj and any(
                     [(y[1] > 0) for y in mkts_adj[x][
                         "secondary mseg adjustments"]["market share"][
                         "original energy (total captured)"][

@@ -872,7 +872,7 @@ class Measure(object):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use)
-        out_break_norm (dict): Total absolute energy use data to normalize
+        out_break_norm (dict): Total energy use data to normalize
             savings values summed by climate zone, building class, and end use.
     """
 
@@ -1384,11 +1384,6 @@ class Measure(object):
                         "stock/energy data " +
                         "for technology '" + str(mskeys[-2]) +
                         "'; removing technology from analysis")
-                # Record climate zone, building type, and structure
-                # type of removed primary microsegment (used to
-                # remove associated secondary microsegments)
-                removed_primary.append((
-                    mskeys[1], mskeys[2], mskeys[-1]))
                 # Add to the overall number of key chains that yield "stock"/
                 # "energy" keys (but in this case, are missing data)
                 valid_keys += 1
@@ -1565,12 +1560,13 @@ class Measure(object):
                         # baseline cost is expected to be zero). In such cases,
                         # raise a ValueError
                         if any([(x[1] in [0, "NA"] and mskeys[-2] not in
-                                 self.handyvars.zero_cost_tech) or
-                                y[1] in [0, "NA"] or
-                                z[1] in [0, "NA"] for x, y, z in zip(
-                            base_cpl["installed cost"]["typical"].items(),
-                            base_cpl["performance"]["typical"].items(),
-                                base_cpl["lifetime"]["average"].items())]):
+                                 self.handyvars.zero_cost_tech) for
+                                x in base_cpl[
+                                "installed cost"]["typical"].items()]) or \
+                           any([y[1] in [0, "NA"] for y in base_cpl[
+                                "performance"]["typical"].items()]) or \
+                           any([z[1] in [0, "NA"] for z in base_cpl[
+                                "lifetime"]["average"].items()]):
                             raise ValueError
 
                         # Set baseline performance and performance units
@@ -1636,7 +1632,8 @@ class Measure(object):
                         # performance, or lifetime data where the user
                         # specifies the measure as an 'add-on' type AND
                         # specifies relative savings for energy performance
-                        # units, set the baseline cost to zero and baseline
+                        # units, set the baseline cost to zero and - if no
+                        # baseline lifetime data are available - set baseline
                         # lifetime to 10 to ensure that all subsequent stock
                         # and energy impact calculations will continue for that
                         # baseline segment. Note: this marks a special
@@ -1672,8 +1669,75 @@ class Measure(object):
                                 life_base = {yr: 10 for
                                              yr in self.handyvars.aeo_years}
                             # Add to count of primary microsegment key chains
-                            # with valid cost/performance/lifetime data
+                            # with valid cost/performance/lifetime data,
+                            # given special exception
                             valid_keys_cpl += 1
+                            # Nevertheless, warn the user about the
+                            # special exception and how it's handled
+                            if mskeys[-2] not in cpl_warn:
+                                cpl_warn.append(mskeys[-2])
+                                verboseprint(
+                                    verbose,
+                                    "WARNING: ECM '" + self.name +
+                                    "' missing valid baseline "
+                                    "cost/performance/lifetime data " +
+                                    "for technology '" + str(mskeys[-2]) +
+                                    "'; ECM is 'add-on' type with constant " +
+                                    "relative savings and technology will " +
+                                    "remain in analysis with cost of zero; " +
+                                    "; if lifetime data are missing, " +
+                                    "lifetime is set to 10 years")
+
+                        # Additionally, include an exception for commercial
+                        # lighting cases, where some segments of commercial
+                        # lighting energy use at or near zero contribution lack
+                        # cost, performance, and lifetime data but do not
+                        # have enough influence on results to warrant
+                        # additional adjustments to associated secondary
+                        # microsegments. In such cases, set the baseline cost
+                        # and performance to the measure cost and performance;
+                        # if lifetime data are not available, set the baseline
+                        # lifetime to 10 years.
+                        elif "lighting" in mskeys and \
+                                bldg_sect == "commercial":
+                            # Set baseline performance/units to measure
+                            # performance/units
+                            perf_base = {yr: perf_meas for
+                                         yr in self.handyvars.aeo_years}
+                            perf_base_units = perf_units
+                            # Set baseline cost/units to measure cost/units
+                            cost_base = {yr: cost_meas for
+                                         yr in self.handyvars.aeo_years}
+                            cost_base_units = cost_units
+                            # Attempt to retrieve baseline lifetime data, if
+                            # that fails set baseline lifetime to 10 years
+                            try:
+                                if any([x[1] in [0, "NA"] for x in base_cpl[
+                                        "lifetime"]["average"].items()]):
+                                    raise ValueError
+                                life_base = base_cpl["lifetime"]["average"]
+                            except (TypeError, ValueError):
+                                life_base = {yr: 10 for
+                                             yr in self.handyvars.aeo_years}
+                            # Add to count of primary microsegment key chains
+                            # with valid cost/performance/lifetime data,
+                            # given special exception
+                            valid_keys_cpl += 1
+                            # Nevertheless, warn the user about the special
+                            # exception and how it's handled
+                            if mskeys[-2] not in cpl_warn:
+                                cpl_warn.append(mskeys[-2])
+                                verboseprint(
+                                    verbose,
+                                    "WARNING: ECM '" + self.name +
+                                    "' missing valid baseline "
+                                    "cost/performance/lifetime data " +
+                                    "for technology '" + str(mskeys[-2]) +
+                                    "'; technology applies to special " +
+                                    "commercial lighting case and will " +
+                                    "remain in analysis at same cost/" +
+                                    "performance as ECM; if lifetime data " +
+                                    "are missing, lifetime is set to 10 years")
                         # For all other cases, record missing baseline data; if
                         # in verbose mode and the user has not already been
                         # warned about missing data for the given technology,
@@ -1689,16 +1753,7 @@ class Measure(object):
                                     "cost/performance/lifetime data " +
                                     "for technology '" + str(mskeys[-2]) +
                                     "'; removing technology from analysis")
-                            # Record climate zone, building type, and structure
-                            # type of removed primary microsegment (used to
-                            # remove associated secondary microsegments)
-                            removed_primary.append((
-                                mskeys[1], mskeys[2], mskeys[-1]))
                             continue
-                elif (mskeys[1], mskeys[2], mskeys[-1]) in removed_primary:
-                    # Remove any secondary microsegments associated with
-                    # previously removed primary microsegments
-                    continue
                 else:
                     # Set baseline cost and performance characteristics for any
                     # remaining secondary microsegments to that of the measure
@@ -2230,13 +2285,13 @@ class Measure(object):
                             for yr in self.handyvars.aeo_years:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     out_cz][out_bldg][
-                                    out_eu][yr] += abs(add_energy[yr])
+                                    out_eu][yr] += add_energy[yr]
                         # Add to the total energy value used to normalize
                         # savings values summed by climate zone, building
                         # type, and end use
                         for yr in self.out_break_norm[adopt_scheme].keys():
                             self.out_break_norm[
-                                adopt_scheme][yr] += abs(add_energy[yr])
+                                adopt_scheme][yr] += add_energy[yr]
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
                     except KeyError:
@@ -4345,7 +4400,7 @@ class MeasurePackage(Measure):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (e.g., climate zone, building type, end use, etc.)
-        out_break_norm (dict): Total absolute energy use data to normalize
+        out_break_norm (dict): Total energy use data to normalize
             savings values summed by climate zone, building class, and end use.
     """
 
@@ -4627,9 +4682,9 @@ class MeasurePackage(Measure):
                     # number of overlapping measures
                     self.div_keyvals_float(
                         msegs_meas[k], len(overlap_meas))
-                    # Adjust the measure's total absolute energy use to reflect
+                    # Adjust the measure's total energy use to reflect
                     # the scaled down contributing microsegment energy use
-                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - abs(
+                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - (
                         total_energy_orig[yr] - msegs_meas[k]["total"][
                             "baseline"][yr]) for yr in
                         self.handyvars.aeo_years}
