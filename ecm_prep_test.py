@@ -1200,10 +1200,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1233,10 +1233,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1269,10 +1269,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1302,10 +1302,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1337,10 +1337,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1378,10 +1378,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1411,10 +1411,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1444,10 +1444,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1478,10 +1478,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1511,10 +1511,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1544,10 +1544,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1579,10 +1579,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1612,10 +1612,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1645,10 +1645,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1679,10 +1679,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1714,10 +1714,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1747,10 +1747,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1780,10 +1780,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1814,10 +1814,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1847,10 +1847,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1880,10 +1880,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1913,10 +1913,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1949,10 +1949,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -1984,10 +1984,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2019,10 +2019,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2054,10 +2054,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2086,9 +2086,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "source": "EIA AEO",
                                     "model type": "logistic regression",
                                     "parameters": {
-                                        "b1": {"2009": None, "2010": None},
-                                        "b2": {"2009": None,
-                                               "2010": None}}},
+                                        "b1": {"2009": "NA", "2010": "NA"},
+                                        "b2": {"2009": "NA",
+                                               "2010": "NA"}}},
                                 "competed market": {
                                     "source": "COBAM",
                                     "model type": "bass diffusion",
@@ -2251,10 +2251,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "model type":
                                             "logistic regression",
                                         "parameters": {
-                                            "b1": {"2009": None,
-                                                   "2010": None},
-                                            "b2": {"2009": None,
-                                                   "2010": None}}},
+                                            "b1": {"2009": "NA",
+                                                   "2010": "NA"},
+                                            "b2": {"2009": "NA",
+                                                   "2010": "NA"}}},
                                     "competed market": {
                                         "source": "COBAM",
                                         "model type": "bass diffusion",
@@ -2316,9 +2316,9 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "source": "EIA AEO",
                                     "model type": "logistic regression",
                                     "parameters": {
-                                        "b1": {"2009": None, "2010": None},
-                                        "b2": {"2009": None,
-                                               "2010": None}}},
+                                        "b1": {"2009": "NA", "2010": "NA"},
+                                        "b2": {"2009": "NA",
+                                               "2010": "NA"}}},
                                 "competed market": {
                                     "source": "COBAM",
                                     "model type": "bass diffusion",
@@ -2350,10 +2350,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2383,10 +2383,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2416,10 +2416,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2451,10 +2451,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2484,10 +2484,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2517,10 +2517,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2552,10 +2552,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2585,10 +2585,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2618,10 +2618,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2655,10 +2655,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2688,10 +2688,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2722,10 +2722,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2755,10 +2755,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2788,10 +2788,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2824,10 +2824,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2859,10 +2859,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2894,10 +2894,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2929,10 +2929,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -2967,10 +2967,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3000,10 +3000,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3033,10 +3033,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3067,10 +3067,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3100,10 +3100,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3133,10 +3133,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3168,10 +3168,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3201,10 +3201,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3234,10 +3234,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3268,10 +3268,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3303,10 +3303,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3336,10 +3336,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3369,10 +3369,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3403,10 +3403,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3436,10 +3436,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3469,10 +3469,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3502,10 +3502,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3538,10 +3538,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3573,10 +3573,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3608,10 +3608,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3643,10 +3643,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3809,10 +3809,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3846,10 +3846,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3879,10 +3879,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3913,10 +3913,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3946,10 +3946,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -3979,10 +3979,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4015,10 +4015,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4050,10 +4050,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4085,10 +4085,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4120,10 +4120,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4157,10 +4157,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4190,10 +4190,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4223,10 +4223,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4256,10 +4256,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "model type":
                                                 "logistic regression",
                                             "parameters": {
-                                                "b1": {"2009": None,
-                                                       "2010": None},
-                                                "b2": {"2009": None,
-                                                       "2010": None}}},
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
                                         "competed market": {
                                             "source": "COBAM",
                                             "model type": "bass diffusion",
@@ -4335,6 +4335,54 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             {
             "name": "sample measure 4",
             "markets": None,
+            "installed_cost": 10,
+            "cost_units": "2014$/ft^2 floor",
+            "energy_efficiency": {
+                "windows conduction": 20,
+                "windows solar": 1},
+            "energy_efficiency_units": {
+                "windows conduction": "R Value",
+                "windows solar": "SHGC"},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": "existing",
+            "bldg_type": ["single family home",
+                          "multi family home"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": "heating",
+            "technology": [
+                "windows conduction",
+                "windows solar"]},
+            {
+            "name": "sample measure 5",
+            "markets": None,
+            "installed_cost": 10,
+            "cost_units": "2014$/ft^2 floor",
+            "energy_efficiency": 0.1,
+            "energy_efficiency_units": "relative savings (constant)",
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "add-on",
+            "structure_type": "existing",
+            "bldg_type": ["single family home",
+                          "multi family home"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": "lighting",
+            "technology": "linear fluorescent (LED)"},
+            {
+            "name": "sample measure 6",
+            "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
             "energy_efficiency": {
@@ -4368,7 +4416,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "sample measure 5",
+            "name": "sample measure 7",
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
@@ -4395,7 +4443,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "windows conduction",
                 "windows solar"]},
             {
-            "name": "sample measure 6",
+            "name": "sample measure 8",
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
@@ -4415,7 +4463,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": "heating",
             "technology": "windows solar"},
             {
-            "name": "sample measure 7",
+            "name": "sample measure 9",
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
@@ -4441,7 +4489,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": [
                 "windows conduction", "windows solar"]},
             {
-            "name": "sample measure 8",
+            "name": "sample measure 10",
             "markets": None,
             "installed_cost": 10,
             "cost_units": "2014$/ft^2 floor",
@@ -4467,7 +4515,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": ["windows conduction",
                            "windows solar"]},
             {
-            "name": "sample measure 9",  # Add heat/cool end uses later
+            "name": "sample measure 11",  # Add heat/cool end uses later
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/ft^2 floor",
@@ -4488,7 +4536,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": [
                 "T5 F28"]},
             {
-            "name": "sample measure 10",
+            "name": "sample measure 12",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4508,7 +4556,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_exit_year": None,
             "technology": None},
             {
-            "name": "sample measure 11",
+            "name": "sample measure 13",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4528,7 +4576,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": "water heating",
             "technology": None},
             {
-            "name": "sample measure 12",
+            "name": "sample measure 14",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4562,7 +4610,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "sample measure 13",
+            "name": "sample measure 15",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4596,7 +4644,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "sample measure 14",
+            "name": "sample measure 16",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4631,7 +4679,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "sample measure 15",
+            "name": "sample measure 17",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4652,7 +4700,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": "water heating",
             "technology": None},
             {
-            "name": "sample measure 16",
+            "name": "sample measure 18",
             "markets": None,
             "installed_cost": 11,
             "cost_units": "2014$/ft^2 floor",
@@ -4674,7 +4722,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": [
                 "T5 F28"]},
             {
-            "name": "sample measure 17",
+            "name": "sample measure 19",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4713,7 +4761,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": "water heating",
             "technology": None},
             {
-            "name": "sample measure 18",
+            "name": "sample measure 20",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -4765,7 +4813,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "general service (LED)",
                 "external (LED)"]},
             {
-            "name": "sample measure 19",
+            "name": "sample measure 21",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "$/ft^2 floor",
@@ -4785,7 +4833,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_exit_year": None,
             "technology": [None, "distribution transformers"]},
             {
-            "name": "sample measure 20",
+            "name": "sample measure 22",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "$/unit",
@@ -4805,7 +4853,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_exit_year": None,
             "technology": ["TVs", "desktop PC", "laptop PC", "other MELs"]},
             {
-            "name": "sample measure 21",
+            "name": "sample measure 23",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/ft^2 floor",
@@ -4826,13 +4874,13 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": "T5 F28"}]
         cls.ok_tpmeas_fullchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[0:3]]
+                handyvars, **x) for x in ok_measures_in[0:5]]
         cls.ok_tpmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[3:20]]
+                handyvars, **x) for x in ok_measures_in[5:22]]
         cls.ok_mapmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[20:]]
+                handyvars, **x) for x in ok_measures_in[22:]]
         ok_distmeas_in = [{
             "name": "distrib measure 1",
             "markets": None,
@@ -5385,102 +5433,184 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "lifetime": {"baseline": {"2009": 15.67, "2010": 15.67},
                          "measure": 1}}]
         # Correct consumer choice dict outputs
-        compete_choice_val = {
-            "b1": {"2009": None, "2010": None},
-            "b2": {"2009": None, "2010": None}}
+        compete_choice_val = [{
+            "b1": {"2009": -0.01, "2010": -0.01},
+            "b2": {"2009": -0.12, "2010": -0.12}},
+            {
+            "b1": {"2009": -0.01 * handyvars.res_typ_sf_household[
+                    "single family home"],
+                   "2010": -0.01 * handyvars.res_typ_sf_household[
+                   "single family home"]},
+            "b2": {"2009": -0.12 * handyvars.res_typ_sf_household[
+                    "single family home"],
+                   "2010": -0.12 * handyvars.res_typ_sf_household[
+                   "single family home"]}},
+            {
+            "b1": {"2009": -0.01 * handyvars.res_typ_sf_household[
+                    "multi family home"],
+                   "2010": -0.01 * handyvars.res_typ_sf_household[
+                    "multi family home"]},
+            "b2": {"2009": -0.12 * handyvars.res_typ_sf_household[
+                    "multi family home"],
+                   "2010": -0.12 * handyvars.res_typ_sf_household[
+                   "multi family home"]}},
+            {
+            "b1": {
+                "2009": -0.01 * handyvars.res_typ_sf_household[
+                    "single family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["single family home"],
+                "2010": -0.01 * handyvars.res_typ_sf_household[
+                   "single family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["single family home"]},
+            "b2": {
+                "2009": -0.12 * handyvars.res_typ_sf_household[
+                    "single family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["single family home"],
+                "2010": -0.12 * handyvars.res_typ_sf_household[
+                   "single family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["single family home"]}},
+            {
+            "b1": {
+                "2009": -0.01 * handyvars.res_typ_sf_household[
+                    "multi family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["multi family home"],
+                "2010": -0.01 * handyvars.res_typ_sf_household[
+                    "multi family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["multi family home"]},
+            "b2": {
+                "2009": -0.12 * handyvars.res_typ_sf_household[
+                    "multi family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["multi family home"],
+                "2010": -0.12 * handyvars.res_typ_sf_household[
+                   "multi family home"] /
+                handyvars.res_typ_units_household[
+                    "lighting"]["multi family home"]}}]
         cls.ok_tpmeas_fullchk_competechoiceout = [{
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'resistance heat', 'new')"): compete_choice_val,
+             "'resistance heat', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'ASHP', 'new')"): compete_choice_val,
+             "'ASHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'GSHP', 'new')"): compete_choice_val,
+             "'GSHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'ASHP', 'new')"): compete_choice_val,
+             "'ASHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'GSHP', 'new')"): compete_choice_val,
+             "'GSHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'room AC', 'new')"): compete_choice_val,
+             "'room AC', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'resistance heat', 'new')"): compete_choice_val,
+             "'resistance heat', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'ASHP', 'new')"): compete_choice_val,
+             "'ASHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'GSHP', 'new')"): compete_choice_val,
+             "'GSHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'ASHP', 'new')"): compete_choice_val,
+             "'ASHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'GSHP', 'new')"): compete_choice_val,
+             "'GSHP', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'room AC', 'new')"): compete_choice_val,
+             "'room AC', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'resistance heat', 'existing')"): compete_choice_val,
+             "'resistance heat', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'ASHP', 'existing')"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'GSHP', 'existing')"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'ASHP', 'existing')"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'GSHP', 'existing')"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'room AC', 'existing')"): compete_choice_val,
+             "'room AC', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'resistance heat', 'existing')"): compete_choice_val,
+             "'resistance heat', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'ASHP', 'existing')"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'heating', 'supply', "
-             "'GSHP', 'existing')"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'ASHP', 'existing')"): compete_choice_val,
+             "'ASHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'GSHP', 'existing')"): compete_choice_val,
+             "'GSHP', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ2', 'single family home', "
              "'electricity', 'cooling', 'supply', "
-             "'room AC', 'existing')"): compete_choice_val},
+             "'room AC', 'existing')"): compete_choice_val[0]},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'natural gas', 'water heating', "
-             "None, 'new')"): compete_choice_val,
+             "None, 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'natural gas', 'water heating', "
-             "None, 'existing')"): compete_choice_val},
+             "None, 'existing')"): compete_choice_val[0]},
             {
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'other (grid electric)', "
-             "'freezers', 'new')"): compete_choice_val,
+             "'freezers', 'new')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'other (grid electric)', "
-             "'freezers', 'existing')"): compete_choice_val,
+             "'freezers', 'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'refrigeration', None, "
-             "'existing')"): compete_choice_val,
+             "'existing')"): compete_choice_val[0],
             ("('primary', 'AIA_CZ1', 'single family home', "
              "'electricity', 'refrigeration', None, "
-             "'new')"): compete_choice_val}]
+             "'new')"): compete_choice_val[0]},
+            {
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'heating', 'demand', 'windows', "
+             "'existing')"): compete_choice_val[1],
+            ("('primary', 'AIA_CZ2', 'single family home', "
+             "'electricity', 'heating', 'demand', 'windows', "
+             "'existing')"): compete_choice_val[1],
+            ("('primary', 'AIA_CZ1', 'multi family home', "
+             "'electricity', 'heating', 'demand', 'windows', "
+             "'existing')"): compete_choice_val[2],
+            ("('primary', 'AIA_CZ2', 'multi family home', "
+             "'electricity', 'heating', 'demand', 'windows', "
+             "'existing')"): compete_choice_val[2]},
+            {
+            ("('primary', 'AIA_CZ1', 'single family home', "
+             "'electricity', 'lighting', 'linear fluorescent (LED)', "
+             "'existing')"): compete_choice_val[3],
+            ("('primary', 'AIA_CZ2', 'single family home', "
+             "'electricity', 'lighting', 'linear fluorescent (LED)', "
+             "'existing')"): compete_choice_val[3],
+            ("('primary', 'AIA_CZ1', 'multi family home', "
+             "'electricity', 'lighting', 'linear fluorescent (LED)', "
+             "'existing')"): compete_choice_val[4],
+            ("('primary', 'AIA_CZ2', 'multi family home', "
+             "'electricity', 'lighting', 'linear fluorescent (LED)', "
+             "'existing')"): compete_choice_val[4]}]
         cls.ok_tpmeas_fullchk_msegadjout = [{
             "sub-market": {
                 "original energy (total)": {},
@@ -6998,20 +7128,27 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         for idx, measure in enumerate(self.ok_tpmeas_fullchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
                               self.convert_data, self.verbose)
-            self.dict_check(
-                measure.markets['Technical potential']['master_mseg'],
-                self.ok_tpmeas_fullchk_msegout[idx])
+            # Restrict the full check of all branches of 'markets' to only
+            # the first three measures in this set. For the remaining two
+            # measures, only check the competed choice parameter outputs.
+            # These last two measures are intended to test a special case where
+            # measure cost units are in $/ft^2 floor rather than $/unit and
+            # competed choice parameters must be scaled accordingly
+            if idx < 3:
+                self.dict_check(
+                    measure.markets['Technical potential']['master_mseg'],
+                    self.ok_tpmeas_fullchk_msegout[idx])
+                self.dict_check(
+                    measure.markets['Technical potential']['mseg_adjust'][
+                        'secondary mseg adjustments'],
+                    self.ok_tpmeas_fullchk_msegadjout[idx])
+                self.dict_check(
+                    measure.markets['Technical potential']['mseg_out_break'],
+                    self.ok_tpmeas_fullchk_break_out[idx])
             self.dict_check(
                 measure.markets['Technical potential']['mseg_adjust'][
                     'competed choice parameters'],
                 self.ok_tpmeas_fullchk_competechoiceout[idx])
-            self.dict_check(
-                measure.markets['Technical potential']['mseg_adjust'][
-                    'secondary mseg adjustments'],
-                self.ok_tpmeas_fullchk_msegadjout[idx])
-            self.dict_check(
-                measure.markets['Technical potential']['mseg_out_break'],
-                self.ok_tpmeas_fullchk_break_out[idx])
 
     def test_mseg_ok_part_tp(self):
         """Test 'fill_mkts' function given valid inputs.
@@ -9550,9 +9687,9 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                     "source": "EIA AEO",
                                     "model type": "logistic regression",
                                     "parameters": {
-                                        "b1": {"2009": None, "2010": None},
-                                        "b2": {"2009": None,
-                                               "2010": None}}},
+                                        "b1": {"2009": "NA", "2010": "NA"},
+                                        "b2": {"2009": "NA",
+                                               "2010": "NA"}}},
                                 "competed market": {
                                     "source": "COBAM",
                                     "model type": "bass diffusion",

@@ -133,6 +133,13 @@ class UsefulVars(object):
             applies only to the residential sector, where conversions from
             $/ft^2 floor to $/unit depend on number of units per household,
             which varies according to technology type).
+        res_typ_sf_household (dict): Typical household-level square footages,
+            used to translate ECM costs from $/ft^2 floor to $/household.
+        res_typ_units_household (dict): Typical number of technology units per
+            household, used to translate ECM costs from $/household to the
+            $/unit scale expected by the residential ECM competition approach
+        deflt_choice (list): Residential technology choice capital/operating
+            cost parameters to use when choice data are missing.
     """
 
     def __init__(self, base_dir, handyfiles):
@@ -558,6 +565,33 @@ class UsefulVars(object):
         self.cconv_whlbldgkeys_map = {
             "wireless sensor network": ["$/node"],
             "occupant-centered sensing and controls": ["$/occupant"]}
+        # Typical household square footages based on RECS 2015 Table HC 1.10,
+        # "Total square footage of U.S. homes, 2015"; divide total square
+        # footage for each housing type by total number of homes for each
+        # housing type (combine single family detached/attached into single
+        # family home, combine apartments with 2-4 and 5 or more units into
+        # multi family home)
+        self.res_typ_sf_household = {
+            "single family home": 2491, "mobile home": 1176,
+            "multi family home": 882}
+        # Typical number of lighting units per household based on RECS 2015
+        # Table HC 5.1, "Lighting in U.S. homes by housing unit type, 2015";
+        # take the median value for each bin in the table rows (e.g., for
+        # bin 0-20 lights, median is 10), and compute a housing unit-weighted
+        # sum across all the bins and housing types (combine single family
+        # detached/attached into single family home, combine apartments with
+        # 2-4 and 5 or more units into multi family home). Assume one unit
+        # per household for all other technologies; note that windows are
+        # included in this assumption (homeowners install/replace multiple
+        # windows at once as one 'unit').
+        self.res_typ_units_household = {
+            "lighting": {"single family home": 36, "mobile home": 18,
+                         "multi family home": 15},
+            "all other technologies": 1}
+        # Assume that missing technology choice parameters come from the
+        # appliances/MELs areas; default is thus the EIA choice parameters
+        # for refrigerator technologies
+        self.deflt_choice = [-0.01, -0.12]
 
     def append_keyvals(self, dict1, keyval_list):
         """Append all terminal key values in a dict to a list.
@@ -1951,6 +1985,34 @@ class Measure(object):
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
                     else:
+                        # Add technology choice parameter scaling factor for
+                        # residential ECMs with costs specified in units of
+                        # $/ft^2 floor. This scaling factor effectively
+                        # translates the technology choice cost inputs
+                        # for such ECMs from $/ft^2 floor to $/unit
+                        if sqft_subst == 1:
+                            # Calculate the choice parameter scaling factor as
+                            # the typical square footage of the building type
+                            # divided by the typical number of technology units
+                            # for the current end use and building type. If the
+                            # necessary data for the calculation are not
+                            # available, set the scaling factor to one
+                            try:
+                                choice_param_adj = \
+                                    self.handyvars.res_typ_sf_household[
+                                        mskeys[2]] / \
+                                    self.handyvars.res_typ_units_household[
+                                        mskeys[4]][mskeys[2]]
+                            except KeyError:
+                                try:
+                                    choice_param_adj = \
+                                        self.handyvars.res_typ_sf_household[
+                                            mskeys[2]] / 1
+                                except KeyError:
+                                    choice_param_adj = 1
+                        else:
+                            choice_param_adj = 1
+
                         # Use try/except to handle cases with missing
                         # or invalid consumer choice data (where choice
                         # parameter values of 0 or "NA" are invalid)
@@ -1959,8 +2021,17 @@ class Measure(object):
                                 "consumer choice"]["competed market share"][
                                     "parameters"]["b1"].items()]):
                                 raise ValueError
-                            choice_params = base_cpl["consumer choice"][
-                                "competed market share"]["parameters"]
+                            choice_params = {
+                                "b1": {
+                                    key: base_cpl["consumer choice"][
+                                        "competed market share"]["parameters"][
+                                        "b1"][yr] * choice_param_adj for key in
+                                    self.handyvars.aeo_years},
+                                "b2": {
+                                    key: base_cpl["consumer choice"][
+                                        "competed market share"]["parameters"][
+                                        "b2"][yr] * choice_param_adj for key in
+                                    self.handyvars.aeo_years}}
                             # Add to count of primary microsegment key chains
                             # with valid consumer choice data
                             valid_keys_consume += 1
@@ -1979,12 +2050,16 @@ class Measure(object):
                                         "' missing valid consumer choice "
                                         "data for end use '" + str(mskeys[4]) +
                                         "'; using default choice data for " +
-                                        "heating end use")
+                                        "refrigeration end use")
                             choice_params = {
-                                "b1": {key: -0.003 for
-                                       key in self.handyvars.aeo_years},
-                                "b2": {key: -0.012 for
-                                       key in self.handyvars.aeo_years}}
+                                "b1": {
+                                    key: self.handyvars.deflt_choice[0] *
+                                    choice_param_adj for key in
+                                    self.handyvars.aeo_years},
+                                "b2": {
+                                    key: self.handyvars.deflt_choice[1] *
+                                    choice_param_adj for key in
+                                    self.handyvars.aeo_years}}
                 else:
                     # Update commercial baseline and measure energy cost
                     # information, accounting for any fuel switching from
@@ -2040,10 +2115,11 @@ class Measure(object):
                                     "' missing valid consumer choice data " +
                                     "for end use '" + str(mskeys[4]) +
                                     "'; using default choice data for " +
-                                    "heating end use")
+                                    "refrigeration end use")
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
-                                                 "distributions"]["heating"]}
+                                                 "distributions"][
+                                                 "refrigeration"]}
 
                 # Find fraction of total new buildings in each year.
                 # Note: in each year, this fraction is calculated by summing
