@@ -1183,21 +1183,26 @@ class Engine(object):
         # Find an overall ECM stock turnover rate for each year in the competed
         # time horizon, where the overall rate is an average across all ECMs
 
+        # Initialize weighted average lifetime across all competing ECMs
+        eff_life = 0
+        # Add each competing ECM's lifetime weighted by its market share
+        # to the overall weighted ECM lifetime
+        for ind2, m in enumerate(measures_adj):
+            eff_life += m.markets[adopt_scheme]["competed"][
+                "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
+        # Handle case where overall weighted ECM lifetime is an array
+        if type(eff_life) == numpy.ndarray:
+            # Initialize overall ECM turnover rate as zero for all years
+            eff_turnover_rt = {yr: numpy.zeros(len(eff_life)) for
+                               yr in self.handyvars.aeo_years}
+        else:
+            # Initialize overall ECM turnover rate as zero for all years
+            eff_turnover_rt = {yr: 0 for yr in self.handyvars.aeo_years}
+
         # Loop through all years in the ECM competition time horizon
         for ind1, yr in enumerate(years_on_mkt_all):
-            # Initialize weighted average lifetime across all competing ECMs
-            eff_life = 0
-            # Add each competing ECM's lifetime weighted by its market share
-            # to the overall weighted ECM lifetime
-            for ind2, m in enumerate(measures_adj):
-                eff_life += m.markets[adopt_scheme]["competed"][
-                    "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
-
             # Handle case where overall weighted ECM lifetime is an array
             if type(eff_life) == numpy.ndarray:
-                # Initialize overall ECM turnover rate as zero for all years
-                eff_turnover_rt = {yr: numpy.zeros(len(eff_life)) for
-                                   yr in self.handyvars.aeo_years}
                 # Loop through all elements in the weighted ECM lifetime array
                 for i in range(0, len(eff_life)):
                     # Determine the future year in which the competed ECM stock
@@ -1216,13 +1221,11 @@ class Engine(object):
             # Handle case where overall weighted lifetime across all competing
             # ECMs is a point value
             else:
-                # Initialize overall ECM turnover rate as zero for all years
-                eff_turnover_rt = {yr: 0 for yr in self.handyvars.aeo_years}
                 # Determine the future year in which the competed ECM stock
                 # from the current year will turn over, calculated as the
                 # current year being looped through plus the overall
                 # weighted ECM lifetime
-                future_eff_turnover_yr = ind1 + int(eff_life) + 1
+                future_eff_turnover_yr = ind1 + int(eff_life)
                 # If the future year calculated above is within the ECM
                 # competition time horizon, set ECM stock turnover rate for
                 # that future year as 1/weighted ECM lifetime for the current
@@ -1258,7 +1261,7 @@ class Engine(object):
                 # Determine the future year in which the baseline stock
                 # from the current year will turn over, calculated as the
                 # current year being looped through plus the baseline lifetime
-                future_base_turnover_yr = ind1 + int(base_life) + 1
+                future_base_turnover_yr = ind1 + int(base_life)
                 # If the future year calculated above is within the modeling
                 # time horizon, set baseline stock turnover rate for that
                 # future year as 1/baseline lifetime plus retrofit rate
@@ -1511,28 +1514,33 @@ class Engine(object):
         # Find an overall ECM stock turnover rate for each year in the competed
         # time horizon, where the overall rate is an average across all ECMs
 
+        # Initialize weighted average lifetime across all competing ECMs
+        eff_life = 0
+        # Add each competing ECM's lifetime weighted by its market share
+        # to the overall weighted ECM lifetime
+        for ind2, m in enumerate(measures_adj):
+            eff_life += m.markets[adopt_scheme]["competed"][
+                "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
+        # Handle case where overall weighted ECM lifetime is an array
+        if type(eff_life) == numpy.ndarray:
+            # Initialize overall ECM turnover rate as zero for all years
+            eff_turnover_rt = {yr: numpy.zeros(len(eff_life)) for
+                               yr in self.handyvars.aeo_years}
+        else:
+            # Initialize overall ECM turnover rate as zero for all years
+            eff_turnover_rt = {yr: 0 for yr in self.handyvars.aeo_years}
+
         # Loop through all years in the ECM competition time horizon
         for ind1, yr in enumerate(years_on_mkt_all):
-            # Initialize weighted average lifetime across all competing ECMs
-            eff_life = 0
-            # Add each competing ECM's lifetime weighted by its market share
-            # to the overall weighted ECM lifetime
-            for ind2, m in enumerate(measures_adj):
-                eff_life += m.markets[adopt_scheme]["competed"][
-                    "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
-
             # Handle case where overall weighted ECM lifetime is an array
             if type(eff_life) == numpy.ndarray:
-                # Initialize overall ECM turnover rate as zero for all years
-                eff_turnover_rt = {yr: numpy.zeros(len(eff_life)) for
-                                   yr in self.handyvars.aeo_years}
                 # Loop through all elements in the weighted ECM lifetime array
                 for i in range(0, len(eff_life)):
                     # Determine the future year in which the competed ECM stock
                     # from the current year will turn over, calculated as the
                     # current year being looped through plus the overall
                     # weighted ECM lifetime
-                    future_eff_turnover_yr = ind1 + int(eff_life[i]) + 1
+                    future_eff_turnover_yr = ind1 + int(eff_life[i])
                     # If the future year calculated above is within the ECM
                     # competition time horizon, set ECM stock turnover rate for
                     # that future year as 1/weighted ECM lifetime for the
@@ -1544,13 +1552,11 @@ class Engine(object):
             # Handle case where overall weighted lifetime across all competing
             # ECMs is a point value
             else:
-                # Initialize overall ECM turnover rate as zero for all years
-                eff_turnover_rt = {yr: 0 for yr in self.handyvars.aeo_years}
                 # Determine the future year in which the competed ECM stock
                 # from the current year will turn over, calculated as the
                 # current year being looped through plus the overall
                 # weighted ECM lifetime
-                future_eff_turnover_yr = ind1 + int(eff_life) + 1
+                future_eff_turnover_yr = ind1 + int(eff_life)
                 # If the future year calculated above is within the ECM
                 # competition time horizon, set ECM stock turnover rate for
                 # that future year as 1/weighted ECM lifetime for the
@@ -2238,16 +2244,6 @@ class Engine(object):
                         # is up for replacement/retrofit
                         wt_comp = base_turnover_wt + eff_turnover_wt
 
-                        # Update previously captured efficient fraction and
-                        # remaining baseline stock fraction, capping the
-                        # efficient fraction at 1
-                        if eff_frac_map + base_turnover_rt[wyr] < 1:
-                            eff_frac_map += base_turnover_rt[wyr]
-                            base_frac_map = 1 - eff_frac_map
-                        else:
-                            eff_frac_map = 1
-                            base_frac_map = 0
-
                     # Weighted market share equals the "long run" market share
                     # for the current year weighted by the fraction of the
                     # total market that is competed, plus any market share
@@ -2255,6 +2251,16 @@ class Engine(object):
                     adj_frac_tot = \
                         (1 - wt_comp) * adj_frac_tot + \
                         wt_comp * (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
+
+                # Update previously captured efficient fraction and
+                # remaining baseline stock fraction, capping the
+                # efficient fraction at 1
+                if eff_frac_map + base_turnover_rt[wyr] < 1:
+                    eff_frac_map += base_turnover_rt[wyr]
+                    base_frac_map = 1 - eff_frac_map
+                else:
+                    eff_frac_map = 1
+                    base_frac_map = 0
 
         # Ensure that total captured market share is never above 1
         if type(adj_frac_tot) != numpy.ndarray and adj_frac_tot > 1:
