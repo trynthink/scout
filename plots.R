@@ -350,7 +350,19 @@ for (a in 1:length(adopt_scenarios)){
     for (m in 1:length(meas_names)){
     
       # Add ECM name to Excel worksheet data frame
-      row_ind_start = (m-1)*4 + 1
+      
+      # Set appropriate starting row for the ECM's data
+      if (meas_names[m] == "All ECMs"){
+      	# For the 'All ECMs' data, start at the beginning of the file
+      	row_ind_start = 1
+      }else{
+      	# Otherwise, leave the first 4 rows for the 'All ECMs' total uncompeted/
+      	# competed energy, carbon, and cost data, plus another 19 rows for 'All ECMs'
+      	# energy, carbon, and cost savings totals, first summarized across all climate
+      	# zones, building types, and end uses (1 row) and subsequently broken out by
+      	# climate zone (5 rows), building type (4 rows), and end use (9 rows)
+      	row_ind_start = (m-1)*4 + 1 + (1 + 5 + 4 + 9)
+      }
       xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
       
       # Set applicable climate zones, end uses, and building classes for ECM
@@ -803,6 +815,14 @@ for (a in 1:length(adopt_scenarios)){
     # Reconfigure space around each side of the plot for best fit
     par(mar=c(5.1, 7.1, 3.1, 7.1))
     
+    # Set the first XLSX row number for writing aggregated savings results; note that 
+    # these results are ultimately written to the 19 rows that follow the
+    # 'All ECMs' total energy, carbon, and cost results written above (19 = 1 row
+    # for total savings across climate zones, building types, and end uses, 5 rows for
+    # savings by climate zone, 4 rows for savings by building type, and 9 rows
+    # for savings by end use)
+    agg_row_ind = 5
+    
     # Loop through all three savings filter variables and add plot of aggregated savings
     # under each filter to the PDF device
     for (f in (1:nrow(results_agg))){
@@ -886,11 +906,63 @@ for (a in 1:length(adopt_scenarios)){
            xlim = c(min(xlim), max(xlim)), ylim = c(min(ylim_ann), max(ylim_ann)),
            xlab=NA, ylab=NA, col="gray30", main = NA,
            xaxt="n", yaxt="n", lwd=4)
+      
+      # Add total aggregate savings data across all climate zones, building types, and
+      # end uses to the data frame that will be written to the XLSX file; do so only if the
+      # first savings filter variable is being looped through, as the total aggregate
+      # savings values do not change across filter variables
+      if (f == 1){
+      	# Set ECM name to 'All ECMs' and results scenario to baseline minus efficient
+      	xlsx_data[agg_row_ind, 1:2] = c("All ECMs", "Baseline competed - efficient competed")
+      	# When updating total aggregate savings, each filter variable cell in the XLSX is
+      	# flagged 'All' (since the total values pertain to all filter variable categories)
+      	xlsx_data[agg_row_ind, 3:5] = rep("All", 3)
+      	# Add the total aggregate savings values to the appropriate row/column range
+      	xlsx_data[agg_row_ind,
+                  (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = total_ann
+      	# Increment the XLSX row to write to by one 
+      	agg_row_ind = agg_row_ind + 1
+      	# Set the columns in the XLSX that are active/inactive for the current filter variable
+      	col_active = 3
+      	col_inactive = c(4, 5)
+      # If the second or third savings filter variable is being looped through, do not
+      # write out total aggregate savings estimates to XLSX, but do flag the column in the XLSX
+      # where the relevant filter variable information will be written
+      }else if (f==2){
+      	# Set the columns in the XLSX that are active for the current filter variable
+      	col_active = 4
+      	# Set the columns in the XLSX that correspond to the inactive filter variables (
+      	# 'All' values will be written to these columns)
+      	col_inactive = c(3, 5)
+      }else if (f==3){
+      	# Set the columns in the XLSX that are active for the current filter variable
+      	col_active = 5
+      	# Set the columns in the XLSX that correspond to the inactive filter variables (
+      	# 'All' values will be written to these columns)
+      	col_inactive = c(3, 4)
+      }
       # Loop through each filter variable category name to add to plot
       for (catnm in (1:(length(results_agg[f, 2][[1]])))){
         # Add lines for savings by filter variable category
         lines(years, results_agg[f, 2][[1]][[catnm]]*unit_translate,
           	  col=results_agg[f, 3][[1]][catnm], lwd=2)
+        
+        # Add aggregate savings results broken out by filter variable to the data frame
+        # that will be written to the XLSX file
+        
+        # Set ECM name to 'All ECMs' and results scenario to baseline minus efficient
+        xlsx_data[agg_row_ind, 1:2] = c("All ECMs", "Baseline competed - efficient competed")
+        # Set the currently active filter variable category name (e.g., 'AIA CZ1,'
+        # 'Ventilation,' etc.)
+        xlsx_data[agg_row_ind, col_active] = results_agg[f, 1][[1]][catnm]
+        # Set inactive filter variable values to 'All'
+        xlsx_data[agg_row_ind, col_inactive] = rep("All", 2)
+        # Add aggregate savings values broken out by the current filter variable category
+        # to the appropriate row/column range
+        xlsx_data[agg_row_ind, (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = 
+        		results_agg[f, 2][[1]][[catnm]]*unit_translate 
+        # Increment the XLSX row to write to by one
+        agg_row_ind = agg_row_ind + 1	     	  	  
       }
       # Add y axis labels for total annual savings and savings by filter variable category
       axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
@@ -1125,8 +1197,10 @@ for (a in 1:length(adopt_scenarios)){
     xlsx_var_name_list[v] <- xlsx_unique_var_name
 
     # Assign current data to the variable name generated and stored for use
-    # in writing out the Excel data
-    assign(xlsx_unique_var_name, xlsx_data)
+    # in writing out the Excel data. Note: throw out the first two rows in the
+    # data, which are dedicated to uncompeted energy, carbon, and cost results
+    # summed across all ECMs (these results are not meaningful)
+    assign(xlsx_unique_var_name, xlsx_data[3:nrow(xlsx_data), 1:ncol(xlsx_data)])
   }
 
   # Write data to Excel xlsx-formatted spreadsheet with worksheets

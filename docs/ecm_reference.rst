@@ -104,19 +104,23 @@ The end use names appear verbatim in the first column of the tables for resident
 +-----------------------+-------------+-------------+------------+------------+
 | refrigeration         |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
+| ceiling fan           |      X      |             |            |            |
++-----------------------+-------------+-------------+------------+------------+
+| fans & pumps          |             |             |            |            |
+| :superscript:`*`      |      X      |             |            |            |
++-----------------------+-------------+-------------+------------+------------+
+| computers             |             |             |            |            |
+| :superscript:`*`      |      X      |             |            |            |
++-----------------------+-------------+-------------+------------+------------+
+| TVs :superscript:`*`  |      X      |             |            |            |
++-----------------------+-------------+-------------+------------+------------+
 | other (grid electric) |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | all                   |      X      |      X      |      X     |      X     |
 +-----------------------+-------------+-------------+------------+------------+
 
-.. | ceiling fan           |      X      |             |            |            |
-   +-----------------------+-------------+-------------+------------+------------+
-   | fans & pumps          |      X      |             |            |            |
-   +-----------------------+-------------+-------------+------------+------------+
-   | computers             |      X      |             |            |            |
-   +-----------------------+-------------+-------------+------------+------------+
-   | TVs                   |      X      |             |            |            |
-   +-----------------------+-------------+-------------+------------+------------+
+:superscript:`*` These end uses and all associated technologies may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for associated technologies.
+
 
 **Commercial**
 
@@ -139,15 +143,17 @@ The end use names appear verbatim in the first column of the tables for resident
 +-------------------------+-------------+-------------+------------+
 | cooking                 |      X      |      X      |            |
 +-------------------------+-------------+-------------+------------+
+| PCs :superscript:`*`    |      X      |             |            |
++-------------------------+-------------+-------------+------------+
+| non-PC office equipment |             |             |            |
+| :superscript:`*`        |      X      |             |            |
++-------------------------+-------------+-------------+------------+
+| MELs :superscript:`*`   |      X      |             |            |
++-------------------------+-------------+-------------+------------+
 | all                     |      X      |      X      |      X     |
 +-------------------------+-------------+-------------+------------+
 
-.. | PCs                     |      X      |             |            |
-   +-------------------------+-------------+-------------+------------+
-   | non-PC office equipment |      X      |             |            |
-   +-------------------------+-------------+-------------+------------+
-   | MELs                    |      X      |             |            |
-   +-------------------------+-------------+-------------+------------+
+:superscript:`*` These end uses and all associated technologies may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for associated technologies.
 
 .. _ecm-baseline_technology:
 
@@ -219,16 +225,15 @@ Technology names appear verbatim. The lighting technology names are in the body 
 
 * refrigeration: ``null``
 
+* ceiling fan: ``null``
+
+* fans and pumps: ``null``
+
+* computers: desktop PC, laptop PC, network equipment, monitors
+
+* TVs: home theater & audio, set top box, video game consoles, DVD, TV
+
 * other (grid electric): dishwasher, other MELs, clothes washing, freezers
-
-.. * ceiling fan: ``null``
-
-.. * fans and pumps: ``null``
-
-.. * computers: desktop PC, laptop PC, network equipment, monitors
-
-.. * TVs: home theater & audio, set top box, video game consoles, DVD, TV
-
 
 
 **Residential -- Demand**
@@ -271,9 +276,11 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
    * electricity: |tooltip| Range, Electric-induction, 4 burner, oven, |chunk-b| electric range with induction-style cooktop |close|
    * natural gas: |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close|
 
-.. * PCs
-.. * non-PC office equipment
-.. * MELs: lab fridges and freezers, non-road electric vehicles, kitchen ventilation, escalators, distribution transformers, large video displays, video displays, elevators, laundry, medical imaging, coffee brewers, fume hoods, security systems
+* PCs
+
+* non-PC office equipment
+
+* MELs: lab fridges and freezers, non-road electric vehicles, kitchen ventilation, escalators, distribution transformers, large video displays, video displays, elevators, laundry, medical imaging, coffee brewers, fume hoods, security systems
 
 **Commercial -- Demand**
 
