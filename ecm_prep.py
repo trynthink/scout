@@ -2897,6 +2897,11 @@ class Measure(object):
         captured_eff_frac = 0
         captured_base_frac = 1
 
+        # Initialize the portion of microsegment that was previously captured
+        # by the efficient measure and is up for replacement or retrofit (e.g.,
+        # competed) in the current year
+        captured_eff_frac_compete = 0
+
         # Set the relative energy performance of the current year's
         # competed and uncompeted stock that goes uncaptured (both 1)
         rel_perf_comp_uncapt, rel_perf_uncomp_uncapt = (
@@ -3141,6 +3146,11 @@ class Measure(object):
                         (1 - new_bldg_add_frac) * \
                         (captured_eff_replace_frac +
                          captured_base_replace_frac)
+                    # Update the fraction of the stock that was previously
+                    # captured by the efficient measure and is currently up for
+                    # replacement or retrofit
+                    captured_eff_frac_compete = (1 - new_bldg_add_frac) * \
+                        captured_eff_replace_frac
                 else:
                     competed_frac = 0
             # Primary microsegment not in the first year where current
@@ -3150,11 +3160,33 @@ class Measure(object):
                 if captured_base_replace_frac + captured_eff_replace_frac <= 1:
                     competed_frac = \
                         captured_base_replace_frac + captured_eff_replace_frac
+                    # Update the fraction of the stock that was previously
+                    # captured by the efficient measure and is currently up for
+                    # replacement or retrofit
+                    captured_eff_frac_compete = captured_eff_replace_frac
                 else:
                     competed_frac = 1
             # For all other cases, set competed fraction to 0
             else:
                 competed_frac = 0
+
+            # Update the portion of the stock that was previously captured
+            # by the efficient measure to reflect a flow from this captured
+            # stock to competed stock, given end of life measure replacement
+            # or retrofit in the current year
+
+            # Check to ensure the competed efficient fraction is less than
+            # the previously captured efficient fraction; if not, all of the
+            # previously captured efficient stock flows to competed efficient
+            # stock and the previously captured efficient fraction is zero
+            if captured_eff_frac_compete < captured_eff_frac:
+                # Remove the competed efficient stock fraction from the
+                # previously captured efficient fraction
+                captured_eff_frac = (
+                    captured_eff_frac - captured_eff_frac_compete) / (
+                    1 - captured_eff_frac_compete)
+            else:
+                captured_eff_frac = 0
 
             # Determine the fraction of total stock, energy, and carbon
             # in a given year that is competed and captured by the measure
@@ -3244,10 +3276,13 @@ class Measure(object):
                         stock_adj_frac = 1
                     # Update total number of stock units captured by the
                     # measure (reflects all previously captured stock +
-                    # captured competed stock from the current year)
+                    # captured competed stock from the current year). Note
+                    # that previously captured stock that is now competed
+                    # must be subtracted from the previously captured stock
                     stock_total_meas[yr] = (stock_total_meas[
-                        str(int(yr) - 1)]) * stock_adj_frac * (
-                        1 - captured_eff_replace_frac) + stock_compete_meas[yr]
+                        str(int(yr) - 1)]) * stock_adj_frac - \
+                        captured_eff_frac_compete * stock_total[yr] + \
+                        stock_compete_meas[yr]
 
                     # Ensure captured stock never exceeds total stock
 

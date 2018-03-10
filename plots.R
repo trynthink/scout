@@ -71,7 +71,7 @@ years<-row.names(as.matrix(
 start_yr = 2015
 end_yr = max(years)
 # Set the year to take a 'snapshot' of certain results in 
-snap_yr = "2030"
+snap_yr = "2040"
 # Filter and order the year range
 years<-years[(years>=start_yr)&(years<=end_yr)]
 years<-years[order(years)]
