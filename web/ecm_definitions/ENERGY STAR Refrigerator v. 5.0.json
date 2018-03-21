@@ -18,32 +18,32 @@
        "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Final%20Version%205.0%20Residential%20Refrigerators%20and%20Freezers%20Program%20Requirements.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 446.7,
+  "energy_efficiency": 459,
   "energy_efficiency_units": "kWh/yr",
   "energy_efficiency_source": {
-    "notes": "Reigerator-freezer with non-manual or partial automatic defrost; an adjusted average volume of 33.97 ft3;  total volume of 26.75, and refrigerator portion of 17.25 ft3",
-    "source_data": [{
-     "title": "ENERGY STAR Program Requirements for Residential Refrigerators and Freezers",
-       "author": "Energy Star",
-       "organization": "U.S. EPA",
-       "year": 2014,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Final%20Version%205.0%20Residential%20Refrigerators%20and%20Freezers%20Program%20Requirements.pdf"}]},
-  "installed_cost": 1180,
-  "cost_units": "2013$/unit",
-  "installed_cost_source": {
-    "notes": "total installed cost for energy star side mount refrigerators",
+    "notes": "Energy Star 2013, bottom-mount",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "U.S. EIA",
        "organization": "U.S. EIA",
        "year": 2016,
-       "pages": 61,
+       "pages": 60,
+       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "installed_cost": 980,
+  "cost_units": "2010$/unit",
+  "installed_cost_source": {
+    "notes": "total installed cost for energy star bottom mount refrigerators",
+    "source_data": [{
+       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+       "author": "U.S. EIA",
+       "organization": "U.S. EIA",
+       "year": 2016,
+       "pages": 60,
        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
   "product_lifetime": 16,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of average stated lifetime for side-mount refrigerators, adjusted from 17 to 16 to match baseline refrigerator lifetime (in Scout 'cpl_res_com_cz.json' file)",
+    "notes": "median of average stated lifetime for bottom-mount refrigerators, adjusted from 17 to 16 to match baseline refrigerator lifetime (in Scout 'cpl_res_com_cz.json' file)",
     "source_data": [{
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
        "author": "U.S. EIA",
