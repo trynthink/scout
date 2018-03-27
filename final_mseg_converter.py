@@ -376,21 +376,6 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
         if entry in ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']:
             cz_int = entry
 
-    # Temporary (and not necessarily accurate) translation from AIA
-    # climate zones to Building America climate zones since the
-    # envelope cost, performance, and lifetime data are specified with
-    # Building America climate zones
-    if cz_int == 'AIA_CZ1':
-        cz = 'very cold'
-    elif cz_int == 'AIA_CZ2':
-        cz = 'cold'
-    elif cz_int == 'AIA_CZ3':
-        cz = 'mixed dry'
-    elif cz_int == 'AIA_CZ4':
-        cz = 'mixed dry'
-    elif cz_int == 'AIA_CZ5':
-        cz = 'hot humid'
-
     # Some envelope components are reported as two or more words, but
     # the first word is often the required word to select the relevant
     # cost, performance, and lifetime data, thus it is helpful to split
@@ -479,8 +464,8 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
                 # Extract the performance value, first trying for if it
                 # is specified to the climate zone level
                 try:
-                    perf_val = env_s_data['typical'][cz]
-                except TypeError:
+                    perf_val = env_s_data['typical'][cz_int]
+                except KeyError:
                     perf_val = env_s_data['typical']
 
                 # Add the units and source information to the dict
@@ -495,17 +480,51 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
         # the existing cost, performance, and lifetime data dict without
         # providing further levels of specificity
         else:
-            # Extract the performance value, again first trying for if
-            # it is specified to the climate zone level
+            # Extract the performance value, first trying for if
+            # the value is broken out by vintage
             try:
-                perf_val = specific_cpl_data['performance']['typical'][cz]
-            except TypeError:
-                perf_val = specific_cpl_data['performance']['typical']
+                perf_val = [
+                    specific_cpl_data['performance']['typical']['new'],
+                    specific_cpl_data['performance']['typical']['existing']]
+                # Try for if the value is further broken out by climate
+                try:
+                    perf_val = [x[cz_int] for x in perf_val]
+                except TypeError:
+                    pass
+            except KeyError:
+                # Try for if the value is broken out by climate
+                try:
+                    perf_val = specific_cpl_data['performance']['typical'][
+                        cz_int]
+                except TypeError:
+                    perf_val = specific_cpl_data['performance']['typical']
             the_perf['units'] = specific_cpl_data['performance']['units']
             the_perf['source'] = specific_cpl_data['performance']['source']
 
         # Record the performance value identified in the above rigmarole
-        the_perf['typical'] = {str(yr): perf_val for yr in years}
+
+        # Case where the performance value is not broken out by vintage
+        if type(perf_val) is not list:
+            # Note: the dict comprehension handles cases where the
+            # performance value is further broken out by year; if the value
+            # is not broken out by year, the comprehension assumes the same
+            # performance value for all years in the analysis time horizon
+            the_perf['typical'] = {
+                str(yr): perf_val[str(yr)] if type(perf_val) is dict
+                else perf_val for yr in years}
+        # Case where the performance value is broken out by vintage
+        else:
+            # Note: the dict comprehension handles cases where the
+            # performance value is further broken out by year; if the value
+            # is not broken out by year, the comprehension assumes the same
+            # performance value for all years in the analysis time horizon
+            the_perf['typical'] = {
+                'new': {
+                    str(yr): perf_val[0][str(yr)] if type(perf_val[0]) is dict
+                    else perf_val[0] for yr in years},
+                'existing': {
+                    str(yr): perf_val[1][str(yr)] if type(perf_val[1]) is dict
+                    else perf_val[1] for yr in years}}
 
         # Transfer the lifetime data as-is (the lifetime data has a
         # uniform format across all of the envelope components) except

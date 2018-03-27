@@ -1603,10 +1603,19 @@ class Measure(object):
                                 "lifetime"]["average"].items()]):
                             raise ValueError
 
-                        # Set baseline performance and performance units
-                        perf_base, perf_base_units = [
-                            base_cpl["performance"]["typical"],
-                            base_cpl["performance"]["units"]]
+                        # Set baseline performance; try for case where baseline
+                        # performance is broken out by new and existing
+                        # vintage; given an exception, expect a single set of
+                        # values across both vintages
+                        try:
+                            perf_base = base_cpl[
+                                "performance"]["typical"][mskeys[-1]]
+                        except KeyError:
+                            perf_base = base_cpl[
+                                "performance"]["typical"]
+
+                        # Set baseline performance units
+                        perf_base_units = base_cpl["performance"]["units"]
 
                         # Handle 1-1 conversion between COP and AFUE if needed
                         # (e.g., for fuel switching between natural gas

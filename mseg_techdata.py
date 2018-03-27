@@ -972,17 +972,19 @@ def main():
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,
                                   dtype=None, comments=None,
-                                  skip_header=nlt_cp_skip_header)
+                                  skip_header=nlt_cp_skip_header,
+                                  encoding="latin1")
 
     # Import EIA non-lighting residential lifetime data
     eia_nlt_l = numpy.genfromtxt(eiadata.r_nlt_life, names=r_nlt_l_names,
                                  dtype=None, comments=None,
-                                 skip_header=19)
+                                 skip_header=19, encoding="latin1")
 
     # Import EIA lighting residential cost, performance and lifetime data
     eia_lt = numpy.genfromtxt(eiadata.r_lt_all, names=r_lt_names,
                               dtype=None, comments=None,
-                              skip_header=lt_skip_header, skip_footer=54)
+                              skip_header=lt_skip_header, skip_footer=54,
+                              encoding="latin1")
 
     # Establish the modeling time horizon based on metadata generated
     # from EIA AEO data files

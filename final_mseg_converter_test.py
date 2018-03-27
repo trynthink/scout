@@ -1766,26 +1766,20 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                     "performance": {
                         "conduction": {
                             "typical": {
-                                "sub arctic": 3.13,
-                                "very cold": 3.13,
-                                "cold": 3.13,
-                                "marine": 2.86,
-                                "mixed humid": 2.86,
-                                "mixed dry": 2.86,
-                                "hot dry": 2.5,
-                                "hot humid": 2.5},
+                                "AIA_CZ1": 3.13,
+                                "AIA_CZ2": 3.13,
+                                "AIA_CZ3": 2.86,
+                                "AIA_CZ4": 2.86,
+                                "AIA_CZ5": 2.5},
                             "units": "R value",
                             "source": "Source A"},
                         "solar": {
                             "typical": {
-                                "sub arctic": 0.4,
-                                "very cold": 0.4,
-                                "cold": 0.4,
-                                "marine": 0.4,
-                                "mixed humid": 0.4,
-                                "mixed dry": 0.4,
-                                "hot dry": 0.25,
-                                "hot humid": 0.25},
+                                "AIA_CZ1": 0.4,
+                                "AIA_CZ2": 0.4,
+                                "AIA_CZ3": 0.4,
+                                "AIA_CZ4": 0.4,
+                                "AIA_CZ5": 0.25},
                             "units": "SHGC",
                             "source": "Source A"}},
                     "lifetime": {
@@ -1801,26 +1795,24 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                     "performance": {
                         "conduction": {
                             "typical": {
-                                "sub arctic": 2.86,
-                                "very cold": 2.86,
-                                "cold": 2.86,
-                                "marine": 1.75,
-                                "mixed humid": 1.75,
-                                "mixed dry": 1.75,
-                                "hot dry": 0.82,
-                                "hot humid": 0.82},
+                                "AIA_CZ1": 2.86,
+                                "AIA_CZ2": 2.86,
+                                "AIA_CZ3": 1.75,
+                                "AIA_CZ4": 1.75,
+                                "AIA_CZ5": 0.82},
                             "units": "R value",
                             "source": "Source B"},
                         "solar": {
                             "typical": {
-                                "sub arctic": 0.49,
-                                "very cold": 0.49,
-                                "cold": 0.39,
-                                "marine": 0.39,
-                                "mixed humid": 0.39,
-                                "mixed dry": 0.39,
-                                "hot dry": 0.25,
-                                "hot humid": 0.25},
+                                "AIA_CZ1": 0.49,
+                                "AIA_CZ2": {
+                                    '2009': 0.39, '2010': 0.39, '2011': 0.39,
+                                    '2012': 0.39, '2013': 0.39, '2014': 0.39,
+                                    '2015': 0.39, '2016': 0.39, '2017': 0.39,
+                                    '2018': 0.39, '2019': 0.42, '2020': 0.42},
+                                "AIA_CZ3": 0.39,
+                                "AIA_CZ4": 0.39,
+                                "AIA_CZ5": 0.25},
                             "units": "SHGC",
                             "source": "Source B"}},
                     "lifetime": {
@@ -1836,14 +1828,25 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "source": "NA"},
                     "performance": {
                         "typical": {
-                            "sub arctic": 3,
-                            "very cold": 3,
-                            "cold": 3,
-                            "marine": 3,
-                            "mixed humid": 3,
-                            "mixed dry": 3,
-                            "hot dry": 5,
-                            "hot humid": 5},
+                            "new": {
+                                "AIA_CZ1": 3,
+                                "AIA_CZ2": 3,
+                                "AIA_CZ3": 3,
+                                "AIA_CZ4": 3,
+                                "AIA_CZ5": {
+                                    '2009': 5, '2010': 5, '2011': 5,
+                                    '2012': 5, '2013': 5, '2014': 5,
+                                    '2015': 5, '2016': 3, '2017': 3,
+                                    '2018': 3, '2019': 3, '2020': 3}
+                            },
+                            "existing": {
+                                "AIA_CZ1": 10,
+                                "AIA_CZ2": 10,
+                                "AIA_CZ3": 10,
+                                "AIA_CZ4": 10,
+                                "AIA_CZ5": 10
+                            }
+                        },
                         "units": "ACH",
                         "source": "Source D"},
                     "lifetime": {
@@ -1873,14 +1876,11 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "source": "Source G"},
                     "performance": {
                         "typical": {
-                            "sub arctic": 10,
-                            "very cold": 10,
-                            "cold": 10,
-                            "marine": 10,
-                            "mixed humid": 10,
-                            "mixed dry": 0,
-                            "hot dry": 0,
-                            "hot humid": 0},
+                            "AIA_CZ1": 10,
+                            "AIA_CZ2": 10,
+                            "AIA_CZ3": 10,
+                            "AIA_CZ4": 0,
+                            "AIA_CZ5": 0},
                         "units": "R value",
                         "source": "Source H"},
                     "lifetime": {
@@ -1895,14 +1895,11 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "source": "Source J"},
                     "performance": {
                         "typical": {
-                            "sub arctic": 8,
-                            "very cold": 8,
-                            "cold": 8,
-                            "marine": 6,
-                            "mixed humid": 6,
-                            "mixed dry": 0,
-                            "hot dry": 0,
-                            "hot humid": 0},
+                            "AIA_CZ1": 8,
+                            "AIA_CZ2": 8,
+                            "AIA_CZ3": 6,
+                            "AIA_CZ4": 0,
+                            "AIA_CZ5": 0},
                         "units": "R value",
                         "source": "Source D"},
                     "lifetime": {
@@ -2176,7 +2173,7 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
             'typical': {'2009': 0.39, '2010': 0.39, '2011': 0.39,
                         '2012': 0.39, '2013': 0.39, '2014': 0.39,
                         '2015': 0.39, '2016': 0.39, '2017': 0.39,
-                        '2018': 0.39, '2019': 0.39, '2020': 0.39},
+                        '2018': 0.39, '2019': 0.42, '2020': 0.42},
             'units': 'SHGC',
             'source': 'Source B'},
          'lifetime': {
@@ -2231,10 +2228,16 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
             'units': '2016$/ft^2 floor',
             'source': 'NA'},
          'performance': {
-            'typical': {'2009': 5, '2010': 5, '2011': 5,
+            'typical': {
+                'new': {'2009': 5, '2010': 5, '2011': 5,
                         '2012': 5, '2013': 5, '2014': 5,
-                        '2015': 5, '2016': 5, '2017': 5,
-                        '2018': 5, '2019': 5, '2020': 5},
+                        '2015': 5, '2016': 3, '2017': 3,
+                        '2018': 3, '2019': 3, '2020': 3},
+                'existing': {'2009': 10, '2010': 10, '2011': 10,
+                             '2012': 10, '2013': 10, '2014': 10,
+                             '2015': 10, '2016': 10, '2017': 10,
+                             '2018': 10, '2019': 10, '2020': 10}
+            },
             'units': 'ACH',
             'source': 'Source D'},
          'lifetime': {

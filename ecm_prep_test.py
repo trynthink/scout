@@ -1693,7 +1693,11 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
-                                        "typical": {"2009": 8, "2010": 8},
+                                        "typical": {
+                                            "new": {"2009": 8, "2010": 8},
+                                            "existing": {
+                                                "2009": 8, "2010": 8}
+                                            },
                                         "best": {"2009": 8, "2010": 8},
                                         "units": "R Value",
                                         "source":
