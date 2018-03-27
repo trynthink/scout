@@ -2350,7 +2350,7 @@ class Measure(object):
                                 out_cz][out_bldg][out_eu].keys()) == 0:
                             self.markets[adopt_scheme]["mseg_out_break"][
                                 out_cz][out_bldg][out_eu] = \
-                                OrderedDict(sorted(add_energy.items()))
+                                OrderedDict(sorted(add_energy_total.items()))
 
                         # If the output breakout dictionary has already been
                         # updated for a previous microsegment, add the baseline
@@ -2361,13 +2361,13 @@ class Measure(object):
                             for yr in self.handyvars.aeo_years:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     out_cz][out_bldg][
-                                    out_eu][yr] += add_energy[yr]
+                                    out_eu][yr] += add_energy_total[yr]
                         # Add to the total energy value used to normalize
                         # savings values summed by climate zone, building
                         # type, and end use
                         for yr in self.out_break_norm[adopt_scheme].keys():
                             self.out_break_norm[
-                                adopt_scheme][yr] += add_energy[yr]
+                                adopt_scheme][yr] += add_energy_total[yr]
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
                     except KeyError:
@@ -4012,7 +4012,9 @@ class Measure(object):
             if isinstance(i, dict):
                 self.div_keyvals(i, dict2)
             else:
-                if dict2[k] != 0:  # Handle total energy use of zero
+                # Handle total energy use of zero
+                if ((type(dict2[k]) == numpy.ndarray and all(dict2[k]) != 0) or
+                        (type(dict2[k]) != numpy.ndarray and dict2[k] != 0)):
                     dict1[k] = dict1[k] / dict2[k]
                 else:
                     dict1[k] = 0
@@ -4034,7 +4036,11 @@ class Measure(object):
             if isinstance(i, dict):
                 self.div_keyvals_float(i, reduce_num)
             else:
-                if reduce_num != 0:  # Handle zero values
+                # Handle zero values
+                if ((type(reduce_num) == numpy.ndarray and
+                     all(reduce_num) != 0) or (
+                        type(reduce_num) != numpy.ndarray and
+                        reduce_num != 0)):
                     dict1[k] = dict1[k] / reduce_num
                 else:
                     dict1[k] = 0

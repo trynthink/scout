@@ -7,8 +7,10 @@ package_loader <- function(pkg_list) {
   options(warn=-1) # Suppress sometimes misleading package load warning messages
   # For Windows users, install packages in a directory with administrator priveleges
   if (Sys.info()[1]=="Windows"){
+  	# Find Windows user name
+  	user_name = Sys.getenv("USERNAME")
   	# Create directory for package install (default used by R GUI)
-  	dir_path = file.path('C:', 'Users', 'User', 'Documents','R', 'win-library')
+  	dir_path = file.path('C:', 'Users', user_name, 'Documents','R', 'win-library')
   	dir.create(dir_path, showWarnings = FALSE, recursive = TRUE)
   }else{dir_path = NULL}
   # Run through and install/load required packages	

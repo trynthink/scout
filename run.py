@@ -2644,10 +2644,11 @@ class Engine(object):
                 ("Baseline CO2 Cost (USD)".translate(sub),
                  carb_cost_base_all_avg),
                 ("Energy Savings (MMBtu)", energy_save_all_avg),
-                ("Energy Cost Savings (USD)", energy_costsave_avg),
+                ("Energy Cost Savings (USD)", energy_costsave_all_avg),
                 ("Avoided CO2 Emissions (MMTons)".translate(sub),
-                 carb_save_avg),
-                ("CO2 Cost Savings (USD)".translate(sub), carb_costsave_avg),
+                 carb_save_all_avg),
+                ("CO2 Cost Savings (USD)".translate(sub),
+                 carb_costsave_all_avg),
                 ("Efficient Energy Use (MMBtu)", energy_eff_all_avg),
                 ("Efficient CO2 Emissions (MMTons)".translate(sub),
                  carb_eff_all_avg),
@@ -2736,10 +2737,31 @@ def main(base_dir):
                 "': " + str(e)) from None
     print('ECM attributes data load complete')
 
-    # Loop through measures data in JSON, initialize objects for all measures
-    # that are active and valid
-    measures_objlist = [Measure(handyvars, **m) for m in meas_summary if
-                        m["name"] in active_meas_all and m["remove"] is False]
+    active_ecms_w_jsons = 0
+    # Check that all ECM names included in the active list have a
+    # matching ECM definition in ./ecm_definitions; warn users about ECMs
+    # that do not have a matching ECM definition, which will be excluded
+    for mn in active_meas_all:
+        if mn not in [m["name"] for m in meas_summary]:
+            print("WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
+                  "list does not match any of the ECM names found in " +
+                  "./ecm_definitions JSONs and will not be simulated")
+        else:
+            active_ecms_w_jsons += 1
+
+    # After verifying that there are active measures to simulate with
+    # corresponding JSON definitions, loop through measures data in JSON,
+    # initialize objects for all measures that are active and valid
+    if active_ecms_w_jsons == 0:
+        raise(ValueError("No active measures found; ensure that the " +
+                         "'active' list in run_setup.json is not empty " +
+                         "and that all active measure names match those " +
+                         "found in the 'name' field for corresponding " +
+                         "measure definitions in ./ecm_definitions"))
+    else:
+        measures_objlist = [
+            Measure(handyvars, **m) for m in meas_summary if
+            m["name"] in active_meas_all and m["remove"] is False]
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to

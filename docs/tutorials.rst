@@ -130,10 +130,10 @@ The technology field drills down into the specific technologies or device types 
 
 All of the technology names are listed by building sector (residential or commercial) and technology type (supply or demand) in the :ref:`relevant section <ecm-baseline_technology>` of the :ref:`ecm-def-reference`. In general, the residential__ and commercial__ thermal load components are the technology names for demand-side energy use, and are relevant for ECMs that apply to the building envelope or windows. Technology names for supply-side energy use generally correspond to major equipment types used in the AEO_ [#]_ and are relevant for ECMs that are describing those types of equipment within a building. 
 
-For this example, LED troffers are likely to replace linear fluorescent bulbs, the typical bulb type in troffers. There are many lighting types for commercial buildings, but we will include all of the lighting types that are specified as F\_\_T\_\_, which correspond to linear fluorescent bulb types, including those with additional modifying text. ::
+For this example, LED troffers are likely to replace linear fluorescent bulbs, the typical bulb type in troffers. There are many lighting types for commercial buildings, but we will include all of the lighting types that are specified as T\_\_F\_\_, which correspond to linear fluorescent bulb types, including those with additional modifying text. ::
 
    {...
-    "technology": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
+    "technology": ["T5 F28", "T8 F28 High-efficiency/High-Output", "T8 F32 Commodity", "T8 F59 High Efficiency", "T8 F59 Typical Efficiency", "T8 F96 High Output"],
     ...}
 
 .. __: https://github.com/trynthink/scout/blob/master/1999%20Residential%20heating%20and%20cooling%20loads%20component%20analysis.pdf

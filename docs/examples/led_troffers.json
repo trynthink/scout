@@ -5,7 +5,10 @@
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
-  "technology": ["F28T8 HE w/ OS", "F28T8 HE w/ SR", "F96T8", "F96T12 mag", "F96T8 HE", "F28T8 HE w/ OS & SR", "F28T5", "F28T8 HE", "F32T8", "F96T12 ES mag", "F34T12", "T8 F32 EEMag (e)"],
+  "technology": [
+      "T5 F28", "T8 F28 High-efficiency/High-Output",
+      "T8 F32 Commodity", "T8 F59 High Efficiency", 
+      "T8 F59 Typical Efficiency", "T8 F96 High Output"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "The source suggests that technologies described in the document are available on the market by its release date.",
