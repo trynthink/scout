@@ -2912,9 +2912,8 @@ class Measure(object):
         captured_eff_frac_compete = 0
 
         # Set the relative energy performance of the current year's
-        # competed and uncompeted stock that goes uncaptured (both 1)
-        rel_perf_comp_uncapt, rel_perf_uncomp_uncapt = (
-            1 for n in range(2))
+        # competed and uncompeted stock that goes uncaptured
+        rel_perf_uncapt = 1
 
         # In cases where secondary microsegments are present, initialize a
         # dict of year-by-year secondary microsegment adjustment information
@@ -3308,25 +3307,22 @@ class Measure(object):
                             stock_total_meas[yr] > stock_total[yr]:
                         stock_total_meas[yr] = stock_total[yr]
 
-            # Update the relative performance of the current year's competed
-            # and captured stock
-            rel_perf_comp_capt = rel_perf[yr]
-            # Set the relative performance of the current year's uncompeted
-            # and previously captured stock to that of the current year's
-            # competed and captured stock for all years through market entry;
-            # after market entry, this relative performance value represents
-            # a weighted combination of the relative performance values for
-            # competed and captured stock in all previous years
+            # Update the relative performance of the current year's captured
+            # stock. Set to the relative performance of the current year only
+            # for all years through market entry; after market entry, this
+            # value is a weighted combination of the relative performance
+            # values for captured stock in both the current year and all
+            # previous years since market entry
             if int(yr) <= self.market_entry_year:
-                rel_perf_uncomp_capt = rel_perf[yr]
+                rel_perf_capt = rel_perf[yr]
             else:
                 base_turnover_wt = (
                     (1 / life_base[yr]) + self.handyvars.retro_rate)
                 if base_turnover_wt > 1:
                     base_turnover_wt = 1
-                rel_perf_uncomp_capt = (
+                rel_perf_capt = (
                     rel_perf[yr] * base_turnover_wt +
-                    rel_perf_uncomp_capt * (1 - base_turnover_wt))
+                    rel_perf_capt * (1 - base_turnover_wt))
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -3337,34 +3333,34 @@ class Measure(object):
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_total[yr] * \
-                competed_captured_eff_frac * rel_perf_comp_capt * \
+                competed_captured_eff_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
                 energy_total[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
-                rel_perf_comp_uncapt
+                rel_perf_uncapt
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                captured_eff_frac * rel_perf_uncomp_capt * \
+                captured_eff_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
                 (energy_total[yr] - energy_compete[yr]) * \
-                (1 - captured_eff_frac) * rel_perf_uncomp_uncapt
+                (1 - captured_eff_frac) * rel_perf_uncapt
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total[yr] * \
-                competed_captured_eff_frac * rel_perf_comp_capt * \
+                competed_captured_eff_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
                 carb_total[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
-                rel_perf_comp_uncapt
+                rel_perf_uncapt
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 (carb_total[yr] - carb_compete[yr]) * \
-                captured_eff_frac * rel_perf_uncomp_capt * \
+                captured_eff_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
                 (carb_total[yr] - carb_compete[yr]) * (
-                    1 - captured_eff_frac) * rel_perf_uncomp_uncapt
+                    1 - captured_eff_frac) * rel_perf_uncapt
 
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
@@ -3404,22 +3400,22 @@ class Measure(object):
             energy_compete_cost[yr] = energy_compete[yr] * cost_energy_base[yr]
             # Competed energy-efficient cost
             energy_compete_cost_eff[yr] = energy_total[yr] * \
-                competed_captured_eff_frac * rel_perf_comp_capt * \
+                competed_captured_eff_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] + energy_total[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
-                cost_energy_base[yr] * rel_perf_comp_uncapt
+                cost_energy_base[yr] * rel_perf_uncapt
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total[yr] * cost_energy_base[yr]
             # Total energy-efficient cost
             energy_total_eff_cost[yr] = energy_compete_cost_eff[yr] + \
                 (energy_total[yr] - energy_compete[yr]) * captured_eff_frac * \
-                rel_perf_uncomp_capt * (
+                rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] + (
                     energy_total[yr] - energy_compete[yr]) * (
                     1 - captured_eff_frac) * cost_energy_base[yr] * \
-                rel_perf_uncomp_uncapt
+                rel_perf_uncapt
 
             # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * \
