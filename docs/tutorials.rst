@@ -1,3 +1,8 @@
+.. Substitutions
+.. |--| unicode:: U+2013   .. en dash
+.. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
+   :trim:
+
 .. _tutorials:
 
 Local Execution Tutorials
@@ -145,9 +150,9 @@ Market entry and exit year
 
 The market entry year represents the year the technology is or will be available for purchase and installation. Some ECMs might be prospective, representing technologies not currently available. Others might represent technologies currently commercially available. The market entry year should reflect the current status of the technology described in the ECM. Similarly, the market exit year represents the year the technology is expected to be withdrawn from the market. If the technology described by an ECM will have a lower installed cost or improved energy efficiency after its initial market entry, another ECM should be created that reflects the improved version of the product, and the market exit year should not (in general) be used to force an older technology out of the market.
 
-The market entry year and exit year both require source information. As much as is practicable, a :ref:`high quality<ecm-sources>` reference should be used for both values. If no source is available, such as for a technology that is still quite far from commercialization, a brief explanatory note should be provided for the market entry year source, and the :ref:`json-source_data` fields themselves can be given as ``null`` or with empty strings. If it is anticipated that the product will not be withdrawn from the market prior to the end of the model :ref:`time horizon <2010-2040 projection>`, the exit year and source should be given as ``null``.
+The market entry year and exit year both require source information. As much as is practicable, a :ref:`high quality<ecm-sources>` reference should be used for both values. If no source is available, such as for a technology that is still quite far from commercialization, a brief explanatory note should be provided for the market entry year source, and the :ref:`json-source_data` fields themselves can be given as ``null`` or with empty strings. If it is anticipated that the product will not be withdrawn from the market prior to the end of the model :ref:`time horizon <2013-2050 projection>`, the exit year and source should be given as ``null``.
 
-LED troffers are currently commercially available with a range of efficiency, cost, and lifetime ratings. It is likely that while LED troffers will not, in general, exit the market within the model :ref:`time horizon <2010-2040 projection>`, LED troffers with cost and efficiency similar to this ECM are not likely to remain competitive through 2040. It will, however, be left to the analysis to determine whether more advanced lighting products enter the market and supplant this ECM, rather than specifying a market exit year. ::
+LED troffers are currently commercially available with a range of efficiency, cost, and lifetime ratings. It is likely that while LED troffers will not, in general, exit the market within the model :ref:`time horizon <2013-2050 projection>`, LED troffers with cost and efficiency similar to this ECM are not likely to remain competitive through 2040. It will, however, be left to the analysis to determine whether more advanced lighting products enter the market and supplant this ECM, rather than specifying a market exit year. ::
 
    {...
     "market_entry_year": 2015,
@@ -164,6 +169,7 @@ LED troffers are currently commercially available with a range of efficiency, co
     "market_exit_year_source": null,
     ...}
 
+.. _efficiency:
 
 Energy efficiency
 *****************
@@ -313,7 +319,162 @@ The LED troffers ECM that you've now written can be simulated with Scout by foll
 Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are at the beginning of each section.
+There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are included in each section.
+
+.. _ecm-features-tsv:
+
+Time sensitive valuation
+************************
+
+In certain cases, ECMs might affect baseline energy loads differently depending on the time of day, necessitating time sensitive valuation of efficiency impacts. :numref:`tsv-ecm-diagram` demonstrates four possible types of time sensitive ECM impacts.
+
+.. _tsv-ecm-diagram:
+.. figure:: images/TSV_ECMs.*
+
+   The effect of time sensitive ECM features on baseline energy load shapes are represented as a light gray curve in each of the plots. Time sensitive ECM features include (clockwise from top left): conventional efficiency, where an efficiency improvement is constrained to certain hours of the day; peak shaving and valley filling, where peaks in the load shape are reduced and/or troughs in the load shape are filled in; load shaping, where a load shape is uniformly flattened or redistributed to reflect a custom load shape; and load shifting, where loads shed during a certain hour range are redistributed to an earlier time of day or the entire load shape is shifted earlier by a certain number of hours.
+
+Such time sensitive ECM features are specified using the "time_sensitive_valuation" parameter, which adheres to the following general format: ::
+
+   {...
+    "time_sensitive_valuation": {
+      <time sensitive feature>: {<feature details>}},
+    ...}
+
+Each time sensitive ECM feature is further described below with illustrative example ECMs. 
+
+.. _ecm-download-com-peak:
+
+:download:`Example <examples/Commercial AC (Peak Elimination).json>` -- Commercial AC (Peak Elimination) ECM (:ref:`Details <ecm-example-com-peak>`)
+
+The first type of time sensitive ECM feature restricts the impact of a conventional efficiency measure to certain hours of the day using "start" and "stop" parameters. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "conventional": {"start": 12, "stop": 20}},
+    ...}
+
+These settings constrain ECM efficiency impacts indicated by the :ref:`efficiency` parameter to a specific time period |---| in this example, 12PM--8PM. Such a capability may be useful, for example, in exploring the total energy use, |CO2| emissions, and operating costs associated with a particular utility definition of the peak load period. This "time_sensitive_valuation" setting works in combination with the energy efficiency specified separately in the ECM definition. In this example, the above "time_sensitive_valuation" settings are combined with a 100% energy use reduction. ::
+
+   {...
+    "energy_efficiency": 1,
+    "energy_efficiency_units": "relative savings (constant)",
+    ...}
+
+This particular combination of "time_sensitive_valuation" and "energy_efficiency" settings yields the total avoided energy, |CO2| emissions, and operating costs resulting from *eliminating* peak period energy use.
+
+.. _ecm-example-com-peak:
+
+A commercial peak elimination ECM is :ref:`available for download <ecm-download-com-peak>`.
+
+.. _ecm-download-com-shave:
+
+:download:`Example <examples/Commercial AC (Peak Shave).json>` -- Commercial AC (Peak Shave) ECM (:ref:`Details <ecm-example-com-shave>`)
+
+The second type of time sensitive ECM feature either sheds a fixed percentage of peak energy load off a baseline load shape or fills in troughs in the baseline load shape; these effects may be restricted to certain hours of the day or applied across the entire day.
+
+Given the following peak shaving settings, loads are reduced to *at maximum* 75% of the peak load between 12PM--8PM. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shave": {"start": 12, "stop": 20, "peak_fraction": 0.75}},
+    ...}
+
+Given the following valley filling settings, loads are increased to *at minimum* 50% of the peak load between 12PM-8PM. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "fill": {"start": 12, "stop": 20, "peak_fraction": 0.5}},
+    ...}
+
+.. _ecm-example-com-shave:
+
+A commercial peak shaving ECM is :ref:`available for download <ecm-download-com-shave>`.
+
+.. _ecm-download-com-shift:
+
+:download:`Example <examples/Commercial AC (Shift).json>` -- Commercial AC (Load Shift) ECM (:ref:`Details <ecm-example-com-shift>`)
+
+The third type of time sensitive ECM feature shifts baseline energy loads from one time of day to another, either by redistributing loads shed during a certain hour range to earlier times of day or by shifting the entire baseline energy load shape earlier by a certain number of hours.
+
+In the first case, "start" and "stop" parameters are used to determine the hour range from which to shift load reductions; an "offset_hrs_earlier" parameter is then used to determine which hour range to redistribute the load reductions to. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 12}},
+    ...} 
+
+These settings take any load reductions between 12PM--8PM |---| determined by the ECM's :ref:`efficiency` parameter setting |---| and evenly redistribute the reductions across the hours of 12AM--8AM, or 12 hours earlier in the day.
+
+In the second case, no start and stop times are given for the time sensitive feature. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shift": {"start": null, "stop": null, "offset_hrs_earlier": 12}},
+    ...}
+
+These settings shift the *entire* baseline load shape earlier by 12 hours.
+
+.. tip::
+   In cases where no time constraints are desired on a time sensitive ECM feature, users may exclude the "start" and "stop" parameters entirely (in lieu of setting them to null values).
+
+.. _ecm-example-com-shift:
+
+A commercial load shifting ECM that demonstrates the load shifting settings from the first case above is :ref:`available for download <ecm-download-com-shift>`.
+
+.. _ecm-download-com-flatten:
+
+:download:`Example <examples/Commercial AC (Flatten).json>` -- Commercial AC (Load Flatten) ECM (:ref:`Details <ecm-example-com-shape>`)
+
+.. _ecm-download-com-shape:
+
+:download:`Example <examples/Commercial AC (Shape).json>` -- Commercial AC (Custom Load Shape) ECM (:ref:`Details <ecm-example-com-shape>`)
+
+The final type of time sensitive ECM feature reshapes the baseline energy load by uniformly flattening the load or rescaling it to represent a user-defined custom load shape. 
+
+The "flatten_fraction" parameter is used to flatten a baseline energy load shape. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
+    ...}
+
+These settings result in all loads above the daily average being reduced by 50% of the difference between the load and the average, and all loads below the daily average being increased by 50% of the difference between the load and the average. In this case, no time constraints have been placed on the flattening operation, though it is possible to do so using the "start" and "stop" parameters. When a time interval is provided, the calculated average and resulting load reshaping are limited to the specified interval.
+
+The "custom" parameter is used to set a custom load shape. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shape": {
+        "custom": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
+                   0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]}},
+    ...}
+
+Here, custom load shaping fractions are specified in a list for all 24 hours of the day. Each number in the list represents the hourly load's fraction of maximum daily load. In the above settings, for example, the load for the first hour of the day is 79% of the maximum daily load, which occurs in hour 22.
+
+.. _ecm-example-com-shape:
+
+A commercial load flattening ECM is :ref:`available for download <ecm-download-com-flatten>`, as is a :ref:`commercial custom load shaping ECM <ecm-download-com-shape>`.
+
+.. _ecm-download-com-multiple:
+
+:download:`Example <examples/Commercial AC (Multiple TSV).json>` -- Commercial AC (Multiple TSV) ECM (:ref:`Details <ecm-example-com-multiple>`)
+
+Finally, it is possible to define ECMs that combine multiple time sensitive features at once |---| e.g., an ECM that both shifts and shapes load. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 10},
+      "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
+    ...}
+
+These settings take any load reductions between 12PM-8PM |---| again defined by the ECM's :ref:`efficiency` parameter setting |---| and redistribute them evenly across the hours of 12AM-8AM; subsequently, the resulting load shape is flattened to reduce the difference between all hourly loads and the average hourly load by 50%.
+
+.. note::
+   When multiple time sensitive features are specified for an ECM, the assumed order of implementation is: 1) conventional efficiency, 2) peak shave or valley fill, 3) load shift, and 4) load reshape.
+
+.. _ecm-example-com-multiple:
+
+A commercial load shifting and reshaping ECM is :ref:`available for download <ecm-download-com-multiple>`.
 
 .. _ecm-features-shorthand:
 

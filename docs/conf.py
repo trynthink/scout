@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Scout'
-copyright = '2017'
+copyright = '2018'
 author = 'Chioke Harris and Jared Langevin'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -65,7 +65,7 @@ author = 'Chioke Harris and Jared Langevin'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = ''
 # The full version, including alpha/beta/rc tags.
 release = version
 
