@@ -1,6 +1,6 @@
 # License
 
-Copyright (c) 2015-2017 Chioke Harris and Jared Langevin
+Copyright (c) 2015-2018 Chioke Harris and Jared Langevin
 
 This software is provided under two licenses. Anyone interested in using, modifying, or contributing to the software may do so subject to the terms of the Apache 2.0 license. If you meet the requirements below, you may use the BSD license as an alternate license:
 
