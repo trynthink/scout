@@ -280,48 +280,51 @@ class ListGeneratorTest(unittest.TestCase):
 
     # Define a test dict in the format of BTO-defined performance, cost
     # and lifetime data on all technologies not covered by EIA data
-    tech_non_eia = {"secondary heating (electric)": [[5, 2, "Source 1"],
-                                                     [2, 3, "Source 2"],
-                                                     [50, 70, "Source 3"],
-                                                     "COP"],
-                    "secondary heating (natural gas)": [[4, 1, "Source 4"],
-                                                        [87, 92, "Source 5"],
-                                                        [60, 80, "Source 6"],
-                                                        "AFUE"],
-                    "secondary heating (kerosene)": [[1.1, 2.2, "Source 7"],
-                                                     [85, 99, "Source 8"],
-                                                     [100, 200, "Source 9"],
-                                                     "AFUE"],
-                    "secondary heating (wood)": [[10, 5, "Source 10"],
-                                                 [70, 85, "Source 11"],
-                                                 [45, 50, "Source 12"],
-                                                 "AFUE"],
-                    "secondary heating (LPG)": [[5, 5, "Source 13"],
-                                                [90, 95, "Source 14"],
-                                                [150, 175, "Source 15"],
-                                                "AFUE"],
-                    "secondary heating (coal)": [[15, 10, "Source 16"],
-                                                 [77, 82, "Source 17"],
-                                                 [35, 55, "Source 17"],
-                                                 "AFUE"],
-                    "TV": [[1, 0.5, "Source 18"], [10.1, 20.4, "Source 18"],
-                           [500, 605, "Source 19"], "W"],
-                    "set top box": [[25, 2, "Source 20"],
-                                    [100, 50, "Source 20"],
-                                    [60, 43, "Source 20"], "W"],
-                    "DVD": [[7, 4, "Source 21"],
-                            [70, 60, "Source 21"], [20, 30, "Source 21"],
-                            "W"],
-                    "other MELs": [[0, 0, "NA"], [0, 0, "NA"],
-                                   [0, 0, "NA"], "NA"],
-                    "windows conduction": [[25, 5, "RS Means"],
-                                           [7, 10, "NREL Efficiency DB"],
-                                           [20, 30, "RS Means"], "R Value"],
-                    "windows solar": [[20, 2, "RS Means"],
-                                      [0.4, 0.3, "NREL Efficiency DB"],
-                                      [20, 30, "RS Means"], "SHGC"],
-                    "wall": [[25, 7, "RS Means"], [6, 7, "EnergyStar"],
-                             [35, 40, "RS Means"], "R Value/sq.in."]}
+    # *** FOR NOW *** do not update any technologies in this routine for which
+    # there are no EIA cost, performance, and lifetime characteristics
+    tech_non_eia = {}
+    # tech_non_eia = {"secondary heating (electric)": [[5, 2, "Source 1"],
+    #                                                  [2, 3, "Source 2"],
+    #                                                  [50, 70, "Source 3"],
+    #                                                  "COP"],
+    #                 "secondary heating (natural gas)": [[4, 1, "Source 4"],
+    #                                                     [87, 92, "Source 5"],
+    #                                                     [60, 80, "Source 6"],
+    #                                                     "AFUE"],
+    #                 "secondary heating (kerosene)": [[1.1, 2.2, "Source 7"],
+    #                                                  [85, 99, "Source 8"],
+    #                                                  [100, 200, "Source 9"],
+    #                                                  "AFUE"],
+    #                 "secondary heating (wood)": [[10, 5, "Source 10"],
+    #                                              [70, 85, "Source 11"],
+    #                                              [45, 50, "Source 12"],
+    #                                              "AFUE"],
+    #                 "secondary heating (LPG)": [[5, 5, "Source 13"],
+    #                                             [90, 95, "Source 14"],
+    #                                             [150, 175, "Source 15"],
+    #                                             "AFUE"],
+    #                 "secondary heating (coal)": [[15, 10, "Source 16"],
+    #                                              [77, 82, "Source 17"],
+    #                                              [35, 55, "Source 17"],
+    #                                              "AFUE"],
+    #                 "TV": [[1, 0.5, "Source 18"], [10.1, 20.4, "Source 18"],
+    #                        [500, 605, "Source 19"], "W"],
+    #                 "set top box": [[25, 2, "Source 20"],
+    #                                 [100, 50, "Source 20"],
+    #                                 [60, 43, "Source 20"], "W"],
+    #                 "DVD": [[7, 4, "Source 21"],
+    #                         [70, 60, "Source 21"], [20, 30, "Source 21"],
+    #                         "W"],
+    #                 "other MELs": [[0, 0, "NA"], [0, 0, "NA"],
+    #                                [0, 0, "NA"], "NA"],
+    #                 "windows conduction": [[25, 5, "RS Means"],
+    #                                        [7, 10, "NREL Efficiency DB"],
+    #                                        [20, 30, "RS Means"], "R Value"],
+    #                 "windows solar": [[20, 2, "RS Means"],
+    #                                   [0.4, 0.3, "NREL Efficiency DB"],
+    #                                   [20, 30, "RS Means"], "SHGC"],
+    #                 "wall": [[25, 7, "RS Means"], [6, 7, "EnergyStar"],
+    #                          [35, 40, "RS Means"], "R Value/sq.in."]}
 
     # Define the modeling time horizon to test (2009:2013)
     years = [str(i) for i in range(2009, 2013 + 1)]
@@ -352,7 +355,7 @@ class ListGeneratorTest(unittest.TestCase):
                     ["east north central", "multi family home",
                      "electricity", "refrigeration"],
                     ["east north central", "multi family home",
-                     "electricity", "other (grid electric)",
+                     "electricity", "other",
                      "clothes washing"],
                     ["mid atlantic", "single family home",
                      "natural gas", "cooking"],
@@ -365,35 +368,13 @@ class ListGeneratorTest(unittest.TestCase):
                      "general service (LED)"],
                     ["mid atlantic", "single family home",
                      "electricity", "secondary heating",
-                     "supply", "non-specific"],
+                     "supply", "secondary heater"],
                     ["mid atlantic", "single family home",
                      "electricity", "secondary heating",
                      "demand", "windows conduction"],
                     ["west north central", "multi family home",
                      "electricity", "cooling",
                      "supply", "NGHP"]]
-
-    # Define a sample list of full dictionary key chains as above that should
-    # cause the function to yield a KeyError
-    tech_fail_keys_ke = [["nengland", "single family home",
-                          "electricity", "heating", "supply", "ASHP"],
-                         ["east north central", "multi family home",
-                          "electricity", "other (gas electric)",
-                          "cooking"],
-                         ["east north central", "multi family home",
-                          "electricity", "other (gas electric)",
-                          "washing device"],
-                         ["east north central", "multi family home",
-                          "total square footage"]]
-
-    # Define a sample list of full dictionary key chains as above that should
-    # cause the function to yield a ValueError
-    tech_fail_keys_ve = [["east north central", "multi family home",
-                          "natural gas", "heating", "boiler (NG)"],
-                         ["east north central", "multi family home",
-                          "natural gas", "heating", "furnace (NG)"],
-                         ["east north central", "multi family home",
-                          "electric", "drying"]]
 
     # Define an output dict with leaf node values that should be yielded
     # by the walk_techdata function given the valid inputs above.  Output dict
@@ -424,20 +405,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 2.55},
             "units": "years",
             "source": "EIA AEO"},
-        "consumer choice": {"competed market":
-                            {"model type": "bass diffusion",
-                             "parameters": {"p": "NA", "q": "NA"},
-                             "source": "COBAM"},
-                            "competed market share":
-                            {"model type": "logistic regression",
-                             "parameters":
-                             {"b1":
-                              {"2009": 1, "2010": 1, "2011": 1,
-                               "2012": 1, "2013": 1},
-                              "b2":
-                              {"2009": 2, "2010": 2, "2011": 2,
-                               "2012": 2, "2013": 2}},
-                             "source": "EIA AEO"}}},
+        "consumer choice": {
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 1, "2010": 1, "2011": 1,
+               "2012": 1, "2013": 1},
+              "b2":
+              {"2009": 2, "2010": 2, "2011": 2,
+               "2012": 2, "2013": 2}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 433.33, "2010": 433.33, "2011": 433.33,
                         "2012": 433.33, "2013": 533.33},
@@ -459,20 +437,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 2.3},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 7, "2010": 7, "2011": 7,
-                                "2012": 7, "2013": 7},
-                               "b2":
-                               {"2009": 7, "2010": 7, "2011": 7,
-                                "2012": 7, "2013": 7}},
-                              "source": "EIA AEO"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 7, "2010": 7, "2011": 7,
+                 "2012": 7, "2013": 7},
+                "b2":
+                {"2009": 7, "2010": 7, "2011": 7,
+                 "2012": 7, "2013": 7}},
+               "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 15, "2010": 15, "2011": 15, "2012": 15,
                         "2013": 15},
@@ -494,20 +469,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 3.9},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 4, "2010": 4, "2011": 4,
-                                "2012": 4, "2013": 4},
-                               "b2":
-                               {"2009": 5, "2010": 5, "2011": 5,
-                                "2012": 5, "2013": 5}},
-                              "source": "EIA AEO"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 4, "2010": 4, "2011": 4,
+                 "2012": 4, "2013": 4},
+                "b2":
+                {"2009": 5, "2010": 5, "2011": 5,
+                 "2012": 5, "2013": 5}},
+               "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 29, "2010": 29, "2011": 29, "2012": 32,
                         "2013": 32},
@@ -529,20 +501,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 3.55},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 6, "2010": 6, "2011": 6,
-                                "2012": 6, "2013": 6},
-                               "b2":
-                               {"2009": 7, "2010": 7, "2011": 7,
-                                "2012": 7, "2013": 7}},
-                              "source": "EIA AEO"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 6, "2010": 6, "2011": 6,
+                 "2012": 6, "2013": 6},
+                "b2":
+                {"2009": 7, "2010": 7, "2011": 7,
+                 "2012": 7, "2013": 7}},
+               "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 129, "2010": 129, "2011": 129, "2012": 132,
                         "2013": 132},
@@ -564,20 +533,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 3.5},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 0, "2010": 0, "2011": 0,
-                                "2012": 0, "2013": 0},
-                               "b2":
-                               {"2009": 1, "2010": 1, "2011": 1,
-                                "2012": 1, "2013": 1}},
-                              "source": "EIA AEO"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 0, "2010": 0, "2011": 0,
+                 "2012": 0, "2013": 0},
+                "b2":
+                {"2009": 1, "2010": 1, "2011": 1,
+                 "2012": 1, "2013": 1}},
+               "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.9, "2010": 2.9, "2011": 2.9, "2012": 2.9,
                         "2013": 2.9},
@@ -599,89 +565,47 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 3.25},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 7, "2010": 7, "2011": 7,
-                                "2012": 7, "2013": 7},
-                               "b2":
-                               {"2009": 8, "2010": 8, "2011": 8,
-                                "2012": 8, "2013": 8}},
-                              "source": "EIA AEO"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 7, "2010": 7, "2011": 7,
+                 "2012": 7, "2013": 7},
+                "b2":
+                {"2009": 8, "2010": 8, "2011": 8,
+                 "2012": 8, "2013": 8}},
+               "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 1.13, "2010": 1.55, "2011": 1.55, "2012": 2.78,
                         "2013": 2.78},
-            "best": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
-                     "2013": "NA"},
+            "best": 0,
             "units": "lm/W",
             "source": "EIA AEO"},
          "installed cost": {
             "typical": {"2009": 65, "2010": 63.2, "2011": 63.2, "2012": 90.3,
                         "2013": 90.3},
-            "best": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
-                     "2013": "NA"},
+            "best": 0,
             "units": "2013$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 3.42, "2010": 4.22, "2011": 4.22, "2012": 4.79,
                         "2013": 4.79},
-            "range": {"2009": "NA", "2010": "NA", "2011": "NA", "2012": "NA",
-                      "2013": "NA"},
+            "range": 0,
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": -0.95, "2010": -0.95, "2011": -0.95,
-                                "2012": -0.95, "2013": -0.95},
-                               "b2":
-                               {"2009": -0.1, "2010": -0.1, "2011": -0.1,
-                                "2012": -0.1, "2013": -0.1}},
-                              "source": "EIA AEO"}}},
-        {"performance": {
-            "typical": {"2009": 2, "2010": 2, "2011": 2, "2012": 2, "2013": 2},
-            "best": {"2009": 3, "2010": 3, "2011": 3, "2012": 3, "2013": 3},
-            "units": "COP",
-            "source": "Source 2"},
-         "installed cost": {
-            "typical": {"2009": 50, "2010": 50, "2011": 50, "2012": 50,
-                        "2013": 50},
-            "best": {"2009": 70, "2010": 70, "2011": 70, "2012": 70,
-                     "2013": 70},
-            "units": "2013$/unit",
-            "source": "Source 3"},
-         "lifetime": {
-            "average": {"2009": 5, "2010": 5, "2011": 5, "2012": 5,
-                        "2013": 5},
-            "range": {"2009": 2, "2010": 2, "2011": 2, "2012": 2, "2013": 2},
-            "units": "years",
-            "source": "Source 1"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters": {
-                                  "b1": {
-                                      "2009": "NA", "2010": "NA",
-                                      "2011": "NA", "2012": "NA",
-                                      "2013": "NA"},
-                                  "b2": {
-                                      "2009": "NA", "2010": "NA",
-                                      "2011": "NA", "2012": "NA",
-                                      "2013": "NA"}},
-                              "source": "NA"}}},
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": -0.95, "2010": -0.95, "2011": -0.95,
+                 "2012": -0.95, "2013": -0.95},
+                "b2":
+                {"2009": -0.1, "2010": -0.1, "2011": -0.1,
+                 "2012": -0.1, "2013": -0.1}},
+               "source": "EIA AEO"}}},
+        0,
         0,
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
@@ -704,20 +628,17 @@ class ListGeneratorTest(unittest.TestCase):
                       "2013": 4},
             "units": "years",
             "source": "EIA AEO"},
-         "consumer choice": {"competed market":
-                             {"model type": "bass diffusion",
-                              "parameters": {"p": "NA", "q": "NA"},
-                              "source": "COBAM"},
-                             "competed market share":
-                             {"model type": "logistic regression",
-                              "parameters":
-                              {"b1":
-                               {"2009": 6, "2010": 6, "2011": 6,
-                                "2012": 6, "2013": 6},
-                               "b2":
-                               {"2009": 6, "2010": 6, "2011": 6,
-                                "2012": 6, "2013": 6}},
-                              "source": "EIA AEO"}}}]
+         "consumer choice": {
+              "competed market share":
+              {"model type": "logistic regression",
+               "parameters":
+               {"b1":
+                {"2009": 6, "2010": 6, "2011": 6,
+                 "2012": 6, "2013": 6},
+                "b2":
+                {"2009": 6, "2010": 6, "2011": 6,
+                 "2012": 6, "2013": 6}},
+               "source": "EIA AEO"}}}]
 
     def dict_check(self, dict1, dict2, msg=None):
         """Compare two dicts for equality, allowing for floating point error.
@@ -778,24 +699,6 @@ class ListGeneratorTest(unittest.TestCase):
                 self.dict_check(dict1, dict2)
             else:
                 self.assertEqual(dict1, dict2)
-
-    # Test that the walk_techdata function yields a KeyError given the
-    # invalid key chain input along with the other sample inputs defined above
-    def test_listgen_fail(self):
-        for ke in self.tech_fail_keys_ke:
-            with self.assertRaises(KeyError):
-                mseg_techdata.list_generator_techdata(
-                    self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice,
-                    mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
-                    self.tech_non_eia, ke, self.project_dict)
-        for ve in self.tech_fail_keys_ve:
-            with self.assertRaises(ValueError):
-                mseg_techdata.list_generator_techdata(
-                    self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                    self.eia_lt_choice,
-                    mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
-                    self.tech_non_eia, ve, self.project_dict)
 
 
 class FillYrsTest(unittest.TestCase):

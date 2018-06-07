@@ -4,6 +4,7 @@ import numpy as np
 import re
 import csv
 import json
+import io
 
 
 class EIAData(object):
@@ -55,7 +56,17 @@ class CommercialTranslationDicts(object):
         cdivdict (dict): Translation for census divisions.
         bldgtypedict (dict): Translation for commercial building types.
         endusedict (dict): Translation for commercial building end uses.
-        mels_techdict (dict): Translation for miscellaneous electric loads.
+        mels_techdict (dict): Translation for miscellaneous electric
+            loads (MELs). The numeric translation should be updated
+            each year based on the interpretation given in the AEO
+            commercial buildings microdata file. If there are
+            conspicuously missing MEL codes in the microdata, EIA
+            should be contacted to verify the translation between
+            numeric codes and descriptive names. Additionally, the
+            numeric codes in the end use column in KDBOUT.txt in the
+            rows labeled 'MiscElConsump' should be compared against
+            the codes in the microdata to see if any of the codes are
+            missing from KDBOUT.txt.
         fueldict (dict): Translation for fuel types.
         demand_typedict (dict): Translation for components of thermal load.
     """
@@ -83,7 +94,7 @@ class CommercialTranslationDicts(object):
                              'mercantile/service': 9,
                              'warehouse': 10,
                              'other': 11,
-                             'FIGURE THIS ONE OUT': 12
+                             'non-building': 12  # Applies to specific MELs
                              }
 
         self.endusedict = {'heating': 1,
@@ -108,10 +119,16 @@ class CommercialTranslationDicts(object):
                               'laundry': 8,
                               'lab fridges and freezers': 9,
                               'fume hoods': 10,
-                              'medical imaging': 11,
-                              'video displays': 15,
-                              'large video displays': 16,
-                              'municipal water services': 17
+                              'medical imaging': 12,
+                              'large video boards': 13,
+                              'IT equipment': 14,
+                              'office UPS': 15,
+                              'data center UPS': 16,
+                              'shredders': 17,
+                              'private branch exchanges': 18,
+                              'voice-over-IP telecom': 19,
+                              'water services': 20,  # non-building
+                              'telecom systems': 21  # non-building
                               }
 
         self.fueldict = {'electricity': 1,
@@ -291,6 +308,10 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # summarized and returned from this function
         elif re.search('placeholder', row['Description']):
             rows_to_remove.append(idx)
+        # Else check to see if the description is an empty string,
+        # and if so, add it to the list of rows to remove
+        elif re.search('^(?![\s\S])', row['Description']):
+            rows_to_remove.append(idx)
         # Else check for a special case where the year in the
         # technology name sought by the tech_name regex didn't match
         # because the year in the name is partially truncated at
@@ -302,6 +323,17 @@ def sd_mseg_percent(sd_array, sel, yrs):
 
     # Delete the placeholder rows from the filtered array
     filtered = np.delete(filtered, rows_to_remove, 0)
+
+    # Special filtering for lighting to drop special modifier text
+    # in the descriptions of linear fluorescent bulb types (e.g.,
+    # replace 'T8 F32 Commodity' with 'T8 F32') now that year
+    # details have been removed
+    if sel[2] == CommercialTranslationDicts().endusedict['lighting']:
+        for idx, row in enumerate(filtered):
+            # Identify linear fluorescent types
+            tech_name = re.search('^(T[0-9] F[0-9]{2})', row['Description'])
+            if tech_name:
+                filtered['Description'][idx] = tech_name.group(0)
 
     # Because different technologies are sometimes coded with the same
     # technology type number (especially in lighting, where lighting
@@ -319,7 +351,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
     tval = np.zeros((len(trunc_technames), len(yrs)))
 
     # Combine the data recorded for each unique technology
-    for idx, name in enumerate(trunc_technames):
+    for idx, name in enumerate(technames):
 
         # Extract entries for a given technology type number
         entries = filtered[filtered['Description'] == name]
@@ -711,6 +743,15 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
 
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
+        # For some cooking equipment descriptions in the service demand
+        # data, 11 inches is encoded as 11", which by default leaves
+        # the closing double-quote character in the description strings
+        # while removing the " that denoted inches; by inserting an
+        # escape character before the " denoting inches, the text will
+        # be handled correctly by csv.reader
+        if re.match('.*KSDOUT', re.escape(data_file_path)):
+            cont = thefile.read().replace('11"', '11\\"')
+            thefile = io.StringIO(cont)
 
         # This use of csv.reader assumes that the default setting of
         # quotechar '"' is appropriate; the skipinitialspace option
@@ -722,10 +763,12 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # if they are encountered
         if '\0' in open(data_file_path).read():  # NULL bytes detected
             filecont = csv.reader((x.replace('\0', '') for x in thefile),
-                                  delimiter=delim_char, skipinitialspace=True)
+                                  delimiter=delim_char, skipinitialspace=True,
+                                  escapechar='\\')
         else:  # No NULL bytes, proceed normally
             filecont = csv.reader(thefile,
-                                  delimiter=delim_char, skipinitialspace=True)
+                                  delimiter=delim_char, skipinitialspace=True,
+                                  escapechar='\\')
 
         # Create list to be populated with tuples of each row of data
         # from the data file
@@ -776,7 +819,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         return final_struct
 
 
-def str_cleaner(data_array, column_name):
+def str_cleaner(data_array, column_name, return_str_len=False):
     """Clean up formatting of technology description strings in imported data.
 
     In the imported EIA data, the strings that describe the technology
@@ -789,9 +832,17 @@ def str_cleaner(data_array, column_name):
     Args:
         data_array (numpy.ndarray): A numpy structured array of imported data.
         column_name (str): The name of the column in data_array to edit.
+        return_str_len (bool): If true, this function returns an
+            additional integer used for string truncation.
 
     Returns:
         The input array with the strings in column_name revised.
+        If return_str_len is true, then the function also returns an
+        integer for the string length to use to truncate the cooking
+        technology strings from ktek (the technology cost, performance,
+        and lifetime data file) to match the length of the modified
+        technology strings in KSDOUT (the service demand data) when
+        combining those data.
     """
 
     def special_character_handler(text_string):
@@ -801,8 +852,12 @@ def str_cleaner(data_array, column_name):
             text_string (str): A string describing a particular technology.
 
         Returns:
-            The edited text string.
+            The edited text string and the string truncation length,
+            explained in the parent function docstring.
         """
+
+        # Replace 'SodiumVapor' with 'Sodium Vapor'
+        text_string = re.sub('SodiumVapor', 'Sodium Vapor', text_string)
 
         # Check to see if an HTML character reference ampersand or
         # double-quote, or standard double-quote character is in
@@ -816,12 +871,20 @@ def str_cleaner(data_array, column_name):
         # use of the standalone double-quote character
         if html_ampersand_present:
             text_string = re.sub('&amp;', '&', text_string)
+            str_trunc_len = 50  # Not used in com_mseg_tech
         elif html_double_quote_present:
             text_string = re.sub('&quot;', '-inch', text_string)
+            str_trunc_len = 43
         elif double_quote_present:
             text_string = re.sub('\"', '-inch', text_string)
+            str_trunc_len = 48
+        else:
+            str_trunc_len = 50
 
-        return text_string
+        return text_string, str_trunc_len
+
+    # Store the indicated string truncation lengths in a list
+    str_trunc_list = []
 
     # Check for double quotes in the first entry in the specified column
     # and, assuming all entries in the column are the same, revise all
@@ -838,7 +901,10 @@ def str_cleaner(data_array, column_name):
 
             # Clean up strings with special characters to ensure that
             # these characters appear consistently across all imported data
-            entry = special_character_handler(entry)
+            entry, str_trunc_len = special_character_handler(entry)
+
+            # Record string truncation length
+            str_trunc_list.append(str_trunc_len)
 
             # Delete any newly "apparent" (no longer enclosed by the double
             # quotes) trailing or (unlikely) leading spaces and replace the
@@ -851,12 +917,33 @@ def str_cleaner(data_array, column_name):
 
             # Clean up strings with special characters to ensure that
             # these characters appear consistently across all imported data
-            entry = special_character_handler(entry)
+            entry, str_trunc_len = special_character_handler(entry)
+
+            # Record string truncation length
+            str_trunc_list.append(str_trunc_len)
 
             # Delete any leading and trailing spaces
             data_array[column_name][row_idx] = entry.strip()
 
-    return data_array
+    # Clean up indicated string truncation lengths, discarding 50
+    str_trunc_list = list(set(str_trunc_list))
+    str_trunc_list = [x for x in str_trunc_list if x != 50]
+    if len(str_trunc_list) > 1:
+        # If this condition has been satisfied, both '&quot;' and
+        # '"' were present in the technology description strings
+        # in the imported text, which suggests a single truncation
+        # length might not work to match the strings in these data
+        text = ('Warning: undesired behavior might occur when '
+                'attempting to match technology characteristics '
+                'data (ktek) with service demand data (ksdout).')
+        print(text)
+
+    # Return the appropriate objects based on the return_str_len option
+    if return_str_len:
+        str_trunc_len_final = str_trunc_list[0]  # Obtain standalone integer
+        return data_array, str_trunc_len_final
+    else:
+        return data_array
 
 
 def main():

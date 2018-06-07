@@ -2178,7 +2178,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}},
+                                "adjusted energy (competed and captured)": {}}
+                                },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key1: {
@@ -2340,7 +2341,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}},
+                                "adjusted energy (competed and captured)": {}}
+                                },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key1: {
@@ -3118,7 +3120,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}},
+                                "adjusted energy (competed and captured)": {}}
+                                },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key2: {
@@ -3255,7 +3258,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}},
+                                "adjusted energy (competed and captured)": {}}
+                                },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key2: {
@@ -3455,7 +3459,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -3637,7 +3642,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}}}}
         cls.compete_meas5 = {
             "name": "sample compete measure r5",
@@ -3892,7 +3898,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {
@@ -4136,7 +4143,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (total captured)": {},
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
-                                "adjusted energy (competed and captured)": {}}}},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
                     "mseg_out_break": {}}}}
         cls.measures_all = [run.Measure(cls.handyvars, **x) for x in [
             cls.compete_meas1, copy.deepcopy(cls.compete_meas2),

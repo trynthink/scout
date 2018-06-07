@@ -3,7 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": "other (grid electric)",
+  "end_use": "other",
   "fuel_type": "electricity",
   "technology": "clothes washing",
   "market_entry_year": 2015,

@@ -5,10 +5,7 @@
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
-  "technology": [
-      "T5 F28", "T8 F28 High-efficiency/High-Output",
-      "T8 F32 Commodity", "T8 F59 High Efficiency", 
-      "T8 F59 Typical Efficiency", "T8 F96 High Output"],
+  "technology": ["T5 F28", "T8 F28","T8 F32", "T8 F59","T8 F96"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "The source suggests that technologies described in the document are available on the market by its release date.",

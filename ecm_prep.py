@@ -299,18 +299,19 @@ class UsefulVars(object):
             "end_use": {
                 "residential": {
                     "electricity": [
-                        'drying', 'other (grid electric)', 'water heating',
+                        'drying', 'other', 'water heating',
                         'cooling', 'cooking', 'computers', 'lighting',
                         'secondary heating', 'TVs', 'heating', 'refrigeration',
-                        'fans & pumps', 'ceiling fan'],
+                        'fans and pumps', 'ceiling fan'],
                     "natural gas": [
                         'drying', 'water heating', 'cooling', 'heating',
-                        'cooking', 'secondary heating'],
+                        'cooking', 'secondary heating', 'other'],
                     "distillate": [
-                        'water heating', 'heating', 'secondary heating'],
+                        'water heating', 'heating', 'secondary heating',
+                        'other'],
                     "other fuel": [
                         'water heating', 'cooking', 'heating',
-                        'secondary heating']},
+                        'secondary heating', 'other']},
                 "commercial": {
                     "electricity": [
                         'ventilation', 'water heating', 'cooling',
@@ -324,9 +325,13 @@ class UsefulVars(object):
                 "residential": {
                     "supply": {
                         "electricity": {
-                            'other (grid electric)': [
-                                'dishwasher', 'other MELs',
-                                'clothes washing', 'freezers'],
+                            'other': [
+                                'dishwasher', 'clothes washing', 'freezers',
+                                'rechargeables', 'coffee maker',
+                                'dehumidifier', 'electric other',
+                                'microwave', 'pool heaters and pumps',
+                                'security system', 'portable electric spas',
+                                'wine coolers'],
                             'water heating': ['solar WH', 'electric WH'],
                             'cooling': [
                                 'room AC', 'ASHP', 'GSHP', 'central AC'],
@@ -346,39 +351,42 @@ class UsefulVars(object):
                                 'external (incandescent)',
                                 'linear fluorescent (LED)',
                                 'reflector (halogen)'],
-                            'secondary heating': ['non-specific'],
+                            'secondary heating': ['secondary heater'],
                             'TVs': [
-                                'home theater & audio', 'set top box',
+                                'home theater and audio', 'set top box',
                                 'video game consoles', 'DVD', 'TV'],
                             'heating': ['GSHP', 'resistance heat', 'ASHP'],
                             'ceiling fan': [None],
-                            'fans & pumps': [None],
+                            'fans and pumps': [None],
                             'refrigeration': [None],
                             'drying': [None],
                             'cooking': [None]},
                         "natural gas": {
                             'cooling': ['NGHP'],
                             'heating': ['furnace (NG)', 'NGHP', 'boiler (NG)'],
-                            'secondary heating': ['non-specific'],
+                            'secondary heating': ['secondary heater'],
                             'drying': [None],
                             'water heating': [None],
-                            'cooking': [None]},
+                            'cooking': [None],
+                            'other': ["other appliances"]},
                         "distillate": {
                             'heating': [
                                 'boiler (distillate)', 'furnace (distillate)'],
-                            'secondary heating': ['non-specific'],
-                            'water heating': [None]},
+                            'secondary heating': ['secondary heater'],
+                            'water heating': [None],
+                            'other': ["other appliances"]},
                         "other fuel": {
                             'heating': [
                                 'resistance', 'furnace (kerosene)',
                                 'stove (wood)', 'furnace (LPG)'],
                             'secondary heating': [
-                                'secondary heating (wood)',
-                                'secondary heating (coal)',
-                                'secondary heating (kerosene)',
-                                'secondary heating (LPG)'],
+                                'secondary heater (wood)',
+                                'secondary heater (coal)',
+                                'secondary heater (kerosene)',
+                                'secondary heater (LPG)'],
                             'cooking': [None],
-                            'water heating': [None]}},
+                            'water heating': [None],
+                            'other': ["other appliances"]}},
                     "demand": [
                         'roof', 'ground', 'windows solar',
                         'windows conduction', 'equipment gain',
@@ -412,14 +420,17 @@ class UsefulVars(object):
                                 'Commercial Walk-In Freezers',
                                 'Commercial Walk-In Refrigerators'],
                             'MELs': [
-                                'lab fridges and freezers',
-                                'non-road electric vehicles',
-                                'kitchen ventilation', 'escalators',
+                                'elevators', 'escalators', 'coffee brewers',
+                                'kitchen ventilation', 'laundry',
+                                'lab fridges and freezers', 'fume hoods',
+                                'medical imaging', 'large video boards',
+                                'shredders', 'private branch exchanges',
+                                'voice-over-IP telecom', 'IT equipment',
+                                'office UPS', 'data center UPS',
+                                'security systems',
                                 'distribution transformers',
-                                'large video displays', 'video displays',
-                                'elevators', 'laundry', 'medical imaging',
-                                'coffee brewers', 'fume hoods',
-                                'security systems'],
+                                'non-road electric vehicles'
+                                ],
                             'lighting': [
                                 '100W A19 Incandescent',
                                 '100W Equivalent A19 Halogen',
@@ -432,18 +443,16 @@ class UsefulVars(object):
                                 'Mercury Vapor',
                                 'Metal Halide',
                                 'Sodium Vapor',
-                                'SodiumVapor',
                                 'T5 4xF54 HO High Bay',
                                 'T5 F28',
-                                'T8 F28 High-efficiency/High-Output',
-                                'T8 F32 Commodity',
-                                'T8 F59 High Efficiency',
-                                'T8 F59 Typical Efficiency',
-                                'T8 F96 High Output'
+                                'T8 F28',
+                                'T8 F32',
+                                'T8 F59',
+                                'T8 F96'
                                 ],
                             'cooking': [
-                                'Range, Electric, 4 burner, oven, 11 griddle',
-                                'Range, Electric-induction, 4 burner, oven, '],
+                                'Range, Electric, 4 burner, oven, 11-inch gr',
+                                'Range, Electric-induction, 4 burner, oven'],
                             'PCs': [None],
                             'non-PC office equipment': [None]},
                         "natural gas": {
@@ -455,8 +464,8 @@ class UsefulVars(object):
                                 'gas_water_heater', 'gas_instantaneous_WH',
                                 'gas_booster_WH'],
                             'cooking': [
-                                'Range, Gas, 4 powered burners, convect. ove',
-                                'Range, Gas, 4 burner, oven, 11 griddle     '],
+                                'Range, Gas, 4 burner, oven, 11-inch griddle',
+                                'Range, Gas, 4 powered burners, convect. ove'],
                             'heating': [
                                 'gas_eng-driven_RTHP-heat',
                                 'res_type_gasHP-heat', 'gas_boiler',
@@ -509,12 +518,12 @@ class UsefulVars(object):
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
-            ('Refrigeration', ["refrigeration", "other (grid electric)"]),
+            ('Refrigeration', ["refrigeration", "other"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
             ('Other', [
-                "cooking", "drying", "ceiling fan", "fans & pumps",
-                "MELs", "other (grid electric)"])])
+                "cooking", "drying", "ceiling fan", "fans and pumps",
+                "MELs", "other"])])
         # Use the above output categories to establish a dictionary with blank
         # values at terminal leaf nodes; this dict will eventually store
         # partitioning fractions needed to breakout the measure results
@@ -2062,7 +2071,7 @@ class Measure(object):
                             # with valid consumer choice data
                             valid_keys_consume += 1
                         # Update invalid consumer choice parameters
-                        except ValueError:
+                        except (ValueError, TypeError):
                             # Record missing consumer data for primary
                             # technologies; if in verbose mode and the user
                             # has not already been warned about missing data
@@ -2352,7 +2361,7 @@ class Measure(object):
                             out_bldg = bldg[0]
                     # Establish applicable end use breakout
                     for eu in self.handyvars.out_break_enduses.items():
-                        # * Note: The 'other (grid electric)' microsegment end
+                        # * Note: The 'other' microsegment end
                         # use may map to either the 'Refrigeration' output
                         # breakout or the 'Other' output breakout, depending on
                         # the technology type specified in the measure
@@ -2361,7 +2370,7 @@ class Measure(object):
                         # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
                         # 'demand' side heating/cooling microsegments map to
                         # the 'Envelope' end use
-                        if mskeys[4] == "other (grid electric)":
+                        if mskeys[4] == "other":
                             if mskeys[5] == "freezers":
                                 out_eu = "Refrigeration"
                             else:

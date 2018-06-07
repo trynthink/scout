@@ -172,8 +172,9 @@ def sd_data_selector(sd_data, sel, years):
     # Identify each technology and performance level using the text
     # in the description field since the technology type and vintage
     # numeric codes are not well-matched to individual technology and
-    # performance levels
+    # performance levels; remove empty strings from the list
     technames = list(np.unique(filtered['Description']))
+    technames = [x for x in technames if x != '']
 
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
@@ -232,11 +233,22 @@ def single_tech_selector(tech_array, specific_name):
         # 2 and three other numbers (i.e., 2009 or 2035)
         tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
 
-        # If the regex returned a match, and the first group of the
-        # match (i.e., the part before the numeric year) is not the
-        # the same as the name passed to the function, remove the row
+        # If the technology name regex returned a match, check if there
+        # is a match for a linear fluorescent lighting technology; in
+        # either case (either the linear fluorescent or the more
+        # generic technology name regex), if the match is not the same
+        # as the name passed to the function, remove the row
         if tech_name:
-            if tech_name.group(0) != specific_name:
+            # Test whether the technology name corresponds to a linear
+            # fluorescent lighting technology in the format 'T# F##',
+            # e.g., 'T8 F96', and if it does, extract just that string
+            # without any additional text (e.g., 'T8 F96 High Output')
+            lfl_tech_name = re.search('^(T[0-9] F[0-9]{2})',
+                                      tech_name.group(0))
+            if lfl_tech_name:
+                if lfl_tech_name.group(0) != specific_name:
+                    rows_to_remove.append(idx)
+            elif tech_name.group(0) != specific_name:
                 rows_to_remove.append(idx)
         # If there's no match, the technology might not have a year
         # included as part of its name, but it nonetheless should be
@@ -351,15 +363,23 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             # 44 characters since all of the string descriptions in the
             # service demand data are limited to 44 characters; there
             # is an exception for strings that have '-inch' in them,
-            # which should be matched to the first 43 characters since
-            # the substitution of '-inch' for '&quot;' shortens the
-            # string by one character; finally remove any trailing
-            # spaces that might create text matching problems
+            # which should be matched to the first n characters, where
+            # n is either 43 or 48 characters depending on whether
+            # '-inch' was substituted for '"' or '&quot;'; finally
+            # remove any trailing spaces that might create text
+            # matching problems
             if re.search('-inch', name_from_ktek[:43]):
-                length = 43
+                length = UsefulVars().trunc_len
             else:
                 length = 44
             name_from_ktek = name_from_ktek[:length].strip()
+            # The number of characters to use for text matching
+            # determined when the service demand data description
+            # strings are cleaned up; the substitution of '-inch' for
+            # '"' will lengthen the string by four characters, thus the
+            # matching should be done with 48 characters; replacing
+            # '&quot;' will reduce the length of the string by 1, thus
+            # the matching should be performed using 43 characters
 
             # Find the matching row in service demand data by comparing
             # the row technology name to sd_names and use that index to
@@ -534,11 +554,21 @@ def tech_names_extractor(tech_array):
         # 2 and three other numbers (e.g., 2009 or 2035)
         tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
 
-        # If the regex matched, add the matching text, which describes
-        # the technology without scenario-specific text like '2003
-        # installed base', to the technames list
+        # If the regex matched, check the matching text to see if it
+        # corresponds to a linear fluorescent lighting technology
+        # represented in the format 'T# F##', e.g., 'T8 F96'; if it does,
+        # extract from the match just the 'T# F##' string without any
+        # additional modifier text (e.g., 'T8 F96 High Output'); if not,
+        # add the text that matched originally, which describes the
+        # technology without scenario-specific text like '2003 installed
+        # base' to the technames list
         if tech_name:
-            technames.append(tech_name.group(0))
+            lfl_tech_name = re.search('^(T[0-9] F[0-9]{2})',
+                                      tech_name.group(0))
+            if lfl_tech_name:
+                technames.append(lfl_tech_name.group(0))
+            else:
+                technames.append(tech_name.group(0))
         # Else, if the technology name is not from a placeholder row,
         # add the entire name text to the technames list
         else:
@@ -1082,7 +1112,7 @@ def main():
     # Import EIA AEO 'KSDOUT' service demand data
     serv_dtypes = cm.dtype_array(cm.EIAData().serv_dmd)
     serv_data = cm.data_import(cm.EIAData().serv_dmd, serv_dtypes)
-    serv_data = cm.str_cleaner(serv_data, 'Description')
+    serv_data, tval = cm.str_cleaner(serv_data, 'Description', True)
 
     # Import EIA AEO 'KDBOUT' additional data file
     catg_dtypes = cm.dtype_array(cm.EIAData().catg_dmd)
@@ -1096,6 +1126,10 @@ def main():
     # Import metadata generated based on EIA AEO data files
     with open(handyvars.aeo_metadata, 'r') as metadata:
         metajson = json.load(metadata)
+
+    # Assign available string truncation length value to UsefulVars
+    # class so that it is available for all class uses
+    UsefulVars.trunc_len = tval
 
     # Define years vector using year data from metadata
     years = list(range(metajson['min year'], metajson['max year'] + 1))
@@ -1114,13 +1148,16 @@ def main():
             # (i.e., non-repeating) list of technologies that didn't have
             # a match between the two data sets and thus were not added
             # to the aggregated cost or performance data in the output JSON
+            # The technologies that appear in this list might vary from
+            # year to year.
             if nmtn:
                 text = ('Warning: some technologies reported in the '
                         'technology characteristics data were not found to '
                         'have corresponding service demand data and were '
                         'thus excluded from the reported technology cost '
-                        'and performance. Four performance levels for '
-                        'solar water heaters are expected in this list.')
+                        'and performance. These technologies are generally '
+                        'absent from or have all zeros for their service '
+                        'demand data.')
                 print(text)
                 for item in sorted(list(set(nmtn))):
                     print('   ' + item)

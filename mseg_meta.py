@@ -289,13 +289,15 @@ def main():
     def import_residential_cpl_non_lighting_data(file_name, skip_header_lines):
         eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
                                    dtype=None, comments=None,
-                                   skip_header=skip_header_lines)
+                                   skip_header=skip_header_lines,
+                                   encoding="latin1")
         return eia_nlt_cp
 
     def import_residential_cpl_lighting_data(file_name, skip_header_lines):
         eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names,
                                dtype=None, comments=None,
-                               skip_header=skip_header_lines, skip_footer=54)
+                               skip_header=skip_header_lines, skip_footer=54,
+                               encoding="latin1")
         return eia_lt
 
     def import_commercial_service_demand_data(file_name):  # KSDOUT.txt

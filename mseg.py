@@ -99,7 +99,7 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'heating': 'HT',
               'secondary heating': 'SH',
               'cooling': 'CL',
-              'fans & pumps': 'FF',
+              'fans and pumps': 'FF',
               'ceiling fan': 'CFN',
               'lighting': 'LT',
               'water heating': 'HW',
@@ -109,19 +109,25 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'TVs': {'TV': 'TVS',
                       'set top box': 'STB',
                       'DVD': 'DVD',
-                      'home theater & audio': 'HTS',
+                      'home theater and audio': 'HTS',
                       'video game consoles': 'VGC'},
               'computers': {'desktop PC': 'DPC',
                             'laptop PC': 'LPC',
                             'monitors': 'MON',
                             'network equipment': 'NET'},
-              'other (grid electric)': {'clothes washing': 'CW',
-                                        'dishwasher': 'DW',
-                                        'freezers': 'FZ',
-                                        'other MELs': ('BAT', 'COF', 'DEH',
-                                                       'EO', 'MCO', 'OA',
-                                                       'PHP', 'SEC', 'SPA')}
-              }
+              'other': {'clothes washing': 'CW',
+                        'dishwasher': 'DW',
+                        'freezers': 'FZ',
+                        'rechargeables': 'BAT',
+                        'coffee maker': 'COF',
+                        'dehumidifier': 'DEH',
+                        'electric other': 'EO',
+                        'microwave': 'MCO',
+                        'pool heaters and pumps': 'PHP',
+                        'security system': 'SEC',
+                        'portable electric spas': 'SPA',
+                        'wine coolers': 'WCL',
+                        'other appliances': 'OA'}}
 
 # Technology types (supply) dict
 technology_supplydict = {'solar WH': 'SOLAR_WH',
@@ -155,11 +161,11 @@ technology_supplydict = {'solar WH': 'SOLAR_WH',
                          'furnace (LPG)': 'LPG_FA',
                          'stove (wood)': 'WOOD_HT',
                          'resistance': 'GE2',
-                         'secondary heating (kerosene)': 'KS',
-                         'secondary heating (LPG)': 'LG',
-                         'secondary heating (wood)': 'WD',
-                         'secondary heating (coal)': 'CL',
-                         'non-specific': ''
+                         'secondary heater (kerosene)': 'KS',
+                         'secondary heater (LPG)': 'LG',
+                         'secondary heater (wood)': 'WD',
+                         'secondary heater (coal)': 'CL',
+                         'secondary heater': ''
                          }
 
 # Technology types (demand) dict
@@ -1349,6 +1355,7 @@ def main():
     if aeo_import_year == 2015:
         yrs_range = metajson['max year'] - metajson['min year'] + 1
         lt_skip_header = 35
+        lt_skip_footer = 54
 
         # Import EIA RESDBOUT.txt energy use and stock file
         ns_dtypes = dtype_array(eiadata.res_energy, '\t')
@@ -1357,6 +1364,10 @@ def main():
     else:
         yrs_range = 42
         lt_skip_header = 37
+        if aeo_import_year in [2016, 2017]:
+            lt_skip_footer = 54
+        else:
+            lt_skip_footer = 52
         update_lighting_dict()
 
         # Import EIA RESDBOUT.txt energy use and stock file
@@ -1381,19 +1392,25 @@ def main():
 
     # Explicitly define the lighting data type (note that special)
     eia_lt_dtype = [('FirstYear', 'i4'), ('LastYear', 'i4'), ('Cost', 'f8'),
+                    ('EE_Sub1', 'f8'), ('EE_Sub2', 'f8'), ('EE_Sub3', 'f8'),
+                    ('EE_Sub4', 'f8'), ('EE_Sub5', 'f8'), ('EE_Sub6', 'f8'),
+                    ('EE_Sub7', 'f8'), ('EE_Sub8', 'f8'), ('EE_Sub9', 'f8'),
                     ('Sub1', 'f8'), ('Sub2', 'f8'), ('Sub3', 'f8'),
                     ('Sub4', 'f8'), ('Sub5', 'f8'), ('Sub6', 'f8'),
                     ('Sub7', 'f8'), ('Sub8', 'f8'), ('Sub9', 'f8'),
                     ('lm_per_W', 'i4'), ('Watts', 'i4'),
                     ('Life_hrs', 'i4'), ('CRI', 'i4'),
-                    ('Application', 'U8'), ('BulbType', 'U8')]
+                    ('Application', 'U8'), ('BulbType', 'U8'),
+                    ('Beta_1', 'f8'), ('Beta_2', 'f8')]
 
     # Import EIA residential lighting cost, performance, and lifetime
     # data for the purposes of redistributing the energy data, which
     # are reported for only one lighting technology type (bulb type)
     # for each fixture/luminaire type
     eia_lt = numpy.genfromtxt(rmt.EIAData().r_lt_all, dtype=eia_lt_dtype,
-                              skip_header=lt_skip_header, skip_footer=54)
+                              skip_header=lt_skip_header,
+                              skip_footer=lt_skip_footer,
+                              encoding="latin1")
 
     # Compute the number of unique lighting fixture and bulb type combinations
     n_lt_types = sum([len(set(eia_lt[eia_lt['Application'] == x]['BulbType']))

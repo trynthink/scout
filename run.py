@@ -131,12 +131,12 @@ class UsefulVars(object):
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
-            ('Refrigeration', ["refrigeration", "other (grid electric)"]),
+            ('Refrigeration', ["refrigeration", "other"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
             ('Other', [
                 "cooking", "drying", "ceiling fan", "fans & pumps",
-                "MELs", "other (grid electric)"])])
+                "MELs", "other"])])
 
 
 class Measure(object):

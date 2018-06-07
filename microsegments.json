@@ -34,7 +34,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -55,7 +55,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -84,7 +84,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -93,11 +93,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -130,7 +138,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -150,8 +158,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -181,10 +189,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -217,14 +226,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -261,7 +271,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -282,7 +292,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -311,7 +321,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -320,11 +330,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -357,7 +375,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -377,8 +395,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -408,10 +426,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -444,14 +463,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -488,7 +508,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -509,7 +529,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -538,7 +558,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -547,11 +567,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -584,7 +612,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -604,8 +632,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -635,10 +663,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -671,14 +700,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -737,9 +767,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -857,9 +894,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -977,9 +1021,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1097,9 +1148,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1217,9 +1275,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1337,9 +1402,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1457,9 +1529,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1577,9 +1656,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1697,9 +1783,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1817,9 +1910,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -1937,9 +2037,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -2037,7 +2144,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2058,7 +2165,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -2087,7 +2194,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -2096,11 +2203,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -2133,7 +2248,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2153,8 +2268,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -2184,10 +2299,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -2220,14 +2336,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -2264,7 +2381,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2285,7 +2402,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -2314,7 +2431,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -2323,11 +2440,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -2360,7 +2485,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2380,8 +2505,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -2411,10 +2536,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -2447,14 +2573,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -2491,7 +2618,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2512,7 +2639,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -2541,7 +2668,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -2550,11 +2677,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -2587,7 +2722,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -2607,8 +2742,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -2638,10 +2773,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -2674,14 +2810,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -2740,9 +2877,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -2860,9 +3004,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -2980,9 +3131,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3100,9 +3258,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3220,9 +3385,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3340,9 +3512,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3460,9 +3639,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3580,9 +3766,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3700,9 +3893,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3820,9 +4020,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -3940,9 +4147,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -4040,7 +4254,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4061,7 +4275,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -4090,7 +4304,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -4099,11 +4313,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -4136,7 +4358,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4156,8 +4378,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -4187,10 +4409,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -4223,14 +4446,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -4267,7 +4491,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4288,7 +4512,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -4317,7 +4541,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -4326,11 +4550,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -4363,7 +4595,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4383,8 +4615,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -4414,10 +4646,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -4450,14 +4683,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -4494,7 +4728,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4515,7 +4749,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -4544,7 +4778,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -4553,11 +4787,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -4590,7 +4832,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -4610,8 +4852,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -4641,10 +4883,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -4677,14 +4920,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -4743,9 +4987,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -4863,9 +5114,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -4983,9 +5241,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5103,9 +5368,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5223,9 +5495,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5343,9 +5622,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5463,9 +5749,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5583,9 +5876,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5703,9 +6003,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5823,9 +6130,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -5943,9 +6257,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -6043,7 +6364,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6064,7 +6385,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -6093,7 +6414,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -6102,11 +6423,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -6139,7 +6468,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6159,8 +6488,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -6190,10 +6519,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -6226,14 +6556,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -6270,7 +6601,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6291,7 +6622,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -6320,7 +6651,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -6329,11 +6660,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -6366,7 +6705,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6386,8 +6725,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -6417,10 +6756,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -6453,14 +6793,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -6497,7 +6838,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6518,7 +6859,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -6547,7 +6888,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -6556,11 +6897,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -6593,7 +6942,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -6613,8 +6962,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -6644,10 +6993,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -6680,14 +7030,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -6746,9 +7097,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -6866,9 +7224,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -6986,9 +7351,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7106,9 +7478,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7226,9 +7605,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7346,9 +7732,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7466,9 +7859,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7586,9 +7986,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7706,9 +8113,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7826,9 +8240,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -7946,9 +8367,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -8046,7 +8474,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8067,7 +8495,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -8096,7 +8524,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -8105,11 +8533,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -8142,7 +8578,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8162,8 +8598,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -8193,10 +8629,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -8229,14 +8666,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -8273,7 +8711,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8294,7 +8732,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -8323,7 +8761,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -8332,11 +8770,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -8369,7 +8815,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8389,8 +8835,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -8420,10 +8866,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -8456,14 +8903,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -8500,7 +8948,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8521,7 +8969,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -8550,7 +8998,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -8559,11 +9007,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -8596,7 +9052,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -8616,8 +9072,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -8647,10 +9103,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -8683,14 +9140,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -8749,9 +9207,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -8869,9 +9334,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -8989,9 +9461,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9109,9 +9588,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9229,9 +9715,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9349,9 +9842,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9469,9 +9969,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9589,9 +10096,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9709,9 +10223,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9829,9 +10350,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -9949,9 +10477,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -10049,7 +10584,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10070,7 +10605,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -10099,7 +10634,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -10108,11 +10643,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -10145,7 +10688,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10165,8 +10708,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -10196,10 +10739,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -10232,14 +10776,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -10276,7 +10821,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10297,7 +10842,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -10326,7 +10871,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -10335,11 +10880,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -10372,7 +10925,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10392,8 +10945,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -10423,10 +10976,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -10459,14 +11013,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -10503,7 +11058,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10524,7 +11079,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -10553,7 +11108,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -10562,11 +11117,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -10599,7 +11162,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -10619,8 +11182,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -10650,10 +11213,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -10686,14 +11250,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -10752,9 +11317,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -10872,9 +11444,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -10992,9 +11571,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11112,9 +11698,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11232,9 +11825,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11352,9 +11952,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11472,9 +12079,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11592,9 +12206,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11712,9 +12333,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11832,9 +12460,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -11952,9 +12587,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -12052,7 +12694,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12073,7 +12715,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -12102,7 +12744,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -12111,11 +12753,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -12148,7 +12798,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12168,8 +12818,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -12199,10 +12849,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -12235,14 +12886,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -12279,7 +12931,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12300,7 +12952,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -12329,7 +12981,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -12338,11 +12990,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -12375,7 +13035,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12395,8 +13055,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -12426,10 +13086,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -12462,14 +13123,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -12506,7 +13168,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12527,7 +13189,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -12556,7 +13218,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -12565,11 +13227,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -12602,7 +13272,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -12622,8 +13292,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -12653,10 +13323,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -12689,14 +13360,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -12755,9 +13427,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -12875,9 +13554,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -12995,9 +13681,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13115,9 +13808,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13235,9 +13935,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13355,9 +14062,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13475,9 +14189,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13595,9 +14316,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13715,9 +14443,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13835,9 +14570,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -13955,9 +14697,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -14055,7 +14804,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14076,7 +14825,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -14105,7 +14854,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -14114,11 +14863,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -14151,7 +14908,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14171,8 +14928,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -14202,10 +14959,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -14238,14 +14996,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -14282,7 +15041,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14303,7 +15062,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -14332,7 +15091,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -14341,11 +15100,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -14378,7 +15145,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14398,8 +15165,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -14429,10 +15196,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -14465,14 +15233,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -14509,7 +15278,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14530,7 +15299,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -14559,7 +15328,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -14568,11 +15337,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -14605,7 +15382,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -14625,8 +15402,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -14656,10 +15433,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -14692,14 +15470,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -14758,9 +15537,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -14878,9 +15664,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -14998,9 +15791,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15118,9 +15918,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15238,9 +16045,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15358,9 +16172,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15478,9 +16299,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15598,9 +16426,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15718,9 +16553,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15838,9 +16680,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -15958,9 +16807,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -16058,7 +16914,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16079,7 +16935,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -16108,7 +16964,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -16117,11 +16973,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -16154,7 +17018,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16174,8 +17038,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -16205,10 +17069,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -16241,14 +17106,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"multi family home" : {
@@ -16285,7 +17151,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16306,7 +17172,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -16335,7 +17201,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -16344,11 +17210,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -16381,7 +17255,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16401,8 +17275,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -16432,10 +17306,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -16468,14 +17343,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"mobile home" : {
@@ -16512,7 +17388,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16533,7 +17409,7 @@
 						"GSHP" : 0
 					}
 					},
-				"fans & pumps" : 0,
+				"fans and pumps" : 0,
 				"ceiling fan" : 0,
 				"lighting" : {
                		"linear fluorescent (T-12)": 0,
@@ -16562,7 +17438,7 @@
 					"TV" : 0,
 					"set top box" : 0,
 					"DVD" : 0,
-					"home theater & audio" : 0,
+					"home theater and audio" : 0,
 					"video game consoles" : 0
 					},
 				"computers" : {
@@ -16571,11 +17447,19 @@
 					"monitors" : 0,
 					"network equipment" : 0
 					},
-				"other (grid electric)" : {
+				"other" : {
 					"clothes washing" : 0,
 					"dishwasher" : 0,
 					"freezers" : 0,
-					"other MELs" : 0
+					"rechargeables": 0,
+                    "coffee maker": 0,
+                    "dehumidifier": 0,
+                    "electric other": 0,
+                    "microwave": 0,
+                    "pool heaters and pumps": 0,
+                    "security system": 0,
+                    "portable electric spas": 0,
+                    "wine coolers": 0
 					}
 				},
 			"natural gas" : {
@@ -16608,7 +17492,7 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
 				"cooling" : {
@@ -16628,8 +17512,8 @@
 					},
 				"water heating" : 0,
 				"cooking" : 0,
-				"drying": 0
-				},
+				"drying": 0,
+				"other": {"other appliances": 0}},
 			"distillate" : {
 				"heating" : {
 					"demand" : {
@@ -16659,10 +17543,11 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"non-specific": 0
+						"secondary heater": 0
 						}
 					},
-				"water heating" : 0
+				"water heating" : 0,
+				"other": {"other appliances": 0}
 				},
 			"other fuel" : {
 				"heating" : {
@@ -16695,14 +17580,15 @@
 						"equipment gain" : 0
 						},
 					"supply" : {
-						"secondary heating (kerosene)": 0,
-						"secondary heating (wood)": 0,
-						"secondary heating (LPG)": 0,
-						"secondary heating (coal)":0
+						"secondary heater (kerosene)": 0,
+						"secondary heater (wood)": 0,
+						"secondary heater (LPG)": 0,
+						"secondary heater (coal)":0
 						}
 					},
 				"water heating" : 0,
-				"cooking" : 0
+				"cooking" : 0,
+				"other": {"other appliances": 0}
 			}
 			},
 		"assembly": {
@@ -16761,9 +17647,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -16881,9 +17774,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17001,9 +17901,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17121,9 +18028,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17241,9 +18155,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17361,9 +18282,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17481,9 +18409,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17601,9 +18536,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17721,9 +18663,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17841,9 +18790,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {
@@ -17961,9 +18917,16 @@
 					"laundry": 0,
 					"lab fridges and freezers": 0,
 					"fume hoods": 0,
-					"medical imaging": 0,
-					"video displays": 0,
-					"large video displays": 0
+                    "medical imaging": 0,
+                    "large video boards": 0,
+                    "IT equipment": 0,
+                    "office UPS": 0,
+                    "data center UPS": 0,
+                    "shredders": 0,
+                    "private branch exchanges": 0,
+                    "voice-over-IP telecom": 0,
+                    "water services": 0,
+                    "telecom systems": 0
 				}
 				},
 			"natural gas": {

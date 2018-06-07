@@ -3947,6 +3947,7 @@ class CostAndPerformanceDataExtractionTest(CommonUnitTest):
 
     # Test equality of the dicts of cost data generated for each technology
     def test_cost_selection_and_conversion(self):
+        cmt.UsefulVars.trunc_len = 43
         for idx, input_array in enumerate(self.reduced_tech_data):
             cost_data, non_matched_names = cmt.cost_perf_extractor(
                 input_array,
@@ -3959,6 +3960,7 @@ class CostAndPerformanceDataExtractionTest(CommonUnitTest):
     # Test equality of the dicts of performance (i.e., energy efficiency)
     # data generated for each technology
     def test_performance_selection_and_conversion(self):
+        cmt.UsefulVars.trunc_len = 43
         for idx, input_array in enumerate(self.reduced_tech_data):
             perf_data, non_matched_names = cmt.cost_perf_extractor(
                 input_array,
@@ -4004,6 +4006,7 @@ class TechnologyDataHandlerTest(CommonUnitTest):
     # specified in the third argument of the mseg_technology_handler
     # function
     def test_conversion_of_tech_and_sd_data_to_restructured_dict(self):
+        cmt.UsefulVars.trunc_len = 43
         # Identify the unique microsegments in the data_to_select
         # list of lists
         unique_data_to_select = []

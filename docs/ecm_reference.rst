@@ -104,9 +104,10 @@ The end use names appear verbatim in the first column of the tables for resident
 +-----------------------+-------------+-------------+------------+------------+
 | refrigeration         |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
-| ceiling fan           |      X      |             |            |            |
+| ceiling fan           |             |             |            |            |
+| :superscript:`*`      |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
-| fans & pumps          |             |             |            |            |
+| fans and pumps        |             |             |            |            |
 | :superscript:`*`      |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
 | computers             |             |             |            |            |
@@ -114,12 +115,15 @@ The end use names appear verbatim in the first column of the tables for resident
 +-----------------------+-------------+-------------+------------+------------+
 | TVs :superscript:`*`  |      X      |             |            |            |
 +-----------------------+-------------+-------------+------------+------------+
-| other (grid electric) |      X      |             |            |            |
+| other                 |             |             |            |            |
+| :superscript:`**`     |      X      |      X      |      X     |      X     |
 +-----------------------+-------------+-------------+------------+------------+
 | all                   |      X      |      X      |      X     |      X     |
 +-----------------------+-------------+-------------+------------+------------+
 
 :superscript:`*` These end uses and all associated technologies may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for associated technologies.
+
+:superscript:`**` For the "other" end use, all associated technologies aside from "dishwasher," "clothes washing," and "freezers" may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for associated technologies.
 
 
 **Commercial**
@@ -153,17 +157,17 @@ The end use names appear verbatim in the first column of the tables for resident
 | all                     |      X      |      X      |      X     |
 +-------------------------+-------------+-------------+------------+
 
-:superscript:`*` These end uses and all associated technologies may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for associated technologies.
+:superscript:`*` These end uses and all associated technologies may currently only be specified for the :ref:`add-on measure type <ecm-features-measure-type>` due to the lack of available baseline cost, performance, and lifetime data for the associated technologies.
 
 .. _ecm-baseline_technology:
 
 Technology
 ~~~~~~~~~~
 
-Technology names appear verbatim. The lighting technology names are in the body of the table, categorized by illumination technology (e.g., incandescent, fluorescent) and application or fixture type.
+Technology names appear verbatim. For residential building types, the lighting technology names are in the body of the table, categorized by illumination technology (e.g., incandescent, fluorescent) and application or fixture type. For commercial building types, the lighting technology names are categorized generally by bulb type or application. In both cases, these categories are provided for convenience and are not used anywhere in an ECM definition.
 
 .. tip::
-   If the technology name for a given end use and fuel type is indicated as ``null``, the ECM definition should have the *unquoted* string text "null" written into the :ref:`json-technology` field.
+   If the technology name for a given end use and fuel type is indicated as ``null``, the ECM definition should have the *unquoted* text "null" written into the :ref:`json-technology` field.
 
 .. note::
    "all" is available as an option to specify all of the technology names that apply to all of the building types, fuel types, and end uses specified for the applicable baseline market. In addition, "all" can be made specific to a particular end use by specifying "all" followed by the end use name -- "all heating" or "all water heating," for example. This shorthand will capture all of the technologies in the named end use that apply to the building types and fuel types included in the applicable baseline market. For example, if the building type is "single family homes" and the fuel type is specified as ["electricity", "natural gas"] then "all heating" will include all of the heating technologies for residential buildings that use electricity or natural gas.
@@ -179,10 +183,10 @@ Technology names appear verbatim. The lighting technology names are in the body 
 
 * secondary heating
 
-   * electricity: non-specific
-   * natural gas: non-specific
-   * distillate: non-specific
-   * other fuel: secondary heating (wood), secondary heating (coal), secondary heating (kerosene), secondary heating (LPG)
+   * electricity: secondary heater
+   * natural gas: secondary heater
+   * distillate: secondary heater
+   * other fuel: secondary heater (wood), secondary heater (coal), secondary heater (kerosene), secondary heater (LPG)
 
 * cooling
 
@@ -231,10 +235,14 @@ Technology names appear verbatim. The lighting technology names are in the body 
 
 * computers: desktop PC, laptop PC, network equipment, monitors
 
-* TVs: home theater & audio, set top box, video game consoles, DVD, TV
+* TVs: home theater and audio, set top box, video game consoles, DVD, TV
 
-* other (grid electric): dishwasher, other MELs, clothes washing, freezers
+* other
 
+   * electricity: dishwasher, clothes washing, freezers, rechargeables, coffee maker, dehumidifier, electric other, microwave, pool heaters and pumps, security system, portable electric spas, wine coolers
+   * natural gas: other appliances
+   * distillate: other appliances
+   * other fuel: other appliances
 
 **Residential -- Demand**
 
@@ -265,22 +273,22 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
    * general service: 100W A19 Incandescent, 100W Equivalent A19 Halogen, 100W Equivalent CFL Bare Spiral, 100W Equivalent LED A Lamp,
    * PAR-38: Halogen Infrared Reflector (HIR) PAR38, Halogen PAR38, LED PAR38
-   * linear fixture: T5 F28, T8 F28 High-efficiency/High-Output, T8 F32 Commodity, T8 F59 High Efficiency, T8 F59 Typical Efficiency, T8 F96 High Output
-   * low/high bay: T5 4xF54 HO High Bay, Mercury Vapor, Metal Halide, Sodium Vapor, SodiumVapor
+   * linear fluorescent: T5 F28, T8 F28, T8 F32, T8 F59, T8 F96
+   * low/high bay: T5 4xF54 HO High Bay, Mercury Vapor, Metal Halide, Sodium Vapor
    * other: LED Integrated Luminaire
 
 * refrigeration: Commercial Beverage Merchandisers, Commercial Compressor Rack Systems, Commercial Condensers, Commercial Ice Machines, Commercial Reach-In Freezers, Commercial Reach-In Refrigerators, Commercial Refrigerated Vending Machines, Commercial Supermarket Display Cases, Commercial Walk-In Freezers, Commercial Walk-In Refrigerators
 
 * cooking
 
-   * electricity: |tooltip| Range, Electric-induction, 4 burner, oven, |chunk-b| electric range with induction-style cooktop |close|
-   * natural gas: |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close|
+   * electricity: Range, Electric, 4 burner, oven, 11-inch gr; |tooltip| Range, Electric-induction, 4 burner, oven,  |chunk-b| electric range with induction-style cooktop |close|
+   * natural gas: Range, Gas, 4 burner, oven, 11-inch griddle; |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close|
 
 * PCs
 
 * non-PC office equipment
 
-* MELs: lab fridges and freezers, non-road electric vehicles, kitchen ventilation, escalators, distribution transformers, large video displays, video displays, elevators, laundry, medical imaging, coffee brewers, fume hoods, security systems
+* MELs: elevators, escalators, coffee brewers, kitchen ventilation, laundry, lab fridges and freezers, fume hoods, medical imaging, large video boards, shredders, private branch exchanges, voice-over-IP telecom, IT equipment, office UPS, data center UPS, security systems, distribution transformers, non-road electric vehicles
 
 **Commercial -- Demand**
 
@@ -315,16 +323,17 @@ Energy efficiency units
 
    * Drying (EF)
    * Lighting (lm/W)
-   * Other (grid electric)
+   * Other
 
      * Clothes washing (kWh/cycle)
      * Dishwasher (EF)
      * Freezers (kWh/yr)
+     * All other equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
 
 ..   * Ceiling fan (W)
-   * Fans & pumps (HP/W)
-   * TVs (W)
-   * Computers (W)
+     * Fans & pumps (HP/W)
+     * TVs (W)
+     * Computers (W)
 
 
 **Commercial -- Equipment (Supply)**
