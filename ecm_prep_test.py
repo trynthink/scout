@@ -4883,7 +4883,28 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": "lighting",
             "market_entry_year": None,
             "market_exit_year": None,
-            "technology": "T5 F28"}]
+            "technology": "T5 F28"},
+            {
+            "name": "sample measure 24",
+            "markets": None,
+            "installed_cost": 25,
+            "cost_units": "2014$/ft^2 floor",
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "lm/W",
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "bldg_type": "assembly",
+            "climate_zone": "AIA_CZ1",
+            "fuel_type": "electricity",
+            "fuel_switch_to": None,
+            "end_use": "lighting",
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "technology": "T5 F28",
+            "retro_rate": 0.02}]
         cls.ok_tpmeas_fullchk_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_measures_in[0:5]]
@@ -4966,7 +4987,31 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "end_use": [
                 "heating", "secondary heating", "cooling"],
             "technology": [
-                "windows conduction", "windows solar"]}]
+                "windows conduction", "windows solar"]},
+            {
+            "name": "distrib measure 4",
+            "markets": None,
+            "installed_cost": 3,
+            "cost_units": "2014$/unit",
+            "energy_efficiency": 25,
+            "energy_efficiency_units": "EF",
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "product_lifetime": 1,
+            "market_scaling_fractions": None,
+            "market_scaling_fractions_source": None,
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "bldg_type": ["single family home"],
+            "climate_zone": ["AIA_CZ1"],
+            "fuel_type": ["natural gas"],
+            "fuel_switch_to": None,
+            "end_use": "water heating",
+            "technology": None,
+            "retro_rate": ["uniform", 0.01, 0.1]}]
+        # Seed random number generator to yield consistent retrofit rate
+        # results
+        numpy.random.seed(1234)
         cls.ok_distmeas_in = [
             ecm_prep.Measure(
                 handyvars, **x) for x in ok_distmeas_in]
@@ -7007,11 +7052,60 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "baseline": {"2009": 1624.31, "2010": 3219.88},
                         "efficient": {"2009": 909.61, "2010": 1803.14}}}},
             "lifetime": {"baseline": {"2009": 140, "2010": 140},
+                         "measure": 1}},
+            {
+            "stock": {
+                "total": {
+                    "all": {"2009": 11000000, "2010": 11000000},
+                    "measure": {"2009": 298571.43, "2010": 597142.86}},
+                "competed": {
+                    "all": {"2009": 298571.43, "2010": 597142.86},
+                    "measure": {"2009": 298571.43, "2010": 597142.86}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 31.90, "2010": 32.00},
+                    "efficient": {"2009": 31.52, "2010": 31.24}},
+                "competed": {
+                    "baseline": {"2009": 0.87, "2010": 1.74},
+                    "efficient": {"2009": 0.48, "2010": 0.97}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 1813.42, "2010": 1797.38},
+                    "efficient": {"2009": 1791.76, "2010": 1754.45}},
+                "competed": {
+                    "baseline": {"2009": 49.22, "2010": 97.57},
+                    "efficient": {"2009": 27.56, "2010": 54.64}}},
+            "cost": {
+                "stock": {
+                    "total": {
+                        "baseline": {"2009": 154000000, "2010": 154000000},
+                        "efficient": {
+                            "2009": 157284285.71, "2010": 160568571.42857143}},
+                    "competed": {
+                        "baseline": {"2009": 4180000, "2010": 8360000},
+                        "efficient": {
+                            "2009": 7464285.71, "2010": 14928571.43}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 289.65, "2010": 273.60},
+                        "efficient": {"2009": 286.19, "2010": 267.06}},
+                    "competed": {
+                        "baseline": {"2009": 7.86, "2010": 14.85},
+                        "efficient": {"2009": 4.40, "2010": 8.32}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 59842.87, "2010": 59313.65},
+                        "efficient": {"2009": 59128.17, "2010": 57896.90}},
+                    "competed": {
+                        "baseline": {"2009": 1624.31, "2010": 3219.88},
+                        "efficient": {"2009": 909.61, "2010": 1803.14}}}},
+            "lifetime": {"baseline": {"2009": 140, "2010": 140},
                          "measure": 1}}]
         cls.ok_distmeas_out = [
-            [120.86, 100, 1741.32, 100, 1.0, 1],
-            [11.9, 100, 374.73, 100, 0.93, 100],
-            [55.44, 100, 6426946929.70, 100, 1.0, 1]]
+            [120.86, 100, 1741.32, 100, 1.0, 1, 0.02, 1],
+            [11.9, 100, 374.73, 100, 1.28, 100, 0.02, 1],
+            [55.44, 100, 6451739849.37, 100, 1.0, 1, 0.02, 1],
+            [10.91, 100, 45, 1, 1, 1, 0.06, 100]]
         cls.ok_partialmeas_out = [{
             "stock": {
                 "total": {
@@ -7208,7 +7302,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         Raises:
             AssertionError: If function yields unexpected results.
         """
-        # Seed random number generator to yield repeatable results
+        # Seed random number generator to yield repeatable cost, performance
+        # and lifetime results
         numpy.random.seed(1234)
         for idx, measure in enumerate(self.ok_distmeas_in):
             # Generate lists of energy and cost output values
@@ -7221,17 +7316,21 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             test_c = test_outputs[
                 "cost"]["stock"]["total"]["efficient"]["2009"]
             test_l = test_outputs["lifetime"]["measure"]
-            if type(test_l) == float:
-                test_l = [test_l]
+            test_r = measure.retro_rate
+            test_e, test_c, test_l, test_r = [
+                [x] if type(x) is float else x for x in [
+                    test_e, test_c, test_l, test_r]]
             # Calculate mean values from output lists for testing
             param_e = round(sum(test_e) / len(test_e), 2)
             param_c = round(sum(test_c) / len(test_c), 2)
             param_l = round(sum(test_l) / len(test_l), 2)
+            param_r = round(sum(test_r) / len(test_r), 2)
             # Check mean values and length of output lists to ensure
             # correct
             self.assertEqual([
                 param_e, len(test_e), param_c, len(test_c),
-                param_l, len(test_l)], self.ok_distmeas_out[idx])
+                param_l, len(test_l), param_r, len(test_r)],
+                self.ok_distmeas_out[idx])
 
     def test_mseg_partial(self):
         """Test 'fill_mkts' function given partially valid inputs.
@@ -8276,7 +8375,6 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
                                             ecm_prep.UsefulInputFiles())
-        cls.handyvars.retro_rate = 0.02
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1, 1, 1, 1, 1, 1, 3), dtype=[
                 ('Category', 'S11'), ('2009', '<f8'),
@@ -8285,7 +8383,7 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                 ('2022', '<f8'), ('2025', '<f8'),
                 ('2026', '<f8'), ('2027', '<f8')])
         sample_measure_in = {
-            "name": "sample measure 1",
+            "name": "sample measure 1 partition",
             "active": 1,
             "market_entry_year": None,
             "market_exit_year": None,
@@ -8304,7 +8402,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "technology": {
                 "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
-                "secondary": None}}
+                "secondary": None},
+            "retro_rate": 0.02}
         cls.measure_instance = ecm_prep.Measure(
             cls.handyvars, **sample_measure_in)
         cls.ok_diffuse_params_in = None
@@ -18512,11 +18611,11 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
         cls.sample_measlist_out_mkt_keys = ["master_mseg", "mseg_out_break"]
         cls.sample_measlist_out_highlev_keys = [
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "out_break_norm", "remove", 'technology',
+             "name", "out_break_norm", "remove", "retro_rate", 'technology',
              'technology_type', 'time_sensitive_valuation',
              'yrs_on_mkt', 'measure_type'],
             ["market_entry_year", "market_exit_year", "markets",
-             "name", "out_break_norm", "remove", 'technology',
+             "name", "out_break_norm", "remove", "retro_rate", 'technology',
              'technology_type', 'time_sensitive_valuation',
              'yrs_on_mkt', 'measure_type'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',

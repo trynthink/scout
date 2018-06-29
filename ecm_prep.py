@@ -143,7 +143,8 @@ class UsefulVars(object):
             $/unit scale expected by the residential ECM competition approach
         deflt_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
-        tsv (Boolean): Flag for the presence of time-sensitive measures.
+        tsv_order (list): Order in which to implement time-sensitive
+            efficiency impacts.
     """
 
     def __init__(self, base_dir, handyfiles):
@@ -605,9 +606,6 @@ class UsefulVars(object):
         # appliances/MELs areas; default is thus the EIA choice parameters
         # for refrigerator technologies
         self.deflt_choice = [-0.01, -0.12]
-        # Initialize a flag for the presence of measures with time sensitive
-        # efficiency effects
-        self.tsv = False
         # Establish the assumed order in which time sensitive ECM
         # adjustments are applied
         self.tsv_order = ["conventional", "shave", "fill", "shift", "shape"]
@@ -917,6 +915,8 @@ class Measure(object):
         remove (boolean): Determines whether measure should be removed from
             analysis engine due to insufficient market source data.
         handyvars (object): Global variables useful across class methods.
+        retro_rate (float or list): Stock retrofit rate specific to the ECM.
+        technology_type (string): Flag for supply- or demand-side technology.
         yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
@@ -939,6 +939,33 @@ class Measure(object):
                 "ECM '" + self.name + "' name must be <= 40 characters")
         self.remove = False
         self.handyvars = handyvars
+        # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
+        try:
+            # Check first to see whether pulling up retrofit rate errors
+            self.retro_rate
+            # Accommodate retrofit rate input as a probability distribution
+            if type(self.retro_rate) is list and isinstance(
+                    self.retro_rate[0], str):
+                # Sample measure retrofit rate values
+                self.retro_rate = self.rand_list_gen(
+                    self.retro_rate, self.handyvars.nsamples)
+            # Raise error in case where distribution is incorrectly specified
+            elif type(self.retro_rate) is list:
+                raise ValueError(
+                    "ECM " + self.name + " 'retro_rate' distribution must " +
+                    "be formatted as [<distribution name> (string), " +
+                    "<distribution parameters> (floats)]")
+            # If retrofit rate is set to None, use default retrofit rate value
+            elif self.retro_rate is None:
+                self.retro_rate = self.handyvars.retro_rate
+            # Do nothing in case where retrofit rate is specified as float
+            else:
+                pass
+        except AttributeError:
+            # If no 'retro_rate' attribute was given for the ECM, use default
+            # retrofit rate value
+            self.retro_rate = self.handyvars.retro_rate
+
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -1582,7 +1609,7 @@ class Measure(object):
                     if perf_units != 'relative savings (constant)' and \
                         type(perf_units) is not list and any(
                             perf_meas < 0) is True:
-                        perf_meas[numpy.where(perf_meas < 0)] == 0
+                        perf_meas[numpy.where(perf_meas < 0)] = 0
 
                 if isinstance(cost_meas, list) and isinstance(cost_meas[0],
                                                               str):
@@ -1591,7 +1618,7 @@ class Measure(object):
                         cost_meas, self.handyvars.nsamples)
                     # Set any measure cost values less than zero to zero
                     if any(cost_meas < 0) is True:
-                        cost_meas[numpy.where(cost_meas < 0)] == 0
+                        cost_meas[numpy.where(cost_meas < 0)] = 0
                 if isinstance(life_meas, list) and isinstance(life_meas[0],
                                                               str):
                     # Sample measure lifetime values
@@ -1600,7 +1627,7 @@ class Measure(object):
                     # Set any measure lifetime values in list less than zero
                     # to 1
                     if any(life_meas < 0) is True:
-                        life_meas[numpy.where(life_meas < 0)] == 1
+                        life_meas[numpy.where(life_meas < 0)] = 1
                 elif isinstance(life_meas, float) or \
                         isinstance(life_meas, int) and mskeys[0] == "primary":
                     # Set measure lifetime point values less than zero to 1
@@ -1826,10 +1853,11 @@ class Measure(object):
                 else:
                     # Set baseline cost and performance characteristics for any
                     # remaining secondary microsegments to that of the measure
-                    # and baseline lifetime to one year
+                    # and baseline lifetime to ten years (typical commercial
+                    # lighting lifetime)
                     cost_base, perf_base, life_base = [
                         {yr: x for yr in self.handyvars.aeo_years} for x in [
-                         cost_meas, perf_meas, 1]]
+                         cost_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
 
                 # Convert user-defined measure cost units to align with
@@ -2749,7 +2777,8 @@ class Measure(object):
         # Loop through all time-varying efficiency impacts, applying each
         # successively to the base load shape
         for a in [x for x in self.handyvars.tsv_order if
-                  x in tsv_adjustments.keys()]:
+                  x in tsv_adjustments.keys() and
+                  tsv_adjustments[x] not in [{}, None]]:
             # Set the applicable hours in which to apply the time-varying
             # efficiency impact; if no start and stop information is specified
             # by the user, assume the impact applies across all 24 hours
@@ -3407,6 +3436,11 @@ class Measure(object):
                 # Calculate the portions of existing baseline and efficient
                 # stock that are up for replacement
 
+                # Set maximum annual baseline replacement rate
+                base_repl_rt_max = (1 / life_base[yr]) + self.retro_rate
+                # Set maximum annual efficient replacement rate
+                eff_repl_rt_max = (1 / life_meas) + self.retro_rate
+
                 # Update base replacement fraction
 
                 # For a case where the current microsegment applies to new
@@ -3422,26 +3456,81 @@ class Measure(object):
                 if mskeys[-1] == "new":
                     turnover_base = life_base[yr] - (
                         int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
-                    if turnover_base <= 0 and (
-                            1 / life_base[yr]) <= captured_base_frac:
-                        captured_base_replace_frac = (1 / life_base[yr])
-                    elif turnover_base <= 0 and (
-                            1 / life_base[yr]) > captured_base_frac:
-                        captured_base_replace_frac = captured_base_frac
-                    else:
-                        captured_base_replace_frac = 0
+                    # Handle case without lifetime or retro. rate distributions
+                    try:
+                        if turnover_base <= 0 and base_repl_rt_max <= \
+                                captured_base_frac:
+                            captured_base_replace_frac = base_repl_rt_max
+                        elif turnover_base <= 0:
+                            captured_base_replace_frac = captured_base_frac
+                        else:
+                            captured_base_replace_frac = 0
+                    # Handle case with lifetime or retro. rate distributions
+                    except ValueError:
+                        # Ensure that all variables involved in the
+                        # calculation are set to lists with the same length
+                        # (and that list elements are of the float type)
+                        turnover_base, base_repl_rt_max, captured_base_frac, \
+                            captured_eff_frac = [numpy.repeat(
+                                float(x), self.handyvars.nsamples) if type(x)
+                                in (int, float) else x for x in [
+                                turnover_base, base_repl_rt_max,
+                                captured_base_frac, captured_eff_frac]]
+                        # Initialize the final base replacement fraction output
+                        # as a list of zeros with the appropriate length
+                        captured_base_replace_frac = numpy.zeros(
+                            self.handyvars.nsamples)
+                        # Using a for loop, complete the set of operations
+                        # used above (under 'try') for each list element
+                        for ind in range(self.handyvars.nsamples):
+                            if turnover_base[ind] <= 0 and \
+                                base_repl_rt_max[ind] <= \
+                                    captured_base_frac[ind]:
+                                captured_base_replace_frac[ind] = \
+                                    base_repl_rt_max[ind]
+                            elif turnover_base[ind] <= 0:
+                                captured_base_replace_frac[ind] = \
+                                    captured_base_frac[ind]
+                            else:
+                                captured_base_replace_frac[ind] = 0
+
                 # For a case where the current microsegment applies to
                 # existing structures, the baseline replacement fraction
                 # is the lesser of (1 / baseline lifetime) + retrofit rate
                 # and the fraction of existing stock from previous years that
                 # has already been captured by the baseline technology
                 else:
-                    if ((1 / life_base[yr]) + self.handyvars.retro_rate) <= \
-                            captured_base_frac:
-                        captured_base_replace_frac = (
-                            1 / life_base[yr]) + self.handyvars.retro_rate
-                    else:
-                        captured_base_replace_frac = captured_base_frac
+                    # Handle case without lifetime or retro. rate distributions
+                    try:
+                        if base_repl_rt_max <= captured_base_frac:
+                            captured_base_replace_frac = base_repl_rt_max
+                        else:
+                            captured_base_replace_frac = captured_base_frac
+                    # Handle case with lifetime or retro. rate distributions
+                    except ValueError:
+                        # Ensure that all variables involved in the
+                        # calculation are set to lists with the same length
+                        # (and that list elements are of the float type)
+                        base_repl_rt_max, captured_base_frac, \
+                            captured_eff_frac = [numpy.repeat(
+                                float(x), self.handyvars.nsamples) if type(x)
+                                in (int, float) else x for x in [
+                                base_repl_rt_max, captured_base_frac,
+                                captured_eff_frac]]
+                        # Initialize the final base replacement fraction output
+                        # as a list of zeros with the appropriate length
+                        captured_base_replace_frac = numpy.zeros(
+                            self.handyvars.nsamples)
+                        # Using a for loop, complete the set of operations
+                        # used above (under 'try') for each list element
+                        for ind in range(self.handyvars.nsamples):
+                            if base_repl_rt_max[ind] <= \
+                                    captured_base_frac[ind]:
+                                captured_base_replace_frac[ind] = \
+                                    base_repl_rt_max[ind]
+                            else:
+                                captured_base_replace_frac[ind] = \
+                                    captured_base_frac[ind]
 
                 # Update efficient replacement fraction
 
@@ -3460,28 +3549,41 @@ class Measure(object):
                 else:
                     turnover_meas = life_meas - (
                         int(yr) - self.market_entry_year)
-                # Handle case where efficient measure lifetime is a numpy array
-                if type(life_meas) == numpy.ndarray:
-                    for ind, l in enumerate(life_meas):
-                        if turnover_meas[ind] <= 0 and ((
-                                (1 / l) + self.handyvars.retro_rate) < 1):
-                            captured_eff_replace_frac = \
-                                captured_eff_frac * (
-                                    (1 / l) + self.handyvars.retro_rate)
-                        elif turnover_meas[ind] <= 0:
-                            captured_eff_replace_frac = captured_eff_frac
-                        else:
-                            captured_eff_replace_frac = 0
-                # Handle case where efficient measure lifetime is a point value
-                else:
-                    if turnover_meas <= 0 and ((
-                            (1 / life_meas) + self.handyvars.retro_rate) < 1):
+                # Handle case without lifetime or retro. rate distributions
+                try:
+                    if turnover_meas <= 0 and eff_repl_rt_max < 1:
                         captured_eff_replace_frac = captured_eff_frac * \
-                            ((1 / life_meas) + self.handyvars.retro_rate)
+                            eff_repl_rt_max
                     elif turnover_meas <= 0:
                         captured_eff_replace_frac = captured_eff_frac
                     else:
                         captured_eff_replace_frac = 0
+                # Handle case with lifetime or retro. rate distributions
+                except ValueError:
+                    # Ensure that all variables involved in the
+                    # calculation are set to lists with the same length
+                    # (and that list elements are of the float type)
+                    turnover_meas, eff_repl_rt_max, captured_eff_frac, \
+                        captured_base_frac = [numpy.repeat(
+                            float(x), self.handyvars.nsamples) if type(x)
+                            in (int, float) else x for x in [
+                            turnover_meas, eff_repl_rt_max, captured_eff_frac,
+                            captured_base_frac]]
+                    # Initialize the final efficient replacement fraction
+                    # output as a list of zeros with the appropriate length
+                    captured_eff_replace_frac = numpy.zeros(
+                        self.handyvars.nsamples)
+                    # Using a for loop, complete the set of operations
+                    # used above (under 'try') for each list element
+                    for ind in range(self.handyvars.nsamples):
+                        if turnover_meas[ind] <= 0:
+                            if eff_repl_rt_max[ind] <= 1:
+                                captured_eff_replace_frac[ind] = \
+                                    captured_eff_frac[ind] * \
+                                    eff_repl_rt_max[ind]
+                            else:
+                                captured_eff_replace_frac[ind] = \
+                                    captured_eff_frac[ind]
             else:
                 captured_eff_replace_frac, captured_base_replace_frac = \
                     (0 for n in range(2))
@@ -3525,16 +3627,33 @@ class Measure(object):
             # Primary microsegment not in the first year where current
             # microsegment applies to existing structure type
             elif mskeys[0] == "primary" and mskeys[-1] == "existing":
+                # Set total baseline + efficient replacement fraction
+                tot_replace_frac = captured_base_replace_frac + \
+                    captured_eff_replace_frac
+
                 # Ensure that replacement fraction does not exceed 1
-                if captured_base_replace_frac + captured_eff_replace_frac <= 1:
-                    competed_frac = \
-                        captured_base_replace_frac + captured_eff_replace_frac
-                    # Update the fraction of the stock that was previously
-                    # captured by the efficient measure and is currently up for
-                    # replacement or retrofit
-                    captured_eff_frac_compete = captured_eff_replace_frac
-                else:
-                    competed_frac = 1
+
+                # Handle case without lifetime or retro. rate distributions
+                try:
+                    if tot_replace_frac <= 1:
+                        competed_frac = tot_replace_frac
+                        # Update the fraction of the stock that was previously
+                        # captured by the efficient measure and is currently up
+                        # for replacement or retrofit
+                        captured_eff_frac_compete = captured_eff_replace_frac
+                    else:
+                        competed_frac = 1
+                # Handle case with lifetime or retro. rate distributions
+                except ValueError:
+                    if all(tot_replace_frac <= 1):
+                        competed_frac = tot_replace_frac
+                        # Update the fraction of the stock that was previously
+                        # captured by the efficient measure and is currently up
+                        # for replacement or retrofit
+                        captured_eff_frac_compete = captured_eff_replace_frac
+                    else:
+                        tot_replace_frac[numpy.where(tot_replace_frac > 1)] = 1
+                        competed_frac = tot_replace_frac
             # For all other cases, set competed fraction to 0
             else:
                 competed_frac = 0
@@ -3548,14 +3667,38 @@ class Measure(object):
             # the previously captured efficient fraction; if not, all of the
             # previously captured efficient stock flows to competed efficient
             # stock and the previously captured efficient fraction is zero
-            if captured_eff_frac_compete < captured_eff_frac:
-                # Remove the competed efficient stock fraction from the
-                # previously captured efficient fraction
-                captured_eff_frac = (
-                    captured_eff_frac - captured_eff_frac_compete) / (
-                    1 - captured_eff_frac_compete)
-            else:
-                captured_eff_frac = 0
+
+            # Handle case without lifetime or retro. rate distributions
+            try:
+                if captured_eff_frac_compete < captured_eff_frac:
+                    # Remove the competed efficient stock fraction from the
+                    # previously captured efficient fraction
+                    captured_eff_frac = (
+                        captured_eff_frac - captured_eff_frac_compete) / (
+                        1 - captured_eff_frac_compete)
+                else:
+                    captured_eff_frac = 0
+            # Handle case with lifetime or retro. rate distributions
+            except ValueError:
+                # Ensure that all variables involved in the
+                # calculation are set to lists with the same length
+                # (and that list elements are of the float type)
+                captured_eff_frac_compete, captured_eff_frac = [
+                    numpy.repeat(float(x), self.handyvars.nsamples) if type(x)
+                    in (int, float) else x for x in [
+                        captured_eff_frac_compete, captured_eff_frac]]
+                # Using a for loop, complete the set of operations
+                # used above (under 'try') for each list element
+                for ind in range(self.handyvars.nsamples):
+                    if captured_eff_frac_compete[ind] < captured_eff_frac[ind]:
+                        # Remove the competed efficient stock fraction from the
+                        # previously captured efficient fraction
+                        captured_eff_frac[ind] = (
+                            captured_eff_frac[ind] -
+                            captured_eff_frac_compete[ind]) / (
+                            1 - captured_eff_frac_compete[ind])
+                    else:
+                        captured_eff_frac[ind] = 0
 
             # Determine the fraction of total stock, energy, and carbon
             # in a given year that is competed and captured by the measure
@@ -3686,11 +3829,18 @@ class Measure(object):
                 # Set a turnover weight to use in balancing the current year's
                 # relative performance with that of all previous years since
                 # market entry
-                base_turnover_wt = (
-                    (1 / life_base[yr]) + self.handyvars.retro_rate)
+                base_turnover_wt = (1 / life_base[yr]) + self.retro_rate
+
                 # Ensure the turnover weight never exceeds 1
-                if base_turnover_wt > 1:
-                    base_turnover_wt = 1
+
+                # Handle case without lifetime or retro. rate distributions
+                try:
+                    if base_turnover_wt > 1:
+                        base_turnover_wt = 1
+                # Handle case with lifetime or retro. rate distributions
+                except ValueError:
+                    base_turnover_wt[numpy.where(base_turnover_wt > 1)] = 1
+
                 # Update relative performance
                 rel_perf_capt = (
                     rel_perf[yr] * base_turnover_wt +
@@ -3819,17 +3969,27 @@ class Measure(object):
             # stock for the year is 0, do not update the captured portion from
             # the previous year
             if mskeys[0] == "primary":
-                # Handle case where stock captured by measure is a numpy array
-                if type(stock_total_meas[yr]) == numpy.ndarray:
-                    for i in range(0, len(stock_total_meas[yr])):
-                        if stock_total[yr] != 0 and captured_eff_frac[i] != 1:
-                            captured_eff_frac[i] = stock_total_meas[yr][i] / \
-                                stock_total[yr]
-                # Handle case where stock captured by measure is a point value
-                else:
+                # Handle case where captured efficient stock total/fraction
+                # is a point value
+                try:
                     if stock_total[yr] != 0 and captured_eff_frac != 1:
                         captured_eff_frac = \
                             stock_total_meas[yr] / stock_total[yr]
+                # Handle case where captured efficient stock total/fraction
+                # is a numpy array
+                except ValueError:
+                    try:
+                        for i in range(0, self.handyvars.nsamples):
+                            if stock_total[yr] != 0 and \
+                                    captured_eff_frac[i] != 1:
+                                captured_eff_frac[i] = \
+                                    (stock_total_meas[yr][i] / stock_total[yr])
+                    except TypeError:
+                        # Handle case where captured efficient stock is forced
+                        # to total stock point value (Technical potential)
+                        if stock_total_meas[yr] == stock_total[yr]:
+                            captured_eff_frac = 1
+
                 # Update portion of existing stock remaining with the baseline
                 # technology
                 captured_base_frac = 1 - captured_eff_frac

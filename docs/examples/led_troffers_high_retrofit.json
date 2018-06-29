@@ -1,0 +1,80 @@
+{
+  "name": "LED Troffers (High Retrofit Rate)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["T5 F28", "T8 F28","T8 F32", "T8 F59","T8 F96"],
+  "market_entry_year": 2015,
+  "market_entry_year_source": {
+    "notes": "The source suggests that technologies described in the document are available on the market by its release date.",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": null,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 120,
+  "energy_efficiency_units": "lm/W",
+  "energy_efficiency_source": {
+    "notes": "Initial efficiency value taken from source section II.a.2.a. Efficiency value increased slightly based on efficacy values for fixtures categorized as '2x4 Luminaires for Ambient Lighting of Interior Commercial Spaces' in the DesignLights Consortium Qualified Products List (https://www.designlights.org/qpl).",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": 5,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "installed_cost": 233.33,
+  "cost_units": "$/1000 lm",
+  "installed_cost_source": {
+    "notes": "Assumes single fixture provides 4800 lm; requires 2 hour install with 2 people at a fully-burdened cost of $100/person/hr. Luminaire cost based on a range of retail prices found for luminaires with similar specifications found online in October 2016.",
+    "source_data": [{
+       "title": "",
+       "author": "",
+       "organization": "",
+       "year": null,
+       "pages": null,
+       "URL": ""}]},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Calculated from 68,000 hrs, stated as item II.c.i, assuming 12 hr/day operation.",
+    "source_data": [{
+       "title": "High Efficiency Troffer Performance Specification, Version 5.0",
+       "author": "",
+       "organization": "U.S. Department of Energy",
+       "year": 2015,
+       "pages": 5,
+       "URL": "https://betterbuildingssolutioncenter.energy.gov/sites/default/files/attachments/High%20Efficiency%20Troffer%20Performance%20Specification.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "retro_rate": 0.1,
+  "retro_rate_source": {
+    "notes": "Hypothetical retrofit rate, not tied to a specific source",
+    "source_data": [{
+      "title": "",
+      "author": "",
+      "organization": "",
+      "year": 0,
+      "pages": 0,
+      "URL": ""}]}, 
+  "_description": "LED troffers for commercial modular dropped ceiling grids that are a replacement for the entire troffer luminaire for linear fluorescent bulbs, not a retrofit kit or linear LED bulbs that slot into existing troffers.",
+  "_notes": "Energy performance is specified for the luminaire, not the base lamp.",
+  "_added_by": {
+    "name": "Carmen Sandiego",
+    "organization": "Super Appliances, Inc.",
+    "email": "carmen.sandiego@superappliances.com",
+    "timestamp": "2015-07-14 11:49:57 UTC"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null}
+  }

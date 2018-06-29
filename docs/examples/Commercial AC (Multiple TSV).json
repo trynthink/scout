@@ -1,9 +1,18 @@
 {
-  "name": "Commercial AC (Shift)",
+  "name": "Commercial AC (Multiple TSV)",
   "time_sensitive_valuation": {
       "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 12},
       "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}
   },
+  "time_sensitive_valuation_source": {
+    "notes": "Hypothetical time sensitive valuation information, not tied to a specific source",
+    "source_data": [{
+      "title": "",
+      "author": "",
+      "organization": "",
+      "year": 0,
+      "pages": 0,
+      "URL": ""}]},
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",

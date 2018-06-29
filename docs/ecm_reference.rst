@@ -608,7 +608,7 @@ energy_efficiency
 ~~~~~~~~~~~~~~~~~
 
 * **Parents:** root
-* **Children:** (optional) values of :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-structure_type`, :ref:`json-end_use`
+* **Children:** (optional) values of :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-end_use`, :ref:`json-structure_type`
 * **Type:** float, dict
 
 The energy efficiency value(s) define the energy performance of the technology being described by the ECM. The numeric values should be given such that they correspond to the required units given in the :ref:`json-energy_efficiency_units` field. ::
@@ -617,42 +617,30 @@ The energy efficiency value(s) define the energy performance of the technology b
     "energy_efficiency": 2.8,
     ...}
 
-If it is appropriate for the technology described by the ECM, the energy efficiency can be specified more precisely using one or more of the optional child fields. The values should then be reported in a dict where the keys correspond to the applicable child fields. If multiple levels of specificity are desired, the hierarchy of the nested keys can be chosen for convenience. Additional information regarding this specification method can be found in the :ref:`ecm-features-detailed-input` section. ::
+If it is appropriate for the technology described by the ECM, the energy efficiency can be specified more precisely using one or more of the optional child fields. The values should then be reported in a dict where the keys correspond to the applicable child fields. If multiple levels of specificity are desired, the hierarchy of the nested keys must use the following order: :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-end_use` and :ref:`json-structure_type`. Additional information regarding this specification method can be found in the :ref:`ecm-features-detailed-input` section. ::
 
    {...
     "energy_efficiency": {
-      "heating": {
-         "AIA_CZ1": {
-            "all residential": 1.32,
-            "small office": 1.11},
-         "AIA_CZ2": {
-            "all residential": 1.38,
-            "small office": 1.15},
-         "AIA_CZ3": {
-            "all residential": 1.44,
-            "small office": 1.18},
-         "AIA_CZ4": {
-            "all residential": 1.54,
-            "small office": 1.21},
-         "AIA_CZ5": {
-            "all residential": 1.6,
-            "small office": 1.25}},
-      "cooling": {
-         "AIA_CZ1": {
-            "all residential": 2.2,
-            "small office": 2.03},
-         "AIA_CZ2": {
-            "all residential": 2.16,
-            "small office": 1.96},
-         "AIA_CZ3": {
-            "all residential": 2.11,
-            "small office": 1.9},
-         "AIA_CZ4": {
-            "all residential": 2.02,
-            "small office": 1.86},
-         "AIA_CZ5": {
-            "all residential": 1.9
-            "small office": 1.77}}},
+      "AIA_CZ1": {
+         "heating": 1.05,
+         "cooling": 1.3,
+         "water heating": 1.25},
+      "AIA_CZ2": {
+         "heating": 1.15,
+         "cooling": 1.26,
+         "water heating": 1.31},
+      "AIA_CZ3": {
+         "heating": 1.3,
+         "cooling": 1.21,
+         "water heating": 1.4},
+      "AIA_CZ4": {
+         "heating": 1.4,
+         "cooling": 1.16,
+         "water heating": 1.57},
+      "AIA_CZ5": {
+         "heating": 1.4,
+         "cooling": 1.07,
+         "water heating": 1.7}},
     ...}
 
 .. _json-energy_efficiency_units:
@@ -732,7 +720,7 @@ Since installation costs can vary by building type (implicitly by building squar
       "all commercial": 10},
     ...}
 
-The installed costs can be specified with detail beyond what is shown using the additional optional child field types, as illustrated for the :ref:`json-energy_efficiency` field. The order of the hierarchy for the child fields is at the user's discretion. Further information about detailed structures for specifying the installed cost is in the :ref:`ecm-features-detailed-input` section.
+The installed costs can be specified with detail beyond what is shown using the additional optional child field types, as illustrated for the :ref:`json-energy_efficiency` field. The order of the hierarchy is: :ref:`json-bldg_type`, :ref:`json-structure_type`. Further information about detailed structures for specifying the installed cost is in the :ref:`ecm-features-detailed-input` section.
 
 .. _json-cost_units:
 
@@ -844,6 +832,70 @@ This key is used to specify the source of the ECM's product lifetime values. The
          "URL": "http://energy.gov/sites/prod/files/2016/09/f33/energysavingsforecast16_2.pdf"}]},
     ...}
 
+.. _json-time_sensitive_valuation:
+
+time_sensitive_valuation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`, (optional) values of :ref:`json-end_use`
+* **Type:** dict
+
+The time sensitive valuation value(s) define the time sensitive efficiency impacts of the technology being described by the ECM. One or more time sensitive ECM features may be described, including :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, and/or :ref:`json-shape`. Each feature is indicated as a dict key as follows. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "conventional": {...}},
+    ...}
+
+If an ECM has multiple time sensitive features, they may be specified as follows. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "conventional": {...},
+      ...,
+      "shape": {...}},
+    ...}
+
+Optionally, a user may define an end use break down of time sensitive features by setting the end use as the first level in the dict key hierarchy, followed by the time sensitive feature type key. ::
+
+   {...
+    "time_sensitive_valuation": {
+      "heating": {
+         "conventional": {...},
+         ...,
+         "shape": {...}},
+      "cooling": {
+         "conventional": {...},
+         ...,
+         "shape": {...}}},
+    ...}
+
+Note that if an end use breakout is used, keys for all the ECM's applicable end uses must be included - e.g., if the ECM applies to both heating and cooling, *both* the heating and cooling keys must be reflected in the time sensitive valuation dict.
+
+.. _json-time_sensitive_valuation_source:
+
+time_sensitive_valuation_source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** :ref:`json-notes`, :ref:`json-source_data`, (optional) :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+* **Type:** dict
+
+This key is used to specify the source of the ECM's time sensitive valuation data. The :ref:`json-source_data` field description explains how to specify multiple sources. Any details regarding the relationship between the values in the source(s) and the values in the ECM definition should be supplied in the :ref:`json-notes` field. ::
+
+   {...
+    "time_sensitive_valuation_source": {
+      "notes": "Study provides estimate of commercial load curtailment magnitude.",
+      "source_data": [{
+         "title": "Characterization of demand response in the commercial, industrial, and residential sectors in the United States",
+         "author": "Sila Kiliccote, Daniel Olsen, Michael D. Sohn, Mary Ann Piette",
+         "organization": "Lawrence Berkeley National Laboratory",
+         "year": 2015,
+         "pages": 17,
+         "URL": "https://onlinelibrary.wiley.com/doi/abs/10.1002/wene.176"}]},
+    ...}
+
 .. _json-measure_type:
 
 measure_type
@@ -935,6 +987,44 @@ Multiple scaling fraction values can share the same source so long as the calcul
          "fraction_derivation": "37051 ft^2 floor of commercial buildings with BAS / 87093 ft^2 floor total commercial buildings"}},
     ...}
 
+.. _json-retro_rate:
+
+retro_rate
+~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** none
+* **Type:** float, none
+
+This field assigns an ECM-specific retrofit rate to use in stock-and-flow calculations. The retrofit rate value should be specified as a fraction between 0 and 1. For example, 0.1 corresponds to 10% of the existing technology stock being retrofitted annually. ::
+
+   {...
+    "retro_rate": 0.1,
+    ...}
+
+.. _json-retro_rate_source:
+
+retro_rate_source
+~~~~~~~~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** :ref:`json-notes`, :ref:`json-source_data`
+* **Type:** dict
+
+This field is used to specify the source of the ECM's retrofit rate data. The :ref:`json-source_data` field description explains how to specify multiple sources. Any details regarding the relationship between the values in the source and the values in the ECM definition should be supplied in the :ref:`json-notes` field. ::
+
+   {...
+    "retro_rate_source": {
+      "notes": "Increased commercial building retrofit rate to represent the potential impacts of the DEEP database in accelerating energy savings from commercial retrofits.",
+      "source_data": [{
+         "title": "Accelerating the energy retrofit of commercial buildings using a database of energy efficiency performance",
+         "author": "Sang Hoon Lee, Tianzhen Hong, Mary Ann Piette, Geof Sawaya, Yixing Chen, Sarah C. Taylor-Lange",
+         "organization": "Lawrence Berkeley National Laboratory",
+         "year": 2015,
+         "pages": 10,
+         "URL": "https://eta.lbl.gov/sites/all/files/publications/tianzhen_hong_-_accelerating_the_energy_retrofit_of_commercial_buildings_using_a_database_of_energy_efficiency_performance.pdf"}]},
+    ...}
+
 .. _json-_description:
 
 _description
@@ -999,6 +1089,175 @@ A dict containing basic information that identifies the user that last updated t
     "_updated_by": ``null``
     ...}
 
+.. _json-conventional:
+
+conventional
+~~~~~~~~~~~~
+* **Parents:** :ref:`json-time_sensitive_valuation`
+* **Children:** :ref:`json-start`, :ref:`json-stop`
+* **Type:** dict
+
+This field restricts the application of a conventional efficiency impact to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+
+   {...
+    "start": 12,
+    "stop": 20
+    ...}
+
+.. _json-peak_shave:
+
+shave
+~~~~~
+* **Parents:** :ref:`json-time_sensitive_valuation`
+* **Children:** :ref:`json-peak_fraction`, (optional) :ref:`json-start`, :ref:`json-stop`, 
+* **Type:** dict
+
+This field sets a rule that no loads are greater than a certain percentage of peak daily load, as defined by :ref:`json-peak_fraction` (between 0 and 1). Optionally, users may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+
+   {...
+    "peak_fraction": 0.8,
+    "start": 12,
+    "stop": 20
+    ...}
+
+.. _json-valley_fill:
+
+fill
+~~~~
+* **Parents:** :ref:`json-time_sensitive_valuation`
+* **Children:** :ref:`json-peak_fraction`, (optional) :ref:`json-start`, :ref:`json-stop`, 
+* **Type:** dict
+
+This field sets a rule no loads are less than a certain percentage of peak daily load, as defined by :ref:`json-peak_fraction` (between 0 and 1). Optionally, users may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+
+   {...
+    "peak_fraction": 0.4,
+    "start": 12,
+    "stop": 20
+    ...}
+
+.. _json-shift:
+
+shift
+~~~~~
+* **Parents:** :ref:`json-time_sensitive_valuation`
+* **Children:** :ref:`json-offset_hrs_earlier`, (optional) :ref:`json-start`, :ref:`json-stop`, 
+* **Type:** dict
+
+This field shifts loads earlier by the number of hours specified using the :ref:`json-offset_hrs_earlier` parameter. Optionally, a user may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. In this case, total load reductions during the specified period will be evenly redistributed across the same period of time shifted earlier by the number of hours specified in :ref:`json-offset_hrs_earlier`. If no time restrictions are provided, the feature will shift the entire baseline energy load shape earlier by the number of hours specified in :ref:`json-offset_hrs_earlier`. ::
+
+   {...
+    "offset_hrs_earlier": 12,
+    "start": 12,
+    "stop": 20
+    ...}
+
+.. _json-shape:
+
+shape
+~~~~~
+* **Parents:** :ref:`json-time_sensitive_valuation`
+* **Children:** (if :ref:`json-flatten_fraction` is not used) :ref:`json-custom`, (if :ref:`json-custom` is not used) :ref:`json-flatten_fraction`, (optional when :ref:`json-flatten_fraction` is used) :ref:`json-start`, :ref:`json-stop`, 
+* **Type:** dict
+
+This field allows users to either define a custom load shape for an ECM using the :ref:`json-custom` parameter or flatten a baseline load shape by a certain percentage using the :ref:`json-flatten_fraction` parameter (using a value between 0 and 1). Optionally, users may restrict the latter rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+
+   {...
+    "custom": [...]
+    ...}
+
+   {...
+    "flatten_fraction": 0.5,
+    "start": 12, 
+    "stop": 20
+    ...}
+
+.. _json-start:
+
+start
+~~~~~
+* **Parents:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+* **Children:** None, 
+* **Type:** int, none
+
+This field indicates the hour of the day (from 1 to 24) that applicaiton of a time sensitive ECM feature begins. ::
+
+   {...
+    "start": 12
+    ...}
+
+.. _json-stop:
+
+stop
+~~~~
+* **Parents:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+* **Children:** None, 
+* **Type:** int, none
+
+This field indicates the hour of the day (from 1 to 24) that application of a time sensitive ECM feature ends. ::
+
+   {...
+    "stop": 20
+    ...}
+
+.. _json-peak_fraction:
+
+peak_fraction
+~~~~~~~~~~~~~
+* **Parents:** :ref:`json-peak_shave`, :ref:`json-valley_fill`
+* **Children:** None, 
+* **Type:** float
+
+This field indicates the fraction of daily peak load (between 0 and 1) that hourly loads must remain either above or below (depending on whether a peak shaving or valley filling time sensitive feature is indicated). ::
+
+   {...
+    "peak_fraction": 0.8
+    ...}
+
+.. _json-offset_hrs_earlier:
+
+offset_hrs_earlier
+~~~~~~~~~~~~~~~~~~
+* **Parents:** :ref:`json-shift`
+* **Children:** None, 
+* **Type:** int
+
+This field indicates the number of hours earlier to shift baseline loads or load reductions. ::
+
+   {...
+    "offset_hrs_earlier": 12
+    ...}
+
+.. _json-flatten_fraction:
+
+flatten_fraction
+~~~~~~~~~~~~~~~~
+* **Parents:** :ref:`json-shape`
+* **Children:** None, 
+* **Type:** float
+
+This field indicates the fraction to use (between 0 and 1) in scaling down the difference between hourly baseline energy loads and the average daily baseline energy load. ::
+
+   {...
+    "flatten_fraction": 0.5
+    ...}
+
+.. _json-custom:
+
+custom
+~~~~~~
+* **Parents:** :ref:`json-shape`
+* **Children:** None, 
+* **Type:** list
+
+This field provides a list of 24 fractions (between 0 and 1) that are used to rescale a baseline energy load shape to conform with a user-specified load shape. The fractions, which are specified for each hour of the day, represent each hourly load's percentage of maximum daily load under the custom load shape. ::
+
+   {...
+    "custom": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
+               0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]
+    ...}
+
+
 .. NOTE THAT THE USE OF NULL HERE IS NOT CONSISTENT WITH WHAT IS SHOWN IN THE TUTORIALS AND MIGHT NOT PASS EXISTING TESTS IN ecm_prep.py
 
 .. _json-notes:
@@ -1006,7 +1265,7 @@ A dict containing basic information that identifies the user that last updated t
 notes
 ~~~~~
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-time_sensitive_valuation_source`, :ref:`json-retro_rate_source`
 * **Children:** none
 * **Type:** string
 
@@ -1036,7 +1295,7 @@ For the market scaling fractions, this field should provide a description of how
 source_data
 ~~~~~~~~~~~
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-time_sensitive_valuation_source`, :ref:`json-retro_rate_source`
 * **Children:** :ref:`json-title`, :ref:`json-author`, :ref:`json-organization`, :ref:`json-year`, :ref:`json-pages`, :ref:`json-URL`
 * **Type:** list
 

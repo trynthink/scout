@@ -9,6 +9,15 @@
             0.713134087, 0.71775213, 0.766065772, 0.766065772,
             0.802987921, 0.850260722, 0.90480515, 0.957987688,
             0.995280578, 1, 0.962613938, 0.888721644]}},
+  "time_sensitive_valuation_source": {
+    "notes": "Hypothetical time sensitive valuation information, not tied to a specific source",
+    "source_data": [{
+      "title": "",
+      "author": "",
+      "organization": "",
+      "year": 0,
+      "pages": 0,
+      "URL": ""}]},
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",

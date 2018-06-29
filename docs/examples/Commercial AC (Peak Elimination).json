@@ -3,6 +3,15 @@
   "time_sensitive_valuation": {
       "conventional": {"start": 12, "stop": 20}
   },
+  "time_sensitive_valuation_source": {
+    "notes": "Hypothetical time sensitive valuation information, not tied to a specific source",
+    "source_data": [{
+      "title": "",
+      "author": "",
+      "organization": "",
+      "year": 0,
+      "pages": 0,
+      "URL": ""}]},
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",

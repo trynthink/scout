@@ -333,7 +333,7 @@ In certain cases, ECMs might affect baseline energy loads differently depending 
 
    The effect of time sensitive ECM features on baseline energy load shapes are represented as a light gray curve in each of the plots. Time sensitive ECM features include (clockwise from top left): conventional efficiency, where an efficiency improvement is constrained to certain hours of the day; peak shaving and valley filling, where peaks in the load shape are reduced and/or troughs in the load shape are filled in; load shaping, where a load shape is uniformly flattened or redistributed to reflect a custom load shape; and load shifting, where loads shed during a certain hour range are redistributed to an earlier time of day or the entire load shape is shifted earlier by a certain number of hours.
 
-Such time sensitive ECM features are specified using the "time_sensitive_valuation" parameter, which adheres to the following general format: ::
+Such time sensitive ECM features are specified using the :ref:`json-time_sensitive_valuation` parameter, which adheres to the following general format: ::
 
    {...
     "time_sensitive_valuation": {
@@ -346,21 +346,21 @@ Each time sensitive ECM feature is further described below with illustrative exa
 
 :download:`Example <examples/Commercial AC (Peak Elimination).json>` -- Commercial AC (Peak Elimination) ECM (:ref:`Details <ecm-example-com-peak>`)
 
-The first type of time sensitive ECM feature restricts the impact of a conventional efficiency measure to certain hours of the day using "start" and "stop" parameters. ::
+The first type of time sensitive ECM feature restricts the impact of a conventional efficiency measure to certain hours of the day using :ref:`json-start` and :ref:`json-stop` parameters. ::
 
    {...
     "time_sensitive_valuation": {
       "conventional": {"start": 12, "stop": 20}},
     ...}
 
-These settings constrain ECM efficiency impacts indicated by the :ref:`efficiency` parameter to a specific time period |---| in this example, 12PM--8PM. Such a capability may be useful, for example, in exploring the total energy use, |CO2| emissions, and operating costs associated with a particular utility definition of the peak load period. This "time_sensitive_valuation" setting works in combination with the energy efficiency specified separately in the ECM definition. In this example, the above "time_sensitive_valuation" settings are combined with a 100% energy use reduction. ::
+These settings constrain ECM efficiency impacts indicated by the :ref:`json-energy_efficiency` parameter to a specific time period |---| in this example, 12PM--8PM. Such a capability may be useful, for example, in exploring the total energy use, |CO2| emissions, and operating costs associated with a particular utility definition of the peak load period. This :ref:`json-time_sensitive_valuation` setting works in combination with the energy efficiency specified separately in the ECM definition. In this example, the above :ref:`json-time_sensitive_valuation` settings are combined with a 100% energy use reduction. ::
 
    {...
     "energy_efficiency": 1,
     "energy_efficiency_units": "relative savings (constant)",
     ...}
 
-This particular combination of "time_sensitive_valuation" and "energy_efficiency" settings yields the total avoided energy, |CO2| emissions, and operating costs resulting from *eliminating* peak period energy use.
+This particular combination of :ref:`json-time_sensitive_valuation` and :ref:`json-energy_efficiency` settings yields the total avoided energy, |CO2| emissions, and operating costs resulting from *eliminating* peak period energy use.
 
 .. _ecm-example-com-peak:
 
@@ -372,7 +372,7 @@ A commercial peak elimination ECM is :ref:`available for download <ecm-download-
 
 The second type of time sensitive ECM feature either sheds a fixed percentage of peak energy load off a baseline load shape or fills in troughs in the baseline load shape; these effects may be restricted to certain hours of the day or applied across the entire day.
 
-Given the following peak shaving settings, loads are reduced to *at maximum* 75% of the peak load between 12PM--8PM. ::
+Given the following peak shaving settings, which include use of the :ref:`json-peak_fraction` parameter, loads are reduced to *at maximum* 75% of the peak load between 12PM--8PM. ::
 
    {...
     "time_sensitive_valuation": {
@@ -396,14 +396,14 @@ A commercial peak shaving ECM is :ref:`available for download <ecm-download-com-
 
 The third type of time sensitive ECM feature shifts baseline energy loads from one time of day to another, either by redistributing loads shed during a certain hour range to earlier times of day or by shifting the entire baseline energy load shape earlier by a certain number of hours.
 
-In the first case, "start" and "stop" parameters are used to determine the hour range from which to shift load reductions; an "offset_hrs_earlier" parameter is then used to determine which hour range to redistribute the load reductions to. ::
+In the first case, :ref:`json-start` and :ref:`json-stop` parameters are used to determine the hour range from which to shift load reductions; an :ref:`json-offset_hrs_earlier` parameter is then used to determine which hour range to redistribute the load reductions to. ::
 
    {...
     "time_sensitive_valuation": {
       "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 12}},
     ...} 
 
-These settings take any load reductions between 12PM--8PM |---| determined by the ECM's :ref:`efficiency` parameter setting |---| and evenly redistribute the reductions across the hours of 12AM--8AM, or 12 hours earlier in the day.
+These settings take any load reductions between 12PM--8PM |---| determined by the ECM's :ref:`json-energy_efficiency` parameter setting |---| and evenly redistribute the reductions across the hours of 12AM--8AM, or 12 hours earlier in the day.
 
 In the second case, no start and stop times are given for the time sensitive feature. ::
 
@@ -415,7 +415,7 @@ In the second case, no start and stop times are given for the time sensitive fea
 These settings shift the *entire* baseline load shape earlier by 12 hours.
 
 .. tip::
-   In cases where no time constraints are desired on a time sensitive ECM feature, users may exclude the "start" and "stop" parameters entirely (in lieu of setting them to null values).
+   In cases where no time constraints are desired on a time sensitive ECM feature, users may exclude the :ref:`json-start` and :ref:`json-stop` parameters entirely (in lieu of setting them to null values).
 
 .. _ecm-example-com-shift:
 
@@ -431,16 +431,16 @@ A commercial load shifting ECM that demonstrates the load shifting settings from
 
 The final type of time sensitive ECM feature reshapes the baseline energy load by uniformly flattening the load or rescaling it to represent a user-defined custom load shape. 
 
-The "flatten_fraction" parameter is used to flatten a baseline energy load shape. ::
+The :ref:`json-flatten_fraction` parameter is used to flatten a baseline energy load shape. ::
 
    {...
     "time_sensitive_valuation": {
       "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
     ...}
 
-These settings result in all loads above the daily average being reduced by 50% of the difference between the load and the average, and all loads below the daily average being increased by 50% of the difference between the load and the average. In this case, no time constraints have been placed on the flattening operation, though it is possible to do so using the "start" and "stop" parameters. When a time interval is provided, the calculated average and resulting load reshaping are limited to the specified interval.
+These settings result in all loads above the daily average being reduced by 50% of the difference between the load and the average, and all loads below the daily average being increased by 50% of the difference between the load and the average. In this case, no time constraints have been placed on the flattening operation, though it is possible to do so using the :ref:`json-start` and :ref:`json-stop` parameters. When a time interval is provided, the calculated average and resulting load reshaping are limited to the specified interval.
 
-The "custom" parameter is used to set a custom load shape. ::
+The :ref:`json-custom` parameter is used to set a custom load shape. ::
 
    {...
     "time_sensitive_valuation": {
@@ -467,10 +467,22 @@ Finally, it is possible to define ECMs that combine multiple time sensitive feat
       "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
     ...}
 
-These settings take any load reductions between 12PM-8PM |---| again defined by the ECM's :ref:`efficiency` parameter setting |---| and redistribute them evenly across the hours of 12AM-8AM; subsequently, the resulting load shape is flattened to reduce the difference between all hourly loads and the average hourly load by 50%.
+These settings take any load reductions between 12PM-8PM |---| again defined by the ECM's :ref:`json-energy_efficiency` parameter setting |---| and redistribute them evenly across the hours of 12AM-8AM; subsequently, the resulting load shape is flattened to reduce the difference between all hourly loads and the average hourly load by 50%.
 
 .. note::
    When multiple time sensitive features are specified for an ECM, the assumed order of implementation is: 1) conventional efficiency, 2) peak shave or valley fill, 3) load shift, and 4) load reshape.
+
+Source information for time sensitive ECM features is specified using the :ref:`json-time_sensitive_valuation_source` field. In cases where multiple time sensitive features are indicated and the sources differ across each feature, the source information can be provided using the same nested dict structure as the time sensitive features themselves, as shown below.::
+
+  {...
+    "time_sensitive_valuation_source": {
+      "shift": {
+        "notes": {...},
+        "source_data": {...}},
+      "shape": {
+        "notes": {...},
+        "source_data": {...}}},
+    ...}
 
 .. _ecm-example-com-multiple:
 
@@ -549,7 +561,7 @@ Detailed input specification
 
 :download:`Example <examples/Thermoelastic HP (Prospective).json>` -- Thermoelastic Heat Pump ECM (:ref:`Details <ecm-example-detailed-input>`)
 
-The energy efficiency, installed cost, and lifetime values in an ECM definition can be specified as a point value or with separate values for one or more of the applicable baseline market keys (|baseline-market|). As shown in :numref:`table-detailed-input-options`, the allowable baseline market keys are different for the energy efficiency, installed cost, and lifetime values.
+The energy efficiency, installed cost, and lifetime values in an ECM definition can be specified as a point value or with separate values for one or more of the following applicable baseline market keys: :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-end_use` and :ref:`json-structure_type`. As shown in :numref:`table-detailed-input-options`, the allowable baseline market keys are different for the energy efficiency, installed cost, and lifetime values.
 
 .. table:: The baseline market keys that can be used to provide a detailed specification of the energy efficiency, installed cost, or lifetime input fields in an ECM definition depend on which field is being specified.
    :name: table-detailed-input-options
@@ -561,10 +573,11 @@ The energy efficiency, installed cost, and lifetime values in an ECM definition 
    +----------------------------+-------------------------------+----------------------------+------------------------------+
    | :ref:`json-bldg_type`      |               X               |              X             |               X              |
    +----------------------------+-------------------------------+----------------------------+------------------------------+
-   | :ref:`json-structure_type` |               X               |              X             |                              |
-   +----------------------------+-------------------------------+----------------------------+------------------------------+
    | :ref:`json-end_use`        |               X               |                            |                              |
    +----------------------------+-------------------------------+----------------------------+------------------------------+
+   | :ref:`json-structure_type` |               X               |              X             |                              |
+   +----------------------------+-------------------------------+----------------------------+------------------------------+
+   
 
 A detailed input specification for any of the fields should consist of a dict with keys from the desired baseline market field(s) and the appropriate values given for each key. For example, an HVAC-related ECM, such as a central AC unit, will generally have efficiency that varies by :ref:`climate zone <json-climate_zone>`, which can be captured in the energy efficiency input specification. ::
 
@@ -596,7 +609,7 @@ For an ECM that applies to both new and existing buildings, the installed cost m
       "existing": 29},
     ...}
 
-If a detailed input specification includes two or more baseline market keys, the keys should be placed in a nested dict structure. The order in which the keys are nested does not matter and is at the discretion of the user. Multi-function heat pumps, which provide heating, cooling, and water heating services, are an example of a case where a detailed energy efficiency specification by climate zone and end use might be appropriate. ::
+If a detailed input specification includes two or more baseline market keys, the keys should be placed in a nested dict structure adhering to the following key hierarchy: :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-end_use` and :ref:`json-structure_type`. Multi-function heat pumps, which provide heating, cooling, and water heating services, are an example of a case where a detailed energy efficiency specification by climate zone and end use might be appropriate. ::
 
    {...
     "energy_efficiency": {
@@ -620,30 +633,6 @@ If a detailed input specification includes two or more baseline market keys, the
          "heating": 1.4,
          "cooling": 1.07,
          "water heating": 1.7}},
-    ...}
-
-As noted previously, the order does not matter, thus an equivalent specification of efficiency for the same ECM could be given by end use and then by climate zone. ::
-
-   {...
-    "energy_efficiency": {
-      "heating": {
-         "AIA_CZ1": 1.05,
-         "AIA_CZ2": 1.15,
-         "AIA_CZ3": 1.3,
-         "AIA_CZ4": 1.4,
-         "AIA_CZ5": 1.4},
-      "cooling": {
-         "AIA_CZ1": 1.3,
-         "AIA_CZ2": 1.26,
-         "AIA_CZ3": 1.21,
-         "AIA_CZ4": 1.16,
-         "AIA_CZ5": 1.07}
-      "water heating": {
-         "AIA_CZ1": 1.25,
-         "AIA_CZ2": 1.31,
-         "AIA_CZ3": 1.4,
-         "AIA_CZ4": 1.57,
-         "AIA_CZ5": 1.7}},
     ...}
 
 If an input has a detailed specification, the units need not be given in an identical dict structure. The units can be specified using the simplest required structure, including as a single string, while matching the required units specified for :ref:`energy efficiency <ecm-energy-efficiency-units>` and :ref:`installed cost <ecm-installed-cost-units>`. Product lifetime units can always be given as a single string since all lifetime values should be in years. For the first example, energy efficiency units will not vary across climate zones. ::
@@ -878,6 +867,30 @@ If all of the fuel types apply, the :ref:`json-fuel_type` field can be specified
 
 A residential thermoelectric heat pump water heater is :ref:`available to download <ecm-download-multiple-fuel-types>` to illustrate the setup of the :ref:`json-fuel_type` and :ref:`json-fuel_switch_to` fields to denote, for this particular example, an electric water heater that can replace water heaters of all fuel types.
 
+.. _ecm-features-retro-rate:
+
+ECM-specific retrofit rate
+**************************
+
+.. _ecm-download-retro-rate:
+
+:download:`Example <examples/led_troffers_high_retrofit.json>` -- LED Troffers (High Retrofit Rate) (:ref:`Details <ecm-example-retro-rate>`)
+
+Certain ECMs may be targeted towards accelerating typical equipment retrofit rates - e.g., a persistent information campaign that improves consumer awareness of available incentives for replacing older appliances with ENERGY STAR alternatives. Alternatively, a user may simply wish to explore the sensitivity of ECM outcomes to variations in Scout's default equipment retrofit rate. [#]_
+
+To configure such ECMs, the optional :ref:`json-retro_rate` field should be populated with a point value between 0 and 1 that represents the assumed retrofit rate for the ECM. For example, if an ECM is assumed to increase the rate of existing technology stock retrofits to 10% of the existing stock, this effect would be represented as follows. ::
+
+   {...
+    "retro_rate": 0.1,
+    ...}
+
+Alternatively, the user may place a probability distribution on this rate - see :ref:`ecm-features-distributions` for more details.
+
+Supporting source information for the ECM-specific retrofit rate should be included in the ECM definition using the :ref:`json-retro_rate_source` field.
+
+.. _ecm-example-retro-rate:
+
+A second version of the :ref:`LED troffer example <example-ecm-1>` that assumes a higher retrofit rate (10%) is :ref:`available to download <ecm-download-retro-rate>`.
 
 .. _ecm-features-distributions:
 
@@ -1272,6 +1285,7 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
 .. [#] The "applicable baseline market" is comprised of the |baseline-market| fields.
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
+.. [#] The retrofit rate assumption only affects the :ref:`Maximum Adoption Potential <overview-adoption>` scenario results, in which realistic equipment turnover dynamics are considered.
 .. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
 .. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
 .. [#] Building class corresponds to the four combinations of :ref:`building type <json-bldg_type>` and :ref:`structure type <json-structure_type>`.
