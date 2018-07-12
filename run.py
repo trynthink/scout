@@ -6,7 +6,7 @@ from numpy.linalg import LinAlgError
 from collections import OrderedDict
 import gzip
 import pickle
-from os import getcwd, path, pathsep, sep, environ, walk
+from os import getcwd, path, pathsep, sep, environ, walk, devnull
 from ast import literal_eval
 import math
 from optparse import OptionParser
@@ -2854,8 +2854,6 @@ def main(base_dir):
 
     # Notify user that the output data are being plotted
     print('Plotting output data...', end="", flush=True)
-    # Define shell command for R plotting function
-    shell_command = "Rscript " + path.join(base_dir, "plots_shell.R")
 
     # Ensure the presence of R/Perl in Windows user PATH environment variable
     if sys.platform.startswith('win'):
@@ -2889,20 +2887,57 @@ def main(base_dir):
         warnings.warn("Could not determine OS for plotting routine")
 
     # Run R code
+
+    # Set variable used to hide subprocess output
+    FNULL = open(devnull, 'w')
+
     try:
+        # Define shell command for R plotting function
+        shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
         # Execute R code
-        subprocess.run(shell_command, shell=True)
+        subprocess.run(shell_command, shell=True, check=True,
+                       stdout=FNULL, stderr=FNULL)
         # Notify user of plotting outcome if no error is thrown
         print("Plotting complete")
     except AttributeError:
-        # If run module in subprocess throws exception, try subprocess.call()
-        # (used in Python versions before 3.5)
+        # If run module in subprocess throws AttributeError, try
+        # subprocess.call() (used in Python versions before 3.5)
         try:
             # Execute R code
-            subprocess.call(shell_command, shell=True)
+            subprocess.check_call(shell_command, shell=True,
+                                  stdout=FNULL, stderr=FNULL)
             # Notify user of plotting outcome if no error is thrown
             print("Plotting complete")
-        except Exception as err:
+        except subprocess.CalledProcessError:
+            try:
+                # Define shell command for R plotting function - handle 3.5 bug
+                # in escaping spaces/apostrophes by adding --vanilla command
+                # (recommended here: https://stackoverflow.com/questions/
+                # 50028090/is-this-a-bug-in-r-3-5)
+                shell_command = 'Rscript --vanilla ' + \
+                    '"' + path.join(base_dir, 'plots_shell.R') + '"'
+                # Execute R code
+                subprocess.check_call(shell_command, shell=True)
+                # Notify user of plotting outcome if no error is thrown
+                print("Plotting complete")
+            except subprocess.CalledProcessError as err:
+                print("Plotting failed to complete: ", err)
+    except subprocess.CalledProcessError:
+        # Else if run module in subprocess throws any other type of error,
+        # try handling a bug in R 3.5 where spaces/apostrophes in a directory
+        # name are not escaped
+        try:
+            # Define shell command for R plotting function - handle 3.5 bug
+            # in escaping spaces/apostrophes by adding --vanilla command
+            # (recommended here: https://stackoverflow.com/questions/50028090/
+            # is-this-a-bug-in-r-3-5)
+            shell_command = 'Rscript --vanilla ' + \
+                '"' + path.join(base_dir, 'plots_shell.R') + '"'
+            # Execute R code
+            subprocess.run(shell_command, shell=True, check=True)
+            # Notify user of plotting outcome if no error is thrown
+            print("Plotting complete")
+        except subprocess.CalledProcessError as err:
             print("Plotting failed to complete: ", err)
 
 
