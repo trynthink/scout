@@ -1796,10 +1796,12 @@ class Engine(object):
 
         # Convert contributing microsegment key chain string to a list
         keys = literal_eval(msu)
-        # Pull out climate zone, building type, and structure type
-        msu_split = [str(x) for x in [keys[1], keys[2], keys[-1]]]
-        # Convert climate zone, building type, and structure type
-        # data into a string, to be used as a dict key below
+        # Pull out climate zone, building type, structure type, fuel type,
+        # and end use
+        msu_split = [str(x) for x in [keys[1], keys[2], keys[-1],
+                                      keys[3], keys[4]]]
+        # Convert climate zone, building type, structure type, fuel type,
+        # and end use data into a string, to be used as a dict key below
         msu_split_key = str(msu_split)
         # Set the technology type of the current heating/cooling microsegment
         # ('supply' or 'demand')
@@ -1807,18 +1809,18 @@ class Engine(object):
 
         # Determine whether overlapping heating/cooling energy use
         # data have already been initialized for the given climate
-        # zone, building type, and structure type combination; if
-        # not, initialize with overlapping energy use data for all
-        # ECMs that apply to the current contributing microsegment; if
+        # zone, building type, structure type, fuel type, and end use
+        # combination; if not, initialize with overlapping energy use data for
+        # all ECMs that apply to the current contributing microsegment; if
         # so, add the overlapping data to what is already there
         if msu_split_key not in htcl_adj_data[tech_typ].keys():
             htcl_adj_data[tech_typ][msu_split_key] = {
                 # Record total potential overlapping supply-side
                 # and demand-side heating/cooling energy use for
-                # the given climate zone, building type, and
-                # structure type combination
+                # the given climate zone, building type,
+                # structure type, fuel type, and end use combination
                 "total": htcl_totals[msu_split[0]][msu_split[1]][
-                    msu_split[2]],
+                    msu_split[2]][msu_split[3]][msu_split[4]],
                 # Record the overlapping energy use that is actually
                 # affected by the current contributing microsegment,
                 # across all ECMs that apply to this microsegment
@@ -1881,10 +1883,13 @@ class Engine(object):
             for mseg in htcl_keys:
                 # Convert contributing microsegment key chain string to a list
                 keys = literal_eval(mseg)
-                # Pull out climate zone, building type, and structure type
-                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1]]]
-                # Convert climate zone, building type, and structure type
-                # data into a string, to be used as a dict key below
+                # Pull out climate zone, building type, structure type,
+                # fuel type, and end use
+                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1],
+                                              keys[3], keys[4]]]
+                # Convert climate zone, building type, structure type, fuel
+                # type, and end use data into a string, to be used as a dict
+                # key below
                 msu_split_key = str(msu_split)
                 # Set the technology type of the current microsegment, as well
                 # as the technology types of overlapping microsegments (e.g.,
@@ -1896,17 +1901,19 @@ class Engine(object):
                 else:
                     tech_typ, tech_typ_overlp = ["demand", "supply"]
                 # If no overlapping energy use data exist for the current
-                # microsegment's climate zone, building type, and structure
-                # type combination, move to next contributing microsegment
+                # microsegment's climate zone, building type, structure
+                # type, fuel type, and end use combination, move to next
+                # contributing microsegment
                 if msu_split_key not in htcl_adj_data[tech_typ].keys():
                     continue
 
                 # If overlapping energy use data do exist for the current
-                # microsegment's climate zone, building type, and structure
-                # type combination, create short name for current microsegment
-                # energy data dict and overlapping energy data dict; Note: if
-                # no overlapping energy data dict can be found, move to next
-                # heating/cooling contributing microsegment in for loop
+                # microsegment's climate zone, building type, structure
+                # type, fuel type, and end use combination, create short name
+                # for current microsegment energy data dict and overlapping
+                # energy data dict; Note: if no overlapping energy data dict
+                # can be found, move to next heating/cooling contributing
+                # microsegment in for loop
                 tech_data = htcl_adj_data[tech_typ][msu_split_key]
                 try:
                     overlp_data = htcl_adj_data[tech_typ_overlp][msu_split_key]

@@ -3448,19 +3448,18 @@ class Measure(object):
                 # since the baseline technology was first adopted in new
                 # homes in year 1 of the modeling time horizon to begin
                 # replacing that baseline stock; if so, the baseline
-                # replacement fraction is the lesser of (1 / baseline
-                # lifetime) and the fraction of new construction stock from
-                # previous years that has already been captured by the
-                # baseline technology; if not, the baseline replacement
-                # fraction is 0
+                # replacement fraction is the fraction of new construction
+                # stock from previous years that has already been
+                # captured by the baseline technology * (1 / baseline
+                # lifetime); if not, the baseline replacement fraction is 0
                 if mskeys[-1] == "new":
                     turnover_base = life_base[yr] - (
                         int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
                     # Handle case without lifetime or retro. rate distributions
                     try:
-                        if turnover_base <= 0 and base_repl_rt_max <= \
-                                captured_base_frac:
-                            captured_base_replace_frac = base_repl_rt_max
+                        if turnover_base <= 0 and base_repl_rt_max <= 1:
+                            captured_base_replace_frac = captured_base_frac * \
+                                base_repl_rt_max
                         elif turnover_base <= 0:
                             captured_base_replace_frac = captured_base_frac
                         else:
@@ -3484,9 +3483,9 @@ class Measure(object):
                         # used above (under 'try') for each list element
                         for ind in range(self.handyvars.nsamples):
                             if turnover_base[ind] <= 0 and \
-                                base_repl_rt_max[ind] <= \
-                                    captured_base_frac[ind]:
+                                    base_repl_rt_max[ind] <= 1:
                                 captured_base_replace_frac[ind] = \
+                                    captured_base_frac[ind] * \
                                     base_repl_rt_max[ind]
                             elif turnover_base[ind] <= 0:
                                 captured_base_replace_frac[ind] = \
@@ -3551,7 +3550,7 @@ class Measure(object):
                         int(yr) - self.market_entry_year)
                 # Handle case without lifetime or retro. rate distributions
                 try:
-                    if turnover_meas <= 0 and eff_repl_rt_max < 1:
+                    if turnover_meas <= 0 and eff_repl_rt_max <= 1:
                         captured_eff_replace_frac = captured_eff_frac * \
                             eff_repl_rt_max
                     elif turnover_meas <= 0:

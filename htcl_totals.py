@@ -174,14 +174,19 @@ def sum_htcl_energy(msegs, aeo_years, ss_conv):
             new_exist_frac = set_new_exist_frac(
                 msegs[cz][bldg], aeo_years, bldg)
             for vint in new_exist_frac.keys():
-                htcl_totals[cz][bldg][vint] = {
-                    yr: 0 for yr in aeo_years}
-                # Sum energy values across remaining fuel type and end use
-                # levels in the baseline energy data dict
-                for fuel in msegs[cz][bldg].keys():
+                htcl_totals[cz][bldg][vint] = {}
+                # Fuel type
+                for fuel in [x for x in msegs[cz][bldg].keys() if
+                             x not in ["total homes", "new homes",
+                                       "total square footage",
+                                       "new square footage",
+                                       "total square footage"]]:
+                    htcl_totals[cz][bldg][vint][fuel] = {}
                     for eu in [x for x in [
                         "heating", "secondary heating", "cooling"] if
                             x in msegs[cz][bldg][fuel].keys()]:
+                        htcl_totals[cz][bldg][vint][fuel][eu] = {
+                                yr: 0 for yr in aeo_years}
                         # Find energy value to add to total
                         sum_val = sum_htcl_branches(
                             msegs[cz][bldg][fuel][eu]["demand"],
@@ -190,8 +195,8 @@ def sum_htcl_energy(msegs, aeo_years, ss_conv):
                             sum_val={yr: 0 for yr in aeo_years})
                         # Update total energy for given climate,
                         # building and structure type combination
-                        htcl_totals[cz][bldg][vint] = {
-                            yr: htcl_totals[cz][bldg][vint][yr] +
+                        htcl_totals[cz][bldg][vint][fuel][eu] = {
+                            yr: htcl_totals[cz][bldg][vint][fuel][eu][yr] +
                             sum_val[yr] for yr in aeo_years}
 
     return htcl_totals

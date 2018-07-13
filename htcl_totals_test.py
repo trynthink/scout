@@ -434,21 +434,85 @@ class SumHtClEnergyTest(unittest.TestCase, CommonMethods):
         cls.ok_out = {
             "AIA_CZ1": {
                 "single family home": {
-                    "new": {"2009": 2.2, "2010": 5.6},
-                    "existing": {"2009": 19.8, "2010": 22.4}
+                    "new": {
+                        "electricity": {
+                            "heating": {"2009": 0.6, "2010": 1.6},
+                            "cooling": {"2009": 0.6, "2010": 1.6},
+                            "secondary heating": {"2009": 0.6, "2010": 1.6}},
+                        "natural gas": {
+                            "heating": {"2009": 0.2, "2010": 0.4},
+                            "secondary heating": {"2009": 0.2, "2010": 0.4}}
+                    },
+                    "existing": {
+                        "electricity": {
+                            "heating": {"2009": 5.4, "2010": 6.4},
+                            "cooling": {"2009": 5.4, "2010": 6.4},
+                            "secondary heating": {"2009": 5.4, "2010": 6.4}},
+                        "natural gas": {
+                            "heating": {"2009": 1.8, "2010": 1.6},
+                            "secondary heating": {"2009": 1.8, "2010": 1.6}}
+                    }
                 },
                 "assembly": {
-                    "new": {"2009": 2.8, "2010": 7.2},
-                    "existing": {"2009": 11.2, "2010": 10.8}
+                    "new": {
+                        "electricity": {
+                            "heating": {"2009": 1.2, "2010": 3.2},
+                            "cooling": {"2009": 1.2, "2010": 3.2}
+                        },
+                        "distillate": {
+                            "heating": {"2009": 0.4, "2010": 0.8}
+                        }
+                    },
+                    "existing": {
+                        "electricity": {
+                            "heating": {"2009": 4.8, "2010": 4.8},
+                            "cooling": {"2009": 4.8, "2010": 4.8}
+                        },
+                        "distillate": {
+                            "heating": {"2009": 1.6, "2010": 1.2}
+                        }
+                    }
                 }},
             "AIA_CZ2": {
                 "single family home": {
-                    "new": {"2009": 0.22, "2010": 0.56},
-                    "existing": {"2009": 21.78, "2010": 27.44}
+                    "new": {
+                        "electricity": {
+                            "heating": {"2009": 0.06, "2010": 0.16},
+                            "cooling": {"2009": 0.06, "2010": 0.16},
+                            "secondary heating": {"2009": 0.06, "2010": 0.16}},
+                        "natural gas": {
+                            "heating": {"2009": 0.02, "2010": 0.04},
+                            "secondary heating": {"2009": 0.02, "2010": 0.04}}
+                    },
+                    "existing": {
+                        "electricity": {
+                            "heating": {"2009": 5.94, "2010": 7.84},
+                            "cooling": {"2009": 5.94, "2010": 7.84},
+                            "secondary heating": {"2009": 5.94, "2010": 7.84}},
+                        "natural gas": {
+                            "heating": {"2009": 1.98, "2010": 1.96},
+                            "secondary heating": {"2009": 1.98, "2010": 1.96}}
+                    }
                 },
                 "assembly": {
-                    "new": {"2009": 1.4, "2010": 3.6},
-                    "existing": {"2009": 12.6, "2010": 14.4}
+                    "new": {
+                        "electricity": {
+                            "heating": {"2009": 0.6, "2010": 1.6},
+                            "cooling": {"2009": 0.6, "2010": 1.6}
+                        },
+                        "distillate": {
+                            "heating": {"2009": 0.2, "2010": 0.4}
+                        }
+                    },
+                    "existing": {
+                        "electricity": {
+                            "heating": {"2009": 5.4, "2010": 6.4},
+                            "cooling": {"2009": 5.4, "2010": 6.4}
+                        },
+                        "distillate": {
+                            "heating": {"2009": 1.8, "2010": 1.6}
+                        }
+                    }
                 }}}
 
     def test_ok(self):
