@@ -34,7 +34,7 @@ class CommonTestMeasures(object):
             "structure_type": ["new", "existing"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "cooling"],
@@ -82,8 +82,8 @@ class CommonTestMeasures(object):
             "structure_type": ["new", "existing"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["electricity (grid)"],
-                          "secondary": ["electricity (grid)"]},
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": ["electricity"]},
             "fuel_switch_to": None,
             "end_use": {"primary": ["heating", "cooling"],
                         "secondary": ["lighting"]},
@@ -178,7 +178,7 @@ class CommonTestMeasures(object):
             "structure_type": ["new", "existing"],
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "bldg_type": ["single family home"],
-            "fuel_type": {"primary": ["electricity (grid)"],
+            "fuel_type": {"primary": ["electricity"],
                           "secondary": None},
             "fuel_switch_to": None,
             "end_use": {"primary": ["lighting"],
@@ -1738,14 +1738,15 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
-            ('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
+            ('primary', 'AIA_CZ1', 'single family home', 'electricity',
              'cooling', 'demand', 'windows', 'existing'))
         cls.adjust_key2 = str(
-            ('primary', 'AIA_CZ1', 'single family home', 'electricity (grid)',
+            ('primary', 'AIA_CZ1', 'single family home', 'electricity',
              'cooling', 'supply', 'ASHP', 'existing'))
         cls.test_htcl_adj = {
-            "supply": {
-                "['AIA_CZ1', 'single family home', 'existing']": {
+            "supply": {(
+                "['AIA_CZ1', 'single family home', 'existing', " +
+                "'electricity', 'cooling']"): {
                     "total": {
                         yr: 10 for yr in cls.handyvars.aeo_years},
                     "total affected": {
@@ -1753,8 +1754,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "affected savings": {
                         yr: 5 for yr in cls.handyvars.aeo_years}},
             },
-            "demand": {
-                "['AIA_CZ1', 'single family home', 'existing']": {
+            "demand": {(
+                "['AIA_CZ1', 'single family home', 'existing', " +
+                "'electricity', 'cooling']"): {
                     "total": {
                         yr: 10 for yr in cls.handyvars.aeo_years},
                     "total affected": {
@@ -2472,7 +2474,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -2655,7 +2657,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -3389,7 +3391,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -3572,7 +3574,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -3766,7 +3768,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -3828,7 +3830,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -4011,7 +4013,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -4073,7 +4075,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -4155,21 +4157,21 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_overlap1 = {
             "measures": cls.measures_all[2:5],
             "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))]]}
         cls.measures_overlap2 = {
             "measures": cls.measures_all[0:2],
             "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'demand', 'windows', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'demand', 'windows', 'existing'))]]}
         cls.a_run = run.Engine(cls.handyvars, cls.measures_all)
         # Set information needed to finalize point value test measure
@@ -4298,21 +4300,21 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_overlap1_dist = {
             "measures": cls.measures_all_dist[2:5],
             "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'supply', 'ASHP', 'existing'))]]}
         cls.measures_overlap2_dist = {
             "measures": cls.measures_all_dist[0:2],
             "keys": [[str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'demand', 'windows', 'existing'))],
                      [str(('primary', 'AIA_CZ1', 'single family home',
-                           'electricity (grid)',
+                           'electricity',
                            'cooling', 'demand', 'windows', 'existing'))]]}
         cls.a_run_dist = run.Engine(cls.handyvars, cls.measures_all_dist)
         # Set information needed to finalize array test measure consumer
@@ -5425,10 +5427,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
-            ('primary', 'AIA_CZ1', 'assembly', 'electricity (grid)',
+            ('primary', 'AIA_CZ1', 'assembly', 'electricity',
              'lighting', 'reflector (LED)', 'existing'))
         cls.overlap_key_scnd = str(
-            ('secondary', 'AIA_CZ1', 'assembly', 'electricity (grid)',
+            ('secondary', 'AIA_CZ1', 'assembly', 'electricity',
              'cooling', 'demand', 'lighting gain', 'existing'))
         cls.secnd_adj_key = str(('AIA_CZ1', 'assembly', 'existing'))
         cls.compete_meas1 = {
@@ -5555,7 +5557,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -5745,7 +5747,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -6767,7 +6769,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -6829,7 +6831,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -7019,7 +7021,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1}},
                             str(('primary', 'AIA_CZ2', 'single family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
@@ -7081,7 +7083,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     "measure": 1},
                                 "sub-market scaling": 1},
                             str(('primary', 'AIA_CZ2', 'multi family home',
-                                 'electricity (grid)', 'lighting',
+                                 'electricity', 'lighting',
                                  'reflector (LED)')): {
                                 "stock": {
                                     "total": {
