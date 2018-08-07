@@ -91,7 +91,10 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
     .. note::
         In the "Add Data" form, you can adjust default selections for "Breakdown by Segment" without adjusting the default selection for "Change Value Type" in this form, and vice versa.
 
-  - Energy performance values are specified as point values by default ("Point" option under "Change Value Type"). Alternatively, a `probability distribution`_ may be placed on the performance values ("Probability Distributions" under "Change Value Type") or the values may be drawn from an external `EnergyPlus Measure`_ simulation ("EnergyPlus" option in "Change Value Type" drop down). When a probability distribution is placed on energy performance, the "Set Value" box will prompt you for the chosen distribution's parameters. When EnergyPlus is specified as the source for energy performance information, the performance value is locked and performance units are forced to relative savings. [#]_
+  - Energy performance values are specified as point values by default ("Point" option under "Change Value Type"). Alternatively, a `probability distribution`_ may be placed on the performance values ("Probability Distributions" under "Change Value Type"). When a probability distribution is placed on energy performance, the "Set Value" box will prompt you for the chosen distribution's parameters.
+
+    .. note::
+        Users may notice the "EnergyPlus" option when exploring the "Change Value Type" drop down. This option will eventually enable users to load an ECM's performance input value from an external `EnergyPlus Measure`_ simulation. However, this feature is currently unsupported in the Scout analysis engine and users are therefore discouraged from selecting the "EnergyPlus" option in the "Change Value Type" drop down.
 
   - Additional rows of information may be added to the window using the "Add New Fields" button at bottom left; existing rows may be deleted using the trash bin icon to the right of each row.
 
