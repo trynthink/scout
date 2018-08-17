@@ -2591,7 +2591,8 @@ class Measure(object):
                 if sqft_subst == 1:
                     # Determine number of structure types the measure applies
                     # to (could be just new, just existing, or both)
-                    if isinstance(self.structure_type, list):
+                    if isinstance(self.structure_type, list) and len(
+                            self.structure_type) > 1:
                         structure_types = 2
                     else:
                         structure_types = 1
