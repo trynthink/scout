@@ -1,11 +1,12 @@
 .. Substitutions
 .. |cmd| unicode:: U+2318
 .. |opt| unicode:: U+2325
-.. |editor requirements| replace:: support for syntax-specific code coloring and syntax-specific formatting and there should be linting_ for Python and JSON built-in or available through add-on packages. Python code linting should include checking for compliance with `PEP 8`_ and pyflakes_, at a minimum
+.. |editor requirements| replace:: support for syntax-specific code coloring and syntax-specific formatting and there should be linting_ for Python and JSON built-in or available through add-on packages. Python code linting should include checking for compliance with `PEP 8`_ (using the `pycodestyle`_ package) and pyflakes_, at a minimum
 
 .. CONSIDER FIXING EXPLICIT PEP 8 REFERENCE BY MOVING PYTHON LINTING INFORMATION TO A MULTIPLY-REFERENCED FOOTNOTE
 
 .. _PEP 8: https://www.python.org/dev/peps/pep-0008/
+.. _pycodestyle: https://pypi.org/project/pycodestyle/
 .. _pyflakes: https://pypi.python.org/pypi/pyflakes
 .. _linting: https://en.wikipedia.org/wiki/Lint_(software)
 
@@ -116,20 +117,20 @@ We will use Package Control to install the additional features needed for checki
 3. Install SublimeLinter prerequisites
 **************************************
 
-Before proceeding further, open a Terminal window and at the command prompt, use pip3 to install the pep8 and pyflakes packages::
+Before proceeding further, open a Terminal window and at the command prompt, use pip3 to install the pycodestyle and pyflakes packages::
 
-   pip3 install pep8
+   pip3 install pycodestyle
    pip3 install pyflakes
 
 4. Install SublimeLinter
 ************************
 
-Return to Sublime Text and open Package Control using the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P). Begin typing "Package Control: Install Package" in the Command Palette and click that option once it appears in the list. (Arrow keys can also be used to move up and down in the list.) In the search field that appears, begin typing "SublimeLinter" and click the package when it appears in the list to install the package. If installation was successful for this (or any other) package, the package name will appear in Preferences > Package Settings.
+Return to Sublime Text and open Package Control using the Command Palette (Tools > Command Palette or |cmd|\ |opt|\ P). Begin typing "Package Control: Install Package" in the Command Palette and click that option once it appears in the list. (Arrow keys can also be used to move up and down in the list.) In the search field that appears, begin typing "SublimeLinter" and click the package when it appears in the list to install the package. If installation was successful for this (or any other) package, the package name will appear in the Preferences > Package Settings sub-menu.
 
 5. Install specific code linters
 ********************************
 
-Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
+Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pycodestyle," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
 
 6. Configure Python syntax-specific preferences
 ***********************************************
@@ -149,7 +150,7 @@ Quit and reopen Sublime Text to apply all of the settings changes and new packag
 
 .. Open the zipped file downloaded from the Atom_ website and drag the Atom application to the Applications folder. 
 
-.. Once Atom is installed, you must add the packages that check Python and JSON files for integrity. Open the Settings (Atom > Preferences), which will open a new tab in your Atom window. In the left sidebar in the newly opened Settings tab, click "Install." Type "linter-pep8" into the search field on the Install page and hit return (make sure "Packages" is selected as the search option). Identify the correct package ("linter-pep8") in the list of search results and click the appropriate "Install" button. Once complete, search again for "linter-jsonlint" and complete the installation.
+.. Once Atom is installed, you must add the packages that check Python and JSON files for integrity. Open the Settings (Atom > Preferences), which will open a new tab in your Atom window. In the left sidebar in the newly opened Settings tab, click "Install." Type "linter-pycodestyle" into the search field on the Install page and hit return (make sure "Packages" is selected as the search option). Identify the correct package ("linter-pycodestyle") in the list of search results and click the appropriate "Install" button. Once complete, search again for "linter-jsonlint" and complete the installation.
 
 
 4. Install R
@@ -239,9 +240,9 @@ We will use Package Control to install the additional features needed for checki
 3. Install SublimeLinter prerequisites
 **************************************
 
-Before proceeding further, `open a command prompt`_ window and type the following commands to use pip to install the pep8 and pyflakes packages::
+Before proceeding further, `open a command prompt`_ window and type the following commands to use pip to install the pycodestyle and pyflakes packages::
 
-   py -3 -m pip install pep8
+   py -3 -m pip install pycodestyle
    py -3 -m pip install pyflakes
 
 Once you have 
@@ -254,7 +255,7 @@ Return to Sublime Text and open Package Control using the Command Palette (Tools
 5. Install specific code linters
 ********************************
 
-Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pep8," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
+Open the Command Palette and select "Package Control: Install Package" again to install new packages following the same steps. Install the "SublimeLinter-pycodestyle," "SublimeLinter-json," and "SublimeLinter-pyflakes" packages.
 
 6. Configure Python syntax-specific preferences
 ***********************************************

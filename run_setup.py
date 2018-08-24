@@ -295,8 +295,13 @@ def ecm_list_kw_update(active_list, inactive_list):
     to_active_prompt_text = ('Enter ECM name keywords separated by '
                              'commas to move ECMs inactive -> active: ')
 
-    # Call function to obtain list of user input strings
+    # Call function to obtain list of user input strings; insert a
+    # note between the prompts specifically for the inactive to active
+    # prompt informing users about a special option for that case
     kw_to_inactive = user_input_ecm_kw(to_inactive_prompt_text)
+    print('\nTo move all ECMs from the inactive to active list, '
+          'enter "\s" (without the double quotes) at the following '
+          'prompt and skip all subsequent prompts.\n')
     kw_to_active = user_input_ecm_kw(to_active_prompt_text)
 
     # Update active and inactive lists and identify moves
