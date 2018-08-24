@@ -1075,6 +1075,10 @@ The user may invert the search for any keyword by adding a "!" character before 
 
 In this case, all ECM names that include "iecc" or do *not* include "ENERGY STAR" will be matched.
 
+To restore all ECMs to the active list from the inactive list, when prompted for the inactive to active move, enter: ::
+
+   \s
+
 If the user provides keywords for both moves (active to inactive and vice versa) and there are any ECMs that would be picked up by one or more keywords for the moves in each direction, the result would be an ECM being moved from active to inactive and then immediately back to active (or vice versa). For example, if the keyword "prospective" was provided for the move from active to inactive and "heat pump" for the move from inactive to active, an ECM with the name "Integrated Heat Pump (Prospective)" in either list would be matched by both keywords. To resolve these conflicts, the user would be prompted to decide whether each of these ECMs should end up in the active or inactive lists. 
 
 Following these changes, the user will be asked whether additional ECMs should be moved to the inactive list if they are not applicable to the user's climate zone(s), building type, and/or structure type of interest. For example, a user will be prompted to select the building type (limited to only all residential or all commercial buildings) by number. ::
