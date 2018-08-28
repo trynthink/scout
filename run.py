@@ -1137,13 +1137,26 @@ class Engine(object):
                     # Calculate measure market fraction using log-linear
                     # regression equation that takes capital/operating
                     # costs as inputs
-                    mkt_fracs[ind][yr] = numpy.exp(
-                        cap_cost * m.markets[adopt_scheme]["competed"][
-                            "mseg_adjust"]["competed choice parameters"][
-                                str(mseg_key)]["b1"][yr] + op_cost *
+
+                    # Calculate weighted sum of incremental capital and
+                    # operating costs
+                    sum_wt = cap_cost * m.markets[adopt_scheme]["competed"][
+                        "mseg_adjust"]["competed choice parameters"][
+                            str(mseg_key)]["b1"][yr] + op_cost * \
                         m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                            "competed choice parameters"][
-                                str(mseg_key)]["b2"][yr])
+                        "competed choice parameters"][
+                            str(mseg_key)]["b2"][yr]
+                    # Guard against cases with high weighted sums of
+                    # incremental capital and operating costs
+                    if type(sum_wt) != numpy.ndarray and sum_wt > 500:
+                        sum_wt = 500
+                    elif type(sum_wt) == numpy.ndarray and any([
+                            x > 500 for x in sum_wt]):
+                        sum_wt = [500 if x > 500 else x for x in sum_wt]
+
+                    # Calculate market fraction
+                    mkt_fracs[ind][yr] = numpy.exp(sum_wt)
+
                     # Add calculated market fraction to mkt fraction sum
                     mkt_fracs_tot[yr] = \
                         mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
