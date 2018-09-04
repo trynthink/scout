@@ -1157,10 +1157,10 @@ This field shifts loads earlier by the number of hours specified using the :ref:
 shape
 ~~~~~
 * **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** (if :ref:`json-flatten_fraction` is not used) :ref:`json-custom`, (if :ref:`json-custom` is not used) :ref:`json-flatten_fraction`, (optional when :ref:`json-flatten_fraction` is used) :ref:`json-start`, :ref:`json-stop`, 
+* **Children:** (if :ref:`json-flatten_fraction` and :ref:`json-custom-save` are not used) :ref:`json-custom-load`, (if :ref:`json-flatten_fraction` and :ref:`json-custom-load` are not used) :ref:`json-custom-save`, (if :ref:`json-custom-load` and :ref:`json-custom-save` are not used) :ref:`json-flatten_fraction`, (optional when :ref:`json-flatten_fraction` is used) :ref:`json-start`, :ref:`json-stop`, 
 * **Type:** dict
 
-This field allows users to either define a custom load shape for an ECM using the :ref:`json-custom` parameter or flatten a baseline load shape by a certain percentage using the :ref:`json-flatten_fraction` parameter (using a value between 0 and 1). Optionally, users may restrict the latter rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+This field allows users to either define a custom load shape or load savings shape for an ECM using the :ref:`json-custom-load` or :ref:`json-custom-save` parameters, or to flatten a baseline load shape by a certain percentage using the :ref:`json-flatten_fraction` parameter (using a value between 0 and 1). Optionally, users may restrict the latter rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
 
    {...
     "custom": [...]
@@ -1242,10 +1242,10 @@ This field indicates the fraction to use (between 0 and 1) in scaling down the d
     "flatten_fraction": 0.5
     ...}
 
-.. _json-custom:
+.. _json-custom-load:
 
-custom
-~~~~~~
+custom_load
+~~~~~~~~~~~
 * **Parents:** :ref:`json-shape`
 * **Children:** None, 
 * **Type:** list
@@ -1255,6 +1255,21 @@ This field provides a list of 24 fractions (between 0 and 1) that are used to re
    {...
     "custom": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
                0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]
+    ...}
+
+.. _json-custom-save:
+
+custom_savings
+~~~~~~~~~~~~~~
+* **Parents:** :ref:`json-shape`
+* **Children:** None, 
+* **Type:** list
+
+This field provides a list of 24 fractions that are used to rescale a baseline energy load shape to conform with a user-specified load savings shape. The fractions, which are specified for each hour of the day, represent the percentage of baseline load saved under the custom load savings shape. ::
+
+   {...
+    "custom": [0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
+               1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]
     ...}
 
 

@@ -2936,18 +2936,19 @@ class Measure(object):
                         yr in self.handyvars.aeo_years}
 
             # Load reshaping time-varying efficiency measures either impose
-            # an entirely new, user-defined load shape across all 24 hours
-            # or flatten the existing base load shape across a user-specified
-            # hour range
+            # an entirely new, user-defined load shape or load savings shape
+            # across all 24 hours or flatten the existing base load shape
+            # across a user-specified hour range
             elif a == "shape":
-                # If the user has provided custom load shape information,
-                # use that information to reshape the efficient load; otherwise
-                # flatten the input load across a user-specified hour range
-                if "custom" in tsv_adjustments[a].keys() and \
-                        tsv_adjustments[a]["custom"] is not None:
+                # If the user has provided custom load shape or savings
+                # shape information, use that information to reshape and/or
+                # scale down the efficient load; otherwise flatten the input
+                # load across a user-specified hour range
+                if "custom_load" in tsv_adjustments[a].keys() and \
+                        tsv_adjustments[a]["custom_load"] is not None:
                     # Set the custom load shape (each element of the list
                     # represents an hourly fraction of peak load from 0 to 1)
-                    custom_load_shape = tsv_adjustments[a]["custom"]
+                    custom_load_shape = tsv_adjustments[a]["custom_load"]
                     # Set the peak load for the efficient load shape
                     peak_load = {
                         yr: max(eff_load[yr]) for
@@ -2969,7 +2970,18 @@ class Measure(object):
                         yr: [eff_load[yr][x] * eff_load_adj_fracs[yr][x] for
                              x in range(24)] for
                         yr in self.handyvars.aeo_years}
-
+                elif "custom_savings" in tsv_adjustments[a].keys() and \
+                        tsv_adjustments[a]["custom_savings"] is not None:
+                    # Set the custom savings shape (each element of the list
+                    # represents an hourly savings fraction)
+                    custom_save_shape = tsv_adjustments[a]["custom_savings"]
+                    # Reflect custom load savings in efficient load shape;
+                    # apply the custom savings fractions to the initial
+                    # efficient load shape
+                    eff_load = {
+                        yr: [eff_load[yr][x] * (1 - custom_save_shape[x]) for
+                             x in range(24)] for
+                        yr in self.handyvars.aeo_years}
                 else:
                     # Set the load flattening fraction
                     flatten_frac = tsv_adjustments[a]["flatten_fraction"]
