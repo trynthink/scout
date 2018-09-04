@@ -440,16 +440,27 @@ The :ref:`json-flatten_fraction` parameter is used to flatten a baseline energy 
 
 These settings result in all loads above the daily average being reduced by 50% of the difference between the load and the average, and all loads below the daily average being increased by 50% of the difference between the load and the average. In this case, no time constraints have been placed on the flattening operation, though it is possible to do so using the :ref:`json-start` and :ref:`json-stop` parameters. When a time interval is provided, the calculated average and resulting load reshaping are limited to the specified interval.
 
-The :ref:`json-custom` parameter is used to set a custom load shape. ::
+The :ref:`json-custom-load` parameter is used to set a custom load shape. ::
 
    {...
     "time_sensitive_valuation": {
       "shape": {
-        "custom": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
-                   0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]}},
+        "custom_load": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
+                        0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]}},
     ...}
 
 Here, custom load shaping fractions are specified in a list for all 24 hours of the day. Each number in the list represents the hourly load's fraction of maximum daily load. In the above settings, for example, the load for the first hour of the day is 79% of the maximum daily load, which occurs in hour 22.
+
+Alternatively, the :ref:`json-custom-save` parameter can be used to set a custom load savings shape. :: 
+
+   {...
+    "time_sensitive_valuation": {
+      "shape": {
+        "custom_savings": [0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
+        	           1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}},
+    ...}
+
+As in the :ref:`json-custom-load` case, custom load savings fractions are specified in a list for all 24 hours of the day. In this case, each number in the list represents the fraction of hourly baseline load that an ECM saves. In the above settings, for example, the ECM reduces the load for the first hour of the day by 50%. Note that savings fractions may be specified as greater than 1 to represent the effects of on-site energy generation on a building's overall load profile.
 
 .. _ecm-example-com-shape:
 

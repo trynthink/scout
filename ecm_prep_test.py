@@ -8124,13 +8124,39 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
            "technology": ["resistance heat", "ASHP"],
            "time_sensitive_valuation": {
               "shape": {
-                "custom": [
+                "custom_load": [
                   0.795398312, 0.700814216, 0.619305406, 0.56054921,
                   0.528589128, 0.523419779, 0.543541035, 0.583588151,
                   0.631368709, 0.672636809, 0.698928201, 0.710255076,
                   0.713134087, 0.71775213, 0.766065772, 0.766065772,
                   0.802987921, 0.850260722, 0.90480515, 0.957987688,
                   0.995280578, 1, 0.962613938, 0.888721644]}
+           }},
+          {"name": "sample reshaping 3",
+           "energy_efficiency": 0,
+           "energy_efficiency_units": "relative savings (constant)",
+           "markets": None,
+           "installed_cost": 25,
+           "cost_units": "2014$/unit",
+           "market_entry_year": None,
+           "market_exit_year": None,
+           "product_lifetime": 1,
+           "market_scaling_fractions": None,
+           "market_scaling_fractions_source": None,
+           "measure_type": "full service",
+           "structure_type": ["new", "existing"],
+           "bldg_type": "single family home",
+           "climate_zone": "AIA_CZ1",
+           "fuel_type": "electricity",
+           "fuel_switch_to": None,
+           "end_use": "heating",
+           "technology": ["resistance heat", "ASHP"],
+           "time_sensitive_valuation": {
+              "shape": {
+                "custom_savings": [
+                    0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4,
+                    1.5, 1.6, 1.8, 1.9, 2, 1, 0.5, 0.75, 0.75,
+                    0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}
            }},
           {"name": "sample shift, and shape",
            "energy_efficiency": 0.2,
@@ -8260,6 +8286,18 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
                     0.011359136, 0.011432694, 0.012202256, 0.012202256,
                     0.01279037, 0.013543353, 0.014412163, 0.015259279,
                     0.015853298, 0.015928471, 0.015332968, 0.014155977]},
+          {"2009": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
+                    0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
+                    -0.007077988, -0.007601687, -0.008930319, -0.008878129,
+                    -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
+                    0.002514185, 0.002678519, 0.005566429, 0.005656639,
+                    0.005679568, 0.005716347],
+           "2010": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
+                    0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
+                    -0.007077988, -0.007601687, -0.008930319, -0.008878129,
+                    -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
+                    0.002514185, 0.002678519, 0.005566429, 0.005656639,
+                    0.005679568, 0.005716347]},
           {"2009": [0.015048941, 0.015048941, 0.015416512, 0.015887126,
                     0.016430132, 0.01505217, 0.015349179, 0.015386766,
                     0.015089014, 0.014500519, 0.015340955, 0.014399342,
@@ -8299,6 +8337,19 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
                 "baseline": 1.002314946,
                 "efficient": {
                   "2009": 0.987089849, "2010": 0.987089849}}},
+            {"2009": 1, "2010": 1}], [{
+             "energy": {
+                "efficient": {
+                  "2009": 0.078210128, "2010": 0.078210128}
+                },
+             "cost": {
+                "baseline": 0.857055123,
+                "efficient": {
+                  "2009": 0.014835211, "2010": 0.014835211}},
+             "carbon": {
+                "baseline": 1.002314946,
+                "efficient": {
+                  "2009": 0.088939244, "2010": 0.088939244}}},
             {"2009": 1, "2010": 1}]]
 
     def test_load_modification(self):
@@ -8311,8 +8362,13 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
 
     def test_frac_gen(self):
         """Test the 'gen_tsv_facts' function given valid inputs."""
-        for idx, measure in enumerate(self.ok_tsv_measures_in[0:2]):
-            tsv_facts_out = self.ok_tsv_measures_in[idx].gen_tsv_facts(
+        # Set up list of TSV ECMs to be entered into the function
+        test_list = [
+            self.ok_tsv_measures_in[0], self.ok_tsv_measures_in[1],
+            self.ok_tsv_measures_in[8]]
+        # Run ECMs through the function and test outputs
+        for idx, measure in enumerate(test_list):
+            tsv_facts_out = measure.gen_tsv_facts(
               self.sample_tsv_data, self.sample_mskeys, self.sample_bldg_sect,
               self.sample_rel_perf[idx])
             # Check first output from 'gen_tsv_facts' function
