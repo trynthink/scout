@@ -704,7 +704,8 @@ class Engine(object):
         # end of its life.
         added_stockcost_gain_yrs = []
         if (life_meas > life_base) and ("lighting" in m.end_use[
-                "primary"]) and (m.measure_type == "full service"):
+            "primary"]) and (m.measure_type == "full service") and (
+                m.technology_type["primary"] == "supply"):
             for i in range(1, life_meas):
                 if i % life_base == 0:
                     added_stockcost_gain_yrs.append(i - 1)
