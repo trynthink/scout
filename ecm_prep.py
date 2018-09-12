@@ -2700,14 +2700,39 @@ class Measure(object):
         """
 
         # Set energy load shapes for given climate, building type, and end use
-        try:
-            load_fact = tsv_data["load"][mskeys[1]][bldg_sect][mskeys[4]]
-        except KeyError:
-            if mskeys[4] == "secondary heating":
-                load_fact = tsv_data["load"][mskeys[1]][bldg_sect]["heating"]
+
+        # Primary microsegment case: find the load shape associated with the
+        # primary end use
+        if mskeys[0] == "primary":
+            try:
+                load_fact = tsv_data["load"][mskeys[1]][bldg_sect][mskeys[4]]
+            except KeyError:
+                if mskeys[4] == "secondary heating":
+                    load_fact = \
+                        tsv_data["load"][mskeys[1]][bldg_sect]["heating"]
+                else:
+                    load_fact = tsv_data[
+                        "load"][mskeys[1]][bldg_sect]["electronics"]
+        # Commercial secondary lighting microsegment case: find the load shape
+        # associated with the secondary end use (a combination of the lighting
+        # and heating or cooling load shapes)
+        else:
+            # Pull load shape for cooling energy use associated with waste
+            # heat from lights
+            if mskeys[4] == "cooling":
+                load_fact = tsv_data["load"][mskeys[1]][bldg_sect][
+                    "secondary lighting (cooling)"]
+            # Pull load shape for heating energy use associated with waste
+            # heat from lights
+            elif mskeys[4] == "heating":
+                load_fact = tsv_data["load"][mskeys[1]][bldg_sect][
+                    "secondary lighting (heating)"]
+            # Throw error if any end uses other than heating or cooling
+            # are included in secondary microsegments
             else:
-                load_fact = tsv_data[
-                    "load"][mskeys[1]][bldg_sect]["electronics"]
+                raise ValueError(
+                    "Invalid secondary microsegment type for " +
+                    "measure: " + self.name)
         # Set time-based electricity price scaling factors for given climate
         # zone and building type
         cost_fact = tsv_data["price"][mskeys[1]][bldg_sect]
@@ -2820,7 +2845,7 @@ class Measure(object):
                 try:
                     # Handle case where user specifies an overnight start/stop
                     # time (e.g., 11AM to 5AM the next morning)
-                    if start_stop[0] < start_stop[1]:
+                    if start_stop[0] <= start_stop[1]:
                         applicable_hrs = list(
                             range(start_stop[0] - 1, start_stop[1]))
                     else:
@@ -2911,7 +2936,7 @@ class Measure(object):
                             min(applicable_hrs), max(applicable_hrs)]]
                     # Handle case where load is shifted to an overnight start/
                     # stop time (e.g., 11AM to 5AM the next morning)
-                    if new_start < new_end:
+                    if new_start <= new_end:
                         hrs_to_shift_to = list(
                             range(new_start, new_end + 1))
                     else:
@@ -2982,7 +3007,7 @@ class Measure(object):
                         yr: [eff_load[yr][x] * (1 - custom_save_shape[x]) for
                              x in range(24)] for
                         yr in self.handyvars.aeo_years}
-                else:
+                elif "flatten_fraction" in tsv_adjustments[a].keys():
                     # Set the load flattening fraction
                     flatten_frac = tsv_adjustments[a]["flatten_fraction"]
                     # Determine the average load to use in implementing the
@@ -3004,6 +3029,12 @@ class Measure(object):
                             eff_load[yr][x])
                         for x in range(0, 24)] for
                         yr in self.handyvars.aeo_years}
+                else:
+                    # Throw an error if the load reshaping operation name
+                    # is invalid
+                    raise KeyError(
+                        "Invalid load reshaping operation name for measure: " +
+                        self.name)
 
         return eff_load
 
