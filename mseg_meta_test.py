@@ -5,6 +5,8 @@ import mseg_meta as mm
 
 # Import needed packages
 import unittest
+from unittest.mock import patch, mock_open
+import json
 import numpy as np
 
 
@@ -291,6 +293,96 @@ class FileProcessorCombinedFunctionTest(unittest.TestCase):
         # Compare the in-place edited list of files with the
         # anticipated list
         self.assertEqual(self.files_as_output, self.files_to_check)
+
+
+class JSONProcessorTest(unittest.TestCase):
+    """ Test the operation of a function that traverses a JSON to
+    extract year strings from the terminal/leaf node keys """
+
+    # Set up example dict structure in the form that is taken
+    # by the site-source conversions, CO2 emissions intensity,
+    # and energy price JSON file
+    example_dict = {
+        "CO2 price": {
+            "units": "2007$/t",
+            "source": "some text",
+            "data": {
+                "2013": 34.0, "2014": 35.0, "2015": 36.0,
+                "2016": 38.0, "2017": 39.0, "2018": 40.0,
+                "2019": 41.0, "2020": 42.0, "2021": 42.0,
+                "2022": 43.0, "2023": 44.0, "2024": 44.0,
+                "2025": 45.0, "2026": 47.0, "2027": 48.0,
+                "2028": 49.0, "2029": 49.0, "2030": 50.0,
+                "2031": 51.0, "2032": 52.0, "2033": 53.0}},
+        "electricity": {
+            "CO2 intensity": {
+                "units": "Mt/quads",
+                "source": "some source information",
+                "data": {
+                    "residential": {
+                        "2013": 34.0, "2014": 35.0, "2015": 36.0,
+                        "2016": 38.0, "2017": 39.0, "2018": 40.0,
+                        "2019": 41.0, "2020": 42.0, "2021": 42.0,
+                        "2022": 43.0, "2023": 44.0, "2024": 44.0,
+                        "2025": 45.0, "2026": 47.0, "2027": 48.0,
+                        "2028": 49.0, "2029": 49.0, "2030": 50.0,
+                        "2031": 51.0, "2032": 52.0, "2033": 53.0},
+                    "commercial": {
+                        "2013": 34.0, "2014": 35.0, "2015": 36.0,
+                        "2016": 38.0, "2017": 39.0, "2018": 40.0,
+                        "2019": 41.0, "2020": 42.0, "2021": 42.0,
+                        "2022": 43.0, "2023": 44.0, "2024": 44.0,
+                        "2025": 45.0, "2026": 47.0, "2027": 48.0,
+                        "2028": 49.0, "2029": 49.0, "2030": 50.0,
+                        "2031": 51.0, "2032": 52.0, "2033": 53.0}}},
+            "price": {
+                "units": "2017$/MMBtu source",
+                "source": "some source information",
+                "data": {
+                    "residential": {
+                        "2013": 34.0, "2014": 35.0, "2015": 36.0,
+                        "2016": 38.0, "2017": 39.0, "2018": 40.0,
+                        "2019": 41.0, "2020": 42.0, "2021": 42.0,
+                        "2022": 43.0, "2023": 44.0, "2024": 44.0,
+                        "2025": 45.0, "2026": 47.0, "2027": 48.0,
+                        "2028": 49.0, "2029": 49.0, "2030": 50.0,
+                        "2031": 51.0, "2032": 52.0, "2033": 53.0},
+                    "commercial": {
+                        "2013": 34.0, "2014": 35.0, "2015": 36.0,
+                        "2016": 38.0, "2017": 39.0, "2018": 40.0,
+                        "2019": 41.0, "2020": 42.0, "2021": 42.0,
+                        "2022": 43.0, "2023": 44.0, "2024": 44.0,
+                        "2025": 45.0, "2026": 47.0, "2027": 48.0,
+                        "2028": 49.0, "2029": 49.0, "2030": 50.0,
+                        "2031": 51.0, "2032": 52.0, "2033": 53.0}}}}}
+
+    # Define input lists of minimum and maximum years for the function tests
+    # since the function is configured to read in a list (possibly empty) of
+    # minimum and maximum years obtained from the data; these samples are
+    # populated with dummy years
+    min_yrs_input_list = [1990, 2009]
+    max_yrs_input_list = [2052, 2040]
+
+    # Define expected minimum and maximum years for the JSON structure
+    # (as a dict) tested
+    expected_min_years = [1990, 2009, 2013]
+    expected_max_years = [2052, 2040, 2033]
+
+    # Check that the function under test returns the expected modified
+    # years lists when the test JSON (dict) structure is provided
+    @patch('builtins.open', new_callable=mock_open,
+           read_data=json.dumps(example_dict))
+    def test_json_structure_year_extraction(self, mocked_json):
+        # Note that the object "mocked_json" corresponds to the
+        # mocked file read output passed through the function
+        # using the patch decorator from unittest.mock
+        a, b = mm.json_processor(mocked_json,
+                                 self.min_yrs_input_list,
+                                 self.max_yrs_input_list)
+        # Compare the minimum year and maximum year lists to those
+        # output by the function
+        self.assertEqual(self.expected_min_years, a)
+        self.assertEqual(self.expected_max_years, b)
 
 
 # Offer external code execution (include all lines below this point in all
