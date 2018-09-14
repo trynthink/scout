@@ -28,9 +28,9 @@ before_install:
 # Install packages
 install: 
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.4" ]]; then
-      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy flake8;
+      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy flake8 requests;
     else
-      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.13 scipy flake8;
+      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.13 scipy flake8 requests;
     fi
   - source activate testenv
 

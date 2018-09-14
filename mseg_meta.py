@@ -6,6 +6,7 @@ import mseg as rm
 import mseg_techdata as rmt
 import com_mseg as cm
 import com_mseg_tech as cmt
+import converter as cnvt
 
 import numpy as np
 import re
@@ -13,6 +14,55 @@ import json
 import types
 import argparse
 from contextlib import suppress
+
+
+def json_processor(json_file, min_years, max_years):
+    """Import the conversions file and identify the available year range.
+
+    Since the conversions file is JSON-formatted, the other functions
+    in this module are not appropriate. This function recursively
+    traverses the key-value structure of a JSON file, storing the
+    terminal (leaf) nodes in a list.
+
+    This approach thus assumes that the file has terminal node keys
+    corresponding to the years for which data in the file are available.
+
+    Args:
+        json_file (str): JSON-formatted file relative path and file name.
+        min_years (list): The earliest years (as numpy.int64 integers)
+            found in the imported data.
+        max_years (list): The latest years (as numpy.int64 integers)
+            found in the imported data.
+
+    Returns:
+        Updated lists of minimum and maximum years with the minimum
+        and maximum found in the conversions data file leaf node
+        keys (values added to the lists are numpy.int64 integers).
+    """
+    def recur(db, key_list=[]):
+        """Recursively traverse dict and store leaf node keys in list
+        """
+        for key, item in db.items():
+            if isinstance(item, dict):
+                recur(item, key_list)
+            else:
+                key_list.append(key)
+        return key_list
+
+    conv = json.load(open(json_file, 'r'))
+
+    # Obtain the leaf node keys
+    leaf_keys = recur(conv)
+
+    # Extract just those keys with the format YYYY
+    years_list = [a for a in leaf_keys if re.search('[0-9]{4}', a)]
+
+    # Circumvents the action of .append() modifying in place the lists
+    # passed to the function
+    new_min_years = min_years + [np.int64(min(years_list))]
+    new_max_years = max_years + [np.int64(max(years_list))]
+
+    return new_min_years, new_max_years
 
 
 def extract_year_range(data_array, colnames, min_years, max_years, pivot_yr=0):
@@ -225,7 +275,7 @@ def main():
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017])
+                        choices=[2015, 2017, 2018])
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -257,7 +307,7 @@ def main():
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017])
+                        choices=[2015, 2017, 2018])
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -365,6 +415,16 @@ def main():
                                       import_commercial_time_preference_data,
                                       ['Year'],
                                       files_, min_yrs, max_yrs)
+
+    # Since the converter module does not overwrite the prior
+    # JSON file, check first to see if the output file is present
+    # and if not, then fall back to the default file name
+    try:
+        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().conv_file_out,
+                                          min_yrs, max_yrs)
+    except FileNotFoundError:
+        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().conv_file,
+                                          min_yrs, max_yrs)
 
     # Check that all of the expected files have been imported, and if
     # any files remain, print the filenames to the console
