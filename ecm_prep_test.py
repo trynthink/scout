@@ -13744,10 +13744,10 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "carbon": {
                 "total": {
                     "baseline": {"2009": 545.2854, "2010": 540.4633},
-                    "efficient": {"2009": 517.0981, "2010": 512.5253}},
+                    "efficient": {"2009": 515.9039, "2010": 511.3415}},
                 "competed": {
                     "baseline": {"2009": 545.2854, "2010": 540.4633},
-                    "efficient": {"2009": 517.0981, "2010": 512.5253}}},
+                    "efficient": {"2009": 515.9039, "2010": 511.3415}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -13766,10 +13766,10 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                 "carbon": {
                     "total": {
                         "baseline": {"2009": 17994.42, "2010": 17835.29},
-                        "efficient": {"2009": 17064.24, "2010": 16913.33}},
+                        "efficient": {"2009": 17024.83, "2010": 16874.27}},
                     "competed": {
                         "baseline": {"2009": 17994.42, "2010": 17835.29},
-                        "efficient": {"2009": 17064.24, "2010": 16913.33}}}},
+                        "efficient": {"2009": 17024.83, "2010": 16874.27}}}},
             "lifetime": {"baseline": {"2009": 30, "2010": 30},
                          "measure": 1}},
             {
@@ -13790,10 +13790,10 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "carbon": {
                 "total": {
                     "baseline": {"2009": 545.2854, "2010": 540.4633},
-                    "efficient": {"2009": 399.3145, "2010": 395.7832}},
+                    "efficient": {"2009": 398.3922, "2010": 394.8691}},
                 "competed": {
                     "baseline": {"2009": 545.2854, "2010": 540.4633},
-                    "efficient": {"2009": 399.3145, "2010": 395.7832}}},
+                    "efficient": {"2009": 398.3922, "2010": 394.8691}}},
             "cost": {
                 "stock": {
                     "total": {
@@ -13812,10 +13812,10 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                 "carbon": {
                     "total": {
                         "baseline": {"2009": 17994.42, "2010": 17835.29},
-                        "efficient": {"2009": 13177.38, "2010": 13060.85}},
+                        "efficient": {"2009": 13146.94, "2010": 13030.68}},
                     "competed": {
                         "baseline": {"2009": 17994.42, "2010": 17835.29},
-                        "efficient": {"2009": 13177.38, "2010": 13060.85}}}},
+                        "efficient": {"2009": 13146.94, "2010": 13030.68}}}},
             "lifetime": {"baseline": {"2009": 30, "2010": 30},
                          "measure": 1}}]
 

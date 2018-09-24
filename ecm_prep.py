@@ -3947,23 +3947,24 @@ class Measure(object):
                 (energy_total[yr] - energy_compete[yr]) * \
                 (1 - captured_eff_frac) * rel_perf_uncapt
             # Competed-efficient carbon
-            carb_compete_eff[yr] = carb_total[yr] * \
+            carb_compete_eff[yr] = (carb_total_init[yr] * mkt_scale_frac) * \
                 competed_captured_eff_frac * rel_perf_capt * \
                 tsv_carb_eff * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                carb_total[yr] * (
+                (carb_total_init[yr] * mkt_scale_frac) * (
                     competed_frac - competed_captured_eff_frac) * \
-                rel_perf_uncapt
+                rel_perf_uncapt * tsv_carb_base
             # Total-efficient carbon
             carb_total_eff[yr] = carb_compete_eff[yr] + \
-                (carb_total[yr] - carb_compete[yr]) * \
-                captured_eff_frac * rel_perf_capt * \
-                tsv_carb_eff * \
+                ((carb_total_init[yr] * mkt_scale_frac) -
+                 (carb_total_init[yr] * mkt_scale_frac * competed_frac)) * \
+                captured_eff_frac * rel_perf_capt * tsv_carb_eff * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                (carb_total[yr] - carb_compete[yr]) * (
-                    1 - captured_eff_frac) * rel_perf_uncapt
+                ((carb_total_init[yr] * mkt_scale_frac) -
+                 (carb_total_init[yr] * mkt_scale_frac * competed_frac)) * (
+                    1 - captured_eff_frac) * rel_perf_uncapt * tsv_carb_base
 
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
