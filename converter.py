@@ -337,7 +337,7 @@ def updater(conv, api_key, aeo_yr, scen):
     try:
         for idx, year in enumerate(yrs):
             conv['electricity']['price']['data']['residential'][year] = (
-                round(z['elec_res_price'][idx], 2))
+                round(z['elec_res_price'][idx]/ss_conv[idx], 2))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
               'electricity prices were not updated.')
@@ -346,7 +346,7 @@ def updater(conv, api_key, aeo_yr, scen):
     try:
         for idx, year in enumerate(yrs):
             conv['electricity']['price']['data']['commercial'][year] = (
-                round(z['elec_com_price'][idx], 2))
+                round(z['elec_com_price'][idx]/ss_conv[idx], 2))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
               'electricity prices were not updated.')
