@@ -6,10 +6,6 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": [
-      "reflector (LED)",
-      "reflector (CFL)",
-      "reflector (incandescent)",
-      "reflector (halogen)",
       "general service (CFL)",
       "general service (incandescent)",
       "general service (LED)"
@@ -41,54 +37,30 @@
       "URL": "https://www.energystar.gov/sites/default/files/Luminaires%20V2%200%20Final_0.pdf"
     }
   },
-  "installed_cost": {
-      "reflector (LED)": 4.15,
-      "reflector (CFL)": 4.15,
-      "reflector (incandescent)": 4.15,
-      "reflector (halogen)": 4.15,
-      "general service (CFL)": 2.37,
-      "general service (incandescent)": 2.37,
-      "general service (LED)": 2.37},
+  "installed_cost": 2.37,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Based on EcoSmart 65W Equivalent Bright White BR30 Dimmable LED Light Bulb (6-Pack) (reflector) and EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type)",
-    "source_data": [{
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null,
-      "URL": "https://www.homedepot.com/p/EcoSmart-65W-Equivalent-Bright-White-BR30-Dimmable-LED-Light-Bulb-6-Pack-1003017902/300876291"
-    },
-    {
+    "notes": "EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type)",
+    "source_data": {
         "title": null,
         "author": null,
         "organization": null,
         "year": null,
         "pages": null,
-        "URL": "https://www.homedepot.com/p/EcoSmart-60W-Equivalent-Soft-White-A19-Dimmable-CEC-LED-Light-Bulb-4-Pack-ES95A1960SWD4/207175219"
-      }]
-  },
-  "product_lifetime": 22.8,
+        "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
+      }},
+  "product_lifetime": 13.6,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Based on EcoSmart 65W Equivalent Bright White BR30 Dimmable LED Light Bulb (6-Pack) (reflector) and EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type)",
-    "source_data": [{
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null,
-      "URL": "https://www.homedepot.com/p/EcoSmart-65W-Equivalent-Bright-White-BR30-Dimmable-LED-Light-Bulb-6-Pack-1003017902/300876291"
-    },
-    {
+    "notes": "EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type); assume 3h/day use",
+    "source_data": {
         "title": null,
         "author": null,
         "organization": null,
         "year": null,
         "pages": null,
-        "URL": "https://www.homedepot.com/p/EcoSmart-60W-Equivalent-Soft-White-A19-Dimmable-CEC-LED-Light-Bulb-4-Pack-ES95A1960SWD4/207175219"
-      }]
+        "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
+      }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -103,9 +75,9 @@
     "timestamp": "2016-11-17 16:16:26 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:23:55 EDT 2018"
   }
 }

@@ -1,0 +1,88 @@
+{
+  "name": "Prospective Residential AVCT HVAC",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "electricity",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 6.02,
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "Convert from primary COP (from Table 3 in BTO MYPP) to COP, multiply by 3.01",
+    "source data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "installed_cost": 5924,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "$22.9/kBtu/h cost premium (from Table 3 of BTO MYPP) * 36 kBtu/h/unit (typical capacity for 2020 'typical' residential air source heat pumps in EIA document) + 5100 2017$/unit baseline cost (total installed cost for 2020 'typical' residential air source heat pumps in EIA document)",
+    "source_data": [{
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
+  "product_lifetime": 15.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of average lifetimes for 2020 'typical' residential air source heat pump",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Advanced vapor compression electric heating/cooling systems; cost and performance targets from BTO Multi-year Program Plan are not building type-specific",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-15"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-09-27 18:00 UTC"
+  }
+}

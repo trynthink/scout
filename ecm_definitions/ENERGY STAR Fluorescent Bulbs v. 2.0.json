@@ -6,10 +6,6 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": [
-      "reflector (LED)",
-      "reflector (CFL)",
-      "reflector (incandescent)",
-      "reflector (halogen)",
       "general service (CFL)",
       "general service (incandescent)",
       "general service (LED)"
@@ -41,54 +37,31 @@
       "URL": "https://www.energystar.gov/sites/default/files/Luminaires%20V2%200%20Final_0.pdf"
     }
   },
-  "installed_cost": {
-      "reflector (LED)": 2.44,
-      "reflector (CFL)": 2.44,
-      "reflector (incandescent)": 2.44,
-      "reflector (halogen)": 2.44,
-      "general service (CFL)": 1.49,
-      "general service (incandescent)": 1.49,
-      "general service (LED)": 1.49},
+  "installed_cost": 1.49,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "EcoSmart 65W Equivalent Soft White BR30 CFL Light Bulbs (2-Pack) (reflector) and and EcoSmart 60W Equivalent Soft White Spiral CFL Light Bulb (4-Pack) (A type)",
-    "source_data": [{
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null,
-      "URL": "https://www.homedepot.com/p/EcoSmart-65W-Equivalent-Soft-White-BR30-CFL-Light-Bulbs-2-Pack-ESBR314IB2/205487815"
-    },
-    {
+    "notes": "EcoSmart 60W Equivalent Soft White Spiral CFL Light Bulb (4-Pack) (A type)",
+    "source_data": {
         "title": null,
         "author": null,
         "organization": null,
         "year": null,
         "pages": null,
         "URL": "https://www.homedepot.com/p/EcoSmart-60W-Equivalent-Soft-White-Spiral-CFL-Light-Bulb-4-Pack-ESBM8144/205487792"
-      }]
+    }
   },
   "product_lifetime": 9.1,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "EcoSmart 65W Equivalent Soft White BR30 CFL Light Bulbs (2-Pack) (reflector) and EcoSmart 60W Equivalent Soft White Spiral CFL Light Bulb (4-Pack) (A type)",
-    "source_data": [{
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null,
-      "URL": "https://www.homedepot.com/p/EcoSmart-65W-Equivalent-Soft-White-BR30-CFL-Light-Bulbs-2-Pack-ESBR314IB2/205487815"
-    },
-    {
+    "notes": "EcoSmart 60W Equivalent Soft White Spiral CFL Light Bulb (4-Pack) (A type)",
+    "source_data": {
         "title": null,
         "author": null,
         "organization": null,
         "year": null,
         "pages": null,
         "URL": "https://www.homedepot.com/p/EcoSmart-60W-Equivalent-Soft-White-Spiral-CFL-Light-Bulb-4-Pack-ESBM8144/205487792"
-      }]
+      }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -103,9 +76,8 @@
     "timestamp": "2016-10-31 15:57:34 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:01:53 EDT 2018"}
 }

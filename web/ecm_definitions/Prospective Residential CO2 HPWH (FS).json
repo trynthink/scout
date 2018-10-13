@@ -1,0 +1,96 @@
+{
+  "name": "Prospective Residential CO2 HPWH (FS)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 76,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 2.83,
+  "energy_efficiency_units": "EF",
+  "energy_efficiency_source": {
+    "notes": "Converted from primary energy factor (0.94) to EF (from Table 4 in document), multiply by 3.01",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 76,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "installed_cost": 1447,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "$11.94/FHR target cost premium (from Table 4 of BTO MYPP) * 50 FHR/unit (FHR minimum threshold for electric water heaters in ENERGY STAR specification, indicated in Table 1 of EPA document) + 850 2017$/unit baseline cost (for median of range of 2020 'typical' total installed costs for residential electric resistance water heaters in the EIA document; comments below Table 4 of BTO MYPP suggest that the baseline technology should be electric resistance water heaters)",
+    "source_data": [{
+      "title": "ENERGY STAR Product Specification for Residential Water Heaters",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "pages": 6,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Water%20Heaters%20Version%203%200%20Program%20Requirements_0.pdf"
+    },
+    {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 76,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 56,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of range for 2020 'typical' residential heat pump water heaters",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 58,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "CO2 vapor-compression heat pump water heater target; cost and performance targets from BTO Multi-year Program Plan are not building type-specific",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-15"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-09-27 15:30 UTC"
+  }
+}

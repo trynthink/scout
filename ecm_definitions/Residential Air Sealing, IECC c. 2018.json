@@ -1,0 +1,91 @@
+{
+  "name": "Residential Air Sealing, IECC c. 2018",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+  "fuel_type": "all",
+  "technology": "infiltration",
+  "market_entry_year": 2017,
+  "market_entry_year_source": {
+    "notes": "IECC 2018 air leakage requirements",
+    "source_data": {
+      "title": "2018 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-re-residential-energy-efficiency"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "AIA_CZ1": 3,
+    "AIA_CZ2": 3,
+    "AIA_CZ3": 3,
+    "AIA_CZ4": 3,
+    "AIA_CZ5": 4.42},
+  "energy_efficiency_units": "ACH",
+  "energy_efficiency_source": {
+    "notes": "Uses IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",
+    "source_data": {
+      "title": "2018 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-re-residential-energy-efficiency"
+    }
+  },
+  "installed_cost": {
+    "new": 0,
+    "existing": 1.2},
+  "cost_units": "2017$/ft^2 wall",
+  "installed_cost_source": {
+    "notes": "Based on average cost for 3 ACH vs. 10 ACH (existing), 3 ACH vs. 3 ACH (new)",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=10&ctId=376"
+    }
+  },
+  "product_lifetime": 100,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assume the same as lifetime of the home",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=10&ctId=376"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "IECC 2018 air leakage requirements",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 17 11:11:32 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 15:35:50 EDT 2018"
+  }
+}

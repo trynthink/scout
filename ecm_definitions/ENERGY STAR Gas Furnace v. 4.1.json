@@ -39,34 +39,34 @@
     }
   },
   "installed_cost": {
-      "AIA_CZ1": 2700,
-      "AIA_CZ2": 2700,
-      "AIA_CZ3": 2500, 
-      "AIA_CZ4": 2500,
-      "AIA_CZ5": 2500},
+      "AIA_CZ1": 2740,
+      "AIA_CZ2": 2740,
+      "AIA_CZ3": 2740, 
+      "AIA_CZ4": 2560,
+      "AIA_CZ5": 2560},
   "cost_units": "2016$/unit",
   "installed_cost_source": {
-    "notes": "Median of total installed cost range for 'ENERGY STAR' 2013 columns for North and South",
+    "notes": "ESTAR total installed cost in 2017, AIA CZ1-3 map to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 23,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "year": 2018,
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
-  "product_lifetime": 14.5,
+  "product_lifetime": 21.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetime for 'ENERGY STAR' 2013 column",
+    "notes": "ESTAR average lifetime in 2017, AIA CZ1/2 correspond to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 23,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "year": 2018,
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
   "measure_type": "full service",
@@ -82,9 +82,9 @@
     "timestamp": "2016-11-17 14:59:20 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:13:52 EDT 2018"
   }
 }

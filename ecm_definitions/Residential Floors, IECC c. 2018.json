@@ -25,15 +25,15 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 15,
-      "AIA_CZ2": 15,
-      "AIA_CZ3": 10,
-      "AIA_CZ4": 5,
-      "AIA_CZ5": 2.5
+      "AIA_CZ1": 14.59,
+      "AIA_CZ2": 10.02,
+      "AIA_CZ3": 9.97,
+      "AIA_CZ4": 5.86,
+      "AIA_CZ5": 1.45
     },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "See table 402.1.2; assumes following IECC -> AIA climate zone mapping: 6 -> 1; 5 -> 2; 4 -> 3; 3 -> 4; 2/3 -> 5; averages values for AIA climates 2/3",
+    "notes": "See table 402.1.2; uses IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,
@@ -46,14 +46,14 @@
   "installed_cost": 5.03,
   "cost_units": "2016$/ft^2 footprint",
   "installed_cost_source": {
-    "notes": "4 in. slab on grade, non-industrial, non-reinforced assembly (#A10301202220). Note this does not account for additional minimal cost/ft^2 of perimeter slab insulation in mild to colder climates (~$0.10/ft^2)",
+    "notes": "Assume baseline floor cost from Scout data",
     "source_data": {
-      "title": "RSMeans 2016 Building Construction Data",
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
-      "organization": "Gordion Group",
-      "year": 2016,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
       "pages": null,
-      "URL": "https://www.rsmeansonline.com/SearchData"
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
   },
   "product_lifetime": 100,
@@ -75,9 +75,9 @@
     "timestamp": "1/04/2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 15:19:08 EDT 2018"
   }
 }

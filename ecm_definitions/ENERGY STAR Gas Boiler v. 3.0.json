@@ -3,17 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating"
-    ],
-  "fuel_type": [
-      "natural gas",
-      "distillate"
-    ],
-  "technology": [
-      "boiler (NG)",
-      "boiler (distillate)"
-    ],
+  "end_use": "heating",
+  "fuel_type": "natural gas",
+  "technology": "boiler (NG)",
   "market_entry_year": 2014,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -31,7 +23,7 @@
   "energy_efficiency": 0.90,
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
-    "notes": "See table 1",
+    "notes": "ENERGY STAR efficiency specification; see table 1",
     "source_data": {
       "title": "ENERGY STAR Program Requirements - Product Specification for Boilers Version 3.0",
       "author": null,
@@ -41,30 +33,30 @@
       "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"
     }
   },
-  "installed_cost": 5100,
-  "cost_units": "2013$/unit",
+  "installed_cost": 7875,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of total installed cost range in the 'ENERGY STAR' 2013 column",
+    "notes": "Median of total ESTAR installed cost range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency: Appendix A - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "year": 2018,
+      "pages": 15,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
-  "product_lifetime": 20.5,
+  "product_lifetime": 25,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetime for the 'ENERGY STAR' 2013 column",
+    "notes": "Median of average ESTAR lifetime in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "year": 2018,
+      "pages": 15,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
   "measure_type": "full service",
@@ -80,9 +72,9 @@
     "timestamp": "2016-11-17 14:49:17 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:03:57 EDT 2018"
   }
 }

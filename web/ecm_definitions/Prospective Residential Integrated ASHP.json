@@ -1,0 +1,88 @@
+{
+  "name": "Prospective Residential Integrated ASHP",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling", "water heating"],
+  "fuel_type": "electricity",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.49,
+  "energy_efficiency_units": ["relative savings (dynamic)", 2020],
+  "energy_efficiency_source": {
+    "notes": "Air-source integrated heat pump target for 2020 in Table 3",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "installed_cost": 8700,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "$3600/unit ($1.5/ft^2 floor cost premium * 2400 ft^2 floor house/unit from Scout 'ecm_cost_convert.json' file) + $5100/unit baseline (from EIA data for the total installed cost of 2020 'typical' residential air source heat pumps)",
+    "source_data": [{
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
+  "product_lifetime": 15.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for 'typical' 2020 column for residential air source heat pumps",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Prospective integrated (or multifunction) air-source heat pump",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-14"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-09-26 23:00 UTC"
+  }
+}

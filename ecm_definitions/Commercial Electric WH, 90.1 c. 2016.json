@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
-  "technology": "elec_water_heater",
+  "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
   "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -23,40 +23,38 @@
       "organization": "ASHRAE",
       "year": 2016,
       "pages": null,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
+      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
     }
   },
-  "installed_cost": 28.71,
-  "cost_units": "2013$/kBtu/h heating",
+  "installed_cost": 63.09,
+  "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "median of 2013 typical total installed cost range ($5290), divide by the typical input capacity listed by EIA (54 kW) and convert to 184.25 kBtu/h",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. EIA",
-      "year": 2016,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "product_lifetime": 18,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "average stated 2013 lifetime",
+    "notes": "Median of standard efficiency installed cost in 2017, divided by (18 kW * (3.412 kBtu/h/kW))",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 123,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "product_lifetime": 12,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Standard efficiency average life in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 123,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Electric storage water heater for commercial buildings that meets the ASHRAE 90.1-2016 standard",
+  "_description": "Electric resistance storage water heater for commercial buildings that meets the ASHRAE 90.1-2016 standard",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -65,9 +63,8 @@
     "timestamp": "Dec. 13, 2017"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:22:37 EDT 2018"}
 }

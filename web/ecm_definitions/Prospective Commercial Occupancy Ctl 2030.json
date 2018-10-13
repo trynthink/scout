@@ -1,0 +1,80 @@
+{
+  "name": "Prospective Com. Occupancy Ctl. 2030",
+  "climate_zone": "all",
+  "bldg_type": ["large office", "small office", "lodging", "assembly", "education", "health care"],
+  "structure_type": "all",
+  "end_use": [
+    "heating", "cooling", "ventilation", "lighting"],
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Based on BTO target for long-term market introduction (>10 years)",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "heating": 0.30,
+      "cooling": 0.30,
+      "ventilation": 0.30, 
+      "lighting": 0.40},
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "note": "Based on typical relative savings range of 10%-40% (lighting/HVAC) and 50%-90% (PCs)",
+    "source_data": [{
+      "title": "Energy intelligent buildings based on user activity: A survey",
+      "author": "Nguyen et al.",
+      "organization": "University of Groningen",
+      "year": 2013,
+      "pages": [244, 257],
+      "URL": "https://www.researchgate.net/publication/257227483_Energy_intelligent_buildings_based_on_user_activity_A_survey"},
+      {
+      "title": "Quantifying National Energy Savings Potential of Lighting Controls in Commercial Buildings",
+      "author": "Williams et al.",
+      "organization": "Lawrence Berkeley National Laboratory",
+      "year": 2012,
+      "pages": null,
+      "URL": "http://eetd.lbl.gov/sites/all/files/quantifying_national_energy_savings_potential_of_lighting_controls_in_commercial_buildings_lbnl-5895e.pdf"},
+      {
+      "title": "Reducing Energy Waste for Computers by Human-in-the-Loop Control",
+      "author": "Munir et al.",
+      "organization": "University of Virginia",
+      "year": 2013,
+      "pages": null,
+      "URL": "https://www.researchgate.net/publication/259933762_Reducing_Energy_Waste_for_Computers_by_Human-in-the-Loop_Control"}
+      ]},
+  "installed_cost": 36,
+  "cost_units": "2017$/occupant",
+  "installed_cost_source":{
+    "notes": "BTO Prioritization Tool analysis assuming 35% HVAC savings, 45% lighting energy savings, 80% PCs savings, and 1 year payback threshold",
+    "source_data": {
+      "title": "A Tool to Prioritize Energy Efficiency Investments",
+      "author": "Farese et al.",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2012,
+      "pages": null,
+      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed limited by lifetime of enabling plug-and-play sensors (see 'Plug-and-Play Sensors (Prospective)' ECM)",
+    "source_data": null},
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Sensing and controls at the zone or sub-zone level to enable accurate, real-time feedback on individual and group-level occupant presence only (not comfort)",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2017-01-04 15:42:58 EST"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

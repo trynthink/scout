@@ -1,0 +1,70 @@
+{ 
+  "name": "Best Residential Room AC",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "cooling",
+  "fuel_type": "all",
+  "technology": "room AC",
+  "market_entry_year": 2017,
+  "market_entry_year_source": {
+    "notes": "High efficiency room AC in 2017",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 35,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.6,
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "High efficiency room AC CEER in 2017, COP=CEER/3.412",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 35,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "installed_cost": 705,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "Median of high efficiency room AC installed cost in 2017",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 35,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "product_lifetime": 9.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of high efficiency room AC average life in 2017",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 35,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "High efficiency residential room AC in 2017",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Sep 14 11:25:53 EDT 2018"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null 
+  }}
