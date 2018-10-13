@@ -1,0 +1,94 @@
+{
+  "name": "Prospective Residential NGHP",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "natural gas",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 1.38,
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "Performance target for natural gas driven heat pumps (in Table 3 of BTO MYPP)",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "installed_cost": 4152,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "$23.9/kBtu/h (from Table 3 of BTO MYPP) * 80 kBtu/h (typical input capacity for 2020 'typical' residential gas-fired furnaces 'rest of country') + baseline cost of 2240 2017$/unit (2020 'typical' total installed cost for residential gas-fired furnaces 'rest of country')",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 9,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
+    {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }]
+  },
+  "product_lifetime": 21.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of average lifetime values for 2020 'typical' residential gas-fired furnaces 'rest of country'",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 9,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Natural gas fueled heat pump; cost and performance targets from BTO Multi-year Program Plan are not building type-specific",
+  "_notes": "Update on 2018-09-13 removed fuel switching support",
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "DOE",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-14"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2018-02-28"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-09-27 16:30 UTC"
+  }]
+}

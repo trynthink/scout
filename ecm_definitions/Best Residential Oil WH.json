@@ -1,0 +1,70 @@
+{ 
+  "name": "Best Residential Oil WH",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "distillate",
+  "technology": null,
+  "market_entry_year": 2017,
+  "market_entry_year_source": {
+    "notes": "High efficiency oil WH in 2017",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 54,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.69,
+  "energy_efficiency_units": "EF",
+  "energy_efficiency_source": {
+    "notes": "High efficiency UEF in 2017 (NOTE: use of UEF vs. EF)",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 54,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "installed_cost": 2525,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "Median of high efficiency 2017 installed cost range",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 54,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of high efficiency 2017 lifetime range",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 54,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "Highest efficiency residential oil water heater in 2017",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Sep 14 13:33:12 EDT 2018"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null 
+  }}

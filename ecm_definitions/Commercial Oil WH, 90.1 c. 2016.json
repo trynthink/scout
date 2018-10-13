@@ -16,41 +16,39 @@
   "energy_efficiency": 0.80,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2016 standard",
+    "notes": "90.1-2016 efficiency level for typical input capacity (300 kBtu/h)",
     "source_data": {
       "title": "ASHRAE 90.1 Standard 2016",
       "author": null,
       "organization": "ASHRAE",
       "year": 2016,
       "pages": 133,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
+      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
     }
   },
-  "installed_cost": 34.93,
-  "cost_units": "2013$/kBtu/h heating",
+  "installed_cost": 17.33,
+  "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "assume the current standard installed cost for 2013 ($4890); Asumme the EIA listed threshold for input capacity of 140 kbtu/h",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. EIA",
-      "year": 2016,
-      "pages": 119,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "product_lifetime": 13,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "average stated 2013 lifetime",
+    "notes": "Standard installed cost in 2017 divided by typical input capacity",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 119,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 128,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Standard average lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 128,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -65,9 +63,8 @@
     "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:40:12 EDT 2018"}
 }

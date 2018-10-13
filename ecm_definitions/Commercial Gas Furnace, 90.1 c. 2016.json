@@ -23,34 +23,32 @@
       "organization": "ASHRAE",
       "year": 2016,
       "pages": 116,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
+      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
     }
   },
-  "installed_cost": 8.49,
-  "cost_units": "2013$/kBtu/h heating",
+  "installed_cost": 5.38,
+  "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Median of 'typical' 2013 column total installed cost range divided by typical capacity (400 kBtu/h)",
+    "notes": "Standard installed cost in 2017 divided by input capacity",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 83,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 90,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "product_lifetime": 15,
+  "product_lifetime": 23,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetime for 'Current Standard' 2013 column",
+    "notes": "Standard average lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 83,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 90,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -65,9 +63,8 @@
     "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:22:37 EDT 2018"}
 }

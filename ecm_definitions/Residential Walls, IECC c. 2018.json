@@ -25,15 +25,15 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 25,
-      "AIA_CZ2": 20,
+      "AIA_CZ1": 24.59,
+      "AIA_CZ2": 20.02,
       "AIA_CZ3": 20,
       "AIA_CZ4": 20,
-      "AIA_CZ5": 16.5
+      "AIA_CZ5": 15.02
     },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "See table 402.1.2, wood frame wall; assumes following IECC -> AIA climate zone mapping: 6 -> 1; 5 -> 2; 4 -> 3; 3 -> 4; 2/3 -> 5; averages values for AIA climates 2/3",
+    "notes": "See table 402.1.2, wood frame wall; uses IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,
@@ -46,14 +46,14 @@
   "installed_cost": 8.86,
   "cost_units": "2016$/ft^2 wall",
   "installed_cost_source": {
-    "notes": "Panel, shingle wall assembly (#B20101483150)",
+    "notes": "Assume baseline wall cost from Scout data",
     "source_data": {
-      "title": "RSMeans 2016 Building Construction Data",
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
-      "organization": "Gordion Group",
-      "year": 2016,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
       "pages": null,
-      "URL": "https://www.rsmeansonline.com/SearchData"
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
   },
   "product_lifetime": 100,
@@ -75,9 +75,9 @@
     "timestamp": "1/4/2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 14:51:54 EDT 2018"
   }
 }

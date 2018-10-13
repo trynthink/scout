@@ -1,0 +1,105 @@
+{
+  "name": "Prospective Commercial Integrated NGHP",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling", "water heating"],
+  "fuel_type": "natural gas",
+  "technology": "all",
+  "market_entry_year": 2020,
+  "market_entry_year_source": {
+    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.44,
+  "energy_efficiency_units": ["relative savings (dynamic)", 2020],
+  "energy_efficiency_source": {
+    "notes": "Performance for multifunction natural gas-driven heat pump",
+    "source_data": {
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    }
+  },
+  "installed_cost": 60.38,
+  "cost_units": "2017$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "$1.1/ft^2 floor cost premium * 1 ft^2 floor/0.020 kBtu/h heating (see Scout 'ecm_cost_convert.json' file) + baseline cost of $5.38/kBtu/h ($2150 for 2020 'typical' commercial gas-fired furnace / 400 kBtu/h typical input capacity, from EIA data)",
+    "source_data": [{
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": 75,
+      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 90,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
+  "product_lifetime": 23,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for 2020 'typical' commercial gas-fired furnace",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 90,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "electricity": {
+      "heating": 0,
+      "cooling": 0.557,
+      "water heating": 0
+    },
+    "natural gas": 1
+  },
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all commercial natural gas heating/water heating; no commercial buildings with electric heating or water heating are switched",
+    "cooling": {
+      "title": "CBECS 2012 - Table B30: Cooling energy sources, number of buildings and floorspace, 2012",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2012,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Cooling multiple of 55.7% was determined as the proportion of total commercial square footage with cooling where heating uses natural gas from CBECS 2012 microdata. Total square footage with electric cooling in the sample was 73,614 million ft^2, total square footage with cooling where natural gas is the primary space-heating energy source was 40,980 million ft^2"
+    }
+  },
+  "_description": "Multi-function natural gas-fired heat pump affecting commercial heating, cooling, and water heating end uses",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "2017-02-15"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-10-01 21:00 UTC"
+  }
+}

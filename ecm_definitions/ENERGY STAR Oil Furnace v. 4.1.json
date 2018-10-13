@@ -21,7 +21,7 @@
   "energy_efficiency": 0.85,
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
-    "notes": "See table 1, oil furnace product type",
+    "notes": "ESTAR efficiency level, see table 1, oil furnace product type",
     "source_data": [{
       "title": "See table 1, oil furnace product type",
        "author": "Energy Star",
@@ -29,28 +29,30 @@
        "year": 2013,
        "pages": 2,
        "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}]},
-  "installed_cost": 3900,
-  "cost_units": "2013$/unit",
+  "installed_cost": 4350,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "median of range of total installed cost for 2013 energy star oil-fired furnace",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 26,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-  "product_lifetime": 17,
+    "notes": "Median of ESTAR installed cost in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 12,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
+  "product_lifetime": 26.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of stated average 2013 lifetime range",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 26,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of ESTAR average life in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 12,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
@@ -63,8 +65,8 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null 
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:35:49 EDT 2018"
   }}

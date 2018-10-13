@@ -1,0 +1,89 @@
+{
+  "name": "Residential Roof, IECC c. 2018",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+  "fuel_type": "all",
+  "technology": "roof",
+  "market_entry_year": 2017,
+  "market_entry_year_source": {
+    "notes": "IECC 2018 ceiling insulation requirements",
+    "source_data": {
+      "title": "2018 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-re-residential-energy-efficiency"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": 19,
+      "AIA_CZ2": 19,
+      "AIA_CZ3": 18.94,
+      "AIA_CZ4": 9.89,
+      "AIA_CZ5": 7.32
+    },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2016",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+    },
+  "installed_cost": 6.6,
+  "cost_units": "2017$/ft^2 roof",
+  "installed_cost_source": {
+    "notes": "Assume baseline roof cost from Scout data",
+    "source_data": {
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed to be the same as Scout's baseline residential roof lifetime",
+    "source_data": {
+      "title": "Scout Baseline Envelope Cost, Performance, and Lifetime Data (cpl_envelope_mels.json)",
+      "author": "Jared Langevin",
+      "organization": "LBNL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "IECC ceiling insulation measure in 2018; assumes existing R-30 fiberglass batt insulation",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 18 10:05:42 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 15:43:07 EDT 2018"
+  }
+}

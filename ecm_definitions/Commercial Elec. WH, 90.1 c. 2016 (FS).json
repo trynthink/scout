@@ -1,0 +1,70 @@
+{
+  "name": "Commercial Elec. WH, 90.1 c. 2016 (FS)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate"],
+  "technology": "all",
+  "market_entry_year": 2016,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.98,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "standard does not include a minimum thermal efficiency level",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
+    }
+  },
+  "installed_cost": 63.09,
+  "cost_units": "2017$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "Median of standard efficiency installed cost in 2017, divided by (18 kW * (3.412 kBtu/h/kW))",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 123,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "product_lifetime": 12,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Standard efficiency average life in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 123,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Electric resistance storage water heater for commercial buildings that meets the ASHRAE 90.1-2016 standard",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "DOE",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Dec. 13, 2017"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:22:37 EDT 2018"}
+}

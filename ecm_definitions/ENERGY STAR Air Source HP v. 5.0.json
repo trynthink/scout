@@ -49,37 +49,35 @@
       }
     ]
   },
-  "installed_cost": 3400,
-  "cost_units": "2013$/unit",
+  "installed_cost": 4950,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of total installed cost range for 'ENERGY STAR' 2013 column",
+    "notes": "Total ESTAR installed cost in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 40,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetime for 'ENERGY STAR' 2013 column",
+    "notes": "Median of average ESTAR lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 40,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Standard size residential air source heat pumps that meet the ENERGY STAR performance standard in 2017",
+  "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -88,9 +86,8 @@
     "timestamp": "2016-11-17 15:19:55 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:50:26 EDT 2018"}
 }

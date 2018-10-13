@@ -1,0 +1,72 @@
+{
+  "name": "Commercial Air Sealing, 90.1 c. 2016",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "infiltration",
+  "market_entry_year": 2014,
+  "market_entry_year_source": {
+    "notes": "90.1-2016 whole envelope air leakage requirement",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2016",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.4,
+  "energy_efficiency_units": "CFM/ft^2 @ 0.3 in. w.c.",
+  "energy_efficiency_source": {
+    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2016",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+    },
+  "installed_cost": 0,
+  "cost_units": "2016$/ft^2 wall",
+  "installed_cost_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "product_lifetime": 100,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed equal to the lifetime of the building",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "90.1-2016 commercial whole envelope air leakage requirement",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 16:51:49 EDT 2018"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

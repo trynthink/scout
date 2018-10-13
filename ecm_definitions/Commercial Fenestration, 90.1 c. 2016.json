@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Fenestration, IECC c. 2018",
+  "name": "Commercial Fenestration, 90.1 c. 2016",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -24,19 +24,19 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "windows conduction": 2.78,
+        "windows conduction": 3.35,
         "windows solar": 0.4},
       "AIA_CZ2": {
-        "windows conduction": 2.63,
+        "windows conduction": 3.22,
         "windows solar": 0.38},
       "AIA_CZ3": {
-        "windows conduction": 2.63,
+        "windows conduction": 3.22,
         "windows solar": 0.36},
       "AIA_CZ4": {
-        "windows conduction": 2.17,
-        "windows solar": 0.25},
+        "windows conduction": 3.06,
+        "windows solar": 0.27},
       "AIA_CZ5": {
-        "windows conduction": 2.08,
+        "windows conduction": 2.74,
         "windows solar": 0.25}
       },
   "energy_efficiency_units": {
@@ -44,26 +44,26 @@
       "windows solar": "SHGC"
     },
   "energy_efficiency_source": {
-    "notes": "See table C402.4, p.; assumes vertical and fixed fenestration for U value; assumes a projection factor < 0.2 and orientation SEW for SHGC; assumes following IECC -> AIA climate zone mapping: 6 -> 1; 5 -> 2; 4 -> 3; 3 -> 4; 2/3 -> 5; takes average of performance levels for IECC zones 2/3",
+    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "2018 International Energy Conservation Code",
+      "title": "ASHRAE Standard 90.1-2016",
       "author": null,
-      "organization": "International Code Council",
-      "year": 2018,
+      "organization": "ASHRAE",
+      "year": 2016,
       "pages": null,
-      "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-ce-commercial-energy-efficiency"}
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
     },
   "installed_cost": 56.20,
   "cost_units": "2016$/ft^2 glazing",
   "installed_cost_source": {
-    "notes": "3'x4' aluminum window assembly (#B20201066400)",
+    "notes": "Assume baseline fenestration cost from Scout data",
     "source_data": {
-      "title": "RSMeans 2016 Building Construction Data",
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
-      "organization": "Gordion Group",
-      "year": 2016,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
       "pages": null,
-      "URL": "https://www.rsmeansonline.com/SearchData"
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
   },
   "product_lifetime": 25,
@@ -92,9 +92,9 @@
     "timestamp": "1/04/2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 14:58:38 EDT 2018"
   }
 }

@@ -6,51 +6,56 @@
   "end_use": "heating",
   "fuel_type": "distillate",
   "technology": "oil_boiler",
-  "market_entry_year": 2013,
+  "market_entry_year": 2016,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.84,
+  "energy_efficiency": 0.81,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 2013 standard",
-    "source_data": {
+    "notes": "90.1-2016 oil boiler standard assuming typical unit capacity is 800 kBtu/h as suggested in the EIA data",
+    "source_data": [{
       "title": "ASHRAE 90.1 Standard 2016",
       "author": null,
       "organization": "ASHRAE",
       "year": 2016,
       "pages": 117,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
-    }
-  },
-  "installed_cost": 15.42,
-  "cost_units": "2013$/kBtu/h heating",
-  "installed_cost_source": {
-    "notes": "median of total installed cost range for the Current Standard 2013 ($18500); assume the EIA listed median value for the range of heat input (1200 kBtu/h)",
-    "source_data": {
+      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
+    },
+    {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
-      "organization": "U.S. EIA",
-      "year": 2016,
-      "pages": 91,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 100,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
   },
-  "product_lifetime": 30,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "average stated 2013 typical lifetime",
+  "installed_cost": 35,
+  "cost_units": "2017$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "Standard installed cost in 2017 divided by input capacity",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2016,
-      "pages": 91,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "year": 2018,
+      "pages": 100,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Standard average lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 100,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -65,9 +70,8 @@
     "timestamp": "Dec. 19, 2017"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Sep 24 16:28:22 EDT 2018"}
 }

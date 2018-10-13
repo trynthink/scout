@@ -29,33 +29,35 @@
        "year": 2017,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
-  "installed_cost": 610,
-  "cost_units": "2013$/unit",
+  "installed_cost": 715,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "median for typical 2013 electric clothes dryer total installed cost",
-    "source_data": [{
-             "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 76,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
-  "product_lifetime": 11.5,
+    "notes": "Total average ESTAR installed cost across typical and high performance dryer in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 79,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
+  "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of stated average 2013 lifetime range",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 76,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of average ESTAR life for typical and high performance dryer in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 79,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Replaces all electric dryers at the end of life.",
+  "_description": "ENERGY STAR dryer in 2017",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -63,8 +65,8 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null 
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 09:48:47 EDT 2018"
   }}

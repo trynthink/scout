@@ -8,7 +8,7 @@
   "technology": null,
   "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": "",
+    "notes": "Year specification went into effect; assumes <= 55 gallons",
     "source_data": [{
        "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
        "author": "Energy Star",
@@ -21,7 +21,7 @@
   "energy_efficiency": 0.67,
   "energy_efficiency_units": "EF",
   "energy_efficiency_source": {
-    "notes": "assume < 55 gallons",
+    "notes": "ENERGY STAR efficiency in 2017 assumes <= 55 gallons",
     "source_data": [{
       "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
        "author": "Energy Star",
@@ -29,42 +29,44 @@
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}]},
-  "installed_cost": 1325,
-  "cost_units": "2013$/unit",
+  "installed_cost": 2025,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "median of total installed cost range for 2013 energy star gas-fired water heaters",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 9,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of ESTAR total installed cost in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 51,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of stated average 2013 lifetime range",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 9,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of ESTAR average lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 51,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Replaces all gas storage water heaters at the end of life.",
-  "_notes": " ", 
+  "_description": "ENERGY STAR gas storage water heater in 2017",
+  "_notes": null, 
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null 
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:21:38 EDT 2018"
   }}

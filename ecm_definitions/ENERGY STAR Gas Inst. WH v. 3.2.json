@@ -29,28 +29,30 @@
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}]},
-  "installed_cost": 1680,
-  "cost_units": "2013$/unit",
+  "installed_cost": 2300,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "median of total installed cost range for 2013 energy star instantaneous water heaters",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 19,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of ESTAR total installed cost in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 63,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "product_lifetime": 19,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "median of stated average 2013 lifetime range",
-    "source_data": [{
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": "US EIA",
-       "organization": "US EIA",
-       "year": 2016,
-       "pages": 19,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+    "notes": "Median of ESTAR lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 63,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
@@ -63,8 +65,8 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null 
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:16:19 EDT 2018"
   }}
