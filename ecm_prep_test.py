@@ -1503,7 +1503,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 3, "2010": 3},
+                                        "typical": {"2009": 3 / 2,
+                                                    "2010": 3 / 2},
                                         "best": {"2009": 3, "2010": 3},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -1536,7 +1537,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 4, "2010": 4},
+                                        "typical": {"2009": 4 / 2,
+                                                    "2010": 4 / 2},
                                         "best": {"2009": 4, "2010": 4},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -1876,7 +1878,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 12, "2010": 12},
+                                        "typical": {"2009": 12 / 2,
+                                                    "2010": 12 / 2},
                                         "best": {"2009": 12, "2010": 12},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -1909,7 +1912,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 13, "2010": 13},
+                                        "typical": {"2009": 13 / 2,
+                                                    "2010": 13 / 2},
                                         "best": {"2009": 13, "2010": 13},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -2751,7 +2755,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 22, "2010": 22},
+                                        "typical": {"2009": 22 / 2,
+                                                    "2010": 22 / 2},
                                         "best": {"2009": 22, "2010": 22},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -2784,7 +2789,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 23, "2010": 23},
+                                        "typical": {"2009": 23 / 2,
+                                                    "2010": 23 / 2},
                                         "best": {"2009": 23, "2010": 23},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3096,7 +3102,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 3, "2010": 3},
+                                        "typical": {"2009": 3 / 2,
+                                                    "2010": 3 / 2},
                                         "best": {"2009": 3, "2010": 3},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3129,7 +3136,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 4, "2010": 4},
+                                        "typical": {"2009": 4 / 2,
+                                                    "2010": 4 / 2},
                                         "best": {"2009": 4, "2010": 4},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3465,7 +3473,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 12, "2010": 12},
+                                        "typical": {"2009": 12 / 2,
+                                                    "2010": 12 / 2},
                                         "best": {"2009": 12, "2010": 12},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3498,7 +3507,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 13, "2010": 13},
+                                        "typical": {"2009": 13 / 2,
+                                                    "2010": 13 / 2},
                                         "best": {"2009": 13, "2010": 13},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3942,7 +3952,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 22, "2010": 22},
+                                        "typical": {"2009": 22 / 2,
+                                                    "2010": 22 / 2},
                                         "best": {"2009": 22, "2010": 22},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -3975,7 +3986,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 23, "2010": 23},
+                                        "typical": {"2009": 23 / 2,
+                                                    "2010": 23 / 2},
                                         "best": {"2009": 23, "2010": 23},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -12918,7 +12930,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 3, "2010": 3},
+                                        "typical": {"2009": 3 / 2,
+                                                    "2010": 3 / 2},
                                         "best": {"2009": 3, "2010": 3},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -12951,7 +12964,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 4, "2010": 4},
+                                        "typical": {"2009": 4 / 2,
+                                                    "2010": 4 / 2},
                                         "best": {"2009": 4, "2010": 4},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13156,7 +13170,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 12, "2010": 12},
+                                        "typical": {"2009": 12 / 2,
+                                                    "2010": 12 / 2},
                                         "best": {"2009": 12, "2010": 12},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13189,7 +13204,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 13, "2010": 13},
+                                        "typical": {"2009": 13 / 2,
+                                                    "2010": 13 / 2},
                                         "best": {"2009": 13, "2010": 13},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13392,7 +13408,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 3, "2010": 3},
+                                        "typical": {"2009": 3 / 2,
+                                                    "2010": 3 / 2},
                                         "best": {"2009": 3, "2010": 3},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13425,7 +13442,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 4, "2010": 4},
+                                        "typical": {"2009": 4 / 2,
+                                                    "2010": 4 / 2},
                                         "best": {"2009": 4, "2010": 4},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13626,7 +13644,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 12, "2010": 12},
+                                        "typical": {"2009": 12 / 2,
+                                                    "2010": 12 / 2},
                                         "best": {"2009": 12, "2010": 12},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
@@ -13659,7 +13678,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
-                                        "typical": {"2009": 13, "2010": 13},
+                                        "typical": {"2009": 13 / 2,
+                                                    "2010": 13 / 2},
                                         "best": {"2009": 13, "2010": 13},
                                         "units": "2014$/unit",
                                         "source": "EIA AEO"},
