@@ -431,7 +431,7 @@ class UsefulVars(object):
                                 'security systems',
                                 'distribution transformers',
                                 'non-road electric vehicles'
-                                ],
+                            ],
                             'lighting': [
                                 '100W A19 Incandescent',
                                 '100W Equivalent A19 Halogen',
@@ -450,7 +450,7 @@ class UsefulVars(object):
                                 'T8 F32',
                                 'T8 F59',
                                 'T8 F96'
-                                ],
+                            ],
                             'cooking': [
                                 'Range, Electric, 4 burner, oven, 11-inch gr',
                                 'Range, Electric-induction, 4 burner, oven'],
@@ -1178,11 +1178,12 @@ class Measure(object):
             valid_keys_consume, cost_converts = (0 for n in range(5))
         # Initialize lists of technology names that have yielded warnings
         # for invalid stock/energy data, cost/performance/lifetime data
-        # and consumer data, and a list of the climate zones, building types,
+        # and consumer data, EIA baseline cost adjustments (in the case
+        # of heat pump HVAC) and a list of the climate zones, building types,
         # and structure type of removed primary microsegments (used to remove
         # associated secondary microsegments)
-        stk_energy_warn, cpl_warn, consume_warn, removed_primary = (
-            [] for n in range(4))
+        stk_energy_warn, cpl_warn, consume_warn, hp_warn, removed_primary = (
+            [] for n in range(5))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -1330,7 +1331,8 @@ class Measure(object):
                 if mskeys[2] in bldgs_costconverted.keys() and (
                     bldg_sect != "residential" or all([
                         x not in self.cost_units for x in
-                        self.handyvars.cconv_bytech_units_res])):
+                        self.handyvars.cconv_bytech_units_res])) and (
+                        not isinstance(self.installed_cost, dict)):
                     cost_meas, cost_units = [x for x in bldgs_costconverted[
                         mskeys[2]]]
                 # Re-initialize ECM cost attribute for each new building
@@ -1729,6 +1731,36 @@ class Measure(object):
                             cost_base, cost_base_units = \
                                 [{yr: 0 for yr in self.handyvars.aeo_years},
                                  "$/ft^2 floor"]
+                        # If the baseline technology is a heat pump in the
+                        # residential sector, account for the fact that EIA
+                        # divides all heat pump costs by 2 when separately
+                        # considered across the heating and cooling services
+                        elif bldg_sect == "residential" and (
+                                mskeys[-2] is not None and "HP" in mskeys[-2]):
+                            # Multiply heat pump baseline cost units by 2
+                            # to account for EIA heat pump cost handling
+                            cost_base, cost_base_units = \
+                                [{yr: base_cpl[
+                                    "installed cost"]["typical"][yr] * 2
+                                    for yr in self.handyvars.aeo_years},
+                                 base_cpl["installed cost"]["units"]]
+                            # Warn the user about the modification to EIA's
+                            # baseline cost data for this stock segment
+                            if mskeys[-2] not in hp_warn:
+                                hp_warn.append(mskeys[-2])
+                                verboseprint(
+                                    verbose,
+                                    "WARNING: Cost data for comparable "
+                                    "residential baseline technology '" +
+                                    str(mskeys[-2]) + "' "
+                                    "multiplied by two to account for EIA "
+                                    "handling of heat pump costs for the "
+                                    "residential heating and cooling end uses "
+                                    "(equipment costs are divided by 2 when "
+                                    "separately considered across heating and "
+                                    "cooling in the raw EIA data)")
+                        # For all other baseline technologies, pull baseline
+                        # costs and cost units in as is from the baseline data
                         else:
                             # Set baseline cost units
                             cost_base, cost_base_units = \
@@ -1744,7 +1776,7 @@ class Measure(object):
                         if bldg_sect == "residential" and \
                                 mskeys[4] == "lighting":
                             life_base = {
-                                yr: life_base[yr] * (24/3) for
+                                yr: life_base[yr] * (24 / 3) for
                                 yr in self.handyvars.aeo_years}
                         # Add to count of primary microsegment key chains with
                         # valid cost/performance/lifetime data
@@ -1866,7 +1898,8 @@ class Measure(object):
                         # print warning; exclude technologies without data from
                         # further analysis
                         else:
-                            if mskeys[-2] not in cpl_warn:
+                            if mskeys[-2] is not None and \
+                                    mskeys[-2] not in cpl_warn:
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
                                     verbose,
@@ -1883,7 +1916,7 @@ class Measure(object):
                     # lighting lifetime)
                     cost_base, perf_base, life_base = [
                         {yr: x for yr in self.handyvars.aeo_years} for x in [
-                         cost_meas, perf_meas, 10]]
+                            cost_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
 
                 # Convert user-defined measure cost units to align with
@@ -2774,9 +2807,9 @@ class Measure(object):
 
                 # Update baseline price and emissions scaling factors
                 cost_scale_base += numpy.sum([x * y for x, y in zip(
-                        base_load, cost)])
+                    base_load, cost)])
                 carb_scale_base += numpy.sum([x * y for x, y in zip(
-                        base_load, emissions)])
+                    base_load, emissions)])
                 # Update efficient price and emissions scaling factors
                 energy_scale_eff = {
                     yr: val + numpy.sum(eff_load[yr]) for yr, val in
@@ -2887,10 +2920,10 @@ class Measure(object):
                 eff_load = {
                     yr: [peak_load[yr] * peak_frac if (
                          x in applicable_hrs and (
-                            (a == "shave" and eff_load[yr][x] >
-                             peak_load[yr] * peak_frac) or
-                            (a == "fill" and eff_load[yr][x] <
-                             peak_load[yr] * peak_frac))) else eff_load[yr][x]
+                             (a == "shave" and eff_load[yr][x] >
+                              peak_load[yr] * peak_frac) or
+                             (a == "fill" and eff_load[yr][x] <
+                              peak_load[yr] * peak_frac))) else eff_load[yr][x]
                          for x in range(0, 24)] for
                     yr in self.handyvars.aeo_years}
             # Load shifting time-varying efficiency measures either move the
@@ -2955,7 +2988,7 @@ class Measure(object):
                                                 x not in applicable_hrs) else (
                                 eff_load[yr][x] if x in applicable_hrs else
                                 (eff_load[yr][x] / rel_perf[yr]))))
-                             for x in range(0, 24)] for
+                            for x in range(0, 24)] for
                         yr in self.handyvars.aeo_years}
 
             # Load reshaping time-varying efficiency measures either impose
@@ -2984,7 +3017,7 @@ class Measure(object):
                     # Determine what fractions must be applied to the initial
                     # efficient load shape to arrive at the custom load shape
                     eff_load_adj_fracs = {yr: [x / y for x, y in zip(
-                            custom_load_shape, eff_load_frac_peak[yr])] for
+                        custom_load_shape, eff_load_frac_peak[yr])] for
                         yr in self.handyvars.aeo_years}
                     # Reflect custom load reshaping in efficient load shape;
                     # apply the custom reshaping fractions to the initial
@@ -3778,9 +3811,9 @@ class Measure(object):
                     # year, such that the captured portion remains consistent
                     if "existing" in mskeys and \
                         yr != self.handyvars.aeo_years[0] and \
-                            (stock_total[str(int(yr)-1)]) != 0:
+                            (stock_total[str(int(yr) - 1)]) != 0:
                         stock_adj_frac = stock_total[yr] / \
-                            stock_total[str(int(yr)-1)]
+                            stock_total[str(int(yr) - 1)]
                     else:
                         stock_adj_frac = 1
                     # Update total number of stock units captured by the
@@ -4268,9 +4301,9 @@ class Measure(object):
                 (type(self.technology[mseg_type]) == list and any([
                  t is not None and 'all ' in t for t in
                  self.technology[mseg_type]])) or (
-                 type(self.technology[mseg_type]) == str and
-                 self.technology[mseg_type] is not None and
-                 'all ' in self.technology[mseg_type]):
+                    type(self.technology[mseg_type]) == str and
+                    self.technology[mseg_type] is not None and
+                    'all ' in self.technology[mseg_type]):
                 # Record the initial 'technology' attribute the user has
                 # defined for the measure before this attribute is reset below
                 map_tech_orig = self.technology[mseg_type]
@@ -5108,7 +5141,7 @@ class MeasurePackage(Measure):
             self.fuel_type, self.technology = (
                 [] for n in range(5))
         self.end_use, self.technology_type = (
-                {"primary": [], "secondary": None} for n in range(2))
+            {"primary": [], "secondary": None} for n in range(2))
         self.markets, self.out_break_norm = ({} for n in range(2))
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
@@ -5164,7 +5197,7 @@ class MeasurePackage(Measure):
                             "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
             self.out_break_norm[adopt_scheme] = {
-                    yr: 0 for yr in self.handyvars.aeo_years}
+                yr: 0 for yr in self.handyvars.aeo_years}
 
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
