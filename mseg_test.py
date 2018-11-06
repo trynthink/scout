@@ -13,6 +13,11 @@ import os
 import itertools
 
 
+# Skip this test if the EIA files are not expected, indicated by the
+# EXPECT_EIA_FILES environment variable being set to the string 'true'
+@unittest.skipUnless('EXPECT_EIA_FILES' in os.environ and
+                     os.environ['EXPECT_EIA_FILES'] == 'true',
+                     'EIA Data Files Not Available On This System')
 # Skip this test if running on Travis-CI and print the given skip statement
 @unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
                  'External File Dependency Unavailable on Travis-CI')
