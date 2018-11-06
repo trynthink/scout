@@ -300,7 +300,7 @@ def ecm_list_kw_update(active_list, inactive_list):
     # prompt informing users about a special option for that case
     kw_to_inactive = user_input_ecm_kw(to_inactive_prompt_text)
     print('\nTo move all ECMs from the inactive to active list, '
-          'enter "\s" (without the double quotes) at the following '
+          'enter "\\s" (without the double quotes) at the following '
           'prompt and skip all subsequent prompts.\n')
     kw_to_active = user_input_ecm_kw(to_active_prompt_text)
 

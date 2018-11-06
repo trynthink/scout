@@ -51,8 +51,8 @@ class UsefulVars(object):
         self.json_out = 'mseg_res_cdiv.json'
         self.res_tloads = 'Res_TLoads_Final.txt'
         self.aeo_metadata = 'metadata.json'
-        self.unused_supply_re = '^\(b\'(SF|ST |FP).*'
-        self.unused_demand_re = '^\(b\'(?!(HT|CL|SH)).*'
+        self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
+        self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
 
 
 # Define a series of dicts that will translate imported JSON

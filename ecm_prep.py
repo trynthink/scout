@@ -850,7 +850,7 @@ class EPlusGlobals(object):
                     for k2 in self.vintage_sf.keys():
                         # Find the limits of the cbecs vintage bin
                         cbecs_match = re.search(
-                            '(\D*)(\d*)(\s*)(\D*)(\s*)(\d*)', k2)
+                            r'(\D*)(\d*)(\s*)(\D*)(\s*)(\d*)', k2)
                         cbecs_t1 = cbecs_match.group(2)
                         cbecs_t2 = cbecs_match.group(6)
                         # Handle a 'Before Year X' case in cbecs (e.g., 'Before
@@ -3097,7 +3097,7 @@ class Measure(object):
         """
         # Separate cost units into the cost year and everything else
         cost_meas_units_unpack, cost_base_units_unpack = [re.search(
-            '(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
+            r'(\d*)(.*)', x) for x in [cost_meas_units, cost_base_units]]
         # Establish measure and baseline cost year
         cost_meas_yr, cost_base_yr = \
             cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)
