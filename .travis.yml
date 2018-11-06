@@ -12,6 +12,14 @@ python:
   - "3.5"
   - "3.6"
 
+# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
+# This configuration is described in https://github.com/travis-ci/travis-ci/issues/9815#issue-336465122
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
 # Download and set up anaconda
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
@@ -30,7 +38,7 @@ install:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.4" ]]; then
       conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy flake8 requests;
     else
-      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.13 scipy flake8 requests;
+      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.15 scipy flake8 requests;
     fi
   - source activate testenv
 

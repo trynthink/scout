@@ -231,7 +231,7 @@ def single_tech_selector(tech_array, specific_name):
         # in the data using a regex set up to match any text '.+?' that
         # appears before the first occurrence of a space followed by a
         # 2 and three other numbers (i.e., 2009 or 2035)
-        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
+        tech_name = re.search(r'.+?(?=\s2[0-9]{3})', row['technology name'])
 
         # If the technology name regex returned a match, check if there
         # is a match for a linear fluorescent lighting technology; in
@@ -552,7 +552,7 @@ def tech_names_extractor(tech_array):
         # in the data using a regex set up to match any text '.+?' that
         # appears before the first occurrence of a space followed by a
         # 2 and three other numbers (e.g., 2009 or 2035)
-        tech_name = re.search('.+?(?=\s2[0-9]{3})', row['technology name'])
+        tech_name = re.search(r'.+?(?=\s2[0-9]{3})', row['technology name'])
 
         # If the regex matched, check the matching text to see if it
         # corresponds to a linear fluorescent lighting technology
