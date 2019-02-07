@@ -310,11 +310,13 @@ class Engine(object):
                                 "Heating (Equip.)", "Cooling (Equip.)",
                                 "Envelope"]))):
                         end_uses.append(euse[0])
-                # Find secondary end use categories
+                # Assign secondary heating/cooling microsegments that
+                # represent waste heat from lights to the 'Lighting' end use
+                # category
                 if m.end_use["secondary"] is not None and any([
                     x in m.end_use["secondary"] for x in [
-                        "heating", "cooling"]]) and "Envelope" not in end_uses:
-                    end_uses.append("Envelope")
+                        "heating", "cooling"]]) and "Lighting" not in end_uses:
+                    end_uses.append("Lighting")
 
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
@@ -2203,15 +2205,17 @@ class Engine(object):
                     # neither performance value is negative for the comparison
                     if (all([type(x) != numpy.ndarray for x in [
                         rel_perf_tech, rel_perf_tech_overlp]]) and
-                        (rel_perf_tech + rel_perf_tech_overlp) != 0) or (
+                        (abs(1 - rel_perf_tech) +
+                         abs(1 - rel_perf_tech_overlp) != 0)) or (
                         any([type(x) == numpy.ndarray for x in [
                             rel_perf_tech, rel_perf_tech_overlp]]) and
                         all([x != 0 for x in (
-                            rel_perf_tech + rel_perf_tech_overlp)])):
-                        save_ratio = abs(rel_perf_tech) / (abs(
-                            rel_perf_tech) + abs(rel_perf_tech_overlp))
+                            abs(1 - rel_perf_tech) +
+                            abs(1 - rel_perf_tech_overlp))])):
+                        save_ratio = abs(1 - rel_perf_tech) / (abs(
+                            1 - rel_perf_tech) + abs(1 - rel_perf_tech_overlp))
                     else:
-                        save_ratio = 1
+                        save_ratio = 0.5
 
                     # Use the affected overlap fraction, savings ratio, and
                     # overlapping relative performance calculated above to
@@ -2227,7 +2231,7 @@ class Engine(object):
                             # microsegments, plus the portion of affected
                             # energy use saved by the overlapping microsegments
                             adj_frac = (1 - affected_frac) + \
-                                affected_frac * (1 - save_ratio)
+                                affected_frac * save_ratio
                         else:
                             mastlist, adjlist = [mast_list_eff, adj_list_eff]
                             # Adjust efficient data in the same way as
@@ -2235,7 +2239,7 @@ class Engine(object):
                             # for the energy savings benefits of the
                             # overlapping microsegments
                             adj_frac = (1 - affected_frac) + \
-                                affected_frac * (1 - save_ratio) * \
+                                affected_frac * save_ratio * \
                                 rel_perf_tech_overlp
                         # Adjust the total and competed energy, carbon, and
                         # associated cost data for both the ECM's current

@@ -2456,7 +2456,10 @@ class Measure(object):
                         # heating/cooling microsegments map to the
                         # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
                         # 'demand' side heating/cooling microsegments map to
-                        # the 'Envelope' end use
+                        # the 'Envelope' end use, with the exception of
+                        # 'demand' side heating/cooling microsegments that
+                        # represent waste heat from lights - these are
+                        # categorized as part of the 'Lighting' end use
                         if mskeys[4] == "other":
                             if mskeys[5] == "freezers":
                                 out_eu = "Refrigeration"
@@ -2467,10 +2470,13 @@ class Measure(object):
                                           "Cooling (Equip.)"] and
                                 mskeys[5] == "supply") or (
                                 eu[0] == "Envelope" and
-                                mskeys[5] == "demand") or (
+                                mskeys[5] == "demand" and
+                                mskeys[0] == "primary") or (
                                 eu[0] not in ["Heating (Equip.)",
                                               "Cooling (Equip.)", "Envelope"]):
                                 out_eu = eu[0]
+                        elif "lighting gain" in mskeys:
+                            out_eu = "Lighting"
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
@@ -2485,30 +2491,34 @@ class Measure(object):
                     try:
                         # If this is the first time the output breakout
                         # dictionary is being updated, replace appropriate
-                        # terminal leaf node value with the baseline energy use
-                        # values of the current contributing microsegment
+                        # terminal leaf node value with the absolute baseline
+                        # energy use values of the current contributing
+                        # microsegment
                         if len(self.markets[adopt_scheme]["mseg_out_break"][
                                 out_cz][out_bldg][out_eu].keys()) == 0:
                             self.markets[adopt_scheme]["mseg_out_break"][
-                                out_cz][out_bldg][out_eu] = \
-                                OrderedDict(sorted(add_energy_total.items()))
+                                out_cz][out_bldg][out_eu] = {
+                                    yr: abs(add_energy[yr]) for
+                                    yr in self.handyvars.aeo_years}
 
                         # If the output breakout dictionary has already been
-                        # updated for a previous microsegment, add the baseline
-                        # energy values of the current contributing
+                        # updated for a previous microsegment, add the absolute
+                        # baseline energy values of the current contributing
                         # microsegment to the dictionary's existing terminal
                         # leaf node values
                         else:
                             for yr in self.handyvars.aeo_years:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     out_cz][out_bldg][
-                                    out_eu][yr] += add_energy_total[yr]
-                        # Add to the total energy value used to normalize
-                        # savings values summed by climate zone, building
-                        # type, and end use
+                                    out_eu][yr] += abs(add_energy[yr])
+
+                        # Add to the total absolute energy value used to
+                        # normalize savings values summed by climate zone,
+                        # building type, and end use
                         for yr in self.out_break_norm[adopt_scheme].keys():
                             self.out_break_norm[
-                                adopt_scheme][yr] += add_energy_total[yr]
+                                adopt_scheme][yr] += abs(add_energy[yr])
+
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
                     except KeyError:
