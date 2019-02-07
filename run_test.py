@@ -1639,9 +1639,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "total": {
                         yr: 10 for yr in cls.handyvars.aeo_years},
                     "total affected": {
-                        yr: 5 for yr in cls.handyvars.aeo_years},
+                        yr: 10 for yr in cls.handyvars.aeo_years},
                     "affected savings": {
-                        yr: 5 for yr in cls.handyvars.aeo_years}},
+                        yr: 0 for yr in cls.handyvars.aeo_years}},
             },
             "demand": {(
                 "['AIA_CZ1', 'single family home', 'existing', " +
@@ -1649,9 +1649,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "total": {
                         yr: 10 for yr in cls.handyvars.aeo_years},
                     "total affected": {
-                        yr: 5 for yr in cls.handyvars.aeo_years},
+                        yr: 10 for yr in cls.handyvars.aeo_years},
                     "affected savings": {
-                        yr: 5 for yr in cls.handyvars.aeo_years}},
+                        yr: 0 for yr in cls.handyvars.aeo_years}},
             }}
         cls.compete_meas1 = {
             "name": "sample compete measure r1",
