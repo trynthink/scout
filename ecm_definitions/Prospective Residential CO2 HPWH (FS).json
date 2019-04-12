@@ -4,7 +4,7 @@
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "water heating",
-  "fuel_type": "all",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
   "market_entry_year": 2020,
   "market_entry_year_source": {
@@ -87,10 +87,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-15"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-09-27 15:30 UTC"
-  }
+  },
+  {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Nov 16 10:13:32 EST 2018"
+  }]
 }

@@ -802,9 +802,9 @@ def main():
 
     # Based on input from the user to indicate what type of data are
     # being processed, assign the object values for its four attributes
-    if input_var is '1':
+    if input_var == '1':
         handyvars.configure_for_energy_square_footage_stock_data()
-    elif input_var is '2':
+    elif input_var == '2':
         handyvars.configure_for_cost_performance_lifetime_data()
 
     # Import the residential census division to climate zone conversion data
@@ -836,9 +836,9 @@ def main():
         # lifetime database and the cost conversion factors database,
         # then add those data to the microsegments data that were just
         # converted to a climate zone basis
-        if input_var is '2':
+        if input_var == '2':
             with open(handyvars.addl_cpl_data, 'r') as jscpl, open(
-                 handyvars.conv_factors, 'r') as jsconv:
+                    handyvars.conv_factors, 'r') as jsconv:
                 jscpl_data = json.load(jscpl)
                 jsconv_data = json.load(jsconv)
 

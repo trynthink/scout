@@ -820,23 +820,23 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
             # freezer technology sub-types being averaged
             if len(numpy.where(match_list["START_EQUIP_YR"] == x)[0]) == \
                ntypes:
-                    match_list_new.append(
-                        (x, numpy.average(
-                            match_list[numpy.where(
-                                match_list["START_EQUIP_YR"] == x)][
-                                "BASE_EFF"]),
-                            numpy.average(
-                            match_list[numpy.where(
-                                match_list["START_EQUIP_YR"] == x)][
-                                "INST_COST"]),
-                            numpy.average(
-                            match_list[numpy.where(
-                                match_list["START_EQUIP_YR"] == x)]
-                                ["EFF_CHOICE_P1"]),
-                            numpy.average(
-                            match_list[numpy.where(
-                                match_list["START_EQUIP_YR"] == x)]
-                                ["EFF_CHOICE_P2"])))
+                match_list_new.append(
+                    (x, numpy.average(
+                        match_list[numpy.where(
+                            match_list["START_EQUIP_YR"] == x)][
+                            "BASE_EFF"]),
+                        numpy.average(
+                        match_list[numpy.where(
+                            match_list["START_EQUIP_YR"] == x)][
+                            "INST_COST"]),
+                        numpy.average(
+                        match_list[numpy.where(
+                            match_list["START_EQUIP_YR"] == x)]
+                            ["EFF_CHOICE_P1"]),
+                        numpy.average(
+                        match_list[numpy.where(
+                            match_list["START_EQUIP_YR"] == x)]
+                            ["EFF_CHOICE_P2"])))
             else:
                 raise ValueError('Technology sub-type year bins inconsistent!')
 

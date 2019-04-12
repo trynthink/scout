@@ -23,7 +23,7 @@ class MyEncoder(json.JSONEncoder):
         """Modify 'default' method from JSONEncoder."""
         # Case where object to be serialized is numpy array
         if isinstance(obj, numpy.ndarray):
-                return obj.tolist()
+            return obj.tolist()
         # All other cases
         else:
             return super(MyEncoder, self).default(obj)
@@ -1242,35 +1242,35 @@ class Measure(object):
         elif "lighting" in self.end_use["primary"] and \
             any([x not in ["single family home", "multi family home",
                            "mobile home"] for x in self.bldg_type]):
-                    # Set secondary lighting mseg performance flag to True
-                    light_scnd_autoperf = True
-                    # Set secondary energy efficiency value to "Missing"
-                    # (used below as a flag)
-                    self.energy_efficiency["secondary"] = \
-                        "Missing (secondary lighting)"
-                    # Set secondary energy efficiency units to "relative
-                    # savings"
-                    self.energy_efficiency_units["secondary"] = \
-                        "relative savings (constant)"
-                    # Set secondary fuel type to include all heating/cooling
-                    # fuels
-                    self.fuel_type["secondary"] = [
-                        "electricity", "natural gas", "distillate"]
-                    # Set relevant secondary end uses
-                    self.end_use["secondary"] = ["heating", "cooling"]
-                    # Set secondary technology type ("demand" as the lighting
-                    # measure affects heating/cooling loads)
-                    self.technology_type["secondary"] = "demand"
-                    # Set secondary technology class to "lighting gain", which
-                    # will access the portion of commercial heating/cooling
-                    # demand that is attributable to waste heat from lights
-                    self.technology["secondary"] = "lighting gain"
+            # Set secondary lighting mseg performance flag to True
+            light_scnd_autoperf = True
+            # Set secondary energy efficiency value to "Missing"
+            # (used below as a flag)
+            self.energy_efficiency["secondary"] = \
+                "Missing (secondary lighting)"
+            # Set secondary energy efficiency units to "relative
+            # savings"
+            self.energy_efficiency_units["secondary"] = \
+                "relative savings (constant)"
+            # Set secondary fuel type to include all heating/cooling
+            # fuels
+            self.fuel_type["secondary"] = [
+                "electricity", "natural gas", "distillate"]
+            # Set relevant secondary end uses
+            self.end_use["secondary"] = ["heating", "cooling"]
+            # Set secondary technology type ("demand" as the lighting
+            # measure affects heating/cooling loads)
+            self.technology_type["secondary"] = "demand"
+            # Set secondary technology class to "lighting gain", which
+            # will access the portion of commercial heating/cooling
+            # demand that is attributable to waste heat from lights
+            self.technology["secondary"] = "lighting gain"
 
-                    # Determine secondary microsegment key chains and add to
-                    # the primary microsegment key chain list
-                    ms_iterable_second, ms_lists_second = self.create_keychain(
-                        "secondary")
-                    ms_iterable.extend(ms_iterable_second)
+            # Determine secondary microsegment key chains and add to
+            # the primary microsegment key chain list
+            ms_iterable_second, ms_lists_second = self.create_keychain(
+                "secondary")
+            ms_iterable.extend(ms_iterable_second)
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
@@ -1434,28 +1434,28 @@ class Measure(object):
                     # FIX IN FUTURE UI VERSION ***
                     if isinstance(perf_meas, dict) and "undefined" in \
                        perf_meas.keys():
-                            perf_meas = perf_meas["undefined"]
+                        perf_meas = perf_meas["undefined"]
                     if isinstance(perf_units, dict) and "undefined" in \
                        perf_units.keys():
-                            perf_units = perf_units["undefined"]
+                        perf_units = perf_units["undefined"]
                     if isinstance(cost_meas, dict) and "undefined" in \
                        cost_meas.keys():
-                            cost_meas = cost_meas["undefined"]
+                        cost_meas = cost_meas["undefined"]
                     if isinstance(cost_units, dict) and "undefined" in \
                        cost_units.keys():
-                            cost_units = cost_units["undefined"]
+                        cost_units = cost_units["undefined"]
                     if isinstance(life_meas, dict) and "undefined" in \
                        life_meas.keys():
-                            life_meas = life_meas["undefined"]
+                        life_meas = life_meas["undefined"]
 
                     # Restrict any measure cost/performance/lifetime/market
                     # scaling info. that is a dict type to key chain info.
                     if isinstance(perf_meas, dict) and mskeys[i] in \
                        perf_meas.keys():
-                            perf_meas = perf_meas[mskeys[i]]
+                        perf_meas = perf_meas[mskeys[i]]
                     if isinstance(perf_units, dict) and mskeys[i] in \
                        perf_units.keys():
-                            perf_units = perf_units[mskeys[i]]
+                        perf_units = perf_units[mskeys[i]]
                     if isinstance(cost_meas, dict) and mskeys[i] in \
                        cost_meas.keys():
                         cost_meas = cost_meas[mskeys[i]]
@@ -3752,10 +3752,10 @@ class Measure(object):
             # to the associated primary microsegment)
             if mskeys[0] == "secondary" and secnd_adj_stk[
                     "original energy (total)"][secnd_mseg_adjkey][yr] != 0:
-                    competed_captured_eff_frac = secnd_adj_stk[
-                        "adjusted energy (competed and captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original energy (total)"][secnd_mseg_adjkey][yr]
+                competed_captured_eff_frac = secnd_adj_stk[
+                    "adjusted energy (competed and captured)"][
+                    secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                    "original energy (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment and year when measure is on the market
             else:
                 competed_captured_eff_frac = competed_frac * diffuse_eff_frac
