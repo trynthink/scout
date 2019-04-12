@@ -73,10 +73,10 @@
     "electricity":{
       "heating": 0,
       "cooling": 0.542,
-      "water heating": 1},
+      "water heating": 0},
     "natural gas": 1},
   "market_scaling_fractions_source": {
-    "heating": "Applies to all residential gas heating and water heating; no electric heating or water heating is switched",
+    "heating": "Applies to all residential gas heating; no electric heating is switched",
     "cooling": {
       "title": "RECS 2015 - Tables HC6.1 and HC7.1",
       "author": null,
@@ -84,7 +84,8 @@
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/residential/data/2015",
       "fraction_derivation": "Cooling multiple of 54.2% was determined as a proportion of total cooled homes where heating is done using natural gas from RECS 2015 microdata. Total cooled homes in the sample was found to be 103,100,000, and then filtered for square footage where natural gas is used for heating 55,900,000."
-    }
+    },
+    "water heating": "Applies to all residential gas water heating; no electric water heating is switched"
   },
   "_description": "Prospective integrated (or multifunction) air-source heat pump",
   "_notes": null,
@@ -94,10 +95,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-14"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-09 21:45 UTC"
-  }
+  },
+  {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Nov 16 10:13:32 EST 2018"
+  }]
 }

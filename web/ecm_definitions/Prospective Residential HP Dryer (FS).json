@@ -4,7 +4,7 @@
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "drying",
-  "fuel_type": "all",
+  "fuel_type": "natural gas",
   "technology": "all",
   "market_entry_year": 2020,
   "market_entry_year_source": {
@@ -79,10 +79,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-17"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-09-27 16:45 UTC"
-  }
+  },
+  {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Nov 15 16:54:35 EST 2018"
+  }]
 }

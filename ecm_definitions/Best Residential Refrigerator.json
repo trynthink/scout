@@ -22,35 +22,35 @@
   "energy_efficiency_units": "kWh/yr",
   "energy_efficiency_source": {
     "notes": "Average of high efficiency performance for top, side, and bottom-mount refrigerator/freezers in 2017",
-    "source_data": {
+    "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+      "pages": [65, 66, 67],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
   "installed_cost": 1340,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Average of high efficiency installed cost for top, side, and bottom-mount refrigerator/freezers in 2017",
-    "source_data": {
+    "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+      "pages": [65, 66, 67],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
   "product_lifetime": 17,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Median of lifetime across high efficiency top, side, and bottom-mount refrigerator/freezers in 2017",
-    "source_data": {
+    "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+      "pages": [65, 66, 67],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,

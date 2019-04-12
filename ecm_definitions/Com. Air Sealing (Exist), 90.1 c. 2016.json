@@ -1,0 +1,79 @@
+{
+  "name": "Com. Air Sealing (Exist), 90.1 c. 2016",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "existing",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "infiltration",
+  "market_entry_year": 2014,
+  "market_entry_year_source": {
+    "notes": "90.1-2016 whole envelope air leakage requirement",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2016",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.4,
+  "energy_efficiency_units": "CFM/ft^2 @ 0.3 in. w.c.",
+  "energy_efficiency_source": {
+    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2016",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+    },
+  "installed_cost": 0.876,
+  "cost_units": "2016$/ft^2 wall",
+  "installed_cost_source": {
+    "notes": "Based on cost premium-per-% performance improvement implied by residential 'IECC - existing' air sealing measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $0.42/ft^2 wall per 35% performance improvement in existing buildings in 2017; thus the cost premium to add to the baseline commercial infiltration cost of $0/ft^2 wall is $2.2/ft^2 wall in existing buildings ($0.42/ft^2 wall premium / 35% improvement)*(73% improvement for commercial infiltration in existing buildings in AIA CZ1 in 2017 (1 - 0.4/1.5))",
+    "source_data": {
+      "title": "Scout Baseline Envelope Cost and Performance Data",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 100,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed equal to the lifetime of the building",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "90.1-2016 commercial whole envelope air leakage requirement",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 16:51:49 EDT 2018"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
