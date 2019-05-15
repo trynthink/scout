@@ -21,7 +21,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 2.83,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "Converted from primary energy factor (0.94) to EF (from Table 4 in document), multiply by 3.01",
     "source_data": {

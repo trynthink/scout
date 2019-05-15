@@ -50,9 +50,9 @@ class UsefulVars(object):
         self.json_out = 'cpl_res_com_cdiv.json'
         self.aeo_metadata = 'metadata.json'
 
-        self.cpl_data_skip_lines = 100
+        self.cpl_data_skip_lines = 67
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
-                                'Life', 'y1', 'y2', 'technology name']
+                                'life', 'y1', 'y2', 'technology name']
 
         self.tpp_data_skip_lines = 100
         self.tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
@@ -473,7 +473,7 @@ def life_extractor(single_tech_array, years):
         if idx_en > 0:
             if idx_st < 0:
                 idx_st = 0
-            life[idx, idx_st:idx_en] = row['Life']
+            life[idx, idx_st:idx_en] = row['life']
 
     # Calculate the mean lifetime for each column, excluding 0 values
     with warnings.catch_warnings():
@@ -1102,11 +1102,11 @@ def main():
     # EIA AEO 'KTEK' data file
     tech_dtypes = cm.dtype_array(eiadata.cpl_data, ',',
                                  handyvars.cpl_data_skip_lines)
+
     col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
                                              handyvars.columns_to_keep)
-    tech_dtypes[8] = ('Life', 'f8')  # Manual correction of lifetime data type
     tech_data = cm.data_import(eiadata.cpl_data, tech_dtypes, ',',
-                               handyvars.cpl_data_skip_lines, col_indices)
+                               handyvars.cpl_data_skip_lines + 1, col_indices)
     tech_data = cm.str_cleaner(tech_data, 'technology name')
 
     # Import EIA AEO 'KSDOUT' service demand data

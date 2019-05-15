@@ -8,7 +8,6 @@
 
 language: python
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
 
@@ -35,17 +34,11 @@ before_install:
 
 # Install packages
 install: 
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.4" ]]; then
-      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy scipy flake8 requests;
-    else
-      conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.15 scipy flake8 requests;
-    fi
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.15 scipy flake8 requests
   - source activate testenv
 
 # Run test(s)
 script: 
   - python3 -m unittest discover -p '*_test.py'
   - grunt travis -v
-  - if [[ "$TRAVIS_PYTHON_VERSION" != "3.4" ]]; then
-      flake8 --exclude docs/conf.py --max-line-length=100;
-    fi
+  - flake8 --exclude docs/conf.py --max-line-length=100

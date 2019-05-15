@@ -119,16 +119,16 @@ class CommercialTranslationDicts(object):
                               'laundry': 8,
                               'lab fridges and freezers': 9,
                               'fume hoods': 10,
-                              'medical imaging': 12,
-                              'large video boards': 13,
-                              'IT equipment': 14,
-                              'office UPS': 15,
-                              'data center UPS': 16,
-                              'shredders': 17,
-                              'private branch exchanges': 18,
-                              'voice-over-IP telecom': 19,
-                              'water services': 20,  # non-building
-                              'telecom systems': 21  # non-building
+                              'medical imaging': 11,
+                              'large video boards': 12,
+                              'IT equipment': 13,
+                              'office UPS': 14,
+                              'data center UPS': 15,
+                              'shredders': 16,
+                              'private branch exchanges': 17,
+                              'voice-over-IP telecom': 18,
+                              'water services': 19,  # non-building
+                              'telecom systems': 20  # non-building
                               }
 
         self.fueldict = {'electricity': 1,
@@ -703,6 +703,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # of data in the ktek data file
         if hl:
             next(filecont)
+            next(filecont)
 
         # Determine dtype using the second line of the file (since the
         # first line is a header row)
@@ -940,7 +941,13 @@ def str_cleaner(data_array, column_name, return_str_len=False):
 
     # Return the appropriate objects based on the return_str_len option
     if return_str_len:
-        str_trunc_len_final = str_trunc_list[0]  # Obtain standalone integer
+        try:
+            # Obtain standalone integer from list
+            str_trunc_len_final = str_trunc_list[0]
+        except IndexError:
+            # If the list is empty, all of the truncation lengths were
+            # equal to 50, so set the truncation length to 50
+            str_trunc_len_final = 50
         return data_array, str_trunc_len_final
     else:
         return data_array

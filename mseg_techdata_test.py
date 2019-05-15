@@ -130,99 +130,121 @@ class ListGeneratorTest(unittest.TestCase):
 
     # Define a test input array in the format of EIA performance, cost, and
     # consumer choice data on non-lighting technologies
-    eia_nlt_cp = numpy.array([(1, 2005, 2040, 3, 4.5, 3000, 2, 3, b"ELEC_RAD"),
+    eia_nlt_cp = numpy.array([(
+                              1, 2005, 2040, 3, 4.5, 3000, 2, 3, b"ELEC_RAD2"),
                               (1, 2010, 2011, 1, 2.65, 1200, 1, 2,
-                               b"ELEC_HP1"),
-                              (1, 2011, 2012, 1, 3.1, 1250, 1, 2, b"ELEC_HP1"),
-                              (1, 2012, 2014, 1, 4.5, 1450, 1, 2, b"ELEC_HP1"),
-                              (1, 2014, 2040, 1, 5, 2000, 1, 2, b"ELEC_HP1"),
+                               b"ELEC_HP2"),
+                              (1, 2011, 2012, 1, 3.1, 1250, 1, 2, b"ELEC_HP2"),
+                              (1, 2012, 2014, 1, 4.5, 1450, 1, 2, b"ELEC_HP2"),
+                              (1, 2014, 2040, 1, 5, 2000, 1, 2, b"ELEC_HP2"),
                               (1, 2010, 2011, 2, 3.65, 1200, 5, 6,
-                               b"ELEC_HP1"),
-                              (1, 2011, 2012, 2, 4.1, 1250, 5, 6, b"ELEC_HP1"),
-                              (1, 2012, 2014, 2, 5.5, 1450, 5, 6, b"ELEC_HP1"),
-                              (1, 2014, 2040, 2, 6, 2000, 5, 6, b"ELEC_HP1"),
-                              (1, 2014, 2040, 2, 5, 2000, 5, 6, b"ELEC_HP1"),
+                               b"ELEC_HP2"),
+                              (1, 2011, 2012, 2, 4.1, 1250, 5, 6, b"ELEC_HP2"),
+                              (1, 2012, 2014, 2, 5.5, 1450, 5, 6, b"ELEC_HP2"),
+                              (1, 2014, 2040, 2, 6, 2000, 5, 6, b"ELEC_HP2"),
+                              (1, 2014, 2040, 2, 5, 2000, 5, 6, b"ELEC_HP2"),
                               (2, 2010, 2013, 3, 4.65, 1400, 3, 4,
-                               b"ELEC_HP1"),
-                              (2, 2013, 2040, 3, 5.1, 1450, 3, 4, b"ELEC_HP1"),
+                               b"ELEC_HP2"),
+                              (2, 2013, 2040, 3, 5.1, 1450, 3, 4, b"ELEC_HP2"),
                               (1, 2005, 2010, 1, 2.75, 1200, 1, 2,
-                               b"ELEC_HP2"),
+                               b"ELEC_HP3"),
                               (1, 2010, 2011, 1, 2.75, 1250, 1, 2,
-                               b"ELEC_HP2"),
-                              (1, 2011, 2012, 1, 3.2, 1270, 1, 2, b"ELEC_HP2"),
-                              (1, 2012, 2014, 1, 4.6, 1800, 1, 2, b"ELEC_HP2"),
-                              (1, 2014, 2040, 1, 5.1, 1900, 1, 2, b"ELEC_HP2"),
+                               b"ELEC_HP3"),
+                              (1, 2011, 2012, 1, 3.2, 1270, 1, 2, b"ELEC_HP3"),
+                              (1, 2012, 2014, 1, 4.6, 1800, 1, 2, b"ELEC_HP3"),
+                              (1, 2014, 2040, 1, 5.1, 1900, 1, 2, b"ELEC_HP3"),
                               (1, 2005, 2010, 1, 2.8, 1000, 1, 2, b"ELEC_HP4"),
                               (1, 2010, 2011, 1, 2.9, 1300, 1, 2, b"ELEC_HP4"),
                               (1, 2011, 2012, 1, 3.3, 1400, 1, 2, b"ELEC_HP4"),
                               (1, 2012, 2014, 1, 4.8, 1500, 1, 2, b"ELEC_HP4"),
                               (1, 2014, 2040, 1, 6, 2000, 1, 2, b"ELEC_HP4"),
-                              (5, 2007, 2040, 4, 3, 1000, 7, 8, b"ELEC_WH1"),
-                              (5, 2005, 2009, 4, 2.8, 1000, 7, 8, b"NG_WH#1"),
-                              (5, 2009, 2040, 4, 2.9, 1300, 7, 8, b"NG_WH#1"),
-                              (5, 2005, 2009, 4, 2.9, 1000, 7, 8, b"NG_WH#2"),
-                              (5, 2009, 2040, 4, 3.2, 1300, 7, 8, b"NG_WH#2"),
-                              (5, 2005, 2009, 4, 3.2, 2000, 7, 8, b"NG_WH#4"),
-                              (5, 2009, 2040, 4, 3.5, 1500, 7, 8, b"NG_WH#4"),
-                              (5, 2005, 2009, 5, 2.8, 1000, 7, 8, b"NG_WH#1"),
-                              (5, 2009, 2040, 5, 2.9, 1300, 7, 8, b"NG_WH#1"),
-                              (5, 2005, 2009, 5, 2.9, 1000, 7, 8, b"NG_WH#2"),
-                              (5, 2009, 2040, 5, 3.2, 1300, 7, 8, b"NG_WH#2"),
-                              (5, 2005, 2009, 5, 3.2, 2000, 7, 8, b"NG_WH#4"),
-                              (5, 2009, 2040, 5, 3.5, 1500, 7, 8, b"NG_WH#4"),
-                              (6, 2010, 2011, 2, 28, 100, 6, 7, b"ELEC_STV1"),
-                              (6, 2012, 2040, 2, 29, 130, 6, 7, b"ELEC_STV1"),
-                              (6, 2010, 2011, 2, 29, 150, 6, 7, b"NG_STV1"),
-                              (6, 2012, 2040, 2, 32, 160, 6, 7, b"NG_STV1"),
-                              (6, 2010, 2011, 2, 31, 200, 6, 7, b"NG_STV2"),
-                              (6, 2012, 2040, 2, 33, 170, 6, 7, b"NG_STV2"),
-                              (6, 2010, 2011, 2, 32, 200, 6, 7, b"LPG_STV2"),
-                              (6, 2012, 2040, 2, 35, 175, 6, 7, b"LPG_STV2"),
-                              (6, 2010, 2011, 2, 33, 300, 6, 7, b"ELEC_STV2"),
-                              (6, 2012, 2040, 2, 36, 250, 6, 7, b"ELEC_STV2"),
+                              (5, 2007, 2040, 4, 3, 1000, 7, 8, b"ELEC_WH2"),
+                              (5, 2005, 2009, 4, 2.8, 1000, 7, 8, b"NG_WH2"),
+                              (5, 2009, 2040, 4, 2.9, 1300, 7, 8, b"NG_WH2"),
+                              (5, 2005, 2009, 4, 2.9, 1000, 7, 8, b"NG_WH3"),
+                              (5, 2009, 2040, 4, 3.2, 1300, 7, 8, b"NG_WH3"),
+                              (5, 2005, 2009, 4, 3.2, 2000, 7, 8, b"NG_WH4"),
+                              (5, 2009, 2040, 4, 3.5, 1500, 7, 8, b"NG_WH4"),
+                              (5, 2005, 2009, 5, 2.8, 1000, 7, 8, b"NG_WH2"),
+                              (5, 2009, 2040, 5, 2.9, 1300, 7, 8, b"NG_WH2"),
+                              (5, 2005, 2009, 5, 2.9, 1000, 7, 8, b"NG_WH3"),
+                              (5, 2009, 2040, 5, 3.2, 1300, 7, 8, b"NG_WH3"),
+                              (5, 2005, 2009, 5, 3.2, 2000, 7, 8, b"NG_WH4"),
+                              (5, 2009, 2040, 5, 3.5, 1500, 7, 8, b"NG_WH4"),
+                              (6, 2010, 2011, 2, 28, 100, 6, 7, b"ELEC_STV2"),
+                              (6, 2012, 2040, 2, 29, 130, 6, 7, b"ELEC_STV2"),
+                              (6, 2010, 2011, 2, 29, 150, 6, 7, b"NG_STV2"),
+                              (6, 2012, 2040, 2, 32, 160, 6, 7, b"NG_STV2"),
+                              (6, 2010, 2011, 2, 31, 200, 6, 7, b"NG_STV4"),
+                              (6, 2012, 2040, 2, 33, 170, 6, 7, b"NG_STV4"),
+                              (6, 2010, 2011, 2, 32, 200, 6, 7, b"LPG_STV4"),
+                              (6, 2012, 2040, 2, 35, 175, 6, 7, b"LPG_STV4"),
+                              (6, 2010, 2011, 2, 33, 300, 6, 7, b"ELEC_STV4"),
+                              (6, 2012, 2040, 2, 36, 250, 6, 7, b"ELEC_STV4"),
                               (7, 2010, 2011, 2, 128, 1010, 0, 1,
                                b"ELEC_DRY1"),
                               (7, 2012, 2040, 2, 129, 1310, 0, 1,
                                b"ELEC_DRY1"),
-                              (7, 2010, 2011, 2, 129, 1510, 0, 1, b"NG_DRY1"),
-                              (7, 2012, 2040, 2, 132, 1610, 0, 1, b"NG_DRY1"),
-                              (7, 2010, 2011, 2, 131, 2010, 0, 1, b"NG_DRY2"),
-                              (7, 2012, 2040, 2, 133, 1710, 0, 1, b"NG_DRY2"),
+                              (7, 2010, 2011, 2, 129, 1510, 0, 1, b"NG_DRY2"),
+                              (7, 2012, 2040, 2, 132, 1610, 0, 1, b"NG_DRY2"),
+                              (7, 2010, 2011, 2, 131, 2010, 0, 1, b"NG_DRY4"),
+                              (7, 2012, 2040, 2, 133, 1710, 0, 1, b"NG_DRY4"),
                               (7, 2010, 2011, 2, 133, 3010, 0, 1,
                                b"ELEC_DRY2"),
                               (7, 2012, 2040, 2, 136, 2510, 0, 1,
                                b"ELEC_DRY2"),
-                              (3, 2010, 2040, 3, 15, 150, 4, 5, b"CW#1"),
-                              (3, 2010, 2040, 3, 12, 175, 4, 5, b"CW#2"),
-                              (3, 2010, 2040, 3, 10, 300, 4, 5, b"CW#3"),
-                              (8, 2005, 2009, 3, 200, 300, 6, 6, b"RefSF#1"),
-                              (8, 2009, 2013, 3, 300, 250, 6, 6, b"RefSF#1"),
-                              (8, 2013, 2040, 3, 400, 200, 6, 6, b"RefSF#1"),
-                              (8, 2005, 2009, 3, 300, 400, 7, 7, b"RefBF#1"),
-                              (8, 2009, 2013, 3, 400, 300, 7, 7, b"RefBF#1"),
-                              (8, 2013, 2040, 3, 500, 200, 7, 7, b"RefBF#1"),
-                              (8, 2005, 2009, 3, 500, 500, 8, 8, b"RefTF#1"),
-                              (8, 2009, 2013, 3, 600, 400, 8, 8, b"RefTF#1"),
-                              (8, 2013, 2040, 3, 700, 300, 8, 8, b"RefTF#1"),
-                              (8, 2005, 2009, 3, 800, 800, 6, 6, b"RefSF#2"),
-                              (8, 2009, 2013, 3, 900, 700, 6, 6, b"RefSF#2"),
-                              (8, 2013, 2040, 3, 1000, 600, 6, 6, b"RefSF#2"),
-                              (8, 2005, 2009, 3, 900, 200, 6, 6, b"RefBF#2"),
-                              (8, 2009, 2013, 3, 1000, 100, 6, 6, b"RefBF#2"),
-                              (8, 2013, 2040, 3, 1100, 50, 6, 6, b"RefBF#2"),
-                              (8, 2005, 2009, 3, 900, 1400, 6, 6, b"RefTF#3"),
-                              (8, 2009, 2013, 3, 950, 1200, 6, 6, b"RefTF#3"),
-                              (8, 2013, 2040, 3, 1000, 1100, 6, 6, b"RefTF#3"),
-                              (8, 2005, 2009, 3, 1500, 700, 6, 6, b"RefTF#2"),
-                              (8, 2009, 2013, 3, 1600, 650, 6, 6, b"RefTF#2"),
-                              (8, 2013, 2040, 3, 1700, 550, 6, 6, b"RefTF#2"),
-                              (8, 2005, 2009, 1, 1500, 700, 6, 6, b"RefTF#2"),
-                              (8, 2009, 2013, 1, 1600, 650, 6, 6, b"RefTF#2"),
-                              (8, 2013, 2040, 1, 1700, 550, 6, 6, b"RefTF#2"),
-                              (2, 2005, 2009, 4, 2.75, 500, 6, 6, b"NG_HP"),
-                              (2, 2009, 2011, 4, 2.95, 550, 6, 6, b"NG_HP"),
-                              (2, 2011, 2050, 4, 3.15, 575, 6, 6, b"NG_HP"),
-                              (1, 2009, 2050, 3, 3.15, 575, 6, 6, b"NG_RAD")
+                              (3, 2010, 2020, 3, 15, 150, 4, 5, b"CL_WASH_T2"),
+                              (3, 2020, 2040, 3, 15, 150, 4, 5, b"CL_WASH_T2"),
+                              (3, 2010, 2040, 3, 12, 175, 4, 5, b"CL_WASH_T3"),
+                              (3, 2010, 2040, 3, 10, 300, 4, 5, b"CL_WASH_T4"),
+                              (3, 2010, 2040, 3, 15, 150, 4, 5, b"CL_WASH_F2"),
+                              (3, 2010, 2040, 3, 12, 175, 4, 5, b"CL_WASH_F3"),
+                              (3, 2010, 2040, 3, 10, 300, 4, 5, b"CL_WASH_F4"),
+                              (8, 2005, 2009, 3, 200, 300, 6, 6, b"REFR_SF2"),
+                              (8, 2009, 2013, 3, 300, 250, 6, 6, b"REFR_SF2"),
+                              (8, 2013, 2040, 3, 400, 200, 6, 6, b"REFR_SF2"),
+                              (8, 2005, 2009, 3, 300, 400, 7, 7, b"REFR_BF2"),
+                              (8, 2009, 2013, 3, 400, 300, 7, 7, b"REFR_BF2"),
+                              (8, 2013, 2040, 3, 500, 200, 7, 7, b"REFR_BF2"),
+                              (8, 2005, 2009, 3, 500, 500, 8, 8, b"REFR_TF2"),
+                              (8, 2009, 2013, 3, 600, 400, 8, 8, b"REFR_TF2"),
+                              (8, 2013, 2040, 3, 700, 300, 8, 8, b"REFR_TF2"),
+                              (8, 2005, 2009, 3, 800, 800, 6, 6, b"REFR_SF4"),
+                              (8, 2009, 2013, 3, 900, 700, 6, 6, b"REFR_SF4"),
+                              (8, 2013, 2040, 3, 1000, 600, 6, 6, b"REFR_SF4"),
+                              (8, 2005, 2009, 3, 900, 200, 6, 6, b"REFR_BF4"),
+                              (8, 2009, 2013, 3, 1000, 100, 6, 6, b"REFR_BF4"),
+                              (8, 2013, 2040, 3, 1100, 50, 6, 6, b"REFR_BF4"),
+                              (8, 2005, 2009, 3, 900, 1400, 6, 6, b"REFR_TF3"),
+                              (8, 2009, 2013, 3, 950, 1200, 6, 6, b"REFR_TF3"),
+                              (
+                              8, 2013, 2040, 3, 1000, 1100, 6, 6, b"REFR_TF3"),
+                              (8, 2005, 2009, 3, 1500, 700, 6, 6, b"REFR_TF4"),
+                              (8, 2009, 2013, 3, 1600, 650, 6, 6, b"REFR_TF4"),
+                              (8, 2013, 2040, 3, 1700, 550, 6, 6, b"REFR_TF4"),
+                              (8, 2005, 2009, 1, 1500, 700, 6, 6, b"REFR_TF4"),
+                              (8, 2009, 2013, 1, 1600, 650, 6, 6, b"REFR_TF4"),
+                              (8, 2013, 2040, 1, 1700, 550, 6, 6, b"REFR_TF4"),
+                              (2, 2005, 2009, 4, 2.75, 500, 6, 6, b"NG_HP2"),
+                              (2, 2009, 2011, 4, 2.95, 550, 6, 6, b"NG_HP2"),
+                              (2, 2011, 2050, 4, 3.15, 575, 6, 6, b"NG_HP2"),
+                              (2, 2005, 2009, 4, 2.75, 500, 6, 6, b"GEO_HP2"),
+                              (2, 2009, 2011, 4, 2.95, 550, 6, 6, b"GEO_HP2"),
+                              (2, 2011, 2050, 4, 3.15, 575, 6, 6, b"GEO_HP2"),
+                              (1, 2005, 2009, 4, 2.75, 500, 6, 6, b"GEO_HP2"),
+                              (1, 2009, 2011, 4, 2.95, 550, 6, 6, b"GEO_HP2"),
+                              (1, 2011, 2050, 4, 3.15, 575, 6, 6, b"GEO_HP2"),
+                              (2, 2005, 2009, 4, 2.75, 500, 6, 6, b"GEO_HP4"),
+                              (2, 2009, 2011, 4, 2.95, 550, 6, 6, b"GEO_HP4"),
+                              (2, 2011, 2050, 4, 3.15, 575, 6, 6, b"GEO_HP4"),
+                              (1, 2005, 2009, 4, 2.75, 500, 6, 6, b"GEO_HP4"),
+                              (1, 2009, 2011, 4, 2.95, 550, 6, 6, b"GEO_HP4"),
+                              (1, 2011, 2050, 4, 3.15, 575, 6, 6, b"GEO_HP4"),
+                              (1, 2009, 2050, 3, 3.15, 575, 6, 6, b"NG_RAD2"),
+                              (1, 2009, 2011, 11, 2.95, 550, 6, 6, b"NG_FA2"),
+                              (1, 2011, 2050, 11, 3.15, 575, 6, 6, b"NG_FA2"),
+                              (1, 2009, 2011, 11, 2.95, 550, 6, 6, b"NG_FA4"),
+                              (1, 2011, 2050, 11, 3.15, 575, 6, 6, b"NG_FA4")
                               ],
                              dtype=[("ENDUSE", "<i8"),
                                     ("START_EQUIP_YR", "<i8"),
@@ -252,7 +274,9 @@ class ListGeneratorTest(unittest.TestCase):
                              (8, 6.5, 11.1, b"REFR"),
                              (9, 5, 10.1, b"FREZ"),
                              (2, 2, 10, b"NG_HP"),
-                             (1, 2, 20, b"NG_FA")],
+                             (2, 2, 10, b"GEO_HP"),
+                             (1, 2, 10, b"GEO_HP"),
+                             (1, 2, 10, b"NG_FA")],
                             dtype=[("ENDUSE", "<i8"),
                                    ("LIFE_MIN", "<f8"),
                                    ("LIFE_MAX", "<f8"),
@@ -260,23 +284,35 @@ class ListGeneratorTest(unittest.TestCase):
 
     # Define a test input array in the format of EIA performance, cost, and
     # lifetime data on lighting technologies
-    eia_lt = numpy.array([(2008, 2012, 0.33, 10000, 55, b"GSL", b"Inc"),
-                          (2012, 2013, 1.03, 20000, 60, b"GSL", b"Inc"),
-                          (2013, 2017, 1.53, 35000, 61.2, b"GSL", b"Inc"),
-                          (2017, 2020, 2.75, 40000, 80.3, b"GSL", b"Inc"),
-                          (2020, 2040, 3.45, 50000, 90, b"GSL", b"Inc"),
-                          (2005, 2008, 0.35, 10000, 60, b"GSL", b"LED"),
-                          (2008, 2010, 1.13, 30000, 65, b"GSL", b"LED"),
-                          (2010, 2012, 1.55, 37000, 63.2, b"GSL", b"LED"),
-                          (2012, 2040, 2.78, 42000, 90.3, b"GSL", b"LED"),
-                          (2010, 2040, 3.71, 8000, 100.3, b"REF", b"LED")],
+    eia_lt = numpy.array([(2008, 2012, 0.33, 10000, 55, b"GSL", b"Inc",
+                           -0.95, -0.1),
+                          (2012, 2013, 1.03, 20000, 60, b"GSL", b"Inc",
+                           -0.95, -0.1),
+                          (2013, 2017, 1.53, 35000, 61.2, b"GSL", b"Inc",
+                           -0.95, -0.1),
+                          (2017, 2020, 2.75, 40000, 80.3, b"GSL", b"Inc",
+                           -0.95, -0.1),
+                          (2020, 2040, 3.45, 50000, 90, b"GSL", b"Inc",
+                           -0.95, -0.1),
+                          (2005, 2008, 0.35, 10000, 60, b"GSL", b"LED",
+                           -0.95, -0.1),
+                          (2008, 2010, 1.13, 30000, 65, b"GSL", b"LED",
+                           -0.95, -0.1),
+                          (2010, 2012, 1.55, 37000, 63.2, b"GSL", b"LED",
+                           -0.95, -0.1),
+                          (2012, 2040, 2.78, 42000, 90.3, b"GSL", b"LED",
+                           -0.95, -0.1),
+                          (2010, 2040, 3.71, 8000, 100.3, b"REF", b"LED",
+                           -0.95, -0.1)],
                          dtype=[("START_EQUIP_YR", "<i8"),
                                 ("END_EQUIP_YR", "<f8"),
                                 ("BASE_EFF", "<f8"),
                                 ("LIFE_HRS", "<f8"),
                                 ("INST_COST", "<f8"),
                                 ("NAME", "S3"),
-                                ("BULB_TYPE", "S3")])
+                                ("BULB_TYPE", "S3"),
+                                ("Beta_1", "<f8"),
+                                ("Beta_2", "<f8")])
 
     # Define a test dict in the format of BTO-defined performance, cost
     # and lifetime data on all technologies not covered by EIA data
@@ -330,14 +366,6 @@ class ListGeneratorTest(unittest.TestCase):
     years = [str(i) for i in range(2009, 2013 + 1)]
     project_dict = dict.fromkeys(years)
 
-    # Define sample technology choice parameters for residential lighting
-    # technologies (technology choice information is not included in 'eia_lt'
-    # above)
-    eia_lt_choice = {"b1": {k: -0.95
-                            for k in project_dict.keys()},
-                     "b2": {k: -0.10
-                            for k in project_dict.keys()}}
-
     # # Define sample technology choice parameters for residential envelope
     # # component technologies (technology choice information is not included
     # # for envelope component technologies in 'tech_non_eia' above)
@@ -374,7 +402,13 @@ class ListGeneratorTest(unittest.TestCase):
                      "demand", "windows conduction"],
                     ["west north central", "multi family home",
                      "electricity", "cooling",
-                     "supply", "NGHP"]]
+                     "supply", "NGHP"],
+                    ["west north central", "multi family home",
+                     "electricity", "heating", "supply", "GSHP"],
+                    ["west north central", "multi family home",
+                     "electricity", "cooling", "supply", "GSHP"],
+                    ["west north central", "multi family home",
+                     "natural gas", "heating", "supply", "furnace (NG)"]]
 
     # Define an output dict with leaf node values that should be yielded
     # by the walk_techdata function given the valid inputs above.  Output dict
@@ -396,7 +430,7 @@ class ListGeneratorTest(unittest.TestCase):
                         "2013": 1450},
             "best": {"2009": 1300, "2010": 1300, "2011": 1400, "2012": 1500,
                      "2013": 1500},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
         "lifetime": {
             "average": {"2009": 17.55, "2010": 17.55, "2011": 17.55,
@@ -428,7 +462,7 @@ class ListGeneratorTest(unittest.TestCase):
                         "2012": 316.67, "2013": 233.33},
             "best": {"2009": 483.33, "2010": 483.33, "2011": 483.33,
                      "2012": 483.33, "2013": 400},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 8.8, "2010": 8.8, "2011": 8.8, "2012": 8.8,
@@ -438,16 +472,16 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 7, "2010": 7, "2011": 7,
-                 "2012": 7, "2013": 7},
-                "b2":
-                {"2009": 7, "2010": 7, "2011": 7,
-                 "2012": 7, "2013": 7}},
-               "source": "EIA AEO"}}},
+         "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 7, "2010": 7, "2011": 7,
+               "2012": 7, "2013": 7},
+              "b2":
+              {"2009": 7, "2010": 7, "2011": 7,
+               "2012": 7, "2013": 7}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 15, "2010": 15, "2011": 15, "2012": 15,
                         "2013": 15},
@@ -460,7 +494,7 @@ class ListGeneratorTest(unittest.TestCase):
                         "2013": 150},
             "best": {"2009": 300, "2010": 300, "2011": 300, "2012": 300,
                      "2013": 300},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 12.8, "2010": 12.8, "2011": 12.8, "2012": 12.8,
@@ -470,16 +504,16 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 4, "2010": 4, "2011": 4,
-                 "2012": 4, "2013": 4},
-                "b2":
-                {"2009": 5, "2010": 5, "2011": 5,
-                 "2012": 5, "2013": 5}},
-               "source": "EIA AEO"}}},
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 4, "2010": 4, "2011": 4,
+               "2012": 4, "2013": 4},
+              "b2":
+              {"2009": 5, "2010": 5, "2011": 5,
+               "2012": 5, "2013": 5}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 29, "2010": 29, "2011": 29, "2012": 32,
                         "2013": 32},
@@ -492,7 +526,7 @@ class ListGeneratorTest(unittest.TestCase):
                         "2013": 160},
             "best": {"2009": 200, "2010": 200, "2011": 200, "2012": 170,
                      "2013": 170},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 21.45, "2010": 21.45, "2011": 21.45,
@@ -502,29 +536,29 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 6, "2010": 6, "2011": 6,
-                 "2012": 6, "2013": 6},
-                "b2":
-                {"2009": 7, "2010": 7, "2011": 7,
-                 "2012": 7, "2013": 7}},
-               "source": "EIA AEO"}}},
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6},
+              "b2":
+              {"2009": 7, "2010": 7, "2011": 7,
+               "2012": 7, "2013": 7}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 129, "2010": 129, "2011": 129, "2012": 132,
                         "2013": 132},
             "best": {"2009": 131, "2010": 131, "2011": 131, "2012": 133,
                      "2013": 133},
-            "units": "EF",
+            "units": "CEF",
             "source": "EIA AEO"},
          "installed cost": {
             "typical": {"2009": 1510, "2010": 1510, "2011": 1510, "2012": 1610,
                         "2013": 1610},
             "best": {"2009": 2010, "2010": 2010, "2011": 2010, "2012": 1710,
                      "2013": 1710},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 13.5, "2010": 13.5, "2011": 13.5, "2012": 13.5,
@@ -534,29 +568,29 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 0, "2010": 0, "2011": 0,
-                 "2012": 0, "2013": 0},
-                "b2":
-                {"2009": 1, "2010": 1, "2011": 1,
-                 "2012": 1, "2013": 1}},
-               "source": "EIA AEO"}}},
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 0, "2010": 0, "2011": 0,
+               "2012": 0, "2013": 0},
+              "b2":
+              {"2009": 1, "2010": 1, "2011": 1,
+               "2012": 1, "2013": 1}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.9, "2010": 2.9, "2011": 2.9, "2012": 2.9,
                         "2013": 2.9},
             "best": {"2009": 3.5, "2010": 3.5, "2011": 3.5, "2012": 3.5,
                      "2013": 3.5},
-            "units": "EF",
+            "units": "UEF",
             "source": "EIA AEO"},
          "installed cost": {
             "typical": {"2009": 1300, "2010": 1300, "2011": 1300, "2012": 1300,
                         "2013": 1300},
             "best": {"2009": 1500, "2010": 1500, "2011": 1500, "2012": 1500,
                      "2013": 1500},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 11.75, "2010": 11.75, "2011": 11.75,
@@ -566,16 +600,16 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 7, "2010": 7, "2011": 7,
-                 "2012": 7, "2013": 7},
-                "b2":
-                {"2009": 8, "2010": 8, "2011": 8,
-                 "2012": 8, "2013": 8}},
-               "source": "EIA AEO"}}},
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 7, "2010": 7, "2011": 7,
+               "2012": 7, "2013": 7},
+              "b2":
+              {"2009": 8, "2010": 8, "2011": 8,
+               "2012": 8, "2013": 8}},
+             "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 1.13, "2010": 1.55, "2011": 1.55, "2012": 2.78,
                         "2013": 2.78},
@@ -586,7 +620,7 @@ class ListGeneratorTest(unittest.TestCase):
             "typical": {"2009": 65, "2010": 63.2, "2011": 63.2, "2012": 90.3,
                         "2013": 90.3},
             "best": 0,
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 3.42, "2010": 4.22, "2011": 4.22, "2012": 4.79,
@@ -595,16 +629,16 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": -0.95, "2010": -0.95, "2011": -0.95,
-                 "2012": -0.95, "2013": -0.95},
-                "b2":
-                {"2009": -0.1, "2010": -0.1, "2011": -0.1,
-                 "2012": -0.1, "2013": -0.1}},
-               "source": "EIA AEO"}}},
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": -0.95, "2010": -0.95, "2011": -0.95,
+               "2012": -0.95, "2013": -0.95},
+              "b2":
+              {"2009": -0.1, "2010": -0.1, "2011": -0.1,
+               "2012": -0.1, "2013": -0.1}},
+             "source": "EIA AEO"}}},
         0,
         0,
         {"performance": {
@@ -619,7 +653,7 @@ class ListGeneratorTest(unittest.TestCase):
                         "2013": 575},
             "best": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
                      "2013": 575},
-            "units": "2013$/unit",
+            "units": "2017$/unit",
             "source": "EIA AEO"},
          "lifetime": {
             "average": {"2009": 6, "2010": 6, "2011": 6, "2012": 6,
@@ -629,16 +663,112 @@ class ListGeneratorTest(unittest.TestCase):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-              "competed market share":
-              {"model type": "logistic regression",
-               "parameters":
-               {"b1":
-                {"2009": 6, "2010": 6, "2011": 6,
-                 "2012": 6, "2013": 6},
-                "b2":
-                {"2009": 6, "2010": 6, "2011": 6,
-                 "2012": 6, "2013": 6}},
-               "source": "EIA AEO"}}}]
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6},
+              "b2":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6}},
+             "source": "EIA AEO"}}},
+        {"performance": {
+            "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                        "2013": 3.15},
+            "best": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                     "2013": 3.15},
+            "units": "COP",
+            "source": "EIA AEO"},
+         "installed cost": {
+            "typical": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                        "2013": 575},
+            "best": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                     "2013": 575},
+            "units": "2017$/unit",
+            "source": "EIA AEO"},
+         "lifetime": {
+            "average": {"2009": 6, "2010": 6, "2011": 6, "2012": 6,
+                        "2013": 6},
+            "range": {"2009": 4, "2010": 4, "2011": 4, "2012": 4,
+                      "2013": 4},
+            "units": "years",
+            "source": "EIA AEO"},
+         "consumer choice": {
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6},
+              "b2":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6}},
+             "source": "EIA AEO"}}},
+        {"performance": {
+            "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                        "2013": 3.15},
+            "best": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                     "2013": 3.15},
+            "units": "EER",
+            "source": "EIA AEO"},
+         "installed cost": {
+            "typical": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                        "2013": 575},
+            "best": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                     "2013": 575},
+            "units": "2017$/unit",
+            "source": "EIA AEO"},
+         "lifetime": {
+            "average": {"2009": 6, "2010": 6, "2011": 6, "2012": 6,
+                        "2013": 6},
+            "range": {"2009": 4, "2010": 4, "2011": 4, "2012": 4,
+                      "2013": 4},
+            "units": "years",
+            "source": "EIA AEO"},
+         "consumer choice": {
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6},
+              "b2":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6}},
+             "source": "EIA AEO"}}},
+        {"performance": {
+            "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                        "2013": 3.15},
+            "best": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
+                     "2013": 3.15},
+            "units": "AFUE",
+            "source": "EIA AEO"},
+         "installed cost": {
+            "typical": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                        "2013": 575},
+            "best": {"2009": 550, "2010": 550, "2011": 575, "2012": 575,
+                     "2013": 575},
+            "units": "2017$/unit",
+            "source": "EIA AEO"},
+         "lifetime": {
+            "average": {"2009": 6, "2010": 6, "2011": 6, "2012": 6,
+                        "2013": 6},
+            "range": {"2009": 4, "2010": 4, "2011": 4, "2012": 4,
+                      "2013": 4},
+            "units": "years",
+            "source": "EIA AEO"},
+         "consumer choice": {
+            "competed market share":
+            {"model type": "logistic regression",
+             "parameters":
+             {"b1":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6},
+              "b2":
+              {"2009": 6, "2010": 6, "2011": 6,
+               "2012": 6, "2013": 6}},
+             "source": "EIA AEO"}}}]
 
     def dict_check(self, dict1, dict2, msg=None):
         """Compare two dicts for equality, allowing for floating point error.
@@ -690,7 +820,6 @@ class ListGeneratorTest(unittest.TestCase):
         for (idx, tk) in enumerate(self.tech_ok_keys):
             dict1 = mseg_techdata.list_generator_techdata(
                 self.eia_nlt_cp, self.eia_nlt_l, self.eia_lt,
-                self.eia_lt_choice,
                 mseg_techdata.tech_eia_nonlt, mseg_techdata.tech_eia_lt,
                 self.tech_non_eia, tk, self.project_dict)
             dict2 = self.ok_datadict_out[idx]
@@ -753,18 +882,25 @@ class FillYrsTest(unittest.TestCase):
     # and lifetime of lighting technologies to be stitched together into
     # a list of cost, performance, and lifetime output dicts that each covers
     # the modeling time horizon
-    in_lt = numpy.array([(2008, 2012, 0.33, 10000, 55, b"GSL", b"Inc"),
-                         (2012, 2013, 1.03, 20000, 60, b"GSL", b"Inc"),
-                         (2013, 2017, 1.53, 35000, 61.2, b"GSL", b"Inc"),
-                         (2017, 2020, 2.75, 40000, 80.3, b"GSL", b"Inc"),
-                         (2020, 2040, 3.45, 50000, 90, b"GSL", b"Inc")],
+    in_lt = numpy.array([(2008, 2012, 0.33, 10000, 55, b"GSL", b"Inc",
+                          -0.95, -0.1),
+                         (2012, 2013, 1.03, 20000, 60, b"GSL", b"Inc",
+                          -0.95, -0.1),
+                         (2013, 2017, 1.53, 35000, 61.2, b"GSL", b"Inc",
+                          -0.95, -0.1),
+                         (2017, 2020, 2.75, 40000, 80.3, b"GSL", b"Inc",
+                          -0.95, -0.1),
+                         (2020, 2040, 3.45, 50000, 90, b"GSL", b"Inc",
+                          -0.95, -0.1)],
                         dtype=[("START_EQUIP_YR", "<i8"),
                                ("END_EQUIP_YR", "<f8"),
                                ("BASE_EFF", "<f8"),
                                ("LIFE_HRS", "<f8"),
                                ("INST_COST", "<f8"),
                                ("NAME", "S3"),
-                               ("BULB_TYPE", "S3")])
+                               ("BULB_TYPE", "S3"),
+                               ("Beta_1", "<f8"),
+                               ("Beta_2", "<f8")])
 
     # Define a test input array with faulty EIA data that should yield an
     # error in the fill_years_nlt and fill_years_lt function executions
@@ -842,7 +978,11 @@ class FillYrsTest(unittest.TestCase):
               {"2009": 55, "2010": 55, "2011": 55, "2012": 60,
                "2013": 61.2, "2014": 61.2, "2015": 61.2},
               {"2009": 1.14, "2010": 1.14, "2011": 1.14, "2012": 2.28,
-               "2013": 4.00, "2014": 4.00, "2015": 4.00}]
+               "2013": 4.00, "2014": 4.00, "2015": 4.00},
+              {"2009": -0.95, "2010": -0.95, "2011": -0.95, "2012": -0.95,
+               "2013": -0.95, "2014": -0.95, "2015": -0.95},
+              {"2009": -0.1, "2010": -0.1, "2011": -0.1, "2012": -0.1,
+               "2013": -0.1, "2014": -0.1, "2015": -0.1}]
 
     # Create a routine for checking equality of a dict
     def dict_check(self, dict1, dict2, msg=None):
@@ -862,7 +1002,9 @@ class FillYrsTest(unittest.TestCase):
             list1 = mseg_techdata.fill_years_nlt(
                 self.in_nonlt[idx], self.project_dict, tk)
             list2 = self.out_nonlt[idx]
-
+            # Check that the list lengths are equal
+            self.assertEqual(len(list1), len(list2))
+            # Check that the list values are equal
             for (el1, el2) in zip(list1, list2):
                 dict1 = el1
                 dict2 = el2
@@ -874,7 +1016,9 @@ class FillYrsTest(unittest.TestCase):
         list1 = mseg_techdata.fill_years_lt(
             self.in_lt, self.project_dict)
         list2 = self.out_lt
-
+        # Check that the list lengths are equal
+        self.assertEqual(len(list1), len(list2))
+        # Check that the list values are equal
         for (el1, el2) in zip(list1, list2):
             dict1 = el1
             dict2 = el2

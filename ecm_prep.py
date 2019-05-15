@@ -13,7 +13,7 @@ import gzip
 import pickle
 from functools import reduce  # forward compatibility for Python 3
 import operator
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 
 class MyEncoder(json.JSONEncoder):
@@ -51,7 +51,7 @@ class UsefulInputFiles(object):
         tsv_data (JSON) = Time sensitive energy, price, and emissions data.
     """
 
-    def __init__(self):
+    def __init__(self, capt_energy):
         self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                          "mseg_res_com_cz.json")
         # UNCOMMENT WITH ISSUE 188
@@ -75,8 +75,14 @@ class UsefulInputFiles(object):
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
         self.run_setup = "run_setup.json"
         self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
-        self.ss_data = ("supporting_data", "convert_data",
-                        "site_source_co2_conversions.json")
+        # Use the user-specified captured energy method flag to determine
+        # which site-source conversions file to select
+        if capt_energy is True:
+            self.ss_data = ("supporting_data", "convert_data",
+                            "site_source_co2_conversions-ce.json")
+        else:
+            self.ss_data = ("supporting_data", "convert_data",
+                            "site_source_co2_conversions.json")
         self.tsv_data = ("supporting_data", "convert_data", "tsv.json")
 
 
@@ -120,6 +126,10 @@ class UsefulVars(object):
             an input cost conversion data dict.
         cconv_whlbldgkeys_map (dict): Maps measure cost units to whole
             building-level cost conversion dict keys.
+        tech_units_rmv (list): Flags baseline performance units that cannot
+            currently be handled, thus the associated segment must be removed.
+        tech_units_map (dict): Maps baseline performance units to measure units
+            in cases where the conversion is expected (e.g., EER to COP).
         cconv_htclkeys_map (dict): Maps measure cost units to cost conversion
             dict keys for the heating and cooling end uses.
         cconv_tech_htclsupply_map (dict): Maps measure cost units to cost
@@ -579,6 +589,13 @@ class UsefulVars(object):
         self.cconv_whlbldgkeys_map = {
             "wireless sensor network": ["$/node"],
             "occupant-centered sensing and controls": ["$/occupant"]}
+        self.tech_units_rmv = ["HHV"]
+        # Note: EF handling for ECMs written before scout v0.5 (AEO 2019)
+        self.tech_units_map = {
+            "COP": {"AFUE": 1, "EER": 0.2930712},
+            "AFUE": {"COP": 1}, "UEF": {"SEF": 1},
+            "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
+            "SEF": {"UEF": 1}}
         # Typical household square footages based on RECS 2015 Table HC 1.10,
         # "Total square footage of U.S. homes, 2015"; divide total square
         # footage for each housing type by total number of homes for each
@@ -914,6 +931,8 @@ class Measure(object):
             from an input dictionary.
         remove (boolean): Determines whether measure should be removed from
             analysis engine due to insufficient market source data.
+        energy_outputs (dict): Indicates whether site energy or captured
+            energy site-source conversions were used in measure preparation.
         handyvars (object): Global variables useful across class methods.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
         technology_type (string): Flag for supply- or demand-side technology.
@@ -929,7 +948,7 @@ class Measure(object):
             savings values summed by climate zone, building class, and end use.
     """
 
-    def __init__(self, handyvars, **kwargs):
+    def __init__(self, handyvars, site_energy, capt_energy, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -938,6 +957,12 @@ class Measure(object):
             raise ValueError(
                 "ECM '" + self.name + "' name must be <= 45 characters")
         self.remove = False
+        self.energy_outputs = {
+            "site_energy": False, "captured_energy_ss": False}
+        if site_energy is True:
+            self.energy_outputs["site_energy"] = True
+        if capt_energy is True:
+            self.energy_outputs["captured_energy_ss"] = True
         self.handyvars = handyvars
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
@@ -1127,7 +1152,7 @@ class Measure(object):
                 "Scout building type(s) " + str(self.bldg_type) +
                 "in ECM '" + self.name + "'")
 
-    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data, verbose):
+    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data, opts):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -1136,8 +1161,7 @@ class Measure(object):
                 lifetime.
             convert_data (dict): Measure -> baseline cost unit conversions.
             tsv_data (dict): Data for time sensitive valuation of efficiency.
-            verbose (bool or NoneType): Determines whether to print all
-                user warnings and messages.
+            opts (object): Stores user-specified execution options.
 
         Returns:
             Updated measure stock, energy/carbon, and cost market microsegment
@@ -1158,7 +1182,7 @@ class Measure(object):
         # Notify user that ECM is being updated; suppress new line
         # if not in verbose mode ('Success' is appended to this message on
         # the same line of the console upon completion of ECM update)
-        if verbose:
+        if opts is not None and opts.verbose is True:
             print("Updating ECM '" + self.name + "'...")
         else:
             print("Updating ECM '" + self.name + "'...", end="", flush=True)
@@ -1369,19 +1393,52 @@ class Measure(object):
                 # carbon intensities, accounting for any fuel switching from
                 # baseline technology to measure technology
                 if self.fuel_switch_to is None:
-                    site_source_conv_base, site_source_conv_meas = (
-                        self.handyvars.ss_conv[mskeys[3]] for n in range(2))
-                    intensity_carb_base, intensity_carb_meas = (
-                        self.handyvars.carb_int[bldg_sect][
-                            mskeys[3]] for n in range(2))
+                    # Set site-source conversions to 1 if user flagged
+                    # site energy use outputs, while multiplying CO2
+                    # intensities by the appropriate site-source conversion
+                    # factor (CO2 conversions are based on primary energy use)
+                    if opts is not None and opts.site_energy is True:
+                        site_source_conv_base, site_source_conv_meas = [{
+                            yr: 1 for yr in self.handyvars.aeo_years}
+                            for n in range(2)]
+                        intensity_carb_base, intensity_carb_meas = [{
+                            yr: self.handyvars.carb_int[bldg_sect][
+                                mskeys[3]][yr] *
+                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                            yr in self.handyvars.aeo_years} for n in range(2)]
+                    else:
+                        site_source_conv_base, site_source_conv_meas = (
+                            self.handyvars.ss_conv[mskeys[3]] for
+                            n in range(2))
+                        intensity_carb_base, intensity_carb_meas = (
+                            self.handyvars.carb_int[bldg_sect][
+                                mskeys[3]] for n in range(2))
                 else:
-                    site_source_conv_base = self.handyvars.ss_conv[mskeys[3]]
-                    site_source_conv_meas = self.handyvars.ss_conv[
-                        self.fuel_switch_to]
-                    intensity_carb_base = self.handyvars.carb_int[bldg_sect][
-                        mskeys[3]]
-                    intensity_carb_meas = self.handyvars.carb_int[bldg_sect][
-                        self.fuel_switch_to]
+                    # Set site-source conversions to 1 if user flagged
+                    # site energy use outputs, while multiplying CO2
+                    # intensities by the appropriate site-source conversion
+                    # factor (CO2 conversions are based on primary energy use)
+                    if opts is not None and opts.site_energy is True:
+                        site_source_conv_base, site_source_conv_meas = [{
+                            yr: 1 for yr in self.handyvars.aeo_years}
+                            for n in range(2)]
+                        intensity_carb_base = {yr: self.handyvars.carb_int[
+                            bldg_sect][mskeys[3]][yr] *
+                            self.handyvars.ss_conv[mskeys[3]][yr]
+                            for yr in self.handyvars.aeo_years}
+                        intensity_carb_meas = {yr: self.handyvars.carb_int[
+                            bldg_sect][self.fuel_switch_to][yr] *
+                            self.handyvars.ss_conv[self.fuel_switch_to][yr]
+                            for yr in self.handyvars.aeo_years}
+                    else:
+                        site_source_conv_base = self.handyvars.ss_conv[
+                            mskeys[3]]
+                        site_source_conv_meas = self.handyvars.ss_conv[
+                            self.fuel_switch_to]
+                        intensity_carb_base = self.handyvars.carb_int[
+                            bldg_sect][mskeys[3]]
+                        intensity_carb_meas = self.handyvars.carb_int[
+                            bldg_sect][self.fuel_switch_to]
 
             # Initialize cost/performance/lifetime, stock/energy, square
             # footage, and new building fraction variables for the baseline
@@ -1487,7 +1544,7 @@ class Measure(object):
                 if mskeys[-2] not in stk_energy_warn:
                     stk_energy_warn.append(mskeys[-2])
                     verboseprint(
-                        verbose,
+                        opts.verbose,
                         "WARNING: ECM '" + self.name +
                         "' missing valid baseline "
                         "stock/energy data " +
@@ -1698,15 +1755,59 @@ class Measure(object):
                         # Set baseline performance units
                         perf_base_units = base_cpl["performance"]["units"]
 
-                        # Handle 1-1 conversion between COP and AFUE if needed
-                        # (e.g., for fuel switching between natural gas
-                        # and electric, or for replacements of electric
-                        # boilers (AFUE) with heat pumps (COP))
-                        if (perf_units == "COP" and
-                            perf_base_units == "AFUE") or (
-                                perf_units == "AFUE" and
-                                perf_base_units == "COP"):
+                        # Handle case where measure units do not equal
+                        # baseline units and baseline units cannot be
+                        # converted to measure units; the baseline segment
+                        # must be removed from the analysis
+                        if (not (
+                            perf_units == 'relative savings (constant)' or
+                           (isinstance(perf_units, list) and perf_units[0] ==
+                            'relative savings (dynamic)')) and
+                                (perf_units != perf_base_units)) and \
+                                (perf_base_units in
+                                 self.handyvars.tech_units_rmv):
+                            # Warn user of the removal of the baseline segment
+                            if mskeys[-2] is not None and \
+                                    mskeys[-2] not in cpl_warn:
+                                cpl_warn.append(mskeys[-2])
+                                verboseprint(
+                                    opts.verbose,
+                                    "WARNING: ECM '" + self.name +
+                                    "' uses invalid performance units for "
+                                    "technology '" + str(mskeys[-2]) +
+                                    "' (requires " + str(perf_base_units) +
+                                    "); removing technology from analysis")
+                            # Continue to the next microsegment
+                            continue
+                        # Handle case where measure units do not equal baseline
+                        # units but baseline units can be converted to measure
+                        # units
+                        elif (not (
+                            perf_units == 'relative savings (constant)' or
+                              (isinstance(perf_units, list) and
+                               perf_units[0] == 'relative savings (dynamic)'))
+                                and (perf_units != perf_base_units)) and \
+                            (perf_units in
+                                self.handyvars.tech_units_map.keys()):
+                            convert_fact = self.handyvars.tech_units_map[
+                                perf_units][perf_base_units]
+                            # Convert base performance values to values in
+                            # measure performance units
+                            perf_base = {yr: (perf_base[yr] * convert_fact) for
+                                         yr in self.handyvars.aeo_years}
+                            # Set baseline performance units to measure units
                             perf_base_units = perf_units
+                            # Warn the user of the value/units conversions
+                            if mskeys[-2] is not None and \
+                                    mskeys[-2] not in cpl_warn:
+                                verboseprint(
+                                    opts.verbose, "WARNING: ECM '" +
+                                    self.name + "' uses units of COP for "
+                                    "technology '" + str(mskeys[-2]) +
+                                    "' (requires " + str(perf_base_units) +
+                                    "); base units changed to " +
+                                    str(perf_base_units) + " and base values"
+                                    " multiplied by " + str(convert_fact))
 
                         # Handle case where user has defined a 'windows
                         # conduction' technology without 'windows solar',
@@ -1749,7 +1850,7 @@ class Measure(object):
                             if mskeys[-2] not in hp_warn:
                                 hp_warn.append(mskeys[-2])
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: Cost data for comparable "
                                     "residential baseline technology '" +
                                     str(mskeys[-2]) + "' "
@@ -1831,7 +1932,7 @@ class Measure(object):
                             if mskeys[-2] not in cpl_warn:
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid baseline "
                                     "cost/performance/lifetime data " +
@@ -1882,7 +1983,7 @@ class Measure(object):
                             if mskeys[-2] not in cpl_warn:
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid baseline "
                                     "cost/performance/lifetime data " +
@@ -1902,7 +2003,7 @@ class Measure(object):
                                     mskeys[-2] not in cpl_warn:
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid baseline "
                                     "cost/performance/lifetime data " +
@@ -1924,7 +2025,7 @@ class Measure(object):
                 if mskeys[0] == "primary" and cost_base_units != cost_units:
                     cost_meas, cost_units = self.convert_costs(
                         convert_data, bldg_sect, mskeys, cost_meas,
-                        cost_units, cost_base_units, verbose)
+                        cost_units, cost_base_units, opts.verbose)
                     cost_converts += 1
                     # Add microsegment building type to cost conversion
                     # tracking list for cases where cost conversion need
@@ -1994,7 +2095,7 @@ class Measure(object):
                                                 perf_base[yr])
                                     except ZeroDivisionError:
                                         verboseprint(
-                                            verbose,
+                                            opts.verbose,
                                             "WARNING: Measure '" + self.name +
                                             "' has baseline " +
                                             "or measure performance of zero;" +
@@ -2042,7 +2143,7 @@ class Measure(object):
                                     rel_perf[yr] = (perf_base[yr] / perf_meas)
                             except ZeroDivisionError:
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: Measure '" + self.name +
                                     "' has measure performance of zero; " +
                                     "baseline and measure performance set " +
@@ -2054,7 +2155,7 @@ class Measure(object):
                                 rel_perf[yr] = (perf_meas / perf_base[yr])
                             except ZeroDivisionError:
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: Measure '" + self.name +
                                     "' has baseline performance of zero; " +
                                     "baseline and measure performance set " +
@@ -2082,14 +2183,44 @@ class Measure(object):
                     # information, accounting for any fuel switching from
                     # baseline technology to measure technology
                     if self.fuel_switch_to is None:
-                        cost_energy_base, cost_energy_meas = (
-                            self.handyvars.ecosts[
-                                "residential"][mskeys[3]] for n in range(2))
+                        # If user flagged site energy use outputs, multiply
+                        # energy costs by the appropriate site-source
+                        # conversion factor (energy costs are based on
+                        # primary energy use numbers)
+                        if opts is not None and opts.site_energy is True:
+                            cost_energy_base, cost_energy_meas = [{
+                                yr: self.handyvars.ecosts[
+                                    "residential"][mskeys[3]][yr] *
+                                self.handyvars.ss_conv[mskeys[3]][yr] for
+                                yr in self.handyvars.aeo_years} for
+                                n in range(2)]
+                        else:
+                            cost_energy_base, cost_energy_meas = (
+                                self.handyvars.ecosts[
+                                    "residential"][mskeys[3]] for
+                                n in range(2))
                     else:
-                        cost_energy_base = self.handyvars.ecosts[
-                            "residential"][mskeys[3]]
-                        cost_energy_meas = self.handyvars.ecosts[
-                            "residential"][self.fuel_switch_to]
+                        # If user flagged site energy use outputs, multiply
+                        # energy costs by the appropriate site-source
+                        # conversion factor (energy costs are based on
+                        # primary energy use numbers)
+                        if opts is not None and opts.site_energy is True:
+                            cost_energy_base = {
+                                yr: self.handyvars.ecosts[
+                                    "residential"][mskeys[3]][yr] *
+                                self.handyvars.ss_conv[mskeys[3]][yr] for
+                                yr in self.handyvars.aeo_years}
+                            cost_energy_meas = {
+                                yr: self.handyvars.ecosts[
+                                    "residential"][self.fuel_switch_to][yr] *
+                                self.handyvars.ss_conv[
+                                    self.fuel_switch_to][yr] for
+                                yr in self.handyvars.aeo_years}
+                        else:
+                            cost_energy_base = self.handyvars.ecosts[
+                                "residential"][mskeys[3]]
+                            cost_energy_meas = self.handyvars.ecosts[
+                                "residential"][self.fuel_switch_to]
 
                     # Update new building construction information
                     for yr in self.handyvars.aeo_years:
@@ -2167,7 +2298,7 @@ class Measure(object):
                                 if mskeys[4] not in consume_warn:
                                     consume_warn.append(mskeys[4])
                                     verboseprint(
-                                        verbose,
+                                        opts.verbose,
                                         "WARNING: ECM '" + self.name +
                                         "' missing valid consumer choice "
                                         "data for end use '" + str(mskeys[4]) +
@@ -2187,14 +2318,44 @@ class Measure(object):
                     # information, accounting for any fuel switching from
                     # baseline technology to measure technology
                     if self.fuel_switch_to is None:
-                        cost_energy_base, cost_energy_meas = (
-                            self.handyvars.ecosts[
-                                "commercial"][mskeys[3]] for n in range(2))
+                        # If user flagged site energy use outputs, multiply
+                        # energy costs by the appropriate site-source
+                        # conversion factor (energy costs are based on
+                        # primary energy use numbers)
+                        if opts is not None and opts.site_energy is True:
+                            cost_energy_base, cost_energy_meas = [{
+                                yr: self.handyvars.ecosts[
+                                    "commercial"][mskeys[3]][yr] *
+                                self.handyvars.ss_conv[mskeys[3]][yr] for
+                                yr in self.handyvars.aeo_years} for
+                                n in range(2)]
+                        else:
+                            cost_energy_base, cost_energy_meas = (
+                                self.handyvars.ecosts[
+                                    "commercial"][mskeys[3]] for
+                                n in range(2))
                     else:
-                        cost_energy_base = self.handyvars.ecosts[
-                            "commercial"][mskeys[3]]
-                        cost_energy_meas = self.handyvars.ecosts[
-                            "commercial"][self.fuel_switch_to]
+                        # If user flagged site energy use outputs, multiply
+                        # energy costs by the appropriate site-source
+                        # conversion factor (energy costs are based on
+                        # primary energy use numbers)
+                        if opts is not None and opts.site_energy is True:
+                            cost_energy_base = {
+                                yr: self.handyvars.ecosts[
+                                    "commercial"][mskeys[3]][yr] *
+                                self.handyvars.ss_conv[mskeys[3]][yr] for
+                                yr in self.handyvars.aeo_years}
+                            cost_energy_meas = {
+                                yr: self.handyvars.ecosts[
+                                    "commercial"][self.fuel_switch_to][yr] *
+                                self.handyvars.ss_conv[
+                                    self.fuel_switch_to][yr] for
+                                yr in self.handyvars.aeo_years}
+                        else:
+                            cost_energy_base = self.handyvars.ecosts[
+                                "commercial"][mskeys[3]]
+                            cost_energy_meas = self.handyvars.ecosts[
+                                "commercial"][self.fuel_switch_to]
 
                     # Update new building construction information
                     for yr in self.handyvars.aeo_years:
@@ -2232,7 +2393,7 @@ class Measure(object):
                             if mskeys[4] not in consume_warn:
                                 consume_warn.append(mskeys[4])
                                 verboseprint(
-                                    verbose,
+                                    opts.verbose,
                                     "WARNING: ECM '" + self.name +
                                     "' missing valid consumer choice data " +
                                     "for end use '" + str(mskeys[4]) +
@@ -2673,17 +2834,7 @@ class Measure(object):
 
         # If not in verbose mode, suppress summaries about missing data;
         # otherwise, summarize the extent of the missing data
-        if not verbose:
-            # Missing baseline stock and energy data, cost, performance, and
-            # lifetime data and consumer data summaries are blank
-            bstk_msg, bcpl_msg, bcc_msg = ("" for n in range(3))
-            # If one or more conversion to ECM unit cost has been made, note
-            # this in the update message
-            if cost_converts == 0:
-                cc_msg = ""
-            else:
-                cc_msg = " (cost units converted)"
-        else:
+        if opts is not None and opts.verbose is True:
             # Summarize percentage of baseline stock and energy
             # data that were missing (if any)
             if valid_keys_stk_energy == valid_keys:
@@ -2717,13 +2868,24 @@ class Measure(object):
                     " % of baseline technologies were missing" + \
                     " valid consumer choice data"
             cc_msg = ""
+        else:
+            # Missing baseline stock and energy data, cost, performance, and
+            # lifetime data and consumer data summaries are blank
+            bstk_msg, bcpl_msg, bcc_msg = ("" for n in range(3))
+            # If one or more conversion to ECM unit cost has been made, note
+            # this in the update message
+            if cost_converts == 0:
+                cc_msg = ""
+            else:
+                cc_msg = " (cost units converted)"
+
         # Print message to console; if in verbose mode, print to new line,
         # otherwise append to existing message on the console
-        if not verbose:
-            print(" Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
-        else:
+        if opts is not None and opts.verbose is True:
             print("ECM '" + self.name + "' successfully updated" +
                   bstk_msg + bcpl_msg + bcc_msg + cc_msg)
+        else:
+            print(" Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
 
     def gen_tsv_facts(self, tsv_data, mskeys, bldg_sect, rel_perf):
         """Set re-weighting factors for time-sensitive efficiency valuation.
@@ -4465,7 +4627,7 @@ class Measure(object):
         return ms_iterable, ms_lists
 
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
-        """Find total lighting energy for climate, building, and structure type.
+        """Find total lighting energy for climate/building/structure type.
 
         Note:
             Primary/secondary microsegments are linked by climate zone,
@@ -5085,6 +5247,8 @@ class MeasurePackage(Measure):
             reductions from packaging measures.
         remove (boolean): Determines whether package should be removed from
             analysis engine due to insufficient market source data.
+        energy_outputs (dict): Indicates whether site energy or captured
+            energy site-source conversions were used in measure preparation.
         market_entry_year (int): Earliest year of market entry across all
             measures in the package.
         market_exit_year (int): Latest year of market exit across all
@@ -5120,6 +5284,36 @@ class MeasurePackage(Measure):
                 "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
+        self.energy_outputs = {
+            "site_energy": False, "captured_energy_ss": False}
+        # Check for consistent use of site or source energy units for all
+        # ECMs in package
+        if all([x.energy_outputs["site_energy"] is True for
+                x in self.contributing_ECMs]):
+            self.energy_outputs["site_energy"] = True
+        elif all([x.energy_outputs["site_energy"] is False for
+                  x in self.contributing_ECMs]):
+            self.energy_outputs["site_energy"] = False
+        else:
+            raise ValueError(
+                "Inconsistent energy output units (site vs. source) "
+                "across contributing ECMs for package: '" + str(self.name) +
+                "'. To address this issue, delete the file "
+                "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
+        # Check for consistent use of site-source energy conversion methods
+        # across all ECMs in a package
+        if all([x.energy_outputs["captured_energy_ss"] is True for
+                x in self.contributing_ECMs]):
+            self.energy_outputs["captured_energy_ss"] = True
+        elif all([x.energy_outputs["captured_energy_ss"] is False for
+                 x in self.contributing_ECMs]):
+            self.energy_outputs["captured_energy_ss"] = False
+        else:
+            raise ValueError(
+                'Inconsistent site-source conversion methods '
+                'across contributing ECMs for package: ' + str(self.name) +
+                "'. To address this issue, delete the file "
+                "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
         # Set market entry year as earliest of all the packaged measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -5343,7 +5537,7 @@ class MeasurePackage(Measure):
     def merge_contrib_msegs(
             self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme,
             mseg_out_break_adj):
-        """Add a measure's contributing microsegment data to a packaged measure.
+        """Add a measure's contributing microsegment data to packaged measure.
 
         Args:
             msegs_pkg (dict): Existing contributing microsegment data for the
@@ -5579,7 +5773,7 @@ class MeasurePackage(Measure):
 
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
-                     cbecs_sf_byvint, tsv_data, base_dir, verbose):
+                     cbecs_sf_byvint, tsv_data, base_dir, opts):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -5598,8 +5792,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         tsv_data (dict): Data needed for time sensitive efficiency valuation.
         base_dir (string): Base directory.
-        verbose (bool or NoneType): Determines whether to print all
-            user warnings and messages.
+        opts (object): Stores user-specified execution options.
 
     Returns:
         A list of dicts, each including a set of measure attributes that has
@@ -5610,7 +5803,9 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             given input efficiency measure.
     """
     # Initialize Measure() objects based on 'measures_update' list
-    meas_update_objs = [Measure(handyvars, **m) for m in measures]
+    meas_update_objs = [Measure(
+        handyvars, opts.site_energy, opts.captured_energy, **m) for
+        m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -5641,19 +5836,20 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             'EnergyPlus-based ECM performance data are currently unsupported.')
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, convert_data, tsv_data, verbose) for
+    [m.fill_mkts(msegs, msegs_cpl, convert_data, tsv_data, opts) for
      m in meas_update_objs]
 
     return meas_update_objs
 
 
 def prepare_packages(packages, meas_update_objs, meas_summary,
-                     handyvars, handyfiles, base_dir):
+                     handyvars, handyfiles, base_dir, opts):
     """Combine multiple measures into a single packaged measure.
 
     Args:
         packages (dict): Names of packages and measures that comprise them.
         measures (dict): Attributes of individual efficiency measures.
+        opts (object): Stores user-specified execution options.
 
     Returns:
         A dict with packaged measure attributes that can be added to the
@@ -5683,7 +5879,9 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             meas_summary_data = [x for x in meas_summary if x["name"] == m]
             if len(meas_summary_data) == 1:
                 # Initialize the missing measure as an object
-                meas_obj = Measure(handyvars, **meas_summary_data[0])
+                meas_obj = Measure(
+                    handyvars, opts.site_energy, opts.captured_energy,
+                    **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -5826,7 +6024,7 @@ def verboseprint(verbose, msg):
     """Print input message when the code is run in verbose mode.
 
     Args:
-        verbose (boolean): Indicator of verbose mode ('-v' option on cmd line)
+        verbose (boolean): Indicator of verbose mode
         msg (string): Message to print to console when in verbose mode
 
     Returns:
@@ -5852,7 +6050,7 @@ def main(base_dir):
     # message itself) *** Note: sometimes yields error; investigate ***
     # warnings.formatwarning = custom_formatwarning
     # Instantiate useful input files object
-    handyfiles = UsefulInputFiles()
+    handyfiles = UsefulInputFiles(opts.captured_energy)
 
     # UNCOMMENT WITH ISSUE 188
     # # Ensure that all AEO-based JSON data are drawn from the same AEO version
@@ -5907,14 +6105,33 @@ def main(base_dir):
                 # competition data prepared for it (in
                 # '/supporting_data/ecm_competition_data' folder), or
                 # c) measure JSON time stamp indicates it has been modified
-                # since the last run of 'ecm_prep.py'
+                # since the last run of 'ecm_prep.py' or d) the user added/
+                # removed either the "site_energy" or "captured_energy" cmd
+                # line arguments and the measure definition was not already
+                # prepared using these settings
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
                    all([meas_dict["name"] not in y for y in listdir(
                         path.join(*handyfiles.ecm_compete_data))]) or \
                    (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >
                     stat(path.join(
-                        "supporting_data", "ecm_prep.json")).st_mtime):
+                        "supporting_data", "ecm_prep.json")).st_mtime) or \
+                   (opts is not None and opts.site_energy is True and
+                    all([y["energy_outputs"]["site_energy"] is False for
+                         y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.captured_energy is True and
+                    all([y["energy_outputs"]["captured_energy_ss"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or\
+                   (opts is None or opts.site_energy is False and
+                    all([y["energy_outputs"]["site_energy"] is True for
+                         y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.captured_energy is False and
+                    all([y["energy_outputs"]["captured_energy_ss"] is True
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])):
                     # Append measure dict to list of measure definitions
                     # to update if it meets the above criteria
                     meas_toprep_indiv.append(meas_dict)
@@ -6034,13 +6251,13 @@ def main(base_dir):
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
-            cbecs_sf_byvint, tsv_data, base_dir, options.verbose)
+            cbecs_sf_byvint, tsv_data, base_dir, opts)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
-                handyvars, handyfiles, base_dir)
+                handyvars, handyfiles, base_dir, opts)
 
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition
@@ -6093,11 +6310,21 @@ def main(base_dir):
 if __name__ == "__main__":
     import time
     start_time = time.time()
-    # Handle command line '-v' argument specifying verbose mode
-    parser = OptionParser()
-    parser.add_option("-v", action="store_true", dest="verbose",
-                      help="print all warnings to stdout")
-    (options, args) = parser.parse_args()
+    # Handle option user-specified execution arguments
+    parser = ArgumentParser()
+    # Optional flag to calculate site (rather than source) energy outputs
+    parser.add_argument("--site_energy", action="store_true",
+                        help="Flag site energy output")
+    # Optional flag to calculate site-source energy conversions using the
+    # captured energy (rather than fossil fuel equivalent) method
+    parser.add_argument("--captured_energy", action="store_true",
+                        help="Flag captured energy site-source conversions")
+    # Optional flag to print all warning messages to stdout
+    parser.add_argument("--verbose", action="store_true",
+                        help="Print all warnings to stdout")
+    # Object to store all user-specified execution arguments
+    opts = parser.parse_args()
+
     # Set current working directory
     base_dir = getcwd()
     main(base_dir)

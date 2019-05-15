@@ -60,7 +60,8 @@ comp_schemes <- c('uncompeted', 'competed')
 # Set full list of ECM names from results file
 meas_names <- names(compete_results)
 # Set list of ECM names excluding 'All ECMs' (representing results summed across all ECMs)
-meas_names_no_all <- meas_names[meas_names!= "All ECMs"]
+# and the high-level information about site-source energy calculations (stored in 'Energy Output Type' key)
+meas_names_no_all <- meas_names[(meas_names!= "All ECMs" & meas_names!= "Energy Output Type")]
 # Order the list of ECM names excluding 'All ECMs'
 meas_names_no_all <- meas_names_no_all[order(meas_names_no_all)]
 # Combine the 'All ECMs' name with the ordered list of the individual ECM names
@@ -118,8 +119,17 @@ euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting',
 # Plot of individual ECM energy, carbon, and cost totals
 file_names_ecms <- c('Total Energy', 'Total CO2', 'Total Cost')
 plot_names_ecms <- c('Total Energy', expression("Total"~ CO[2]), 'Total Cost')
-plot_axis_labels_ecm<-c('Primary Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"),
-                        'Energy Cost (Billion $)')
+# Axis labels are set conditionally on the energy output type (site, primary
+# (captured energy method), primary (fossil energy method))
+if (compete_results_agg$`Energy Output Type` == "site"){
+	plot_axis_labels_ecm<-c(
+	'Site Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
+}else if (compete_results_agg$`Energy Output Type` == "captured"){
+	plot_axis_labels_ecm<-c(
+	'Primary Energy Use (Quads, CE S-S)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
+}else{
+	plot_axis_labels_ecm<-c(
+	'Primary Energy Use (Quads, FF S-S)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')}
 # Set colors for uncompeted baseline, efficient and low/high results
 plot_col_uc_base = "gray60"
 plot_col_uc_eff = "gray80"

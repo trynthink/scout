@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
-  "technology": "all",
+  "technology": "electric WH",
   "market_entry_year": 2020,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM",
@@ -21,7 +21,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 1.57,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "converted from primary energy factor (0.52) to EF, multiply by 3.01",
     "source_data": {

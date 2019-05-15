@@ -281,8 +281,8 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * cooking
 
-   * electricity: Range, Electric, 4 burner, oven, 11-inch gr; |tooltip| Range, Electric-induction, 4 burner, oven,  |chunk-b| electric range with induction-style cooktop |close|
-   * natural gas: Range, Gas, 4 burner, oven, 11-inch griddle; |tooltip| Range, Gas, 4 powered burners, convect. ove |chunk-b| natural gas range with convection oven |close|
+   * electricity: electric_range_oven_24x24_griddle
+   * natural gas: gas_range_oven_24x24_griddle
 
 * PCs
 
@@ -305,6 +305,7 @@ Energy efficiency units
    * Heating
 
      * Boilers and furnaces (AFUE)
+     * Wood stoves (HHV)
      * All other equipment types (COP)
 
    * Secondary heating
@@ -312,8 +313,16 @@ Energy efficiency units
       * Electricity (COP)
       * All other fuel types (AFUE)
 
-   * Cooling (COP)
-   * Water heating (EF)
+   * Cooling
+
+      * Geothermal heat pumps (EER)
+      * All other equipment types (COP)
+
+   * Water heating
+
+      * Solar water heaters (SEF)
+      * All other water heaters (UEF)
+
    * Refrigeration (kWh/yr)
    * Cooking
 
@@ -321,12 +330,12 @@ Energy efficiency units
      * Natural gas (TEff)
      * LPG (TEff)
 
-   * Drying (EF)
+   * Drying (CEF)
    * Lighting (lm/W)
    * Other
 
      * Clothes washing (kWh/cycle)
-     * Dishwasher (EF)
+     * Dishwasher (kWh/cycle)
      * Freezers (kWh/yr)
      * All other equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
 

@@ -19,7 +19,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.93, 
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "CEF",
   "energy_efficiency_source": {
     "notes": "CEF in lbs/kWh",
     "source_data": [{

@@ -19,7 +19,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.49,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "CEF",
   "energy_efficiency_source": {
     "notes": "High efficiency CEF in 2017",
     "source_data": {

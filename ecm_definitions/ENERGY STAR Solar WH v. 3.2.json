@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
-  "technology": ["electric WH", "solar WH"],
+  "technology": "electric WH",
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which the standard went into effect",
@@ -19,9 +19,9 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 1.8,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "See Table 5 SEF for electric backup",
+    "notes": "See Table 5 UEF for electric backup",
     "source_data": [{
        "title": "ENERGY STAR Product Specification for Residential Water Heaters",
        "author": "Energy Star",

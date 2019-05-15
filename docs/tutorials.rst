@@ -1038,6 +1038,14 @@ To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, ope
    cd Documents/projects/scout-run_scheme
    python3 ecm_prep.py
 
+.. tip::
+   By default, ECMs are processed and yield results measured in primary, or source, energy, and the site-source conversion is calculated using the fossil fuel equivalence method. ECM processing can be switched to a site energy basis with the optional flag ``--site_energy`` and can be switched to the captured energy method for converting from site to source energy with the flag ``--captured_energy``. For example, ``python3 ecm_prep.py --captured-energy``. Further details on the difference between the fossil fuel equivalence and captured energy methods for calculating site-source conversion factors can be found in the DOE report `Accounting Methodology for Source Energy of Non-Combustible Renewable Electricity Generation`_.
+
+.. _Accounting Methodology for Source Energy of Non-Combustible Renewable Electricity Generation: https://www.energy.gov/sites/prod/files/2016/10/f33/Source%20Energy%20Report%20-%20Final%20-%2010.21.16.pdf
+
+.. tip::
+   Using the optional flag ``--verbose`` (i.e., ``python3 ecm_prep.py --verbose``) will print all warning messages triggered during ECM preparation to the console.
+
 As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
 If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./supporting_data/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./supporting_data |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
@@ -1152,6 +1160,9 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
 
    cd Documents/projects/scout-run_scheme
    python3 run.py
+
+.. tip::
+   Using the optional flag ``--verbose`` (i.e., ``python3 run.py --verbose``) will print all warning messages triggered during analysis execution to the console.
 
 While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, writing results to an output file, and plotting results. This text is principally to assure users that the analysis is proceeding apace. Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder.
 

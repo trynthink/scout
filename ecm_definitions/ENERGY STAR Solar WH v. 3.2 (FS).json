@@ -19,7 +19,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 1.8,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "SEF",
   "energy_efficiency_source": {
     "notes": "See Table 5 SEF for electric backup",
     "source_data": [{

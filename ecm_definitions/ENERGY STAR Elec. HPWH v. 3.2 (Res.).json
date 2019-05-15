@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
-  "technology": ["electric WH", "solar WH"],
+  "technology": "electric WH",
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Product specification is only met by HPWH type",
@@ -19,7 +19,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 2,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "assume < 55 gallons",
     "source_data": [{

@@ -29,7 +29,7 @@ class UsefulInputFiles(object):
             building type, and structure type.
     """
 
-    def __init__(self):
+    def __init__(self, energy_out):
         self.metadata = "metadata.json"
         # UNCOMMENT WITH ISSUE 188
         # self.metadata = "metadata_2017.json"
@@ -39,8 +39,23 @@ class UsefulInputFiles(object):
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
-        self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
-                            "htcl_totals.json")
+        # Set heating/cooling energy totals file conditional on whether
+        # site energy data, source energy data (fossil equivalent site-source
+        # conversion), or source energy data (captured energy site-source
+        # conversion) are needed
+        if energy_out == "site":
+            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
+                                "htcl_totals-site.json")
+        elif energy_out == "fossil_equivalent":
+            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
+                                "htcl_totals.json")
+        elif energy_out == "captured":
+            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
+                                "htcl_totals-ce.json")
+        else:
+            raise ValueError("Unsupported energy output type (site, source "
+                             "(fossil fuel equivalent), and source (captured "
+                             "energy) are currently supported)")
 
 
 class UsefulVars(object):
@@ -262,15 +277,19 @@ class Engine(object):
     Attributes:
         handyvars (object): Global variables useful across class methods.
         measures (list): List of active measure objects to be analyzed.
-        output (OrderedDict): Summary results data for all active measures.
+        output_ecms (OrderedDict): Summary results by active measure.
+        output_all (OrderedDict): Summary results across all active measures;
+            also stores data on energy output type (site, source (fossil
+            equivalent site-source) or source (captured energy site-source).
     """
 
-    def __init__(self, handyvars, measure_objects):
+    def __init__(self, handyvars, measure_objects, energy_out):
         self.handyvars = handyvars
         self.measures = measure_objects
         self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
         self.output_all["All ECMs"] = OrderedDict([
             ("Markets and Savings (Overall)", OrderedDict())])
+        self.output_all["Energy Output Type"] = energy_out
         for adopt_scheme in self.handyvars.adopt_schemes:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme] = OrderedDict()
@@ -967,7 +986,7 @@ class Engine(object):
         return payback_val
 
     def compete_measures(self, adopt_scheme, htcl_totals):
-        """Compete and apportion total stock/energy/carbon/cost across measures.
+        """Compete/apportion total stock/energy/carbon/cost across measures.
 
         Notes:
             Adjust each competing measure's 'baseline' and 'efficient'
@@ -1100,7 +1119,7 @@ class Engine(object):
             self.htcl_adj(measures_htcl_adj, adopt_scheme, htcl_adj_data)
 
     def compete_res_primary(self, measures_adj, mseg_key, adopt_scheme):
-        """Apportion stock/energy/carbon/cost across competing residential measures.
+        """Apportion stock/energy/carbon/cost across residential measures.
 
         Notes:
             Determine the shares of a given market microsegment that are
@@ -1420,7 +1439,7 @@ class Engine(object):
                     base_turnover_rt, eff_turnover_rt)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
-        """Apportion stock/energy/carbon/cost across competing commercial measures.
+        """Apportion stock/energy/carbon/cost across commercial measures.
 
         Notes:
             Determines the shares of a given market microsegment that are
@@ -1866,21 +1885,100 @@ class Engine(object):
             1 - m.markets[adopt_scheme]["competed"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key][
                 "sub-market scaling"] for m in measures_adj]
+        # Set the total number of ECMs being competed
+        len_compete = len(noapply_sbmkt_fracs)
 
-        # Determine the total weighted inapplicable fraction of the competed
-        # market that must be apportioned across competing ECMs
-        noapply_sbmkt_fracs_tot = {
-            yr: sum([noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for
-                     ind in range(len(measures_adj))]) for
-            yr in self.handyvars.aeo_years}
-        # Apportion the total inapplicable fraction across competing ECMs;
-        # ensure that the apportionment removes each ECM's contribution to this
-        # total fraction
-        added_sbmkt_fracs = [
-            {yr: ((noapply_sbmkt_fracs_tot[yr] -
-             noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr]) /
-             (len(measures_adj) - 1)) for yr in self.handyvars.aeo_years} for
-            ind in range(0, len(measures_adj))]
+        # If all of the competing ECMs apply to the full competed segment,
+        # added market shares due to sub-market scaling are set to zero
+        if all([x == 0 for x in noapply_sbmkt_fracs]):
+            added_sbmkt_fracs = [{yr: 0 for yr in self.handyvars.aeo_years} for
+                                 n in range(len_compete)]
+        else:
+            # For each competed ECM, set the total unaffected market segment
+            # across all years in the analysis
+            noapply_sbsbmkt_distrib_fracs_yr = [{
+                yr: noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for
+                yr in self.handyvars.aeo_years} for
+                     ind in range(len(measures_adj))]
+
+            # Initialize a list of dicts where each dict represents the
+            # additional market fraction an ECM should receive to reflect the
+            # presence of sub-market scaling in the competing ECM set
+            added_sbmkt_fracs = [{yr: 0 for yr in self.handyvars.aeo_years} for
+                                 n in range(len_compete)]
+            # Loop through all competing ECMs, determining how to distribute
+            # the portion of the competed segment that the ECM does not apply
+            # to (if any) across other competing ECMs in the analysis
+            for m in range(len_compete):
+                # Loop through all years in the analysis
+                for yr in self.handyvars.aeo_years:
+                    # Set the current measure's unused portion of the segment
+                    # to redistribute in the current year
+                    seg_redist = noapply_sbsbmkt_distrib_fracs_yr[m][yr]
+                    # Determine which of the other competing ECMs is eligible
+                    # to receive the current ECM's inapplicable segment
+                    # portion. NOTE: it is assumed that competing ECMs that
+                    # also do not apply to the entire segment are ineligible
+                    distrib_inds = [1 if noapply_sbmkt_fracs[mc] == 0
+                                    else 0 for mc in range(0, len_compete)]
+
+                    # Case where one or more competing ECMs applies to the full
+                    # competed segment, but the market shares for these ECMs
+                    # are all zero
+                    if (type(mkt_fracs[0][yr]) != numpy.ndarray and all(
+                        [(mkt_fracs[x][yr] == 0) for
+                            x in range(0, len(distrib_inds)) if
+                            distrib_inds[x] == 1])) or \
+                       (type(mkt_fracs[0][yr]) == numpy.ndarray and all(
+                        [all([mkt_fracs[x][yr][y] == 0 for
+                             y in range(len(mkt_fracs[x][yr]))]) for
+                            x in range(0, len(distrib_inds)) if
+                            distrib_inds[x] == 1])):
+                        # Set weights to use in distributing the current ECM's
+                        # inapplicable segment portion across all other
+                        # competing ECMs that apply to the full competed
+                        # segment; since in this case the market shares for
+                        # these other ECMs are all zero, set weights such that
+                        # the re-distribution is even across these other ECMs
+                        if sum(distrib_inds) == 0:
+                            sbmkt_distrib_fracs_yr = [
+                                0 for n in range(len_compete)]
+                        else:
+                            even_frac = 1 / sum(distrib_inds)
+                            sbmkt_distrib_fracs_yr = [
+                                even_frac if distrib_inds[mc] == 1
+                                else 0 for mc in range(0, len_compete)]
+                    # All other cases
+                    else:
+                        # Set weights to use in distributing the current ECM's
+                        # inapplicable segment portion across all other
+                        # competing ECMs that apply to the full competed
+                        # segment, based on each ECM's competed market share
+                        sbmkt_distrib_fracs_yr = [
+                            mkt_fracs[mc][yr] if distrib_inds[mc] == 1
+                            else 0 for mc in range(0, len_compete)]
+                        # Re-normalize the weighting factors to ensure that
+                        # they sum to 1
+                        if (type(sbmkt_distrib_fracs_yr[0]) != numpy.ndarray
+                            and sum(sbmkt_distrib_fracs_yr) != 0) or \
+                           (type(sbmkt_distrib_fracs_yr[0]) == numpy.ndarray
+                            and all([sum(sbmkt_distrib_fracs_yr[x]) != 0 for
+                                    x in range(len(sbmkt_distrib_fracs_yr))])):
+                            sbmkt_distrib_fracs_yr = [
+                                x / sum(sbmkt_distrib_fracs_yr) for
+                                x in sbmkt_distrib_fracs_yr]
+                        else:
+                            sbmkt_distrib_fracs_yr = [
+                                0 for n in range(len(sbmkt_distrib_fracs_yr))]
+
+                    # Loop through all competing ECMs and set the portion of
+                    # the current ECM's inapplicable segment that goes to each
+                    for mn in range(len_compete):
+                        # For each competing ECM and year, multiply the total
+                        # inapplicable segment fraction by the ECM's
+                        # re-distribution weights calculated above
+                        added_sbmkt_fracs[mn][yr] += (
+                            seg_redist * (sbmkt_distrib_fracs_yr[mn]))
 
         return added_sbmkt_fracs
 
@@ -2345,7 +2443,7 @@ class Engine(object):
             self, adj_fracs, added_sbmkt_fracs, mast, adj, mast_list_base,
             mast_list_eff, adj_list_eff, adj_list_base, yr, mseg_key, measure,
             adopt_scheme, mkt_entry_yrs, base_turnover_rt, eff_turnover_rt):
-        """Scale down measure stock/energy/carbon/cost totals to reflect competition.
+        """Scale down measure totals to reflect competition.
 
         Notes:
             Scale stock/energy/carbon/cost totals associated with the current
@@ -2913,7 +3011,7 @@ def main(base_dir):
         of key results to an output JSON.
     """
     # Instantiate useful input files object
-    handyfiles = UsefulInputFiles()
+    handyfiles = UsefulInputFiles(energy_out="fossil_equivalent")
     # Instantiate useful variables object
     handyvars = UsefulVars(base_dir, handyfiles)
 
@@ -2962,6 +3060,51 @@ def main(base_dir):
             Measure(handyvars, **m) for m in meas_summary if
             m["name"] in active_meas_all and m["remove"] is False]
 
+    # Check to ensure that all active/valid measure definitions used consistent
+    # energy units (site vs. source) and site-source conversion factors when
+    # being prepared in ecm_prep.py
+    try:
+        if not (all([m.energy_outputs["site_energy"] is True for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["site_energy"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent energy output units (site vs. source) used "
+                "across active ECM set. To address this issue, "
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py.")
+        if not (all([m.energy_outputs["captured_energy_ss"] is True for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["captured_energy_ss"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent site-source conversion methods used "
+                "across active ECM set. To address this issue, "
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py.")
+    except AttributeError:
+        raise ValueError(
+            "One or more active ECMs lacks information needed to determine "
+            "what energy units or conversions were used in its definition. "
+            "To address this issue, delete the file "
+            "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
+
+    # Set a flag for the type of energy output desired (site, source-fossil
+    # fuel equivalent, source-captured energy)
+    if measures_objlist[0].energy_outputs["site_energy"] is True:
+        # Set energy output to site energy
+        energy_out = "site"
+        # Re-instantiate useful input files object
+        handyfiles = UsefulInputFiles(energy_out)
+    elif measures_objlist[0].energy_outputs["captured_energy_ss"] is True:
+        # Set energy output to source energy using captured energy S-S
+        energy_out = "captured"
+        # Re-instantiate useful input files object
+        handyfiles = UsefulInputFiles(energy_out)
+    else:
+        # Set energy output to source energy using fossil equivalent S-S
+        energy_out = "fossil_equivalent"
+
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
     # this message on the same line of the console upon data load completion)
@@ -3009,7 +3152,7 @@ def main(base_dir):
         print('Data load complete')
 
     # Instantiate an Engine object using active measures list
-    a_run = Engine(handyvars, measures_objlist)
+    a_run = Engine(handyvars, measures_objlist, energy_out)
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
@@ -3146,7 +3289,7 @@ if __name__ == '__main__':
     base_dir = getcwd()
     # Handle command line '-v' argument specifying verbose mode
     parser = OptionParser()
-    parser.add_option("-v", action="store_true", dest="verbose",
+    parser.add_option("--verbose", action="store_true", dest="verbose",
                       help="print all warnings to stdout")
     (options, args) = parser.parse_args()
     # Set function that only prints message when in verbose mode

@@ -537,7 +537,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # from json_translator, handling the difference in the bulb
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
-    if aeo_years == 42:  # AEO 2017 formatting
+    if aeo_years in [42, 36]:  # AEO 2017-2019 formatting
         lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),
                           ('REF', 'INC'), ('EXT', 'INC')]
     else:  # AEO 2015 formatting
@@ -1362,7 +1362,7 @@ def main():
         ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t'
                               ['SF', 'ST', 'FP'])
     else:
-        yrs_range = 42
+        yrs_range = metajson['max year'] - metajson['min year'] + 1
         lt_skip_header = 37
         if aeo_import_year in [2016, 2017]:
             lt_skip_footer = 54

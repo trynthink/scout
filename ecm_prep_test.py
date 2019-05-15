@@ -219,8 +219,10 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
         base_dir = os.getcwd()
         # Useful global variables for the sample measure object
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
-        cls.meas = ecm_prep.Measure(handyvars, **sample_measure_in)
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
+        cls.meas = ecm_prep.Measure(
+            handyvars, site_energy=None, capt_energy=None, **sample_measure_in)
         # Finalize the measure's 'technology_type' attribute (handled by the
         # 'fill_attr' function, which is not run as part of this test)
         cls.meas.technology_type = {"primary": "supply", "secondary": "demand"}
@@ -699,6 +701,16 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
             self.meas.energy_efficiency_source, 'EnergyPlus/OpenStudio')
 
 
+class UserOptions(object):
+    """Generate sample user-specified execution options."""
+    def __init__(self, site, capt, warnings):
+        # Options include site energy outputs, captured energy site-source
+        # calculation method, and verbose mode that prints all warnings
+        self.site_energy = site
+        self.captured_energy = capt
+        self.verbose = warnings
+
+
 class MarketUpdatesTest(unittest.TestCase, CommonMethods):
     """Test 'fill_mkts' function.
 
@@ -726,6 +738,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             attributes are given as point estimates. Used to check the
             'master_mseg' branch of measure 'markets' attribute under a 'Max
             adoption potential scenario.
+        ok_tpmeas_sitechk_in (list): Valid sample measure information to
+            update with markets data, where energy data are in site units.
         ok_distmeas_in (list): Valid sample measure information to
             update with markets data; measure cost, performance, and lifetime
             attributes are given as probability distributions.
@@ -762,7 +776,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         handyvars.retro_rate = 0.02
@@ -797,7 +812,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "distillate": {"2009": 14.81, "2010": 14.87},
                 "other fuel": {"2009": 14.81, "2010": 14.87}}}
         handyvars.ccosts = {"2009": 33, "2010": 33}
-        cls.verbose = None
+        cls.opts = UserOptions(site=None, capt=None, warnings=None)
         cls.convert_data = {}
         cls.tsv_data = {}
         cls.sample_mseg_in = {
@@ -949,6 +964,12 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "electric other": {
                                 "stock": {"2009": 333, "2010": 333},
                                 "energy": {"2009": 333, "2010": 333}}}},
+                    "other fuel": {
+                        "heating": {
+                            "supply": {
+                                "stove (wood)": {
+                                    "stock": {"2009": 2, "2010": 2},
+                                    "energy": {"2009": 2, "2010": 2}}}}},
                     "natural gas": {
                         "water heating": {
                             "stock": {"2009": 15, "2010": 15},
@@ -1531,9 +1552,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                                 "q": "NA"}}}},
                                 "GSHP": {
                                     "performance": {
-                                        "typical": {"2009": 4, "2010": 4},
+                                        "typical": {"2009": 4 / 0.2930712,
+                                                    "2010": 4 / 0.2930712},
                                         "best": {"2009": 4, "2010": 4},
-                                        "units": "COP",
+                                        "units": "EER",
                                         "source":
                                         "EIA AEO"},
                                     "installed cost": {
@@ -2308,6 +2330,42 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}}},
+                    "other fuel": {
+                        "heating": {
+                            "supply": {
+                                "stove (wood)": {
+                                    "performance": {
+                                        "typical": {"2009": 2, "2010": 2},
+                                        "best": {"2009": 2, "2010": 2},
+                                        "units": "HHV",
+                                        "source":
+                                        "EIA AEO"},
+                                    "installed cost": {
+                                        "typical": {"2009": 2, "2010": 2},
+                                        "best": {"2009": 2, "2010": 2},
+                                        "units": "2014$/unit",
+                                        "source": "EIA AEO"},
+                                    "lifetime": {
+                                        "average": {"2009": 20, "2010": 20},
+                                        "range": {"2009": 2, "2010": 2},
+                                        "units": "years",
+                                        "source": "EIA AEO"},
+                                    "consumer choice": {
+                                        "competed market share": {
+                                            "source": "EIA AEO",
+                                            "model type":
+                                                "logistic regression",
+                                            "parameters": {
+                                                "b1": {"2009": "NA",
+                                                       "2010": "NA"},
+                                                "b2": {"2009": "NA",
+                                                       "2010": "NA"}}},
+                                        "competed market": {
+                                            "source": "COBAM",
+                                            "model type": "bass diffusion",
+                                            "parameters": {
+                                                "p": "NA",
+                                                "q": "NA"}}}}}}},
                     "natural gas": {
                         "water heating": {
                             "performance": {
@@ -4919,13 +4977,45 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "retro_rate": 0.02}]
         cls.ok_tpmeas_fullchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[0:5]]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_measures_in[0:5]]
         cls.ok_tpmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[5:22]]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_measures_in[
+                5:22]]
         cls.ok_mapmeas_partchk_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_measures_in[22:]]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_measures_in[22:]]
+        ok_measures_site_energy = [
+            {"name": "sample measure 1 - site energy",
+             "markets": None,
+             "installed_cost": 25,
+             "cost_units": "2014$/unit",
+             "energy_efficiency": {
+                "AIA_CZ1": {"heating": 30,
+                            "cooling": 25},
+                "AIA_CZ2": {"heating": 30,
+                            "cooling": 15}},
+             "energy_efficiency_units": "COP",
+             "market_entry_year": None,
+             "market_exit_year": None,
+             "product_lifetime": 1,
+             "market_scaling_fractions": None,
+             "market_scaling_fractions_source": None,
+             "measure_type": "full service",
+             "structure_type": ["new", "existing"],
+             "bldg_type": "single family home",
+             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+             "fuel_type": "electricity",
+             "fuel_switch_to": None,
+             "end_use": ["heating", "cooling"],
+             "technology": ["resistance heat", "ASHP", "GSHP", "room AC"]}
+            ]
+        cls.ok_tpmeas_sitechk_in = [ecm_prep.Measure(
+            handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_measures_site_energy]
         ok_distmeas_in = [{
             "name": "distrib measure 1",
             "markets": None,
@@ -5026,7 +5116,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         numpy.random.seed(1234)
         cls.ok_distmeas_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_distmeas_in]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_distmeas_in]
         ok_partialmeas_in = [{
             "name": "partial measure 1",
             "markets": None,
@@ -5072,7 +5163,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "external (LED)", "GSHP", "ASHP"]}]
         cls.ok_partialmeas_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in ok_partialmeas_in]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in ok_partialmeas_in]
         failmeas_in = [{
             "name": "fail measure 1",
             "markets": None,
@@ -5200,9 +5292,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "technology": [None, "distribution transformers"]}]
         cls.failmeas_inputs_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in failmeas_in[0:-1]]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in failmeas_in[0:-1]]
         cls.failmeas_missing_in = ecm_prep.Measure(
-            handyvars, **failmeas_in[-1])
+            handyvars, site_energy=None, capt_energy=None, **failmeas_in[-1])
         warnmeas_in = [{
             "name": "warn measure 1",
             "markets": None,
@@ -5361,7 +5454,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "external (LED)"]}]
         cls.warnmeas_in = [
             ecm_prep.Measure(
-                handyvars, **x) for x in warnmeas_in]
+                handyvars, site_energy=None, capt_energy=None, **x) for
+            x in warnmeas_in]
         cls.ok_tpmeas_fullchk_msegout = [{
             "stock": {
                 "total": {
@@ -7118,6 +7212,54 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             [11.9, 100, 374.73, 100, 1.28, 100, 0.02, 1],
             [55.44, 100, 6451739849.37, 100, 1.0, 1, 0.02, 1],
             [10.91, 100, 45, 1, 1, 1, 0.06, 100]]
+        cls.ok_tpmeas_sitechk_msegout = [{
+            "stock": {
+                "total": {
+                    "all": {"2009": 72, "2010": 72},
+                    "measure": {"2009": 72, "2010": 72}},
+                "competed": {
+                    "all": {"2009": 72, "2010": 72},
+                    "measure": {"2009": 72, "2010": 72}}},
+            "energy": {
+                "total": {
+                    "baseline": {"2009": 229.68 / 3.19, "2010": 230.4 / 3.20},
+                    "efficient": {"2009": 117.0943 / 3.19,
+                                  "2010": 117.4613 / 3.20}},
+                "competed": {
+                    "baseline": {"2009": 229.68 / 3.19, "2010": 230.4 / 3.20},
+                    "efficient": {"2009": 117.0943 / 3.19,
+                                  "2010": 117.4613 / 3.20}}},
+            "carbon": {
+                "total": {
+                    "baseline": {"2009": 13056.63, "2010": 12941.16},
+                    "efficient": {"2009": 6656.461, "2010": 6597.595}},
+                "competed": {
+                    "baseline": {"2009": 13056.63, "2010": 12941.16},
+                    "efficient": {"2009": 6656.461, "2010": 6597.595}}},
+            "cost": {
+                "stock": {
+                    "total": {
+                        "baseline": {"2009": 710, "2010": 710},
+                        "efficient": {"2009": 1800, "2010": 1800}},
+                    "competed": {
+                        "baseline": {"2009": 710, "2010": 710},
+                        "efficient": {"2009": 1800, "2010": 1800}}},
+                "energy": {
+                    "total": {
+                        "baseline": {"2009": 2328.955, "2010": 2227.968},
+                        "efficient": {"2009": 1187.336, "2010": 1135.851}},
+                    "competed": {
+                        "baseline": {"2009": 2328.955, "2010": 2227.968},
+                        "efficient": {"2009": 1187.336, "2010": 1135.851}}},
+                "carbon": {
+                    "total": {
+                        "baseline": {"2009": 430868.63, "2010": 427058.3},
+                        "efficient": {"2009": 219663.21, "2010": 217720.65}},
+                    "competed": {
+                        "baseline": {"2009": 430868.63, "2010": 427058.3},
+                        "efficient": {"2009": 219663.21, "2010": 217720.65}}}},
+            "lifetime": {"baseline": {"2009": 98.61, "2010": 98.61},
+                         "measure": 1}}]
         cls.ok_partialmeas_out = [{
             "stock": {
                 "total": {
@@ -7245,7 +7387,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_tpmeas_fullchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              self.convert_data, self.tsv_data, self.verbose)
+                              self.convert_data, self.tsv_data, self.opts)
             # Restrict the full check of all branches of 'markets' to only
             # the first three measures in this set. For the remaining two
             # measures, only check the competed choice parameter outputs.
@@ -7280,7 +7422,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         """
         for idx, measure in enumerate(self.ok_tpmeas_partchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              self.convert_data, self.tsv_data, self.verbose)
+                              self.convert_data, self.tsv_data, self.opts)
             self.dict_check(
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_tpmeas_partchk_msegout[idx])
@@ -7299,7 +7441,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # output
         for idx, measure in enumerate(self.ok_mapmeas_partchk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              self.convert_data, self.tsv_data, self.verbose)
+                              self.convert_data, self.tsv_data, self.opts)
             self.dict_check(
                 measure.markets['Max adoption potential']['master_mseg'],
                 self.ok_mapmas_partchck_msegout[idx])
@@ -7321,7 +7463,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             # Generate lists of energy and cost output values
             measure.fill_mkts(
                 self.sample_mseg_in, self.sample_cpl_in,
-                self.convert_data, self.tsv_data, self.verbose)
+                self.convert_data, self.tsv_data, self.opts)
             test_outputs = measure.markets[
                 'Technical potential']['master_mseg']
             test_e = test_outputs["energy"]["total"]["efficient"]["2009"]
@@ -7344,6 +7486,21 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 param_l, len(test_l), param_r, len(test_r)],
                 self.ok_distmeas_out[idx])
 
+    def test_mseg_sitechk(self):
+        """Test 'fill_mkts' function given site energy output.
+
+        Raises:
+            AssertionError: If function yields unexpected results.
+        """
+        # Run function on all measure objects and check output
+        opts = UserOptions(site=True, capt=True, warnings=None)
+        for idx, measure in enumerate(self.ok_tpmeas_sitechk_in):
+            measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
+                              self.convert_data, self.tsv_data, opts)
+            self.dict_check(
+                measure.markets['Technical potential']['master_mseg'],
+                self.ok_tpmeas_sitechk_msegout[idx])
+
     def test_mseg_partial(self):
         """Test 'fill_mkts' function given partially valid inputs.
 
@@ -7353,7 +7510,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         # Run function on all measure objects and check output
         for idx, measure in enumerate(self.ok_partialmeas_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                              self.convert_data, self.tsv_data, self.verbose)
+                              self.convert_data, self.tsv_data, self.opts)
             self.dict_check(
                 measure.markets['Technical potential']['master_mseg'],
                 self.ok_partialmeas_out[idx])
@@ -7369,10 +7526,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             with self.assertRaises(ValueError):
                 measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
                                   self.convert_data, self.tsv_data,
-                                  self.verbose)
+                                  self.opts)
 
     def test_mseg_fail_missing(self):
-        """Test 'fill_mkts' function given a measure with missing baseline data.
+        """Test 'fill_mkts' function given measure with missing baseline data.
 
         Raises:
             AssertionError: If KeyError is not raised.
@@ -7381,7 +7538,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
         with self.assertRaises(KeyError):
             self.failmeas_missing_in.fill_mkts(
                 self.sample_mseg_in, self.sample_cpl_in,
-                self.convert_data, self.tsv_data, self.verbose)
+                self.convert_data, self.tsv_data, self.opts)
 
     def test_mseg_warn(self):
         """Test 'fill_mkts' function given incomplete inputs.
@@ -7396,7 +7553,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             # is marked inactive where necessary
             with warnings.catch_warnings(record=True) as w:
                 mw.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
-                             self.convert_data, self.tsv_data, self.verbose)
+                             self.convert_data, self.tsv_data, self.opts)
                 # Check correct number of warnings is yielded
                 self.assertEqual(len(w), len(self.ok_warnmeas_out[idx]))
                 # Check correct type of warnings is yielded
@@ -7440,7 +7597,8 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         cls.sample_mskeys = (
@@ -8197,7 +8355,8 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
             }
            }]
         cls.ok_tsv_measures_in = [ecm_prep.Measure(
-          handyvars, **x) for x in sample_tsv_measures_in]
+          handyvars, site_energy=None, capt_energy=None, **x) for
+            x in sample_tsv_measures_in]
         cls.sample_rel_perf = [
           {yr: (1 - m.energy_efficiency) for yr in handyvars.aeo_years}
           for m in cls.ok_tsv_measures_in]
@@ -8440,7 +8599,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                            ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles(
+                                                capt_energy=None))
         cls.handyvars.ccosts = numpy.array(
             (b'Test', 1, 4, 1), dtype=[
                 ('Category', 'S11'), ('2009', '<f8'),
@@ -8468,7 +8628,8 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                 "secondary": None},
             "retro_rate": 0.02}
         cls.measure_instance = ecm_prep.Measure(
-            cls.handyvars, **sample_measure_in)
+            cls.handyvars, site_energy=None, capt_energy=None,
+            **sample_measure_in)
         cls.ok_diffuse_params_in = None
         cls.ok_mskeys_in = [
             ('primary', 'AIA_CZ1', 'single family home',
@@ -8991,7 +9152,8 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measures_fail = [{
             "name": "sample measure 5",
             "market_entry_year": None,
@@ -9044,7 +9206,8 @@ class CheckMarketsTest(unittest.TestCase, CommonMethods):
                 "primary": "all",
                 "secondary": None}}]
         cls.sample_measures_fail = [ecm_prep.Measure(
-            handyvars, **x) for x in sample_measures_fail]
+            handyvars, site_energy=None, capt_energy=None, **x) for
+            x in sample_measures_fail]
 
     def test_invalid_mkts(self):
         """Test 'check_mkt_inputs' function given invalid inputs."""
@@ -9079,7 +9242,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measures = [{
             "name": "sample measure 1",
             "market_entry_year": None,
@@ -9245,7 +9409,8 @@ class FillParametersTest(unittest.TestCase, CommonMethods):
             "end_use": "heating",
             "technology": "all"}]
         cls.sample_measures_in = [ecm_prep.Measure(
-            handyvars, **x) for x in sample_measures]
+            handyvars, site_energy=None, capt_energy=None, **x) for
+            x in sample_measures]
         cls.ok_primary_cpl_out = [[{
             'assembly': 2, 'education': 2, 'food sales': 2,
             'food service': 2, 'health care': 2,
@@ -9625,7 +9790,8 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measure = {
             "name": "sample measure 2",
             "active": 1,
@@ -9670,7 +9836,7 @@ class CreateKeyChainTest(unittest.TestCase, CommonMethods):
                         "adjusted energy (total captured)": {},
                         "adjusted energy (competed and captured)": {}}}}}
         cls.sample_measure_in = ecm_prep.Measure(
-            handyvars, **sample_measure)
+            handyvars, site_energy=None, capt_energy=None, **sample_measure)
         # Finalize the measure's 'technology_type' attribute (handled by the
         # 'fill_attr' function, which is not run as part of this test)
         cls.sample_measure_in.technology_type = {
@@ -9843,7 +10009,8 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -9866,7 +10033,7 @@ class AddKeyValsTest(unittest.TestCase, CommonMethods):
                 "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
-            handyvars, **sample_measure_in)
+            handyvars, site_energy=None, capt_energy=None, **sample_measure_in)
         cls.ok_dict1_in, cls.ok_dict2_in = ({
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -9960,7 +10127,8 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -9983,7 +10151,7 @@ class DivKeyValsTest(unittest.TestCase, CommonMethods):
                 "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
-            handyvars, **sample_measure_in)
+            handyvars, site_energy=None, capt_energy=None, **sample_measure_in)
         cls.ok_reduce_dict = {"2009": 100, "2010": 100}
         cls.ok_dict_in = {
             "AIA CZ1": {
@@ -10049,7 +10217,8 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         sample_measure_in = {
             "name": "sample measure 1",
             "active": 1,
@@ -10072,7 +10241,7 @@ class DivKeyValsFloatTest(unittest.TestCase, CommonMethods):
                 "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
                 "secondary": None}}
         cls.sample_measure_in = ecm_prep.Measure(
-            handyvars, **sample_measure_in)
+            handyvars, site_energy=None, capt_energy=None, **sample_measure_in)
         cls.ok_reduce_num = 4
         cls.ok_dict_in = {
             "stock": {
@@ -10177,7 +10346,8 @@ class AppendKeyValsTest(unittest.TestCase):
         """Define variables and objects for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                            ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles(
+                                                capt_energy=None))
         cls.ok_mktnames_out = [
             "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
             "single family home",
@@ -10313,7 +10483,8 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
         # Base directory
         base_dir = os.getcwd()
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         # Set sample consumer price index data to ensure the test is not
         # dependent on any external price data files
         handyvars.consumer_price_ind = numpy.array([
@@ -10431,7 +10602,7 @@ class CostConversionTest(unittest.TestCase, CommonMethods):
                         "adjusted energy (competed and captured)": {}}}}}
         cls.verbose = None
         cls.sample_measure_in = ecm_prep.Measure(
-            handyvars, **sample_measure_in)
+            handyvars, site_energy=None, capt_energy=None, **sample_measure_in)
         cls.sample_convertdata_ok_in = {
             "building type conversions": {
                 "original type": "EnergyPlus reference buildings",
@@ -10877,7 +11048,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         # Base directory
         cls.base_dir = os.getcwd()
         cls.handyvars = ecm_prep.UsefulVars(cls.base_dir,
-                                            ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles(
+                                                capt_energy=None))
         # Hard code aeo_years to fit test years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.cbecs_sf_byvint = {
@@ -10917,7 +11089,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                 "distillate": {"2009": 14.81, "2010": 14.87},
                 "other fuel": {"2009": 14.81, "2010": 14.87}}}
         cls.handyvars.ccosts = {"2009": 33, "2010": 33}
-        cls.verbose = None
+        cls.opts = UserOptions(site=None, capt=None, warnings=None)
         cls.tsv_data = {
             "load": {
               "AIA_CZ1": {
@@ -13922,7 +14094,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
         measures_out = ecm_prep.prepare_measures(
             self.measures_ok_in, self.convert_data, self.sample_mseg_in,
             self.sample_cpl_in, self.handyvars, self.cbecs_sf_byvint,
-            self.tsv_data, self.base_dir, self.verbose)
+            self.tsv_data, self.base_dir, self.opts)
         for oc in range(0, len(self.ok_out)):
             self.dict_check(
                 measures_out[oc].markets[
@@ -13978,7 +14150,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
             "cost reduction": 0.2}
         # Useful global variables for the sample package measure objects
         handyvars = ecm_prep.UsefulVars(base_dir,
-                                        ecm_prep.UsefulInputFiles())
+                                        ecm_prep.UsefulInputFiles(
+                                            capt_energy=None))
         # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         # Define a series of sample measures to package
@@ -17233,7 +17406,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                 "Technical potential": {"2009": 200, "2010": 200},
                 "Max adoption potential": {"2009": 200, "2010": 200}}}]
         cls.sample_measures_in = [ecm_prep.Measure(
-            handyvars, **x) for x in sample_measures_in]
+            handyvars, site_energy=None, capt_energy=None, **x) for
+            x in sample_measures_in]
         # Reset sample measure technology types (initialized as string)
         for ind, m in enumerate(cls.sample_measures_in):
             m.technology_type = sample_measures_in[ind]["technology_type"]
@@ -18679,7 +18853,8 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             "energy savings increase": None,
             "cost reduction": None}
         cls.handyvars = ecm_prep.UsefulVars(base_dir,
-                                            ecm_prep.UsefulInputFiles())
+                                            ecm_prep.UsefulInputFiles(
+                                                capt_energy=None))
         sample_measindiv_dicts = [{
             "name": "cleanup 1",
             "market_entry_year": None,
@@ -18695,7 +18870,8 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             "technology": {
                 "primary": None, "secondary": None}}]
         cls.sample_measlist_in = [ecm_prep.Measure(
-            cls.handyvars, **x) for x in sample_measindiv_dicts]
+            cls.handyvars, site_energy=None, capt_energy=None, **x) for
+            x in sample_measindiv_dicts]
         sample_measpackage = ecm_prep.MeasurePackage(
             copy.deepcopy(cls.sample_measlist_in), "cleanup 3",
             benefits, cls.handyvars)
@@ -18762,16 +18938,17 @@ class CleanUpTest(unittest.TestCase, CommonMethods):
             ["market_entry_year", "market_exit_year", "markets",
              "name", "out_break_norm", "remove", "retro_rate", 'technology',
              'technology_type', 'time_sensitive_valuation',
-             'yrs_on_mkt', 'measure_type'],
+             'yrs_on_mkt', 'measure_type', 'energy_outputs'],
             ["market_entry_year", "market_exit_year", "markets",
              "name", "out_break_norm", "remove", "retro_rate", 'technology',
              'technology_type', 'time_sensitive_valuation',
-             'yrs_on_mkt', 'measure_type'],
+             'yrs_on_mkt', 'measure_type', 'energy_outputs'],
             ['benefits', 'bldg_type', 'climate_zone', 'end_use', 'fuel_type',
              "technology", "technology_type",
              "market_entry_year", "market_exit_year", 'markets',
              'contributing_ECMs', 'name', "out_break_norm", 'remove',
-             'structure_type', 'yrs_on_mkt', 'measure_type']]
+             'structure_type', 'yrs_on_mkt', 'measure_type',
+             'energy_outputs']]
         cls.sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
     def test_cleanup(self):

@@ -542,7 +542,7 @@ class CommonUnitTest(unittest.TestCase):
          'Range, Gas, 4 powered burners, convect. oven, 11-inch griddle')],
         dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'), ('f', 'i4'),
                ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'), ('c2', 'f8'),
-               ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+               ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                ('technology name', '<U50')])
 
     # Define an array of service demand data that are needed to
@@ -2086,7 +2086,7 @@ class CommonUnitTest(unittest.TestCase):
              'elec_boiler 2012 installed base')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (1, 1, 4, 1, 1, 0.015, 3.1, 67.78, 1.47, 15, 2003, 2009,
@@ -2129,7 +2129,7 @@ class CommonUnitTest(unittest.TestCase):
              'elec_boiler 2012 installed base')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (31, 1, 8, 4, 1, 0.799, 0.37, 4798.93, 32.65, 20, 2003, 2003,
@@ -2162,7 +2162,7 @@ class CommonUnitTest(unittest.TestCase):
              'VAV_Vent 2020 high')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (24, 7, 10, 6, 1, 0.0, 42.4, 84.67, 0.9, 15, 2011, 2052,
@@ -2215,7 +2215,7 @@ class CommonUnitTest(unittest.TestCase):
              'F28T8 HE w/ OS & SR 2030 typical')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (24, 7, 10, 6, 1, 0.0, 42.4, 84.67, 0.9, 15, 2011, 2052,
@@ -2268,7 +2268,7 @@ class CommonUnitTest(unittest.TestCase):
              'F28T8 HE w/ OS & SR 2030 typical')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (34, 1, 3, 5, 1, 0.4901, 0.70, 52.56, 0.43, 10, 1995, 2052,
@@ -2277,7 +2277,7 @@ class CommonUnitTest(unittest.TestCase):
              'Range, Electric-induction, 4 burner, oven, 11-inch griddle')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')])]
 
     # Define a list of numpy arrays that represent the data selected
@@ -2609,7 +2609,7 @@ class CommonUnitTest(unittest.TestCase):
              'comm_GSHP-heat 2013 high 10% ITC w MACRS')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (1, 1, 4, 1, 1, 0.015, 3.1, 67.78, 1.47, 15, 2003, 2009,
@@ -2628,7 +2628,7 @@ class CommonUnitTest(unittest.TestCase):
              'rooftop_ASHP-heat 2020 high')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (32, 1, 8, 4, 1, 0.201, 1.15, 6266.69, 18.94, 20, 2003, 2003,
@@ -2647,7 +2647,7 @@ class CommonUnitTest(unittest.TestCase):
              'VAV_Vent 2020 high')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (25, 9, 10, 6, 1, 0.0007, 151.1, 24.68, 1.61, 15, 2003, 2012,
@@ -2658,21 +2658,21 @@ class CommonUnitTest(unittest.TestCase):
              'F28T8 HE w/ OS 2030 typical')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (25, 1, 10, 6, 1, 0.0288, 41.6, 19.77, 1.45, 15, 2003, 2005,
              'F34T12')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')]),
         np.array([
             (34, 1, 3, 5, 1, 0.4901, 0.70, 52.56, 0.43, 10, 1995, 2052,
              'Range, Electric, 4 burner, oven, 11-inch griddle')],
             dtype=[('t', 'i4'), ('v', 'i4'), ('r', 'i4'), ('s', 'i4'),
                    ('f', 'i4'), ('Shr', 'f8'), ('eff', 'f8'), ('c1', 'f8'),
-                   ('c2', 'f8'), ('Life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
+                   ('c2', 'f8'), ('life', 'i4'), ('y1', 'i4'), ('y2', 'i4'),
                    ('technology name', '<U50')])]
 
     # Set up a list of cost conversion factors reported in numpy arrays

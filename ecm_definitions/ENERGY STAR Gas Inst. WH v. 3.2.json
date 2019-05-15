@@ -19,9 +19,9 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.9,
-  "energy_efficiency_units": "EF",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "",
+    "notes": "High efficiency UEF in 2017",
     "source_data": [{
       "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
        "author": "Energy Star",

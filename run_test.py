@@ -330,7 +330,8 @@ class TestMeasureInit(unittest.TestCase):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -360,10 +361,12 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
-        cls.a_run = run.Engine(handyvars, measure_list)
+        cls.a_run = run.Engine(
+            handyvars, measure_list, energy_out="fossil_equivalent")
         cls.ok_total = {"2009": 100, "2010": 100}
         cls.ok_partitions = {
             "AIA CZ1": {
@@ -456,7 +459,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1298,7 +1302,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # For first test case, verify correct adoption/competition scenario
@@ -1337,7 +1342,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1361,7 +1367,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist1
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1385,7 +1392,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist2
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1409,7 +1417,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist3
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1433,7 +1442,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         test_meas.markets[self.test_adopt_scheme]["uncompeted"][
             "master_mseg"] = self.ok_master_mseg_dist4
         # Create Engine instance using test measure, run function on it
-        engine_instance = run.Engine(self.handyvars, [test_meas])
+        engine_instance = run.Engine(
+            self.handyvars, [test_meas], energy_out="fossil_equivalent")
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1483,7 +1493,8 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1505,7 +1516,8 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     def test_metric_updates(self):
         """Test for correct outputs given valid inputs."""
         # Create an Engine instance using sample_measure list
-        engine_instance = run.Engine(self.handyvars, self.measure_list)
+        engine_instance = run.Engine(
+            self.handyvars, self.measure_list, energy_out="fossil_equivalent")
         # Record the output for the test run of the 'metric_update'
         # function
         function_output = engine_instance.metric_update(
@@ -1541,7 +1553,8 @@ class PaybackTest(unittest.TestCase):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1551,7 +1564,8 @@ class PaybackTest(unittest.TestCase):
     def test_cashflow_paybacks(self):
         """Test for correct outputs given valid inputs."""
         # Create an Engine instance using sample_measure list
-        engine_instance = run.Engine(self.handyvars, self.measure_list)
+        engine_instance = run.Engine(
+            self.handyvars, self.measure_list, energy_out="fossil_equivalent")
         # Test that valid input cashflows yield correct output payback values
         for idx, cf in enumerate(self.ok_cashflows):
             self.assertAlmostEqual(engine_instance.payback(cf),
@@ -1622,7 +1636,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
@@ -4062,7 +4077,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                      [str(('primary', 'AIA_CZ1', 'single family home',
                            'electricity',
                            'cooling', 'demand', 'windows', 'existing'))]]}
-        cls.a_run = run.Engine(cls.handyvars, cls.measures_all)
+        cls.a_run = run.Engine(
+            cls.handyvars, cls.measures_all, energy_out="fossil_equivalent")
         # Set information needed to finalize point value test measure
         # consumer metrics
         consumer_metrics_final = [{
@@ -4205,7 +4221,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                      [str(('primary', 'AIA_CZ1', 'single family home',
                            'electricity',
                            'cooling', 'demand', 'windows', 'existing'))]]}
-        cls.a_run_dist = run.Engine(cls.handyvars, cls.measures_all_dist)
+        cls.a_run_dist = run.Engine(
+            cls.handyvars, cls.measures_all_dist,
+            energy_out="fossil_equivalent")
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_final_dist = [{
@@ -5311,7 +5329,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         cls.handyvars.retro_rate = 0
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
@@ -7058,7 +7077,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             copy.deepcopy(cls.compete_meas3)]]
         cls.measures_secondary = [cls.measures_all[1]]
         # Instantiate engine object based on above measures
-        cls.a_run = run.Engine(cls.handyvars, cls.measures_all)
+        cls.a_run = run.Engine(
+            cls.handyvars, cls.measures_all, energy_out="fossil_equivalent")
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics = [{
@@ -7203,7 +7223,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             cls.compete_meas2_dist,
             copy.deepcopy(cls.compete_meas3)]]
         cls.measures_secondary_dist = [cls.measures_all_dist[1]]
-        cls.a_run_dist = run.Engine(cls.handyvars, cls.measures_all_dist)
+        cls.a_run_dist = run.Engine(
+            cls.handyvars, cls.measures_all_dist,
+            energy_out="fossil_equivalent")
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_dist = [{
@@ -7810,7 +7832,8 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles())
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -7842,6 +7865,208 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
                         tested_data["key 1"]["nested key 1"],
                         tested_data["key 1"]["nested key 2"],
                         tested_data["key 2"]], [numpy.ndarray, int, float])]))
+
+
+class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
+    """Test the operation of the 'find_added_sbmkt_fracs' function.
+
+    Verify that the function correctly adds to competed ECM market shares to
+    account for sub-market scaling in the competed ECM set.
+
+    Attributes:
+        handyvars (object): Useful variables across the class.
+        sample_measlist_in (list): Sample measures to compete with sub-market
+            scaling fraction information.
+        sample_mkt_fracs (list): Sample market shares for competing measures.
+        sample_mseg_key (str): Sample competing microsegment name.
+        adopt_scheme (str): Technology adoption scheme.
+        sample_measlist_out_data (list): Additional market shares to add
+            to each measure after running the function.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define objects/variables for use across all class functions."""
+        base_dir = os.getcwd()
+        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
+            energy_out="fossil_equivalent"))
+        cls.handyvars.aeo_years = ["2009", "2010"]
+        sample_measure1 = {
+            "name": "sample sub-market test measure 1",
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["heating", "cooling"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["resistance heat",
+                           "ASHP", "GSHP", "room AC"],
+                           "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 0.4}}}},
+                "Max adoption potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 0.4}}}}}}
+        sample_measure2 = {
+            "name": "sample sub-market test measure 2",
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["heating", "cooling"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["resistance heat",
+                           "ASHP", "GSHP", "room AC"],
+                           "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 0.7}}}},
+                "Max adoption potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 0.7}}}}}}
+        sample_measure3 = {
+            "name": "sample sub-market test measure 3",
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["heating", "cooling"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["resistance heat",
+                           "ASHP", "GSHP", "room AC"],
+                           "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 1}}}},
+                "Max adoption potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 1}}}}}}
+        sample_measure4 = {
+            "name": "sample sub-market test measure 4",
+            "measure_type": "full service",
+            "structure_type": ["new", "existing"],
+            "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
+            "bldg_type": ["single family home"],
+            "fuel_type": {"primary": ["electricity"],
+                          "secondary": None},
+            "fuel_switch_to": None,
+            "end_use": {"primary": ["heating", "cooling"],
+                        "secondary": None},
+            "technology_type": {"primary": "supply",
+                                "secondary": None},
+            "technology": {"primary": ["resistance heat",
+                           "ASHP", "GSHP", "room AC"],
+                           "secondary": None},
+            "market_entry_year": None,
+            "market_exit_year": None,
+            "markets": {
+                "Technical potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 1}}}},
+                "Max adoption potential": {
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            "sample mseg key": {
+                                "sub-market scaling": 1}}}}}}
+        sample_measureset = [
+            run.Measure(cls.handyvars, **x) for x in [
+                sample_measure1, sample_measure2, sample_measure3,
+                sample_measure4]]
+        cls.sample_measlist_in = [
+            sample_measureset, sample_measureset, sample_measureset,
+            sample_measureset[0:2], sample_measureset[2:]]
+        cls.sample_mkt_fracs = [
+            [{"2009": 0.25, "2010": 0.25},
+             {"2009": 0.25, "2010": 0.25},
+             {"2009": 0.25, "2010": 0.25},
+             {"2009": 0.25, "2010": 0.25}],
+            [{"2009": 1, "2010": 1},
+             {"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0.5, "2010": 0.5},
+             {"2009": 0.5, "2010": 0.5}],
+            [{"2009": 0.5, "2010": 0.5},
+             {"2009": 0.5, "2010": 0.5}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 1, "2010": 1}]]
+        cls.sample_mseg_key = "sample mseg key"
+        cls.adopt_scheme = "Technical potential"
+        cls.sample_measlist_out_data = [
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0.1125, "2010": 0.1125},
+             {"2009": 0.1125, "2010": 0.1125}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0.3, "2010": 0.3},
+             {"2009": 0.3, "2010": 0.3}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0}],
+            [{"2009": 0, "2010": 0},
+             {"2009": 0, "2010": 0}]]
+
+    def test_sbmkt_frac_add(self):
+        """Test for correct function output given valid input."""
+        # Check function outputs
+        for ind in range(0, len(self.sample_measlist_in)):
+            # Generate an engine object with the appropriate sample measures
+            a_run = run.Engine(
+                self.handyvars, self.sample_measlist_in[ind],
+                energy_out="fossil_equivalent")
+            # Execute the function
+            measures_sbmkt_frac_data = a_run.find_added_sbmkt_fracs(
+                self.sample_mkt_fracs[ind], self.sample_measlist_in[ind],
+                self.sample_mseg_key, self.adopt_scheme)
+            # Check the added market fractions for each measure and year
+            for ind_out in range(len(measures_sbmkt_frac_data)):
+                self.dict_check(self.sample_measlist_out_data[ind][ind_out],
+                                measures_sbmkt_frac_data[ind_out])
 
 
 # Offer external code execution (include all lines below this point in all
