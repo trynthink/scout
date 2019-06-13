@@ -379,7 +379,7 @@ for (a in 1:length(adopt_scenarios)){
       
       # Set applicable climate zones, end uses, and building classes for ECM
       # and add to Excel worksheet data frame
-      czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Climate Zones')
+      czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Regions')
       bldg_types = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Building Classes')
       end_uses = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable End Uses')
       xlsx_data[row_ind_start:(row_ind_start + 3), 3] = czones

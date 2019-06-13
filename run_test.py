@@ -331,7 +331,7 @@ class TestMeasureInit(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -362,7 +362,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
@@ -460,7 +460,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1494,7 +1494,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1554,7 +1554,7 @@ class PaybackTest(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1637,7 +1637,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
@@ -16113,7 +16113,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         cls.handyvars.retro_rate = 0
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
@@ -26537,7 +26537,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26593,7 +26593,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent"))
+            energy_out="fossil_equivalent"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
         sample_measure1 = {
             "name": "sample sub-market test measure 1",

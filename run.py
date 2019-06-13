@@ -73,9 +73,12 @@ class UsefulVars(object):
             the building sector categories used in summarizing measure outputs.
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
+        regions (str): Regions to use in geographically breaking out the data.
+        region_check (dict): Acceptable input names for each region set.
+        region_inout_namepairs (dict): Input/output region name pairs.
     """
 
-    def __init__(self, base_dir, handyfiles):
+    def __init__(self, base_dir, handyfiles, regions):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.retro_rate = 0.01
         # Load metadata including AEO year range
@@ -118,10 +121,23 @@ class UsefulVars(object):
                 "refrigeration": {
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
-        self.out_break_czones = OrderedDict([
-            ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
-            ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
-            ('AIA CZ5', 'AIA_CZ5')])
+        self.region_check = {
+            "AIA": ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'],
+            "EMM": [
+                'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
+                'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
+                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']}
+        self.region_inout_namepairs = {
+            "AIA": [
+                ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
+                ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
+                ('AIA CZ5', 'AIA_CZ5')],
+            "EMM": [(x, x) for x in [
+                'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
+                'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
+                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']]}
+        regions_out = self.region_inout_namepairs[regions]
+        self.out_break_czones = OrderedDict(regions_out)
         self.out_break_bldgtypes = OrderedDict([
             ('Residential (New)', [
                 'new', 'single family home', 'multi family home',
@@ -343,7 +359,7 @@ class Engine(object):
             # as filter variables
             self.output_ecms[m.name] = OrderedDict([
                 ("Filter Variables", OrderedDict([
-                    ("Applicable Climate Zones", czones),
+                    ("Applicable Regions", czones),
                     ("Applicable Building Classes", bldgtypes),
                     ("Applicable End Uses", end_uses)])),
                 ("Markets and Savings (Overall)", OrderedDict()),
@@ -3218,10 +3234,11 @@ def main(base_dir):
         savings and financial metrics for each measure, and write a summary
         of key results to an output JSON.
     """
-    # Instantiate useful input files object
+    # Instantiate useful input files object (fossil fuel equivalency method
+    # used by default to calculate site-source conversions)
     handyfiles = UsefulInputFiles(energy_out="fossil_equivalent")
-    # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles)
+    # Instantiate useful variables object (AIA climate regions used by default)
+    handyvars = UsefulVars(base_dir, handyfiles, regions="AIA")
 
     # Import measure files
     with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
@@ -3269,8 +3286,9 @@ def main(base_dir):
             m["name"] in active_meas_all and m["remove"] is False]
 
     # Check to ensure that all active/valid measure definitions used consistent
-    # energy units (site vs. source) and site-source conversion factors when
-    # being prepared in ecm_prep.py
+    # energy units (site vs. source), site-source conversion factors, regional
+    # breakouts, and time sensitive valuation metric settings when being
+    # prepared in ecm_prep.py
     try:
         if not (all([m.energy_outputs["site_energy"] is True for
                      m in measures_objlist]) or
@@ -3290,6 +3308,28 @@ def main(base_dir):
                 "across active ECM set. To address this issue, "
                 "delete the file ./supporting_data/ecm_prep.json "
                 "and rerun ecm_prep.py.")
+        if not (all([(m.energy_outputs["alt_regions"] is not False and
+                      m.energy_outputs["alt_regions"] ==
+                      measures_objlist[0].energy_outputs["alt_regions"]) for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["alt_regions"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent regional breakouts used "
+                "across active ECM set. To address this issue, "
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py.")
+        if not (all([(m.energy_outputs["tsv_metrics"] is not False and
+                      m.energy_outputs["tsv_metrics"] ==
+                      measures_objlist[0].energy_outputs["tsv_metrics"]) for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["tsv_metrics"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent time sensitive valuation metrics used "
+                "across active ECM set. To address this issue, "
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py.")
     except AttributeError:
         raise ValueError(
             "One or more active ECMs lacks information needed to determine "
@@ -3302,16 +3342,30 @@ def main(base_dir):
     if measures_objlist[0].energy_outputs["site_energy"] is True:
         # Set energy output to site energy
         energy_out = "site"
-        # Re-instantiate useful input files object
+        # Re-instantiate useful input files object when site energy is output
+        # instead of the default source energy
         handyfiles = UsefulInputFiles(energy_out)
     elif measures_objlist[0].energy_outputs["captured_energy_ss"] is True:
         # Set energy output to source energy using captured energy S-S
         energy_out = "captured"
-        # Re-instantiate useful input files object
+        # Re-instantiate useful input files object when the captured energy
+        # method was used to calculate site-source conversions instead of the
+        # default fossil fuel equivalency method
         handyfiles = UsefulInputFiles(energy_out)
     else:
-        # Set energy output to source energy using fossil equivalent S-S
+        # Otherwise, set energy output to source energy, fossil equivalent S-S
         energy_out = "fossil_equivalent"
+
+    # Set a flag for geographical breakout (currently possible to breakout
+    # by AIA climate zone or by NEMS EMM region).
+    if measures_objlist[0].energy_outputs["alt_regions"] == "EMM":
+        regions = "EMM"
+        # Re-instantiate useful variables object when regional breakdown other
+        # than the default AIA climate zone breakdown is chosen
+        handyvars = UsefulVars(base_dir, handyfiles, regions)
+    else:
+        # Otherwise, set regional breakdown to AIA climate zones
+        regions = "AIA"
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
@@ -3400,65 +3454,83 @@ def main(base_dir):
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
 
-    # Plot output data in R
+    # Plot output data in R when using AIA climate regions
+    if regions == "AIA":
+        # Notify user that the output data are being plotted
+        print('Plotting output data...', end="", flush=True)
 
-    # Notify user that the output data are being plotted
-    print('Plotting output data...', end="", flush=True)
+        # Ensure presence of R/Perl in Windows user PATH environment variable
+        if sys.platform.startswith('win'):
+            if "R-" not in environ["PATH"]:
+                # Find the path to the user's Rscript.exe file
+                lookfor, r_path = ("R-", None)
+                for root, directory, files in walk(path.join("C:", sep)):
+                    if lookfor in root and "Rscript.exe" in files:
+                        r_path = root
+                        break
+                # If Rscript.exe was not found, yield warning; else add to PATH
+                if r_path is None:
+                    warnings.warn("R executable not found for plotting")
+                else:
+                    environ["PATH"] += pathsep + r_path
+            if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
+                # Find the path to the user's perl.exe file
+                lookfor, perl_path = (["Perl", "perl"], None)
+                for root, directory, files in walk(path.join("C:", sep)):
+                    if any([x in root for x in lookfor]) and \
+                            "perl.exe" in files:
+                        perl_path = root
+                        break
+                # If perl.exe was not found, yield warning; else add to PATH
+                if perl_path is None:
+                    warnings.warn(
+                        "Perl executable not found for plot XLSX writing")
+                else:
+                    environ["PATH"] += pathsep + perl_path
+        # If user's operating system can't be determined, yield warning message
+        elif sys.platform == "unknown":
+            warnings.warn("Could not determine OS for plotting routine")
 
-    # Ensure the presence of R/Perl in Windows user PATH environment variable
-    if sys.platform.startswith('win'):
-        if "R-" not in environ["PATH"]:
-            # Find the path to the user's Rscript.exe file
-            lookfor, r_path = ("R-", None)
-            for root, directory, files in walk(path.join("C:", sep)):
-                if lookfor in root and "Rscript.exe" in files:
-                    r_path = root
-                    break
-            # If Rscript.exe was not found, yield warning; else add to PATH
-            if r_path is None:
-                warnings.warn("R executable not found for plotting")
-            else:
-                environ["PATH"] += pathsep + r_path
-        if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
-            # Find the path to the user's perl.exe file
-            lookfor, perl_path = (["Perl", "perl"], None)
-            for root, directory, files in walk(path.join("C:", sep)):
-                if any([x in root for x in lookfor]) and "perl.exe" in files:
-                    perl_path = root
-                    break
-            # If perl.exe was not found, yield warning; else add to PATH
-            if perl_path is None:
-                warnings.warn(
-                    "Perl executable not found for plot XLSX writing")
-            else:
-                environ["PATH"] += pathsep + perl_path
-    # If user's operating system cannot be determined, yield warning message
-    elif sys.platform == "unknown":
-        warnings.warn("Could not determine OS for plotting routine")
+        # Run R code
 
-    # Run R code
+        # Set variable used to hide subprocess output
+        FNULL = open(devnull, 'w')
 
-    # Set variable used to hide subprocess output
-    FNULL = open(devnull, 'w')
-
-    try:
-        # Define shell command for R plotting function
-        shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
-        # Execute R code
-        subprocess.run(shell_command, shell=True, check=True,
-                       stdout=FNULL, stderr=FNULL)
-        # Notify user of plotting outcome if no error is thrown
-        print("Plotting complete")
-    except AttributeError:
-        # If run module in subprocess throws AttributeError, try
-        # subprocess.call() (used in Python versions before 3.5)
         try:
+            # Define shell command for R plotting function
+            shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
             # Execute R code
-            subprocess.check_call(shell_command, shell=True,
-                                  stdout=FNULL, stderr=FNULL)
+            subprocess.run(shell_command, shell=True, check=True,
+                           stdout=FNULL, stderr=FNULL)
             # Notify user of plotting outcome if no error is thrown
             print("Plotting complete")
+        except AttributeError:
+            # If run module in subprocess throws AttributeError, try
+            # subprocess.call() (used in Python versions before 3.5)
+            try:
+                # Execute R code
+                subprocess.check_call(shell_command, shell=True,
+                                      stdout=FNULL, stderr=FNULL)
+                # Notify user of plotting outcome if no error is thrown
+                print("Plotting complete")
+            except subprocess.CalledProcessError:
+                try:
+                    # Define shell command for R plotting function - handle 3.5
+                    # bug in escaping spaces/apostrophes by adding --vanilla
+                    # command (recommended here: https://stackoverflow.com/
+                    # questions/50028090/is-this-a-bug-in-r-3-5)
+                    shell_command = 'Rscript --vanilla ' + \
+                        '"' + path.join(base_dir, 'plots_shell.R') + '"'
+                    # Execute R code
+                    subprocess.check_call(shell_command, shell=True)
+                    # Notify user of plotting outcome if no error is thrown
+                    print("Plotting complete")
+                except subprocess.CalledProcessError as err:
+                    print("Plotting failed to complete: ", err)
         except subprocess.CalledProcessError:
+            # Else if run module in subprocess throws any other type of error,
+            # try handling a bug in R 3.5 where spaces/apostrophes in a
+            # directory name are not escaped
             try:
                 # Define shell command for R plotting function - handle 3.5 bug
                 # in escaping spaces/apostrophes by adding --vanilla command
@@ -3467,28 +3539,11 @@ def main(base_dir):
                 shell_command = 'Rscript --vanilla ' + \
                     '"' + path.join(base_dir, 'plots_shell.R') + '"'
                 # Execute R code
-                subprocess.check_call(shell_command, shell=True)
+                subprocess.run(shell_command, shell=True, check=True)
                 # Notify user of plotting outcome if no error is thrown
                 print("Plotting complete")
             except subprocess.CalledProcessError as err:
                 print("Plotting failed to complete: ", err)
-    except subprocess.CalledProcessError:
-        # Else if run module in subprocess throws any other type of error,
-        # try handling a bug in R 3.5 where spaces/apostrophes in a directory
-        # name are not escaped
-        try:
-            # Define shell command for R plotting function - handle 3.5 bug
-            # in escaping spaces/apostrophes by adding --vanilla command
-            # (recommended here: https://stackoverflow.com/questions/50028090/
-            # is-this-a-bug-in-r-3-5)
-            shell_command = 'Rscript --vanilla ' + \
-                '"' + path.join(base_dir, 'plots_shell.R') + '"'
-            # Execute R code
-            subprocess.run(shell_command, shell=True, check=True)
-            # Notify user of plotting outcome if no error is thrown
-            print("Plotting complete")
-        except subprocess.CalledProcessError as err:
-            print("Plotting failed to complete: ", err)
 
 
 if __name__ == '__main__':

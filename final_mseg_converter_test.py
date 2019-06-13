@@ -82,6 +82,15 @@ class CommonUnitTest(unittest.TestCase):
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
 
+    # Test a case where the residential array above is split out by fuel type,
+    # as is true for a conversion between census division and EIA Electricity
+    # Market Module (EMM) region data (in this case, the array column headings
+    # will actually be EMM regions, but this test setup demonstrates the
+    # intended functionality nonetheless)
+    res_cd_cz_array_fuelsplit = {
+        "electric": res_cd_cz_array,
+        "non-electric": res_cd_cz_array}
+
     # Array of census division to climate zone conversion factors for
     # energy, stock, and square footage data for commercial buildings
     # Derived from Com_Cdiv_Czone_ConvertTable_Final.txt
@@ -97,6 +106,15 @@ class CommonUnitTest(unittest.TestCase):
         (9, 0.0701, 0.129, 0.0792, 0.708, 0.0137)],
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+
+    # Test a case where the commercial array above is split out by fuel type,
+    # as is true for a conversion between census division and EIA Electricity
+    # Market Module (EMM) region data (in this case, the array column headings
+    # will actually be EMM regions, but this test setup demonstrates the
+    # intended functionality nonetheless)
+    com_cd_cz_array_fuelsplit = {
+        "electric": com_cd_cz_array,
+        "non-electric": com_cd_cz_array}
 
     # Residential building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -114,6 +132,15 @@ class CommonUnitTest(unittest.TestCase):
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
 
+    # Test a case where the residential array above is split out by fuel type,
+    # as is true for a conversion between census division and EIA Electricity
+    # Market Module (EMM) region data (in this case, the array column headings
+    # will actually be EMM regions, but this test setup demonstrates the
+    # intended functionality nonetheless)
+    res_cd_cz_wtavg_array_fuelsplit = {
+        "electric": res_cd_cz_wtavg_array,
+        "non-electric": res_cd_cz_wtavg_array}
+
     # Commercial building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
     # Derived from Com_Cdiv_Czone_ConvertTable_Rev_Final.txt
@@ -130,6 +157,15 @@ class CommonUnitTest(unittest.TestCase):
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
 
+    # Test a case where the commercial array above is split out by fuel type,
+    # as is true for a conversion between census division and EIA Electricity
+    # Market Module (EMM) region data (in this case, the array column headings
+    # will actually be EMM regions, but this test setup demonstrates the
+    # intended functionality nonetheless)
+    com_cd_cz_wtavg_array_fuelsplit = {
+        "electric": com_cd_cz_wtavg_array,
+        "non-electric": com_cd_cz_wtavg_array}
+
 
 class DataRestructuringFunctionTest(CommonUnitTest):
     """ Test the operation of the function that calculates the
@@ -143,7 +179,7 @@ class DataRestructuringFunctionTest(CommonUnitTest):
             'new homes': {'2009': 111, '2010': 111, '2011': 111},
             'total homes': {'2009': 222, '2010': 222, '2011': 222},
             'square footage': {'2009': 333, '2010': 333, '2011': 333},
-            'electricity (grid)': {
+            'electricity': {
                 'lighting': {
                     'linear fluorescent': {
                         'stock': {'2009': 13, '2010': 14, '2011': 15},
@@ -189,7 +225,7 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                 '2009': 235.2978, '2010': 235.2978, '2011': 235.2978},
             'square footage': {
                 '2009': 352.9467, '2010': 352.9467, '2011': 352.9467},
-            'electricity (grid)': {
+            'electricity': {
                 'lighting': {
                     'linear fluorescent': {
                         'energy': {
@@ -219,7 +255,7 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                 '2009': 256.4988, '2010': 256.4988, '2011': 256.4988},
             'square footage': {
                 '2009': 384.7482, '2010': 384.7482, '2011': 384.7482},
-            'electricity (grid)': {
+            'electricity': {
                 'lighting': {
                     'linear fluorescent': {
                         'energy': {
@@ -281,7 +317,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 2, '2010': 22, '2011': 2},
                 'square footage': {
                     '2009': 3, '2010': 33, '2011': 3},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -320,7 +356,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 22, '2010': 22, '2011': 22},
                 'square footage': {
                     '2009': 33, '2010': 33, '2011': 33},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -359,7 +395,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 222, '2010': 222, '2011': 222},
                 'square footage': {
                     '2009': 333, '2010': 333, '2011': 333},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -808,7 +844,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
     test_fail_input = {
         'new england': {
             'single family home': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -821,7 +857,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 '2011': 1}}}}}},
         'middle atlantic': {
             'single family home': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -834,7 +870,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 '2011': 2}}}}}},
         'east north central': {
             'single family home': {
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             'stock': {
@@ -857,7 +893,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 36.2558, '2010': 40.6478, '2011': 36.2558},
                 'square footage': {
                     '2009': 54.3837, '2010': 60.9717, '2011': 54.3837},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             "stock": {
@@ -896,7 +932,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 158.5558, '2010': 173.1018, '2011': 158.5558},
                 'square footage': {
                     '2009': 237.8337, '2010': 259.6527, '2011': 237.8337},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             "stock": {
@@ -935,7 +971,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 51.1886, '2010': 52.2526, '2011': 51.1886},
                 'square footage': {
                     '2009': 76.7829, '2010': 78.3789, '2011': 76.7829},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             "stock": {
@@ -974,7 +1010,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 0, '2010': 0, '2011': 0},
                 'square footage': {
                     '2009': 0, '2010': 0, '2011': 0},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             "stock": {
@@ -1013,7 +1049,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     '2009': 0, '2010': 0, '2011': 0},
                 'square footage': {
                     '2009': 0, '2010': 0, '2011': 0},
-                'electricity (grid)': {
+                'electricity': {
                     'lighting': {
                         'linear fluorescent': {
                             "stock": {
@@ -1725,7 +1761,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'units': 'years'}}}}}}}
 
     # Compare the converted dict of energy, stock, and square footage
-    # data to the expected data reported on a climate zone basis
+    # data to the expected data reported on a climate zone basis, given
+    # conversion arrays that are not split out by fuel type
     def test_conversion_of_energy_stock_square_footage_data(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array,
@@ -1733,12 +1770,33 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
+    # Compare the converted dict of energy, stock, and square footage
+    # data to the expected data reported on a climate zone basis, given
+    # conversion arrays that are split out by fuel type
+    def test_conversion_of_energy_stock_square_footage_data_emm(self):
+        dict1 = fmc.clim_converter(self.test_energy_stock_input,
+                                   self.res_cd_cz_array_fuelsplit,
+                                   self.com_cd_cz_array_fuelsplit)
+        dict2 = self.test_energy_stock_output
+        self.dict_check(dict1, dict2)
+
     # Compare the converted dict of cost, performance, and lifetime
-    # data to the expected data on a climate zone basis
+    # data to the expected data on a climate zone basis, given conversion
+    # arrays that are not split out by fuel type
     def test_conversion_of_cost_performance_lifetime_data(self):
         dict1 = fmc.clim_converter(self.test_cpl_input,
                                    self.res_cd_cz_wtavg_array,
                                    self.com_cd_cz_wtavg_array)
+        dict2 = self.test_cpl_output
+        self.dict_check(dict1, dict2)
+
+    # Compare the converted dict of cost, performance, and lifetime
+    # data to the expected data on a climate zone basis, given conversion
+    # arrays that are split out by fuel type
+    def test_conversion_of_cost_performance_lifetime_data_emm(self):
+        dict1 = fmc.clim_converter(self.test_cpl_input,
+                                   self.res_cd_cz_wtavg_array_fuelsplit,
+                                   self.com_cd_cz_wtavg_array_fuelsplit)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -1807,15 +1865,71 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                             "source": "Source B"},
                         "solar": {
                             "typical": {
-                                "AIA_CZ1": 0.49,
+                                "AIA_CZ1": {
+                                    "2009": 0.49,
+                                    "2010": 0.49,
+                                    "2011": 0.49,
+                                    "2012": 0.49,
+                                    "2013": 0.49,
+                                    "2014": 0.49,
+                                    "2015": 0.49,
+                                    "2016": 0.49,
+                                    "2017": 0.49,
+                                    "2018": 0.49,
+                                    "2019": 0.49,
+                                    "2020": 0.49},
                                 "AIA_CZ2": {
-                                    '2009': 0.39, '2010': 0.39, '2011': 0.39,
-                                    '2012': 0.39, '2013': 0.39, '2014': 0.39,
-                                    '2015': 0.39, '2016': 0.39, '2017': 0.39,
-                                    '2018': 0.39, '2019': 0.42, '2020': 0.42},
-                                "AIA_CZ3": 0.39,
-                                "AIA_CZ4": 0.39,
-                                "AIA_CZ5": 0.25},
+                                    "2009": 0.39,
+                                    "2010": 0.39,
+                                    "2011": 0.39,
+                                    "2012": 0.39,
+                                    "2013": 0.39,
+                                    "2014": 0.39,
+                                    "2015": 0.39,
+                                    "2016": 0.39,
+                                    "2017": 0.39,
+                                    "2018": 0.39,
+                                    "2019": 0.39,
+                                    "2020": 0.39},
+                                "AIA_CZ3": {
+                                    "2009": 0.39,
+                                    "2010": 0.39,
+                                    "2011": 0.39,
+                                    "2012": 0.39,
+                                    "2013": 0.39,
+                                    "2014": 0.39,
+                                    "2015": 0.39,
+                                    "2016": 0.39,
+                                    "2017": 0.39,
+                                    "2018": 0.39,
+                                    "2019": 0.39,
+                                    "2020": 0.39},
+                                "AIA_CZ4": {
+                                    "2009": 0.39,
+                                    "2010": 0.39,
+                                    "2011": 0.39,
+                                    "2012": 0.39,
+                                    "2013": 0.39,
+                                    "2014": 0.39,
+                                    "2015": 0.39,
+                                    "2016": 0.39,
+                                    "2017": 0.39,
+                                    "2018": 0.39,
+                                    "2019": 0.39,
+                                    "2020": 0.39},
+                                "AIA_CZ5": {
+                                    "2009": 0.25,
+                                    "2010": 0.25,
+                                    "2011": 0.25,
+                                    "2012": 0.25,
+                                    "2013": 0.25,
+                                    "2014": 0.25,
+                                    "2015": 0.25,
+                                    "2016": 0.25,
+                                    "2017": 0.25,
+                                    "2018": 0.25,
+                                    "2019": 0.25,
+                                    "2020": 0.25}},
                             "units": "SHGC",
                             "source": "Source B"}},
                     "lifetime": {
@@ -1836,18 +1950,74 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                                 "AIA_CZ2": 3,
                                 "AIA_CZ3": 3,
                                 "AIA_CZ4": 3,
-                                "AIA_CZ5": {
-                                    '2009': 5, '2010': 5, '2011': 5,
-                                    '2012': 5, '2013': 5, '2014': 5,
-                                    '2015': 5, '2016': 3, '2017': 3,
-                                    '2018': 3, '2019': 3, '2020': 3}
+                                "AIA_CZ5": 5
                             },
                             "existing": {
-                                "AIA_CZ1": 10,
-                                "AIA_CZ2": 10,
-                                "AIA_CZ3": 10,
-                                "AIA_CZ4": 10,
-                                "AIA_CZ5": 10
+                                "AIA_CZ1": {
+                                    "2009": 10,
+                                    "2010": 10,
+                                    "2011": 10,
+                                    "2012": 10,
+                                    "2013": 10,
+                                    "2014": 10,
+                                    "2015": 10,
+                                    "2016": 10,
+                                    "2017": 10,
+                                    "2018": 10,
+                                    "2019": 10,
+                                    "2020": 10},
+                                "AIA_CZ2": {
+                                    "2009": 10,
+                                    "2010": 10,
+                                    "2011": 10,
+                                    "2012": 10,
+                                    "2013": 10,
+                                    "2014": 10,
+                                    "2015": 10,
+                                    "2016": 10,
+                                    "2017": 10,
+                                    "2018": 10,
+                                    "2019": 10,
+                                    "2020": 10},
+                                "AIA_CZ3": {
+                                    "2009": 10,
+                                    "2010": 10,
+                                    "2011": 10,
+                                    "2012": 10,
+                                    "2013": 10,
+                                    "2014": 10,
+                                    "2015": 10,
+                                    "2016": 10,
+                                    "2017": 10,
+                                    "2018": 10,
+                                    "2019": 10,
+                                    "2020": 10},
+                                "AIA_CZ4": {
+                                    "2009": 10,
+                                    "2010": 10,
+                                    "2011": 10,
+                                    "2012": 10,
+                                    "2013": 10,
+                                    "2014": 10,
+                                    "2015": 10,
+                                    "2016": 10,
+                                    "2017": 10,
+                                    "2018": 10,
+                                    "2019": 10,
+                                    "2020": 10},
+                                "AIA_CZ5": {
+                                    "2009": 10,
+                                    "2010": 10,
+                                    "2011": 10,
+                                    "2012": 10,
+                                    "2013": 10,
+                                    "2014": 10,
+                                    "2015": 10,
+                                    "2016": 10,
+                                    "2017": 10,
+                                    "2018": 10,
+                                    "2019": 10,
+                                    "2020": 10}
                             }
                         },
                         "units": "ACH",
@@ -1914,7 +2084,7 @@ class EnvelopeDataUnitTest(CommonUnitTest):
     # Define a dict with the cost unit conversion data needed to update
     # the cost data from their original/source units to a common per
     # square foot floor area basis
-    conversions_data = {
+    cost_convert_data = {
         "building type conversions": {
             "original type": "EnergyPlus reference buildings",
             "revised type": "Annual Energy Outlook (AEO) buildings",
@@ -2129,6 +2299,26 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                             "source": "Rule of thumb",
                             "notes": "Explanatory text."}}}}}}
 
+    # Sample envelope performance conversion data for a case where the
+    # ultimate regional breakout is AIA climate zones - no further
+    # performance conversion is necessary in this case
+    perf_convert_data_aia = None
+    # Sample envelope performance conversion data for a case where the
+    # ultimate regional breakout is something other than AIA climate zones -
+    # in this case, a further conversion from AIA zones to the alternate
+    # regional breakout is needed. For convenience, the below conversion array
+    # assumes 5 EIA EMM regions that map directly to one of the five AIA
+    # climate zones (e.g., EMM region 1 = AIA region 1)
+    perf_convert_data_alt = np.array([
+        (1, 1, 0, 0, 0, 0),
+        (2, 0, 1, 0, 0, 0),
+        (3, 0, 0, 1, 0, 0),
+        (4, 0, 0, 0, 1, 0),
+        (5, 0, 0, 0, 0, 1)],
+        dtype=[('AIA', 'float64'), ('ERCT', 'float64'),
+               ('FRCC', 'float64'), ('MROE', 'float64'),
+               ('MROW', 'float64'), ('NEWE', 'float64')])
+
 
 class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
     """ Test the function that extracts the cost, performance, and
@@ -2137,20 +2327,37 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
     obtained from the EIA Annual Energy Outlook (AEO). """
 
     # Test key lists (microsegment and envelope component type
-    # specifications), covering a variety of cost conversions, cases
-    # with no costs (i.e., infiltration), both residential and
-    # commercial building types, and demand types that have no
-    # associated cost, performance, and lifetime data
-    sample_keys = [['AIA_CZ2', 'warehouse', 'natural gas',
-                    'heating', 'demand', 'windows solar'],
-                   ['AIA_CZ3', 'health care', 'electricity',
-                    'cooling', 'demand', 'people gain'],
-                   ['AIA_CZ4', 'single family home', 'electricity',
-                    'heating', 'demand', 'windows conduction'],
-                   ['AIA_CZ5', 'mobile home', 'electricity',
-                    'cooling', 'demand', 'infiltration'],
-                   ['AIA_CZ1', 'large office', 'electricity',
-                    'cooling', 'demand', 'ground']]
+    # specifications) when breaking out data by AIA climate zones, covering a
+    # variety of cost conversions, cases with no costs (i.e., infiltration),
+    # both residential and commercial building types, and demand types that
+    # have no associated cost, performance, and lifetime data
+    sample_keys_aia = [
+        ['AIA_CZ2', 'warehouse', 'natural gas',
+         'heating', 'demand', 'windows solar'],
+        ['AIA_CZ3', 'health care', 'electricity',
+         'cooling', 'demand', 'people gain'],
+        ['AIA_CZ4', 'single family home', 'electricity',
+         'heating', 'demand', 'windows conduction'],
+        ['AIA_CZ5', 'mobile home', 'electricity',
+         'cooling', 'demand', 'infiltration'],
+        ['AIA_CZ1', 'large office', 'electricity',
+         'cooling', 'demand', 'ground']]
+    # Test key lists (microsegment and envelope component type
+    # specifications) when breaking out data by non-AIA climate regions,
+    # covering a variety of cost conversions, cases with no costs (i.e.,
+    # infiltration), both residential and commercial building types, and demand
+    # types that have no associated cost, performance, and lifetime data
+    sample_keys_alt = [
+        ['FRCC', 'warehouse', 'natural gas',
+         'heating', 'demand', 'windows solar'],
+        ['MROE', 'health care', 'electricity',
+         'cooling', 'demand', 'people gain'],
+        ['MROW', 'single family home', 'electricity',
+         'heating', 'demand', 'windows conduction'],
+        ['NEWE', 'mobile home', 'electricity',
+         'cooling', 'demand', 'infiltration'],
+        ['ERCT', 'large office', 'electricity',
+         'cooling', 'demand', 'ground']]
 
     # Create a list that indicates for each entry in the sample_keys
     # list whether a dict should be produced or if the function under
@@ -2176,7 +2383,7 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
             'typical': {'2009': 0.39, '2010': 0.39, '2011': 0.39,
                         '2012': 0.39, '2013': 0.39, '2014': 0.39,
                         '2015': 0.39, '2016': 0.39, '2017': 0.39,
-                        '2018': 0.39, '2019': 0.42, '2020': 0.42},
+                        '2018': 0.39, '2019': 0.39, '2020': 0.39},
             'units': 'SHGC',
             'source': 'Source B'},
          'lifetime': {
@@ -2234,8 +2441,8 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
             'typical': {
                 'new': {'2009': 5, '2010': 5, '2011': 5,
                         '2012': 5, '2013': 5, '2014': 5,
-                        '2015': 5, '2016': 3, '2017': 3,
-                        '2018': 3, '2019': 3, '2020': 3},
+                        '2015': 5, '2016': 5, '2017': 5,
+                        '2018': 5, '2019': 5, '2020': 5},
                 'existing': {'2009': 10, '2010': 10, '2011': 10,
                              '2012': 10, '2013': 10, '2014': 10,
                              '2015': 10, '2016': 10, '2017': 10,
@@ -2289,11 +2496,31 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
 
     # Test the envelope cost, performance, and lifetime data processing
     # function using the common envelope data dict, cost conversion
-    # factors, and test microsegment keys specified above
+    # factors, and test microsegment keys specified above, for a case
+    # where the data are being broken out by AIA climate regions
     def test_complete_envelope_cost_performance_lifetime_output(self):
-        for idx, keys in enumerate(self.sample_keys):
+        for idx, keys in enumerate(self.sample_keys_aia):
             output = fmc.env_cpl_data_handler(self.envelope_cpl_data,
-                                              self.conversions_data,
+                                              self.cost_convert_data,
+                                              self.perf_convert_data_aia,
+                                              self.the_years,
+                                              keys)
+
+            # Call the appropriate test based on the expectation of a dict
+            if self.dict_expected[idx]:
+                self.dict_check(output, self.cpl_results[idx])
+            else:
+                self.assertEqual(output, self.cpl_results[idx])
+
+    # Test the envelope cost, performance, and lifetime data processing
+    # function using the common envelope data dict, cost conversion
+    # factors, and test microsegment keys specified above, for a case
+    # where the data are being broken out by non-AIA climate regions
+    def test_complete_envelope_cost_performance_lifetime_output_alt(self):
+        for idx, keys in enumerate(self.sample_keys_alt):
+            output = fmc.env_cpl_data_handler(self.envelope_cpl_data,
+                                              self.cost_convert_data,
+                                              self.perf_convert_data_alt,
                                               self.the_years,
                                               keys)
 
@@ -2681,7 +2908,7 @@ class CostUnitsConversionTest(EnvelopeDataUnitTest):
         for idx, conv_inp in enumerate(self.cost_convert_input):
             exc_cost, exc_units = fmc.cost_converter(conv_inp[0], conv_inp[1],
                                                      conv_inp[2], conv_inp[3],
-                                                     self.conversions_data)
+                                                     self.cost_convert_data)
             # Check the cost values
             self.assertAlmostEqual(exc_cost,
                                    self.cost_convert_output[idx][0], places=3)
@@ -2697,7 +2924,7 @@ class CostUnitsConversionTest(EnvelopeDataUnitTest):
             for conv_inp in self.cost_convert_input_err:
                 fmc.cost_converter(conv_inp[0], conv_inp[1],
                                    conv_inp[2], conv_inp[3],
-                                   self.conversions_data)
+                                   self.cost_convert_data)
 
 
 # Offer external code execution (include all lines below this point in all

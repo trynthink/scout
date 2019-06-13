@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-"""Common input data census division to climate zone conversion script.
+"""Common input data census division to custom region conversion script.
 
 This script takes a complete input JSON database in which all of the
 data are specified on a census division basis and converts those data
-to a climate zone basis. The conversion procedure in this script can
+to a custom region basis. The conversion procedure in this script can
 modify any complete (i.e., both residential and commercial data added)
 or partially complete JSON database, so long as the structure of each
 microsegment is identical for all census divisions, but is default
@@ -43,25 +43,29 @@ class UsefulVars(object):
     After creating an instance of the class, the appropriate method
     can be called to populate the instance with the correct file
     names for the input and output JSON databases and the census
-    division to climate zone conversion tables.
+    division to custom region conversion tables.
 
     It is conceivable that instead of having separate methods to
     set the values for the required variables for each case, they
     could be initialized for one case and modified using regular
     expressions, but the approach below is simple, if ham-fisted.
 
-    The different census division to climate zone conversion matrices
+    The different census division to custom region conversion matrices
     are required because the correct math to combine cost, performance,
     and lifetime data is different than the math for energy and stock
     data. The '_Rev_' version of the conversion matrix has weighting
-    factors scaled such that the columns (climate zones) sum to 1,
+    factors scaled such that the columns (custom regions) sum to 1,
     which is required to calculate the weighted average of technology
     cost, performance, lifetime, etc. across the census divisions.
     Conversely, the energy, stock, and square footage conversion matrix
     is structured such that the census divisions sum to 1, since those
     data are originally recorded by census division, and all of the
     energy use reported must be accounted for when switching to
-    climate zones.
+    custom regions.
+
+    Currently, two custom region sets are supported: AIA climate regions, and
+    U.S. Energy Information Administration (EIA) National Energy Modeling
+    System (NEMS) Electricity Market Module (EMM) regions.
 
     Attributes:
         addl_cpl_data (str): File name for database of cost,
@@ -71,44 +75,87 @@ class UsefulVars(object):
         conv_factors (str): File name for database of unit conversion
             factors (principally costs) for a range of equipment types.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
+        geo_break (str): Indicates the intended geographical data breakdown.
 
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
-            census division to climate zone conversion data appropriate
+            census division to custom region conversion data appropriate
             for the particular data to be converted.
         com_climate_convert (str): File name for the commercial buildings
-            census division to climate zone conversion data appropriate
+            census division to custom region conversion data appropriate
             for the particular data to be converted.
         json_in (str): File name for the expected input JSON database.
         json_out (str): File name for the output JSON database.
     """
 
-    def __init__(self):
+    def __init__(self, geo_break):
+        """Initialize class attributes."""
         self.addl_cpl_data = 'cpl_envelope_mels.json'
         self.conv_factors = ('supporting_data/convert_data/'
                              'ecm_cost_convert.json')
         self.aeo_metadata = 'metadata.json'
+        self.geo_break = geo_break
 
     def configure_for_energy_square_footage_stock_data(self):
-        self.res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Final.txt'
-        self.com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Final.txt'
+        """Reconfigure stock and energy data to custom region."""
+        # Set input JSON
         self.json_in = 'mseg_res_com_cdiv.json'
-        self.json_out = 'mseg_res_com_cz.json'
+        # Find appropriate conversion data for user-specified geo. breakout
+        # (1=AIA climate zones, 2=NEMS EMM regions)
+        if self.geo_break == '1':
+            self.res_climate_convert = \
+                'Res_Cdiv_Czone_ConvertTable_Final.txt'
+            self.com_climate_convert = \
+                'Com_Cdiv_Czone_ConvertTable_Final.txt'
+            # Set output JSON
+            self.json_out = 'mseg_res_com_cz.json'
+        elif self.geo_break == '2':
+            self.res_climate_convert = {
+                "electric": 'Res_Cdiv_EMM_ConvertTable_Final.txt',
+                "non-electric": 'NElec_Cdiv_EMM_Convert_Final.txt'}
+            self.com_climate_convert = {
+                "electric": 'Com_Cdiv_EMM_ConvertTable_Final.txt',
+                "non-electric": 'NElec_Cdiv_EMM_Convert_Final.txt'}
+            # Set output JSON
+            self.json_out = 'mseg_res_com_emm.json'
 
     def configure_for_cost_performance_lifetime_data(self):
-        self.res_climate_convert = 'Res_Cdiv_Czone_ConvertTable_Rev_Final.txt'
-        self.com_climate_convert = 'Com_Cdiv_Czone_ConvertTable_Rev_Final.txt'
+        """Reconfigure cost, performance, and life data to custom region."""
+        # Set input JSON
         self.json_in = 'cpl_res_com_cdiv.json'
-        self.json_out = 'cpl_res_com_cz.json'
+        # Find appropriate conversion data for user-specified geo. breakout
+        # (1=AIA climate zones, 2=NEMS EMM regions)
+        if self.geo_break == '1':
+            self.res_climate_convert = \
+                'Res_Cdiv_Czone_ConvertTable_Rev_Final.txt'
+            self.com_climate_convert = \
+                'Com_Cdiv_Czone_ConvertTable_Rev_Final.txt'
+            # Set output JSON
+            self.json_out = 'cpl_res_com_cz.json'
+        elif self.geo_break == '2':
+            self.res_climate_convert = {
+                "electric": 'Res_Cdiv_EMM_ConvertTable_Rev_Final.txt',
+                "non-electric": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'}
+            self.com_climate_convert = {
+                "electric": 'Com_Cdiv_EMM_ConvertTable_Rev_Final.txt',
+                "non-electric": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'
+            }
+            # When breaking out to EMM regions, an additional conversion
+            # between AIA climate zones in the envelope data and the EMM
+            # regions is needed
+            self.envelope_climate_convert = 'AIA_EMM_Convert_Rev_Final.txt'
+            # Set output JSON
+            self.json_out = 'cpl_res_com_emm.json'
 
 
 def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
-              res_convert_array, com_convert_array, cd_to_cz_factor=0):
-    """Calculate values to restructure census division data to climate zones.
+              res_convert_array, com_convert_array, cd_to_cz_factor=0,
+              fuel_flag=None):
+    """Calculate values to restructure census division data to custom regions.
 
     Two dicts with identical structure, 'base_dict' and 'add_dict' are
     passed to this function and manipulated to effect conversion of the
-    data from a census division (specified by 'cd') to a climate zone
+    data from a census division (specified by 'cd') to a custom region
     (specified by 'cz') basis.
 
     This function operates recursively, traversing the structure of
@@ -120,20 +167,20 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
     division is not the first to appear in the original data,
     'base_dict' has already been modified, and data from subsequent
     census divisions should be added to 'base_dict', thus 'add_dict' is
-    modified to the current climate zone using the appropriate
+    modified to the current custom region using the appropriate
     conversion factor and added to 'base_dict'.
 
-    This approach to converting the data to a climate zone basis works
+    This approach to converting the data to a custom region basis works
     because this function is called from within nested for loops that
-    cover all of the census divisions for each climate zone.
+    cover all of the census divisions for each custom region.
     Consequently, the data from each of the census divisions converted
-    to their respective contributions to a single climate zone can be
+    to their respective contributions to a single custom region can be
     added together to obtain the data in the desired final form.
 
     Args:
         base_dict (dict): A portion of the input JSON database
             corresponding to the current census division, modified in
-            place to convert the data to a climate zone basis.
+            place to convert the data to a custom region basis.
         add_dict (dict): A portion of the input JSON database
             corresponding to the current census division, copied from
             the original input data each time this function is called
@@ -144,7 +191,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
         cd (int): The census division (1-9) currently being processed.
             Used as an array row index, so the actual values begin
             with 0, not 1.
-        cz (int): The climate zone to which the census division data
+        cz (int): The custom region to which the census division data
             are being added. Used as an array column index where the
             first (0th) column is not relevant, thus it begins at 1.
         cd_dict (dict): A dict for translating between census division
@@ -153,49 +200,82 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             input data (the top level keys from the JSON structure),
             in the order in which they appear.
         res_convert_array (numpy.ndarray): Coefficients for converting
-            from census divisions to climate zones for residential buildings.
+            from census divisions to custom regions for residential buildings.
         com_convert_array (numpy.ndarray): Coefficients for converting
-            from census divisions to climate zones for commercial buildings.
+            from census divisions to custom regions for commercial buildings.
         cd_to_cz_factor (float): The numeric conversion factor to
             calculate the contribution from the current census division
-            'cd' to the current climate zone 'cz'.
+            'cd' to the current custom region 'cz'.
+        fuel_flag (NoneType): Flag for the fuel type currently being looped
+            through (relevant only to EMM custom region cost_convert).
 
     Returns:
         A dict with the same form as base_dict and add_dict, with the
         values for the particular census division specified in 'cd'
-        converted to the climate zone 'cz'.
+        converted to the custom region 'cz'.
     """
 
     # Extract lists of strings corresponding to the residential and
     # commercial building types used to process these inputs
     res_bldg_types = list(mseg.bldgtypedict.keys())
     com_bldg_types = list(cm.CommercialTranslationDicts().bldgtypedict.keys())
+    # Extract lists of strings corresponding to the residential and
+    # commercial fuel types used to process these inputs
+    res_fuel_types = list(mseg.fueldict.keys())
+    com_fuel_types = list(cm.CommercialTranslationDicts().fueldict.keys())
 
     for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
                                 sorted(add_dict.items())):
         # Compare the top level/parent keys of the section of the dict
         # currently being parsed to ensure that both the base_dict
-        # (census division basis) and add_dict (climate zone basis)
+        # (census division basis) and add_dict (custom region basis)
         # are proceeding with the same structure
         if k == k2:
-            # Identify appropriate census division to climate zone
-            # conversion weighting factor as a function of building type;
-            # k and k2 correspond to the current top level/parent key,
+            # Identify appropriate census division to custom region
+            # conversion weighting factor array as a function of building
+            # type; k and k2 correspond to the current top level/parent key,
             # thus k and k2 are equal to a building type immediately
             # prior to traversing the entire child tree for that
-            # building type, for which the conversion number
+            # building type, for which the conversion number array
             # cd_to_cz_factor will be the same
             if k in res_bldg_types or k in com_bldg_types:
                 if k in res_bldg_types:
-                    cd_to_cz_factor = res_convert_array[cd][cz]
+                    cd_to_cz_factor = res_convert_array
                 elif k in com_bldg_types:
-                    cd_to_cz_factor = com_convert_array[cd][cz]
+                    cd_to_cz_factor = com_convert_array
+            # Flag the current fuel type being updated, which is relevant
+            # to ultimate selection of conversion factor from the conversion
+            # array when translating to EMM region, in which case conversion
+            # factors are different for electric and non-electric fuels. Use
+            # the expectation that conversion arrays will be in dict format
+            # in the EMM region case (with keys for electric and non-electric
+            # conversion factors) to trigger the fuel flag update
+            elif (k in res_fuel_types or k in com_fuel_types) and \
+                    type(res_convert_array) is dict:
+                fuel_flag = k
 
             # Recursively loop through both dicts
             if isinstance(i, dict):
                 merge_sum(i, i2, cd, cz, cd_dict, cd_list, res_convert_array,
-                          com_convert_array, cd_to_cz_factor)
+                          com_convert_array, cd_to_cz_factor, fuel_flag)
             elif type(base_dict[k]) is not str:
+                # Check whether the conversion array needs to be further keyed
+                # by fuel type, as is the case when converting to EMM region;
+                # in such cases, the fuel flag indicates the key value to use
+                if fuel_flag is not None:
+                    # Find conversion factor for the electric fuel and given
+                    # combination of census division and EMM region
+                    if fuel_flag == "electricity":
+                        convert_fact = cd_to_cz_factor["electric"][cd][cz]
+                    # Find conversion data for the non-electric fuels and given
+                    # combination of census division and EMM region
+                    else:
+                        convert_fact = cd_to_cz_factor["non-electric"][cd][cz]
+                else:
+                    # Find the conversion factor for the given combination of
+                    # census division and AIA climate zone
+                    convert_fact = cd_to_cz_factor[cd][cz]
+
                 # Special handling of first dict (no addition of the
                 # second dict, only conversion of the first dict with
                 # the appropriate factor)
@@ -205,19 +285,20 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                     # as a list and must be reprocessed using a list
                     # comprehension (or comparable looping approach)
                     if isinstance(base_dict[k], list):
-                        base_dict[k] = [z*cd_to_cz_factor for z
+                        base_dict[k] = [z * convert_fact for z
                                         in base_dict[k]]
                     else:
-                        base_dict[k] = base_dict[k]*cd_to_cz_factor
+                        base_dict[k] = base_dict[k] * convert_fact
                 else:
                     if isinstance(base_dict[k], list):
                         base_dict[k] = [sum(y) for y
                                         in zip(base_dict[k],
-                                        [z*cd_to_cz_factor for z
+                                        [z * convert_fact for z
                                          in add_dict[k2]])]
+
                     else:
                         base_dict[k] = (base_dict[k] +
-                                        add_dict[k2]*cd_to_cz_factor)
+                                        add_dict[k2] * convert_fact)
         else:
             raise(KeyError('Merge keys do not match!'))
 
@@ -226,28 +307,28 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
 
 
 def clim_converter(input_dict, res_convert_array, com_convert_array):
-    """Convert input data dict from a census division to a climate zone basis.
+    """Convert input data dict from a census division to a custom region basis.
 
     This function principally serves to prepare the inputs for, and
     then call, a function that performs the calculations to convert
     data in the input_dict database specified for each microsegment
-    from a census division to climate zone basis.
+    from a census division to a custom region basis.
 
     Args:
         input_dict (dict): Data from JSON database, as imported,
             on a census division basis.
         res_convert_array (numpy.ndarray): An array of census
-            division to climate zone conversion factors for
+            division to custom region conversion factors for
             residential building types.
         com_convert_array (numpy.ndarray): Array of census
-            division to climate zone conversion factors for
+            division to custom region conversion factors for
             commercial building types.
 
     Returns:
         A complete dict with the same structure as input_dict,
         except at the top level, where census division keys
-        have been replaced by climate zone keys, and the data
-        have been updated to correspond to those climate zones.
+        have been replaced by custom region keys, and the data
+        have been updated to correspond to those custom regions.
     """
 
     # Create an instance of the CommercialTranslationDicts object from
@@ -255,26 +336,32 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     # strings into the corresponding integer codes
     cd = cm.CommercialTranslationDicts()
 
-    # Obtain list of all climate zone names as strings
-    cz_list = res_convert_array.dtype.names[1:]
+    # Obtain list of all custom region names as strings
+    try:
+        cz_list = res_convert_array.dtype.names[1:]
+    # Handle conversion to EMM regions, in which custom region names will
+    # be one level-deep in a dict that breaks out conversion factors by the
+    # electric and non-electric fuels
+    except AttributeError:
+        cz_list = res_convert_array["electric"].dtype.names[1:]
 
     # Obtain list of all census divisions in the input data
     cd_list = list(input_dict.keys())
 
-    # Set up empty dict to be updated with the results for each climate
-    # zone as the data are converted
+    # Set up empty dict to be updated with the results for each custom
+    # region as the data are converted
     converted_dict = {}
 
-    # Add the values from each climate zone to the converted_dict
+    # Add the values from each custom region to the converted_dict
     for cz_number, cz_name in enumerate(cz_list):
         # Create a copy of the input dict at the level below a census
-        # division or climate zone (the structure below that level
+        # division or custom region (the structure below that level
         # should be identical); uses the first census division in
         # cd_list each time
         base_dict = copy.deepcopy(input_dict[cd_list[0]])
 
         # Loop through all census divisions to add their contributions
-        # to each climate zone
+        # to each custom region
         for cd_name in cd_list:
             # Proceed only if the census division name is found in
             # the dict specified in this function, otherwise raise
@@ -290,14 +377,14 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
                 add_dict = copy.deepcopy(input_dict[cd_name])
 
                 # Call the merge_sum function to replace base_dict with
-                # updated contents; add 1 to the climate zone number
+                # updated contents; add 1 to the custom region number
                 # because it will be used as a column index for an
                 # array where the first column of data are in the
                 # second column (indexed as 1 in Python); this approach
                 # overwrites base_dict, which is intentional because it
-                # is the master dict that stores the data on a climate
-                # zone basis as the contribution from each census
-                # division is added to the climate zone by merge_sum
+                # is the master dict that stores the data on a custom
+                # region basis as the contribution from each census
+                # division is added to the custom region by merge_sum
                 base_dict = merge_sum(base_dict, add_dict, cd_number,
                                       (cz_number + 1), cd.cdivdict, cd_list,
                                       res_convert_array, com_convert_array)
@@ -314,7 +401,8 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     return converted_dict
 
 
-def env_cpl_data_handler(cpl_data, conversions, years, key_list):
+def env_cpl_data_handler(
+        cpl_data, cost_convert, perf_convert, years, key_list):
     """Restructure envelope component cost, performance, and lifetime data.
 
     This function extracts the cost, performance, and lifetime data for
@@ -322,21 +410,24 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
     from the original data and restructures it into a form that is
     generally consistent with similar data originally obtained from
     the Annual Energy Outlook (AEO). These data are added to the input
-    microsegments database after it is converted to a climate zone
-    basis, since these data are already reported by climate zone (if
-    the data for a given envelope component are climate-specific).
+    microsegments database after it is initially converted to a custom region
+    basis, and these data are reported by AIA climate zone (if the data for a
+    given envelope component are climate-specific).
 
     Args:
         cpl_data (dict): Cost, performance, and lifetime data for
             building envelope components (e.g., roofs, walls) including
             units and source information.
-        conversions (dict): Cost unit conversions for envelope (and
+        cost_convert (dict): Cost unit conversions for envelope (and
             heating and cooling equipment, though those conversions are
             not used in this function) components, as well as the
             mapping from EnergyPlus building prototypes to AEO building
             types (as used in the microsegments file) to convert cost
             data from sources that use the EnergyPlus building types
             to the AEO building types.
+        perf_convert (numpy ndarray): Performance value conversions for
+            envelope components from AIA climate zone breakout to EMM
+            region breakout (relevant only for EMM region translation).
         years (list): A list of integers representing the range of years
             in the data.
         key_list (list): Keys that specify the current location in the
@@ -361,7 +452,7 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
 
     # Loop through the keys specifying the current microsegment to
     # determine the building type, whether the building is residential
-    # or commercial, and identify the climate zone
+    # or commercial, and identify the custom region
     for entry in key_list:
         # Identify the building type and thus determine the building class
         if entry in mseg.bldgtypedict.keys():
@@ -371,8 +462,24 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
             bldg_class = 'commercial'
             bldg_type = entry
 
-        # Identify and record the climate zone
-        if entry in ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']:
+        # Identify and record the custom region name
+
+        # In the case where envelope conversion data are being converted to
+        # an EMM region breakout, an array of conversions from the AIA
+        # breakouts of the envelope performance data to the EMM regions will
+        # be made available
+        if perf_convert is not None and entry in [
+            'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
+            'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
+                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']:
+            # Record the EMM region name
+            cz_int = entry
+            # Set the list of AIA climate zones that are used to breakout
+            # envelope performance data values; a weighted sum of performance
+            # values across these regions will be performed for each EMM region
+            aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
+        elif entry in ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']:
+            # Record the AIA region name
             cz_int = entry
 
     # Some envelope components are reported as two or more words, but
@@ -419,7 +526,7 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
             adj_cost, adj_cost_units = cost_converter(orig_cost,
                                                       orig_cost_units,
                                                       bldg_class, bldg_type,
-                                                      conversions)
+                                                      cost_convert)
 
             # Add the cost information to the appropriate dict,
             # constructing the cost data itself into a structure with
@@ -461,9 +568,29 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
                 env_s_data = specific_cpl_data['performance'][envelope_type[1]]
 
                 # Extract the performance value, first trying for if it
-                # is specified to the climate zone level
+                # is specified to the climate zone level. *NOTE* It is assumed
+                # that all data specified to the climate zone level will have
+                # uniform value formats - e.g., all climate zones will have
+                # a single value reported or several values broken out by year
                 try:
-                    perf_val = env_s_data['typical'][cz_int]
+                    # Check whether an additional conversion of performance
+                    # values is needed (from AIA regions to EMM regions)
+                    if perf_convert is not None:
+                        # Handle cases where performance values are and are not
+                        # broken out further by year
+                        try:
+                            # Performance values not broken out by year
+                            perf_val = sum([
+                                env_s_data['typical'][y] * perf_convert[x][
+                                    cz_int] for x, y in enumerate(aia_list)])
+                        except TypeError:
+                            # Performance values are broken out by year
+                            perf_val = {str(yr): sum([
+                                env_s_data['typical'][y][str(yr)] *
+                                perf_convert[x][cz_int] for x, y in enumerate(
+                                    aia_list)]) for yr in years}
+                    else:
+                        perf_val = env_s_data['typical'][cz_int]
                 except KeyError:
                     perf_val = env_s_data['typical']
 
@@ -487,14 +614,42 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
                     specific_cpl_data['performance']['typical']['existing']]
                 # Try for if the value is further broken out by climate
                 try:
-                    perf_val = [x[cz_int] for x in perf_val]
+                    # Check whether an additional conversion of performance
+                    # values is needed (from AIA regions to EMM regions)
+                    if perf_convert is not None:
+                        # Handle cases where performance values are and are not
+                        # broken out further by year
+                        perf_val = [sum([
+                            x[z] * perf_convert[y][cz_int] for
+                            y, z in enumerate(aia_list)]) if type(
+                            x[aia_list[0]]) is not dict else {
+                            str(yr): sum([x[z][str(yr)] * perf_convert[y][
+                                cz_int] for y, z in enumerate(aia_list)])
+                            for yr in years} for x in perf_val]
+                    else:
+                        perf_val = [x[cz_int] for x in perf_val]
                 except TypeError:
                     pass
             except KeyError:
                 # Try for if the value is broken out by climate
                 try:
-                    perf_val = specific_cpl_data['performance']['typical'][
-                        cz_int]
+                    # Check whether an additional conversion of performance
+                    # values is needed (from AIA regions to EMM regions)
+                    if perf_convert is not None:
+                        try:
+                            # Handle cases where performance values are and are
+                            # not broken out further by year
+                            perf_val = sum([specific_cpl_data['performance'][
+                                'typical'][y] * perf_convert[x][cz_int]
+                                for x, y in enumerate(aia_list)])
+                        except TypeError:
+                            perf_val = {str(yr): sum([specific_cpl_data[
+                                'performance']['typical'][y][str(yr)] *
+                                perf_convert[x][cz_int] for
+                                x, y in enumerate(aia_list)]) for yr in years}
+                    else:
+                        perf_val = specific_cpl_data[
+                            'performance']['typical'][cz_int]
                 except TypeError:
                     perf_val = specific_cpl_data['performance']['typical']
             the_perf['units'] = specific_cpl_data['performance']['units']
@@ -917,7 +1072,7 @@ def cost_converter(cost, units, bldg_class, bldg_type, conversions):
     return adj_cost, adj_cost_units
 
 
-def walk(cpl_data, conversions, years, json_db, key_list=[]):
+def walk(cpl_data, conversions, perf_convert, years, json_db, key_list=[]):
     """Recursively explore JSON data structure to populate data at leaf nodes.
 
     This function recursively traverses the microsegment data structure
@@ -931,7 +1086,7 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
     sources provide the data on a climate zone and not census division
     basis, so the data must be added to the baseline cost, performance,
     and lifetime database after the data from the EIA AEO have been
-    converted to a climate zone basis.
+    initially converted from census division to a custom region basis.
 
     Args:
         cpl_data (dict): Cost, performance, and lifetime data for
@@ -944,6 +1099,9 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
             types (as used in the microsegments file) to convert cost
             data from sources that use the EnergyPlus building types
             to the AEO building types.
+        perf_convert (numpy ndarray): Performance value conversions for
+            envelope components from AIA climate zone breakout to EMM
+            region breakout (relevant only for EMM region translation).
         years (list): A list of integers representing the range of years
             in the data that are desired to be included in the output.
         json_db (dict): The dict structure to be modified with additional data.
@@ -966,7 +1124,8 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(cpl_data, conversions, years, item, key_list + [key])
+            walk(cpl_data, conversions, perf_convert, years, item,
+                 key_list + [key])
 
         # If a leaf node has been reached, check if the final entry in
         # the list is 'demand', indicating that the current node is an
@@ -984,7 +1143,7 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
                 # performance, and lifetime data into a complete dict
                 # for the specified microsegment and envelope component
                 data_dict = env_cpl_data_handler(
-                    cpl_data, conversions, years, leaf_node_keys)
+                    cpl_data, conversions, perf_convert, years, leaf_node_keys)
                 # Set dict key to extracted data
                 json_db[key] = data_dict
             elif (len(key_list) == 3) and any([
@@ -1011,7 +1170,7 @@ def main():
     """Import external data files, process data, and produce desired output.
 
     This function calls the required external data, both the data to be
-    converted from a census division to a climate zone basis, as well
+    converted from a census division to a custom region basis, as well
     as the applicable conversion factors.
 
     Because the conversion factors for the energy, stock, and square
@@ -1021,31 +1180,76 @@ def main():
     to import.
     """
 
-    # Instantiate object that contains useful variables
-    handyvars = UsefulVars()
-
-    # Obtain user input regarding what data are to be processed
-    input_var = 0
-    while input_var not in ['1', '2']:
-        input_var = input("Enter 1 for energy, stock, and square footage" +
-                          " data\nor 2 for cost, performance, lifetime data: ")
-        if input_var not in ['1', '2']:
+    # Obtain user input regarding what data are to be processed. Include two
+    # stages of input: one determining whether stock and energy data or cost/
+    # performance/lifetime data are to be converted, and another determining
+    # the regional breakdown to use in converting the data
+    input_var = [0, 0]
+    # Determine the type of data (stock/energy (1) or cost/perf/life (2))
+    while input_var[0] not in ['1', '2']:
+        input_var[0] = input(
+            "Enter 1 for energy, stock, and square footage" +
+            " data\nor 2 for cost, performance, lifetime data: ")
+        if input_var[0] not in ['1', '2']:
+            print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
+    # Determine the regional breakdown to use (AIA (1) vs. NEMS EMM (2))
+    while input_var[1] not in ['1', '2']:
+        input_var[1] = input(
+            "Enter 1 to use an AIA climate zone geographical" +
+            " breakdown\nor 2 to use an EIA Electricity Market Module "
+            "geographical breakdown: ")
+        if input_var[1] not in ['1', '2']:
             print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
 
-    # Based on input from the user to indicate what type of data are
+    # Instantiate object that contains useful variables
+    handyvars = UsefulVars(input_var[1])
+
+    # Based on the first input from the user to indicate what type of data are
     # being processed, assign the object values for its four attributes
-    if input_var == '1':
+    if input_var[0] == '1':
         handyvars.configure_for_energy_square_footage_stock_data()
-    elif input_var == '2':
+    elif input_var[0] == '2':
         handyvars.configure_for_cost_performance_lifetime_data()
 
-    # Import the residential census division to climate zone conversion data
-    res_cd_cz_conv = np.genfromtxt(handyvars.res_climate_convert, names=True,
-                                   delimiter='\t', dtype=None)
-
-    # Import the commercial census division to climate zone conversion data
-    com_cd_cz_conv = np.genfromtxt(handyvars.com_climate_convert, names=True,
-                                   delimiter='\t', dtype=None)
+    # Based on the second input from the user to indicate what regional
+    # breakdown to use in converting the data, import necessary conversion data
+    if input_var[1] == '1':
+        # Import residential census division to AIA climate conversion data
+        res_cd_cz_conv = np.genfromtxt(
+            handyvars.res_climate_convert, names=True,
+            delimiter='\t', dtype="float64")
+        # Import commercial census division to AIA climate conversion data
+        com_cd_cz_conv = np.genfromtxt(
+            handyvars.com_climate_convert, names=True,
+            delimiter='\t', dtype="float64")
+        env_perf_convert = None
+    elif input_var[1] == '2':
+        # Import residential census division to EMM conversion data; import
+        # data into a dict that is keyed by fuel type, since separate
+        # census to EMM conversions are used for electric/non-electric fuels
+        res_cd_cz_conv = {
+            "electric": np.genfromtxt(
+                handyvars.res_climate_convert["electric"], names=True,
+                delimiter='\t', dtype="float64"),
+            "non-electric": np.genfromtxt(
+                handyvars.res_climate_convert["non-electric"], names=True,
+                delimiter='\t', dtype="float64")}
+        # Import commercial census division to EMM conversion data; import
+        # data into a dict that is keyed by fuel type, since separate
+        # census to EMM conversions are used for electric/non-electric fuels
+        com_cd_cz_conv = {
+            "electric": np.genfromtxt(
+                handyvars.com_climate_convert["electric"], names=True,
+                delimiter='\t', dtype="float64"),
+            "non-electric": np.genfromtxt(
+                handyvars.com_climate_convert["non-electric"], names=True,
+                delimiter='\t', dtype="float64")}
+        # Import data needed to convert envelope performance data from an
+        # AIA climate zone to EMM region breakdown
+        if input_var[0] == '2':
+            env_perf_convert = np.genfromtxt(
+                handyvars.envelope_climate_convert, names=True,
+                delimiter='\t', dtype="float64")
 
     # Import metadata generated based on EIA AEO data files
     with open(handyvars.aeo_metadata, 'r') as metadata:
@@ -1056,7 +1260,7 @@ def main():
 
     # Open the microsegments JSON file that has data on a census
     # division basis and traverse the database to convert it to
-    # a climate zone basis
+    # a custom region basis
     with open(handyvars.json_in, 'r') as jsi:
         msjson_cdiv = json.load(jsi)
 
@@ -1067,8 +1271,8 @@ def main():
         # on user input, open the envelope cost, performance, and
         # lifetime database and the cost conversion factors database,
         # then add those data to the microsegments data that were just
-        # converted to a climate zone basis
-        if input_var == '2':
+        # converted to a custom region basis
+        if input_var[0] == '2':
             with open(handyvars.addl_cpl_data, 'r') as jscpl, open(
                     handyvars.conv_factors, 'r') as jsconv:
                 jscpl_data = json.load(jscpl)
@@ -1076,7 +1280,8 @@ def main():
 
                 # Add envelope components' cost, performance and
                 # lifetime data to the result dict
-                result = walk(jscpl_data, jsconv_data, years, result)
+                result = walk(
+                    jscpl_data, jsconv_data, env_perf_convert, years, result)
 
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
