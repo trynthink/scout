@@ -310,7 +310,15 @@
 				"units": "kBtu/h refrigeration/ft^2 floor",
 				"source": "U.S. Department of Energy, Appliance Standards Program, 2014 EERE-2010-BT-STD-0003-0102.pdf, Table 9.5; ORNL, Investigation of Energy-Efficient Supermarket Display Cases, 2004, p. 52",
 				"notes": "Assumes 10 linear foot display case with 1.5610 kBtu/h capacity per linear foot (ORNL); applies this unit to the 'Open cases per building' and 'Average Building Size (sq-ft)' numbers in Table 9.5 of the Appliance Standards TSD."}},
-		"cooking": {},
+		"cooking": {
+			"original units": "$/kBtu/h cooking",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Based on the normalized idle energy rate of commercial NG range griddle",
+				"value": 3,
+				"units": "kBtu/h cooking/ft^2 floor",
+				"source": "U.S. Energy Information Administration, Updated Building Sector Appliance and Equipment Costs and Efficiency, 2018, p. 137",
+				"notes": "See https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
 		"MELs": {}
 	}
 }
