@@ -237,8 +237,13 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             # thus k and k2 are equal to a building type immediately
             # prior to traversing the entire child tree for that
             # building type, for which the conversion number array
-            # cd_to_cz_factor will be the same
-            if k in res_bldg_types or k in com_bldg_types:
+            # cd_to_cz_factor will be the same. Ensure that the walk is
+            # currently at the building type level by checking keys from the
+            # next level down (the fuel type level) against expected fuel types
+            if ((k in res_bldg_types and
+                any([x in res_fuel_types for x in base_dict[k].keys()])) or
+                (k in com_bldg_types and
+                 any([x in com_fuel_types for x in base_dict[k].keys()]))):
                 if k in res_bldg_types:
                     cd_to_cz_factor = res_convert_array
                 elif k in com_bldg_types:

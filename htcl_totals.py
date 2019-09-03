@@ -10,6 +10,8 @@ class UsefulInputFiles(object):
 
     Attributes:
         msegs_in (string): Database of baseline microsegment stock/energy.
+        msegs_in_emm (string): Same as 'msegs_in' but broken out by EMM region
+            instead of AIA climate region.
         htcl_totals (string): File name for an output of this module -
             heating and cooling primary energy totals by climate zone,
             building type, and structure type calculated using the
@@ -28,6 +30,12 @@ class UsefulInputFiles(object):
             heating and cooling primary energy totals by climate zone,
             building type, and structure type calculated using site energy,
             thus requiring no conversion from site-source energy.
+        htcl_totals_emm (string): Same as 'htcl_totals' but broken out by EMM
+            region instead of AIA climate region.
+        htcl_totals_ce_emm (str): Same as 'htcl_totals_ce' but broken out by
+            EMM region instead of AIA climate region.
+        htcl_totals_site_emm (str): Same as 'htcl_totals_site' but broken out
+            by EMM region instead of AIA climate region.
         ss_fp (str): Site-source conversions file path for fossil fuel
             equivalent version.
         ss_fp_ce (str): Site-source conversions file path for captured
@@ -38,12 +46,23 @@ class UsefulInputFiles(object):
     def __init__(self):
         self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                          "mseg_res_com_cz.json")
+        self.msegs_in_emm = ("supporting_data", "stock_energy_tech_data",
+                             "mseg_res_com_emm.json")
         self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
                             "htcl_totals.json")
         self.htcl_totals_ce = ("supporting_data", "stock_energy_tech_data",
                                "htcl_totals-ce.json")
         self.htcl_totals_site = ("supporting_data", "stock_energy_tech_data",
                                  "htcl_totals-site.json")
+        self.htcl_totals_emm = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals_emm.json")
+        self.htcl_totals_ce_emm = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals-ce_emm.json")
+        self.htcl_totals_site_emm = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals-site_emm.json")
         self.ss_fp = ("supporting_data", "convert_data",
                       "site_source_co2_conversions.json")
         self.ss_fp_ce = ("supporting_data", "convert_data",
@@ -268,63 +287,80 @@ def main():
     # Instantiate useful variables
     handyvars = UsefulVars(base_dir, handyfiles)
 
-    # Import baseline microsegment stock and energy data
-    with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
-        try:
-            msegs = json.load(msi)
-        except ValueError as e:
-            raise ValueError(
-                "Error reading in '" +
-                handyfiles.msegs_in + "': " + str(e)) from None
+    # Generate data for both the default AIA climate region baseline data
+    # breakout and EMM region baseline data breakout
+    for f in ["AIA", "EMM"]:
+        # Determine input/output file names based on whether default AIA
+        # climates or EMM regions are used to breakout the baseline data
+        if f == "AIA":
+            mseg_fi = handyfiles.msegs_in
+            fo = handyfiles.htcl_totals
+            fo_site = handyfiles.htcl_totals_site
+            fo_capt = handyfiles.htcl_totals_ce
 
-    # Find total heating and cooling *source* energy use for each climate zone,
-    # building type, and structure type combination (fossil fuel site-source
-    # conversion method)
-    htcl_totals = sum_htcl_energy(
-        msegs, handyvars.aeo_years, handyvars.ss_conv)
+        else:
+            mseg_fi = handyfiles.msegs_in_emm
+            fo = handyfiles.htcl_totals_emm
+            fo_site = handyfiles.htcl_totals_site_emm
+            fo_capt = handyfiles.htcl_totals_ce_emm
 
-    # Add site-source conversion type to file
-    htcl_totals = OrderedDict(htcl_totals)
-    htcl_totals[handyvars.ss_conv_str] = "fossil fuel equivalence"
-    htcl_totals.move_to_end(handyvars.ss_conv_str, last=False)
+        # Import baseline microsegment stock and energy data
+        with open(path.join(base_dir, *mseg_fi), 'r') as msi:
+            try:
+                msegs = json.load(msi)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.msegs_in + "': " + str(e)) from None
 
-    # Write out summed heating/cooling fossil equivalent energy data
-    output_file = path.join(base_dir, *handyfiles.htcl_totals)
-    with open(output_file, 'w') as jso:
-        json.dump(htcl_totals, jso, indent=2)
-
-    # Find total heating and cooling *site* energy use for each climate zone,
-    # building type, and structure type combination
-    htcl_totals_site = sum_htcl_energy(
-        msegs, handyvars.aeo_years, handyvars.ss_conv_site)
-
-    # Add site-source conversion type to file
-    htcl_totals_site = OrderedDict(htcl_totals_site)
-    htcl_totals_site[handyvars.ss_conv_str] = \
-        "site energy (no site-source conversion)"
-    htcl_totals_site.move_to_end(handyvars.ss_conv_str, last=False)
-
-    # Write out summed heating/cooling site energy data
-    output_file = path.join(base_dir, *handyfiles.htcl_totals_site)
-    with open(output_file, 'w') as jso:
-        json.dump(htcl_totals_site, jso, indent=2)
-
-    # If the captured energy file is found, also generate the
-    # heating and cooling *source* energy totals file based on the captured
-    # energy method for calculating site-source conversion factors
-    if handyvars.ss_conv_ce:
-        htcl_totals_ce = sum_htcl_energy(
-            msegs, handyvars.aeo_years, handyvars.ss_conv_ce)
+        # Find total heating and cooling *source* energy use for each region,
+        # building type, and structure type combination (fossil fuel site-
+        # source conversion method)
+        htcl_totals = sum_htcl_energy(
+            msegs, handyvars.aeo_years, handyvars.ss_conv)
 
         # Add site-source conversion type to file
-        htcl_totals_ce = OrderedDict(htcl_totals_ce)
-        htcl_totals_ce[handyvars.ss_conv_str] = "captured energy"
-        htcl_totals_ce.move_to_end(handyvars.ss_conv_str, last=False)
+        htcl_totals = OrderedDict(htcl_totals)
+        htcl_totals[handyvars.ss_conv_str] = "fossil fuel equivalence"
+        htcl_totals.move_to_end(handyvars.ss_conv_str, last=False)
 
-        # Write out heating/cooling combined captured energy data
-        output_file = path.join(base_dir, *handyfiles.htcl_totals_ce)
+        # Write out summed heating/cooling fossil equivalent energy data
+        output_file = path.join(base_dir, *fo)
         with open(output_file, 'w') as jso:
-            json.dump(htcl_totals_ce, jso, indent=2)
+            json.dump(htcl_totals, jso, indent=2)
+
+        # Find total heating and cooling *site* energy use for each region,
+        # building type, and structure type combination
+        htcl_totals_site = sum_htcl_energy(
+            msegs, handyvars.aeo_years, handyvars.ss_conv_site)
+
+        # Add site-source conversion type to file
+        htcl_totals_site = OrderedDict(htcl_totals_site)
+        htcl_totals_site[handyvars.ss_conv_str] = \
+            "site energy (no site-source conversion)"
+        htcl_totals_site.move_to_end(handyvars.ss_conv_str, last=False)
+
+        # Write out summed heating/cooling site energy data
+        output_file = path.join(base_dir, *fo_site)
+        with open(output_file, 'w') as jso:
+            json.dump(htcl_totals_site, jso, indent=2)
+
+        # If the captured energy file is found, also generate the
+        # heating and cooling *source* energy totals file based on the captured
+        # energy method for calculating site-source conversion factors
+        if handyvars.ss_conv_ce:
+            htcl_totals_ce = sum_htcl_energy(
+                msegs, handyvars.aeo_years, handyvars.ss_conv_ce)
+
+            # Add site-source conversion type to file
+            htcl_totals_ce = OrderedDict(htcl_totals_ce)
+            htcl_totals_ce[handyvars.ss_conv_str] = "captured energy"
+            htcl_totals_ce.move_to_end(handyvars.ss_conv_str, last=False)
+
+            # Write out heating/cooling combined captured energy data
+            output_file = path.join(base_dir, *fo_capt)
+            with open(output_file, 'w') as jso:
+                json.dump(htcl_totals_ce, jso, indent=2)
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ class UsefulInputFiles(object):
             building type, and structure type.
     """
 
-    def __init__(self, energy_out):
+    def __init__(self, energy_out, regions):
         self.metadata = "metadata.json"
         # UNCOMMENT WITH ISSUE 188
         # self.metadata = "metadata_2017.json"
@@ -39,23 +39,46 @@ class UsefulInputFiles(object):
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
-        # Set heating/cooling energy totals file conditional on whether
-        # site energy data, source energy data (fossil equivalent site-source
-        # conversion), or source energy data (captured energy site-source
-        # conversion) are needed
-        if energy_out == "site":
-            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
-                                "htcl_totals-site.json")
-        elif energy_out == "fossil_equivalent":
-            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
-                                "htcl_totals.json")
-        elif energy_out == "captured":
-            self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
-                                "htcl_totals-ce.json")
+        # Set heating/cooling energy totals file conditional on: 1) regional
+        # breakout used, and 2) whether site energy data, source energy data
+        # (fossil equivalent site-source conversion), or source energy data
+        # (captured energy site-source conversion) are needed
+        if regions == "AIA":
+            if energy_out == "site":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-site.json")
+            elif energy_out == "fossil_equivalent":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals.json")
+            elif energy_out == "captured":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-ce.json")
+            else:
+                raise ValueError(
+                    "Unsupported energy output type (site, source "
+                    "(fossil fuel equivalent), and source (captured "
+                    "energy) are currently supported)")
         else:
-            raise ValueError("Unsupported energy output type (site, source "
-                             "(fossil fuel equivalent), and source (captured "
-                             "energy) are currently supported)")
+            if energy_out == "site":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-site_emm.json")
+            elif energy_out == "fossil_equivalent":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals_emm.json")
+            elif energy_out == "captured":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-ce_emm.json")
+            else:
+                raise ValueError(
+                    "Unsupported energy output type (site, source "
+                    "(fossil fuel equivalent), and source (captured "
+                    "energy) are currently supported)")
 
 
 class UsefulVars(object):
@@ -3235,8 +3258,9 @@ def main(base_dir):
         of key results to an output JSON.
     """
     # Instantiate useful input files object (fossil fuel equivalency method
-    # used by default to calculate site-source conversions)
-    handyfiles = UsefulInputFiles(energy_out="fossil_equivalent")
+    # used by default to calculate site-source conversions, with AIA regions)
+    handyfiles = UsefulInputFiles(
+        energy_out="fossil_equivalent", regions="AIA")
     # Instantiate useful variables object (AIA climate regions used by default)
     handyvars = UsefulVars(base_dir, handyfiles, regions="AIA")
 
@@ -3342,16 +3366,9 @@ def main(base_dir):
     if measures_objlist[0].energy_outputs["site_energy"] is True:
         # Set energy output to site energy
         energy_out = "site"
-        # Re-instantiate useful input files object when site energy is output
-        # instead of the default source energy
-        handyfiles = UsefulInputFiles(energy_out)
     elif measures_objlist[0].energy_outputs["captured_energy_ss"] is True:
         # Set energy output to source energy using captured energy S-S
         energy_out = "captured"
-        # Re-instantiate useful input files object when the captured energy
-        # method was used to calculate site-source conversions instead of the
-        # default fossil fuel equivalency method
-        handyfiles = UsefulInputFiles(energy_out)
     else:
         # Otherwise, set energy output to source energy, fossil equivalent S-S
         energy_out = "fossil_equivalent"
@@ -3360,12 +3377,19 @@ def main(base_dir):
     # by AIA climate zone or by NEMS EMM region).
     if measures_objlist[0].energy_outputs["alt_regions"] == "EMM":
         regions = "EMM"
-        # Re-instantiate useful variables object when regional breakdown other
-        # than the default AIA climate zone breakdown is chosen
-        handyvars = UsefulVars(base_dir, handyfiles, regions)
     else:
         # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
+
+    # Re-instantiate useful input files object when site energy is output
+    # instead of the default source energy or regional breakdown other than
+    # default AIA climate zone breakdown is chosen
+    if energy_out != "fossil_equivalent" or regions != "AIA":
+        handyfiles = UsefulInputFiles(energy_out, regions)
+    # Re-instantiate useful variables object when regional breakdown other
+    # than the default AIA climate zone breakdown is chosen
+    if regions != "AIA":
+        handyvars = UsefulVars(base_dir, handyfiles, regions)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to

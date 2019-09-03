@@ -28,13 +28,13 @@
 						"SmallHotel": 0.26,
 						"LargeHotel": 0.74},
 					"large office": {
-						"LargeOffice": 0.9,
-						"MediumOffice": 0.1},
+						"LargeOfficeDetailed": 0.9,
+						"MediumOfficeDetailed": 0.1},
 					"small office": {
 						"SmallOffice": 0.12,
 						"OutpatientHealthcare": 0.88},
 					"mercantile/service": {
-						"RetailStandalone": 0.53,
+						"RetailStandAlone": 0.53,
 						"RetailStripmall": 0.47},
 					"warehouse": {
 						"Warehouse": 1},
@@ -92,13 +92,13 @@
 								"SmallHotel": 0.005,
 								"LargeHotel": 0.005},
 							"large office": {
-								"LargeOffice": 0.005,
-								"MediumOffice": 0.005},
+								"LargeOfficeDetailed": 0.005,
+								"MediumOfficeDetailed": 0.005},
 							"small office": {
 								"SmallOffice": 0.005,
 								"OutpatientHealthcare": 0.02},
 							"mercantile/service": {
-								"RetailStandalone": 0.01,
+								"RetailStandAlone": 0.01,
 								"RetailStripmall": 0.01},
 							"warehouse": {
 								"Warehouse": 0.0001},
@@ -158,13 +158,13 @@
 									"SmallHotel": 0.11,
 									"LargeHotel": 0.27},
 								"large office": {
-									"LargeOffice": 0.38,
-									"MediumOffice": 0.33},
+									"LargeOfficeDetailed": 0.38,
+									"MediumOfficeDetailed": 0.33},
 								"small office": {
 									"SmallOffice": 0.21,
 									"OutpatientHealthcare": 0.19},
 								"mercantile/service": {
-									"RetailStandalone": 0.07,
+									"RetailStandAlone": 0.07,
 									"RetailStripmall": 0.11},
 								"warehouse": {
 									"Warehouse": 0.006},
@@ -203,13 +203,13 @@
 									"SmallHotel": 0.40,
 									"LargeHotel": 0.38},
 								"large office": {
-									"LargeOffice": 0.26,
-									"MediumOffice": 0.40},
+									"LargeOfficeDetailed": 0.26,
+									"MediumOfficeDetailed": 0.40},
 								"small office": {
 									"SmallOffice": 0.55,
 									"OutpatientHealthcare": 0.35},
 								"mercantile/service": {
-									"RetailStandalone": 0.51,
+									"RetailStandAlone": 0.51,
 									"RetailStripmall": 0.57},
 								"warehouse": {
 									"Warehouse": 0.53},
@@ -247,13 +247,13 @@
 									"SmallHotel": 0.25,
 									"LargeHotel": 0.17},
 								"large office": {
-									"LargeOffice": 0.083,
-									"MediumOffice": 0.33},
+									"LargeOfficeDetailed": 0.083,
+									"MediumOfficeDetailed": 0.33},
 								"small office": {
 									"SmallOffice": 1,
 									"OutpatientHealthcare": 0.33},
 								"mercantile/service": {
-									"RetailStandalone": 1,
+									"RetailStandAlone": 1,
 									"RetailStripmall": 1},
 								"warehouse": {
 									"Warehouse": 1},

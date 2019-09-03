@@ -36,3 +36,11 @@ script:
   - python3 -m unittest discover -p '*_test.py'
   - grunt travis -v
   - flake8 --exclude docs/conf.py --max-line-length=100
+
+# https://github.com/drivendataorg/concept-to-clinic/issues/69
+# As a bit more information, and related to #69 (comment), if you don't
+# need these git-lfs files during build time, it'd just be enough to add the
+# following to your .travis.yml to tell Travis not to fetch these assets
+# during git clone:
+git:
+  lfs_skip_smudge: true
