@@ -5,11 +5,11 @@
 import com_mseg as cm
 
 import numpy as np
-import numpy.lib.recfunctions as recfn
 import re
 import warnings
 import json
 import csv
+from os import getcwd, path
 
 
 class EIAData(object):
@@ -43,6 +43,10 @@ class UsefulVars(object):
         tpp_dtypes (list): A list of tuples in the format of a numpy
             dtype definition, specifying the expected dtype and desired
             column headings for the time preference premium data.
+        eu_map (dict): Mapping between end use names in cost conversion JSON
+            and end use numbers in EIA raw technology cose data.
+        cconv (dict): Factors for converting from unit costs to $/ft^2.
+
     """
 
     def __init__(self):
@@ -57,6 +61,26 @@ class UsefulVars(object):
         self.tpp_data_skip_lines = 100
         self.tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
                            ('Year', 'i4'), ('End Use', 'U32')]
+        self.eu_map = {
+            "heating equipment": 1,
+            "cooling equipment": 2,
+            "water heating": 3,
+            "ventilation": 4,
+            "cooking": 5,
+            "lighting": 6,
+            "refrigeration": 7}
+
+        # Set base directory
+        base_dir = getcwd()
+        with open(path.join(
+                base_dir, "supporting_data", "convert_data",
+                "ecm_cost_convert.json"), 'r') as cc:
+            try:
+                self.cconv = json.load(cc)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in cost conversion data file: " +
+                    str(e)) from None
 
 
 class UsefulDicts(object):
@@ -581,75 +605,56 @@ def tech_names_extractor(tech_array):
     return technames
 
 
-def cost_conversion_factor(sf_data, sd_data, sel, years):
-    """Obtain factors to change cost data from service demand to sq ft basis.
+def cost_conversion_factor(sel, eu_map, cconv, years):
+    """Obtain factors to change cost data from service capacity to ft^2 basis.
 
     Equipment capital costs provided in the AEO data have the units
-    dollars per unit service demand basis. These data must be converted
+    dollars per unit service capacity basis. These data must be converted
     to a per square foot floor area basis to provide a usable baseline
-    for measure competition. This function calculates the conversion
+    for measure competition. This function sets the conversion
     factors that can be used to transform the units of the technology
     cost data for each year for a given microsegment.
 
     Args:
-        sf_data (numpy.ndarray): Imported EIA data including square
-            footage data as a function of census division and
-            building type. (Includes the full data file contents.)
-        sd_data (numpy.ndarray): Imported EIA service demand data specified
-            over the same efficiency levels for each technology.
-        tpp_data (numpy.ndarray): A numpy structured array of the
-            EIA commercial market time preference premium data.
         sel (list): A list of integers indicating the microsegment.
+        eu_map (dict): Mapping between end use names in cost conversion JSON
+            and end use numbers in EIA raw technology cose data.
         years (list): A list of integers representing the range of years
             in the data, precalculated for speed.
+        cconv (dict): Factors for converting from unit costs to $/ft^2.
 
     Returns:
-        A numpy array of scaling factors corresponding to the specified
-        microsegment for converting the technology/product baseline
-        costs from a per unit service demand to a per square foot
-        basis, specified for each year.
+        A numpy array or list of numpy arrays containing scaling factors
+        corresponding to the specified microsegment for converting the
+        technology/product baseline costs from a per unit service capacity
+        to a per square foot basis, specified for each year.
     """
 
-    # Extract the square footage data for existing and new buildings
-    # for the microsegment identified by 'sel'
-    sqft_surv = cm.catg_data_selector(sf_data, sel, 'SurvFloorTotal', years)
-    sqft_new = cm.catg_data_selector(sf_data, sel, 'CMNewFloorSpace', years)
+    # Determine the key to use in pulling the cost conversion information
+    # from the supporting JSON file
+    cconv_key = [x[0] for x in eu_map.items() if x[1] == sel[2]][0]
 
-    # Calculate the total square footage for each year by joining
-    # the square footage on a common year vector and then summing
-    # the two columns; delete the extraneous column and rename the
-    # remaining column to represent the data recorded
-    sqft = recfn.join_by(
-        'Year', sqft_surv, sqft_new, jointype='outer', usemask=False)
-    sqft['Amount1'] = sqft['Amount1'] + sqft['Amount2']
-    sqft = sqft[['Year', 'Amount1']]
-    sqft.dtype.names = 'Year', 'Total'
-
-    # Include only the square footage data that corresponds to the
-    # years included in the 'years' list
-    sqft = [row['Total'] for row in sqft if int(row['Year']) in years]
-
-    # Extract the service demand data applicable to the specified
-    # census division, building type, and end use
-    sd_cut = sd_data[np.all([sd_data['r'] == sel[0],
-                             sd_data['b'] == sel[1],
-                             sd_data['s'] == sel[2]], axis=0)]
-
-    # In the service demand data, each year of data is represented by
-    # a separate column; obtain the total service demand for each year
-    # in the list of years provided by summing the columns of the
-    # reduced service demand array
-    sd = np.sum(
-            sd_cut[list(map(str, years))].view(('<f8', len(years))), axis=0)
-
-    # For end uses other than lighting and ventilation, service demand
-    # is given as 1e12 BTU, which requires dividing by 1e3 to get the
-    # conversion factor such that it will yield $/ft^2 floor when
-    # multiplied by the baseline costs as coded in the data files
-    if sel[2] in [1, 2, 3, 5, 7]:
-        conv_factors = sd/sqft/1000
+    # Special handling for heating and cooling end uses. First, the key
+    # structure in the cost conversion JSON is slightly different for these
+    # end uses. Second, the heating and cooling end uses may both pertain to
+    # the same technology in the case of heat pumps, in which costs always
+    # reflect $/kBtu/h cooling (even for the heating end use). Such cases
+    # require that both heating and cooling conversions be pulled here, with
+    # each extended across all years in the analysis. See how the resultant
+    # list of conversion factors is handled in 'mseg_technology_handler'
+    if sel[2] in [1, 2]:
+        conv_factors = [
+            np.array([cconv["cost unit conversions"]["heating and cooling"][
+                "supply"]["heating equipment"]["conversion factor"]["value"]] *
+                len(years)),
+            np.array([cconv["cost unit conversions"]["heating and cooling"][
+                "supply"]["cooling equipment"]["conversion factor"]["value"]] *
+                len(years))]
+    # For all other end uses, pull the appropriate cost conversion factor
+    # from the JSON and extend it across all years in the analysis
     else:
-        conv_factors = sd/sqft
+        conv_factors = np.array([cconv["cost unit conversions"][cconv_key][
+            "conversion factor"]["value"]] * len(years))
 
     return conv_factors
 
@@ -725,7 +730,8 @@ def tpp_handler(tpp_data, sel, years):
     return combined_dict
 
 
-def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
+def mseg_technology_handler(
+        tech_data, sd_data, tpp_data, sf_data, sel, years, eu_map, cconv):
     """Restructures cost, performance, lifetime, and time preference data.
 
     Using external functions that process and reformat specific
@@ -764,6 +770,9 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
         sel (list): A list of integers indicating the microsegment.
         years (list): A list of integers representing the range of years
             in the data, precalculated for speed.
+        eu_map (dict): Mapping between end use names in cost conversion JSON
+            and end use numbers in EIA raw technology cost data.
+        cconv (dict): Factors for converting from unit costs to $/ft^2.
 
     Returns:
         A dict that specifies the cost, performance, and lifetime on
@@ -789,7 +798,7 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
     the_performance_units = units_id(sel, 'performance')
 
     # Obtain the cost conversion factors (by year) for this microsegment
-    conv_factors = cost_conversion_factor(sf_data, sd_data, sel, years)
+    conv_factors = cost_conversion_factor(sel, eu_map, cconv, years)
 
     # Identify the names (as strings) of all of the technologies
     # included in this microsegment
@@ -815,16 +824,37 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
             sd_names_list,
             years, 'cost')
 
-        # Update the cost data with the conversion factor from $/SD
-        # (where SD = service demand) to $/ft^2 for both the 'typical'
-        # and 'best' cases, then add the units and data source to
-        # complete the dict for this technology
+        # For the heating and cooling end uses, expect cost conversion data
+        # in a list with two elements, the first of which contains heating
+        # cost conversion data and the second of which contains cooling
+        # cost conversion data. This accounts for cases where heat pump
+        # technologies are being updated for the heating end use and, per
+        # EIA convention, cooling cost conversion data must be pulled because
+        # heat pump costs are always normalized by the cooling service
+        if sel[2] in [1, 2]:
+            # If the technology is a heat pump, pull the cooling cost
+            # conversion data contained in the second element of the list
+            if "HP" in tech:
+                conv_factors_tmp = conv_factors[1]
+            # Otherwise, pull the heating or cooling cost conversion data
+            # as appropriate for the technology/end use
+            else:
+                conv_factors_tmp = conv_factors[(sel[2] - 1)]
+        # For all other end uses, pull the cost conversion data as appropriate
+        # for the technology/end use
+        else:
+            conv_factors_tmp = conv_factors
+
+        # Update the cost data with the conversion factor from
+        # $/service capacity (generally $/kBtu/h) to $/ft^2 for both
+        # the 'typical' and 'best' cases, then add the units and data
+        # source to complete the dict for this technology
         the_cost['typical'] = dict(zip(
             sorted(the_cost['typical'].keys()),
-            sorted(the_cost['typical'].values())*conv_factors))
+            sorted(the_cost['typical'].values())*conv_factors_tmp))
         the_cost['best'] = dict(zip(
             sorted(the_cost['best'].keys()),
-            sorted(the_cost['best'].values())*conv_factors))
+            sorted(the_cost['best'].values())*conv_factors_tmp))
         the_cost['units'] = '2013$/ft^2 floor'
         the_cost['source'] = 'EIA AEO'
 
@@ -873,8 +903,8 @@ def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years):
     return complete_mseg_tech_data, mseg_non_matching_names
 
 
-def walk(tech_data, serv_data, tpp_data, db_data, years, json_db,
-         key_list=[], no_match_names=[]):
+def walk(tech_data, serv_data, tpp_data, db_data, years, json_db, eu_map,
+         cconv, key_list=[], no_match_names=[]):
     """Recursively explore the JSON structure and add the appropriate data.
 
     Note that this walk function and the data processing function
@@ -900,6 +930,9 @@ def walk(tech_data, serv_data, tpp_data, db_data, years, json_db,
         years (list): A list of the years (YYYY) of data to be converted.
         json_db (dict): The nested dict structure of the empty or
             partially complete database to be populated with new data.
+        eu_map (dict): Mapping between end use names in cost conversion JSON
+            and end use numbers in EIA raw technology cose data.
+        cconv (dict): Factors for converting from unit costs to $/ft^2.
         key_list (list): The list of keys that define the current
             location in the database structure.
         no_match_names (list): A list of names of technologies found in
@@ -918,7 +951,7 @@ def walk(tech_data, serv_data, tpp_data, db_data, years, json_db,
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk(tech_data, serv_data, tpp_data, db_data,
-                 years, item, key_list + [key])
+                 years, item, eu_map, cconv, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types and that
@@ -940,7 +973,7 @@ def walk(tech_data, serv_data, tpp_data, db_data, years, json_db,
                     # Extract data from original data sources
                     data_dict, non_matching_names = mseg_technology_handler(
                         tech_data, serv_data, tpp_data, db_data,
-                        mseg_codes, years)
+                        mseg_codes, years, eu_map, cconv)
 
                     # Set dict key to extracted data
                     json_db[key] = data_dict
@@ -1142,7 +1175,8 @@ def main():
 
             # Proceed recursively through database structure
             result, nmtn = walk(tech_data, serv_data, tpp_data, catg_data,
-                                years, msjson)
+                                years, msjson, handyvars.eu_map,
+                                handyvars.cconv)
 
             # Print warning message to the standard out with a unique
             # (i.e., non-repeating) list of technologies that didn't have
