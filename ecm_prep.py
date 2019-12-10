@@ -14,6 +14,7 @@ import pickle
 from functools import reduce  # forward compatibility for Python 3
 import operator
 from argparse import ArgumentParser
+from ast import literal_eval
 
 
 class MyEncoder(json.JSONEncoder):
@@ -462,8 +463,7 @@ class UsefulVars(object):
                                 'T8 F96'
                             ],
                             'cooking': [
-                                'Range, Electric, 4 burner, oven, 11-inch gr',
-                                'Range, Electric-induction, 4 burner, oven'],
+                                'electric_range_oven_24x24_griddle'],
                             'PCs': [None],
                             'non-PC office equipment': [None]},
                         "natural gas": {
@@ -475,8 +475,7 @@ class UsefulVars(object):
                                 'gas_water_heater', 'gas_instantaneous_WH',
                                 'gas_booster_WH'],
                             'cooking': [
-                                'Range, Gas, 4 burner, oven, 11-inch griddle',
-                                'Range, Gas, 4 powered burners, convect. ove'],
+                                'gas_range_oven_24x24_griddle'],
                             'heating': [
                                 'gas_eng-driven_RTHP-heat',
                                 'res_type_gasHP-heat', 'gas_boiler',
@@ -525,7 +524,8 @@ class UsefulVars(object):
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
-            ('Envelope', ["heating", "secondary heating", "cooling"]),
+            ('Heating (Env.)', ["heating", "secondary heating"]),
+            ('Cooling (Env.)', ["cooling"]),
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
@@ -1021,7 +1021,7 @@ class Measure(object):
             self.time_sensitive_valuation
         except AttributeError:
             self.time_sensitive_valuation = None
-        self.markets, self.out_break_norm = ({} for n in range(2))
+        self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = OrderedDict([(
                 "master_mseg", OrderedDict([(
@@ -1080,10 +1080,10 @@ class Measure(object):
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}}),
                 (
-                "mseg_out_break", copy.deepcopy(
-                    self.handyvars.out_break_in))])
-            self.out_break_norm[adopt_scheme] = {
-                yr: 0 for yr in self.handyvars.aeo_years}
+                "mseg_out_break", {
+                    "baseline": copy.deepcopy(self.handyvars.out_break_in),
+                    "efficient": copy.deepcopy(self.handyvars.out_break_in),
+                    "savings": copy.deepcopy(self.handyvars.out_break_in)})])
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -1263,7 +1263,9 @@ class Measure(object):
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
-        elif "lighting" in self.end_use["primary"] and \
+        elif "lighting" in self.end_use["primary"] and any([
+                x not in self.end_use["primary"] for x in [
+                "heating", "cooling"]]) and \
             any([x not in ["single family home", "multi family home",
                            "mobile home"] for x in self.bldg_type]):
             # Set secondary lighting mseg performance flag to True
@@ -2617,10 +2619,11 @@ class Measure(object):
                         # heating/cooling microsegments map to the
                         # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
                         # 'demand' side heating/cooling microsegments map to
-                        # the 'Envelope' end use, with the exception of
-                        # 'demand' side heating/cooling microsegments that
-                        # represent waste heat from lights - these are
-                        # categorized as part of the 'Lighting' end use
+                        # the 'Heating (Env.)'/'Cooling (Env.) end use, with
+                        # the exception of 'demand' side heating/cooling
+                        # microsegments that represent waste heat from lights -
+                        # these are categorized as part of the 'Lighting' end
+                        # use
                         if mskeys[4] == "other":
                             if mskeys[5] == "freezers":
                                 out_eu = "Refrigeration"
@@ -2630,55 +2633,71 @@ class Measure(object):
                             if (eu[0] in ["Heating (Equip.)",
                                           "Cooling (Equip.)"] and
                                 mskeys[5] == "supply") or (
-                                eu[0] == "Envelope" and
+                                eu[0] in ["Heating (Env.)",
+                                          "Cooling (Env.)"] and
                                 mskeys[5] == "demand" and
                                 mskeys[0] == "primary") or (
                                 eu[0] not in ["Heating (Equip.)",
-                                              "Cooling (Equip.)", "Envelope"]):
+                                              "Cooling (Equip.)",
+                                              "Heating (Env.)",
+                                              "Cooling (Env.)"]):
                                 out_eu = eu[0]
                         elif "lighting gain" in mskeys:
                             out_eu = "Lighting"
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
-                    # microsegment's baseline energy use value to the
-                    # appropriate leaf node of the dictionary used to store
-                    # measure output breakout information. * Note: the values
-                    # in this dictionary will eventually be normalized by the
-                    # measure's total baseline energy use to yield the
-                    # fractions of measure energy and carbon markets/savings
-                    # that are attributable to each climate zone, building
-                    # type, and end use the measure applies to
+                    # microsegment's energy baseline, efficient energy, and
+                    # energy savings value to the appropriate leaf node of the
+                    # dictionary used to store measure output breakout
+                    # information. * Note: the values in this dictionary will
+                    # be normalized in run.py by the measure's energy baseline
+                    # efficient energy, and energy savings totals
+                    # (post-competition) to yield the fractions of measure
+                    # energy and carbon markets/savings that are attributable
+                    # to each climate zone, building type, and end use the
+                    # measure applies to
                     try:
                         # If this is the first time the output breakout
                         # dictionary is being updated, replace appropriate
-                        # terminal leaf node value with the absolute baseline
-                        # energy use values of the current contributing
-                        # microsegment
+                        # terminal leaf node value with energy baseline,
+                        # efficient energy, and energy savings values for the
+                        # current contributing microsegment
                         if len(self.markets[adopt_scheme]["mseg_out_break"][
-                                out_cz][out_bldg][out_eu].keys()) == 0:
+                                "baseline"][out_cz][out_bldg][
+                                out_eu].keys()) == 0:
                             self.markets[adopt_scheme]["mseg_out_break"][
-                                out_cz][out_bldg][out_eu] = {
-                                    yr: abs(add_energy[yr]) for
+                                "baseline"][out_cz][out_bldg][out_eu] = {
+                                    yr: add_energy_total[yr] for
+                                    yr in self.handyvars.aeo_years}
+                            self.markets[adopt_scheme]["mseg_out_break"][
+                                "efficient"][out_cz][out_bldg][out_eu] = {
+                                    yr: add_energy_total_eff[yr] for
+                                    yr in self.handyvars.aeo_years}
+                            self.markets[adopt_scheme]["mseg_out_break"][
+                                "savings"][out_cz][out_bldg][out_eu] = {
+                                    yr: (add_energy_total[yr] -
+                                         add_energy_total_eff[yr]) for
                                     yr in self.handyvars.aeo_years}
 
                         # If the output breakout dictionary has already been
-                        # updated for a previous microsegment, add the absolute
-                        # baseline energy values of the current contributing
-                        # microsegment to the dictionary's existing terminal
-                        # leaf node values
+                        # updated for a previous microsegment, add the energy
+                        # baseline, efficient energy, and energy savings values
+                        # for the current contributing microsegment to the
+                        # dictionary's existing terminal leaf node values
                         else:
                             for yr in self.handyvars.aeo_years:
                                 self.markets[adopt_scheme]["mseg_out_break"][
-                                    out_cz][out_bldg][
-                                    out_eu][yr] += abs(add_energy[yr])
-
-                        # Add to the total absolute energy value used to
-                        # normalize savings values summed by climate zone,
-                        # building type, and end use
-                        for yr in self.out_break_norm[adopt_scheme].keys():
-                            self.out_break_norm[
-                                adopt_scheme][yr] += abs(add_energy[yr])
+                                    "baseline"][out_cz][out_bldg][
+                                    out_eu][yr] += add_energy_total[yr]
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    "efficient"][out_cz][out_bldg][
+                                    out_eu][yr] += add_energy_total_eff[yr]
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    "savings"][out_cz][out_bldg][
+                                    out_eu][yr] += (
+                                        add_energy_total[yr] -
+                                        add_energy_total_eff[yr])
 
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
@@ -2813,15 +2832,6 @@ class Measure(object):
                 else:
                     reduce_num = 1
 
-                # Normalize baseline energy use values for each category in the
-                # measure's output breakout dictionary by the total baseline
-                # energy use for the measure across all contributing
-                # microsegments; this yields partitioning fractions that will
-                # eventually be used to breakout measure energy and carbon
-                # markets/savings by climate zone, building type, and end use
-                self.div_keyvals(
-                    self.markets[adopt_scheme]["mseg_out_break"],
-                    self.out_break_norm[adopt_scheme])
         # Generate an error message when no contributing microsegments
         # with a full set of stock/energy and cost/performance/lifetime data
         # have been found for the measure's master microsegment
@@ -5346,7 +5356,7 @@ class MeasurePackage(Measure):
                 [] for n in range(5))
         self.end_use, self.technology_type = (
             {"primary": [], "secondary": None} for n in range(2))
-        self.markets, self.out_break_norm = ({} for n in range(2))
+        self.markets = {}
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
                 "master_mseg": {
@@ -5399,9 +5409,10 @@ class MeasurePackage(Measure):
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}},
-                "mseg_out_break": copy.deepcopy(self.handyvars.out_break_in)}
-            self.out_break_norm[adopt_scheme] = {
-                yr: 0 for yr in self.handyvars.aeo_years}
+                "mseg_out_break": {
+                    "baseline": copy.deepcopy(self.handyvars.out_break_in),
+                    "efficient": copy.deepcopy(self.handyvars.out_break_in),
+                    "savings": copy.deepcopy(self.handyvars.out_break_in)}}
 
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
@@ -5447,9 +5458,9 @@ class MeasurePackage(Measure):
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Set contributing microsegment data for individual measure
                 msegs_meas = m.markets[adopt_scheme]["mseg_adjust"]
-                # Set total energy use for individual measure (used to
-                # break out results by climate, building class, and end use)
-                mseg_out_break_adj = m.out_break_norm[adopt_scheme]
+                # Set output breakout data for individual measure (used to
+                # break out results by climate, building, and end use)
+                mseg_out_break_adj = m.markets[adopt_scheme]["mseg_out_break"]
                 # Set contributing microsegment data to update for package
                 msegs_pkg = self.markets[adopt_scheme]["mseg_adjust"]
                 # Loop through all measures in package and add contributing
@@ -5477,18 +5488,11 @@ class MeasurePackage(Measure):
                 # Generate a dictionary including data on how much of the
                 # packaged measure's baseline energy use is attributed to
                 # each of the output climate zones, building types, and end
-                # uses it applies to (normalized by the measure's total
-                # baseline energy use below to yield output partitioning
-                # fractions)
-                self.merge_out_break(self.markets[adopt_scheme][
-                    "mseg_out_break"], m.markets[adopt_scheme][
-                    "mseg_out_break"], mseg_out_break_adj)
-
-                # Add adjusted total energy use for the individual measure
-                # to the total energy use for the packaged measure
-                for yr in self.handyvars.aeo_years:
-                    self.out_break_norm[adopt_scheme][yr] += \
-                        mseg_out_break_adj[yr]
+                # uses it applies to
+                for x in ["baseline", "efficient", "savings"]:
+                    self.merge_out_break(self.markets[adopt_scheme][
+                        "mseg_out_break"][x], m.markets[adopt_scheme][
+                        "mseg_out_break"][x])
 
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
@@ -5524,16 +5528,6 @@ class MeasurePackage(Measure):
                 "measure"] = self.markets[adopt_scheme][
                 "master_mseg"]["lifetime"]["measure"] / key_chain_ct_package
 
-            # Normalize baseline energy use values for each category in the
-            # packaged measure's output breakout dictionary by the total
-            # baseline energy use for the packaged measure across all its
-            # contributing measures; this yields partitioning fractions that
-            # will eventually be used to breakout the packaged measure's
-            # energy and carbon markets/savings by climate zone, building
-            # class, and end use
-            self.div_keyvals(self.markets[adopt_scheme]["mseg_out_break"],
-                             self.out_break_norm[adopt_scheme])
-
     def merge_contrib_msegs(
             self, msegs_pkg, msegs_meas, cm_key, meas_typ, adopt_scheme,
             mseg_out_break_adj):
@@ -5548,13 +5542,13 @@ class MeasurePackage(Measure):
                 microsegment currently being added (e.g. czone->bldg, etc.)
             meas_typ (string): Individual measure type (full service / add-on).
             adopt_scheme (string): Assumed consumer adoption scenario.
-            mseg_out_break_adj (dict): Total energy use data for the
-                individual measure, used to breakout results by climate zone,
-                building class, and end use.
+            mseg_out_break_adj (dict): Contributing measure energy use and
+                savings data split by climate zone, building type, and end use.
 
         Returns:
             Updated contributing microsegment information for the package that
-            incorporates the measure's contributing microsegment data.
+            incorporates the measure's contributing microsegment data,
+            updated results breakout data for the contributing measure.
         """
         # Determine what other measures in the package share the current
         # contributing microsegment for the individual measure
@@ -5563,31 +5557,112 @@ class MeasurePackage(Measure):
                 adopt_scheme]["mseg_adjust"][
                 "contributing mseg keys and values"].keys()]
 
-        # Update the contributing microsegment data for the individual measure
-        # if the microsegment is shared with other measures in the package
+        # Update the contributing microsegment data and results breakout data
+        # for the individual measure if the microsegment is shared with other
+        # measures in the package
         if len(overlap_meas) > 1:
+            # Determine the results breakout category combination (climate
+            # zone, building type, end use) to update to reflect overlaps
+            # across packaged measures
+
+            # Convert string to list
+            key_list = literal_eval(cm_key)
+            # Establish applicable climate zone breakout
+            for cz in self.handyvars.out_break_czones.items():
+                if key_list[1] in cz[1]:
+                    out_cz = cz[0]
+            # Establish applicable building type breakout
+            for bldg in self.handyvars.out_break_bldgtypes.items():
+                if all([x in bldg[1] for x in [
+                        key_list[2], key_list[-1]]]):
+                    out_bldg = bldg[0]
+            # Establish applicable end use breakout
+            for eu in self.handyvars.out_break_enduses.items():
+                # * Note: The 'other' microsegment end
+                # use may map to either the 'Refrigeration' output
+                # breakout or the 'Other' output breakout, depending on
+                # the technology type specified in the measure
+                # definition. Also note that 'supply' side
+                # heating/cooling microsegments map to the
+                # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
+                # 'demand' side heating/cooling microsegments map to
+                # the 'Heating (Env.)'/'Cooling (Env.) end use, with the
+                # exception of 'demand' side heating/cooling microsegments that
+                # represent waste heat from lights - these are
+                # categorized as part of the 'Lighting' end use
+                if key_list[4] == "other":
+                    if key_list[5] == "freezers":
+                        out_eu = "Refrigeration"
+                    else:
+                        out_eu = "Other"
+                elif key_list[4] in eu[1]:
+                    if (eu[0] in ["Heating (Equip.)",
+                                  "Cooling (Equip.)"] and
+                        key_list[5] == "supply") or (
+                        eu[0] in ["Heating (Env.)",
+                                  "Cooling (Env.)"] and
+                        key_list[5] == "demand" and
+                        key_list[0] == "primary") or (
+                        eu[0] not in ["Heating (Equip.)",
+                                      "Cooling (Equip.)",
+                                      "Heating (Env.)",
+                                      "Cooling (Env.)"]):
+                        out_eu = eu[0]
+                elif "lighting gain" in key_list:
+                    out_eu = "Lighting"
+
             # Scale contributing microsegment energy, carbon and associated
             # cost data, as well as lifetime and sub-market fraction data,
             # by total number of overlapping measures in the package
             for k in ["stock", "energy", "carbon", "lifetime"]:
                 # Scale down contributing microsegment energy data and
-                # adjust total energy use for the measure accordingly, where
-                # total energy is used in breaking out measure results
+                # adjust baseline energy use, efficient energy use, and energy
+                # savings totals for the measure accordingly, where
+                # each of these totals is used in breaking out measure results
                 # by climate zone, building class, and end use
                 if k == "energy":
-                    # Set total pre-scaled contributing microsegment energy
-                    total_energy_orig = copy.deepcopy(
-                        msegs_meas[k]["total"]["baseline"])
+                    # Set total pre-scaled contributing microsegment baseline
+                    # energy, efficient energy, and energy savings
+                    total_energy_orig_base = \
+                        copy.deepcopy(msegs_meas[k]["total"]["baseline"])
+                    total_energy_orig_eff = \
+                        copy.deepcopy(msegs_meas[k]["total"]["efficient"])
+                    total_energy_orig_save = {yr: (
+                        copy.deepcopy(
+                            msegs_meas[k]["total"]["baseline"][yr]) -
+                        copy.deepcopy(
+                            msegs_meas[k]["total"]["efficient"][yr])) for yr in
+                        self.handyvars.aeo_years}
                     # Scale down contributing microsegment energy based on
                     # number of overlapping measures
                     self.div_keyvals_float(
                         msegs_meas[k], len(overlap_meas))
-                    # Adjust the measure's total energy use to reflect
-                    # the scaled down contributing microsegment energy use
-                    mseg_out_break_adj = {yr: mseg_out_break_adj[yr] - (
-                        total_energy_orig[yr] - msegs_meas[k]["total"][
-                            "baseline"][yr]) for yr in
+                    # Adjust the measure's baseline energy use, efficient
+                    # energy use, and energy savings grouped by climate,
+                    # building type, and end use to reflect the scaled down
+                    # contributing microsegment energy use
+                    mseg_out_break_adj["baseline"][
+                            out_cz][out_bldg][out_eu] = {
+                        yr: mseg_out_break_adj["baseline"][
+                            out_cz][out_bldg][out_eu][yr] - (
+                            total_energy_orig_base[yr] - msegs_meas[k][
+                                "total"]["baseline"][yr]) for yr in
                         self.handyvars.aeo_years}
+                    mseg_out_break_adj["efficient"][
+                        out_cz][out_bldg][out_eu] = {
+                        yr: mseg_out_break_adj["efficient"][
+                            out_cz][out_bldg][out_eu][yr] - (
+                            total_energy_orig_eff[yr] - msegs_meas[k]["total"][
+                                "efficient"][yr]) for yr in
+                        self.handyvars.aeo_years}
+                    mseg_out_break_adj["savings"][
+                        out_cz][out_bldg][out_eu] = {
+                        yr: mseg_out_break_adj["savings"][
+                            out_cz][out_bldg][out_eu][yr] - (
+                            total_energy_orig_save[yr] - (
+                                msegs_meas[k]["total"]["baseline"][yr] -
+                                msegs_meas[k]["total"]["efficient"][yr])) for
+                        yr in self.handyvars.aeo_years}
                 # Scale down carbon and lifetime data
                 else:
                     # Scale down contributing microsegment data based on
@@ -5716,7 +5791,7 @@ class MeasurePackage(Measure):
 
         return msegs_meas
 
-    def merge_out_break(self, pkg_brk, meas_brk, meas_brk_unnorm):
+    def merge_out_break(self, pkg_brk, meas_brk):
         """Merge output breakout data for an individual measure into a package.
 
         Note:
@@ -5737,9 +5812,6 @@ class MeasurePackage(Measure):
                 merge individual measure breakout information into.
             meas_brk (dict): Individual measure output breakout information
                 to merge into the package breakout information.
-            meas_brk_unnorm (dict): Total energy use market for the
-                individual measure, used to derive unnormalized energy use
-                sub-markets for the individual measure to add to the package.
 
         Returns:
             Updated output breakout information for the packaged measure
@@ -5749,7 +5821,7 @@ class MeasurePackage(Measure):
                 sorted(pkg_brk.items()), sorted(meas_brk.items())):
             if isinstance(i2, dict) and (
                     sorted(list(i2.keys())) != self.handyvars.aeo_years):
-                self.merge_out_break(i, i2, meas_brk_unnorm)
+                self.merge_out_break(i, i2)
             else:
                 if k == k2 and (isinstance(i, dict) == isinstance(i2, dict)):
                     # If individual measure output breakout data is
@@ -5759,11 +5831,10 @@ class MeasurePackage(Measure):
                     # exist, or otherwise add the unnormalized breakout data
                     # for the individual measure to that of the package
                     if len(i.keys()) == 0:
-                        pkg_brk[k] = {yr: i2[yr] * meas_brk_unnorm[yr] for
+                        pkg_brk[k] = {yr: i2[yr] for
                                       yr in self.handyvars.aeo_years}
                     else:
-                        pkg_brk[k] = {yr: pkg_brk[k][yr] +
-                                      i2[yr] * meas_brk_unnorm[yr] for
+                        pkg_brk[k] = {yr: pkg_brk[k][yr] + i2[yr] for
                                       yr in self.handyvars.aeo_years}
                 else:
                     raise KeyError(
@@ -5887,8 +5958,6 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 # high level summary data (reformatted during initialization)
                 meas_obj.technology_type = meas_summary_data[0][
                     "technology_type"]
-                meas_obj.out_break_norm = meas_summary_data[0][
-                    "out_break_norm"]
                 # Assemble folder path for measure competition data
                 meas_folder_name = path.join(*handyfiles.ecm_compete_data)
                 # Assemble file name for measure competition data

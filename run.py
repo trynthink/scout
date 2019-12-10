@@ -142,7 +142,8 @@ class UsefulVars(object):
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
-            ('Envelope', ["heating", "secondary heating", "cooling"]),
+            ('Heating (Env.)', ["heating", "secondary heating"]),
+            ('Cooling (Env.)', ["cooling"]),
             ('Ventilation', ["ventilation"]),
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
@@ -324,10 +325,11 @@ class Engine(object):
                             euse[0] in ["Heating (Equip.)",
                                         "Cooling (Equip.)"] and
                             "supply" in m.technology_type["primary"]) or (
-                            euse[0] == "Envelope" and "demand" in
-                            m.technology_type["primary"]) or (euse[0] not in [
+                            euse[0] in ["Heating (Env.)", "Cooling (Env.)"] and
+                            "demand" in m.technology_type["primary"]) or (
+                            euse[0] not in [
                                 "Heating (Equip.)", "Cooling (Equip.)",
-                                "Envelope"]))):
+                                "Heating (Env.)", "Cooling (Env.)"]))):
                         end_uses.append(euse[0])
                 # Assign secondary heating/cooling microsegments that
                 # represent waste heat from lights to the 'Lighting' end use
@@ -1225,11 +1227,12 @@ class Engine(object):
         # microsegment values
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            # Establish starting energy/carbon/cost totals and current
-            # contributing primary energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme)
+            # Establish starting energy/carbon/cost totals, energy/carbon/cost
+            # results breakout information, and current contributing primary
+            # energy/carbon/cost information for measure
+            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
@@ -1374,11 +1377,12 @@ class Engine(object):
         # carbon, and cost impacts
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            # Establish starting energy/carbon/cost totals and current
-            # contributing primary energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme)
+            # Establish starting energy/carbon/cost totals, energy/carbon/cost
+            # results breakout information, and current contributing primary
+            # energy/carbon/cost information for measure
+            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Find a baseline stock turnover rate for each year in the modeling
             # time horizon
@@ -1430,13 +1434,14 @@ class Engine(object):
 
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
-                # cost totals based on its updated competed market share
-                # and stock turnover rates
+                # cost totals and breakouts based on its updated competed
+                # market share and stock turnover rates
                 self.compete_adj(
-                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast, adj,
-                    mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
-                    yr, mseg_key, m, adopt_scheme, mkt_entry_yrs,
-                    base_turnover_rt, eff_turnover_rt)
+                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
+                    mast_brk_base, mast_brk_eff, mast_brk_save, adj,
+                    mast_list_base, mast_list_eff,
+                    adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
+                    mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across commercial measures.
@@ -1792,11 +1797,12 @@ class Engine(object):
         # carbon, and cost impacts
         for ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
-            # Establish starting energy/carbon/cost totals and current
-            # contributing primary energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme)
+            # Establish starting energy/carbon/cost totals, energy/carbon/cost
+            # results breakout information, and current contributing primary
+            # energy/carbon/cost information for measure
+            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Find a baseline stock turnover rate for each year in the modeling
             # time horizon
@@ -1848,13 +1854,14 @@ class Engine(object):
 
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
-                # cost totals based on its updated competed market share
-                # and stock turnover rates
+                # cost totals and breakouts based on its updated competed
+                # market share and stock turnover rates
                 self.compete_adj(
-                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast, adj,
-                    mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
-                    yr, mseg_key, m, adopt_scheme, mkt_entry_yrs,
-                    base_turnover_rt, eff_turnover_rt)
+                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
+                    mast_brk_base, mast_brk_eff, mast_brk_save, adj,
+                    mast_list_base, mast_list_eff,
+                    adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
+                    mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
     def find_added_sbmkt_fracs(
             self, mkt_fracs, measures_adj, mseg_key, adopt_scheme):
@@ -2003,9 +2010,9 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
-            mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-                adj_list_base = self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme)
+            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
             # competed market share for an associated primary contributing
@@ -2057,6 +2064,23 @@ class Engine(object):
                 # current year
                 else:
                     adj_frac_tot = 0
+
+                # Adjust baseline energy, efficient energy, and energy savings
+                # totals grouped by climate zone, building type, and end use
+                # by the appropriate adjustment fraction
+                # Baseline
+                mast_brk_base[yr] = mast_brk_base[yr] - (
+                    adj["energy"]["total"]["baseline"][yr]) * (
+                    1 - adj_frac_tot)
+                # Efficient
+                mast_brk_eff[yr] = mast_brk_eff[yr] - (
+                    adj["energy"]["total"]["efficient"][yr]) * (
+                    1 - adj_frac_tot)
+                # Savings
+                mast_brk_save[yr] = mast_brk_save[yr] - ((
+                    adj["energy"]["total"]["baseline"][yr] -
+                    adj["energy"]["total"]["efficient"][yr]) * (
+                    1 - adj_frac_tot))
 
                 # Adjust total and competed baseline and efficient
                 # data by the appropriate secondary adjustment factor
@@ -2246,7 +2270,8 @@ class Engine(object):
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
-                mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
+                mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+                    mast_list_base, mast_list_eff, adj_list_eff, \
                     adj_list_base = self.compete_adj_dicts(
                         m, mseg, adopt_scheme)
 
@@ -2315,8 +2340,22 @@ class Engine(object):
                     else:
                         save_ratio = 0.5
 
-                    # Use the affected overlap fraction, savings ratio, and
-                    # overlapping relative performance calculated above to
+                    # Calculate baseline and efficient adjustment fractions
+
+                    # Adjust baseline data to reflect the fraction of energy
+                    # use affected by the overlapping microsegments, plus the
+                    # portion of affected energy use saved by the overlapping
+                    # microsegments
+                    adj_frac_base = (1 - affected_frac) + \
+                        affected_frac * save_ratio
+
+                    # Adjust efficient data in the same way as baseline data,
+                    # but with additional consideration for the energy savings
+                    # benefits of the overlapping microsegments
+                    adj_frac_eff = (1 - affected_frac) + \
+                        affected_frac * save_ratio * rel_perf_tech_overlp
+
+                    # Use the baseline/efficient adjustment fractions above to
                     # adjust the ECM's current contributing and master energy,
                     # carbon, and cost data and remove any overlaps
                     for x in ["baseline", "efficient"]:
@@ -2324,21 +2363,12 @@ class Engine(object):
                         # use for baseline or efficient case
                         if x == "baseline":
                             mastlist, adjlist = [mast_list_base, adj_list_base]
-                            # Adjust baseline data to reflect the fraction of
-                            # energy use affected by the overlapping
-                            # microsegments, plus the portion of affected
-                            # energy use saved by the overlapping microsegments
-                            adj_frac = (1 - affected_frac) + \
-                                affected_frac * save_ratio
+                            # Set adj. fraction from above to baseline case
+                            adj_frac = adj_frac_base
                         else:
                             mastlist, adjlist = [mast_list_eff, adj_list_eff]
-                            # Adjust efficient data in the same way as
-                            # baseline data, but with additional consideration
-                            # for the energy savings benefits of the
-                            # overlapping microsegments
-                            adj_frac = (1 - affected_frac) + \
-                                affected_frac * save_ratio * \
-                                rel_perf_tech_overlp
+                            # Set adj. fraction from above to efficient case
+                            adj_frac = adj_frac_eff
                         # Adjust the total and competed energy, carbon, and
                         # associated cost data for both the ECM's current
                         # contributing microsegment and master microsegment
@@ -2354,6 +2384,24 @@ class Engine(object):
                             mast["carbon"]["competed"][x][yr] = [
                                 x[yr] - (y[yr] * (1 - adj_frac))
                                 for x, y in zip(mastlist[6:], adjlist[6:])]
+
+                    # Adjust baseline energy, efficient energy, and energy
+                    # savings totals grouped by climate zone, building type,
+                    # and end use by the appropriate fraction
+                    # Baseline - use baseline adjustment fraction
+                    mast_brk_base[yr] = mast_brk_base[yr] - (
+                        adj["energy"]["total"]["baseline"][yr]) * (
+                        1 - adj_frac_base)
+                    # Efficient - use efficient adjustment fraction
+                    mast_brk_eff[yr] = mast_brk_eff[yr] - (
+                        adj["energy"]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_eff)
+                    # Savings - use both baseline/efficient fractions
+                    mast_brk_save[yr] = mast_brk_save[yr] - (
+                        adj["energy"]["total"]["baseline"][yr] * (
+                            1 - adj_frac_base) -
+                        adj["energy"]["total"]["efficient"][yr] * (
+                            1 - adj_frac_eff))
 
     def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
         """Set the initial measure market data needed to adjust for overlaps.
@@ -2372,6 +2420,58 @@ class Engine(object):
             Lists of initial measure master microsegment data and contributing
             microsegment data needed to adjust for competition across measures.
         """
+
+        # Using the key chain for the current microsegment, determine the
+        # output climate zone, building type, and end use breakout categories
+        # to which the current microsegment applies (uncompeted data in this
+        # combination of categories will be adjusted to reflect competition)
+
+        # Convert microsegment string to a list
+        key_list = literal_eval(mseg_key)
+        # Establish applicable climate zone breakout
+        for cz in self.handyvars.out_break_czones.items():
+            if key_list[1] in cz[1]:
+                out_cz = cz[0]
+        # Establish applicable building type breakout
+        for bldg in self.handyvars.out_break_bldgtypes.items():
+            if all([x in bldg[1] for x in [
+                    key_list[2], key_list[-1]]]):
+                out_bldg = bldg[0]
+        # Establish applicable end use breakout
+        for eu in self.handyvars.out_break_enduses.items():
+            # * Note: The 'other' microsegment end
+            # use may map to either the 'Refrigeration' output
+            # breakout or the 'Other' output breakout, depending on
+            # the technology type specified in the measure
+            # definition. Also note that 'supply' side
+            # heating/cooling microsegments map to the
+            # 'Heating (Equip.)'/'Cooling (Equip.)' end uses, while
+            # 'demand' side heating/cooling microsegments map to
+            # the 'Envelope' end use, with the exception of
+            # 'demand' side heating/cooling microsegments that
+            # represent waste heat from lights - these are
+            # categorized as part of the 'Lighting' end use
+            if key_list[4] == "other":
+                if key_list[5] == "freezers":
+                    out_eu = "Refrigeration"
+                else:
+                    out_eu = "Other"
+            elif key_list[4] in eu[1]:
+                if (eu[0] in ["Heating (Equip.)",
+                              "Cooling (Equip.)"] and
+                    key_list[5] == "supply") or (
+                    eu[0] in ["Heating (Env.)",
+                              "Cooling (Env.)"] and
+                    key_list[5] == "demand" and
+                    key_list[0] == "primary") or (
+                    eu[0] not in ["Heating (Equip.)",
+                                  "Cooling (Equip.)",
+                                  "Heating (Env.)",
+                                  "Cooling (Env.)"]):
+                    out_eu = eu[0]
+            elif "lighting gain" in key_list:
+                out_eu = "Lighting"
+
         # Organize relevant starting master microsegment values into a list
         mast = m.markets[adopt_scheme]["competed"]["master_mseg"]
         # Set total-baseline and competed-baseline overall
@@ -2402,6 +2502,24 @@ class Engine(object):
             mast["cost"]["carbon"]["competed"]["efficient"],
             mast["energy"]["competed"]["efficient"],
             mast["carbon"]["competed"]["efficient"]]
+
+        # Set shorthand variables for baseline energy, efficient energy, and
+        # energy savings breakout information for the current measure that
+        # falls under the climate zone, building type, and end use categories
+        # of the currently competed microsegment
+        # Baseline
+        mast_brk_base = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["baseline"][
+                out_cz][out_bldg][out_eu]
+        # Efficient
+        mast_brk_eff = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["efficient"][
+                out_cz][out_bldg][out_eu]
+        # Savings
+        mast_brk_save = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["savings"][
+                out_cz][out_bldg][out_eu]
+
         # Set up lists that will be used to determine the energy, carbon,
         # and cost totals associated with the contributing microsegment that
         # must be adjusted to reflect measure competition/interaction
@@ -2436,13 +2554,14 @@ class Engine(object):
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
 
-        return mast, adj, mast_list_base, mast_list_eff, adj_list_eff, \
-            adj_list_base
+        return mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+            mast_list_base, mast_list_eff, adj_list_eff, adj_list_base
 
     def compete_adj(
-            self, adj_fracs, added_sbmkt_fracs, mast, adj, mast_list_base,
-            mast_list_eff, adj_list_eff, adj_list_base, yr, mseg_key, measure,
-            adopt_scheme, mkt_entry_yrs, base_turnover_rt, eff_turnover_rt):
+            self, adj_fracs, added_sbmkt_fracs, mast, mast_brk_base,
+            mast_brk_eff, mast_brk_save, adj, mast_list_base, mast_list_eff,
+            adj_list_eff, adj_list_base, yr, mseg_key, measure, adopt_scheme,
+            mkt_entry_yrs, base_turnover_rt, eff_turnover_rt):
         """Scale down measure totals to reflect competition.
 
         Notes:
@@ -2457,6 +2576,12 @@ class Engine(object):
             added_sbmkt_fracs: Additional market share from sub-market scaling.
             mast (dict): Initial overall stock/energy/carbon/cost totals to
                 adjust based on competed market share(s).
+            mast_brk_base (dict): Baseline energy use data for the measure/
+                microsegment broken out by climate, building, end use.
+            mast_brk_eff (dict): Efficient energy use data for the measure/
+                microsegment broken out by climate, building, end use.
+            mast_brk_save (dict): Energy savings data for the measure/
+                microsegment broken out by climate, building, end use.
             adj (dict): Contributing microsegment data to use in adjusting
                 overall stock/energy/carbon/cost following competition.
             mast_list_base (dict): Overall 'baseline' scenario
@@ -2605,6 +2730,20 @@ class Engine(object):
                     secnd_mseg_adjkey][yr] += (
                         adj["energy"]["competed"]["efficient"][yr] *
                         adj_frac_comp)
+
+        # Adjust baseline energy, efficient energy, and energy savings totals
+        # grouped by climate zone, building type, and end use by the
+        # appropriate fraction
+        # Baseline
+        mast_brk_base[yr] = mast_brk_base[yr] - (
+            adj["energy"]["total"]["baseline"][yr]) * (1 - adj_frac_tot)
+        # Efficient
+        mast_brk_eff[yr] = mast_brk_eff[yr] - (
+            adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot)
+        # Savings
+        mast_brk_save[yr] = mast_brk_save[yr] - ((
+            adj["energy"]["total"]["baseline"][yr] -
+            adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot))
 
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share, both overall and for the
@@ -2756,7 +2895,9 @@ class Engine(object):
                     z in summary_vals]
 
             # Record updated markets and savings in Engine 'output'
-            # attribute
+            # attribute; initialize markets/savings breakouts by category as
+            # total markets/savings (e.g., not broken out in any way). These
+            # initial values will be adjusted by breakout fractions below
             self.output_ecms[m.name]["Markets and Savings (Overall)"][
                 adopt_scheme], self.output_ecms[m.name][
                     "Markets and Savings (by Category)"][
@@ -2781,20 +2922,50 @@ class Engine(object):
                             translate(sub), carb_costsave_avg)]) for
                         n in range(2))
 
-            # Scale down the measure's markets and savings by the
-            # climate zone, building type, and end use partitioning
-            # fractions previously established for the measure
-            for k in self.output_ecms[m.name][
-                "Markets and Savings (by Category)"][
-                    adopt_scheme].keys():
-                self.output_ecms[m.name][
-                    'Markets and Savings (by Category)'][adopt_scheme][
-                        k] = self.out_break_walk(
-                        copy.deepcopy(m.markets[adopt_scheme][
-                            "competed"]["mseg_out_break"]),
-                        self.output_ecms[m.name][
-                            'Markets and Savings (by Category)'][
-                            adopt_scheme][k])
+            # Normalize the baseline energy, efficient energy, and energy
+            # savings for the measure that falls into each of the climate,
+            # building type, and end use output categories by the total
+            # baseline energy, efficient energy, and energy savings for the
+            # measure (all post-competition); this yields fractions to use
+            # in apportioning energy, carbon, and cost results by category
+
+            # Calculate baseline energy fractions by output breakout category
+            frac_base = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "baseline"], energy_base_avg, divide=True)
+            # Calculate efficient energy fractions by output breakout category
+            frac_eff = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "efficient"], energy_eff_avg, divide=True)
+            # Determine total energy savings to use as normalization factor
+            norm_save = {
+                yr: (energy_base_avg[yr] - energy_eff_avg[yr]) for
+                yr in self.handyvars.aeo_years}
+            # Calculate energy savings fractions by output breakout category
+            frac_save = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"][
+                    "mseg_out_break"]["savings"], norm_save, divide=True)
+
+            # Create shorthand variable for results by breakout category
+            mkt_save_brk = self.output_ecms[m.name][
+                "Markets and Savings (by Category)"][adopt_scheme]
+
+            # Apply output breakout fractions to total energy, carbon, and cost
+            # results initialized above
+            for k in mkt_save_brk.keys():
+                # Apply baseline partitioning fractions to baseline values
+                if "Baseline" in k:
+                    mkt_save_brk[k] = self.out_break_walk(
+                        copy.deepcopy(frac_base), mkt_save_brk[k],
+                        divide=False)
+                # Apply efficient partitioning fractions to efficient values
+                elif "Efficient" in k:
+                    mkt_save_brk[k] = self.out_break_walk(
+                        copy.deepcopy(frac_eff), mkt_save_brk[k], divide=False)
+                # Apply savings partitioning fractions to savings values
+                else:
+                    mkt_save_brk[k] = self.out_break_walk(
+                       copy.deepcopy(frac_save), mkt_save_brk[k], divide=False)
 
             # Record low and high estimates on markets, if available
 
@@ -2977,7 +3148,7 @@ class Engine(object):
             mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
                 carb_cost_eff_all_high
 
-    def out_break_walk(self, adjust_dict, adjust_vals):
+    def out_break_walk(self, adjust_dict, adjust_vals, divide):
         """Partition measure results by climate, building sector, and end use.
 
         Args:
@@ -2985,6 +3156,8 @@ class Engine(object):
                 for climate zone, building sector, and end use.
             adjust_vals (dict): Unpartitioned energy, carbon, and cost
                 markets/savings.
+            divide (boolean): Optional flag to divide terminal values instead
+                of multiplying them (the default option).
 
         Returns:
             Measure results partitioned by climate, building sector, and
@@ -2992,13 +3165,18 @@ class Engine(object):
         """
         for (k, i) in sorted(adjust_dict.items()):
             if isinstance(i, dict):
-                self.out_break_walk(i, adjust_vals)
+                self.out_break_walk(i, adjust_vals, divide)
             else:
                 # Apply appropriate climate zone/building type/end use
                 # partitioning fraction to the overall market/savings
                 # value
-                adjust_dict[k] = adjust_dict[k] * adjust_vals[k]
-
+                if divide is False:
+                    adjust_dict[k] = adjust_dict[k] * adjust_vals[k]
+                else:
+                    if adjust_vals[k] != 0:
+                        adjust_dict[k] = adjust_dict[k] / adjust_vals[k]
+                    else:
+                        adjust_dict[k] = 0
         return adjust_dict
 
 
