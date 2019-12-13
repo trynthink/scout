@@ -119,6 +119,7 @@ class UsefulVars(object):
         nsamples (int): Number of samples to draw from probability distribution
             on measure inputs.
         aeo_years (list): Modeling time horizon.
+        aeo_years_summary (list): Reduced set of snapshot years in the horizon.
         demand_tech (list): All demand-side heating/cooling technologies.
         zero_cost_tech (list): All baseline technologies with cost of zero.
         inverted_relperf_list (list) = Performance units that require
@@ -208,6 +209,7 @@ class UsefulVars(object):
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
+        self.aeo_years_summary = ["2020", "2030", "2040", "2050"]
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -986,13 +988,15 @@ class UsefulVars(object):
                         bldg: {
                             eu: None for eu in self.in_all_map[
                                 "end_use"]["residential"]["electricity"]
-                        } for bldg in self.in_all_map["bldg_type"]["residential"]
+                        } for bldg in self.in_all_map[
+                            "bldg_type"]["residential"]
                     },
                     "commercial": {
                         bldg: {
                             eu: None for eu in self.in_all_map[
                                 "end_use"]["commercial"]["electricity"]
-                        } for bldg in self.in_all_map["bldg_type"]["commercial"]
+                        } for bldg in self.in_all_map[
+                            "bldg_type"]["commercial"]
                     }
                 } for reg in valid_regions
             }
@@ -1316,6 +1320,8 @@ class Measure(object):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use)
+        sector_shapes (dict): Sector-level hourly baseline and efficient load
+            shapes by adopt scheme and Electricity Market Module (EMM) region.
         out_break_norm (dict): Total energy use data to normalize
             savings values summed by climate zone, building class, and end use.
     """
@@ -1350,6 +1356,7 @@ class Measure(object):
                     "energy use. To address this issue, restrict the "
                     "measure's fuel type to electricity.")
             self.energy_outputs["tsv_metrics"] = tsv_metrics
+        self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
         self.handyvars = copy.deepcopy(handyvars)
@@ -3062,37 +3069,28 @@ class Measure(object):
 
                 # Check for time-sensitive efficiency valuation (e.g., a
                 # measure has time sensitive features and/or the user has
-                # optionally specified time sensitive output metrics). If this
-                # type of valuation is necessary, develop the factors needed to
-                # reweight energy/cost/carbon data to reflect hourly changes in
-                # energy load, energy price, and marginal carbon emissions
-                # across the desired annual or sub-annual time horizon
-                if (self.energy_outputs["tsv_metrics"] is not False or (
-                    self.tsv_features is not None and (
-                        mskeys[0] == "secondary" or (
-                            mskeys[0] == "primary" and
-                            mskeys[3] == "electricity")))) and (
-                    self.handyvars.tsv_hourly_lafs is not None and
-                    self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                        mskeys[2]][mskeys[4]] is None):
-                    tsv_scale_fracs = self.gen_tsv_facts(
+                # optionally specified time sensitive output metrics or sector-
+                # level load shapes). If this type of valuation is necessary
+                # and the current microsegment pertains to electricity, develop
+                # the factors needed to reweight energy/cost/carbon data to
+                # reflect hourly changes in energy load, energy price, and
+                # marginal carbon emissions across the desired annual or
+                # sub-annual time horizon; also pull hourly fraction of annual
+                # load data needed to calculate sector-level shapes below if
+                # the user has specified the '--sect_shapes' option
+                if (any([x is True for x in [
+                    opts.tsv_metrics, opts.sect_shapes]]) or
+                    self.tsv_features is not None) and (
+                    mskeys[0] == "secondary" or (mskeys[0] == "primary" and
+                                                 mskeys[3] == "electricity")):
+                    tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
                         tsv_data, mskeys, bldg_sect, convert_data, opts)
-                    # Set adjustment factors for current combination of
-                    # region, building type, and end use such that they
-                    # need not be calculated again for this combination in
-                    # subsequent technology microsegments
-                    self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                        mskeys[2]][mskeys[4]] = copy.deepcopy(tsv_scale_fracs)
-                elif (self.handyvars.tsv_hourly_lafs is not None and
-                      self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                        mskeys[2]][mskeys[4]] is not None):
-                    tsv_scale_fracs = self.handyvars.tsv_hourly_lafs[
-                        mskeys[1]][bldg_sect][mskeys[2]][mskeys[4]]
                 else:
                     tsv_scale_fracs = {
                         "energy": {"baseline": 1, "efficient": 1},
                         "cost": {"baseline": 1, "efficient": 1},
                         "carbon": {"baseline": 1, "efficient": 1}}
+                    tsv_shapes = None
 
                 for adopt_scheme in self.handyvars.adopt_schemes:
                     # Update total, competed, and efficient stock, energy,
@@ -3174,6 +3172,56 @@ class Measure(object):
                                 yr: life_base[yr] * add_stock_total[yr] for
                                 yr in self.handyvars.aeo_years},
                             "measure": life_meas}}
+
+                    # If sector-level load shapes are desired and hourly
+                    # fraction of annual load data are available for
+                    # the current contributing microsegment, multiply the
+                    # microsegment's annual energy data by these hourly
+                    # fractions to yield hourly energy totals for the
+                    # microsegment in each year. Then add these hourly data
+                    # into the sector-level totals for the measure across all
+                    # affected microsegments, which are summarzied by EMM
+                    # region. If sector-level load shapes are desired and
+                    # hourly load fraction data are unavailable when they
+                    # should be available (primary electric microsegments or
+                    # secondary lighting microsegments), yield an error
+                    if opts.sect_shapes is True and tsv_shapes is not None:
+                        # If sector-level totals across all affected
+                        # microsegments have not yet been initiated for the
+                        # current EMM region, initiate using the load shape
+                        # data for the current contributing microsegment;
+                        # otherwise, add to the previously initiated data
+                        if mskeys[1] not in self.sector_shapes[
+                                adopt_scheme].keys():
+                            self.sector_shapes[adopt_scheme] = {mskeys[1]: {
+                                yr: {"baseline": [tsv_shapes["baseline"][x] *
+                                                  add_energy_total[yr] for x
+                                                  in range(8760)],
+                                     "efficient": [tsv_shapes["efficient"][x] *
+                                                   add_energy_total_eff[yr] for
+                                                   x in range(8760)]} for yr in
+                                self.handyvars.aeo_years_summary}}
+                        else:
+                            for yr in self.handyvars.aeo_years_summary:
+                                self.sector_shapes[adopt_scheme][mskeys[1]][
+                                    yr]["baseline"] = [self.sector_shapes[
+                                        adopt_scheme][mskeys[1]][yr][
+                                        "baseline"][x] + tsv_shapes[
+                                        "baseline"][x] * add_energy_total[yr]
+                                        for x in range(8760)]
+                                self.sector_shapes[adopt_scheme][mskeys[1]][
+                                    yr]["efficient"] = [self.sector_shapes[
+                                        adopt_scheme][mskeys[1]][yr][
+                                        "efficient"][x] + tsv_shapes[
+                                        "efficient"][x] * add_energy_total_eff[
+                                        yr] for x in range(8760)]
+                    elif opts.sect_shapes is True and tsv_shapes is None and (
+                        mskeys[0] == "secondary" or (
+                            mskeys[0] == "primary" and
+                            mskeys[3] == "electricity")):
+                        raise ValueError(
+                            "Missing hourly fraction of annual load data for "
+                            "baseline energy use segment: " + mskeys + ". ")
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -3478,7 +3526,7 @@ class Measure(object):
             print(" Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
 
     def gen_tsv_facts(self, tsv_data, mskeys, bldg_sect, cost_conv, opts):
-        """Set re-weighting factors for time-sensitive efficiency valuation.
+        """Set annual re-weighting factors and hourly load fractions for TSV.
 
         Args:
             tsv_data (data): Time-resolved load/energy cost/emissions data.
@@ -3488,246 +3536,274 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
 
         Returns:
-            Dict of microsegment-specific energy, cost, and emissions re-
-            weighting factors that reflect time-sensitive evaluation of energy
-            efficiency and associated energy costs/carbon emissions.
+            Dict of microsegment-specific energy, cost, and emissions annual
+            re-weighting factors that reflect time-sensitive evaluation of
+            energy efficiency and associated energy costs/carbon emissions, and
+            (if desired by user) hourly fractions of annual energy load.
         """
 
-        # Set energy load shapes for given climate, building type, and end use
-
-        # Primary microsegment case: find the load shape associated with the
-        # primary end use
-        if mskeys[0] == "primary":
-            # First, assume there is a load shape for the current end use
-            try:
-                # Do not assign the "other" load shape directly to the "other"
-                # end use in Scout, as this end use has sub-categories (e.g.,
-                # dishwashing, pool pumps/heaters, etc.) that should be used
-                # to key in the appropriate load shape information
-                if mskeys[4] == "other":
-                    raise(KeyError)
-                else:
-                    # Set load data end use key for later use in 'apply_tsv'
-                    eu = mskeys[4]
+        # If time-sensitive valuation is needed and energy, cost, and carbon
+        # re-weighting and load shape information does not already exist for
+        # the current combination of region, building type, and end use, set
+        # energy load shapes for given climate, building type, and end use
+        if self.handyvars.tsv_hourly_lafs is not None and \
+            self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
+                mskeys[2]][mskeys[4]] is None:
+            # Primary microsegment case: find the load shape associated with
+            # the primary end use
+            if mskeys[0] == "primary":
+                # First, assume there is a load shape for the current end use
+                try:
+                    # Do not assign the "other" load shape directly to the
+                    # "other" end use in Scout, as this end use has
+                    # sub-categories (e.g., dishwashing, pool pumps/heaters,
+                    # etc.) that should be used to key in the appropriate load
+                    # shape information
+                    if mskeys[4] == "other":
+                        raise(KeyError)
+                    else:
+                        # Set load data end use key for use in 'apply_tsv'
+                        eu = mskeys[4]
+                        # Key in the appropriate load shape data
+                        load_fact = tsv_data["load"][bldg_sect][eu]
+                except KeyError:
+                    # If there is no load shape for the current end use, handle
+                    # the resultant error differently for res./com.
+                    if bldg_sect == "residential":
+                        # Secondary heating maps to heating load shape
+                        if mskeys[4] == "secondary heating":
+                            eu = "heating"
+                        # Computers and TVs map to plug loads load shape
+                        elif mskeys[4] in ["computers", "TVs"]:
+                            eu = "plug loads"
+                        # Ceiling fan maps to cooling load shape
+                        elif mskeys[4] == "ceiling fan":
+                            eu = "cooling"
+                        # Other end use maps to various load shapes
+                        elif mskeys[4] == "other":
+                            # Dishwasher technology maps to dishwasher
+                            if mskeys[5] == "dishwasher":
+                                eu = "dishwasher"
+                            # Clothes washing tech. maps to clothes washing
+                            elif mskeys[5] == "clothes washing":
+                                eu = "clothes washing"
+                            # Clothes drying technology maps to clothes drying
+                            elif mskeys[5] == "clothes drying":
+                                eu = "clothes drying"
+                            # Pool heaters/pumps map to pool heaters/pumps
+                            elif mskeys[5] == "pool heaters and pumps":
+                                eu = "pool heaters and pumps"
+                            # Freezers map to refrigeration
+                            elif mskeys[5] == "freezers":
+                                eu = "refrigeration"
+                            # All other other maps to other
+                            else:
+                                eu = "other"
+                        # In all other cases, error
+                        else:
+                            raise KeyError(
+                                "The following baseline segment could not be "
+                                "mapped to any baseline load shape in the "
+                                "Scout database: " + str(mskeys))
+                    elif bldg_sect == "commercial":
+                        # For commercial PCs/non-PC office equipment, use the
+                        # load shape for plug loads
+                        if mskeys[4] in ["PCs", "non-PC office equipment"]:
+                            eu = "plug loads"
+                        # For commercial MELs end uses, use the generic 'other'
+                        # load shape
+                        elif mskeys[4] == "MELs":
+                            eu = "other"
+                        # In all other cases, error
+                        else:
+                            raise KeyError(
+                                "The following baseline segment could not be "
+                                "mapped to any baseline load shape in the "
+                                "Scout database: " + str(mskeys))
                     # Key in the appropriate load shape data
                     load_fact = tsv_data["load"][bldg_sect][eu]
-            except KeyError:
-                # If there is no load shape for the current end use, handle
-                # the resultant error differently for residential/commercial
-                if bldg_sect == "residential":
-                    # Secondary heating maps to heating load shape
-                    if mskeys[4] == "secondary heating":
-                        eu = "heating"
-                    # Computers and TVs map to plug loads load shape
-                    elif mskeys[4] in ["computers", "TVs"]:
-                        eu = "plug loads"
-                    # Ceiling fan maps to cooling load shape
-                    elif mskeys[4] == "ceiling fan":
-                        eu = "cooling"
-                    # Other end use maps to various load shapes
-                    elif mskeys[4] == "other":
-                        # Dishwasher technology maps to dishwasher
-                        if mskeys[5] == "dishwasher":
-                            eu = "dishwasher"
-                        # Clothes washing technology maps to clothes washing
-                        elif mskeys[5] == "clothes washing":
-                            eu = "clothes washing"
-                        # Clothes drying technology maps to clothes drying
-                        elif mskeys[5] == "clothes drying":
-                            eu = "clothes drying"
-                        # Pool heaters and pumps maps to pool heaters and pumps
-                        elif mskeys[5] == "pool heaters and pumps":
-                            eu = "pool heaters and pumps"
-                        # Freezers map to refrigeration
-                        elif mskeys[5] == "freezers":
-                            eu = "refrigeration"
-                        # All other other maps to other
-                        else:
-                            eu = "other"
-                    # In all other cases, error
-                    else:
-                        raise KeyError(
-                            "The following baseline segment could not be "
-                            "mapped to any baseline load shape in the Scout "
-                            "database: " + str(mskeys))
-                elif bldg_sect == "commercial":
-                    # For commercial PCs/non-PC office equipment, use the
-                    # load shape for plug loads
-                    if mskeys[4] in ["PCs", "non-PC office equipment"]:
-                        eu = "plug loads"
-                    # For commercial MELs end uses, use the generic 'other'
-                    # load shape
-                    elif mskeys[4] == "MELs":
-                        eu = "other"
-                    # In all other cases, error
-                    else:
-                        raise KeyError(
-                            "The following baseline segment could not be "
-                            "mapped to any baseline load shape in the Scout "
-                            "database: " + str(mskeys))
+
+            # Commercial secondary lighting microsegment case: use the lighting
+            # load shape for secondary heating/cooling impacts from lighting
+            else:
+                eu = "lighting"
                 # Key in the appropriate load shape data
                 load_fact = tsv_data["load"][bldg_sect][eu]
 
-        # Commercial secondary lighting microsegment case: use the lighting
-        # load shape for secondary heating/cooling impacts from lighting
-        else:
-            eu = "lighting"
-            # Key in the appropriate load shape data
-            load_fact = tsv_data["load"][bldg_sect][eu]
+            # Find weights needed to map ASHRAE/IECC climate zones to EMM
+            # region, and EnergyPlus building type to Scout building type
 
-        # Find weights needed to map ASHRAE/IECC climate zones to EMM region,
-        # and EnergyPlus building type to Scout building type
+            # Find ASHRAE/IECC -> EMM weighting factors for current EMM region
+            ash_czone_wts = [[x["ASHRAE"], x[mskeys[1]]] for x in
+                             self.handyvars.ash_emm_map if (x[mskeys[1]] != 0)]
+            # Check to ensure that region weighting factors sum to 1
+            if round(sum([x[1] for x in ash_czone_wts]), 2) != 1:
+                raise ValueError(
+                    "ASHRAE climate -> EMM region weights for region " +
+                    mskeys[1] + " and building type " + mskeys[2] +
+                    " do not sum to 1")
 
-        # Find ASHRAE/IECC -> EMM weighting factors for current EMM region
-        ash_czone_wts = [[x["ASHRAE"], x[mskeys[1]]] for x in
-                         self.handyvars.ash_emm_map if (x[mskeys[1]] != 0)]
-        # Check to ensure that region weighting factors sum to 1
-        if round(sum([x[1] for x in ash_czone_wts]), 2) != 1:
-            raise ValueError(
-                "ASHRAE climate -> EMM region weights for region " +
-                mskeys[1] + " and building type " + mskeys[2] +
-                " do not sum to 1")
+            # Find EnergyPlus -> Scout building type weighting factors for
+            # current building type. Note that residential buildings map
+            # directly to the ResStock single family building type
+            if bldg_sect == "commercial":
+                eplus_bldg_wts = cost_conv["building type conversions"][
+                    "conversion data"]["value"]["commercial"][mskeys[2]]
+                # Handle case where there is no EnergyPlus analogue for a Scout
+                # commercial building type (e.g., for the other Scout building
+                # type and the health care Scout building type)
+                if eplus_bldg_wts is None:
+                    if mskeys[2] == "other":
+                        eplus_bldg_wts = {"MediumOfficeDetailed": 1}
+                    elif mskeys[2] == "health care":
+                        eplus_bldg_wts = {"Hospital": 1}
+            else:
+                eplus_bldg_wts = {"ResStockSingleFamily": 1}
+            # Check to ensure that building type weighting factors sum to 1
+            if round(sum([x[1] for x in eplus_bldg_wts.items()]), 2) != 1:
+                raise ValueError(
+                    "EPlus building -> Scout building mapping weights for "
+                    "region " + mskeys[1] + " and building type " + mskeys[2] +
+                    " do not sum to 1")
 
-        # Find EnergyPlus -> Scout building type weighting factors for current
-        # building type. Note that residential buildings map directly to the
-        # ResStock single family building type
-        if bldg_sect == "commercial":
-            eplus_bldg_wts = cost_conv["building type conversions"][
-                "conversion data"]["value"]["commercial"][mskeys[2]]
-            # Handle case where there is no EnergyPlus analogue for a Scout
-            # commercial building type (e.g., for the other Scout building
-            # type and the health care Scout building type)
-            if eplus_bldg_wts is None:
-                if mskeys[2] == "other":
-                    eplus_bldg_wts = {"MediumOfficeDetailed": 1}
-                elif mskeys[2] == "health care":
-                    eplus_bldg_wts = {"Hospital": 1}
-        else:
-            eplus_bldg_wts = {"ResStockSingleFamily": 1}
-        # Check to ensure that building type weighting factors sum to 1
-        if round(sum([x[1] for x in eplus_bldg_wts.items()]), 2) != 1:
-            raise ValueError(
-                "EPlus building -> Scout building mapping weights for region "
-                + mskeys[1] + " and building type " + mskeys[2] +
-                " do not sum to 1")
+            # Generate an appropriate 8760 price and emissions scaling shapes
 
-        # Generate an appropriate 8760 price and emissions scaling shapes
+            # Set time-varying electricity price scaling factors for the EMM
+            # region and building type combination
+            if self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] is None:
+                # Set the time-varying price factor
+                cost_fact = tsv_data["price"][
+                    "electricity price shapes"][mskeys[1]][bldg_sect]
+                # Initialize an 8760 price scaling list
+                cost_fact_hourly = \
+                    [1 for n in range(8760)]
+                # Set initial overall 8760 list index to zero
+                current_ind = 0
+                # Initialize weekday tracker (1=Sunday for reference example
+                # year 2006)
+                current_wkdy = 1
 
-        # Set time-varying electricity price scaling factors for the EMM
-        # region and building type combination
-        if self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] is None:
-            # Set the time-varying price factor
-            cost_fact = tsv_data["price"][
-                "electricity price shapes"][mskeys[1]][bldg_sect]
-            # Initialize an 8760 price scaling list
-            cost_fact_hourly = \
-                [1 for n in range(8760)]
-            # Set initial overall 8760 list index to zero
-            current_ind = 0
-            # Initialize weekday tracker (1=Sunday for reference example year
-            # 2006)
-            current_wkdy = 1
+                # Loop through all months of the year to assign price factors
+                for ind, mo in enumerate(self.handyvars.months):
+                    # Determine the total number of days in the current month
+                    month_days = tsv_data[
+                        "price"]["month information"]["days"][ind]
+                    # Assign cost data for each day of the month
+                    for d in range(month_days):
+                        # Assign cost data based on month/day type (weekday,
+                        # weekend)
+                        if current_wkdy in [1, 7]:
+                            day_cost_info = cost_fact[mo]["weekend"]
+                        else:
+                            day_cost_info = cost_fact[mo]["weekday"]
+                        cost_fact_hourly[
+                            current_ind: (current_ind + 24)] = day_cost_info
+                        # Advance day of week by one unless Saturday (7), in
+                        # which case day switches back to 1 (Sunday)
+                        if current_wkdy <= 6:
+                            current_wkdy += 1
+                        else:
+                            current_wkdy = 1
+                        # Advance overall list index by 24 hours
+                        current_ind += 24
+                self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] = \
+                    cost_fact_hourly
+            else:
+                cost_fact_hourly = self.handyvars.tsv_hourly_price[
+                    mskeys[1]][bldg_sect]
 
-            # Loop through all months of the year to assign price factors
-            for ind, mo in enumerate(self.handyvars.months):
-                # Determine the total number of days in the current month
-                month_days = tsv_data[
-                    "price"]["month information"]["days"][ind]
-                # Assign cost data for each day of the month
-                for d in range(month_days):
-                    # Assign cost data based on month/day type (weekday,
-                    # weekend)
-                    if current_wkdy in [1, 7]:
-                        day_cost_info = cost_fact[mo]["weekend"]
-                    else:
-                        day_cost_info = cost_fact[mo]["weekday"]
-                    cost_fact_hourly[
-                        current_ind: (current_ind + 24)] = day_cost_info
-                    # Advance day of week by one unless Saturday (7), in which
-                    # case day switches back to 1 (Sunday)
-                    if current_wkdy <= 6:
-                        current_wkdy += 1
-                    else:
-                        current_wkdy = 1
-                    # Advance overall list index by 24 hours
-                    current_ind += 24
-            self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] = \
-                cost_fact_hourly
-        else:
-            cost_fact_hourly = self.handyvars.tsv_hourly_price[
-                mskeys[1]][bldg_sect]
+            # Set time-varying emissions scaling factors for EMM region
 
-        # Set time-varying marginal emissions scaling factors for EMM region
-
-        # Emissions factors are broken out by NERC region, which EMM
-        # regions map into; find the appropriate NERC region for the current
-        # EMM region to use in pulling out the correct emissions factor data
-        nerc_key = [
-            x[0] for x in tsv_data["emissions"][
+            # Emissions factors are broken out by NERC region, which EMM
+            # regions map into; find the appropriate NERC region for current
+            # EMM region to use in pulling out correct emissions factor data
+            nerc_key = [x[0] for x in tsv_data["emissions"][
                 "NERC to EMM region mapping"].items() if mskeys[1] in x[1]][0]
 
-        if self.handyvars.tsv_hourly_emissions[nerc_key] is None:
-            # Set the time-varying emissions factor
-            emissions_fact = tsv_data["emissions"][
-                "marginal carbon emissions factors"][nerc_key]
-            # Initialize 8760 emissions scaling list
-            carbon_fact_hourly = \
-                [1 for n in range(8760)]
-            # Set initial overall 8760 list index to zero
-            current_ind = 0
-            # Initialize weekday tracker (1=Sunday for reference example year
-            # 2006)
-            current_wkdy = 1
+            if self.handyvars.tsv_hourly_emissions[nerc_key] is None:
+                # Set the time-varying emissions factor
+                emissions_fact = tsv_data["emissions"][
+                    "marginal carbon emissions factors"][nerc_key]
+                # Initialize 8760 emissions scaling list
+                carbon_fact_hourly = \
+                    [1 for n in range(8760)]
+                # Set initial overall 8760 list index to zero
+                current_ind = 0
+                # Initialize weekday tracker (1=Sunday for reference example
+                # year 2006)
+                current_wkdy = 1
 
-            # Loop through all months of the year to assign emissions factors
-            for ind, mo in enumerate(self.handyvars.months):
-                # Determine the total number of days in the current month
-                month_days = tsv_data[
-                    "price"]["month information"]["days"][ind]
-                # Assign emissions data for each day of the month
-                for d in range(month_days):
-                    # Assign emissions data based on season
-                    season_key = [x[0] for x in tsv_data[
-                        "emissions"]["season information"].items() if
-                        (ind + 1) in x[1]["months"]][0]
-                    day_carbon_info = emissions_fact[season_key]
-                    carbon_fact_hourly[
-                        current_ind: (current_ind + 24)] = day_carbon_info
-                    # Advance day of week by one unless Saturday (7), in which
-                    # case day switches back to 1 (Sunday)
-                    if current_wkdy <= 6:
-                        current_wkdy += 1
-                    else:
-                        current_wkdy = 1
-                    # Advance overall list index by 24 hours
-                    current_ind += 24
-            self.handyvars.tsv_hourly_emissions[nerc_key] = carbon_fact_hourly
+                # Loop through all months of year to assign emissions factors
+                for ind, mo in enumerate(self.handyvars.months):
+                    # Determine the total number of days in the current month
+                    month_days = tsv_data[
+                        "price"]["month information"]["days"][ind]
+                    # Assign emissions data for each day of the month
+                    for d in range(month_days):
+                        # Assign emissions data based on season
+                        season_key = [x[0] for x in tsv_data[
+                            "emissions"]["season information"].items() if
+                            (ind + 1) in x[1]["months"]][0]
+                        day_carbon_info = emissions_fact[season_key]
+                        carbon_fact_hourly[
+                            current_ind: (current_ind + 24)] = day_carbon_info
+                        # Advance day of week by one unless Saturday (7), in
+                        # which case day switches back to 1 (Sunday)
+                        if current_wkdy <= 6:
+                            current_wkdy += 1
+                        else:
+                            current_wkdy = 1
+                        # Advance overall list index by 24 hours
+                        current_ind += 24
+                self.handyvars.tsv_hourly_emissions[nerc_key] = \
+                    carbon_fact_hourly
+            else:
+                carbon_fact_hourly = \
+                    self.handyvars.tsv_hourly_emissions[nerc_key]
+
+            # Check to ensure that the resulting price and emissions scaling
+            # factor lists are both 8760 elements long (for 8760 hours/year)
+            if len(cost_fact_hourly) != 8760:
+                raise ValueError(
+                    "Price shape for region " + mskeys[1] +
+                    " and building type " + mskeys[2] + " is " +
+                    str(len(cost_fact_hourly)) + "items long, not 8760")
+            if len(carbon_fact_hourly) != 8760:
+                raise ValueError(
+                    "Emissions shape for region " + mskeys[1] +
+                    " and building type " + mskeys[2] + " is " +
+                    str(len(cost_fact_hourly)) + "items long, not 8760")
+
+            # Use 8760 load shape information, combined with 8760 price and
+            # emissions shape information above, to calculate factors that
+            # modify annually-determined baseline and efficient energy, cost,
+            # and carbon totals such that they reflect sub-annual assessment
+            # of these totals
+            updated_tsv_fracs, updated_tsv_shapes = self.apply_tsv(
+                load_fact, ash_czone_wts, eplus_bldg_wts, cost_fact_hourly,
+                carbon_fact_hourly, mskeys, bldg_sect, eu, opts)
+            # Set adjustment factors for current combination of
+            # region, building type, and end use such that they
+            # need not be calculated again for this combination in
+            # subsequent technology microsegments
+            self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
+                mskeys[2]][mskeys[4]] = {
+                    "annual adjustment fractions": updated_tsv_fracs,
+                    "hourly shapes": updated_tsv_shapes}
+        elif self.handyvars.tsv_hourly_lafs is not None:
+            updated_tsv_fracs, updated_tsv_shapes = [
+                self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
+                    mskeys[2]][mskeys[4]]["annual adjustment fractions"],
+                self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
+                    mskeys[2]][mskeys[4]]["hourly shapes"]]
         else:
-            carbon_fact_hourly = \
-                self.handyvars.tsv_hourly_emissions[nerc_key]
+            updated_tsv_fracs = {
+                "energy": {"baseline": 1, "efficient": 1},
+                "cost": {"baseline": 1, "efficient": 1},
+                "carbon": {"baseline": 1, "efficient": 1}}
+            updated_tsv_shapes = None
 
-        # Check to ensure that the resulting price and emissions scaling
-        # factor lists are both 8760 elements long (for 8760 hours/year)
-        if len(cost_fact_hourly) != 8760:
-            raise ValueError(
-                "Price shape for region " + mskeys[1] + " and building type "
-                + mskeys[2] + " is " + str(len(cost_fact_hourly)) +
-                "items long, not 8760")
-        if len(carbon_fact_hourly) != 8760:
-            raise ValueError(
-                "Emissions shape for region " + mskeys[1] +
-                " and building type " + mskeys[2] + " is " +
-                str(len(cost_fact_hourly)) + "items long, not 8760")
-
-        # Use 8760 load shape information, combined with 8760 price and
-        # emissions shape information above, to calculate factors that modify
-        # annually-determined baseline and efficient energy, cost, and carbon
-        # totals such that they reflect sub-annual assessment of these totals
-        updated_tsv_fracs = self.apply_tsv(
-            load_fact, ash_czone_wts, eplus_bldg_wts,
-            cost_fact_hourly, carbon_fact_hourly, mskeys, bldg_sect, eu, opts)
-
-        return updated_tsv_fracs
+        return updated_tsv_fracs, updated_tsv_shapes
 
     def apply_tsv(self, load_fact, ash_cz_wts, eplus_bldg_wts,
                   cost_fact_hourly, carbon_fact_hourly, mskeys, bldg_sect,
@@ -3748,7 +3824,9 @@ class Measure(object):
         Returns:
             Dict of microsegment-specific energy, cost, and emissions re-
             weighting factors that reflect time-sensitive evaluation of energy
-            efficiency and associated energy costs/carbon emissions.
+            efficiency and associated energy costs/carbon emissions; list
+            with hourly fractions of annual baseline and efficient energy use
+            (if desired by the user)
         """
 
         # Initialize overall factors to use in scaling annually-determined
@@ -3756,7 +3834,11 @@ class Measure(object):
         cost_scale_base, carb_scale_base, energy_scale_base, \
             energy_scale_eff, cost_scale_eff, \
             carb_scale_eff = (0 for n in range(6))
-
+        # Initialize hourly fractions of annual baseline and efficient energy
+        # if sector-level load shape information is desired by the user
+        if opts.sect_shapes is True:
+            energy_base_shape, energy_eff_shape = ([
+                0 for x in range(8760)] for n in range(2))
         # Create shorthand for measure's time sensitive metrics settings
         tsv_metrics = self.energy_outputs["tsv_metrics"]
 
@@ -4129,6 +4211,28 @@ class Measure(object):
                                 "measure: " + self.name + ". Valid reshaping "
                                 "operations include 'custom_daily_savings' "
                                 "or 'custom_annual_savings'.")
+                # Update hourly fractions of annual baseline and efficient
+                # energy to reflect baseline hourly load shape plus effects of
+                # time-sensitive measure features on the baseline load (if any)
+                if opts.sect_shapes is True:
+                    # Base load weighted by contribution of climate for load
+                    # to EMM region
+                    base_ls_wt = [
+                        x * emm_adj_wt for x in base_load_hourly]
+                    # Efficient load weighted by contribution of climate for
+                    # load to current EMM region
+                    eff_ls_wt = [
+                        x * emm_adj_wt for x in eff_load_hourly]
+                    # Add to existing base load fractions (across all climates
+                    # that overlap with the current EMM region)
+                    energy_base_shape = [
+                        energy_base_shape[x] + base_ls_wt[x] for
+                        x in range(len(energy_base_shape))]
+                    # Add to existing efficient load fractions (across all
+                    # climates that overlap with the current EMM region)
+                    energy_eff_shape = [
+                        energy_eff_shape[x] + eff_ls_wt[x] for
+                        x in range(len(energy_eff_shape))]
 
                 # Further adjust baseline and efficient load shapes
                 # to account for time sensitive valuation (TSV) output metrics
@@ -4284,6 +4388,14 @@ class Measure(object):
                     x * y * emm_adj_wt for x, y in zip(
                         eff_load_hourly, carbon_fact_hourly)])
 
+        # Return hourly fractions of annual baseline and efficient energy
+        # if sector-level load shape information is desired by the user
+        if opts.sect_shapes is True:
+            updated_tsv_shapes = {
+                "baseline": energy_base_shape,
+                "efficient": energy_eff_shape}
+        else:
+            updated_tsv_shapes = None
         # Return the final energy, cost, and emissions rescaling factors
         # to use in modifying annually-determined energy, cost, and emissions
         # totals such that they reflect sub-annual assessment of these totals
@@ -4300,7 +4412,7 @@ class Measure(object):
                 "efficient": carb_scale_eff
             }}
 
-        return updated_tsv_fracs
+        return updated_tsv_fracs, updated_tsv_shapes
 
     def convert_costs(self, convert_data, bldg_sect, mskeys, cost_meas,
                       cost_meas_units, cost_base_units, verbose):
@@ -7232,6 +7344,17 @@ def main(base_dir):
     else:
         regions = "AIA"
 
+    # Screen for cases where user desires time-sensitive valuation metrics
+    # or hourly sector-level load shapes but EMM regions are not used (such
+    # options require baseline data to be resolved by EMM region)
+    if regions != "EMM" and any([
+            x is True for x in [opts.tsv_metrics, opts.sect_shapes]]):
+        raise ValueError(
+            "'--tsv_metrics' and '--sect_shapes' options are only valid "
+            "when EIA Electricity Market Module (EMM) regions are selected as "
+            "analysis regions. To address this issue, add the '--alt_regions' "
+            "option and select EMM regions when prompted.")
+
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
     # to reach the desired metric type
@@ -7612,9 +7735,12 @@ if __name__ == "__main__":
     # Optional flag for non-AIA regional breakdown
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
-    # Optional flag for non-AIA regional breakdown
+    # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
+    # Optional flag for generating sector-level load shapes
+    parser.add_argument("--sect_shapes", action="store_true",
+                        help="Flag sector-level load shapes")
     # Optional flag for persistent relative performance after market entry
     parser.add_argument("--rp_persist", action="store_true",
                         help="Flag consistent relative performance value "
