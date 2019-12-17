@@ -9,7 +9,7 @@ import pickle
 from os import getcwd, path, pathsep, sep, environ, walk, devnull
 from ast import literal_eval
 import math
-from optparse import OptionParser
+from argparse import ArgumentParser
 import subprocess
 import sys
 import warnings
@@ -3073,6 +3073,36 @@ class Engine(object):
                         ("IRR (%)", irr_e_avg),
                         ("Payback (years)", payback_e_avg)])
 
+            # If a user desires measure market penetration percentages as an
+            # output, calculate and report these fractions
+            if options.mkt_fracs is True:
+                # Calculate market penetration percentages for the current
+                # measure and scenario; divide post-competition measure stock
+                # by the total stock that the measure could possibly affect
+                mkt_fracs = {yr: round(
+                    ((mkts["stock"]["total"]["measure"][yr] / m.markets[
+                      adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
+                      "total"]["all"][yr]) * 100), 1) for
+                    yr in self.handyvars.aeo_years}
+                # Calculate average and low/high penetration fractions
+                mkt_fracs_avg = {
+                    k: numpy.mean(v) for k, v in mkt_fracs.items()}
+                mkt_fracs_low = {
+                    k: numpy.percentile(v, 5) for k, v in mkt_fracs.items()}
+                mkt_fracs_high = {
+                    k: numpy.percentile(v, 95) for k, v in mkt_fracs.items()}
+                # Set the average market penetration fraction output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme]["Stock Penetration (%)"] = mkt_fracs_avg
+                # Set low/high market penetration fractions (as applicable)
+                if mkt_fracs_avg != mkt_fracs_low:
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme]["Stock Penetration (low) (%)"] = \
+                        mkt_fracs_low
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme]["Stock Penetration (high) (%)"] = \
+                        mkt_fracs_high
+
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
         # these values will be the same)
@@ -3465,11 +3495,14 @@ if __name__ == '__main__':
     import time
     start_time = time.time()
     base_dir = getcwd()
-    # Handle command line '-v' argument specifying verbose mode
-    parser = OptionParser()
-    parser.add_option("--verbose", action="store_true", dest="verbose",
-                      help="print all warnings to stdout")
-    (options, args) = parser.parse_args()
+    # Handle option user-specified execution arguments
+    parser = ArgumentParser()
+    parser.add_argument("--verbose", action="store_true", dest="verbose",
+                        help="print all warnings to stdout")
+    # Optional flag to calculate site (rather than source) energy outputs
+    parser.add_argument("--mkt_fracs", action="store_true",
+                        help="Flag market penetration outputs")
+    options = parser.parse_args()
     # Set function that only prints message when in verbose mode
     verboseprint = print if options.verbose else lambda *a, **k: None
     main(base_dir)

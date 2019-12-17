@@ -2172,6 +2172,20 @@ class Measure(object):
                     if mskeys[4] == "lighting" and mskeys[0] == "primary" and \
                             light_scnd_autoperf is True:
                         light_scnd_autoperf = rel_perf
+
+                    # Check whether the user has optionally locked measure
+                    # relative performance across the model time horizon to
+                    # that of the measure's market entry year (for example,
+                    # a user may wish to assume that the 'Best Available'
+                    # measure on the market maintains a consistent degree of
+                    # improvement over the comparable baseline technology
+                    # across its lifetime). In this case, set the measure's
+                    # relative performance value for all years to that
+                    # calculated for its market entry year
+                    if opts.rp_persist is True:
+                        rel_perf = {
+                            yr: rel_perf[str(self.market_entry_year)] for
+                            yr in self.handyvars.aeo_years}
                 else:
                     raise KeyError(
                         "Invalid performance or cost units for ECM '" +
@@ -6388,6 +6402,10 @@ if __name__ == "__main__":
     # captured energy (rather than fossil fuel equivalent) method
     parser.add_argument("--captured_energy", action="store_true",
                         help="Flag captured energy site-source conversions")
+    # Optional flag for persistent relative performance after market entry
+    parser.add_argument("--rp_persist", action="store_true",
+                        help="Flag consistent relative performance value "
+                        "after market entry")
     # Optional flag to print all warning messages to stdout
     parser.add_argument("--verbose", action="store_true",
                         help="Print all warnings to stdout")
