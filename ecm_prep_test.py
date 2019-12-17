@@ -703,11 +703,13 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 
 class UserOptions(object):
     """Generate sample user-specified execution options."""
-    def __init__(self, site, capt, warnings):
+    def __init__(self, site, capt, rp_persist, warnings):
         # Options include site energy outputs, captured energy site-source
-        # calculation method, and verbose mode that prints all warnings
+        # calculation method, a relative performance level that persists from
+        # an ECM's market entry year, and verbose mode that prints all warnings
         self.site_energy = site
         self.captured_energy = capt
+        self.rp_persist = rp_persist
         self.verbose = warnings
 
 
@@ -812,7 +814,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 "distillate": {"2009": 14.81, "2010": 14.87},
                 "other fuel": {"2009": 14.81, "2010": 14.87}}}
         handyvars.ccosts = {"2009": 33, "2010": 33}
-        cls.opts = UserOptions(site=None, capt=None, warnings=None)
+        cls.opts = UserOptions(
+            site=None, capt=None, rp_persist=None, warnings=None)
         cls.convert_data = {}
         cls.tsv_data = {}
         cls.sample_mseg_in = {
@@ -8705,7 +8708,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             AssertionError: If function yields unexpected results.
         """
         # Run function on all measure objects and check output
-        opts = UserOptions(site=True, capt=True, warnings=None)
+        opts = UserOptions(
+            site=True, capt=True, rp_persist=None, warnings=None)
         for idx, measure in enumerate(self.ok_tpmeas_sitechk_in):
             measure.fill_mkts(self.sample_mseg_in, self.sample_cpl_in,
                               self.convert_data, self.tsv_data, opts)
@@ -12295,7 +12299,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                 "distillate": {"2009": 14.81, "2010": 14.87},
                 "other fuel": {"2009": 14.81, "2010": 14.87}}}
         cls.handyvars.ccosts = {"2009": 33, "2010": 33}
-        cls.opts = UserOptions(site=None, capt=None, warnings=None)
+        cls.opts = UserOptions(
+            site=None, capt=None, rp_persist=None, warnings=None)
         cls.tsv_data = {
             "load": {
               "AIA_CZ1": {

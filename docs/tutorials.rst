@@ -1044,7 +1044,9 @@ To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, ope
 .. _Accounting Methodology for Source Energy of Non-Combustible Renewable Electricity Generation: https://www.energy.gov/sites/prod/files/2016/10/f33/Source%20Energy%20Report%20-%20Final%20-%2010.21.16.pdf
 
 .. tip::
-   Using the optional flag ``--verbose`` (i.e., ``python3 ecm_prep.py --verbose``) will print all warning messages triggered during ECM preparation to the console.
+   Using the optional flag ``--rp_persist`` (i.e., ``python3 ecm_prep.py --rp_persist``) will prepare a measure set with the assumption that all measure relative performance levels at market entry persist across the years the measure set is on the market. For example, if a user wishes to assume that the performance level of a current 'Best Available' technology portfolio improves in lock-step with the rate of improvement of a comparable set of baseline technologies, the ``--rp_persist`` option will operationalize this assumption.
+
+   Additionally, using the optional flag ``--verbose`` (i.e., ``python3 ecm_prep.py --verbose``) will print all warning messages triggered during ECM preparation to the console.
 
 As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
@@ -1162,7 +1164,9 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    python3 run.py
 
 .. tip::
-   Using the optional flag ``--verbose`` (i.e., ``python3 run.py --verbose``) will print all warning messages triggered during analysis execution to the console.
+   Using the optional flag ``--mkt_fracs`` (i.e., ``python3 run.py --mkt_fracs``) will report annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics.
+
+   Additionally, using the optional flag ``--verbose`` (i.e., ``python3 run.py --verbose``) will print all warning messages triggered during analysis execution to the console.
 
 While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, writing results to an output file, and plotting results. This text is principally to assure users that the analysis is proceeding apace. Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder.
 
