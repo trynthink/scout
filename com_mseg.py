@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import numpy.lib.recfunctions as recfn
 import re
 import csv
 import json
@@ -357,10 +358,12 @@ def sd_mseg_percent(sd_array, sel, yrs):
         entries = filtered[filtered['Description'] == name]
 
         # Calculate the sum of all year columns and write it to the
-        # appropriate row in the tval array (note that the .view()
-        # function converts the structured array into a standard
-        # numpy array, which allows the use of the .sum() function)
-        tval[idx, ] = np.sum(entries[yrs].view(('<f8', len(yrs))), axis=0)
+        # appropriate row in the tval array (note that the recfn module
+        # introduces the structured_to_unstructured function to
+        # convert the structured array into a standard numpy array,
+        # which allows the use of the .sum() function)
+        tval[idx, ] = np.sum(recfn.structured_to_unstructured(
+            entries[yrs], dtype='<f8'), axis=0)
 
     # If at least one entry in tval is non-zero (tval.any() == True),
     # suppress any divide by zero warnings and calculate the percentage

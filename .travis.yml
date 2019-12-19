@@ -8,16 +8,9 @@
 
 language: python
 python:
-  - "3.5"
   - "3.6"
-
-# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
-# This configuration is described in https://github.com/travis-ci/travis-ci/issues/9815#issue-336465122
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
+  - "3.7"
+  - "3.8"
 
 # Download and set up anaconda
 before_install:
@@ -34,7 +27,7 @@ before_install:
 
 # Install packages
 install: 
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy=1.15 scipy flake8 requests
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy>=1.16 scipy flake8 requests
   - source activate testenv
 
 # Run test(s)
