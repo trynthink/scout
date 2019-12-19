@@ -5,6 +5,7 @@
 import com_mseg as cm
 
 import numpy as np
+import numpy.lib.recfunctions as recfn
 import re
 import warnings
 import json
@@ -46,7 +47,6 @@ class UsefulVars(object):
         eu_map (dict): Mapping between end use names in cost conversion JSON
             and end use numbers in EIA raw technology cose data.
         cconv (dict): Factors for converting from unit costs to $/ft^2.
-
     """
 
     def __init__(self):
@@ -84,7 +84,7 @@ class UsefulVars(object):
 
 
 class UsefulDicts(object):
-    """Set up class for dicts to relate diferent data file formats.
+    """Set up class for dicts to relate different data file formats.
 
     Attributes:
         kprem_endusedict (dict): Keys are the strings found in the time
@@ -214,8 +214,8 @@ def sd_data_selector(sd_data, sel, years):
         # appropriate row in the sd array (note that the .view()
         # function converts the structured array into a standard
         # numpy array, which allows the use of the .sum() function)
-        sd[idx, ] = np.sum(
-            entries[list(map(str, years))].view(('<f8', len(years))), axis=0)
+        sd[idx, ] = np.sum(recfn.structured_to_unstructured(
+            entries[list(map(str, years))], dtype='<f8'), axis=0)
 
     # Note that each row in sd corresponds to a single performance
     # level for a single technology and the rows are in the same order
