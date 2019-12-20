@@ -1164,7 +1164,7 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    python3 run.py
 
 .. tip::
-   Using the optional flag ``--mkt_fracs`` (i.e., ``python3 run.py --mkt_fracs``) will report annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics.
+   Using the optional flag ``--mkt_fracs`` (i.e., ``python3 run.py --mkt_fracs``) will report annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. ECM market penetration data are summarized in the file |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the field "Stock Penetration (%)".
 
    Additionally, using the optional flag ``--verbose`` (i.e., ``python3 run.py --verbose``) will print all warning messages triggered during analysis execution to the console.
 
