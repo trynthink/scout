@@ -2671,7 +2671,7 @@
       }
     }
   },
-	"MELs": {
+  "MELs": {
     "residential": {
       "TVs": {
         "TV": {
@@ -3290,10 +3290,7 @@
                 "2050": 0.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1h7ZphnI259qC7XEoaz4gr3GNEdSXBc_hTzIE-CgM5ss/edit?usp=sharing"
             }
@@ -3477,10 +3474,7 @@
                 "2050": 4.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/13yQ-W-wQwHH-e0LWNed0YUKFuvX3nTct3uCEeG3BH7s/edit?usp=sharing"
             }
@@ -4158,10 +4152,7 @@
                 "2050": 5.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1XqTYIw8xMAlOAfaqQVGBnaXSZaeOQjQ_6RuIZhEdMkE/edit?usp=sharing"
             }
@@ -4305,10 +4296,7 @@
                 "2050": 1.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1JgF7TqudN8WPmVdY94ExUIy773hfCv328adXd2Nd-s0/edit?usp=sharing"
             }
@@ -4867,10 +4855,7 @@
                 "2050": 5.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": ""
             }
@@ -5016,10 +5001,7 @@
                 "2050": 19.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1x56rGvGFRl5zN58x4VtM6TlHcM98l3bjDnCug2CcW1w/edit?usp=sharing"
             }
@@ -6256,10 +6238,7 @@
                 "2050": 1648.6
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1bQRk3HVMI1UQ9WU6y3n-_bTU9WyUCgbA5_IQX8-y-i4/edit?usp=sharing"
             }
@@ -6403,10 +6382,7 @@
                 "2050": 6903.9
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1bQRk3HVMI1UQ9WU6y3n-_bTU9WyUCgbA5_IQX8-y-i4/edit?usp=sharing"
             }
@@ -6550,10 +6526,7 @@
                 "2050": 0.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1EvtoqFMzVP4YEY8zympbftqT8MJ6B6vA5v6rnW5_ogo/edit?usp=sharing"
             }
@@ -6697,10 +6670,7 @@
                 "2050": 212.0
               }
             },
-            "units": [
-              "kWh/yr",
-              "fraction annual operating hours"
-            ],
+            "units": "kWh/yr",
             "source": {
               "URL": "https://docs.google.com/spreadsheets/d/1caKHVXqd5e2oB8pKC77_Ms8jh03Ta7u2LzMVM6iylyE/edit?usp=sharing"
             }
@@ -7286,11 +7256,11 @@
           },
           "installed cost": {
             "typical": {
-              "2013": NaN,
-              "2014": NaN,
-              "2015": NaN,
-              "2016": NaN,
-              "2017": NaN,
+              "2013": 1000.0,
+              "2014": 1000.0,
+              "2015": 1000.0,
+              "2016": 1000.0,
+              "2017": 1000.0,
               "2018": 1000.0,
               "2019": 1000.0,
               "2020": 1000.0,
@@ -7388,11 +7358,11 @@
           },
           "installed cost": {
             "typical": {
-              "2013": NaN,
-              "2014": NaN,
-              "2015": NaN,
-              "2016": NaN,
-              "2017": NaN,
+              "2013": 20224.0,
+              "2014": 20224.0,
+              "2015": 20224.0,
+              "2016": 20224.0,
+              "2017": 20224.0,
               "2018": 20224.0,
               "2019": 20224.0,
               "2020": 20224.0,
@@ -7668,10 +7638,7 @@
               "2050": 5.0
             }
           },
-          "units": [
-            "kWh/yr",
-            "fraction annual operating hours"
-          ],
+          "units": "kWh/yr",
           "source": {
             "URL": "https://docs.google.com/spreadsheets/d/14-foDVA-J08ymRfoFOG4lViiW5S1v14ZnbLDJucmO8k/edit?usp=sharing"
           }
@@ -7732,6 +7699,6 @@
         }
       }
     }
-	}
+  }
 }
 
