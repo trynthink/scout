@@ -30,6 +30,7 @@ import json
 import mseg
 import com_mseg as cm
 import functools as ft
+import math
 
 
 class UsefulVars(object):
@@ -346,9 +347,7 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
         A dict with installed cost, performance, and lifetime data
         applicable to the microsegment and envelope component specified
         by key_list, as well as units and source information for those
-        data. All costs should have the units 2016$/ft^2 floor. Note
-        that unlike the cost, performance, and lifetime data obtained
-        from the AEO, these data are not specified on a yearly basis.
+        data. All costs should have the units 2016$/ft^2 floor.
         These data are returned only if applicable for the envelope
         component that appears in key_list, and not for cases such as
         "people gain" for which there is no corresponding product that
@@ -566,6 +565,222 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
     return tech_data_dict
 
 
+def mels_cpl_data_handler(cpl_data, conversions, years, key_list):
+    """Restructure MELs component cost, performance, and lifetime data.
+
+    This function extracts the cost, performance, and lifetime data for
+    miscellaneous electric loads (MELs) technologies of residential and
+    commercial buildings from the original data and restructures it into a
+    form that is generally consistent with similar data originally obtained
+    from the Annual Energy Outlook (AEO). These data are added to the input
+    microsegments database after it is converted to a climate zone basis.
+
+    Args:
+        cpl_data (dict): Cost, performance, and lifetime data for
+            MELs technologies including units and source information.
+        conversions (dict): Energy, stock, and square footage data needed
+            to convert cost units for MELs technologies.
+        years (list): A list of integers representing the range of years
+            in the data.
+        key_list (list): Keys that specify the current location in the
+            microsegments database structure and thus indicate what
+            data should be returned by this function.
+
+    Returns:
+        A dict with installed cost, performance, and lifetime data
+        applicable to the microsegment and MELs technology specified
+        by key_list, as well as units and source information for those
+        data. All residential costs should be in $/unit, while all commercial
+        costs should be in $/ft^2 floor.
+    """
+
+    # Preallocate variable storing cost, performance, and lifetime data
+    specific_cpl_data = ''
+    # Preallocate variables for the building class (i.e., residential
+    # or commercial) and the building type
+    bldg_class = ''
+    bldg_type = ''
+    # Check second item in list (building type) to identify building type
+    # name and associated class (residential, commercial) of the current
+    # microsegment
+    if key_list[1] in mseg.bldgtypedict.keys():
+        bldg_type = key_list[1]
+        bldg_class = 'residential'
+    elif key_list[1] in cm.CommercialTranslationDicts().bldgtypedict.keys():
+        bldg_type = key_list[1]
+        bldg_class = 'commercial'
+    # Use fourth item in list to identify end use of the current microsegment
+    eu = key_list[3]
+    # Pull cost, performance, and lifetime data if available, handling cases
+    # where the data are found on the end use level (4 item microsegment key
+    # chain) and cases where the data are found on the technology level (5 item
+    # list)
+    if len(key_list) == 4:
+        try:
+            specific_cpl_data = cpl_data['MELs'][bldg_class][eu]
+        except KeyError:
+            pass
+    elif len(key_list) == 5:
+        tech = key_list[-1]
+        try:
+            specific_cpl_data = cpl_data['MELs'][bldg_class][eu][tech]
+        except KeyError:
+            pass
+
+    # Preallocate empty dicts for the cost, performance, and lifetime
+    # data, to include the data, units, and source information
+    the_cost = {}
+    the_perf = {}
+    the_life = {}
+
+    # If any data were found for the particular technology, end use, and
+    # building class, extract the cost, performance, and lifetime data,
+    # including units and source information, and record it to the
+    # appropriate dict created for those data
+    if specific_cpl_data:
+        # Convert year list to strings for further use in data dicts
+        years_str = [str(x) for x in years]
+        # Set the possible operational mode breakouts for MELs performance data
+        modes = ["active", "ready", "sleep", "off"]
+
+        # Extract cost data units
+        orig_cost_units = specific_cpl_data['cost']['units']
+
+        # Case where the commercial MELs cost data require conversion from
+        # $/unit to '$/ft^2 floor'; currently, data for this conversion are
+        # only available for PCs so other technologies will be ignored
+        if orig_cost_units and (
+            bldg_class == "commercial" and '$/ft^2 floor'
+                not in orig_cost_units and '$/unit' in orig_cost_units):
+            if eu == "PCs":
+                # Set the unconverted cost value
+                orig_cost = specific_cpl_data['cost']['typical']
+                # Strip the year from the cost units (to be added back later)
+                the_year = orig_cost_units[:4]
+                # PC cost conversion data are split into three categories by
+                # building type; find the appropriate category key to use
+                # in pulling these data for the current building type
+                if bldg_type in ["large office", "small office", "education"]:
+                    convert_key = "office and education"
+                elif bldg_type == "health care":
+                    convert_key = "health care"
+                else:
+                    convert_key = "all other"
+                # Apply the cost conversion ($/unit->$/ft^2 floor) across years
+                adj_cost = {
+                    key: orig_cost[key] * conversions["cost unit conversions"][
+                        eu]["conversion factor"]["value"][convert_key]
+                    for key in years_str}
+                # Finalize adjusted cost units by adding back the year
+                adj_units = the_year + "$/ft^2 floor"
+                # Add the converted cost information to the appropriate dict
+                the_cost['typical'] = adj_cost
+                the_cost['units'] = adj_units
+                the_cost['source'] = specific_cpl_data['cost']['source']
+        # Case where MELs cost data are not in expected units (throw error)
+        elif orig_cost_units and ('$/unit' not in orig_cost_units):
+            raise ValueError("Baseline MELs technology cost units "
+                             "for " + str(key_list) + " are not in $/unit")
+        # Case where there is no need for cost conversion
+        elif orig_cost_units:
+            the_cost['typical'] = specific_cpl_data['cost']['typical']
+            the_cost['units'] = orig_cost_units
+            the_cost['source'] = specific_cpl_data['cost']['source']
+
+        # Extract MELs performance data and units
+        orig_perf = specific_cpl_data['performance']['typical']
+        orig_perf_units = specific_cpl_data['performance']['units']
+
+        # Ensure that all MELs performance data is in units of kWh/yr
+
+        # Case where performance data are already in kWh/yr and no further
+        # calculations are required
+        if orig_perf_units == "kWh/yr" and any([
+                x not in modes for x in orig_perf.keys()]):
+            perf_kwh_yr = orig_perf
+        # Case where performance data are in units of kWh/yr, but are
+        # broken out by operational mode (e.g, active, ready, sleep, off);
+        # convert to annual kWh/yr values
+        elif orig_perf_units == "kWh/yr" and any([
+                x in modes for x in orig_perf.keys()]):
+            # Pre-allocate converted performance dict
+            perf_kwh_yr = {}
+            # Loop through all operational modes and sum performance values
+            for mode in orig_perf.keys():
+                # First item in loop; set the first kWh/yr values
+                if len(perf_kwh_yr.keys()) == 0:
+                    perf_kwh_yr = {key: orig_perf[mode][key]
+                                   for key in years_str}
+                # Subsequent items in loop; add to previous kWh/yr values
+                else:
+                    perf_kwh_yr = {key: perf_kwh_yr[key] + orig_perf[mode][key]
+                                   for key in years_str}
+        # Case where performance data are in units of W and are
+        # broken out by operational mode (e.g, active, ready, sleep, off);
+        # convert to annual kWh/yr values
+        elif type(orig_perf_units) == list and all([
+            x in orig_perf_units for x in [
+                "W", "fraction annual operating hours"]]):
+            # Pre-allocate converted performance dict
+            perf_kwh_yr = {}
+            # Loop through all operational modes and sum performance values
+            for mode in orig_perf.keys():
+                # First item in loop; set the first kWh/yr value
+                # by multiplying W/mode by 8760 annual operational hours and
+                # dividing by 1000 (to convert from Wh to kWh)
+                if len(perf_kwh_yr.keys()) == 0:
+                    perf_kwh_yr = {key: ((orig_perf[mode][key][0] *
+                                          orig_perf[mode][key][1] * 8760) /
+                                         1000)
+                                   for key in orig_perf[mode].keys()}
+                # Subsequent items; add to previous kWh/yr values
+                else:
+                    perf_kwh_yr = {key: (perf_kwh_yr[key] + (
+                                   (orig_perf[mode][key][0] *
+                                    orig_perf[mode][key][1] * 8760) / 1000))
+                                   for key in orig_perf[mode].keys()}
+        # Case where other unexpected performance units are given (throw error)
+        else:
+            raise ValueError("Unexpected baseline performance units for MELs "
+                             "baseline segment " + str(key_list) + "")
+
+        # Set final performance levels
+        the_perf['typical'] = perf_kwh_yr
+        # Set final performance units
+        the_perf["units"] = "kWh/yr"
+        # Set final performance source data
+        the_perf['source'] = specific_cpl_data['performance']['source']
+
+        # Extract lifetime data as-is
+        the_life['average'] = specific_cpl_data['lifetime']['average']
+        the_life['range'] = specific_cpl_data['lifetime']['range']
+        the_life['units'] = specific_cpl_data['lifetime']['units']
+        the_life['source'] = specific_cpl_data['lifetime']['source']
+
+        # Perform a final check to ensure there are no technologies with
+        # only partially complete information
+        if all([len(x) > 0 for x in [
+                the_cost.keys(), the_perf.keys(), the_life.keys()]]) and (
+            math.isnan(the_life['average']) is False and
+            the_life['average'] != 0) and all(
+            [all([(math.isnan(x) is False and x != 0) for x in y.values()])
+             for y in [the_cost['typical'], the_perf['typical']]]):
+            # Add the cost, performance, and lifetime dicts into a master dict
+            # for the microsegment and envelope component specified by key_list
+            tech_data_dict = {'installed cost': the_cost,
+                              'performance': the_perf,
+                              'lifetime': the_life}
+        # If there are missing/incomplete data, simply return 0
+        else:
+            tech_data_dict = 0
+
+    # If no data were found, simply return 0
+    else:
+        tech_data_dict = 0
+
+    return tech_data_dict
+
+
 def cost_converter(cost, units, bldg_class, bldg_type, conversions):
     """Convert envelope cost data to uniform units of $/ft^2 floor.
 
@@ -722,7 +937,7 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
         cpl_data (dict): Cost, performance, and lifetime data for
             building envelope components (e.g., roofs, walls) including
             units and source information.
-        conversions (dict): Cost unit conversions for envelope (and
+        conversions (dict): Cost unit conversions for envelope and PCs (and
             heating and cooling equipment, though those conversions are
             not used in this function) components, as well as the
             mapping from EnergyPlus building prototypes to AEO building
@@ -757,7 +972,10 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
         # the list is 'demand', indicating that the current node is an
         # envelope component with no data currently stored, and if
         # so, finish constructing the key list for the current location
-        # and obtain the data to update the dict
+        # and obtain the data to update the dict. If the final entry in the
+        # list indicates a miscellaneous electric load (MELs) technology,
+        # again finish constructing the key list for the current location and
+        # obtain the data to update the dict.
         else:
             if key_list[-1] == 'demand':
                 leaf_node_keys = key_list + [key]
@@ -766,6 +984,20 @@ def walk(cpl_data, conversions, years, json_db, key_list=[]):
                 # performance, and lifetime data into a complete dict
                 # for the specified microsegment and envelope component
                 data_dict = env_cpl_data_handler(
+                    cpl_data, conversions, years, leaf_node_keys)
+                # Set dict key to extracted data
+                json_db[key] = data_dict
+            elif (len(key_list) == 3) and any([
+                key in cpl_data["MELs"][x].keys() for x in [
+                    "residential", "commercial"]]) or \
+                (len(key_list) == 4) and any([
+                    key_list[-1] in cpl_data["MELs"][x].keys() for x in [
+                    "residential", "commercial"]]):
+                leaf_node_keys = key_list + [key]
+                # Extract and neatly format the MELs cost,
+                # performance, and lifetime data into a complete dict
+                # for the specified microsegment and MELs technology
+                data_dict = mels_cpl_data_handler(
                     cpl_data, conversions, years, leaf_node_keys)
 
                 # Set dict key to extracted data

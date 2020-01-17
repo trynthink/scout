@@ -57,8 +57,11 @@ class CommonUnitTest(unittest.TestCase):
             # At the terminal/leaf node, if the value is a list
             elif isinstance(i, list):
                 np.testing.assert_almost_equal(dict1[k], dict2[k2], decimal=3)
-
-            # At the terminal/leaf node
+            # At the terminal/leaf node, if the value is a string
+            elif isinstance(i, str):
+                # Compare the values
+                self.assertEqual(dict1[k], dict2[k2])
+            # At the terminal/leaf node, if the value is a number
             else:
                 # Compare the values, allowing for floating point inaccuracy
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=3)
@@ -2293,6 +2296,340 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
                                               self.conversions_data,
                                               self.the_years,
                                               keys)
+
+            # Call the appropriate test based on the expectation of a dict
+            if self.dict_expected[idx]:
+                self.dict_check(output, self.cpl_results[idx])
+            else:
+                self.assertEqual(output, self.cpl_results[idx])
+
+
+class MELsDataUnitTest(CommonUnitTest):
+    """ Set up a CommonUnitTest subclass with additional data to be
+    used for testing the functions that restructure the MELs cost,
+    performance, and lifetime data. """
+
+    # Define a dict for the MELs cost, performance, and lifetime
+    # data with a structure comparable to the full data set but with
+    # only a few parameters specified.
+    mels_cpl_data = {
+        "MELs": {
+            "residential": {
+                "ceiling fan": {
+                    "cost": {
+                      "typical": {
+                        "2009": 111.03,
+                        "2010": 111.04,
+                        "2011": 111.04},
+                      "units": "2015$/unit",
+                      "source": "Source A"
+                    },
+                    "performance": {
+                      "typical": {
+                        "2009": 85.3,
+                        "2010": 85.3,
+                        "2011": 85.3},
+                      "units": "kWh/yr",
+                      "source": "Source B"
+                    },
+                    "lifetime": {
+                      "average": 13.8,
+                      "range": 3.5,
+                      "units": "years",
+                      "source": "Source C"
+                    }
+                  },
+                "TVs": {
+                    "TV": {
+                      "performance": {
+                        "typical": {
+                          "active": {
+                            "2009": [
+                              77.0,
+                              0.16
+                            ],
+                            "2010": [
+                              77.0,
+                              0.16
+                            ],
+                            "2011": [
+                              77.0,
+                              0.16
+                            ]
+                          },
+                          "off": {
+                            "2009": [
+                              1.0,
+                              0.84
+                            ],
+                            "2010": [
+                              1.0,
+                              0.84
+                            ],
+                            "2011": [
+                              1.0,
+                              0.84
+                            ]
+                          }
+                        },
+                        "units": [
+                          "W",
+                          "fraction annual operating hours"
+                        ],
+                        "source": "Source X"
+                      },
+                      "cost": {
+                        "typical": {
+                          "2009": 432.0,
+                          "2010": 432.0,
+                          "2011": 432.0},
+                        "units": "2018$/unit",
+                        "source": "Source Y"
+                      },
+                      "lifetime": {
+                        "average": 8.0,
+                        "range": 6.0,
+                        "units": "years",
+                        "source": "Source Z"
+                      }
+                    },
+                    "home theater and audio": {
+                        "performance": {
+                            "typical": {
+                              "active": {
+                                "2009": 72,
+                                "2010": 72,
+                                "2011": 72},
+                              "sleep": {
+                                "2009": 15,
+                                "2010": 15,
+                                "2011": 15},
+                              "off": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0}
+                            },
+                            "units": "kWh/yr",
+                            "source": "Source AA"
+                          },
+                        "cost": {
+                            "typical": {
+                              "2009": 348,
+                              "2010": 348,
+                              "2011": 348},
+                            "units": "2018$/unit",
+                            "source": "Source BB"
+                          },
+                        "lifetime": {
+                            "average": 10.0,
+                            "range": 10.0,
+                            "units": "years",
+                            "source": "Source CC"
+                        }
+                    }
+                }
+            },
+            "commercial": {
+                "PCs": {
+                    "performance": {
+                      "typical": {
+                        "active": {
+                          "2009": 183.0,
+                          "2010": 166.0,
+                          "2011": 146.0},
+                        "ready": {
+                          "2009": 2.0,
+                          "2010": 2.0,
+                          "2011": 2.0},
+                        "off": {
+                          "2009": 5.0,
+                          "2010": 5.0,
+                          "2011": 5.0}
+                      },
+                      "units": "kWh/yr",
+                      "source": "Source D"
+                    },
+                    "cost": {
+                      "typical": {
+                        "2009": 594.0,
+                        "2010": 595.0,
+                        "2011": 597.0},
+                      "units": "2018$/unit",
+                      "source": "Source E"
+                    },
+                    "lifetime": {
+                      "average": 5.0,
+                      "range": 2.0,
+                      "units": "years",
+                      "source": "Source F"
+                    }
+                },
+                "MELs": {
+                    "escalators": {
+                        "performance": {
+                            "typical": {
+                              "active": {
+                                "2009": 6904.0,
+                                "2010": 7080.0,
+                                "2011": 7247.0},
+                              "off": {
+                                "2009": 6903.9,
+                                "2010": 7079.8,
+                                "2011": 7247.2}
+                            },
+                            "units": "kWh/yr",
+                            "source": "Source Z"
+                          },
+                        "cost": {
+                            "typical": {
+                              "2009": 0,
+                              "2010": 0,
+                              "2011": 0},
+                            "units": "2018$/unit",
+                            "source": "Source ZZ"
+                          },
+                        "lifetime": {
+                            "average": 20.0,
+                            "range": 5.0,
+                            "units": "years",
+                            "source": "Source XX"
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    # Define a dict with the cost unit conversion data needed to update
+    # the MELs cost data from their original/source units to a common per
+    # square foot floor area basis in commercial buildings
+    conversions_data = {
+        "cost unit conversions": {
+            "PCs": {
+                "original units": "$/computer",
+                "revised units": "$/ft^2 floor",
+                "conversion factor": {
+                    "description": "Sample description",
+                    "value": {
+                        "office and education": 0.0025,
+                        "health care": 0.002,
+                        "all other": 0.001},
+                    "units": "computers/ft^2 floor",
+                    "source": "Source X",
+                    "notes": "Add notes"}}
+        }
+    }
+
+
+class MELsDataHandlerFunctionTest(MELsDataUnitTest):
+    """ Test the function that extracts the cost, performance, and
+    lifetime data of MELs technologies and restructures it into a
+    form similar to the existing cost, performance, and lifetime data
+    obtained from the EIA Annual Energy Outlook (AEO). """
+
+    # Test key lists (microsegment and MELs technology type
+    # specifications), covering residential and commercial building types
+    sample_keys = [['AIA_CZ2', 'single family home', 'electricity',
+                    'ceiling fan'],
+                   ['AIA_CZ3', 'large office', 'electricity', 'PCs'],
+                   ['AIA_CZ4', 'single family home', 'electricity', 'TVs',
+                    'TV'],
+                   ['AIA_CZ5', 'small office', 'electricity', 'MELs',
+                    'escalators'],
+                   ['AIA_CZ3', 'assembly', 'electricity', 'PCs'],
+                   ['AIA_CZ4', 'single family home', 'electricity',
+                    'TVs', 'home theater and audio']]
+
+    # Create a list that indicates for each entry in the sample_keys
+    # list whether a dict should be produced or if the function under
+    # test should return '0' because there will not be any associated
+    # cost, performance, or lifetime data
+    dict_expected = [True, True, True, False, True, True]
+
+    # Provide a list of years (as integers) over which the cost,
+    # performance, and lifetime data should be produced
+    the_years = list(range(2009, 2012))
+
+    # The expected cost, performance, and lifetime data structures
+    # for each of the sample key lists tested
+    cpl_results = [
+        {'installed cost': {
+            'typical': {'2009': 111.03, '2010': 111.04, '2011': 111.04},
+            'units': '2015$/unit',
+            'source': 'Source A'},
+         'performance': {
+            'typical': {'2009': 85.3, '2010': 85.3, '2011': 85.3},
+            'units': 'kWh/yr',
+            'source': 'Source B'},
+         'lifetime': {
+            'average': 13.8,
+            'range': 3.5,
+            'units': 'years',
+            'source': 'Source C'}},
+        {'installed cost': {
+            'typical': {'2009': 1.485, '2010': 1.4875, '2011': 1.4925},
+            'units': '2018$/ft^2 floor',
+            'source': 'Source E'},
+         'performance': {
+            'typical': {'2009': 190, '2010': 173, '2011': 153},
+            'units': 'kWh/yr',
+            'source': 'Source D'},
+         'lifetime': {
+            'average': 5,
+            'range': 2,
+            'units': 'years',
+            'source': 'Source F'}},
+        {'installed cost': {
+            'typical': {'2009': 432, '2010': 432, '2011': 432},
+            'units': '2018$/unit',
+            'source': 'Source Y'},
+         'performance': {
+            'typical': {'2009': 115.2816, '2010': 115.2816, '2011': 115.2816},
+            'units': 'kWh/yr',
+            'source': 'Source X'},
+         'lifetime': {
+            'average': 8,
+            'range': 6,
+            'units': 'years',
+            'source': 'Source Z'}}, 0,
+        {'installed cost': {
+            'typical': {'2009': 0.594, '2010': 0.595, '2011': 0.597},
+            'units': '2018$/ft^2 floor',
+            'source': 'Source E'},
+         'performance': {
+            'typical': {'2009': 190, '2010': 173, '2011': 153},
+            'units': 'kWh/yr',
+            'source': 'Source D'},
+         'lifetime': {
+            'average': 5,
+            'range': 2,
+            'units': 'years',
+            'source': 'Source F'}},
+        {'installed cost': {
+            'typical': {'2009': 348, '2010': 348, '2011': 348},
+            'units': '2018$/unit',
+            'source': 'Source BB'},
+         'performance': {
+            'typical': {'2009': 87, '2010': 87, '2011': 87},
+            'units': 'kWh/yr',
+            'source': 'Source AA'},
+         'lifetime': {
+            'average': 10,
+            'range': 10,
+            'units': 'years',
+            'source': 'Source CC'}}]
+
+    # Test the MELs cost, performance, and lifetime data processing
+    # function using the common MELs data dict, cost conversion
+    # factors, and test microsegment keys specified above
+    def test_complete_mels_cost_performance_lifetime_output(self):
+        for idx, keys in enumerate(self.sample_keys):
+            output = fmc.mels_cpl_data_handler(self.mels_cpl_data,
+                                               self.conversions_data,
+                                               self.the_years,
+                                               keys)
 
             # Call the appropriate test based on the expectation of a dict
             if self.dict_expected[idx]:

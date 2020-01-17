@@ -314,11 +314,22 @@
 			"original units": "$/kBtu/h cooking",
 			"revised units": "$/ft^2 floor",
 			"conversion factor": {
-				"description": "Based on the normalized idle energy rate of commercial NG range griddle",
+				"description": "Typical cooking energy demanded per square foot floor area",
 				"value": 3,
 				"units": "kBtu/h cooking/ft^2 floor",
 				"source": "U.S. Energy Information Administration, Updated Building Sector Appliance and Equipment Costs and Efficiency, 2018, p. 137",
 				"notes": "See https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
-		"MELs": {}
+		"PCs": {
+			"original units": "$/computer",
+			"revised units": "$/ft^2 floor",
+			"conversion factor": {
+				"description": "Typical number of computers per square foot floor area",
+				"value": {
+					"office and education": 0.0025,
+					"health care": 0.002,
+					"all other": 0.001},
+				"units": "computers/ft^2 floor",
+				"source": "U.S. Energy Information Administration, Computer and technology use in education buildings continues to increase",
+				"notes": "See https://www.eia.gov/todayinenergy/detail.php?id=24812; Divides rough number of computers from plot in the link (based on CBECS) by 1M square feet; combines office and education"}}
 	}
 }
