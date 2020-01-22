@@ -1,12 +1,12 @@
 {
-  "name": "ENERGY STAR Commercial LED Lighting",
+  "name": "ENERGY STAR LED Bulbs (Com.) v. 2.2",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral",
-                 "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38"],
+                 "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED PAR38"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
@@ -21,23 +21,23 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "100W A19 Incandescent": 71,
-    "100W Equivalent A19 Halogen": 71,
-    "100W Equivalent CFL Bare Spiral": 71,
-    "100W Equivalent LED A Lamp": 71, 
-    "Halogen Infrared Reflector (HIR) PAR38": 53,
-    "Halogen PAR38": 53,
-    "LED PAR38": 53},
+    "100W A19 Incandescent": 70,
+    "100W Equivalent A19 Halogen": 70,
+    "100W Equivalent CFL Bare Spiral": 70,
+    "100W Equivalent LED A Lamp": 70,
+    "Halogen Infrared Reflector (HIR) PAR38": 61,
+    "Halogen PAR38": 61,
+    "LED PAR38": 61},
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
-    "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015 for appropriate type of luminaire",
+    "notes": "Available ENERGY STAR lighting omnidirectional or directional (PAR38) lamp type with CRI ≥ 90 for appropriate type of luminaire (in terms of lamp efficacy)",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "ENERGY STAR Program Requirements for Lamps (Light Bulbs): Section 9. Photometric Performance, Table 9.1 Luminous Efficacy: All Lamps",
       "author": null,
-      "organization": "U.S. Energy Information Administration",
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
-      "pages": [45, 83],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+      "pages": 12,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"}
   },
   "installed_cost": {
     "100W A19 Incandescent": 27.75,
@@ -81,7 +81,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
+  "_description": "Available ENERGY STAR commercial LED lighting Version 2.1 performance levels",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -89,9 +89,9 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Sep 26 10:21:59 EDT 2018"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Ardelia Clarke" ,
+    "organization": "National Renewable Energy Laboratory" ,
+    "email": "ardelia.clarke@nrel.gov" ,
+    "timestamp": "Mon Feb 10 13:22:59 MST 2020"
   }
 }

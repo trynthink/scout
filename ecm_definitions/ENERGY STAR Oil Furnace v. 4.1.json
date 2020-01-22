@@ -8,56 +8,56 @@
   "technology": "furnace (distillate)",
   "market_entry_year": 2013,
   "market_entry_year_source": {
-    "notes": "Year in which the standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": [{
-       "title": "ENERGY STAR Program Requirements Product Specification for Furnaces",
-       "author": "Energy Star",
-       "organization": "US EPA",
-       "year": 2013,
-       "pages": 4,
-       "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}]},
+      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2013,
+      "pages": 4,
+      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.85,
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
-    "notes": "ESTAR efficiency level, see table 1, oil furnace product type",
+    "notes": "ENERGY STAR efficiency level, see table 1, oil furnace product type",
     "source_data": [{
-      "title": "See table 1, oil furnace product type",
-       "author": "Energy Star",
-       "organization": "US EPA",
-       "year": 2013,
-       "pages": 2,
-       "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}]},
+      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2013,
+      "pages": 2,
+      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}]},
   "installed_cost": 4350,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of ESTAR installed cost in 2017",
+    "notes": "Median of ENERGY STAR installed cost in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 12,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "product_lifetime": 26.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of ESTAR average life in 2017",
+    "notes": "Median of ENERGY STAR average life in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 12,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Replaces all oil furnaces at the end of life.",
+  "_description": "ENERGY STAR oil furnaces",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -69,4 +69,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:35:49 EDT 2018"
-  }}
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 11:44:49 MST 2020"
+  }
+}

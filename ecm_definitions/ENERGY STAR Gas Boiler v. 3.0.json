@@ -8,11 +8,11 @@
   "technology": "boiler (NG)",
   "market_entry_year": 2014,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Boilers Version 3.0",
       "author": null,
-      "organization": null,
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2014,
       "pages": 1,
       "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"
@@ -27,7 +27,7 @@
     "source_data": {
       "title": "ENERGY STAR Program Requirements - Product Specification for Boilers Version 3.0",
       "author": null,
-      "organization": null,
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2014,
       "pages": 1,
       "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"
@@ -36,22 +36,22 @@
   "installed_cost": 7875,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of total ESTAR installed cost range in 2017",
+    "notes": "Median of total ENERGY STAR installed cost range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 15,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 25,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average ESTAR lifetime in 2017",
+    "notes": "Median of average ENERGY STAR lifetime in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -76,5 +76,10 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:03:57 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 15:54:57 MST 2020"}
   }
-}

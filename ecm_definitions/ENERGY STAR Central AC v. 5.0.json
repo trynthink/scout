@@ -12,7 +12,7 @@
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
       "author": null,
-      "organization": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2015,
       "pages": 4,
       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
@@ -28,7 +28,7 @@
       {
         "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
         "author": null,
-        "organization": "ENERGY STAR",
+        "organization": "U.S. Environmental Protection Agency",
         "year": 2015,
         "pages": 2,
         "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
@@ -46,7 +46,7 @@
   "installed_cost": 4000,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total ESTAR installed cost in 2017",
+    "notes": "Total ENERGY STAR installed cost in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -58,7 +58,7 @@
   "product_lifetime": 14,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average ESTAR lifetime in 2017",
+    "notes": "Average ENERGY STAR lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -83,5 +83,13 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:52:26 EDT 2018"}
+    "timestamp": "Mon Sep 24 16:52:26 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Tues Jan 21 16:11:26 MST 2020"
+  }
 }
+

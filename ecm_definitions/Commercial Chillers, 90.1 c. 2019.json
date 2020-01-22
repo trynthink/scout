@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Chillers, 90.1 c. 2016",
+  "name": "Commercial Chillers, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -8,7 +8,7 @@
   "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller"],
   "market_entry_year": 2017,
   "market_entry_year_source": {
-    "notes": "90.1-2016 efficiency commercial chillers in 2017",
+    "notes": "90.1-2019 efficiency commercial chillers in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -27,7 +27,7 @@
       "screw_chiller": 4.1},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "90.1-2016 efficiency IPLV COP in 2017",
+    "notes": "ASHRAE 90.1-2019 efficiency IPLV COP in 2017 for centrifugal_chiller units larger than 400 tons and reciprocating, scroll and screw chillers larger than 150 tons, values in Path A",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -87,5 +87,10 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Sep 26 08:37:17 EDT 2018"
-  }
+  },
+    "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Mon Feb 10 12:41:17 MST 2020"}
 }

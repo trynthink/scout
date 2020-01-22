@@ -1,5 +1,5 @@
 {
-  "name": "Com. Air Sealing (Exist), 90.1 c. 2016",
+  "name": "Com. Air Sealing (Exist), 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "existing",
@@ -8,14 +8,14 @@
   "technology": "infiltration",
   "market_entry_year": 2014,
   "market_entry_year_source": {
-    "notes": "90.1-2016 whole envelope air leakage requirement",
+    "notes": "ASHRAE 90.1-2019 whole envelope air leakage requirement",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2016",
+      "title": "ASHRAE Standard 90.1-2019",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
-      "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"
+      "year": 2019,
+      "pages": 55 ,
+      "URL": null
     }
   },
   "market_exit_year": null,
@@ -23,14 +23,14 @@
   "energy_efficiency": 0.4,
   "energy_efficiency_units": "CFM/ft^2 @ 0.3 in. w.c.",
   "energy_efficiency_source": {
-    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2016",
+      "title": "ASHRAE Standard 90.1-2019, Section 5.4.3.1.1: Whole-Building Air Leakage",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
-      "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+      "year": 2019,
+      "pages": 55,
+      "URL": null}
     },
   "installed_cost": 0.876,
   "cost_units": "2016$/ft^2 wall",
@@ -62,7 +62,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "90.1-2016 commercial whole envelope air leakage requirement",
+  "_description": "90.1-2019 commercial whole envelope air leakage requirement",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -71,9 +71,9 @@
     "timestamp": "Tue Sep 25 16:51:49 EDT 2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory" ,
+    "email": "ardelia.clarke@nrel.gov" ,
+    "timestamp": "Mon Feb 10 12:21:49 MST 2020"
   }
 }

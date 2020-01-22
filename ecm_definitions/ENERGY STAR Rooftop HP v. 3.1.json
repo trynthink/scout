@@ -1,5 +1,5 @@
 {
-  "name": "ENERGY STAR Rooftop HP v. 2.2",
+  "name": "ENERGY STAR Rooftop HP v. 3.1",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -7,31 +7,31 @@
       "heating", "cooling"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
-  "market_entry_year": 2011,
+  "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 2.2",
+      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,
-      "organization": "ENERGY STAR",
-      "year": 2011,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2018,
       "pages": 4,
-      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Program%20Requirements%20LC%20HVAC.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.43,
+  "energy_efficiency": 3.57,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ESTAR efficiency, see table 1; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating or no heating, COP = EER * 0.293",
+    "notes": "ENERGY STAR efficiency, see table 1; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating or no heating, COP = EER * 0.293",
     "source_data": [{
-      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 2.2",
+      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,
-      "organization": "ENERGY STAR",
-      "year": 2011,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2018,
       "pages": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Program%20Requirements%20LC%20HVAC.pdf"},
+      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
     {
       "title": "COPs, EERs, and SEERs",
       "author": null,
@@ -43,7 +43,7 @@
   "installed_cost": 86.11,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Median ESTAR installed cost in 2017 divided by typical capacity (90 kBtu/h cooling)",
+    "notes": "Median ENERGY STAR installed cost in 2017 divided by typical capacity (90 kBtu/h cooling)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -56,7 +56,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average ESTAR lifetime in 2017",
+    "notes": "Average ENERGY STAR lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -70,7 +70,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance specification in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -83,5 +83,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:15:37 MST 2020"
   }
 }

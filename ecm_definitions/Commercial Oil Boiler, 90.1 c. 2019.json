@@ -1,44 +1,51 @@
 {
-  "name": "Commercial Oil Furnace, 90.1 c. 2016",
+  "name": "Commercial Oil Boiler, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "heating",
   "fuel_type": "distillate",
-  "technology": "oil_furnace",
-  "market_entry_year": 2016,
+  "technology": "oil_boiler",
+  "market_entry_year": 2019,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.81,
+  "energy_efficiency": 0.82,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "90.1-2016 oil-fired furnace efficiency, assume typical capacity of 400 kBtu/h per EIA data",
-    "source_data": {
-      "title": "ASHRAE Standard 90.1 2016",
+    "notes": "ASHRAE 90.1-2019 standard for warm-air oil-fired boiler, assuming typical unit capacity is 800 kBtu/h as suggested in the EIA equipment cost and efficiency data cited",
+    "source_data": [{
+      "title": "ASHRAE 90.1 Standard 2019: Table 6.8.1-5",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
-      "pages": 116,
-      "URL": "https://ashrae.iwrapper.com/ViewOnline/Standard_90.1-2016_(IP)"
-    }
+      "year": 2019,
+      "pages": 132,
+      "URL": null
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 100,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
   },
-  "installed_cost": 16.38,
+  "installed_cost": 35,
   "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Standard installed cost in 2017 divided by typical input capacity",
+    "notes": "Standard installed cost in 2017 divided by input capacity",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 92,
+      "pages": [99,100],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "product_lifetime": 23,
+  "product_lifetime": 25,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Standard average lifetime in 2017",
@@ -47,14 +54,14 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 92,
+      "pages": 100,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Oil furnace for commercial buildings that meets the ASHRAE 90.1-2016 standard",
+  "_description": "Oil boiler for commercial buildings that meets the ASHRAE 90.1-2019 standard",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -66,5 +73,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:36:27 EDT 2018"}
+    "timestamp": "Mon Sep 24 16:28:22 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Wed Jan 22 16:25:22 MST 2020"
+  }  
 }

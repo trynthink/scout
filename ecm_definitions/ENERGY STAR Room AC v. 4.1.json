@@ -1,5 +1,5 @@
 { 
-  "name": "ENERGY STAR Room AC v. 4.0",
+  "name": "ENERGY STAR Room AC v. 4.1",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -8,14 +8,14 @@
   "technology": "room AC",
   "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "null",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.0%20Room%20Air%20Conditioners%20Program%20Requirements.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.52,
@@ -24,15 +24,15 @@
     "notes": "Assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP (CEER / 3.412).",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "null",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.0%20Room%20Air%20Conditioners%20Program%20Requirements.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
   "installed_cost": 640,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of ESTAR installed cost in 2017",
+    "notes": "Median of ENERGY STAR installed cost in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -44,7 +44,7 @@
   "product_lifetime": 9.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of ESTAR average lifetime in 2017",
+    "notes": "Median of ENERGY STAR average lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -69,4 +69,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 13:16:38 EDT 2018"
-  }}
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:24:38 MST 2020"
+  }
+}

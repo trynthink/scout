@@ -59,7 +59,7 @@
       "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 6.0",
       "author": null,
       "organization": "ENERGY STAR",
-      "year": 2015,
+      "year": 2016,
       "pages": 2,
       "URL": "https://www.energystar.gov/sites/default/files/Windows_Doors_and_Skylights_Program_Requirements%20v6.pdf"
     }
@@ -107,5 +107,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:21:41 EDT 2018"
-  }
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Wed Jan 22 11:28:41 MST 2020"
+    }  
 }

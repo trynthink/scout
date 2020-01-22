@@ -6,16 +6,16 @@
   "end_use": "drying",
   "fuel_type": "natural gas",
   "technology": "all",
-  "market_entry_year": 2017,
+  "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": " ",
-    "source_data": [{
+    "notes": "Year in which ENERGY STAR specification went into effect",
+    "source_data": {
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": "US EPA",
-       "organization": "US EPA",
-       "year": 2017,
+       "author": null,
+       "organization": "U.S. Environmental Protection Agency",
+       "year": 2015,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.48,
@@ -24,8 +24,8 @@
     "notes": "CEF in lbs/kWh",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": "US EPA",
-       "organization": "US EPA",
+       "author": null,
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
@@ -34,30 +34,30 @@
   "installed_cost_source": {
     "notes": "High installed cost in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Clothes Dryer (Gas)",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 80,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Median of high average lifetime",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Clothes Dryer (Gas)",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 80,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "ENERGY STAR gas dryer in 2017",
+  "_description": "ENERGY STAR gas dryer in beginning 2015",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -69,4 +69,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:12:01 EDT 2018"
-  }}
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 16:05:01 MST 2020"
+  }
+}

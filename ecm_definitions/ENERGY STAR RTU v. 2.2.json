@@ -8,7 +8,7 @@
   "technology": "rooftop_AC",
   "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard will go into effect (see note under table)",
+    "notes": "Year in which ENERGY STAR specification will go into effect (see note under table)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -23,7 +23,7 @@
   "energy_efficiency": 3.57,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Uses 2018 ESTAR EER of 12.2 (see notes under table); COP = EER * .293",
+    "notes": "Uses 2018 ENERGY STAR EER of 12.2 (see notes under table); COP = EER * .293",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -43,7 +43,7 @@
   "installed_cost": 104.44,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total ESTAR installed cost divided by typical capacity (90 kBtu/h)",
+    "notes": "Total ENERGY STAR installed cost divided by typical capacity (90 kBtu/h)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -56,7 +56,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "ESTAR average lifetime in 2017",
+    "notes": "ENERGY STAR average lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -70,7 +70,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance specification in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -83,5 +83,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 13:16:38 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:01:38 MST 2020"
   }
 }

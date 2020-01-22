@@ -8,16 +8,14 @@
   "technology": "furnace (NG)",
   "market_entry_year": 2013,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.1",
       "author": null,
-      "organization": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2013,
       "pages": 2,
-      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"
-    }
-  },
+      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
@@ -30,9 +28,9 @@
   "energy_efficiency_source": {
     "notes": "See table 1; assumes 'North' maps to AIA climates 1-3, 'South' maps to AIA climates 4-5",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.1",
       "author": null,
-      "organization": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
       "year": 2013,
       "pages": 2,
       "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"
@@ -46,34 +44,34 @@
       "AIA_CZ5": 2560},
   "cost_units": "2016$/unit",
   "installed_cost_source": {
-    "notes": "ESTAR total installed cost in 2017, AIA CZ1-3 map to 'North' and all other climates to 'South'",
+    "notes": "ENERGY STAR total installed cost in 2017, AIA CZ1-3 map to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": [8, 9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "ESTAR average lifetime in 2017, AIA CZ1/2 correspond to 'North' and all other climates to 'South'",
+    "notes": "ENERGY STAR average lifetime in 2017, AIA CZ1/2 correspond to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": [8, 9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Standard size residential natural gas furnace that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Standard size residential natural gas furnace that meets the ENERGY STAR performance specification in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -86,5 +84,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:13:52 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 16:13:52 MST 2020"
   }
 }

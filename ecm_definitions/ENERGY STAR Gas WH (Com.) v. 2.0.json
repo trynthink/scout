@@ -1,12 +1,12 @@
 {
-  "name": "ENERGY STAR Commercial Gas WH v. 1.0",
+  "name": "ENERGY STAR Gas WH (Com.) v. 2.0",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "natural gas",
   "technology": ["gas_water_heater", "gas_instantaneous_WH", "gas_booster_WH"],
-  "market_entry_year": 2013,
+  "market_entry_year": 2018,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": null
@@ -18,12 +18,12 @@
   "energy_efficiency_source": {
     "notes": "ENERGY STAR standard",
     "source_data": {
-      "title": "Energy Star Program Requirements for Commercial Water Heaters Partner Commitments",
+      "title": "ENERGY STAR Program Requirements for Commercial Water Heaters Partner Commitments",
       "author": null,
-      "organization": "U.S. EPA",
-      "year": 2013,
-      "pages": 5,
-      "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Commercial%20Water%20Heaters%20Program%20Requirements%20V1.0.pdf"
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2018,
+      "pages": 3,
+      "URL": "https://www.energystar.gov/sites/default/files/Program%20Requirements_Commercial%20Water%20Heaters_Final%20Version%202.0_12%2029%2017_0.pdf"
     }
   },
   "installed_cost": 30.03,
@@ -31,12 +31,12 @@
   "installed_cost_source": {
     "notes": "ENERGY STAR installed cost median divided by typical input capacity (199/kBtu/h)",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Commercial Gas-Fired Storage Water Heaters",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 120,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 10,
@@ -44,19 +44,19 @@
   "product_lifetime_source": {
     "notes": "ENERGY STAR average lifetime",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Commercial Gas-Fired Storage Water Heaters",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 120,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Standard size gas storage water heater for commercial buildings that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Standard size gas storage water heater for commercial buildings that meets the ENERGY STAR performance standard in 2018",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -69,5 +69,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:45:56 EDT 2018"
+  },
+   "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Tue Jan 14 14:53:56 MST 2020" 
   }
 }

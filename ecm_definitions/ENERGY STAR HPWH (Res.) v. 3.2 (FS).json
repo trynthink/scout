@@ -1,5 +1,5 @@
 { 
-  "name": "ENERGY STAR HPWH v. 3.2 (Res.) (FS)",
+  "name": "ENERGY STAR HPWH (Res.) v. 3.2 (FS)",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -9,49 +9,49 @@
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Product specification is only met by HPWH type",
-    "source_data": [{
-       "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
-       "author": "Energy Star",
-       "organization": "US EPA",
-       "year": 2015,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}]},
+    "source_data": {
+      "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 2,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "assume < 55 gallons",
-    "source_data": [{
+    "source_data": {
       "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
-       "author": "Energy Star",
-       "organization": "US EPA",
-       "year": 2015,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}]},
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}},
   "installed_cost": 1900,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of average ESTAR installed cost range in 2017",
+    "notes": "Median of average ENERGY STAR installed cost range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 58,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average ESTAR life range in 2017",
+    "notes": "Median of average ENERGY STAR life range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 58,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
@@ -69,4 +69,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:53:31 EDT 2018"
-  }}
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 16:37:31 MST 2020"
+  }
+}

@@ -8,11 +8,11 @@
   "technology": null,
   "market_entry_year": 2014,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements for Residential Refrigerators and Freezers",
-       "author": "Energy Star",
-       "organization": "U.S. EPA",
+       "author": null ,
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2014,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Final%20Version%205.0%20Residential%20Refrigerators%20and%20Freezers%20Program%20Requirements.pdf"}]},
@@ -21,35 +21,35 @@
   "energy_efficiency": 489,
   "energy_efficiency_units": "kWh/yr",
   "energy_efficiency_source": {
-    "notes": "Average of ESTAR efficiency performance for top, side, and bottom-mount refrigerator/freezers in 2017",
+    "notes": "Average of ENERGY STAR efficiency performance for top, side, and bottom-mount refrigerator/freezers in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
+      "pages": [65, 66, 67],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "installed_cost": 1186.67,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Average of ESTAR installed cost for top, side, and bottom-mount refrigerator/freezers in 2017",
+    "notes": "Average of ENERGY STAR installed cost for top, side, and bottom-mount refrigerator/freezers in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
+      "pages": [65, 66, 67],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "product_lifetime": 17,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of lifetime across ESTAR top, side, and bottom-mount refrigerator/freezers in 2017",
+    "notes": "Median of lifetime across ENERGY STAR  top, side, and bottom-mount refrigerator/freezers in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [65, 67],
+      "pages": [65, 66, 67],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "measure_type": "full service",
   "market_scaling_fractions": null,
@@ -67,5 +67,12 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:38:00 EDT 2018"
-  }}
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:06:00 MST 2020"
+  }
+}
  

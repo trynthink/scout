@@ -1,5 +1,5 @@
 { 
-  "name": "Residential Oil WH, 90.1 c. 2016",
+  "name": "Residential Oil WH, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -66,4 +66,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 13:39:55 EDT 2018"}}
+    "timestamp": "Tue Sep 25 13:39:55 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 23 21:37:55 MST 2020"
+  }
+}

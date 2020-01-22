@@ -1,21 +1,21 @@
 {
-  "name": "Commercial Roofs, 90.1 c. 2016",
+  "name": "Commercial Roofs, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2018,
+  "market_entry_year": 2019,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2016",
+      "title": "ASHRAE Standard 90.1-2019",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
+      "year": 2019,
       "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"
+      "URL": null
     }
   },
   "market_exit_year": null,
@@ -29,14 +29,14 @@
       },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2016",
+      "title": "ASHRAE Standard 90.1-2019",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
+      "year": 2019,
       "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+      "URL": null}
     },
   "installed_cost": 6.33,
   "cost_units": "2016$/ft^2 roof",
@@ -68,7 +68,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Metal commercial roofing that meets the 90.1-2016 performance standard",
+  "_description": "Metal commercial roofing that meets the 90.1-2019 performance standard",
   "_notes": "R value for continuous insulation",
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -81,5 +81,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 15:18:20 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.Clarke@nrel.gov",
+    "timestamp": "Mon Feb 10 12:57:20 MST 2020"
   }
 }

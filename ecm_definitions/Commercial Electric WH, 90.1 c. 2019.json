@@ -1,35 +1,40 @@
 {
-  "name": "Commercial Electric WH, 90.1 c. 2016",
+  "name": "Commercial Electric WH, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
-  "market_entry_year": 2016,
+  "market_entry_year": 2012,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
-    "source_data": null
+    "notes": "Corresponds to the first year in the table for cost and performance of commercial electric resistance storage water heaters",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 123,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.98,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "standard does not include a minimum thermal efficiency level",
+    "notes": "Based on comments in EIA cost and performance file regarding typical minimum thermal efficiency of currently available electric resistance storage WH units",
     "source_data": {
-      "title": "ASHRAE Standard 90.1",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
-      "organization": "ASHRAE",
-      "year": 2016,
-      "pages": null,
-      "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"
-    }
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [123, 124],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "installed_cost": 63.09,
   "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Median of standard efficiency installed cost in 2017, divided by (18 kW * (3.412 kBtu/h/kW))",
+    "notes": "Median of standard efficiency installed cost in 2017, divided by (18 kW * (3.412 kBtu/h/kW)), based on 18 kW input capacity per EIA data",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -54,8 +59,8 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Electric resistance storage water heater for commercial buildings that meets the ASHRAE 90.1-2016 standard",
-  "_notes": null,
+  "_description": "Electric resistance storage water heater for commercial buildings",
+  "_notes": "While ASHRAE and the appliance standards program do not specify performance for this type of water heater, EIA's data provides a typical performance level",
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "DOE",
@@ -66,5 +71,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:22:37 EDT 2018"}
+    "timestamp": "Mon Sep 24 16:22:37 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Mon Feb 10 12:09:37 MST 2020"
+  }
 }

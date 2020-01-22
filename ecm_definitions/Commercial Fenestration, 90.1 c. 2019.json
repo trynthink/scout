@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Fenestration, 90.1 c. 2016",
+  "name": "Commercial Fenestration, 90.1 c. 2019",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -24,19 +24,19 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "windows conduction": 3.35,
-        "windows solar": 0.4},
+        "windows conduction": 2.98,
+        "windows solar": 0.38},
       "AIA_CZ2": {
-        "windows conduction": 3.22,
+        "windows conduction": 2.78,
         "windows solar": 0.38},
       "AIA_CZ3": {
-        "windows conduction": 3.22,
+        "windows conduction": 2.78,
         "windows solar": 0.36},
       "AIA_CZ4": {
-        "windows conduction": 3.06,
+        "windows conduction": 2.45,
         "windows solar": 0.27},
       "AIA_CZ5": {
-        "windows conduction": 2.74,
+        "windows conduction": 2.25,
         "windows solar": 0.25}
       },
   "energy_efficiency_units": {
@@ -44,14 +44,14 @@
       "windows solar": "SHGC"
     },
   "energy_efficiency_source": {
-    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "notes": "Based on assumptions and limited to ASHRAE Standard 90.1 climate zones 1-8 as shown in the ASHRAE to AIA climate zone conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2016",
+      "title": "ANSI/ASHRAE/IES Standard 90.1-2019: Table 5.5-1 through Table 5.5-8 for fixed vertical fenestration",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
-      "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
+      "year": 2019,
+      "pages": "59-66" ,
+      "URL": null}
     },
   "installed_cost": 56.20,
   "cost_units": "2016$/ft^2 glazing",
@@ -83,7 +83,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Aluminum frame commercial window assembly that meets the IECC performance standard in 2018",
+  "_description": "Aluminum frame commercial window assembly that meets the ASHRAE performance standard in 2019",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -96,5 +96,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 14:58:38 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Feb 10 16:28:38 MST 2020"
   }
 }
