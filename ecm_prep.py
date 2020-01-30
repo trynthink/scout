@@ -53,6 +53,7 @@ class UsefulInputFiles(object):
         tsv_cost_data (JSON): Time sensitive electricity price data.
         tsv_carbon_data (JSON): Time sensitive marginal CO2 emissions data.
         tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
+        tsv_metrics_data (CSV): Net system load shape data by EMM region.
         regions (str): Specifies which baseline data file to choose, based on
             intended regional breakout.
         ash_emm_map (TXT): Factors for mapping ASHRAE climates to EMM regions.
@@ -100,13 +101,15 @@ class UsefulInputFiles(object):
             self.ss_data = ("supporting_data", "convert_data",
                             "site_source_co2_conversions.json")
         self.tsv_load_data = (
-            "supporting_data", "convert_data", "tsv_load.json")
+            "supporting_data", "tsv_data", "tsv_load.json")
         self.tsv_cost_data = (
-            "supporting_data", "convert_data", "tsv_cost.json")
+            "supporting_data", "tsv_data", "tsv_cost.json")
         self.tsv_carbon_data = (
-            "supporting_data", "convert_data", "tsv_carbon.json")
+            "supporting_data", "tsv_data", "tsv_carbon.json")
         self.tsv_shape_data = (
             "ecm_definitions", "energyplus_data", "savings_shapes")
+        self.tsv_metrics_data = (
+            "supporting_data", "tsv_data", "tsv_hrs.csv")
 
 
 class UsefulVars(object):
@@ -182,11 +185,16 @@ class UsefulVars(object):
         tsv_climate_regions (list): Possible ASHRAE/IECC climate regions for
             time-sensitive analysis and metrics.
         tsv_nerc_regions (list): Possible NERC regions for time-sensitive data.
-        tsv_metrics_data (str): Settings for calculating tsv metrics outputs.
+        tsv_metrics_data (str): Includes information on max/min net system load
+            hours, peak/take net system load windows, and peak days by EMM
+            region/season, as well as days of year to attribute to each season.
         tsv_hourly_price (dict): Dict for storing hourly price factors.
         tsv_hourly_emissions (dict): Dict for storing hourly emissions factors.
         tsv_hourly_lafs (dict): Dict for storing annual energy, cost, and
             carbon adjustment factors by region, building type, and end use.
+        emm_name_num_map (dict): Maps EMM region names to EIA region numbers.
+        cz_emm_map (dict): Maps climate zones to EMM region net system load
+            shape data.
     """
 
     def __init__(self, base_dir, handyfiles, regions):
@@ -718,6 +726,87 @@ class UsefulVars(object):
             inter_days_nowknd = [
                 x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
 
+            # Set column names for a dataset that includes information on
+            # max/min net system load hours and peak/take net system load hour
+            # windows by season and EMM region
+            peak_take_names = (
+                "Region", "Year", "SummerMaxHr", "SummerMinHr",
+                "WinterMaxHr", "WinterMinHr", "InterMaxHr", "InterMinHr",
+                "SummerPeakStartHr", "SummerPeakEndHr",
+                "SummerTakeStartHr1", "SummerTakeEndHr1",
+                "SummerTakeStartHr2", "SummerTakeEndHr2",
+                "WinterPeakStartHr", "WinterPeakEndHr",
+                "WinterTakeStartHr1", "WinterTakeEndHr1",
+                "WinterTakeStartHr2", "WinterTakeEndHr2",
+                "InterPeakStartHr", "InterPeakEndHr", "InterTakeStartHr1",
+                "InterTakeEndHr1", "InterTakeStartHr2", "InterTakeEndHr2")
+            # Import net system max/min and peak/take hour load by EMM region
+            net_sysload_dat = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.tsv_metrics_data),
+                    names=peak_take_names, delimiter=',', dtype="<i4",
+                    encoding="latin1")
+            # Restrict data to 2050 (the data are summarized for every five
+            # years from 2020-2050, but 2050 is chosen as a representative
+            # year for max/min and peak/take hour system load data that reflect
+            # a high amount of renewable penetration
+            net_sysload_dat = net_sysload_dat[
+                numpy.where(
+                    (net_sysload_dat["Year"] == 2050))]
+            # Set a dict that maps EMM region names to region
+            # numbers as defined by EIA
+            # (https://www.eia.gov/outlooks/aeo/pdf/nerc_map.pdf)
+            self.emm_name_num_map = {
+                name: (ind + 1) for ind, name in enumerate(valid_regions)}
+            # Set a dict that maps each climate zone to an EMM region number
+            # with the most representative set of min/max net system load hours
+            # and peak/take net system load hour windows to use for that
+            # climate zone. For larger climate zones (3A, 4A, 5A, 6A), more
+            # than one of these representative regions is assumed. In these
+            # cases, the terminal value is formatted as a list with the
+            # EMM region number with the representative net load hour data
+            # stored in the first element, and all EMM regions covered by that
+            # representative net load hour data stored in the second element
+            self.cz_emm_map = {
+                "2A": 2, "2B": 19, "3A": {
+                    "set 1": [16, (16, 1, 12)],
+                    "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
+                "4A": {
+                    "set 1": [6, (6, 9, 11)],
+                    "set 2": [17, (17, 18, 12, 13, 14, 15, 16, 18)]}, "4B": 19,
+                "4C": 21, "5A": {
+                    "set 1": [8, (8, 4, 15)],
+                    "set 2": [11, (11, 3, 5, 6, 9, 10)]},
+                "5B": 22, "5C": 21, "6A": {
+                    "set 1": [4, (4, 8, 22)],
+                    "set 2": [5, (5, 9, 10, 11, 22)]},
+                "6B": 21, "7": 4}
+            # Initialize a set of dicts that will store representative net
+            # system load data for the summer, winter, and intermediate seasons
+            net_sysld_sum, net_sysld_wint, net_sysld_int = (
+                {"2A": None, "2B": None, "3A": {
+                    "set 1": None, "set 2": None}, "3B": None, "3C": None,
+                 "4A": {"set 1": None, "set 2": None}, "4B": None, "4C": None,
+                 "5A": {
+                    "set 1": None, "set 2": None}, "5B": None, "5C": None,
+                 "6A": {"set 1": None, "set 2": None}, "6B": 21, "7": None}
+                for n in range(3))
+            # Fill in the dicts with seasonal net system load data
+            for cz in self.cz_emm_map.keys():
+                # Handle climate zones with one representative net system load
+                # shape differently than those with more than one such shape
+                if type(self.cz_emm_map[cz]) == int:
+                    # Fill in seasonal net system load data
+                    net_sysld_sum[cz], net_sysld_wint[cz], \
+                        net_sysld_int[cz] = self.set_peak_take(
+                            net_sysload_dat, self.cz_emm_map[cz])
+                else:
+                    # Loop through the multiple EMM regions with representative
+                    # net system load data for the current climate zone
+                    for set_v in self.cz_emm_map[cz].keys():
+                        # Fill in seasonal net system load data
+                        net_sysld_sum[cz][set_v], net_sysld_wint[cz][set_v], \
+                            net_sysld_int[cz][set_v] = self.set_peak_take(
+                                net_sysload_dat, self.cz_emm_map[cz][set_v][0])
             self.tsv_metrics_data = {
                 "season days": {
                     "summer": sum_days,
@@ -729,247 +818,42 @@ class UsefulVars(object):
                     "winter": wint_days_nowknd,
                     "intermediate": inter_days_nowknd
                 },
-                "peak_take data": {
+                "net load hours": {
+                    "summer": net_sysld_sum,
+                    "winter": net_sysld_wint,
+                    "intermediate": net_sysld_int
+                },
+                "peak days": {
                     "summer": {
-                        "hour ranges": {
-                            "peak": {
-                                "2A": list(range(17, 20)),
-                                "2B": list(range(16, 19)),
-                                "3A": list(range(18, 21)),
-                                "3B": list(range(17, 20)),
-                                "3C": list(range(18, 21)),
-                                "4A": list(range(13, 16)),
-                                "4B": list(range(16, 19)),
-                                "4C": list(range(16, 19)),
-                                "5A": list(range(17, 20)),
-                                "5B": list(range(16, 19)),
-                                "5C": list(range(16, 19)),
-                                "6A": list(range(15, 18)),
-                                "6B": list(range(16, 19)),
-                                "7": list(range(15, 18))},
-                            "take": {
-                                "2A": list(range(8, 11)),
-                                "2B": list(range(4, 7)),
-                                "3A": list(range(3, 6)),
-                                "3B": list(range(4, 7)),
-                                "3C": list(range(12, 15)),
-                                "4A": list(range(3, 6)),
-                                "4B": list(range(4, 7)),
-                                "4C": list(range(2, 5)),
-                                "5A": list(range(3, 6)),
-                                "5B": list(range(3, 6)),
-                                "5C": list(range(2, 5)),
-                                "6A": list(range(3, 6)),
-                                "6B": list(range(2, 5)),
-                                "7": list(range(3, 6))}},
-                        "peak day": {
-                            "day of year": {
-                                "2A": 199,
-                                "2B": 186,
-                                "3A": 192,
-                                "3B": 171,
-                                "3C": 220,
-                                "4A": 192,
-                                "4B": 206,
-                                "4C": 241,
-                                "5A": 199,
-                                "5B": 178,
-                                "5C": 206,
-                                "6A": 186,
-                                "6B": 220,
-                                "7": 206},
-                            "max hour": {
-                                "2A": 19,
-                                "2B": 17,
-                                "3A": 19,
-                                "3B": 19,
-                                "3C": 21,
-                                "4A": 14,
-                                "4B": 17,
-                                "4C": 17,
-                                "5A": 18,
-                                "5B": 17,
-                                "5C": 17,
-                                "6A": 17,
-                                "6B": 17,
-                                "7": 17},
-                            "min hour": {
-                                "2A": 9,
-                                "2B": 5,
-                                "3A": 4,
-                                "3B": 6,
-                                "3C": 13,
-                                "4A": 4,
-                                "4B": 5,
-                                "4C": 4,
-                                "5A": 5,
-                                "5B": 4,
-                                "5C": 4,
-                                "6A": 5,
-                                "6B": 4,
-                                "7": 5}
-                        }
-                    },
+                        "2A": 199,
+                        "2B": 186,
+                        "3A": 192,
+                        "3B": 171,
+                        "3C": 220,
+                        "4A": 192,
+                        "4B": 206,
+                        "4C": 241,
+                        "5A": 199,
+                        "5B": 178,
+                        "5C": 206,
+                        "6A": 186,
+                        "6B": 220,
+                        "7": 206},
                     "winter": {
-                        "hour ranges": {
-                            "peak": {
-                                "2A": list(range(18, 21)),
-                                "2B": list(range(18, 21)),
-                                "3A": list(range(17, 20)),
-                                "3B": list(range(18, 21)),
-                                "3C": list(range(17, 20)),
-                                "4A": list(range(17, 20)),
-                                "4B": list(range(18, 21)),
-                                "4C": list(range(17, 20)),
-                                "5A": list(range(17, 20)),
-                                "5B": list(range(17, 20)),
-                                "5C": list(range(17, 20)),
-                                "6A": list(range(17, 20)),
-                                "6B": list(range(17, 20)),
-                                "7": list(range(17, 20))},
-                            "take": {
-                                "2A": list(range(13, 16)),
-                                "2B": list(range(13, 16)),
-                                "3A": list(range(13, 16)),
-                                "3B": list(range(13, 16)),
-                                "3C": list(range(12, 15)),
-                                "4A": list(range(3, 6)),
-                                "4B": list(range(13, 16)),
-                                "4C": list(range(13, 16)),
-                                "5A": list(range(11, 14)),
-                                "5B": list(range(13, 16)),
-                                "5C": list(range(13, 16)),
-                                "6A": list(range(3, 6)),
-                                "6B": list(range(13, 16)),
-                                "7": list(range(3, 6))}},
-                        "peak day": {
-                            "day of year": {
-                                "2A": 24,
-                                "2B": 17,
-                                "3A": 31,
-                                "3B": 10,
-                                "3C": 10,
-                                "4A": 31,
-                                "4B": 339,
-                                "4C": 38,
-                                "5A": 26,
-                                "5B": 10,
-                                "5C": 12,
-                                "6A": 10,
-                                "6B": 17,
-                                "7": 31},
-                            "max hour": {
-                                "2A": 20,
-                                "2B": 19,
-                                "3A": 19,
-                                "3B": 20,
-                                "3C": 19,
-                                "4A": 18,
-                                "4B": 19,
-                                "4C": 18,
-                                "5A": 19,
-                                "5B": 19,
-                                "5C": 18,
-                                "6A": 19,
-                                "6B": 18,
-                                "7": 19},
-                            "min hour": {
-                                "2A": 14,
-                                "2B": 14,
-                                "3A": 14,
-                                "3B": 14,
-                                "3C": 13,
-                                "4A": 4,
-                                "4B": 14,
-                                "4C": 15,
-                                "5A": 13,
-                                "5B": 14,
-                                "5C": 15,
-                                "6A": 4,
-                                "6B": 15,
-                                "7": 4}
-                        }
-                    },
-                    "intermediate": {
-                        "hour ranges": {
-                            "peak": {
-                                "2A": list(range(17, 20)),
-                                "2B": list(range(16, 19)),
-                                "3A": list(range(18, 21)),
-                                "3B": list(range(17, 20)),
-                                "3C": list(range(18, 21)),
-                                "4A": list(range(13, 16)),
-                                "4B": list(range(16, 19)),
-                                "4C": list(range(16, 19)),
-                                "5A": list(range(17, 20)),
-                                "5B": list(range(16, 19)),
-                                "5C": list(range(16, 19)),
-                                "6A": list(range(15, 18)),
-                                "6B": list(range(16, 19)),
-                                "7": list(range(15, 18))},
-                            "take": {
-                                "2A": list(range(8, 11)),
-                                "2B": list(range(4, 7)),
-                                "3A": list(range(3, 6)),
-                                "3B": list(range(4, 7)),
-                                "3C": list(range(12, 15)),
-                                "4A": list(range(3, 6)),
-                                "4B": list(range(4, 7)),
-                                "4C": list(range(2, 5)),
-                                "5A": list(range(3, 6)),
-                                "5B": list(range(3, 6)),
-                                "5C": list(range(2, 5)),
-                                "6A": list(range(3, 6)),
-                                "6B": list(range(2, 5)),
-                                "7": list(range(3, 6))}},
-                        "peak day": {
-                            "day of year": {
-                                "2A": 199,
-                                "2B": 186,
-                                "3A": 192,
-                                "3B": 171,
-                                "3C": 220,
-                                "4A": 192,
-                                "4B": 206,
-                                "4C": 241,
-                                "5A": 199,
-                                "5B": 178,
-                                "5C": 206,
-                                "6A": 186,
-                                "6B": 220,
-                                "7": 206},
-                            "max hour": {
-                                "2A": 19,
-                                "2B": 17,
-                                "3A": 19,
-                                "3B": 19,
-                                "3C": 21,
-                                "4A": 14,
-                                "4B": 17,
-                                "4C": 17,
-                                "5A": 18,
-                                "5B": 17,
-                                "5C": 17,
-                                "6A": 17,
-                                "6B": 17,
-                                "7": 17},
-                            "min hour": {
-                                "2A": 9,
-                                "2B": 5,
-                                "3A": 4,
-                                "3B": 6,
-                                "3C": 13,
-                                "4A": 4,
-                                "4B": 5,
-                                "4C": 4,
-                                "5A": 5,
-                                "5B": 4,
-                                "5C": 4,
-                                "6A": 5,
-                                "6B": 4,
-                                "7": 5}
-                        }
-                    }
+                        "2A": 24,
+                        "2B": 17,
+                        "3A": 31,
+                        "3B": 10,
+                        "3C": 10,
+                        "4A": 31,
+                        "4B": 339,
+                        "4C": 38,
+                        "5A": 26,
+                        "5B": 10,
+                        "5C": 12,
+                        "6A": 10,
+                        "6B": 17,
+                        "7": 31}
                 },
                 "hourly index": list(enumerate(
                     itertools.product(range(365), range(24))))
@@ -1002,6 +886,56 @@ class UsefulVars(object):
             }
         else:
             self.tsv_hourly_lafs = None
+
+    def set_peak_take(self, net_sysload_dat, restrict_key):
+        """Fill in dicts with seasonal net system load shape data.
+
+            Args:
+                net_sysload_dat (numpy.ndarray): Net system load shape data.
+                restrict_key (int): EMM region to restrict net load data to.
+
+            Returns:
+                Appropriate min/max net system load hour and peak/take net
+                system load hour window data for the EMM region of interest,
+                stored in dicts that are distinguished by season.
+        """
+
+        # Restrict net system load data to the representative EMM region for
+        # the current climate zone
+        peak_take_cz = net_sysload_dat[numpy.where(
+            (net_sysload_dat["Region"] == restrict_key))]
+        # Set summer max load hour, min load hour, and peak/take windows
+        sum_peak_take = {
+            "max": peak_take_cz["SummerMaxHr"][0],
+            "min": peak_take_cz["SummerMinHr"][0],
+            "peak range": list(range(peak_take_cz["SummerPeakStartHr"][0],
+                                     peak_take_cz["SummerPeakEndHr"][0])),
+            "take range": list(range(peak_take_cz["SummerTakeStartHr1"][0],
+                                     peak_take_cz["SummerTakeEndHr1"][0]))}
+        # Set winter max load hour, min load hour, and peak/take windows
+        wint_peak_take = {
+            "max": peak_take_cz["WinterMaxHr"][0],
+            "min": peak_take_cz["WinterMinHr"][0],
+            "peak range": list(range(peak_take_cz["WinterPeakStartHr"][0],
+                                     peak_take_cz["WinterPeakEndHr"][0])),
+            "take range": list(range(peak_take_cz["WinterTakeStartHr1"][0],
+                                     peak_take_cz["WinterTakeEndHr1"][0]))}
+        # Set intermediate max load hour, min load hour, and peak/take windows
+        inter_peak_take = {
+            "max": peak_take_cz["InterMaxHr"][0],
+            "min": peak_take_cz["InterMinHr"][0],
+            "peak range": list(range(peak_take_cz["InterPeakStartHr"][0],
+                                     peak_take_cz["InterPeakEndHr"][0])),
+            "take range": list(range(peak_take_cz["InterTakeStartHr1"][0],
+                                     peak_take_cz["InterTakeEndHr1"][0]))}
+        # Handle cases where winter take periods cover two non-contiguous time
+        # segments (e.g., 2-6AM, 10AM-2PM)
+        if not numpy.isnan(peak_take_cz["WinterTakeStartHr2"][0]):
+            wint_peak_take["take range"].extend(list(
+                range(peak_take_cz["WinterTakeStartHr2"][0],
+                      peak_take_cz["WinterTakeEndHr2"][0])))
+
+        return sum_peak_take, wint_peak_take, inter_peak_take
 
     def append_keyvals(self, dict1, keyval_list):
         """Append all terminal key values in a dict to a list.
@@ -4281,10 +4215,28 @@ class Measure(object):
                     else:
                         tsv_metrics_days = [
                             self.handyvars.tsv_metrics_data[
-                                "peak_take data"][season]["peak day"][
-                                "day of year"][cz[0]]]
+                                "peak days"][season][cz[0]]]
 
                     # Set applicable daily hour range
+
+                    # Flag for cases where multiple sets of net load shape
+                    # information are germane to the current climate zone
+                    if type(self.handyvars.cz_emm_map[cz[0]]) == int:
+                        mult_pktk = False
+                    elif type(self.handyvars.cz_emm_map[cz[0]]) == dict:
+                        mult_pktk = True
+                        # Given multiple possible net system load shape data
+                        # sets, find the key for the set that is representative
+                        # of the current EMM region
+                        mult_pktk_key = [
+                            y[0] for y in self.handyvars.cz_emm_map[
+                                cz[0]].items()
+                            if self.handyvars.emm_name_num_map[mskeys[1]]
+                            in y[1][1]][0]
+                    else:
+                        raise ValueError(
+                            "Unable to determine peak/take windows for "
+                            "climate " + cz[0])
 
                     # Sum or average calc type (spans multiple hours)
                     if calc in ["sum", "avg"]:
@@ -4293,30 +4245,62 @@ class Measure(object):
                             tsv_metrics_hrs = list(range(1, 25))
                         # Peak hours only
                         elif hours == "peak":
-                            tsv_metrics_hrs = \
-                                self.handyvars.tsv_metrics_data[
-                                    "peak_take data"][season]["hour ranges"][
-                                    "peak"][cz[0]]
+                            # Handle one set of net load shape data differently
+                            # than multiple sets
+                            if mult_pktk is False:
+                                tsv_metrics_hrs = \
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        "peak range"]
+                            else:
+                                tsv_metrics_hrs = \
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        mult_pktk_key]["peak range"]
                         # Take hours only
                         else:
-                            tsv_metrics_hrs = \
-                                self.handyvars.tsv_metrics_data[
-                                    "peak_take data"][season]["hour ranges"][
-                                    "take"][cz[0]]
+                            # Handle one set of net load shape data differently
+                            # than multiple sets
+                            if mult_pktk is False:
+                                tsv_metrics_hrs = \
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        "take range"]
+                            else:
+                                tsv_metrics_hrs = \
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        mult_pktk_key]["take range"]
                     # Maximum calc type (pertains only to a max/min hour)
                     else:
                         # All hours (assume max peak hour) or max peak hour
                         if hours == "all" or hours == "peak":
-                            tsv_metrics_hrs = [
-                                self.handyvars.tsv_metrics_data[
-                                    "peak_take data"][season]["peak day"][
-                                    "max hour"][cz[0]]]
+                            # Handle one set of net load shape data differently
+                            # than multiple sets
+                            if mult_pktk is False:
+                                tsv_metrics_hrs = [
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        "max"]]
+                            else:
+                                tsv_metrics_hrs = [
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        mult_pktk_key]["max"]]
                         # Min take hour
                         else:
-                            tsv_metrics_hrs = [
-                                self.handyvars.tsv_metrics_data[
-                                    "peak_take data"][season]["peak day"][
-                                    "min hour"][cz[0]]]
+                            # Handle one set of net load shape data differently
+                            # than multiple sets
+                            if mult_pktk is False:
+                                tsv_metrics_hrs = [
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        "min"]]
+                            else:
+                                tsv_metrics_hrs = [
+                                    self.handyvars.tsv_metrics_data[
+                                        "net load hours"][season][cz[0]][
+                                        mult_pktk_key]["min"]]
 
                     # Determine number of days to average over; if peak day
                     # only, set this number to one
