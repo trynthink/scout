@@ -369,11 +369,11 @@ for (a in 1:length(adopt_scenarios)){
       	row_ind_start = 1
       }else{
       	# Otherwise, leave the first 4 rows for the 'All ECMs' total uncompeted/
-      	# competed energy, carbon, and cost data, plus another 19 rows for 'All ECMs'
+      	# competed energy, carbon, and cost data, plus another 20 rows for 'All ECMs'
       	# energy, carbon, and cost savings totals, first summarized across all climate
       	# zones, building types, and end uses (1 row) and subsequently broken out by
-      	# climate zone (5 rows), building type (4 rows), and end use (9 rows)
-      	row_ind_start = (m-1)*4 + 1 + (1 + 5 + 4 + 9)
+      	# climate zone (5 rows), building type (4 rows), and end use (10 rows)
+      	row_ind_start = (m-1)*4 + 1 + (1 + 5 + 4 + 10)
       }
       xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
       
