@@ -53,7 +53,8 @@ class UsefulInputFiles(object):
         tsv_cost_data (JSON): Time sensitive electricity price data.
         tsv_carbon_data (JSON): Time sensitive marginal CO2 emissions data.
         tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
-        tsv_metrics_data (CSV): Net system load shape data by EMM region.
+        tsv_metrics_data_tot (CSV): Total system load shape data by EMM region.
+        tsv_metrics_data_net (CSV): Net system load shape data by EMM region.
         regions (str): Specifies which baseline data file to choose, based on
             intended regional breakout.
         ash_emm_map (TXT): Factors for mapping ASHRAE climates to EMM regions.
@@ -108,8 +109,10 @@ class UsefulInputFiles(object):
             "supporting_data", "tsv_data", "tsv_carbon.json")
         self.tsv_shape_data = (
             "ecm_definitions", "energyplus_data", "savings_shapes")
-        self.tsv_metrics_data = (
-            "supporting_data", "tsv_data", "tsv_hrs.csv")
+        self.tsv_metrics_data_tot = (
+            "supporting_data", "tsv_data", "tsv_hrs_tot.csv")
+        self.tsv_metrics_data_net = (
+            "supporting_data", "tsv_data", "tsv_hrs_net.csv")
 
 
 class UsefulVars(object):
@@ -197,7 +200,7 @@ class UsefulVars(object):
             shape data.
     """
 
-    def __init__(self, base_dir, handyfiles, regions):
+    def __init__(self, base_dir, handyfiles, regions, tsv_metrics):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.01
@@ -694,170 +697,220 @@ class UsefulVars(object):
                 "4C", "5A", "5B", "5C", "6A", "6B", "7"]
             self.tsv_nerc_regions = [
                 "FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
-            # Develop weekend day flags
-            wknd_day_flags = [0 for n in range(365)]
-            current_wkdy = 1
-            for d in range(365):
-                # Flag weekend day
-                if current_wkdy in [1, 7]:
-                    wknd_day_flags[d] = 1
-                # Advance day of week by one unless Saturday (7), in which
-                # case day switches back to 1 (Sunday)
-                if current_wkdy <= 6:
-                    current_wkdy += 1
+            if tsv_metrics is not None:
+                # Develop weekend day flags
+                wknd_day_flags = [0 for n in range(365)]
+                current_wkdy = 1
+                for d in range(365):
+                    # Flag weekend day
+                    if current_wkdy in [1, 7]:
+                        wknd_day_flags[d] = 1
+                    # Advance day of week by one unless Saturday (7), in which
+                    # case day switches back to 1 (Sunday)
+                    if current_wkdy <= 6:
+                        current_wkdy += 1
+                    else:
+                        current_wkdy = 1
+
+                # Develop lists with seasonal day of year ranges, both with and
+                # without weekends
+
+                # Summer days of year
+                sum_days = list(range(152, 274))
+                sum_days_wkdy = [
+                    x for x in sum_days if wknd_day_flags[(x - 1)] != 1]
+                sum_days_wknd = [
+                    x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
+                # Winter days of year
+                wint_days = (list(
+                            range(1, 60)) + list(range(335, 366)))
+                wint_days_wkdy = [
+                    x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
+                wint_days_wknd = [
+                    x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
+                # Intermediate days of year
+                inter_days = (list(
+                            range(60, 152)) + list(range(274, 335)))
+                inter_days_wkdy = [
+                    x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
+                inter_days_wknd = [
+                    x for x in inter_days if wknd_day_flags[(x - 1)] == 1]
+
+                # Set column names for a dataset that includes information on
+                # max/min net system load hours and peak/take net system load
+                # hour windows by season and EMM region
+                peak_take_names = (
+                    "Region", "Year", "SummerMaxHr", "SummerMinHr",
+                    "WinterMaxHr", "WinterMinHr", "InterMaxHr", "InterMinHr",
+                    "SummerPeakStartHr", "SummerPeakEndHr",
+                    "SummerTakeStartHr1", "SummerTakeEndHr1",
+                    "SummerTakeStartHr2", "SummerTakeEndHr2",
+                    "WinterPeakStartHr", "WinterPeakEndHr",
+                    "WinterTakeStartHr1", "WinterTakeEndHr1",
+                    "WinterTakeStartHr2", "WinterTakeEndHr2",
+                    "InterPeakStartHr", "InterPeakEndHr", "InterTakeStartHr1",
+                    "InterTakeEndHr1", "InterTakeStartHr2", "InterTakeEndHr2")
+
+                # Choose the appropriate data to use in determining peak/take
+                # windows (total vs. net system load)
+                if tsv_metrics[-2] == "1":
+                    metrics_data = handyfiles.tsv_metrics_data_tot
                 else:
-                    current_wkdy = 1
+                    metrics_data = handyfiles.tsv_metrics_data_net
 
-            # Develop lists with seasonal day of year ranges, both with and
-            # without weekends
+                # Import system max/min and peak/take hour load by EMM region
+                sysload_dat = numpy.genfromtxt(
+                        path.join(base_dir, *metrics_data),
+                        names=peak_take_names, delimiter=',', dtype="<i4",
+                        encoding="latin1")
+                # Restrict data to 2050 (the data are summarized for every five
+                # years from 2020-2050, but 2050 is chosen as a representative
+                # year for max/min and peak/take hour system load data that
+                # reflect a high amount of renewable penetration, for the case
+                # where peak/take windows are based on net system shapes
+                sysload_dat = sysload_dat[
+                    numpy.where((sysload_dat["Year"] == 2050))]
+                # Set a dict that maps EMM region names to region
+                # numbers as defined by EIA
+                # (https://www.eia.gov/outlooks/aeo/pdf/f2.pdf)
+                self.emm_name_num_map = {
+                    name: (ind + 1) for ind, name in enumerate(valid_regions)}
+                # Set a dict that maps each climate zone to an EMM region
+                # number with the most representative set of min/max system
+                # load hour and peak/take system load hour windows to use
+                # for that climate zone. For larger climate zones (3A, 4A, 5A,
+                # 6A), more than one of these representative regions is
+                # assumed. In these cases, the terminal value is formatted as a
+                # list with the EMM region number with the representative
+                # load hour data stored in the first element, and all EMM
+                # regions covered by that representative load hour data
+                # stored in the second element
+                self.cz_emm_map = {
+                    "2A": 2, "2B": 19, "3A": {
+                        "set 1": [16, (16, 1, 12)],
+                        "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
+                    "4A": {
+                        "set 1": [6, (6, 7, 9, 11)],
+                        "set 2": [17, (17, 18, 12, 13, 14, 15, 16)]}, "4B": 19,
+                    "4C": 21, "5A": {
+                        "set 1": [8, (8, 4, 13, 15, 16, 17)],
+                        "set 2": [11, (11, 3, 5, 6, 9, 10, 22)]},
+                    "5B": 22, "5C": 21, "6A": {
+                        "set 1": [4, (4, 8, 22)],
+                        "set 2": [5, (3, 5, 9, 10, 11)]},
+                    "6B": 21, "7": 4}
+                # Initialize a set of dicts that will store representative
+                # system load data for the summer, winter, and intermediate
+                # seasons
+                sysld_sum, sysld_wint, sysld_int = (
+                    {"2A": None, "2B": None, "3A": {
+                        "set 1": None, "set 2": None}, "3B": None, "3C": None,
+                     "4A": {
+                        "set 1": None, "set 2": None}, "4B": None, "4C": None,
+                     "5A": {
+                        "set 1": None, "set 2": None}, "5B": None, "5C": None,
+                     "6A": {
+                        "set 1": None, "set 2": None}, "6B": None, "7": None}
+                    for n in range(3))
+                # Fill in the dicts with seasonal system load data
+                for cz in self.cz_emm_map.keys():
+                    # Handle climate zones with one representative system
+                    # load shape differently than those with more than one such
+                    # shape
+                    if type(self.cz_emm_map[cz]) == int:
+                        # Fill in seasonal system load data
+                        sysld_sum[cz], sysld_wint[cz], \
+                            sysld_int[cz] = self.set_peak_take(
+                                sysload_dat, self.cz_emm_map[cz])
+                    else:
+                        # Loop through the multiple EMM regions with
+                        # representative system load data for the current
+                        # climate zone
+                        for set_v in self.cz_emm_map[cz].keys():
+                            # Fill in seasonal system load data
+                            sysld_sum[cz][set_v], \
+                                sysld_wint[cz][set_v], \
+                                sysld_int[cz][set_v] = self.set_peak_take(
+                                    sysload_dat,
+                                    self.cz_emm_map[cz][set_v][0])
+                self.tsv_metrics_data = {
+                    "season days": {
+                        "all": {
+                            "summer": sum_days,
+                            "winter": wint_days,
+                            "intermediate": inter_days
+                        },
+                        "weekdays": {
+                            "summer": sum_days_wkdy,
+                            "winter": wint_days_wkdy,
+                            "intermediate": inter_days_wkdy
 
-            # Summer days of year
-            sum_days = list(range(152, 274))
-            sum_days_nowknd = [
-                x for x in sum_days if wknd_day_flags[(x - 1)] != 1]
-            # Winter days of year
-            wint_days = (list(
-                        range(1, 60)) + list(range(335, 366)))
-            wint_days_nowknd = [
-                x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
-            # Intermediate days of year
-            inter_days = (list(
-                        range(60, 152)) + list(range(274, 335)))
-            inter_days_nowknd = [
-                x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
+                        },
+                        "weekends": {
+                            "summer": sum_days_wknd,
+                            "winter": wint_days_wknd,
+                            "intermediate": inter_days_wknd
 
-            # Set column names for a dataset that includes information on
-            # max/min net system load hours and peak/take net system load hour
-            # windows by season and EMM region
-            peak_take_names = (
-                "Region", "Year", "SummerMaxHr", "SummerMinHr",
-                "WinterMaxHr", "WinterMinHr", "InterMaxHr", "InterMinHr",
-                "SummerPeakStartHr", "SummerPeakEndHr",
-                "SummerTakeStartHr1", "SummerTakeEndHr1",
-                "SummerTakeStartHr2", "SummerTakeEndHr2",
-                "WinterPeakStartHr", "WinterPeakEndHr",
-                "WinterTakeStartHr1", "WinterTakeEndHr1",
-                "WinterTakeStartHr2", "WinterTakeEndHr2",
-                "InterPeakStartHr", "InterPeakEndHr", "InterTakeStartHr1",
-                "InterTakeEndHr1", "InterTakeStartHr2", "InterTakeEndHr2")
-            # Import net system max/min and peak/take hour load by EMM region
-            net_sysload_dat = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.tsv_metrics_data),
-                    names=peak_take_names, delimiter=',', dtype="<i4",
-                    encoding="latin1")
-            # Restrict data to 2050 (the data are summarized for every five
-            # years from 2020-2050, but 2050 is chosen as a representative
-            # year for max/min and peak/take hour system load data that reflect
-            # a high amount of renewable penetration
-            net_sysload_dat = net_sysload_dat[
-                numpy.where(
-                    (net_sysload_dat["Year"] == 2050))]
-            # Set a dict that maps EMM region names to region
-            # numbers as defined by EIA
-            # (https://www.eia.gov/outlooks/aeo/pdf/nerc_map.pdf)
-            self.emm_name_num_map = {
-                name: (ind + 1) for ind, name in enumerate(valid_regions)}
-            # Set a dict that maps each climate zone to an EMM region number
-            # with the most representative set of min/max net system load hours
-            # and peak/take net system load hour windows to use for that
-            # climate zone. For larger climate zones (3A, 4A, 5A, 6A), more
-            # than one of these representative regions is assumed. In these
-            # cases, the terminal value is formatted as a list with the
-            # EMM region number with the representative net load hour data
-            # stored in the first element, and all EMM regions covered by that
-            # representative net load hour data stored in the second element
-            self.cz_emm_map = {
-                "2A": 2, "2B": 19, "3A": {
-                    "set 1": [16, (16, 1, 12)],
-                    "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
-                "4A": {
-                    "set 1": [6, (6, 9, 11)],
-                    "set 2": [17, (17, 18, 12, 13, 14, 15, 16, 18)]}, "4B": 19,
-                "4C": 21, "5A": {
-                    "set 1": [8, (8, 4, 15)],
-                    "set 2": [11, (11, 3, 5, 6, 9, 10)]},
-                "5B": 22, "5C": 21, "6A": {
-                    "set 1": [4, (4, 8, 22)],
-                    "set 2": [5, (5, 9, 10, 11, 22)]},
-                "6B": 21, "7": 4}
-            # Initialize a set of dicts that will store representative net
-            # system load data for the summer, winter, and intermediate seasons
-            net_sysld_sum, net_sysld_wint, net_sysld_int = (
-                {"2A": None, "2B": None, "3A": {
-                    "set 1": None, "set 2": None}, "3B": None, "3C": None,
-                 "4A": {"set 1": None, "set 2": None}, "4B": None, "4C": None,
-                 "5A": {
-                    "set 1": None, "set 2": None}, "5B": None, "5C": None,
-                 "6A": {"set 1": None, "set 2": None}, "6B": 21, "7": None}
-                for n in range(3))
-            # Fill in the dicts with seasonal net system load data
-            for cz in self.cz_emm_map.keys():
-                # Handle climate zones with one representative net system load
-                # shape differently than those with more than one such shape
-                if type(self.cz_emm_map[cz]) == int:
-                    # Fill in seasonal net system load data
-                    net_sysld_sum[cz], net_sysld_wint[cz], \
-                        net_sysld_int[cz] = self.set_peak_take(
-                            net_sysload_dat, self.cz_emm_map[cz])
-                else:
-                    # Loop through the multiple EMM regions with representative
-                    # net system load data for the current climate zone
-                    for set_v in self.cz_emm_map[cz].keys():
-                        # Fill in seasonal net system load data
-                        net_sysld_sum[cz][set_v], net_sysld_wint[cz][set_v], \
-                            net_sysld_int[cz][set_v] = self.set_peak_take(
-                                net_sysload_dat, self.cz_emm_map[cz][set_v][0])
-            self.tsv_metrics_data = {
-                "season days": {
-                    "summer": sum_days,
-                    "winter": wint_days,
-                    "intermediate": inter_days
-                },
-                "season days no weekend": {
-                    "summer": sum_days_nowknd,
-                    "winter": wint_days_nowknd,
-                    "intermediate": inter_days_nowknd
-                },
-                "net load hours": {
-                    "summer": net_sysld_sum,
-                    "winter": net_sysld_wint,
-                    "intermediate": net_sysld_int
-                },
-                "peak days": {
-                    "summer": {
-                        "2A": 199,
-                        "2B": 186,
-                        "3A": 192,
-                        "3B": 171,
-                        "3C": 220,
-                        "4A": 192,
-                        "4B": 206,
-                        "4C": 241,
-                        "5A": 199,
-                        "5B": 178,
-                        "5C": 206,
-                        "6A": 186,
-                        "6B": 220,
-                        "7": 206},
-                    "winter": {
-                        "2A": 24,
-                        "2B": 17,
-                        "3A": 31,
-                        "3B": 10,
-                        "3C": 10,
-                        "4A": 31,
-                        "4B": 339,
-                        "4C": 38,
-                        "5A": 26,
-                        "5B": 10,
-                        "5C": 12,
-                        "6A": 10,
-                        "6B": 17,
-                        "7": 31}
-                },
-                "hourly index": list(enumerate(
-                    itertools.product(range(365), range(24))))
-            }
+                        }
+                    },
+                    "system load hours": {
+                        "summer": sysld_sum,
+                        "winter": sysld_wint,
+                        "intermediate": sysld_int
+                    },
+                    "peak days": {
+                        "summer": {
+                            "2A": 199,
+                            "2B": 186,
+                            "3A": 192,
+                            "3B": 171,
+                            "3C": 220,
+                            "4A": 192,
+                            "4B": 206,
+                            "4C": 241,
+                            "5A": 199,
+                            "5B": 178,
+                            "5C": 206,
+                            "6A": 186,
+                            "6B": 220,
+                            "7": 206},
+                        "winter": {
+                            "2A": 24,
+                            "2B": 17,
+                            "3A": 31,
+                            "3B": 10,
+                            "3C": 10,
+                            "4A": 31,
+                            "4B": 339,
+                            "4C": 38,
+                            "5A": 26,
+                            "5B": 10,
+                            "5C": 12,
+                            "6A": 10,
+                            "6B": 17,
+                            "7": 31}
+                    },
+                    "hourly index": list(enumerate(
+                        itertools.product(range(365), range(24))))
+                }
+            else:
+                self.tsv_metrics_data = None
+                self.emm_name_num_map = {
+                    name: (ind + 1) for ind, name in enumerate(valid_regions)}
+                self.cz_emm_map = {
+                    "2A": 2, "2B": 19, "3A": {
+                        "set 1": [16, (16, 1, 12)],
+                        "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
+                    "4A": {
+                        "set 1": [6, (6, 7, 9, 11)],
+                        "set 2": [17, (17, 18, 12, 13, 14, 15, 16)]}, "4B": 19,
+                    "4C": 21, "5A": {
+                        "set 1": [8, (8, 4, 13, 15, 16, 17)],
+                        "set 2": [11, (11, 3, 5, 6, 9, 10, 22)]},
+                    "5B": 22, "5C": 21, "6A": {
+                        "set 1": [4, (4, 8, 22)],
+                        "set 2": [5, (3, 5, 9, 10, 11)]},
+                    "6B": 21, "7": 4}
             self.tsv_hourly_price = {
                 reg: {
                     bldg: None for bldg in ("residential", "commercial")
@@ -887,11 +940,11 @@ class UsefulVars(object):
         else:
             self.tsv_hourly_lafs = None
 
-    def set_peak_take(self, net_sysload_dat, restrict_key):
-        """Fill in dicts with seasonal net system load shape data.
+    def set_peak_take(self, sysload_dat, restrict_key):
+        """Fill in dicts with seasonal system load shape data.
 
             Args:
-                net_sysload_dat (numpy.ndarray): Net system load shape data.
+                sysload_dat (numpy.ndarray): System load shape data.
                 restrict_key (int): EMM region to restrict net load data to.
 
             Returns:
@@ -902,32 +955,32 @@ class UsefulVars(object):
 
         # Restrict net system load data to the representative EMM region for
         # the current climate zone
-        peak_take_cz = net_sysload_dat[numpy.where(
-            (net_sysload_dat["Region"] == restrict_key))]
+        peak_take_cz = sysload_dat[numpy.where(
+            (sysload_dat["Region"] == restrict_key))]
         # Set summer max load hour, min load hour, and peak/take windows
         sum_peak_take = {
             "max": peak_take_cz["SummerMaxHr"][0],
             "min": peak_take_cz["SummerMinHr"][0],
             "peak range": list(range(peak_take_cz["SummerPeakStartHr"][0],
-                                     peak_take_cz["SummerPeakEndHr"][0])),
+                                     peak_take_cz["SummerPeakEndHr"][0] + 1)),
             "take range": list(range(peak_take_cz["SummerTakeStartHr1"][0],
-                                     peak_take_cz["SummerTakeEndHr1"][0]))}
+                                     peak_take_cz["SummerTakeEndHr1"][0] + 1))}
         # Set winter max load hour, min load hour, and peak/take windows
         wint_peak_take = {
             "max": peak_take_cz["WinterMaxHr"][0],
             "min": peak_take_cz["WinterMinHr"][0],
             "peak range": list(range(peak_take_cz["WinterPeakStartHr"][0],
-                                     peak_take_cz["WinterPeakEndHr"][0])),
+                                     peak_take_cz["WinterPeakEndHr"][0] + 1)),
             "take range": list(range(peak_take_cz["WinterTakeStartHr1"][0],
-                                     peak_take_cz["WinterTakeEndHr1"][0]))}
+                                     peak_take_cz["WinterTakeEndHr1"][0] + 1))}
         # Set intermediate max load hour, min load hour, and peak/take windows
         inter_peak_take = {
             "max": peak_take_cz["InterMaxHr"][0],
             "min": peak_take_cz["InterMinHr"][0],
             "peak range": list(range(peak_take_cz["InterPeakStartHr"][0],
-                                     peak_take_cz["InterPeakEndHr"][0])),
+                                     peak_take_cz["InterPeakEndHr"][0] + 1)),
             "take range": list(range(peak_take_cz["InterTakeStartHr1"][0],
-                                     peak_take_cz["InterTakeEndHr1"][0]))}
+                                     peak_take_cz["InterTakeEndHr1"][0] + 1))}
         # Handle cases where winter take periods cover two non-contiguous time
         # segments (e.g., 2-6AM, 10AM-2PM)
         if not numpy.isnan(peak_take_cz["WinterTakeStartHr2"][0]):
@@ -1018,7 +1071,7 @@ class EPlusMapDicts(object):
                 "SmallOffice": 0.12,
                 "OutpatientHealthcare": 0.88},
             "mercantile/service": {
-                "RetailStandAlone": 0.53,
+                "RetailStandalone": 0.53,
                 "RetailStripmall": 0.47},
             "warehouse": {
                 "Warehouse": 1},
@@ -1379,6 +1432,7 @@ class Measure(object):
                         names=True, delimiter=',', dtype=[
                             ('Hour_of_Year', '<i4'),
                             ('Climate_Zone', '<U25'),
+                            ('Net_Load_Version', '<i4'),
                             ('Building_Type', '<U25'),
                             ('End_Use', '<U25'),
                             ('Baseline_Load', '<f8'),
@@ -1437,6 +1491,11 @@ class Measure(object):
                             bd_key = bd
                         if type(bd_key) != str:
                             bd_key = str(bd_key)
+                        # Account for possible use of StandAlone naming in
+                        # savings shape CSV, vs. Standalone naming in Scout's
+                        # baseline load shapes file
+                        if bd_key == "RetailStandAlone":
+                            bd_key = "RetailStandalone"
                         # Initialize dict under the current end use and
                         # building type keys
                         css_dict[eu_key][bd_key] = {}
@@ -1452,38 +1511,51 @@ class Measure(object):
                                 cz_key = cz
                             if type(cz_key) != str:
                                 cz_key = str(cz_key)
+                            # Account for possible use of climate 7A naming
+                            # in savings shape CSV, vs. 7 naming in Scout's
+                            # baseline load shapes file
+                            if cz_key == "7A":
+                                cz_key = "7"
                             # Restrict shape data to that of the current
                             # end use, building type, and climate zone
-                            # combination, and set the value of the
-                            # shape dict to the 8760 relative savings
-                            # fractions for this combination
-                            css_dict[eu_key][bd_key][cz_key] = \
-                                css_dat_eu[
-                                    numpy.in1d(css_dat_eu[
-                                        "Building_Type"], bd) &
-                                    numpy.in1d(css_dat_eu[
-                                        "Climate_Zone"], cz)][
-                                    'Relative_Savings']
-                            # Check to ensure that the resultant dict
-                            # value is the expected 8760 elements long; if
-                            # not, throw error
-                            if len(css_dict[
-                                    eu_key][bd_key][cz_key]) != 8760:
-                                raise ValueError(
-                                    "Measure '" + self.name +
-                                    "', requires "
-                                    "custom savings shape data, but the "
-                                    "custom shape given for climate "
-                                    "zone " + cz_key +
-                                    ", building type "
-                                    + bd_key + ", and end use " + eu_key +
-                                    " has more or less than 8760 values. "
-                                    "Check that 8760 hourly savings " +
-                                    "fractions are available for all " +
-                                    "baseline market segments the " +
-                                    "measure applies to in "
-                                    "./ecm_definitions/energy_plus_data"
-                                    "/savings_shapes.")
+                            # combination
+                            css_dat_eu_bldg_cz = css_dat_eu[
+                                numpy.in1d(css_dat_eu["Building_Type"], bd) &
+                                numpy.in1d(css_dat_eu["Climate_Zone"], cz)]
+                            # Initialize dict under the current end use and
+                            # building type keys
+                            css_dict[eu_key][bd_key][cz_key] = {}
+                            # Find all unique representative system load
+                            # shapes for the current climate zone
+                            sys_v = numpy.unique(
+                                css_dat_eu_bldg_cz["Net_Load_Version"])
+                            for sv in sys_v:
+                                v_key = "set " + str(sv)
+                                css_dict[eu_key][bd_key][cz_key][v_key] = \
+                                    css_dat_eu_bldg_cz[numpy.in1d(
+                                        css_dat_eu_bldg_cz[
+                                            "Net_Load_Version"], sv)][
+                                    "Relative_Savings"]
+                                # Check to ensure that the resultant dict
+                                # value is the expected 8760 elements long; if
+                                # not, throw error
+                                if len(css_dict[eu_key][bd_key][cz_key][
+                                        v_key]) != 8760:
+                                    raise ValueError(
+                                        "Measure '" + self.name +
+                                        "', requires "
+                                        "custom savings shape data, but the "
+                                        "custom shape given for climate "
+                                        "zone " + cz_key +
+                                        ", building type "
+                                        + bd_key + ", and end use " + eu_key +
+                                        " has more or less than 8760 values. "
+                                        "Check that 8760 hourly savings " +
+                                        "fractions are available for all " +
+                                        "baseline market segments the " +
+                                        "measure applies to in "
+                                        "./ecm_definitions/energy_plus_data"
+                                        "/savings_shapes.")
                 # Set custom savings shape information to populated dict
                 self.tsv_features["shape"]["custom_annual_savings"] = \
                     css_dict
@@ -1500,10 +1572,9 @@ class Measure(object):
         if (any([x is not None for x in [
             self.tsv_features, tsv_metrics]]) and ((
                 type(self.climate_zone) == list and any([
-                x not in y for x, y in zip(
-                    self.climate_zone, valid_tsv_regions)])) or (
-                self.climate_zone != "all" and all([
-                self.climate_zone not in y for y in valid_tsv_regions])))):
+                    x not in valid_tsv_regions for x in self.climate_zone])) or
+            (type(self.climate_zone) != list and self.climate_zone != "all"
+                and (self.climate_zone not in valid_tsv_regions)))):
             raise ValueError(
                 "Invalid 'climate_zone' attribute value(s) for ECM '" +
                 self.name + "' given desired time sensitive valuation "
@@ -3012,8 +3083,8 @@ class Measure(object):
                 # sub-annual time horizon; also pull hourly fraction of annual
                 # load data needed to calculate sector-level shapes below if
                 # the user has specified the '--sect_shapes' option
-                if (any([x is True for x in [
-                    opts.tsv_metrics, opts.sect_shapes]]) or
+                if ((self.energy_outputs["tsv_metrics"] is not False or
+                     opts.sect_shapes is True) or
                     self.tsv_features is not None) and (
                     mskeys[0] == "secondary" or (mskeys[0] == "primary" and
                                                  mskeys[3] == "electricity")):
@@ -3127,14 +3198,14 @@ class Measure(object):
                         # otherwise, add to the previously initiated data
                         if mskeys[1] not in self.sector_shapes[
                                 adopt_scheme].keys():
-                            self.sector_shapes[adopt_scheme] = {mskeys[1]: {
+                            self.sector_shapes[adopt_scheme][mskeys[1]] = {
                                 yr: {"baseline": [tsv_shapes["baseline"][x] *
                                                   add_energy_total[yr] for x
                                                   in range(8760)],
                                      "efficient": [tsv_shapes["efficient"][x] *
                                                    add_energy_total_eff[yr] for
                                                    x in range(8760)]} for yr in
-                                self.handyvars.aeo_years_summary}}
+                                self.handyvars.aeo_years_summary}
                         else:
                             for yr in self.handyvars.aeo_years_summary:
                                 self.sector_shapes[adopt_scheme][mskeys[1]][
@@ -3569,7 +3640,9 @@ class Measure(object):
 
             # Find ASHRAE/IECC -> EMM weighting factors for current EMM region
             ash_czone_wts = [[x["ASHRAE"], x[mskeys[1]]] for x in
-                             self.handyvars.ash_emm_map if (x[mskeys[1]] != 0)]
+                             self.handyvars.ash_emm_map if (
+                                numpy.isfinite(x[mskeys[1]]) and
+                                x[mskeys[1]] != 0)]
             # Check to ensure that region weighting factors sum to 1
             if round(sum([x[1] for x in ash_czone_wts]), 2) != 1:
                 raise ValueError(
@@ -3849,6 +3922,32 @@ class Measure(object):
             # Loop through all ASHRAE/IECC climate zones (which load profiles
             # are broken out by) that map to the current EMM region
             for cz in ash_cz_wts:
+                # Set the climate zone key to use in keying in savings
+                # shape information
+                load_fact_climate_key = cz[0]
+                # Flag for cases where multiple sets of system load shape
+                # information are germane to the current climate zone
+                if type(self.handyvars.cz_emm_map[cz[0]]) == int:
+                    mult_sysshp = False
+                    mult_sysshp_key_metrics, mult_sysshp_key_save = (
+                        "set 1" for n in range(2))
+                elif type(self.handyvars.cz_emm_map[cz[0]]) == dict:
+                    mult_sysshp = True
+                    # Given multiple possible system load shape data
+                    # sets, find the key for the set that is representative
+                    # of the current EMM region; initialize separate keys to
+                    # use in retrieving TSV metrics data vs. savings shape
+                    # data (the approaches to keying in these different types
+                    # of data differ below)
+                    mult_sysshp_key_metrics, mult_sysshp_key_save = ([
+                        y[0] for y in self.handyvars.cz_emm_map[cz[0]].items()
+                        if self.handyvars.emm_name_num_map[mskeys[1]]
+                        in y[1][1]][0] for n in range(2))
+                else:
+                    raise ValueError(
+                        "Unable to determine representative utility system "
+                        "load data for climate " + cz[0])
+
                 # Set the weighting factor to map the current EPlus building
                 # and ASHRAE/IECC climate to Scout building and EMM region,
                 # and set the appropriate baseline load shape (8760 hourly
@@ -3863,18 +3962,9 @@ class Measure(object):
                     try:
                         base_load_hourly = load_fact[
                             load_fact_bldg_key]["load shape"][cz[0]]
-                        # If the baseline load shape is broken out by
-                        # climate zone, assume any savings shape information
-                        # will be keyed using the current climate zone
-                        load_fact_climate_key = cz[0]
                     except (KeyError, TypeError):
                         base_load_hourly = load_fact[
                             load_fact_bldg_key]["load shape"]
-                        # If the baseline load shape is not broken out by
-                        # climate zone, assume any savings shape information
-                        # will be keyed using only the first of the climate
-                        # zones modeled in the TSV framework (2A)
-                        load_fact_climate_key = "2A"
                 else:
                     # Set the weighting factor
                     emm_adj_wt = cz[1]
@@ -3885,17 +3975,8 @@ class Measure(object):
                     # climate zone
                     try:
                         base_load_hourly = load_fact[cz[0]]
-                        # If the baseline load shape is broken out by
-                        # climate zone, assume any savings shape information
-                        # will be keyed using the current climate zone
-                        load_fact_climate_key = cz[0]
                     except (KeyError, TypeError):
                         base_load_hourly = load_fact
-                        # If the baseline load shape is not broken out by
-                        # climate zone, assume any savings shape information
-                        # will be keyed using only the first of the climate
-                        # zones modeled in the TSV framework (2A)
-                        load_fact_climate_key = "2A"
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = base_load_hourly
@@ -4102,27 +4183,41 @@ class Measure(object):
                             try:
                                 custom_hr_save_shape = tsv_adjustments[a][
                                     "custom_annual_savings"][eu][
-                                    load_fact_bldg_key][
-                                    load_fact_climate_key]
+                                    load_fact_bldg_key][load_fact_climate_key][
+                                    mult_sysshp_key_save]
                             except KeyError:
-                                custom_hr_save_shape = []
+                                # Try again with the assumption that there is
+                                # only one savings shape version per climate,
+                                # building, and end use combination (e.g.,
+                                # this will be the case for EE measures, vs.
+                                # DR measures which may respond to more than
+                                # one peak period range)
+                                try:
+                                    custom_hr_save_shape = tsv_adjustments[a][
+                                        "custom_annual_savings"][eu][
+                                        load_fact_bldg_key][
+                                        load_fact_climate_key]["set 1"]
+                                except KeyError:
+                                    custom_hr_save_shape = []
 
                             # Ensure that the resultant custom savings shape
                             # for the current combination of climate zone,
                             # building type, and end use is not zero elements.
-                            # If the savings shape is zero elements, notify the
-                            # user that no savings shape data were found for
-                            # the current climate/building/end use
-                            # combination and that the savings will be assumed
-                            # to be zero.
+                            # If the savings shape is zero elements, warn the
+                            # user (in verbose mode) that no savings shape
+                            # data were found for the current climate/building/
+                            # end use combination and that the savings will be
+                            # assumed to be zero.
                             if len(custom_hr_save_shape) == 0:
-                                raise ValueError(
+                                verboseprint(
+                                    opts.verbose,
                                     "Measure '" + self.name + "', requires "
-                                    "custom savings shape data, but none were"
+                                    "custom savings shape data, but none were "
                                     "found for the combination of climate "
                                     "zone " + load_fact_climate_key +
-                                    ", building type "
-                                    + load_fact_bldg_key + ", and end use " +
+                                    " (system load " + mult_sysshp_key_save +
+                                    "), building type " +
+                                    load_fact_bldg_key + ", and end use " +
                                     eu + ". Assuming savings are zero for "
                                     " this combination. If this is "
                                     "unexpected, check that 8760 hourly "
@@ -4130,6 +4225,7 @@ class Measure(object):
                                     "all baseline market segments the "
                                     "measure applies to in ./ecm_definitions/"
                                     "energy_plus_data/savings_shapes.")
+                                custom_hr_save_shape = [0 for x in range(8760)]
                             # Reflect custom load savings in efficient load
                             # shape; screen for NaNs in the CSV
                             eff_load_hourly = [(
@@ -4200,17 +4296,23 @@ class Measure(object):
                         calc = "max"
                     else:
                         calc = "avg"
+                    # Days to perform operations over (applicable to sum
+                    # and averaging calculations)
+                    if tsv_metrics[-1] == "1":
+                        days = "all"
+                    elif tsv_metrics[-1] == "2":
+                        days = "weekdays"
+                    elif tsv_metrics[-1] == "3":
+                        days = "weekends"
+                    else:
+                        days = None
 
                     # Set applicable day range
 
-                    # Sum calc (spans multiple days)
-                    if calc == "sum":
+                    # Sum or average calcs (spans multiple days)
+                    if calc == "sum" or calc == "avg":
                         tsv_metrics_days = self.handyvars.tsv_metrics_data[
-                            "season days"][season]
-                    # Avg. calc (spans multiple days, excluding weekends)
-                    elif calc == "avg":
-                        tsv_metrics_days = self.handyvars.tsv_metrics_data[
-                            "season days no weekend"][season]
+                            "season days"][days][season]
                     # Maximum calc type (pertains only to a peak day)
                     else:
                         tsv_metrics_days = [
@@ -4218,25 +4320,6 @@ class Measure(object):
                                 "peak days"][season][cz[0]]]
 
                     # Set applicable daily hour range
-
-                    # Flag for cases where multiple sets of net load shape
-                    # information are germane to the current climate zone
-                    if type(self.handyvars.cz_emm_map[cz[0]]) == int:
-                        mult_pktk = False
-                    elif type(self.handyvars.cz_emm_map[cz[0]]) == dict:
-                        mult_pktk = True
-                        # Given multiple possible net system load shape data
-                        # sets, find the key for the set that is representative
-                        # of the current EMM region
-                        mult_pktk_key = [
-                            y[0] for y in self.handyvars.cz_emm_map[
-                                cz[0]].items()
-                            if self.handyvars.emm_name_num_map[mskeys[1]]
-                            in y[1][1]][0]
-                    else:
-                        raise ValueError(
-                            "Unable to determine peak/take windows for "
-                            "climate " + cz[0])
 
                     # Sum or average calc type (spans multiple hours)
                     if calc in ["sum", "avg"]:
@@ -4247,60 +4330,60 @@ class Measure(object):
                         elif hours == "peak":
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_pktk is False:
+                            if mult_sysshp is False:
                                 tsv_metrics_hrs = \
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
+                                        "system load hours"][season][cz[0]][
                                         "peak range"]
                             else:
                                 tsv_metrics_hrs = \
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
-                                        mult_pktk_key]["peak range"]
+                                        "system load hours"][season][cz[0]][
+                                        mult_sysshp_key_metrics]["peak range"]
                         # Take hours only
                         else:
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_pktk is False:
+                            if mult_sysshp is False:
                                 tsv_metrics_hrs = \
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
+                                        "system load hours"][season][cz[0]][
                                         "take range"]
                             else:
                                 tsv_metrics_hrs = \
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
-                                        mult_pktk_key]["take range"]
+                                        "system load hours"][season][cz[0]][
+                                        mult_sysshp_key_metrics]["take range"]
                     # Maximum calc type (pertains only to a max/min hour)
                     else:
                         # All hours (assume max peak hour) or max peak hour
                         if hours == "all" or hours == "peak":
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_pktk is False:
+                            if mult_sysshp is False:
                                 tsv_metrics_hrs = [
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
+                                        "system load hours"][season][cz[0]][
                                         "max"]]
                             else:
                                 tsv_metrics_hrs = [
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
-                                        mult_pktk_key]["max"]]
+                                        "system load hours"][season][cz[0]][
+                                        mult_sysshp_key_metrics]["max"]]
                         # Min take hour
                         else:
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_pktk is False:
+                            if mult_sysshp is False:
                                 tsv_metrics_hrs = [
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
+                                        "system load hours"][season][cz[0]][
                                         "min"]]
                             else:
                                 tsv_metrics_hrs = [
                                     self.handyvars.tsv_metrics_data[
-                                        "net load hours"][season][cz[0]][
-                                        mult_pktk_key]["min"]]
+                                        "system load hours"][season][cz[0]][
+                                        mult_sysshp_key_metrics]["min"]]
 
                     # Determine number of days to average over; if peak day
                     # only, set this number to one
@@ -7354,6 +7437,16 @@ def main(base_dir):
             "Enter the daily hour range to restrict to (1 = all hours, "
             "2 = peak period hours, 3 = take period hours): ")
 
+        # If peak/take hours are chosen, determine whether total or net
+        # system shapes should be used to determine the hour ranges
+        if hours == '2' or hours == '3':
+            sys_shape = input(
+                "Enter the basis for determining peak or take hour ranges: "
+                "1 = total system load, 2 = total system load net renewables: "
+                )
+        else:
+            sys_shape = '0'
+
         # Determine the season to restrict results to (none, summer, winter,
         # intermediate)
         season = input(
@@ -7363,7 +7456,7 @@ def main(base_dir):
         # Determine desired calculations (dependent on output type) for given
         # flexibility mode, output type, and temporal boundaries
 
-        # Power output case (single hour)
+        # Energy output case (multiple hours)
         if output_type == '1':
             # Sum/average energy change across all hours
             if hours == '1':
@@ -7380,7 +7473,7 @@ def main(base_dir):
                 calc_type = input(
                     "Enter calculation type (1 = sum across take "
                     "hours, 2 = daily take period average): ")
-        # Energy output case (multiple hours)
+        # Power output case (single hour)
         else:
             # Max/average power change across all hours
             if hours == '1':
@@ -7397,8 +7490,17 @@ def main(base_dir):
                 calc_type = input(
                     "Enter calculation type (1 = peak day, take period "
                     "maximum, 2 = daily take period hourly average): ")
+        # Determine the day type to average over (if needed)
+        if output_type == '1' or calc_type == '2':
+            day_type = input(
+                "Enter day type to calculate across (1 = all days, "
+                "2 = weekdays, 3 = weekends: ")
+        else:
+            day_type = "0"
+
         # Summarize user TSV metric settings in a single dict for further use
-        tsv_metrics = [output_type, hours, season, calc_type]
+        tsv_metrics = [
+            output_type, hours, season, calc_type, sys_shape, day_type]
     else:
         tsv_metrics = None
 
@@ -7416,7 +7518,7 @@ def main(base_dir):
     #     raise ValueError("Inconsistent AEO version used across input files")
 
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles, regions)
+    handyvars = UsefulVars(base_dir, handyfiles, regions, tsv_metrics)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
