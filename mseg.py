@@ -1188,7 +1188,8 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         data = []
 
         # Skip first line of the file
-        next(filecont)
+        header = next(filecont)
+        if 'HOUSEHOLDS' in header: hh_index = header.index('HOUSEHOLDS')
 
         # Import the data, skipping lines that have an end use
         # indicated that is not needed (or will cause later problems
@@ -1199,6 +1200,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         # can be coerced to strings or floats and empty strings cannot)
         for row in filecont:
             if row[0].strip() not in skip_rows:
+                if 'HOUSEHOLDS' in header and row[hh_index] == '': row[hh_index] = 0
                 if len(tuple(row)) != len(dtype_list):
                     row = row + [0]*(len(dtype_list)-len(row))
                 data.append(tuple(row))
@@ -1218,7 +1220,6 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
             # With the '' strings replaced with integer coercible
             # values, create the numpy array as originally desired
             final_struct = numpy.array(data, dtype=dtype_list)
-
         return final_struct
 
 
