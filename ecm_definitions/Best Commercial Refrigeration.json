@@ -5,9 +5,7 @@
   "structure_type": "all",
   "end_use": "refrigeration",
   "fuel_type": "electricity",
-  "technology": ["Commercial Reach-In Freezers", "Commercial Reach-In Refrigerators",
-                 "Commercial Supermarket Display Cases", "Commercial Walk-In Freezers",
-                 "Commercial Walk-In Refrigerators"],
+  "technology": ["Commercial Reach-In Freezers", "Commercial Reach-In Refrigerators", "Commercial Supermarket Display Cases", "Commercial Walk-In Freezers", "Commercial Walk-In Refrigerators"],
   "market_entry_year": 2017,
   "market_entry_year_source": {
     "notes": "Highest efficiency major category refrigeration units in 2017",
@@ -27,7 +25,8 @@
     "Commercial Reach-In Refrigerators": 5.4,
     "Commercial Supermarket Display Cases": 3.85,
     "Commercial Walk-In Freezers": 2.7,
-    "Commercial Walk-In Refrigerators": 3.5},
+    "Commercial Walk-In Refrigerators": 3.5
+  },
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "'Best' performance for the relevant technology in the Scout baseline technology characteristics data for food sales building type in AIA_CZ1 and the year 2017 (derived from KTEK.xml EIA file)",
@@ -38,13 +37,15 @@
       "year": 2018,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
-    }},
+    }
+  },
   "installed_cost": {
     "Commercial Reach-In Freezers": 933,
     "Commercial Reach-In Refrigerators": 1326,
     "Commercial Supermarket Display Cases": 675,
     "Commercial Walk-In Freezers": 1090,
-    "Commercial Walk-In Refrigerators": 715},
+    "Commercial Walk-In Refrigerators": 715
+  },
   "cost_units": "2017$/kBtu/h refrigeration",
   "installed_cost_source": {
     "notes": "Total installed cost for high efficiency refrigeration units in 2017",
@@ -62,7 +63,8 @@
     "Commercial Reach-In Refrigerators": 10,
     "Commercial Supermarket Display Cases": 10,
     "Commercial Walk-In Freezers": 10,
-    "Commercial Walk-In Refrigerators": 10},
+    "Commercial Walk-In Refrigerators": 10
+  },
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Average lifetimes for high efficiency refrigeration units in 2017 (use average compressor life where broken out)",

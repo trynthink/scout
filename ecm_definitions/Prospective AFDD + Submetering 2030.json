@@ -9,48 +9,51 @@
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "Based on BTO target for short-term market introduction (3-5 years)",
-    "source_data": null},
+    "source_data": null
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.30,
+  "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
     "note": "Based on typical relative HVAC savings range of 15%-30%",
     "source_data": [{
       "title": "Energy Impact of Commercial Building Controls and Performance Diagnostics: Market Characterization, Energy Impact of Building Faults and Energy Savings Potential",
       "author": "Roth et al.",
-        "organization": "TIAX, LLC",
-        "year": 2005,
+      "organization": "TIAX, LLC",
+      "year": 2005,
       "pages": null,
-      "URL": "http://s3.amazonaws.com/zanran_storage/www.tiaxllc.com/ContentPages/42428345.pdf"},
-      {
+      "URL": "http://s3.amazonaws.com/zanran_storage/www.tiaxllc.com/ContentPages/42428345.pdf"
+    }, {
       "title": "Advanced Automated HVAC Fault Detection and Diagnostics Commercialization Program",
       "author": "Frey D. and Smith V.",
-        "organization": "California Energy Commission",
-        "year": 2008,
+      "organization": "California Energy Commission",
+      "year": 2008,
       "pages": null,
-      "URL": "http://www.energy.ca.gov/2013publications/CEC-500-2013-054/CEC-500-2013-054.pdf"},
-      {
+      "URL": "http://www.energy.ca.gov/2013publications/CEC-500-2013-054/CEC-500-2013-054.pdf"
+    }, {
       "title": "Energy Savings Potential and RD&D Opportunities for Commercial Building HVAC Systems",
       "author": "Goetzler et al.",
-        "organization": "Navigant Consulting",
-        "year": 2011,
+      "organization": "Navigant Consulting",
+      "year": 2011,
       "pages": null,
-      "URL": "http://apps1.eere.energy.gov/buildings/publications/pdfs/corporate/savings_potential_comm_hvac.pdf"},
-      {
+      "URL": "http://apps1.eere.energy.gov/buildings/publications/pdfs/corporate/savings_potential_comm_hvac.pdf"
+    }, {
       "title": "Review of automated fault detection and diagnostic tools in air handling units",
       "author": "Bruton et al.",
-        "organization": "University College Cork",
-        "year": 2011,
+      "organization": "University College Cork",
+      "year": 2011,
       "pages": [335, 335],
-      "URL": "http://link.springer.com/article/10.1007/s12053-013-9238-2"},
-      {
+      "URL": "http://link.springer.com/article/10.1007/s12053-013-9238-2"
+    }, {
       "title": "A rule-based fault detection method for air handling units",
       "author": "Schein et al.",
-        "organization": "National Institute of Standards Technology (NIST)",
-        "year": 2006,
+      "organization": "National Institute of Standards Technology (NIST)",
+      "year": 2006,
       "pages": [1485, 1492],
-      "URL": "http://fire.nist.gov/bfrlpubs/build07/PDF/b07023.pdf"}]},
+      "URL": "http://fire.nist.gov/bfrlpubs/build07/PDF/b07023.pdf"
+    }]
+  },
   "installed_cost": 0.1466,
   "cost_units": "2017$/ft^2 floor",
   "installed_cost_source": {
@@ -61,18 +64,22 @@
       "organization": "National Renewable Energy Laboratory",
       "year": 2012,
       "pages": null,
-      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"
+    }
+  },
   "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Based on lifetime for commercial rooftop AC in 'rsclass.txt' file",
     "source_data": {
-      "title": "Commercial Demand Module of the National Energy Modeling System: Model Documentation 2014", 
+      "title": "Commercial Demand Module of the National Energy Modeling System: Model Documentation 2014",
       "author": "U.S. Energy Information Administration (EIA)",
-      "organization":  "U.S. Energy Information Administration (EIA)",
+      "organization": "U.S. Energy Information Administration (EIA)",
       "year": 2014,
       "pages": null,
-      "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/commercial/pdf/m066(2014).pdf"}},
+      "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/commercial/pdf/m066(2014).pdf"
+    }
+  },
   "measure_type": "add-on",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
@@ -84,7 +91,9 @@
       "organization": "U.S. Energy Information Administration (EIA)",
       "year": "2012",
       "URL": "http://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b1.cfm",
-      "fraction_derivation": "37051 ft^2 floor of commercial buildings with BAS / 87093 ft^2 floor total commercial buildings"}},
+      "fraction_derivation": "37051 ft^2 floor of commercial buildings with BAS / 87093 ft^2 floor total commercial buildings"
+    }
+  },
   "_description": "Ongoing, automated commissioning that compares top-level or sub-metered information about building energy use to an appropriate baseline to identify and diagnose operational faults",
   "_notes": null,
   "_added_by": {

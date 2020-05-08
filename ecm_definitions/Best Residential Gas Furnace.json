@@ -14,8 +14,9 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [8,9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -28,8 +29,9 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [8,9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "installed_cost": 3040,
   "cost_units": "2017$/unit",
@@ -40,8 +42,9 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [8,9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "product_lifetime": 21.5,
   "product_lifetime_units": "years",
@@ -52,8 +55,9 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [8,9],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": [8, 9],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -65,7 +69,8 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 17 10:14:26 EDT 2018"},
+    "timestamp": "Mon Sep 17 10:14:26 EDT 2018"
+  },
   "_updated_by": {
     "name": null,
     "organization": null,

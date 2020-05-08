@@ -15,15 +15,18 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2013,
       "pages": 2,
-      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}},
+      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 0.95,
-      "AIA_CZ2": 0.95,
-      "AIA_CZ3": 0.95, 
-      "AIA_CZ4": 0.9,
-      "AIA_CZ5": 0.9},
+    "AIA_CZ1": 0.95,
+    "AIA_CZ2": 0.95,
+    "AIA_CZ3": 0.95,
+    "AIA_CZ4": 0.9,
+    "AIA_CZ5": 0.9
+  },
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
     "notes": "See table 1; assumes 'North' maps to AIA climates 1-3, 'South' maps to AIA climates 4-5",
@@ -37,11 +40,12 @@
     }
   },
   "installed_cost": {
-      "AIA_CZ1": 2740,
-      "AIA_CZ2": 2740,
-      "AIA_CZ3": 2740, 
-      "AIA_CZ4": 2560,
-      "AIA_CZ5": 2560},
+    "AIA_CZ1": 2740,
+    "AIA_CZ2": 2740,
+    "AIA_CZ3": 2740,
+    "AIA_CZ4": 2560,
+    "AIA_CZ5": 2560
+  },
   "cost_units": "2016$/unit",
   "installed_cost_source": {
     "notes": "ENERGY STAR total installed cost in 2017, AIA CZ1-3 map to 'North' and all other climates to 'South'",
@@ -79,16 +83,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 14:59:20 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:13:52 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 16 16:13:52 MST 2020"
-  }
+  }]
 }

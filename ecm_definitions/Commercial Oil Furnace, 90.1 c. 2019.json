@@ -13,7 +13,7 @@
   },
   "market_exit_year": 2023,
   "market_exit_year_source": "Year in which standard escalates performance requirement",
-  "energy_efficiency": 0.80,
+  "energy_efficiency": 0.8,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "ASHRAE 90.1-2019 for oil-fired warm-air furnace efficiency, assume typical capacity of 400 kBtu/h per the EIA equipment cost and efficiency data cited in 'installed_cost_source'",
@@ -36,7 +36,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "product_lifetime": 23,
   "product_lifetime_units": "years",
@@ -48,7 +49,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -62,15 +64,15 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Sep 24 16:36:27 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Wed Jan 22 16:10:27 MST 2020"}
+    "timestamp": "Wed Jan 22 16:10:27 MST 2020"
+  }]
 }

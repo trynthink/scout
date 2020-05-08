@@ -21,12 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 17,
-      "AIA_CZ2": 14.6,
-      "AIA_CZ3": 14.6,
-      "AIA_CZ4": 12.9,
-      "AIA_CZ5": 10.5
-    },
+    "AIA_CZ1": 17,
+    "AIA_CZ2": 14.6,
+    "AIA_CZ3": 14.6,
+    "AIA_CZ4": 12.9,
+    "AIA_CZ5": 10.5
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "From AEDG design recommendations by climate zone; see calculations in: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=0",
@@ -36,11 +36,13 @@
       "organization": "ASHRAE",
       "year": 2014,
       "pages": null,
-      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
-    },
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"
+    }
+  },
   "installed_cost": {
     "new": 9.97,
-    "existing": 11.85},
+    "existing": 11.85
+  },
   "cost_units": "2017$/ft^2 footprint",
   "installed_cost_source": {
     "notes": "Based on cost premium-per-R-value implied by residential 'best' floors measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $3.10/ft^2 footprint for an R value improvement of 5.81 in 2017; thus the cost premium to add to the baseline commercial floor cost of $5.03/ft^2 footprint is $4.94/ft^2 footprint in new buildings ($3.10/ft^2 footprint premium / R-5.81 improvement)*(R-9.27 improvement for commercial floors in new buildings in AIA CZ1 in 2017) and $6.82/ft^2 footprint in existing buildings ($3.10/ft^2 footprint premium / R-5.81 improvement)*(R-12.79 improvement for commercial floors in existing buildings in AIA CZ1 in 2017)",
@@ -85,4 +87,3 @@
     "timestamp": null
   }
 }
-

@@ -13,7 +13,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.80,
+  "energy_efficiency": 0.8,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "ASHRAE 90.1-2019 efficiency level for typical input capacity (300 kBtu/h) per the EIA equipment cost and efficiency data cited in 'installed_cost_source'",
@@ -36,7 +36,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 128,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "product_lifetime": 13,
   "product_lifetime_units": "years",
@@ -48,7 +49,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 128,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -62,16 +64,15 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Sep 24 16:40:12 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Mon Feb 10 12:23:12 MST 2020"
-  }
+  }]
 }

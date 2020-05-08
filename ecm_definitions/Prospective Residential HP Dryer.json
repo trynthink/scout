@@ -1,4 +1,4 @@
-{ 
+{
   "name": "Prospective Residential HP Dryer",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.50, 
+  "energy_efficiency": 0.5,
   "energy_efficiency_units": ["relative savings (dynamic)", 2020],
   "energy_efficiency_source": {
     "notes": "Heat pump dryer (Table 5 in BTO MYPP)",
@@ -44,8 +44,7 @@
       "year": 2018,
       "pages": 79,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
@@ -72,7 +71,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "_description": "Prospectiv heat pump clothes dryer",
-  "_notes": null, 
+  "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "U.S. Department of Energy",

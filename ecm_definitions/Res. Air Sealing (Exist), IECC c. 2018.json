@@ -3,11 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "existing",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "infiltration",
   "market_entry_year": 2017,
@@ -29,7 +25,8 @@
     "AIA_CZ2": 3,
     "AIA_CZ3": 3,
     "AIA_CZ4": 3,
-    "AIA_CZ5": 4.42},
+    "AIA_CZ5": 4.42
+  },
   "energy_efficiency_units": "ACH",
   "energy_efficiency_source": {
     "notes": "Uses IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",

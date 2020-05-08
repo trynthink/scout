@@ -1,6 +1,6 @@
 {
   "name": "Prospective Commercial CCHP",
-  "climate_zone": ["AIA_CZ1","AIA_CZ2"],
+  "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
@@ -47,8 +47,7 @@
       "year": 2018,
       "pages": 29,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",

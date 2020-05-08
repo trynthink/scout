@@ -21,10 +21,11 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "reciprocating_chiller": 4.1,
-      "centrifugal_chiller": 7,
-      "scroll_chiller": 4,
-      "screw_chiller": 4.1},
+    "reciprocating_chiller": 4.1,
+    "centrifugal_chiller": 7,
+    "scroll_chiller": 4,
+    "screw_chiller": 4.1
+  },
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "ASHRAE 90.1-2019 efficiency IPLV COP in 2017 for centrifugal_chiller units larger than 400 tons and reciprocating, scroll and screw chillers larger than 150 tons, values in Path A",
@@ -35,12 +36,14 @@
       "year": 2018,
       "pages": [102, 109],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "installed_cost": {
-      "reciprocating_chiller": 64.58,
-      "centrifugal_chiller": 38.54,
-      "scroll_chiller": 72.91,
-      "screw_chiller": 75.96},
+    "reciprocating_chiller": 64.58,
+    "centrifugal_chiller": 38.54,
+    "scroll_chiller": 72.91,
+    "screw_chiller": 75.96
+  },
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "Total installed cost median for 90.1 efficiency chillers in 2017 divided by 12 kBtu/h cooling per ton",
@@ -54,10 +57,11 @@
     }
   },
   "product_lifetime": {
-      "reciprocating_chiller": 20,
-      "centrifugal_chiller": 25,
-      "scroll_chiller": 20,
-      "screw_chiller": 20},
+    "reciprocating_chiller": 20,
+    "centrifugal_chiller": 25,
+    "scroll_chiller": 20,
+    "screw_chiller": 20
+  },
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Average lifetimes for 90.1 efficiency chillers in 2017",
@@ -82,15 +86,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Fri Sep 21 17:04:45 EDT 2018"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Sep 26 08:37:17 EDT 2018"
-  },
-    "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Mon Feb 10 12:41:17 MST 2020"}
+    "timestamp": "Mon Feb 10 12:41:17 MST 2020"
+  }]
 }

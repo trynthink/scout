@@ -3,16 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-      "windows conduction",
-      "windows solar"
-    ],
+  "technology": ["windows conduction", "windows solar"],
   "market_entry_year": 2017,
   "market_entry_year_source": {
     "notes": "Highest R value, lowest SHGC in the NREL database",
@@ -28,25 +21,31 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": {
-      	"windows conduction": 5.88,
-      	"windows solar": 0.49},
-      "AIA_CZ2": {
-      	"windows conduction": 5.88,
-      	"windows solar": 0.42},
-      "AIA_CZ3": {
-      	"windows conduction": 5.88,
-      	"windows solar": 0.27},
-      "AIA_CZ4": {
-      	"windows conduction": 5.88,
-      	"windows solar": 0.27},
-      "AIA_CZ5": {
-      	"windows conduction": 5.88,
-      	"windows solar": 0.27}},
-  "energy_efficiency_units": {
-      "windows conduction": "R value",
-      "windows solar": "SHGC"
+    "AIA_CZ1": {
+      "windows conduction": 5.88,
+      "windows solar": 0.49
     },
+    "AIA_CZ2": {
+      "windows conduction": 5.88,
+      "windows solar": 0.42
+    },
+    "AIA_CZ3": {
+      "windows conduction": 5.88,
+      "windows solar": 0.27
+    },
+    "AIA_CZ4": {
+      "windows conduction": 5.88,
+      "windows solar": 0.27
+    },
+    "AIA_CZ5": {
+      "windows conduction": 5.88,
+      "windows solar": 0.27
+    }
+  },
+  "energy_efficiency_units": {
+    "windows conduction": "R value",
+    "windows solar": "SHGC"
+  },
   "energy_efficiency_source": {
     "notes": "Low-E, Triple, Insulated, Arg, L-Gain R value (1/U val.) and SHGC; northern, heating-dominated climates assume baseline SHGC",
     "source_data": {

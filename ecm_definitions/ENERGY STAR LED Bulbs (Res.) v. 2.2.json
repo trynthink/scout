@@ -5,11 +5,7 @@
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
-  "technology": [
-      "general service (CFL)",
-      "general service (incandescent)",
-      "general service (LED)"
-    ],
+  "technology": ["general service (CFL)", "general service (incandescent)", "general service (LED)"],
   "market_entry_year": 2018,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect",
@@ -19,7 +15,8 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
       "pages": 12,
-      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"}
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"
+    }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -33,32 +30,34 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
       "pages": 12,
-      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"}
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"
+    }
   },
   "installed_cost": 2.37,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type)",
     "source_data": {
-        "title": null,
-        "author": null,
-        "organization": null,
-        "year": null,
-        "pages": null,
-        "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
-      }},
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
+    }
+  },
   "product_lifetime": 13.6,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "EcoSmart 60W Equivalent Soft White A19 Dimmable CEC LED Light Bulb (4-Pack) (A type); assume 3h/day use",
     "source_data": {
-        "title": null,
-        "author": null,
-        "organization": null,
-        "year": null,
-        "pages": null,
-        "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
-      }
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-LED-Light-Bulb-Soft-White-4-Pack-B7A19A60WESD14/303574540"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
@@ -72,16 +71,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 16:16:26 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:23:55 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 16 16:43:55 MST 2020"
-  }
+  }]
 }

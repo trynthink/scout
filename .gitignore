@@ -93,3 +93,7 @@ _build
 *.rar
 *.tar
 *.zip
+
+# JetBrains #
+#############
+.idea/

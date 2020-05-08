@@ -3,11 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "roof",
   "market_entry_year": 2017,
@@ -25,12 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 19,
-      "AIA_CZ2": 19,
-      "AIA_CZ3": 18.94,
-      "AIA_CZ4": 9.89,
-      "AIA_CZ5": 7.32
-    },
+    "AIA_CZ1": 19,
+    "AIA_CZ2": 19,
+    "AIA_CZ3": 18.94,
+    "AIA_CZ4": 9.89,
+    "AIA_CZ5": 7.32
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
@@ -40,8 +36,9 @@
       "organization": "ASHRAE",
       "year": 2016,
       "pages": null,
-      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"}
-    },
+      "URL": "https://www.energycodes.gov/resource-center/training-courses/ansiashraeies-standard-901-2016"
+    }
+  },
   "installed_cost": 6.6,
   "cost_units": "2017$/ft^2 roof",
   "installed_cost_source": {

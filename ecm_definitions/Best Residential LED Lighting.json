@@ -21,9 +21,10 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "general service (CFL)": 112,
-      "general service (incandescent)": 112,
-      "general service (LED)": 112},
+    "general service (CFL)": 112,
+    "general service (incandescent)": 112,
+    "general service (LED)": 112
+  },
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "Based on most efficient general service LED bulb in ENERGY STAR product finder database; use lm/W rating provided on retailer webiste (lower than on ENERGY STAR website)",
@@ -34,8 +35,7 @@
       "year": 2018,
       "pages": null,
       "URL": "https://www.energystar.gov/productfinder/product/certified-light-bulbs/details/2293883"
-    },
-    {
+    }, {
       "title": null,
       "author": null,
       "organization": null,
@@ -80,7 +80,8 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 13:56:45 EDT 2018"},
+    "timestamp": "Fri Sep 14 13:56:45 EDT 2018"
+  },
   "_updated_by": {
     "name": null,
     "organization": null,

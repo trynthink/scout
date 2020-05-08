@@ -44,8 +44,7 @@
       "year": 2018,
       "pages": 29,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
@@ -70,10 +69,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.542},
-    "natural gas": 1},
+      "cooling": 0.542
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential gas heating; no electric heating is switched by this ECM",
     "cooling": {

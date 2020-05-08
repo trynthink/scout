@@ -64,16 +64,15 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-10"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:45:56 EDT 2018"
-  },
-   "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 14 14:53:56 MST 2020" 
-  }
+    "timestamp": "Tue Jan 14 14:53:56 MST 2020"
+  }]
 }

@@ -14,7 +14,7 @@
       "author": null,
       "organization": "ASHRAE",
       "year": 2019,
-      "pages": 55 ,
+      "pages": 55,
       "URL": null
     }
   },
@@ -30,8 +30,9 @@
       "organization": "ASHRAE",
       "year": 2019,
       "pages": 55,
-      "URL": null}
-    },
+      "URL": null
+    }
+  },
   "installed_cost": 0.876,
   "cost_units": "2016$/ft^2 wall",
   "installed_cost_source": {
@@ -72,8 +73,8 @@
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy Laboratory" ,
-    "email": "ardelia.clarke@nrel.gov" ,
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Mon Feb 10 12:21:49 MST 2020"
   }
 }

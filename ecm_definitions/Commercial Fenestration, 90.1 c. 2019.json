@@ -5,9 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-      "windows conduction",
-      "windows solar"],
+  "technology": ["windows conduction", "windows solar"],
   "market_entry_year": 2018,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect",
@@ -23,26 +21,31 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": {
-        "windows conduction": 2.98,
-        "windows solar": 0.38},
-      "AIA_CZ2": {
-        "windows conduction": 2.78,
-        "windows solar": 0.38},
-      "AIA_CZ3": {
-        "windows conduction": 2.78,
-        "windows solar": 0.36},
-      "AIA_CZ4": {
-        "windows conduction": 2.45,
-        "windows solar": 0.27},
-      "AIA_CZ5": {
-        "windows conduction": 2.25,
-        "windows solar": 0.25}
-      },
-  "energy_efficiency_units": {
-      "windows conduction": "R value",
-      "windows solar": "SHGC"
+    "AIA_CZ1": {
+      "windows conduction": 2.98,
+      "windows solar": 0.38
     },
+    "AIA_CZ2": {
+      "windows conduction": 2.78,
+      "windows solar": 0.38
+    },
+    "AIA_CZ3": {
+      "windows conduction": 2.78,
+      "windows solar": 0.36
+    },
+    "AIA_CZ4": {
+      "windows conduction": 2.45,
+      "windows solar": 0.27
+    },
+    "AIA_CZ5": {
+      "windows conduction": 2.25,
+      "windows solar": 0.25
+    }
+  },
+  "energy_efficiency_units": {
+    "windows conduction": "R value",
+    "windows solar": "SHGC"
+  },
   "energy_efficiency_source": {
     "notes": "Based on assumptions and limited to ASHRAE Standard 90.1 climate zones 1-8 as shown in the ASHRAE to AIA climate zone conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
@@ -50,10 +53,11 @@
       "author": null,
       "organization": "ASHRAE",
       "year": 2019,
-      "pages": "59-66" ,
-      "URL": null}
-    },
-  "installed_cost": 56.20,
+      "pages": "59-66",
+      "URL": null
+    }
+  },
+  "installed_cost": 56.2,
   "cost_units": "2016$/ft^2 glazing",
   "installed_cost_source": {
     "notes": "Assume baseline fenestration cost from Scout data",
@@ -91,16 +95,15 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "1/04/2018"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 14:58:38 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Fri Feb 10 16:28:38 MST 2020"
-  }
+  }]
 }

@@ -44,8 +44,7 @@
       "year": 2018,
       "pages": 90,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
@@ -84,8 +83,7 @@
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2018-02-28"
-  },
-  {
+  }, {
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",

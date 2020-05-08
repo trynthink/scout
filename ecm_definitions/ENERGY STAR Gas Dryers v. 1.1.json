@@ -1,4 +1,4 @@
-{ 
+{
   "name": "ENERGY STAR Gas Dryers v. 1.1",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -10,12 +10,14 @@
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": {
-       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": null,
-       "organization": "U.S. Environmental Protection Agency",
-       "year": 2015,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}},
+      "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.48,
@@ -24,11 +26,13 @@
     "notes": "CEF in lbs/kWh",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": null,
-       "organization": "U.S. Environmental Protection Agency",
-       "year": 2015,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"
+    }]
+  },
   "installed_cost": 770,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
@@ -40,7 +44,8 @@
       "year": 2018,
       "pages": 80,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -52,28 +57,29 @@
       "year": 2018,
       "pages": 80,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
   "_description": "ENERGY STAR gas dryer in beginning 2015",
-  "_notes": " ", 
+  "_notes": " ",
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
-  "_updated_by": {
+    "timestamp": "Dec. 19, 2017"
+  },
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:12:01 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 16 16:05:01 MST 2020"
-  }
+  }]
 }

@@ -3,11 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "wall",
   "market_entry_year": 2017,
@@ -35,24 +31,21 @@
       "year": 2018,
       "pages": null,
       "URL": "https://remdb.nrel.gov/group_listing.php?gId=12"
-    },
-    {
+    }, {
       "title": "ekotrope R Value Calculator",
       "author": null,
       "organization": "ekotrope",
       "year": 2018,
       "pages": null,
       "URL": "https://ekotrope.com/r-value-calculator/"
-    },
-    {
+    }, {
       "title": "Scout Baseline Envelope Cost, Performance, and Lifetime Data (cpl_envelope_mels.json)",
       "author": "Jared Langevin",
       "organization": "LBNL",
       "year": 2018,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
-    }
-  ]
+    }]
   },
   "installed_cost": 10.83,
   "cost_units": "2017$/ft^2 wall",
@@ -65,8 +58,7 @@
       "year": 2018,
       "pages": null,
       "URL": "https://remdb.nrel.gov/group_listing.php?gId=12"
-    },
-    {
+    }, {
       "title": "ekotrope R Value Calculator",
       "author": null,
       "organization": "ekotrope",

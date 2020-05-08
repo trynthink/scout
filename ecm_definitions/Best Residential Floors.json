@@ -3,11 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "ground",
   "market_entry_year": 2017,
@@ -25,11 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 20,
-      "AIA_CZ2": 20,
-      "AIA_CZ3": 20,
-      "AIA_CZ4": 0,
-      "AIA_CZ5": 0},
+    "AIA_CZ1": 20,
+    "AIA_CZ2": 20,
+    "AIA_CZ3": 20,
+    "AIA_CZ4": 0,
+    "AIA_CZ5": 0
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "Based on 4 ft R20 Exterior XPS; does not apply to southern climate zones, where heat loss through the ground is a net positive",
@@ -43,11 +40,12 @@
     }
   },
   "installed_cost": {
-      "AIA_CZ1": 8.13,
-      "AIA_CZ2": 8.13,
-      "AIA_CZ3": 8.13,
-      "AIA_CZ4": 5.03,
-      "AIA_CZ5": 5.03},
+    "AIA_CZ1": 8.13,
+    "AIA_CZ2": 8.13,
+    "AIA_CZ3": 8.13,
+    "AIA_CZ4": 5.03,
+    "AIA_CZ5": 5.03
+  },
   "cost_units": "2017$/ft^2 footprint",
   "installed_cost_source": {
     "notes": "Based on 4 ft R20 Exterior XPS + baseline cost of $5.03/ft^2 footprint (https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json, assumes uninsulated slab); added perimeter slab insulation does not apply to southern climate zones",
@@ -58,8 +56,7 @@
       "year": 2018,
       "pages": null,
       "URL": "https://remdb.nrel.gov/measures.php?gId=14&ctId=338"
-    },
-    {
+    }, {
       "title": "Scout Baseline Envelope Cost, Performance, and Lifetime Data (cpl_envelope_mels.json)",
       "author": "Jared Langevin",
       "organization": "LBNL",

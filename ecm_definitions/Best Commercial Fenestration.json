@@ -5,9 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-      "windows conduction",
-      "windows solar"],
+  "technology": ["windows conduction", "windows solar"],
   "market_entry_year": 2014,
   "market_entry_year_source": {
     "notes": "AEDG small/medium commercial fenestration R and SHGC value recommendations; year in which the latest version of the Advanced Energy Design Guide was published",
@@ -23,26 +21,31 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": {
-        "windows conduction": 2.88,
-        "windows solar": 0.36},
-      "AIA_CZ2": {
-        "windows conduction": 2.85,
-        "windows solar": 0.35},
-      "AIA_CZ3": {
-        "windows conduction": 2.64,
-        "windows solar": 0.26},
-      "AIA_CZ4": {
-        "windows conduction": 2.47,
-        "windows solar": 0.25},
-      "AIA_CZ5": {
-        "windows conduction": 2.25,
-        "windows solar": 0.25}
-      },
-  "energy_efficiency_units": {
-      "windows conduction": "R value",
-      "windows solar": "SHGC"
+    "AIA_CZ1": {
+      "windows conduction": 2.88,
+      "windows solar": 0.36
     },
+    "AIA_CZ2": {
+      "windows conduction": 2.85,
+      "windows solar": 0.35
+    },
+    "AIA_CZ3": {
+      "windows conduction": 2.64,
+      "windows solar": 0.26
+    },
+    "AIA_CZ4": {
+      "windows conduction": 2.47,
+      "windows solar": 0.25
+    },
+    "AIA_CZ5": {
+      "windows conduction": 2.25,
+      "windows solar": 0.25
+    }
+  },
+  "energy_efficiency_units": {
+    "windows conduction": "R value",
+    "windows solar": "SHGC"
+  },
   "energy_efficiency_source": {
     "notes": "From AEDG design recommendations by climate zone; see calculations in: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=0",
     "source_data": {
@@ -51,9 +54,10 @@
       "organization": "ASHRAE",
       "year": 2014,
       "pages": null,
-      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
-    },
-  "installed_cost": 56.20,
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"
+    }
+  },
+  "installed_cost": 56.2,
   "cost_units": "2016$/ft^2 glazing",
   "installed_cost_source": {
     "notes": "The AEDG commercial window performance recommendation is very similar to the baseline commercial window performance in Scout, thus the same cost is assumed - baseline Scout window is a 3'x4' aluminum window assembly (#B20201066400)",

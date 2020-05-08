@@ -30,8 +30,9 @@
       "organization": "ASHRAE",
       "year": 2014,
       "pages": null,
-      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
-    },
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"
+    }
+  },
   "installed_cost": 0.46,
   "cost_units": "2017$/ft^2 wall",
   "installed_cost_source": {

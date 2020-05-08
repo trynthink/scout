@@ -21,12 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 25.31,
-      "AIA_CZ2": 22.97,
-      "AIA_CZ3": 20.60,
-      "AIA_CZ4": 18.43,
-      "AIA_CZ5": 16.82
-      },
+    "AIA_CZ1": 25.31,
+    "AIA_CZ2": 22.97,
+    "AIA_CZ3": 20.6,
+    "AIA_CZ4": 18.43,
+    "AIA_CZ5": 16.82
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
@@ -36,8 +36,9 @@
       "organization": "ASHRAE",
       "year": 2019,
       "pages": null,
-      "URL": null}
-    },
+      "URL": null
+    }
+  },
   "installed_cost": 27.35,
   "cost_units": "2016$/ft^2 wall",
   "installed_cost_source": {
@@ -76,16 +77,15 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "1/04/2018"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 15:18:35 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia CLarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Fri Jan 24 12:54:35 MST 2020"
-  }
+  }]
 }

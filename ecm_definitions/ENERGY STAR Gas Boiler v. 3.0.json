@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.90,
+  "energy_efficiency": 0.9,
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
     "notes": "ENERGY STAR efficiency specification; see table 1",
@@ -71,15 +71,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 14:49:17 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:03:57 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 16 15:54:57 MST 2020"}
-  }
+    "timestamp": "Thu Jan 16 15:54:57 MST 2020"
+  }]
+}

@@ -30,15 +30,16 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 112,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }, {
       "title": "COPs, EERs, and SEERs",
       "author": null,
       "organization": "power knot",
       "year": null,
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
-    }]},
+    }]
+  },
   "installed_cost": 165.56,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {

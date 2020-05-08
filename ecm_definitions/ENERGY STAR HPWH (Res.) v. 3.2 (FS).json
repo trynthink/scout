@@ -1,4 +1,4 @@
-{ 
+{
   "name": "ENERGY STAR HPWH (Res.) v. 3.2 (FS)",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -15,7 +15,9 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2015,
       "table": 1,
-      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}},
+      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 2,
@@ -28,7 +30,9 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2015,
       "table": 1,
-      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"}},
+      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements.pdf"
+    }
+  },
   "installed_cost": 1900,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
@@ -40,7 +44,8 @@
       "year": 2018,
       "pages": 58,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -52,28 +57,29 @@
       "year": 2018,
       "pages": 58,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
   "_description": "ENERGY STAR electric storage WH in 2017",
-  "_notes": " ", 
+  "_notes": " ",
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
-  "_updated_by": {
+    "timestamp": "Dec. 19, 2017"
+  },
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:53:31 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 16 16:37:31 MST 2020"
-  }
+  }]
 }

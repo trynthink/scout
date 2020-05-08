@@ -3,13 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "cooling",
-      "heating"
-    ],
+  "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
-                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
+  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)", "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
   "market_entry_year": 2017,
   "market_entry_year_source": {
     "notes": "High efficiency air source heat pump in 2017",
@@ -25,9 +21,9 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 5.57,
-      "heating": 2.64
-    },
+    "cooling": 5.57,
+    "heating": 2.64
+  },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "High efficiency SEER/HSPF in 2017; COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
@@ -38,8 +34,7 @@
       "year": 2018,
       "pages": 29,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-    ]
+    }]
   },
   "installed_cost": 6100,
   "cost_units": "2017$/unit",
@@ -70,10 +65,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.542},
-    "natural gas": 1},
+      "cooling": 0.542
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential gas heating; no electric heating is switched by this ECM",
     "cooling": {
@@ -91,7 +88,8 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 14:59:07 EDT 2018"},
+    "timestamp": "Fri Sep 14 14:59:07 EDT 2018"
+  },
   "_updated_by": {
     "name": null,
     "organization": null,

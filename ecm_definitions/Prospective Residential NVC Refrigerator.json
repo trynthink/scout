@@ -44,8 +44,7 @@
       "year": 2016,
       "pages": 77,
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
-    },
-    {
+    }, {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
@@ -72,7 +71,7 @@
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
   "_description": "Prospective non-vapor compression refrigerator-freezer for residential buildings (assumed comparable to side-mount refrigerator-freezers)",
-  "_notes": null, 
+  "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "U.S. Department of Energy",
@@ -86,4 +85,3 @@
     "timestamp": "2018-09-27 17:30 UTC"
   }
 }
- 

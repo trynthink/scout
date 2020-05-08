@@ -3,11 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "ground",
   "market_entry_year": 2018,
@@ -25,12 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 14.59,
-      "AIA_CZ2": 10.02,
-      "AIA_CZ3": 9.97,
-      "AIA_CZ4": 5.86,
-      "AIA_CZ5": 1.45
-    },
+    "AIA_CZ1": 14.59,
+    "AIA_CZ2": 10.02,
+    "AIA_CZ3": 9.97,
+    "AIA_CZ4": 5.86,
+    "AIA_CZ5": 1.45
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "See table 402.1.2; uses IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",

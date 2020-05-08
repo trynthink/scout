@@ -5,9 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-    "rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler",
-    "gas_furnace", "oil_boiler", "oil_furnace"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
   "market_entry_year": 2017,
   "market_entry_year_source": {
     "notes": "High efficiency commercial rooftop HP in 2017",
@@ -33,15 +31,15 @@
       "year": 2018,
       "pages": 116,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "COPs, EERs, and SEERs",
       "author": null,
       "organization": "Power Knot",
       "year": null,
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
-    }]},
+    }]
+  },
   "installed_cost": 178.33,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
@@ -71,10 +69,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.557},
-    "natural gas": 1},
+      "cooling": 0.557
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
     "cooling": {

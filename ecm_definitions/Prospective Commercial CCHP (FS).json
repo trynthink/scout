@@ -1,13 +1,11 @@
 {
   "name": "Prospective Commercial CCHP (FS)",
-  "climate_zone": ["AIA_CZ1","AIA_CZ2"],
+  "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-    "rooftop_ASHP-heat", "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_furnace", "oil_furnace",
-    "rooftop_ASHP-cool", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool", "res_type_central_AC"],
+  "technology": ["rooftop_ASHP-heat", "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_furnace", "oil_furnace", "rooftop_ASHP-cool", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool", "res_type_central_AC"],
   "market_entry_year": 2020,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM",
@@ -49,8 +47,7 @@
       "year": 2018,
       "pages": 29,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
@@ -75,10 +72,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.557},
-    "natural gas": 1},
+      "cooling": 0.557
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
     "cooling": {

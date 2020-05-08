@@ -1,4 +1,4 @@
-{ 
+{
   "name": "Best Residential Gas Inst. WH",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -15,7 +15,9 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 63,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.97,
@@ -28,7 +30,9 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 63,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
   "installed_cost": 2450,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
@@ -39,7 +43,9 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 63,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
   "product_lifetime": 19,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -50,21 +56,25 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 63,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
+  },
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
   "_description": "Highest efficiency gas instantaneuos WH in 2017",
-  "_notes": "", 
+  "_notes": "",
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 16:03:06 EDT 2018"},
+    "timestamp": "Fri Sep 14 16:03:06 EDT 2018"
+  },
   "_updated_by": {
     "name": null,
     "organization": null,
     "email": null,
-    "timestamp": null 
-  }}
+    "timestamp": null
+  }
+}

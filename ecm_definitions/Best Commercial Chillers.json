@@ -21,10 +21,11 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "reciprocating_chiller": 4.5,
-      "centrifugal_chiller": 11.7,
-      "scroll_chiller": 4.9,
-      "screw_chiller": 6.2},
+    "reciprocating_chiller": 4.5,
+    "centrifugal_chiller": 11.7,
+    "scroll_chiller": 4.9,
+    "screw_chiller": 6.2
+  },
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "High efficiency IPLV COP in 2017",
@@ -35,12 +36,14 @@
       "year": 2018,
       "pages": [102, 109],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+    }
+  },
   "installed_cost": {
-      "reciprocating_chiller": 80.21,
-      "centrifugal_chiller": 53.13,
-      "scroll_chiller": 85.42,
-      "screw_chiller": 81.25},
+    "reciprocating_chiller": 80.21,
+    "centrifugal_chiller": 53.13,
+    "scroll_chiller": 85.42,
+    "screw_chiller": 81.25
+  },
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "Total installed cost for high efficiency chillers in 2017 divided by 12 kBtu/h cooling per ton",
@@ -54,10 +57,11 @@
     }
   },
   "product_lifetime": {
-      "reciprocating_chiller": 20,
-      "centrifugal_chiller": 25,
-      "scroll_chiller": 20,
-      "screw_chiller": 20},
+    "reciprocating_chiller": 20,
+    "centrifugal_chiller": 25,
+    "scroll_chiller": 20,
+    "screw_chiller": 20
+  },
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Average lifetimes for high efficiency chillers in 2017",

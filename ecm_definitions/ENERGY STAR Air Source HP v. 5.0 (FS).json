@@ -3,13 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "cooling",
-      "heating"
-    ],
+  "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
-                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
+  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)", "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect",
@@ -25,30 +21,27 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.40,
-      "heating": 2.49
-    },
+    "cooling": 4.4,
+    "heating": 2.49
+  },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "Split system (see table 1); conversion from original specification: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
-    "source_data": [
-      {
-        "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
-        "author": null,
-        "organization": "U.S. Environmental Protection Agency",
-        "year": 2015,
-        "pages": 2,
-        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
-      },
-      {
-        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
-        "author": null,
-        "organization": "U.S. Energy Information Administration",
-        "year": 2014,
-        "pages": 17,
-        "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"
-      }
-    ]
+    "source_data": [{
+      "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+      "author": null,
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2015,
+      "pages": 2,
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+    }, {
+      "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2014,
+      "pages": 17,
+      "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"
+    }]
   },
   "installed_cost": 4950,
   "cost_units": "2017$/unit",
@@ -60,7 +53,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",
@@ -72,15 +66,18 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.542},
-    "natural gas": 1},
+      "cooling": 0.542
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential gas heating; no electric heating is switched by this ECM",
     "cooling": {
@@ -100,16 +97,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 15:19:55 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Sep 24 16:50:26 EDT 2018"
-},
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 16:05:26 MST 2020"
-  }
+  }]
 }

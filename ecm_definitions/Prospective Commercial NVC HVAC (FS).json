@@ -24,7 +24,7 @@
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "Convert from primary COP of 2.28 (Table 3) to COP by multiplying by 3.01, COP=BTU out/BTU in",
-    "source_data":{
+    "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
@@ -44,8 +44,7 @@
       "year": 2016,
       "pages": 75,
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
-    },
-    {
+    }, {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
@@ -70,10 +69,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.557},
-    "natural gas": 1},
+      "cooling": 0.557
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
     "cooling": {

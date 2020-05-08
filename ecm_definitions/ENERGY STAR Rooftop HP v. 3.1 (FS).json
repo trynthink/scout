@@ -3,12 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": [
-      "heating", "cooling"],
+  "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-    "rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler", "gas_furnace",
-    "oil_boiler", "oil_furnace"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
   "market_entry_year": 2018,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect",
@@ -33,15 +30,16 @@
       "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
       "pages": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
-    {
+      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"
+    }, {
       "title": "COPs, EERs, and SEERs",
       "author": null,
       "organization": "power knot",
       "year": null,
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
-    }]},
+    }]
+  },
   "installed_cost": 86.11,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
@@ -71,10 +69,12 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
+    "electricity": {
       "heating": 0,
-      "cooling": 0.557},
-    "natural gas": 1},
+      "cooling": 0.557
+    },
+    "natural gas": 1
+  },
   "market_scaling_fractions_source": {
     "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
     "cooling": {
@@ -94,16 +94,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-16 20:57:11 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 14:57:37 MST 2020"
-  }
+  }]
 }

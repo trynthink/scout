@@ -44,16 +44,14 @@
       "year": 2015,
       "pages": 6,
       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Water%20Heaters%20Version%203%200%20Program%20Requirements_0.pdf"
-    },
-    {
+    }, {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
       "year": 2016,
       "pages": 76,
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
-    },
-    {
+    }, {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
@@ -92,8 +90,7 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-09-27 15:30 UTC"
-  },
-  {
+  }, {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",

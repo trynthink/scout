@@ -3,16 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "heating",
-      "secondary heating",
-      "cooling"
-    ],
+  "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
-  "technology": [
-      "windows conduction",
-      "windows solar"
-    ],
+  "technology": ["windows conduction", "windows solar"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR standard went into effect",
@@ -28,31 +21,31 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": {
-        "windows conduction": 3.7,
-        "windows solar": 0.4
-      },
-      "AIA_CZ2": {
-        "windows conduction": 3.7,
-        "windows solar": 0.4
-      },
-      "AIA_CZ3": {
-        "windows conduction": 3.33,
-        "windows solar": 0.4
-      },
-      "AIA_CZ4": {
-        "windows conduction": 3.33,
-        "windows solar": 0.25
-      },
-      "AIA_CZ5": {
-        "windows conduction": 2.5,
-        "windows solar": 0.25
-      }
+    "AIA_CZ1": {
+      "windows conduction": 3.7,
+      "windows solar": 0.4
     },
+    "AIA_CZ2": {
+      "windows conduction": 3.7,
+      "windows solar": 0.4
+    },
+    "AIA_CZ3": {
+      "windows conduction": 3.33,
+      "windows solar": 0.4
+    },
+    "AIA_CZ4": {
+      "windows conduction": 3.33,
+      "windows solar": 0.25
+    },
+    "AIA_CZ5": {
+      "windows conduction": 2.5,
+      "windows solar": 0.25
+    }
+  },
   "energy_efficiency_units": {
-      "windows conduction": "R value",
-      "windows solar": "SHGC"
-    },
+    "windows conduction": "R value",
+    "windows solar": "SHGC"
+  },
   "energy_efficiency_source": {
     "notes": "See table 1; assumes 'Northern' maps to AIA climates 1 and 2, 'North-Central' maps to AIA climates 3, 'South-Central' maps to AIA climate 4, and 'Southern' maps to AIA climate 5",
     "source_data": {
@@ -102,16 +95,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 15:44:05 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:21:41 EDT 2018"
-  },
-  "_updated_by": {
+  }, {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Wed Jan 22 11:28:41 MST 2020"
-    }  
+  }]
 }
