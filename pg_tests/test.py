@@ -8,7 +8,7 @@ from os import walk
 import psycopg2
 
 sys.path.append("../")
-from common import db
+from common import db  # noqa: E402
 
 
 class PostgreSQLTest(unittest.TestCase):
@@ -96,7 +96,8 @@ class PostgreSQLTest(unittest.TestCase):
             self.assertGreater(len(row[1]), 0)
 
     def test_populated_ecm_data(self):
-        """Ensure that the ecm_data table is populated and that all rows have populated uncomp and comp values"""
+        """Ensure that the ecm_data table is populated and that all rows have populated uncomp and
+        comp values"""
         query = "SELECT count(*) FROM " + self.schema + ".ecm_data"
         self.cursor.execute(query)
         response = self.cursor.fetchone()
@@ -113,18 +114,15 @@ class PostgreSQLTest(unittest.TestCase):
         self.assertGreater(response[0], 0)
 
     def test_populated_analysis(self):
-        """Ensure that the analysis table is populated and that all rows have populated ecm_results"""
+        """Ensure that the analysis table is populated and that all rows have populated
+        ecm_results"""
         query = "SELECT count(*) FROM " + self.schema + ".analysis"
         self.cursor.execute(query)
         response = self.cursor.fetchone()
         self.assertGreater(response[0], 0)
 
         # Make sure none of the ecm_results fields are empty dicts
-        query = (
-            "SELECT count(*) FROM "
-            + self.schema
-            + ".analysis WHERE ecm_results <> '{}'"
-        )
+        query = "SELECT count(*) FROM " + self.schema + ".analysis WHERE ecm_results <> '{}'"
         self.cursor.execute(query)
         response = self.cursor.fetchone()
         self.assertGreater(response[0], 0)
