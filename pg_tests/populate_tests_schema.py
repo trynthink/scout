@@ -109,22 +109,34 @@ for result in competition_results:
 
 conn.commit()
 
-# Populate analysis table
+# Populate analysis table with ecms 1 and 3
+ecm_results = {}
 with open("../results/ecm_results.json") as file:
-    results = json.load(file)
+    all_results = json.load(file)
 
-for name, ecm_result in results.items():
-    print("Inserting analysis: " + name)
-    if name in ecm_ids:
-        ecm_id = ecm_ids[name]
-        cursor.execute(
-            "INSERT INTO " + schema + ".analysis "
-            "(ecm_id, ecm_results, control_status, status) "
-            "VALUES (%s, %s, '', '')",
-            (ecm_id, json.dumps(ecm_result)),
-        )
-    else:
-        raise Exception('ECM "' + name + '" not found in ecm table')
+# Add ecm 1
+name = ecm_definitions[0][:-5]
+ecm_results[name] = all_results[name]
+
+# Add ecm 3
+name = ecm_definitions[1][:-5]
+ecm_results[name] = all_results[name]
+
+print("Inserting analysis")
+cursor.execute(
+    "INSERT INTO " + schema + ".analysis "
+    "(name, energy_calc_method, ecm_results, control_status, status) "
+    "VALUES (%s, '', %s, '', '')",
+    ("My Analysis", json.dumps(ecm_results)),
+)
+
+# Add foreign key constraints for ecms
+cursor.execute(
+    "INSERT INTO " + schema + ".analysis_ecms "
+    "(analysis_id, ecm_id) "
+    "VALUES (%s, %s), (%s, %s)",
+    (1, 1, 1, 3),
+)
 
 conn.commit()
 cursor.close()

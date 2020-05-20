@@ -113,6 +113,13 @@ class PostgreSQLTest(unittest.TestCase):
         response = self.cursor.fetchone()
         self.assertGreater(response[0], 0)
 
+    def test_ecm_data_view(self):
+        # Check that the view is working as expected to add a name field
+        query = "SELECT name FROM " + self.schema + ".ecm_data_view"
+        self.cursor.execute(query)
+        response = self.cursor.fetchone()
+        self.assertGreater(len(response[0]), 0)
+
     def test_populated_analysis(self):
         """Ensure that the analysis table is populated and that all rows have populated
         ecm_results"""
@@ -126,3 +133,27 @@ class PostgreSQLTest(unittest.TestCase):
         self.cursor.execute(query)
         response = self.cursor.fetchone()
         self.assertGreater(response[0], 0)
+
+        # Make sure the analysis has associated ecms
+        query = "SELECT id FROM " + self.schema + ".analysis"
+        self.cursor.execute(query)
+        analysis_id = self.cursor.fetchone()[0]
+        query = (
+            "SELECT count(*) FROM "
+            + self.schema
+            + ".analysis_ecms WHERE analysis_id = %s" % analysis_id
+        )
+        self.cursor.execute(query)
+        response = self.cursor.fetchone()
+        self.assertGreater(response[0], 0)
+
+    def test_analysis_view(self):
+        # Check that the view is working as expected to create an ecm_ids jsonb field
+        query = "SELECT ecm_ids FROM " + self.schema + ".analysis_view"
+        self.cursor.execute(query)
+        response = self.cursor.fetchone()
+        self.assertGreater(len(response[0]), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

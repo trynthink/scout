@@ -7234,9 +7234,9 @@ def psgUpsertEcms():
 
 # def psgEmptyTable():
 #     try:
-#         sql = 'TRUNCATE ecm_data'
+#         query = "TRUNCATE ecm_data"
 
-#         cursor.execute(sql)
+#         cursor.execute(query)
 #         connection.commit()
 #         print("Table ecm_data emptied successfully in PostgreSQL")
 

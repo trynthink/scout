@@ -150,7 +150,7 @@ class UsefulVars(object):
                 ),
                 (
                     "Residential (Existing)",
-                    ["existing", "single family home", "multi family home", "mobile home", ],
+                    ["existing", "single family home", "multi family home", "mobile home"],
                 ),
                 (
                     "Commercial (New)",
@@ -202,10 +202,7 @@ class UsefulVars(object):
                     "Computers and Electronics",
                     ["PCs", "non-PC office equipment", "TVs", "computers"],
                 ),
-                (
-                    "Other",
-                    ["cooking", "drying", "ceiling fan", "fans & pumps", "MELs", "other", ],
-                ),
+                ("Other", ["cooking", "drying", "ceiling fan", "fans & pumps", "MELs", "other"]),
             ]
         )
 
@@ -258,7 +255,7 @@ class Measure(object):
             }
             self.savings[adopt_scheme] = {
                 "uncompeted": {
-                    "stock": {"cost savings (total)": None, "cost savings (annual)": None, },
+                    "stock": {"cost savings (total)": None, "cost savings (annual)": None},
                     "energy": {
                         "savings (total)": None,
                         "savings (annual)": None,
@@ -273,7 +270,7 @@ class Measure(object):
                     },
                 },
                 "competed": {
-                    "stock": {"cost savings (total)": None, "cost savings (annual)": None, },
+                    "stock": {"cost savings (total)": None, "cost savings (annual)": None},
                     "energy": {
                         "savings (total)": None,
                         "savings (annual)": None,
@@ -429,10 +426,7 @@ class Engine(object):
                     (
                         "Financial Metrics",
                         OrderedDict(
-                            [
-                                ("Portfolio Level", OrderedDict()),
-                                ("Consumer Level", OrderedDict()),
-                            ]
+                            [("Portfolio Level", OrderedDict()), ("Consumer Level", OrderedDict())]
                         ),
                     ),
                 ]
@@ -4020,25 +4014,24 @@ def main(base_dir):
     # Write results to output files
     if options.web is True:
         # Write results dict to the ecm_results column in the analysis table
-        for index, ecm_id in enumerate(options.ids):
-            try:
-                ecm_name = a_run.measures[index].name
+        try:
+            # Ensure that the analysis_ecms match the --ids argument
+            query = "DELETE FROM " + db["schema"] + ".analysis_ecms WHERE analysis_id = %s"
+            cursor.execute(query, options.analysis_id)
 
-                query = (
-                    "INSERT INTO "
-                    + db["schema"]
-                    + ".analysis (ecm_id, energy_calc_method, ecm_results, control_status, status) "
-                    "VALUES (%s, %s, %s, '', '') ON CONFLICT ON CONSTRAINT "
-                    + db["schema"]
-                    + "_analysis_ecm_id_energy_calc_method_uniq "
-                    "DO UPDATE SET ecm_results = EXCLUDED.ecm_results"
-                )
+            query = "INSERT INTO " + db["schema"] + ".analysis_ecms (analysis_id, ecm_id) VALUES "
+            for index, ecm_id in enumerate(options.ids):
+                query += "(%s, %s)" % (options.analysis_id, ecm_id)
+                if index < len(options.ids) - 1:
+                    query += ", "
+            cursor.execute(query)
 
-                cursor.execute(query, (ecm_id, energy_out, json.dumps(a_run.output_ecms[ecm_name])))
-                connection.commit()
-                print("Output data written to PostgreSQL database")
-            except (Exception, psycopg2.Error) as error:
-                print("Failed to write ecm_results output to database", error)
+            query = "UPDATE " + db["schema"] + ".analysis SET ecm_results = %s WHERE id = %s"
+            cursor.execute(query, (json.dumps(a_run.output_ecms), options.analysis_id))
+            connection.commit()
+            print("Output data written to PostgreSQL database")
+        except (Exception, psycopg2.Error) as error:
+            print("Failed to write ecm_results output to database", error)
     else:
         # Write summary outputs for individual measures to a JSON
         with open(path.join(base_dir, *handyfiles.meas_engine_out_ecms), "w") as jso:
@@ -4145,28 +4138,20 @@ def rplot():
 def psgSelectTable_uncomp(ecm_id, energy_calc_method):
     """Return uncomp_data and ecm_name"""
     try:
-        query = "SELECT name FROM " + db["schema"] + ".ecm WHERE id = %s"
-        cursor.execute(query, ecm_id)
-        response = cursor.fetchone()
-
-        if len(response) == 1:
-            ecm_name = response[0]
-        else:
-            raise ("ECM with id %s does not exist", ecm_id)
-
         query = (
-            "SELECT uncomp_data FROM "
+            "SELECT name, uncomp_data FROM "
             + db["schema"]
-            + ".ecm_data WHERE ecm_id = %s AND energy_calc_method = %s"
+            + ".ecm_data_view WHERE ecm_id = %s AND energy_calc_method = %s"
         )
         cursor.execute(query, (ecm_id, energy_calc_method))
         response = cursor.fetchone()
-        if len(response) == 1:
-            data = response[0]
+        if len(response) == 2:
+            name = response[0]
+            data = response[1]
         else:
             raise ("Failed to retrieve uncompeted data for ECM id", ecm_id)
 
-        return data, ecm_name
+        return data, name
 
     except (Exception, psycopg2.Error) as error:
         print("Failed to select a record from ecm_data table", error)
@@ -4175,22 +4160,13 @@ def psgSelectTable_uncomp(ecm_id, energy_calc_method):
 def psgSelectTable_comp(ecm_name, energy_calc_method):
     """Return comp_data"""
     try:
-        query = "SELECT id FROM " + db["schema"] + ".ecm WHERE name = '" + ecm_name + "'"
-        cursor.execute(query)
-        response = cursor.fetchone()
-
-        if len(response) == 1:
-            ecm_id = response[0]
-        else:
-            raise ("ECM with name %s does not exist", ecm_name)
-
         query = (
             "SELECT comp_data FROM "
             + db["schema"]
-            + ".ecm_data WHERE ecm_id = %s AND energy_calc_method = %s"
+            + ".ecm_data_view WHERE name = %s AND energy_calc_method = %s"
         )
 
-        cursor.execute(query, (ecm_id, energy_calc_method))
+        cursor.execute(query, (ecm_name, energy_calc_method))
         response = cursor.fetchone()
         if len(response) == 1:
             data = response[0]
@@ -4225,6 +4201,10 @@ if __name__ == "__main__":
         type=str,
         help="Specify id numbers of ECMs to include in the analysis, separated by spaces",
     )
+    # Flag to be used only with the --web flag, used to indicate
+    # the id number for the analysis (and thus where the output data
+    # should be written)
+    parser.add_argument("--analysis_id", help="Specify id number for the analysis itself")
     # Optional flag to be used only with the --web flag to indicate
     # that site energy outputs (rather than source) are desired
     parser.add_argument("--site_energy", action="store_true", help="Flag site energy output")
