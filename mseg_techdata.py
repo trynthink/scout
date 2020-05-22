@@ -620,7 +620,6 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                 # further (note that EIA non-lighting technology lifetime info.
                 # is broken down by end use); otherwise, loop to next row
                 if row["ENDUSE"] == mseg_enduse_translate[end_use]:
-
                     # Set up each row in the array as a "compareto" string for
                     # use in a regex comparison below
                     compareto = str(row)
@@ -1009,8 +1008,8 @@ def main():
         else:
             lt_skip_footer = 52
     else:
-        nlt_cp_skip_header = 1
-        nlt_l_skip_header = 1
+        nlt_cp_skip_header = 2
+        nlt_l_skip_header = 2
         lt_skip_header = 37
         lt_skip_footer = 52
 

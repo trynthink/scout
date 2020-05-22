@@ -1109,7 +1109,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
     """
 
     # Open the target CSV formatted data file
-    with open(data_file_path) as thefile:
+    with open(data_file_path, encoding="latin1") as thefile:
 
         # This use of csv.reader assumes that the default setting of
         # quotechar '"' is appropriate
@@ -1218,7 +1218,6 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
             # With the '' strings replaced with integer coercible
             # values, create the numpy array as originally desired
             final_struct = numpy.array(data, dtype=dtype_list)
-
         return final_struct
 
 
@@ -1367,6 +1366,7 @@ def main():
         if aeo_import_year in [2016, 2017]:
             lt_skip_footer = 54
         else:
+            yrs_range = 36
             lt_skip_footer = 52
         update_lighting_dict()
 
