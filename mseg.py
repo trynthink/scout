@@ -7,8 +7,6 @@ import argparse
 import csv
 import mseg_techdata as rmt
 
-# import xlrd
-
 
 class EIAData(object):
     """Class of variables naming the EIA data files to be imported.
@@ -1338,22 +1336,6 @@ def main():
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
-
-    # Replace empty "HOUSEHOLDS" with 0:
-    # hh_index = 0
-    # headers = []
-    # sheet = xlrd.open_workbook("RESDBOUT.xlsx").sheet_by_name("RESDBOUT")
-    # for i, header in enumerate(sheet.row(0)):
-    #     headers.append(header.value)
-    #     if header.value == "HOUSEHOLDS": hh_index = i
-    #
-    # with open (r'RESDBOUT.csv', 'w+') as f:
-    #     writer = csv.writer(f)
-    #     writer.writerow(headers)
-    #     for row in range(1, sheet.nrows):
-    #         if sheet.cell_type(row, hh_index) == xlrd.XL_CELL_EMPTY:
-    #             sheet._cell_values[row][hh_index] = 0
-    #         writer.writerow(sheet.row_values(row))
 
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()

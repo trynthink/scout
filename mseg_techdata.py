@@ -6,7 +6,6 @@ import json
 import mseg
 import argparse
 
-# import xlrd
 
 class EIAData(object):
     """Class of variables naming the EIA data files to be imported.
@@ -24,6 +23,8 @@ class EIAData(object):
         self.r_nlt_costperf = "rsmeqp.txt"
         self.r_nlt_life = "rsclass.txt"
         self.r_lt_all = "rsmlgt.txt"
+        self.r_nlt_l_names = r_nlt_l_names
+        self.r_nlt_cp_names = r_nlt_cp_names
 
 
 class UsefulVars(object):
@@ -1013,29 +1014,6 @@ def main():
         nlt_l_skip_header = 2
         lt_skip_header = 37
         lt_skip_footer = 52
-
-    # rsclass.txt
-    # skip = 0
-    # rsclass = xlrd.open_workbook('rsmess.xlsx').sheet_by_name('RSCLASS')
-    # for i, v in enumerate(rsclass.row(18)):
-    #     if (v.value == 'Efficiency Metric'): skip = i
-    # with open ('rsclass.txt', 'w+') as f:
-    #     f.write('\t'.join(str(name) for name in r_nlt_l_names) + '\n')
-    #     for cell in range(0, (50 - 19)):
-    #         f.write('\t'.join(str(rsclass.col_values(i, 19, 50)[cell]) for i in [x for x in range(2, 21) if x!= skip]) + '\n')
-    #     f.close()
-
-    # rsmeqp.txt
-    # rstart = rend = 0
-    # rsmeqp = xlrd.open_workbook('rsmess.xlsx').sheet_by_name('RSMEQP')
-    # for k, v in enumerate(rsmeqp.col_values(0)):
-    #     if v == 'xlI': rstart = k
-    #     elif isinstance(v, float) and int(v) == list(filter(None, rsmeqp.col_values(0))).pop(): rend = k + 1
-    # with open ('rsmeqp.txt', 'w+') as f:
-    #     f.write('\t'.join(str(name) for name in r_nlt_cp_names) + '\n')
-    #     for row in range(rstart, rend):
-    #         f.write('\t'.join(str(rsmeqp.row_values(row, 1, rsmeqp.ncols - 1)[cell]) for cell in range(0, 28)) + '\n')
-    #     f.close()
 
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()

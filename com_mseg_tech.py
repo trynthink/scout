@@ -1132,11 +1132,9 @@ def main():
     eiadata = EIAData()
 
     # Import technology cost, performance, and lifetime data in
-    # EIA AEO 'KTEK' data file
+    # EIA AEO 'KTEK' data file (2 rows of headers found in ktek.csv)
     tech_dtypes = cm.dtype_array(eiadata.cpl_data, ',',
-                                 handyvars.cpl_data_skip_lines - 1) # 2 rows of headers found in ktek.csv,
-                                                                    # 1 row matches columns_to_keep,
-                                                                    # actual cpl_data_skip_lines should be 68;
+                                 handyvars.cpl_data_skip_lines - 1)
 
     col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
                                              handyvars.columns_to_keep)

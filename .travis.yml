@@ -26,12 +26,13 @@ before_install:
   - npm install
 
 # Install packages
-install: 
+install:
   - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy>=1.16 scipy flake8 requests
   - source activate testenv
+  # - pip -3 -m install xlrd
 
 # Run test(s)
-script: 
+script:
   - python3 -m unittest discover -p '*_test.py'
   - grunt travis -v
   - flake8 --exclude docs/conf.py --max-line-length=100
