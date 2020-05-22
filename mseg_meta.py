@@ -352,14 +352,14 @@ def main():
 
     def import_commercial_cpl_data(file_name):  # ktek.csv
         tech_dtypes = cm.dtype_array(file_name, ',',
-                                     cmt.UsefulVars().cpl_data_skip_lines)
+                                     cmt.UsefulVars().cpl_data_skip_lines - 1)
         col_indices, tech_dtypes = cmt.dtype_reducer(
                                         tech_dtypes,
                                         cmt.UsefulVars().columns_to_keep)
         # Manual correction of lifetime data type
         tech_dtypes[8] = ('Life', 'f8')
         tech_data = cm.data_import(file_name, tech_dtypes, ',',
-                                   cmt.UsefulVars().cpl_data_skip_lines + 1,
+                                   cmt.UsefulVars().cpl_data_skip_lines,
                                    col_indices)
         return tech_data
 
@@ -441,6 +441,7 @@ def main():
     # Output a tiny JSON file with two integer values
     with open('metadata.json', 'w') as jso:
         json.dump(year_range_result, jso, indent=2)
+        jso.write('\n')
 
 
 if __name__ == '__main__':

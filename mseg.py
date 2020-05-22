@@ -7,7 +7,7 @@ import argparse
 import csv
 import mseg_techdata as rmt
 
-import xlrd
+# import xlrd
 
 
 class EIAData(object):
@@ -1384,7 +1384,6 @@ def main():
         if aeo_import_year in [2016, 2017]:
             lt_skip_footer = 54
         else:
-            # TODO: verify yrs_range - 36 years of range for rsmlgt.txt
             yrs_range = 36
             lt_skip_footer = 52
         update_lighting_dict()

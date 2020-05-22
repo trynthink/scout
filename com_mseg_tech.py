@@ -54,7 +54,7 @@ class UsefulVars(object):
         self.json_out = 'cpl_res_com_cdiv.json'
         self.aeo_metadata = 'metadata.json'
 
-        self.cpl_data_skip_lines = 67
+        self.cpl_data_skip_lines = 68
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
                                 'life', 'y1', 'y2', 'technology name']
 
@@ -1134,12 +1134,14 @@ def main():
     # Import technology cost, performance, and lifetime data in
     # EIA AEO 'KTEK' data file
     tech_dtypes = cm.dtype_array(eiadata.cpl_data, ',',
-                                 handyvars.cpl_data_skip_lines)
+                                 handyvars.cpl_data_skip_lines - 1) # 2 rows of headers found in ktek.csv,
+                                                                    # 1 row matches columns_to_keep,
+                                                                    # actual cpl_data_skip_lines should be 68;
 
     col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
                                              handyvars.columns_to_keep)
     tech_data = cm.data_import(eiadata.cpl_data, tech_dtypes, ',',
-                               handyvars.cpl_data_skip_lines + 1, col_indices)
+                               handyvars.cpl_data_skip_lines, col_indices)
     tech_data = cm.str_cleaner(tech_data, 'technology name')
 
     # Import EIA AEO 'KSDOUT' service demand data
