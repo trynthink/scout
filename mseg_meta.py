@@ -286,7 +286,7 @@ def main():
         nlt_cp_skip_header = 20
         lt_skip_header = 35
     else:
-        nlt_cp_skip_header = 25
+        nlt_cp_skip_header = 2
         lt_skip_header = 37
 
     # Instantiate lists to store minimum and maximum years identified
@@ -311,15 +311,6 @@ def main():
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
-
-    # Specify the number of header and footer lines to skip based on the
-    # optional AEO year indicated by the user when this module is called
-    if aeo_import_year == 2015:
-        nlt_cp_skip_header = 20
-        lt_skip_header = 35
-    else:
-        nlt_cp_skip_header = 25
-        lt_skip_header = 37
 
     def import_residential_energy_stock_data(file_name):
         # The delimiters for RESDBOUT vary depending on the release
@@ -346,7 +337,7 @@ def main():
     def import_residential_cpl_lighting_data(file_name, skip_header_lines):
         eia_lt = np.genfromtxt(file_name, names=rmt.r_lt_names,
                                dtype=None, comments=None,
-                               skip_header=skip_header_lines, skip_footer=54,
+                               skip_header=skip_header_lines, skip_footer=52,
                                encoding="latin1")
         return eia_lt
 
@@ -368,7 +359,7 @@ def main():
         # Manual correction of lifetime data type
         tech_dtypes[8] = ('Life', 'f8')
         tech_data = cm.data_import(file_name, tech_dtypes, ',',
-                                   cmt.UsefulVars().cpl_data_skip_lines,
+                                   cmt.UsefulVars().cpl_data_skip_lines + 1,
                                    col_indices)
         return tech_data
 

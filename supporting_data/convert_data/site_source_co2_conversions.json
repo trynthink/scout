@@ -1,6 +1,6 @@
 {
-  "updated_to_aeo_year": "2019",
-  "updated_to_aeo_case": "REF2019",
+  "updated_to_aeo_year": "2020",
+  "updated_to_aeo_case": "REF2020",
   "site-source calculation method": "fossil fuel equivalence",
   "CO2 price": {
     "units": "2007$/t",
@@ -49,7 +49,7 @@
   "electricity": {
     "CO2 intensity": {
       "units": "Mt/quads",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
       "data": {
         "residential": {
           "2013": 53.22297619,
@@ -134,12 +134,12 @@
       }
     },
     "site to source conversion": {
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); sum of Electricity and Electricity Related Losses, divided by Electricity; 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); sum of Electricity and Electricity Related Losses, divided by Electricity; 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
       "data": {
         "2013": 3.06,
         "2014": 3.06,
         "2015": 3.0,
-        "2016": 3.0, 
+        "2016": 3.0,
         "2017": 2.971261,
         "2018": 2.946217,
         "2019": 2.924462,
@@ -178,7 +178,7 @@
     },
     "price": {
       "units": "2018$/MMBtu source",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
       "data": {
         "residential": {
           "2013": 11.64,
@@ -266,7 +266,7 @@
   "natural gas": {
     "CO2 intensity": {
       "units": "Mt/quads",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
       "data": {
         "residential": {
           "2013": 52.92093307,
@@ -352,7 +352,7 @@
     },
     "price": {
       "units": "2018$/MMBtu source",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
       "data": {
         "residential": {
           "2013": 10.01,
@@ -440,7 +440,7 @@
   "other": {
     "CO2 intensity": {
       "units": "Mt/quads",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); calculated by dividing total petroleum (and coal, for commercial) CO2 emissions by total petroleum and other liquids (and coal, for commercial) use; 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); calculated by dividing total petroleum (and coal, for commercial) CO2 emissions by total petroleum and other liquids (and coal, for commercial) use; 2013-2014 from 2015 AEO, 2015 from 2017 AEO, 2016 from 2018 AEO",
       "data": {
         "residential": {
           "2013": 68.79108853,
@@ -526,7 +526,7 @@
     },
     "price": {
       "units": "2018$/MMBtu source",
-      "source": "Calculated using converter.py, pulling from the 2019 EIA Annual Energy Outlook (2017-2050); consumption-weighted average of Propane, Residual Fuel Oil (if applicable), and Distillate Fuel Oil prices; 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
+      "source": "Calculated using converter.py, pulling from the 2020 EIA Annual Energy Outlook (2017-2050); consumption-weighted average of Propane, Residual Fuel Oil (if applicable), and Distillate Fuel Oil prices; 2013-2014 from 2015 AEO and have units 2013$/MMBtu source, 2015 from 2017 AEO with units 2016$/MMBtu source, 2016 from 2018 AEO with units 2017$/MMBtu source",
       "data": {
         "residential": {
           "2013": 25.28,

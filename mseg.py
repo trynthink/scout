@@ -7,6 +7,8 @@ import argparse
 import csv
 import mseg_techdata as rmt
 
+import xlrd
+
 
 class EIAData(object):
     """Class of variables naming the EIA data files to be imported.
@@ -1109,7 +1111,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
     """
 
     # Open the target CSV formatted data file
-    with open(data_file_path) as thefile:
+    with open(data_file_path, encoding="latin1") as thefile:
 
         # This use of csv.reader assumes that the default setting of
         # quotechar '"' is appropriate
@@ -1187,10 +1189,6 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         # from the data file
         data = []
 
-        # Skip first line of the file
-        header = next(filecont)
-        if 'HOUSEHOLDS' in header: hh_index = header.index('HOUSEHOLDS')
-
         # Import the data, skipping lines that have an end use
         # indicated that is not needed (or will cause later problems
         # because the data in these rows has a structure inconsistent
@@ -1198,9 +1196,11 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         # expected based on the dtype, add a sufficient number of 0
         # values to complete the line (0 values are added since they
         # can be coerced to strings or floats and empty strings cannot)
+
+        # skip header row:
+        next(filecont)
         for row in filecont:
             if row[0].strip() not in skip_rows:
-                if 'HOUSEHOLDS' in header and row[hh_index] == '': row[hh_index] = 0
                 if len(tuple(row)) != len(dtype_list):
                     row = row + [0]*(len(dtype_list)-len(row))
                 data.append(tuple(row))
@@ -1339,6 +1339,22 @@ def main():
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
 
+    # Replace empty "HOUSEHOLDS" with 0:
+    # hh_index = 0
+    # headers = []
+    # sheet = xlrd.open_workbook("RESDBOUT.xlsx").sheet_by_name("RESDBOUT")
+    # for i, header in enumerate(sheet.row(0)):
+    #     headers.append(header.value)
+    #     if header.value == "HOUSEHOLDS": hh_index = i
+    #
+    # with open (r'RESDBOUT.csv', 'w+') as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(headers)
+    #     for row in range(1, sheet.nrows):
+    #         if sheet.cell_type(row, hh_index) == xlrd.XL_CELL_EMPTY:
+    #             sheet._cell_values[row][hh_index] = 0
+    #         writer.writerow(sheet.row_values(row))
+
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
@@ -1368,6 +1384,8 @@ def main():
         if aeo_import_year in [2016, 2017]:
             lt_skip_footer = 54
         else:
+            # TODO: verify yrs_range - 36 years of range for rsmlgt.txt
+            yrs_range = 36
             lt_skip_footer = 52
         update_lighting_dict()
 

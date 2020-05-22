@@ -50,8 +50,8 @@ class ValidQueries(object):
             specified with the strings employed by the API.
     """
     def __init__(self):
-        self.years = ['2018', '2019']
-        self.cases = ['REF2018', 'REF2019', 'CO2FEE25']
+        self.years = ['2018', '2019', '2020']
+        self.cases = ['REF2018', 'REF2019', 'REF2020', 'CO2FEE25']
 
 
 class EIAQueryData(object):
@@ -158,8 +158,8 @@ def api_query(api_key, series_id):
         A nested list of data with inner lists structured as
         [year string, data value].
     """
-    query_str = ('http://api.eia.gov/series/?api_key=' + api_key +
-                 '&series_id=' + series_id)
+    query_str = ('https://api.eia.gov/series/?series_id=' + series_id +
+                 '&api_key=' + api_key)
     data = requests.get(query_str).json()
     try:
         data = data['series'][0]['data']
