@@ -1269,8 +1269,11 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
-                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+            mast, mast_brk_base_energy, mast_brk_base_cost, \
+                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
+                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
+                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
@@ -1419,8 +1422,11 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
-                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+            mast, mast_brk_base_energy, mast_brk_base_cost, \
+                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
+                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
+                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Find a baseline stock turnover rate for each year in the modeling
@@ -1477,8 +1483,11 @@ class Engine(object):
                 # market share and stock turnover rates
                 self.compete_adj(
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
-                    mast_brk_base, mast_brk_eff, mast_brk_save, adj,
-                    mast_list_base, mast_list_eff,
+                    mast_brk_base_energy, mast_brk_base_cost,
+                    mast_brk_base_carb, mast_brk_eff_energy,
+                    mast_brk_eff_cost, mast_brk_eff_carb,
+                    mast_brk_save_energy, mast_brk_save_cost,
+                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
@@ -1839,8 +1848,11 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
-                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+            mast, mast_brk_base_energy, mast_brk_base_cost, \
+                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
+                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
+                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Find a baseline stock turnover rate for each year in the modeling
@@ -1897,8 +1909,11 @@ class Engine(object):
                 # market share and stock turnover rates
                 self.compete_adj(
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
-                    mast_brk_base, mast_brk_eff, mast_brk_save, adj,
-                    mast_list_base, mast_list_eff,
+                    mast_brk_base_energy, mast_brk_base_cost,
+                    mast_brk_base_carb, mast_brk_eff_energy,
+                    mast_brk_eff_cost, mast_brk_eff_carb,
+                    mast_brk_save_energy, mast_brk_save_cost,
+                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
@@ -2049,8 +2064,11 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
-            mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
-                mast_list_base, mast_list_eff, adj_list_eff, adj_list_base = \
+            mast, mast_brk_base_energy, mast_brk_base_cost, \
+                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
+                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
+                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
@@ -2104,21 +2122,54 @@ class Engine(object):
                 else:
                     adj_frac_tot = 0
 
-                # Adjust baseline energy, efficient energy, and energy savings
-                # totals grouped by climate zone, building type, and end use
-                # by the appropriate adjustment fraction
+                # Adjust baseline energy/cost/carbon, efficient energy/
+                # cost/carbon, and energy/cost/carbon savings totals
+                # grouped by climate zone, building type, and end use by
+                # the appropriate fraction
+
+                # Energy
                 # Baseline
-                mast_brk_base[yr] = mast_brk_base[yr] - (
+                mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
                     adj["energy"]["total"]["baseline"][yr]) * (
                     1 - adj_frac_tot)
                 # Efficient
-                mast_brk_eff[yr] = mast_brk_eff[yr] - (
+                mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
                     adj["energy"]["total"]["efficient"][yr]) * (
                     1 - adj_frac_tot)
                 # Savings
-                mast_brk_save[yr] = mast_brk_save[yr] - ((
+                mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - ((
                     adj["energy"]["total"]["baseline"][yr] -
                     adj["energy"]["total"]["efficient"][yr]) * (
+                    1 - adj_frac_tot))
+
+                # Cost
+                # Baseline
+                mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
+                    adj["cost"]["energy"]["total"]["baseline"][yr]) * (
+                        1 - adj_frac_tot)
+                # Efficient
+                mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
+                    adj["cost"]["energy"]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_tot)
+                # Savings
+                mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - ((
+                    adj["cost"]["energy"]["total"]["baseline"][yr] -
+                    adj["cost"]["energy"]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_tot))
+
+                # Carbon
+                # Baseline
+                mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
+                    adj["carbon"]["total"]["baseline"][yr]) * (
+                    1 - adj_frac_tot)
+                # Efficient
+                mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
+                    adj["carbon"]["total"]["efficient"][yr]) * (
+                    1 - adj_frac_tot)
+                # Savings
+                mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - ((
+                    adj["carbon"]["total"]["baseline"][yr] -
+                    adj["carbon"]["total"]["efficient"][yr]) * (
                     1 - adj_frac_tot))
 
                 # Adjust total and competed baseline and efficient
@@ -2309,11 +2360,13 @@ class Engine(object):
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
-                mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
-                    mast_list_base, mast_list_eff, adj_list_eff, \
-                    adj_list_base = self.compete_adj_dicts(
+                mast, mast_brk_base_energy, mast_brk_base_cost, \
+                    mast_brk_base_carb, mast_brk_eff_energy, \
+                    mast_brk_eff_cost, mast_brk_eff_carb, \
+                    mast_brk_save_energy, mast_brk_save_cost, \
+                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                    adj_list_eff, adj_list_base = self.compete_adj_dicts(
                         m, mseg, adopt_scheme)
-
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -2424,22 +2477,57 @@ class Engine(object):
                                 x[yr] - (y[yr] * (1 - adj_frac))
                                 for x, y in zip(mastlist[6:], adjlist[6:])]
 
-                    # Adjust baseline energy, efficient energy, and energy
-                    # savings totals grouped by climate zone, building type,
-                    # and end use by the appropriate fraction
+                    # Adjust baseline energy/cost/carbon, efficient energy/
+                    # cost/carbon, and energy/cost/carbon savings totals
+                    # grouped by climate zone, building type, and end use by
+                    # the appropriate fraction
+
+                    # Energy
                     # Baseline - use baseline adjustment fraction
-                    mast_brk_base[yr] = mast_brk_base[yr] - (
+                    mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
                         adj["energy"]["total"]["baseline"][yr]) * (
                         1 - adj_frac_base)
                     # Efficient - use efficient adjustment fraction
-                    mast_brk_eff[yr] = mast_brk_eff[yr] - (
+                    mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
                         adj["energy"]["total"]["efficient"][yr]) * (
                         1 - adj_frac_eff)
                     # Savings - use both baseline/efficient fractions
-                    mast_brk_save[yr] = mast_brk_save[yr] - (
+                    mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - (
                         adj["energy"]["total"]["baseline"][yr] * (
                             1 - adj_frac_base) -
                         adj["energy"]["total"]["efficient"][yr] * (
+                            1 - adj_frac_eff))
+
+                    # Cost
+                    # Baseline - use baseline adjustment fraction
+                    mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
+                        adj["cost"]["energy"]["total"]["baseline"][yr]) * (
+                        1 - adj_frac_base)
+                    # Efficient - use efficient adjustment fraction
+                    mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
+                        adj["cost"]["energy"]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_eff)
+                    # Savings - use both baseline/efficient fractions
+                    mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - (
+                        adj["cost"]["energy"]["total"]["baseline"][yr] * (
+                            1 - adj_frac_base) -
+                        adj["cost"]["energy"]["total"]["efficient"][yr] * (
+                            1 - adj_frac_eff))
+
+                    # Carbon
+                    # Baseline - use baseline adjustment fraction
+                    mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
+                        adj["carbon"]["total"]["baseline"][yr]) * (
+                        1 - adj_frac_base)
+                    # Efficient - use efficient adjustment fraction
+                    mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
+                        adj["carbon"]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_eff)
+                    # Savings - use both baseline/efficient fractions
+                    mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - (
+                        adj["carbon"]["total"]["baseline"][yr] * (
+                            1 - adj_frac_base) -
+                        adj["carbon"]["total"]["efficient"][yr] * (
                             1 - adj_frac_eff))
 
     def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
@@ -2542,22 +2630,53 @@ class Engine(object):
             mast["energy"]["competed"]["efficient"],
             mast["carbon"]["competed"]["efficient"]]
 
-        # Set shorthand variables for baseline energy, efficient energy, and
-        # energy savings breakout information for the current measure that
-        # falls under the climate zone, building type, and end use categories
-        # of the currently competed microsegment
+        # Set shorthand variables for baseline energy/cost/carbon, efficient
+        # energy/cost/carbon, and energy/cost/carbon savings breakout
+        # information for the current measure that falls under the climate
+        # zone, building type, and end use categories of the currently
+        # competed microsegment
+
         # Baseline
-        mast_brk_base = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["baseline"][
-                out_cz][out_bldg][out_eu]
+        # Energy
+        mast_brk_base_energy = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
+                "baseline"][out_cz][out_bldg][out_eu]
+        # Cost
+        mast_brk_base_cost = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
+                "baseline"][out_cz][out_bldg][out_eu]
+        # Carbon
+        mast_brk_base_carb = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
+                "baseline"][out_cz][out_bldg][out_eu]
+
         # Efficient
-        mast_brk_eff = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["efficient"][
-                out_cz][out_bldg][out_eu]
+        # Energy
+        mast_brk_eff_energy = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
+                "efficient"][out_cz][out_bldg][out_eu]
+        # Cost
+        mast_brk_eff_cost = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
+                "efficient"][out_cz][out_bldg][out_eu]
+        # Carbon
+        mast_brk_eff_carb = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
+                "efficient"][out_cz][out_bldg][out_eu]
+
         # Savings
-        mast_brk_save = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["savings"][
-                out_cz][out_bldg][out_eu]
+        # Energy
+        mast_brk_save_energy = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
+                "savings"][out_cz][out_bldg][out_eu]
+        # Cost
+        mast_brk_save_cost = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
+                "savings"][out_cz][out_bldg][out_eu]
+        # Carbon
+        mast_brk_save_carb = \
+            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
+                "savings"][out_cz][out_bldg][out_eu]
 
         # Set up lists that will be used to determine the energy, carbon,
         # and cost totals associated with the contributing microsegment that
@@ -2593,14 +2712,20 @@ class Engine(object):
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
 
-        return mast, mast_brk_base, mast_brk_eff, mast_brk_save, adj, \
+        return mast, mast_brk_base_energy, mast_brk_base_cost, \
+            mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
+            mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
+            mast_brk_save_carb, adj, \
             mast_list_base, mast_list_eff, adj_list_eff, adj_list_base
 
     def compete_adj(
-            self, adj_fracs, added_sbmkt_fracs, mast, mast_brk_base,
-            mast_brk_eff, mast_brk_save, adj, mast_list_base, mast_list_eff,
-            adj_list_eff, adj_list_base, yr, mseg_key, measure, adopt_scheme,
-            mkt_entry_yrs, base_turnover_rt, eff_turnover_rt):
+            self, adj_fracs, added_sbmkt_fracs, mast,
+            mast_brk_base_energy, mast_brk_base_cost, mast_brk_base_carb,
+            mast_brk_eff_energy, mast_brk_eff_cost, mast_brk_eff_carb,
+            mast_brk_save_energy, mast_brk_save_cost, mast_brk_save_carb,
+            adj, mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
+            yr, mseg_key, measure, adopt_scheme, mkt_entry_yrs,
+            base_turnover_rt, eff_turnover_rt):
         """Scale down measure totals to reflect competition.
 
         Notes:
@@ -2773,16 +2898,45 @@ class Engine(object):
         # Adjust baseline energy, efficient energy, and energy savings totals
         # grouped by climate zone, building type, and end use by the
         # appropriate fraction
+
+        # Energy
         # Baseline
-        mast_brk_base[yr] = mast_brk_base[yr] - (
+        mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
             adj["energy"]["total"]["baseline"][yr]) * (1 - adj_frac_tot)
         # Efficient
-        mast_brk_eff[yr] = mast_brk_eff[yr] - (
+        mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
             adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot)
         # Savings
-        mast_brk_save[yr] = mast_brk_save[yr] - ((
+        mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - ((
             adj["energy"]["total"]["baseline"][yr] -
             adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot))
+
+        # Cost
+        # Baseline
+        mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
+            adj["cost"]["energy"]["total"]["baseline"][yr]) * (
+                1 - adj_frac_tot)
+        # Efficient
+        mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
+            adj["cost"]["energy"]["total"]["efficient"][yr]) * (
+                1 - adj_frac_tot)
+        # Savings
+        mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - ((
+            adj["cost"]["energy"]["total"]["baseline"][yr] -
+            adj["cost"]["energy"]["total"]["efficient"][yr]) * (
+                1 - adj_frac_tot))
+
+        # Carbon
+        # Baseline
+        mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
+            adj["carbon"]["total"]["baseline"][yr]) * (1 - adj_frac_tot)
+        # Efficient
+        mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
+            adj["carbon"]["total"]["efficient"][yr]) * (1 - adj_frac_tot)
+        # Savings
+        mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - ((
+            adj["carbon"]["total"]["baseline"][yr] -
+            adj["carbon"]["total"]["efficient"][yr]) * (1 - adj_frac_tot))
 
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share, both overall and for the
@@ -2961,29 +3115,74 @@ class Engine(object):
                             translate(sub), carb_costsave_avg)]) for
                         n in range(2))
 
-            # Normalize the baseline energy, efficient energy, and energy
-            # savings for the measure that falls into each of the climate,
-            # building type, and end use output categories by the total
-            # baseline energy, efficient energy, and energy savings for the
+            # Normalize the baseline energy/carbon/cost, efficient energy/
+            # carbon/cost, and energy/carbon/cost savings for the measure that
+            # falls into each of the climate, building type, and end use output
+            # categories by the total baseline energy/carbon/cost, efficient
+            # energy/carbon/cost, and energy/carbon/cost savings for the
             # measure (all post-competition); this yields fractions to use
             # in apportioning energy, carbon, and cost results by category
 
+            # Energy
             # Calculate baseline energy fractions by output breakout category
-            frac_base = self.out_break_walk(
+            frac_base_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "baseline"], energy_base_avg, divide=True)
+                    "energy"]["baseline"], energy_base_avg, divide=True)
             # Calculate efficient energy fractions by output breakout category
-            frac_eff = self.out_break_walk(
+            frac_eff_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "efficient"], energy_eff_avg, divide=True)
+                    "energy"]["efficient"], energy_eff_avg, divide=True)
             # Determine total energy savings to use as normalization factor
-            norm_save = {
+            norm_save_energy = {
                 yr: (energy_base_avg[yr] - energy_eff_avg[yr]) for
                 yr in self.handyvars.aeo_years}
             # Calculate energy savings fractions by output breakout category
-            frac_save = self.out_break_walk(
+            frac_save_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["savings"], norm_save, divide=True)
+                    "mseg_out_break"]["energy"]["savings"],
+                norm_save_energy, divide=True)
+
+            # Cost
+            # Calculate baseline energy cost fractions by output breakout
+            # category
+            frac_base_cost = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "cost"]["baseline"], energy_cost_base_avg, divide=True)
+            # Calculate efficient energy cost fractions by output breakout
+            # category
+            frac_eff_cost = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "cost"]["efficient"], energy_cost_eff_avg, divide=True)
+            # Determine total energy cost savings to use as normalization
+            # factor
+            norm_save_cost = {
+                yr: (energy_cost_base_avg[yr] - energy_cost_eff_avg[yr]) for
+                yr in self.handyvars.aeo_years}
+            # Calculate energy cost savings fractions by output breakout
+            # category
+            frac_save_cost = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"][
+                    "mseg_out_break"]["cost"]["savings"],
+                norm_save_cost, divide=True)
+
+            # Carbon
+            # Calculate baseline carbon fractions by output breakout category
+            frac_base_carb = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "carbon"]["baseline"], carb_base_avg, divide=True)
+            # Calculate efficient carbon fractions by output breakout category
+            frac_eff_carb = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                    "carbon"]["efficient"], carb_eff_avg, divide=True)
+            # Determine total carbon savings to use as normalization factor
+            norm_save_carb = {
+                yr: (carb_base_avg[yr] - carb_eff_avg[yr]) for
+                yr in self.handyvars.aeo_years}
+            # Calculate carbon savings fractions by output breakout category
+            frac_save_carb = self.out_break_walk(
+                m.markets[adopt_scheme]["competed"][
+                    "mseg_out_break"]["carbon"]["savings"],
+                norm_save_carb, divide=True)
 
             # Create shorthand variable for results by breakout category
             mkt_save_brk = self.output_ecms[m.name][
@@ -2994,17 +3193,55 @@ class Engine(object):
             for k in mkt_save_brk.keys():
                 # Apply baseline partitioning fractions to baseline values
                 if "Baseline" in k:
-                    mkt_save_brk[k] = self.out_break_walk(
-                        copy.deepcopy(frac_base), mkt_save_brk[k],
-                        divide=False)
+                    # Energy results
+                    if "Energy Use" in k:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_base_energy), mkt_save_brk[k],
+                            divide=False)
+                    # Energy cost results
+                    elif "Energy Cost" in k:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_base_cost), mkt_save_brk[k],
+                            divide=False)
+                    # Carbon results
+                    else:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_base_carb), mkt_save_brk[k],
+                            divide=False)
                 # Apply efficient partitioning fractions to efficient values
                 elif "Efficient" in k:
-                    mkt_save_brk[k] = self.out_break_walk(
-                        copy.deepcopy(frac_eff), mkt_save_brk[k], divide=False)
+                    # Energy results
+                    if "Energy Use" in k:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_eff_energy), mkt_save_brk[k],
+                            divide=False)
+                    # Energy cost results
+                    elif "Energy Cost" in k:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_eff_cost), mkt_save_brk[k],
+                            divide=False)
+                    # Carbon results
+                    else:
+                        mkt_save_brk[k] = self.out_break_walk(
+                            copy.deepcopy(frac_eff_carb), mkt_save_brk[k],
+                            divide=False)
                 # Apply savings partitioning fractions to savings values
                 else:
-                    mkt_save_brk[k] = self.out_break_walk(
-                       copy.deepcopy(frac_save), mkt_save_brk[k], divide=False)
+                    # Energy results
+                    if ("Energy" in k and "Cost" not in k):
+                        mkt_save_brk[k] = self.out_break_walk(
+                           copy.deepcopy(frac_save_energy), mkt_save_brk[k],
+                           divide=False)
+                    # Energy cost results
+                    elif "Energy Cost" in k:
+                        mkt_save_brk[k] = self.out_break_walk(
+                           copy.deepcopy(frac_save_cost), mkt_save_brk[k],
+                           divide=False)
+                    # Carbon results
+                    else:
+                        mkt_save_brk[k] = self.out_break_walk(
+                           copy.deepcopy(frac_save_carb), mkt_save_brk[k],
+                           divide=False)
 
             # Record low and high estimates on markets, if available
 

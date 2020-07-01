@@ -11990,6 +11990,24 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             cls.compete_meas1, copy.deepcopy(cls.compete_meas2),
             cls.compete_meas3, copy.deepcopy(cls.compete_meas4),
             copy.deepcopy(cls.compete_meas5)]]
+        # Extend measure mseg breakouts (previously tracked only for energy)
+        # across the carbon and cost variables as well to accomodate the
+        # 07/2020 change to tracking breakouts for all three of these vars
+        for ind, m in enumerate(cls.measures_all):
+            # Extend for technical potential breakouts
+            cls.measures_all[ind].markets[
+                "Technical potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Technical potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
+            # Extend for max. adoption potential breakouts
+            cls.measures_all[ind].markets[
+                "Max adoption potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Max adoption potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
         cls.measures_demand = cls.measures_all[0:2]
         cls.measures_supply = cls.measures_all[2:5]
         cls.measures_overlap1 = {
@@ -12132,6 +12150,24 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             cls.compete_meas1_dist, copy.deepcopy(cls.compete_meas2),
             cls.compete_meas3_dist, copy.deepcopy(cls.compete_meas4),
             copy.deepcopy(cls.compete_meas5)]]
+        # Extend measure mseg breakouts (previously tracked only for energy)
+        # across the carbon and cost variables as well to accomodate the
+        # 07/2020 change to tracking breakouts for all three of these vars
+        for ind, m in enumerate(cls.measures_all_dist):
+            # Extend for technical potential breakouts
+            cls.measures_all_dist[ind].markets[
+                "Technical potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Technical potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
+            # Extend for max. adoption potential breakouts
+            cls.measures_all_dist[ind].markets[
+                "Max adoption potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Max adoption potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
         cls.measures_demand_dist = cls.measures_all_dist[0:2]
         cls.measures_supply_dist = cls.measures_all_dist[2:5]
         cls.supply_demand_adjust1_dist = cls.measures_all_dist[0:2]
@@ -16020,10 +16056,13 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                 self.measures_master_msegs_out[ind],
                 self.a_run.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
+            # Note: retain focus on verifying energy outbreak data is correct
+            # (carbon and cost outbreak data are also calculated using the
+            # same approach as for energy)
             self.dict_check(
                 self.measures_mseg_out_break[ind],
                 self.a_run.measures[ind].markets[self.test_adopt_scheme][
-                    "competed"]["mseg_out_break"])
+                    "competed"]["mseg_out_break"]["energy"])
 
     def test_compete_res_dist(self):
         """Test outcomes given valid sample measures w/ some array inputs."""
@@ -22370,6 +22409,24 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             cls.handyvars, **x) for x in [
             copy.deepcopy(cls.compete_meas1), cls.compete_meas2,
             copy.deepcopy(cls.compete_meas3)]]
+        # Extend measure mseg breakouts (previously tracked only for energy)
+        # across the carbon and cost variables as well to accomodate the
+        # 07/2020 change to tracking breakouts for all three of these vars
+        for ind, m in enumerate(cls.measures_all):
+            # Extend for technical potential breakouts
+            cls.measures_all[ind].markets[
+                "Technical potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Technical potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
+            # Extend for max. adoption potential breakouts
+            cls.measures_all[ind].markets[
+                "Max adoption potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Max adoption potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
         cls.measures_secondary = [cls.measures_all[1]]
         # Instantiate engine object based on above measures
         cls.a_run = run.Engine(
@@ -22517,6 +22574,24 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             copy.deepcopy(cls.compete_meas1),
             cls.compete_meas2_dist,
             copy.deepcopy(cls.compete_meas3)]]
+        # Extend measure mseg breakouts (previously tracked only for energy)
+        # across the carbon and cost variables as well to accommodate the
+        # 07/2020 change to tracking breakouts for all three of these vars
+        for ind, m in enumerate(cls.measures_all_dist):
+            # Extend for technical potential breakouts
+            cls.measures_all_dist[ind].markets[
+                "Technical potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Technical potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
+            # Extend for max. adoption potential breakouts
+            cls.measures_all_dist[ind].markets[
+                "Max adoption potential"]["competed"]["mseg_out_break"] = {
+                key: copy.deepcopy(m.markets["Max adoption potential"][
+                    "competed"]["mseg_out_break"])
+                for key in ["energy", "carbon", "cost"]
+            }
         cls.measures_secondary_dist = [cls.measures_all_dist[1]]
         cls.a_run_dist = run.Engine(
             cls.handyvars, cls.measures_all_dist,
@@ -26494,10 +26569,13 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 self.measures_master_msegs_out[ind],
                 self.a_run.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
+            # Note: retain focus on verifying energy outbreak data is correct
+            # (carbon and cost outbreak data are also calculated using the
+            # same approach as for energy)
             self.dict_check(
                 self.measures_mseg_out_break[ind],
                 self.a_run.measures[ind].markets[self.test_adopt_scheme][
-                    "competed"]["mseg_out_break"])
+                    "competed"]["mseg_out_break"]["energy"])
 
     def test_compete_com_dist(self):
         """Test outcomes given valid sample measures w/ some array inputs."""
@@ -26515,10 +26593,13 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
+            # Note: retain focus on verifying energy outbreak data is correct
+            # (carbon and cost outbreak data are also calculated using the
+            # same approach as for energy)
             self.dict_check(
                 self.measures_mseg_out_break_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
-                    "competed"]["mseg_out_break"])
+                    "competed"]["mseg_out_break"]["energy"])
 
 
 class NumpyConversionTest(unittest.TestCase, CommonMethods):

@@ -1642,10 +1642,11 @@ class Measure(object):
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}}),
                 (
-                "mseg_out_break", {
+                "mseg_out_break", {key: {
                     "baseline": copy.deepcopy(self.handyvars.out_break_in),
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                    "savings": copy.deepcopy(self.handyvars.out_break_in)})])
+                    "savings": copy.deepcopy(self.handyvars.out_break_in)} for
+                    key in ["energy", "carbon", "cost"]})])
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -3280,57 +3281,75 @@ class Measure(object):
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
-                    # microsegment's energy baseline, efficient energy, and
-                    # energy savings value to the appropriate leaf node of the
-                    # dictionary used to store measure output breakout
-                    # information. * Note: the values in this dictionary will
-                    # be normalized in run.py by the measure's energy baseline
-                    # efficient energy, and energy savings totals
-                    # (post-competition) to yield the fractions of measure
-                    # energy and carbon markets/savings that are attributable
-                    # to each climate zone, building type, and end use the
-                    # measure applies to
+                    # microsegment's energy/ecost/carbon baseline, efficient
+                    # energy/ecost/carbon, and energy/ecost/carbon savings val.
+                    # to the appropriate leaf node of the dictionary used to
+                    # store measure output breakout information. * Note: the
+                    # values in this dictionary will be normalized in run.py by
+                    # the measure's energy/ecost/carbon baseline, efficient
+                    # energy/ecost/carbon, and energy/ecost/carbon savings
+                    # totals (post-competition) to yield the fractions of
+                    # measure energy, carbon, and cost markets/savings that are
+                    # attributable to each climate zone, building type, and
+                    # end use that the measure applies to
                     try:
+                        # Create a shorthand for baseline and efficient
+                        # energy/carbon/cost data to add to the breakout dict
+                        base_data = [add_energy_total, add_energy_cost,
+                                     add_carb_total]
+                        eff_data = [add_energy_total_eff, add_energy_cost_eff,
+                                    add_carb_total_eff]
                         # If this is the first time the output breakout
                         # dictionary is being updated, replace appropriate
-                        # terminal leaf node value with energy baseline,
-                        # efficient energy, and energy savings values for the
-                        # current contributing microsegment
+                        # terminal leaf node value with energy/ecost/carbon
+                        # baseline, efficient energy/ecost/carbon, and energy/
+                        # ecost/carbon savings values for the current
+                        # contributing microsegment
                         if len(self.markets[adopt_scheme]["mseg_out_break"][
-                                "baseline"][out_cz][out_bldg][
+                                "energy"]["baseline"][out_cz][out_bldg][
                                 out_eu].keys()) == 0:
-                            self.markets[adopt_scheme]["mseg_out_break"][
-                                "baseline"][out_cz][out_bldg][out_eu] = {
-                                    yr: add_energy_total[yr] for
-                                    yr in self.handyvars.aeo_years}
-                            self.markets[adopt_scheme]["mseg_out_break"][
-                                "efficient"][out_cz][out_bldg][out_eu] = {
-                                    yr: add_energy_total_eff[yr] for
-                                    yr in self.handyvars.aeo_years}
-                            self.markets[adopt_scheme]["mseg_out_break"][
-                                "savings"][out_cz][out_bldg][out_eu] = {
-                                    yr: (add_energy_total[yr] -
-                                         add_energy_total_eff[yr]) for
-                                    yr in self.handyvars.aeo_years}
+                            for ind, key in enumerate([
+                                    "energy", "cost", "carbon"]):
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    key]["baseline"][out_cz][out_bldg][
+                                        out_eu] = {
+                                        yr: base_data[ind][yr] for
+                                        yr in self.handyvars.aeo_years}
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    key]["efficient"][out_cz][out_bldg][
+                                        out_eu] = {
+                                        yr: eff_data[ind][yr] for
+                                        yr in self.handyvars.aeo_years}
+                                self.markets[adopt_scheme]["mseg_out_break"][
+                                    key]["savings"][out_cz][out_bldg][
+                                        out_eu] = {
+                                        yr: (base_data[ind][yr] -
+                                             eff_data[ind][yr]) for
+                                        yr in self.handyvars.aeo_years}
 
                         # If the output breakout dictionary has already been
-                        # updated for a previous microsegment, add the energy
-                        # baseline, efficient energy, and energy savings values
-                        # for the current contributing microsegment to the
-                        # dictionary's existing terminal leaf node values
+                        # updated for a previous microsegment, add the energy/
+                        # ecost/carbon baseline, efficient energy/ecost/carbon,
+                        # and energy/ecost/carbon savings values for the
+                        # current contributing microsegment to the dictionary's
+                        # existing terminal leaf node values
                         else:
                             for yr in self.handyvars.aeo_years:
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    "baseline"][out_cz][out_bldg][
-                                    out_eu][yr] += add_energy_total[yr]
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    "efficient"][out_cz][out_bldg][
-                                    out_eu][yr] += add_energy_total_eff[yr]
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    "savings"][out_cz][out_bldg][
-                                    out_eu][yr] += (
-                                        add_energy_total[yr] -
-                                        add_energy_total_eff[yr])
+                                for ind, key in enumerate([
+                                        "energy", "cost", "carbon"]):
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key][
+                                        "baseline"][out_cz][out_bldg][
+                                        out_eu][yr] += base_data[ind][yr]
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key][
+                                        "efficient"][out_cz][out_bldg][
+                                        out_eu][yr] += eff_data[ind][yr]
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key][
+                                        "savings"][out_cz][out_bldg][
+                                        out_eu][yr] += (base_data[ind][yr] -
+                                                        eff_data[ind][yr])
 
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
@@ -6678,10 +6697,11 @@ class MeasurePackage(Measure):
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}},
-                "mseg_out_break": {
+                "mseg_out_break": {key: {
                     "baseline": copy.deepcopy(self.handyvars.out_break_in),
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                    "savings": copy.deepcopy(self.handyvars.out_break_in)}}
+                    "savings": copy.deepcopy(self.handyvars.out_break_in)} for
+                    key in ["energy", "carbon", "cost"]}}
 
     def merge_measures(self):
         """Merge the markets information of multiple individual measures.
@@ -6755,13 +6775,14 @@ class MeasurePackage(Measure):
                         self.update_dict(msegs_pkg[k], msegs_meas[k])
 
                 # Generate a dictionary including data on how much of the
-                # packaged measure's baseline energy use is attributed to
-                # each of the output climate zones, building types, and end
+                # packaged measure's baseline energy/carbon/cost is attributed
+                # to each of the output climate zones, building types, and end
                 # uses it applies to
-                for x in ["baseline", "efficient", "savings"]:
-                    self.merge_out_break(self.markets[adopt_scheme][
-                        "mseg_out_break"][x], m.markets[adopt_scheme][
-                        "mseg_out_break"][x])
+                for v in ["energy", "carbon", "cost"]:
+                    for s in ["baseline", "efficient", "savings"]:
+                        self.merge_out_break(self.markets[adopt_scheme][
+                            "mseg_out_break"][v][s], m.markets[adopt_scheme][
+                            "mseg_out_break"][v][s])
 
         # Generate a packaged master microsegment based on the contributing
         # microsegment information defined above
@@ -6811,8 +6832,9 @@ class MeasurePackage(Measure):
                 microsegment currently being added (e.g. czone->bldg, etc.)
             meas_typ (string): Individual measure type (full service / add-on).
             adopt_scheme (string): Assumed consumer adoption scenario.
-            mseg_out_break_adj (dict): Contributing measure energy use and
-                savings data split by climate zone, building type, and end use.
+            mseg_out_break_adj (dict): Contributing measure baseline energy/
+                carbon/cost baseline and savings data split by climate zone,
+                building type, and end use.
 
         Returns:
             Updated contributing microsegment information for the package that
@@ -6880,68 +6902,122 @@ class MeasurePackage(Measure):
                 elif "lighting gain" in key_list:
                     out_eu = "Lighting"
 
-            # Scale contributing microsegment energy, carbon and associated
-            # cost data, as well as lifetime and sub-market fraction data,
-            # by total number of overlapping measures in the package
-            for k in ["stock", "energy", "carbon", "lifetime"]:
-                # Scale down contributing microsegment energy data and
-                # adjust baseline energy use, efficient energy use, and energy
-                # savings totals for the measure accordingly, where
-                # each of these totals is used in breaking out measure results
-                # by climate zone, building class, and end use
-                if k == "energy":
-                    # Set total pre-scaled contributing microsegment baseline
-                    # energy, efficient energy, and energy savings
-                    total_energy_orig_base = \
-                        copy.deepcopy(msegs_meas[k]["total"]["baseline"])
-                    total_energy_orig_eff = \
-                        copy.deepcopy(msegs_meas[k]["total"]["efficient"])
-                    total_energy_orig_save = {yr: (
-                        copy.deepcopy(
-                            msegs_meas[k]["total"]["baseline"][yr]) -
-                        copy.deepcopy(
-                            msegs_meas[k]["total"]["efficient"][yr])) for yr in
-                        self.handyvars.aeo_years}
-                    # Scale down contributing microsegment energy based on
-                    # number of overlapping measures
-                    self.div_keyvals_float(
-                        msegs_meas[k], len(overlap_meas))
-                    # Adjust the measure's baseline energy use, efficient
-                    # energy use, and energy savings grouped by climate,
-                    # building type, and end use to reflect the scaled down
-                    # contributing microsegment energy use
-                    mseg_out_break_adj["baseline"][
+            # Set metrics to loop through when rescaling packaged measure data
+            metrics = ["stock", "energy", "carbon", "lifetime"]
+            # Scale measure energy, carbon and associated cost microsegments,
+            # as well as measure lifetime, by total number of overlapping
+            # measures in the package
+            for k in metrics:
+                # Initialize variables used to track pre-adjusted mseg data
+                tot_base_orig, tot_eff_orig, tot_save_orig, \
+                    tot_base_orig_ecost, tot_eff_orig_ecost, \
+                    tot_save_orig_ecost = ('' for n in range(6))
+                # Create shorthand for stock/energy/carbon/lifetime msegs data
+                mseg_shrt = msegs_meas[k]
+                # If applicable, create shorthand for cost data (does not
+                # apply to lifetime metric)
+                try:
+                    mseg_shrt_cost = msegs_meas["cost"][k]
+                except (KeyError):
+                    mseg_shrt_cost = ''
+
+                # Record total energy/carbon/energy cost data before adjustment
+                if k in ["energy", "carbon"]:
+                    # Total baseline energy/carbon
+                    tot_base_orig = copy.deepcopy(
+                        mseg_shrt["total"]["baseline"])
+                    # Total efficient energy/carbon
+                    tot_eff_orig = copy.deepcopy(
+                        mseg_shrt["total"]["efficient"])
+                    # Total energy/carbon savings
+                    tot_save_orig = {yr: (
+                        copy.deepcopy(mseg_shrt["total"]["baseline"][yr]) -
+                        copy.deepcopy(mseg_shrt["total"]["efficient"][yr]))
+                        for yr in self.handyvars.aeo_years}
+                    # Record total energy cost data before adjustment
+                    if k == "energy" and mseg_shrt_cost:
+                        # Total baseline energy cost
+                        tot_base_orig_ecost = copy.deepcopy(
+                            mseg_shrt_cost["total"]["baseline"])
+                        # Total efficient energy cost
+                        tot_eff_orig_ecost = copy.deepcopy(
+                            mseg_shrt_cost["total"]["efficient"])
+                        # Total energy cost savings
+                        tot_save_orig_ecost = {yr: (
+                            copy.deepcopy(
+                                mseg_shrt_cost["total"]["baseline"][yr]) -
+                            copy.deepcopy(
+                                mseg_shrt_cost["total"]["efficient"][yr]))
+                            for yr in self.handyvars.aeo_years}
+
+                # Adjust stock/energy/carbon/lifetime microsegments, dividing
+                # by number of overlapping measures
+                self.div_keyvals_float(mseg_shrt, len(overlap_meas))
+                # If applicable, adjust cost microsegments using same operation
+                if mseg_shrt_cost:
+                    self.div_keyvals_float(mseg_shrt_cost, len(overlap_meas))
+
+                # Further adjust down energy, carbon, and energy cost
+                # breakouts data (used to apportion measure energy/carbon/
+                # cost by climate, building type, and end uses) for the current
+                # measures in the package to reflect the adjustments made just
+                # above to total energy, carbon, and cost microsegments
+                if k in ["energy", "carbon"]:
+                    # Adjust contributions to total baseline energy/carbon
+                    mseg_out_break_adj[k]["baseline"][
                             out_cz][out_bldg][out_eu] = {
-                        yr: mseg_out_break_adj["baseline"][
+                        yr: mseg_out_break_adj[k]["baseline"][
                             out_cz][out_bldg][out_eu][yr] - (
-                            total_energy_orig_base[yr] - msegs_meas[k][
+                            tot_base_orig[yr] - mseg_shrt[
                                 "total"]["baseline"][yr]) for yr in
                         self.handyvars.aeo_years}
-                    mseg_out_break_adj["efficient"][
+                    # Adjust contributions to total efficient energy/carbon
+                    mseg_out_break_adj[k]["efficient"][
                         out_cz][out_bldg][out_eu] = {
-                        yr: mseg_out_break_adj["efficient"][
+                        yr: mseg_out_break_adj[k]["efficient"][
                             out_cz][out_bldg][out_eu][yr] - (
-                            total_energy_orig_eff[yr] - msegs_meas[k]["total"][
+                            tot_eff_orig[yr] - mseg_shrt["total"][
                                 "efficient"][yr]) for yr in
                         self.handyvars.aeo_years}
-                    mseg_out_break_adj["savings"][
+                    # Adjust contributions to total energy/carbon savings
+                    mseg_out_break_adj[k]["savings"][
                         out_cz][out_bldg][out_eu] = {
-                        yr: mseg_out_break_adj["savings"][
+                        yr: mseg_out_break_adj[k]["savings"][
                             out_cz][out_bldg][out_eu][yr] - (
-                            total_energy_orig_save[yr] - (
-                                msegs_meas[k]["total"]["baseline"][yr] -
-                                msegs_meas[k]["total"]["efficient"][yr])) for
+                            tot_save_orig[yr] - (
+                                mseg_shrt["total"]["baseline"][yr] -
+                                mseg_shrt["total"]["efficient"][yr])) for
                         yr in self.handyvars.aeo_years}
-                # Scale down carbon and lifetime data
-                else:
-                    # Scale down contributing microsegment data based on
-                    # number of overlapping measures
-                    self.div_keyvals_float(
-                        msegs_meas[k], len(overlap_meas))
-                # Scale down cost data
-                if k in ["stock", "energy", "carbon"]:
-                    msegs_meas["cost"][k] = self.div_keyvals_float(
-                        msegs_meas["cost"][k], len(overlap_meas))
+                    # Adjust energy cost contributions for measure in package
+                    if all([x for x in [
+                        tot_base_orig_ecost, tot_eff_orig_ecost,
+                            tot_save_orig_ecost]]):
+                        # Adjust contributions to total energy cost
+                        mseg_out_break_adj["cost"]["baseline"][
+                                out_cz][out_bldg][out_eu] = {
+                            yr: mseg_out_break_adj["cost"]["baseline"][
+                                out_cz][out_bldg][out_eu][yr] - (
+                                tot_base_orig_ecost[yr] - mseg_shrt_cost[
+                                    "total"]["baseline"][yr]) for yr in
+                            self.handyvars.aeo_years}
+                        # Adjust contributions to efficient energy cost
+                        mseg_out_break_adj["cost"]["efficient"][
+                            out_cz][out_bldg][out_eu] = {
+                            yr: mseg_out_break_adj["cost"]["efficient"][
+                                out_cz][out_bldg][out_eu][yr] - (
+                                tot_eff_orig_ecost[yr] -
+                                mseg_shrt_cost["total"][
+                                    "efficient"][yr]) for yr in
+                            self.handyvars.aeo_years}
+                        # Adjust contributions to energy cost savings
+                        mseg_out_break_adj["cost"]["savings"][
+                            out_cz][out_bldg][out_eu] = {
+                            yr: mseg_out_break_adj["cost"]["savings"][
+                                out_cz][out_bldg][out_eu][yr] - (
+                                tot_save_orig_ecost[yr] - (
+                                    mseg_shrt_cost["total"]["baseline"][yr] -
+                                    mseg_shrt_cost["total"]["efficient"][yr]))
+                                for yr in self.handyvars.aeo_years}
             # Scale down sub-market fraction
             msegs_meas["sub-market scaling"] /= len(overlap_meas)
 
