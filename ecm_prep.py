@@ -51,7 +51,7 @@ class UsefulInputFiles(object):
         ss_data (JSON): Site-source conversion data.
         tsv_load_data (JSON): Time sensitive energy demand data.
         tsv_cost_data (JSON): Time sensitive electricity price data.
-        tsv_carbon_data (JSON): Time sensitive marginal CO2 emissions data.
+        tsv_carbon_data (JSON): Time sensitive average CO2 emissions data.
         tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
         tsv_metrics_data_tot (CSV): Total system load shape data by EMM region.
         tsv_metrics_data_net (CSV): Net system load shape data by EMM region.
@@ -911,13 +911,9 @@ class UsefulVars(object):
                         "set 1": [4, (4, 8, 22)],
                         "set 2": [5, (3, 5, 9, 10, 11)]},
                     "6B": 21, "7": 4}
-            self.tsv_hourly_price = {
-                reg: {
-                    bldg: None for bldg in ("residential", "commercial")
-                } for reg in valid_regions
-            }
-            self.tsv_hourly_emissions = {
-                reg: None for reg in self.tsv_nerc_regions}
+            self.tsv_hourly_price, self.tsv_hourly_emissions = ({
+                reg: None for reg in valid_regions
+            } for n in range(2))
 
             self.tsv_hourly_lafs = {
                 reg: {
@@ -3080,7 +3076,7 @@ class Measure(object):
                 # and the current microsegment pertains to electricity, develop
                 # the factors needed to reweight energy/cost/carbon data to
                 # reflect hourly changes in energy load, energy price, and
-                # marginal carbon emissions across the desired annual or
+                # average carbon emissions across the desired annual or
                 # sub-annual time horizon; also pull hourly fraction of annual
                 # load data needed to calculate sector-level shapes below if
                 # the user has specified the '--sect_shapes' option
@@ -3692,113 +3688,38 @@ class Measure(object):
                     "region " + mskeys[1] + " and building type " + mskeys[2] +
                     " do not sum to 1")
 
-            # Generate an appropriate 8760 price and emissions scaling shapes
+            # Generate appropriate 8760 price and emissions scaling shapes
 
             # Set time-varying electricity price scaling factors for the EMM
-            # region and building type combination
-            if self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] is None:
-                # Set the time-varying price factor
-                cost_fact = tsv_data["price"][
-                    "electricity price shapes"][mskeys[1]][bldg_sect]
-                # Initialize an 8760 price scaling list
-                cost_fact_hourly = \
-                    [1 for n in range(8760)]
-                # Set initial overall 8760 list index to zero
-                current_ind = 0
-                # Initialize weekday tracker (1=Sunday for reference example
-                # year 2006)
-                current_wkdy = 1
-
-                # Loop through all months of the year to assign price factors
-                for ind, mo in enumerate(self.handyvars.months):
-                    # Determine the total number of days in the current month
-                    month_days = tsv_data[
-                        "price"]["month information"]["days"][ind]
-                    # Assign cost data for each day of the month
-                    for d in range(month_days):
-                        # Assign cost data based on month/day type (weekday,
-                        # weekend)
-                        if current_wkdy in [1, 7]:
-                            day_cost_info = cost_fact[mo]["weekend"]
-                        else:
-                            day_cost_info = cost_fact[mo]["weekday"]
-                        cost_fact_hourly[
-                            current_ind: (current_ind + 24)] = day_cost_info
-                        # Advance day of week by one unless Saturday (7), in
-                        # which case day switches back to 1 (Sunday)
-                        if current_wkdy <= 6:
-                            current_wkdy += 1
-                        else:
-                            current_wkdy = 1
-                        # Advance overall list index by 24 hours
-                        current_ind += 24
-                self.handyvars.tsv_hourly_price[mskeys[1]][bldg_sect] = \
-                    cost_fact_hourly
+            # region (dict with keys distinguished by year, *CURRENTLY* every
+            # four years beginning in 2018)
+            if self.handyvars.tsv_hourly_price[mskeys[1]] is None:
+                cost_fact_hourly,  self.handyvars.tsv_hourly_price[
+                    mskeys[1]] = ({yr: tsv_data["price"][
+                        "electricity price shapes"][yr][
+                        mskeys[1]] for yr in tsv_data["price"][
+                        "electricity price shapes"].keys()} for n in range(2))
             else:
-                cost_fact_hourly = self.handyvars.tsv_hourly_price[
-                    mskeys[1]][bldg_sect]
-
-            # Set time-varying emissions scaling factors for EMM region
-
-            # Emissions factors are broken out by NERC region, which EMM
-            # regions map into; find the appropriate NERC region for current
-            # EMM region to use in pulling out correct emissions factor data
-            nerc_key = [x[0] for x in tsv_data["emissions"][
-                "NERC to EMM region mapping"].items() if mskeys[1] in x[1]][0]
-
-            if self.handyvars.tsv_hourly_emissions[nerc_key] is None:
-                # Set the time-varying emissions factor
-                emissions_fact = tsv_data["emissions"][
-                    "marginal carbon emissions factors"][nerc_key]
-                # Initialize 8760 emissions scaling list
-                carbon_fact_hourly = \
-                    [1 for n in range(8760)]
-                # Set initial overall 8760 list index to zero
-                current_ind = 0
-                # Initialize weekday tracker (1=Sunday for reference example
-                # year 2006)
-                current_wkdy = 1
-
-                # Loop through all months of year to assign emissions factors
-                for ind, mo in enumerate(self.handyvars.months):
-                    # Determine the total number of days in the current month
-                    month_days = tsv_data[
-                        "price"]["month information"]["days"][ind]
-                    # Assign emissions data for each day of the month
-                    for d in range(month_days):
-                        # Assign emissions data based on season
-                        season_key = [x[0] for x in tsv_data[
-                            "emissions"]["season information"].items() if
-                            (ind + 1) in x[1]["months"]][0]
-                        day_carbon_info = emissions_fact[season_key]
-                        carbon_fact_hourly[
-                            current_ind: (current_ind + 24)] = day_carbon_info
-                        # Advance day of week by one unless Saturday (7), in
-                        # which case day switches back to 1 (Sunday)
-                        if current_wkdy <= 6:
-                            current_wkdy += 1
-                        else:
-                            current_wkdy = 1
-                        # Advance overall list index by 24 hours
-                        current_ind += 24
-                self.handyvars.tsv_hourly_emissions[nerc_key] = \
-                    carbon_fact_hourly
+                cost_fact_hourly = self.handyvars.tsv_hourly_price[mskeys[1]]
+            # Set TSV data -> AEO year mapping to use in preparing cost scaling
+            # factors
+            cost_yr_map = tsv_data["price_yr_map"]
+            # Set time-varying emissions scaling factors for the EMM
+            # region (dict with keys distinguished by year, *CURRENTLY* every
+            # four years beginning in 2018)
+            if self.handyvars.tsv_hourly_emissions[mskeys[1]] is None:
+                carbon_fact_hourly,  self.handyvars.tsv_hourly_emissions[
+                    mskeys[1]] = ({yr: tsv_data["emissions"][
+                        "average carbon emissions rates"][yr][
+                        mskeys[1]] for yr in tsv_data["emissions"][
+                        "average carbon emissions rates"].keys()} for
+                        n in range(2))
             else:
-                carbon_fact_hourly = \
-                    self.handyvars.tsv_hourly_emissions[nerc_key]
-
-            # Check to ensure that the resulting price and emissions scaling
-            # factor lists are both 8760 elements long (for 8760 hours/year)
-            if len(cost_fact_hourly) != 8760:
-                raise ValueError(
-                    "Price shape for region " + mskeys[1] +
-                    " and building type " + mskeys[2] + " is " +
-                    str(len(cost_fact_hourly)) + "items long, not 8760")
-            if len(carbon_fact_hourly) != 8760:
-                raise ValueError(
-                    "Emissions shape for region " + mskeys[1] +
-                    " and building type " + mskeys[2] + " is " +
-                    str(len(cost_fact_hourly)) + "items long, not 8760")
+                carbon_fact_hourly = self.handyvars.tsv_hourly_emissions[
+                    mskeys[1]]
+            # Set TSV data -> AEO year mapping to use in preparing emissions
+            # scaling factors
+            carb_yr_map = tsv_data["emissions_yr_map"]
 
             # Use 8760 load shape information, combined with 8760 price and
             # emissions shape information above, to calculate factors that
@@ -3807,7 +3728,8 @@ class Measure(object):
             # of these totals
             updated_tsv_fracs, updated_tsv_shapes = self.apply_tsv(
                 load_fact, ash_czone_wts, eplus_bldg_wts, cost_fact_hourly,
-                carbon_fact_hourly, mskeys, bldg_sect, eu, opts)
+                carbon_fact_hourly, mskeys, bldg_sect, eu, opts, cost_yr_map,
+                carb_yr_map)
             # Set adjustment factors for current combination of
             # region, building type, and end use such that they
             # need not be calculated again for this combination in
@@ -3833,7 +3755,7 @@ class Measure(object):
 
     def apply_tsv(self, load_fact, ash_cz_wts, eplus_bldg_wts,
                   cost_fact_hourly, carbon_fact_hourly, mskeys, bldg_sect,
-                  eu, opts):
+                  eu, opts, cost_yr_map, carb_yr_map):
         """Apply time varying efficiency levels to base load profile.
 
         Args:
@@ -3846,6 +3768,8 @@ class Measure(object):
             bldg_sect (str): Building sector flag (residential/commercial).
             eu (str): End use for keying time sensitive load data.
             opts (object): Stores user-specified execution options.
+            cost_yr_map (dict): Mapping 8760 TSV price data years -> AEO years.
+            carb_yr_map (dict): Mapping 8760 TSV carbon data yrs. -> AEO years.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions re-
@@ -3857,9 +3781,21 @@ class Measure(object):
 
         # Initialize overall factors to use in scaling annually-determined
         # baseline and efficient energy, cost and emissions data
-        cost_scale_base, carb_scale_base, energy_scale_base, \
-            energy_scale_eff, cost_scale_eff, \
-            carb_scale_eff = (0 for n in range(6))
+
+        # Initial format of cost/carbon scaling factor data (broken out by
+        # years available in the 8760 TSV cost/carbon input data)
+        cost_scale_base, cost_scale_eff = (
+            {yr: 0 for yr in cost_yr_map.keys()} for n in range(2))
+        carb_scale_base, carb_scale_eff = (
+            {yr: 0 for yr in carb_yr_map.keys()} for n in range(2))
+        # Final format of cost/carbon scaling factor data (broken out by AEO
+        # years)
+        cost_scale_base_aeo, cost_scale_eff_aeo, carb_scale_base_aeo, \
+            carb_scale_eff_aeo = (
+                {yr: 0 for yr in self.handyvars.aeo_years} for n in range(4))
+        # Note: energy scaling data is not broken out by projection year
+        energy_scale_base, energy_scale_eff = (0 for n in range(2))
+
         # Initialize hourly fractions of annual baseline and efficient energy
         # if sector-level load shape information is desired by the user
         if opts.sect_shapes is True:
@@ -4451,28 +4387,69 @@ class Measure(object):
                     energy_scale_eff += numpy.sum([
                         x * emm_adj_wt for x in eff_load_hourly])
 
-                # Calculate baseline cost and emissions rescaling factors as
-                # the sums of the hourly baseline load shape multiplied by the
-                # hourly price and emissions scaling factors, multiplied again
-                # by the appropriate weight for the current EMM region and
-                # Scout building type
-                cost_scale_base += numpy.sum([
-                    x * y * emm_adj_wt for x, y in zip(
-                        base_load_hourly, cost_fact_hourly)])
-                carb_scale_base += numpy.sum([
-                    x * y * emm_adj_wt for x, y in zip(
-                        base_load_hourly, carbon_fact_hourly)])
-                # Calculate efficient cost and emissions rescaling factors as
-                # the sums of the hourly efficient load shape times the hourly
-                # price and emissions scaling factors, multiplied again by the
-                # appropriate weight for the current EMM region and Scout
-                # building type
-                cost_scale_eff += numpy.sum([
-                    x * y * emm_adj_wt for x, y in zip(
-                        eff_load_hourly, cost_fact_hourly)])
-                carb_scale_eff += numpy.sum([
-                    x * y * emm_adj_wt for x, y in zip(
-                        eff_load_hourly, carbon_fact_hourly)])
+        # Calculate baseline/efficient cost rescaling factors as the sums of
+        # the hourly baseline/efficient load shape multiplied by the hourly
+        # price scaling factors; calculate across available projection years
+        # for the price scaling factors
+        for yr in cost_scale_base.keys():
+            cost_scale_base[yr] += numpy.sum([
+                x * y for x, y in zip(
+                    base_load_hourly, cost_fact_hourly[yr])])
+            cost_scale_eff[yr] += numpy.sum([
+                x * y for x, y in zip(
+                    eff_load_hourly, cost_fact_hourly[yr])])
+        # Calculate baseline/efficient emissions rescaling factors as the sums
+        # of the hourly baseline/efficient load shape multiplied by the hourly
+        # emissions scaling factors; calculate across available projection
+        # years for the emissions scaling factors
+        for yr in carb_scale_base.keys():
+            carb_scale_base[yr] += numpy.sum([
+                x * y for x, y in zip(
+                    base_load_hourly, carbon_fact_hourly[yr])])
+            carb_scale_eff[yr] += numpy.sum([
+                x * y for x, y in zip(
+                    eff_load_hourly, carbon_fact_hourly[yr])])
+
+        # Extend price/emissions factors across all years in the AEO time
+        # horizon
+        for yr in self.handyvars.aeo_years:
+            # Find year in the cost scaling factors data that maps to the
+            # current AEO year
+            tsv_yr_cost = [
+                x[0] for x in cost_yr_map.items() if yr in x[1]][0]
+            # Find year in the emissions scaling factors data that maps to the
+            # current AEO year
+            tsv_yr_carb = [
+                x[0] for x in carb_yr_map.items() if yr in x[1]][0]
+            # Finalize the cost/emissions scaling factors data for the current
+            # AEO year
+
+            # APPROACH 1: TAKE THE DATA AS IS
+            cost_scale_base_aeo[yr], cost_scale_eff_aeo[yr], \
+                carb_scale_base_aeo[yr], carb_scale_eff_aeo[yr] = [
+                cost_scale_base[tsv_yr_cost], cost_scale_eff[tsv_yr_cost],
+                carb_scale_base[tsv_yr_carb], carb_scale_eff[tsv_yr_carb]]
+            # # APPROACH 2: RUNNING MEAN
+            # if yr == self.handyvars.aeo_years[0]:
+            #     cost_scale_base_aeo[yr], cost_scale_eff_aeo[yr], \
+            #         carb_scale_base_aeo[yr], carb_scale_eff_aeo[yr] = [
+            #         cost_scale_base[tsv_yr_cost],
+            #         cost_scale_eff[tsv_yr_cost],
+            #         carb_scale_base[tsv_yr_carb],
+            #         carb_scale_eff[tsv_yr_carb]]
+            # else:
+            #     cost_scale_base_aeo[yr], cost_scale_eff_aeo[yr], \
+            #         carb_scale_base_aeo[yr], carb_scale_eff_aeo[yr] = [
+            #         x * (1 / len(self.handyvars.aeo_years)) + y * (
+            #             1 - (1 / len(self.handyvars.aeo_years))) for x, y in
+            #         zip([cost_scale_base[tsv_yr_cost],
+            #              cost_scale_eff[tsv_yr_cost],
+            #              carb_scale_base[tsv_yr_carb],
+            #              carb_scale_eff[tsv_yr_carb]], [
+            #              cost_scale_base_aeo[str(int(yr) - 1)],
+            #              cost_scale_eff_aeo[str(int(yr) - 1)],
+            #              carb_scale_base_aeo[str(int(yr) - 1)],
+            #              carb_scale_eff_aeo[str(int(yr) - 1)]])]
 
         # Return hourly fractions of annual baseline and efficient energy
         # if sector-level load shape information is desired by the user
@@ -4490,12 +4467,12 @@ class Measure(object):
                 "baseline": energy_scale_base,
                 "efficient": energy_scale_eff},
             "cost": {
-                "baseline": cost_scale_base,
-                "efficient": cost_scale_eff
+                "baseline": cost_scale_base_aeo,
+                "efficient": cost_scale_eff_aeo
             },
             "carbon": {
-                "baseline": carb_scale_base,
-                "efficient": carb_scale_eff
+                "baseline": carb_scale_base_aeo,
+                "efficient": carb_scale_eff_aeo
             }}
 
         return updated_tsv_fracs, updated_tsv_shapes
@@ -4830,9 +4807,10 @@ class Measure(object):
         # Set the relative energy performance of the current year's
         # competed and uncompeted stock that goes uncaptured
         rel_perf_uncapt = 1
-        # Set time sensitive scaling factors for all uncaptured stock
-        tsv_energy_base, tsv_ecost_base, tsv_carb_base = [
-            tsv_adj[x]["baseline"] for x in ["energy", "cost", "carbon"]]
+        # Set time sensitive energy scaling factors for all baseline stock
+        tsv_energy_base = tsv_adj["energy"]["baseline"]
+        # Set time-sensitive energy scaling factors for all efficient stock
+        tsv_energy_eff = tsv_adj["energy"]["efficient"]
 
         # In cases where secondary microsegments are present, initialize a
         # dict of year-by-year secondary microsegment adjustment information
@@ -4915,6 +4893,24 @@ class Measure(object):
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
         for yr in self.handyvars.aeo_years:
+            # Set time sensitive cost/emissions scaling factors for all
+            # baseline stock; handle cases where these factors are/are not
+            # broken out by AEO projection year
+            try:
+                tsv_ecost_base, tsv_carb_base = [
+                    tsv_adj[x]["baseline"][yr] for x in ["cost", "carbon"]]
+            except TypeError:
+                tsv_ecost_base, tsv_carb_base = [
+                    tsv_adj[x]["baseline"] for x in ["cost", "carbon"]]
+            # Set time sensitive cost/emissions scaling factors for all
+            # efficient stock; handle cases where these factors are/are not
+            # broken out by AEO projection year
+            try:
+                tsv_ecost_eff, tsv_carb_eff = [
+                    tsv_adj[x]["efficient"][yr] for x in ["cost", "carbon"]]
+            except TypeError:
+                tsv_ecost_eff, tsv_carb_eff = [
+                    tsv_adj[x]["efficient"] for x in ["cost", "carbon"]]
 
             # For secondary microsegments only, update: a) sub-market scaling
             # fraction, based on any sub-market scaling in the associated
@@ -5287,10 +5283,6 @@ class Measure(object):
             if int(yr) <= self.market_entry_year:
                 # Update relative performance
                 rel_perf_capt = rel_perf[yr]
-                # Update time-sensitive efficiency scaling factors
-                tsv_energy_eff, tsv_ecost_eff, tsv_carb_eff = [
-                    tsv_adj[x]["efficient"] for x in [
-                        "energy", "cost", "carbon"]]
             else:
                 # Set a turnover weight to use in balancing the current year's
                 # relative performance with that of all previous years since
@@ -5311,12 +5303,6 @@ class Measure(object):
                 rel_perf_capt = (
                     rel_perf[yr] * base_turnover_wt +
                     rel_perf_capt * (1 - base_turnover_wt))
-                # Update time-sensitive efficiency scaling factors
-                tsv_energy_eff, tsv_ecost_eff, tsv_carb_eff = [
-                    tsv_adj[x]["efficient"] * base_turnover_wt +
-                    y * (1 - base_turnover_wt) for x, y in zip([
-                        "energy", "cost", "carbon"], [
-                        tsv_energy_eff, tsv_ecost_eff, tsv_carb_eff])]
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -7454,6 +7440,40 @@ def verboseprint(verbose, msg):
     print(msg) if verbose else lambda *a, **k: None
 
 
+def tsv_cost_carb_yrmap(tsv_data, aeo_years):
+    """Map 8760 TSV cost/carbon data years to AEO years.
+
+    Args:
+        tsv_data: TSV cost or carbon input datasets.
+        aeo_years: AEO year range.
+
+    Returns:
+        Mapping between TSV cost/carbon data years and AEO years.
+    """
+
+    # Set up a matrix mapping each AEO year to the years available in the
+    # TSV data
+
+    # Pull available years from TSV data
+    tsv_yrs = list(sorted(tsv_data.keys()))
+    # Establish the mapping from available TSV years to AEO years
+    tsv_yr_map = {
+        yr_tsv: [str(x) for x in range(
+            int(yr_tsv), int(tsv_yrs[ind + 1]))]
+        if (ind + 1) < len(tsv_yrs) else [str(x) for x in range(
+            int(yr_tsv), int(aeo_years[-1]) + 1)]
+        for ind, yr_tsv in enumerate(tsv_yrs)
+    }
+    # Prepend AEO years preceding the start year in the TSV data, if needed
+    if (aeo_years[0] not in tsv_yr_map[tsv_yrs[0]]):
+        yrs_to_prepend = range(int(aeo_years[0]), min([
+            int(x) for x in tsv_yr_map[tsv_yrs[0]]]))
+        tsv_yr_map[tsv_yrs[0]] = [str(x) for x in yrs_to_prepend] + \
+            tsv_yr_map[tsv_yrs[0]]
+
+    return tsv_yr_map
+
+
 def main(base_dir):
     """Import and prepare measure attributes for analysis engine.
 
@@ -7774,7 +7794,7 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        # Import load shape, price, and marginal emissions data needed for
+        # Import load shape, price, and emissions data needed for
         # time sensitive analysis of measure energy efficiency impacts
         with open(path.join(
                 base_dir, *handyfiles.tsv_load_data), 'r') as tsv_l:
@@ -7800,11 +7820,20 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.tsv_carbon_data + "': " + str(e)) from None
-        # Stitch together load shape, price, and marginal emissions datasets
+
+        # Map year range available in 8760 TSV cost/carbon data to AEO years
+        tsv_cost_yrmap = tsv_cost_carb_yrmap(
+            tsv_cost_data["electricity price shapes"], handyvars.aeo_years)
+        tsv_carbon_yrmap = tsv_cost_carb_yrmap(
+            tsv_carbon_data["average carbon emissions rates"],
+            handyvars.aeo_years)
+
+        # Stitch together load shape, cost, emissions, and year
+        # mapping datasets
         tsv_data = {
-            "load": tsv_load_data,
-            "price": tsv_cost_data,
-            "emissions": tsv_carbon_data}
+            "load": tsv_load_data, "price": tsv_cost_data,
+            "price_yr_map": tsv_cost_yrmap, "emissions": tsv_carbon_data,
+            "emissions_yr_map": tsv_carbon_yrmap}
 
         # Import analysis engine setup file to write prepared ECM names
         # to (if file does not exist, provide empty active/inactive ECM
