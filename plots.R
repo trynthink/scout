@@ -73,16 +73,57 @@ years<-row.names(as.matrix(
 # Set an intended starting and ending year for the plotted results
 start_yr = 2015
 end_yr = max(years)
-# Set the year to take a 'snapshot' of certain results in 
-snap_yr = "2040"
+
+
+# Set the year to take a 'snapshot' of certain results in;
+# if the measure set was prepared with public cost adders, set
+# this year to 2020, as these adders are reflective of current/
+# near term utility conditions from EPA data; also flag for the particular
+# type of public cost adder (low/high), if any
+if (grepl("PHC", meas_names[2], fixed=TRUE) == TRUE){
+  snap_yr = "2020"
+  if (grepl("low", meas_names[2], fixed=TRUE) == TRUE){
+      phc_flag = "low"
+  }else{
+      phc_flag = "high"
+  }
+}else{
+  snap_yr = "2040"
+  phc_flag = FALSE}
+
 # Filter and order the year range
 years<-years[(years>=start_yr)&(years<=end_yr)]
 years<-years[order(years)]
+
 # Set list of possible climate zones and associated colors/legend entries for aggregate savings
 # and cost effectiveness plots
-czones_out<-c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
-czones_out_col<-brewer.pal(length(czones_out), "Dark2")
-czones_out_lgnd<-czones_out
+
+# Pull czones from first available ECM
+czones_test = toString(compete_results[[meas_names[2]]]$'Filter Variables'$'Applicable Regions')
+# Check for AIA regional breakouts; if not there, assume EMM regional breakouts and flag
+if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
+  # Set region legend names
+  czones_out<-c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
+  # Set region legend colors
+  czones_out_col<-brewer.pal(length(czones_out), "Dark2")
+  czones_out_lgnd<-czones_out
+  # Set flag for alternate EMM region data to false
+  emm_flag = FALSE
+}else{
+  # Set region legend names
+  czones_out<-c(
+    'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
+    'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
+    'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA')
+  # Set region legend colors; in the EMM case, extend the color list to
+  # accomodate the larger number of region categories
+  czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))
+  czones_out_lgnd<-czones_out
+  # Set flag for alternate EMM region data to true
+  emm_flag = TRUE
+}
+
+
 # Set list of possible building classes and associated colors for aggregate savings plot
 bclasses_out_agg<-c('Residential (New)', 'Residential (Existing)',
                 'Commercial (New)', 'Commercial (Existing)')
@@ -736,7 +777,7 @@ for (a in 1:length(adopt_scenarios)){
       # Initialize the plot with uncompeted baseline ECM energy, carbon, or cost totals
       plot(years, base_uc, typ='l', lwd=5, ylim = c(min(ylims), max(ylims)),
            xlab=NA, ylab=NA, col=plot_col_uc_base, main = meas_names[m], xaxt="n", yaxt="n")
-        
+
       # Determine legend parameters based on whether uncertainty is present in totals
       if (uncertainty == TRUE){
         # Set legend names for a plot with uncertainty in the ECM totals
@@ -803,11 +844,25 @@ for (a in 1:length(adopt_scenarios)){
 	    text(xval_snap, yval_snap_eff - (yval_snap_eff - min(ylims))/7,
 	         paste(toString(sprintf("%.1f", yval_snap_base-yval_snap_eff)),
 	               toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
-	  }else{
+	    }else{
 	  	# Add ECM end use labels
-      	text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
+      text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
            pos=4, cex=0.93)
-	  }
+	    }
+      # If needed, add disclaimer about the use of public health costs
+      if (var_names_uncompete[v] == "cost" & phc_flag != FALSE){
+        # Set increment to use in plotting disclaimer text
+        ylim_inc = (max(ylims) - min(ylims))*0.05
+        if (phc_flag == "low"){
+          text(min(years), min(ylims), labels=
+            "* Reflects low EPA health benefits - ignore results after 2025",
+            col="red", pos=4, cex=0.85)
+        }else{
+          text(min(years), min(ylims), labels=
+            "* Reflects high EPA health benefits - ignore results after 2025",
+            col="red", pos=4, cex=0.85)
+        }
+      }
     }
     # Add legend for all individual ECM plots
     par(xpd=TRUE)
@@ -989,6 +1044,13 @@ for (a in 1:length(adopt_scenarios)){
       color_entries = c(
       	'gray30', 'gray50',
       	results_agg[f, 3][[1]][order(total_ranks, decreasing=TRUE)])
+      # If needed, set parameter to scale down plot legend for EMM regions (relevant
+      # only for the first filter variable, region)
+      if ((emm_flag == TRUE) & (f == 1)){
+        cex_agg_leg = 0.7
+      }else{
+        cex_agg_leg = 0.95
+      }
       # Find plot extremes for setting legend position
       plot_extremes <- par("usr")
       # Plot legend
@@ -997,7 +1059,20 @@ for (a in 1:length(adopt_scenarios)){
       	     legend=legend_entries,
       		 lwd=c(4, 4, rep(2, (length(legend_entries) - 2))),
              col=color_entries, lty=c(1, 3, rep(1, (length(legend_entries)-2))), 
-       		 bg=transparent_back, box.col="NA", cex=0.95)
+       		 bg=transparent_back, box.col="NA", cex=cex_agg_leg)
+      # If needed, add disclaimer about the use of public health costs
+      if (var_names_uncompete[v] == "cost" & phc_flag != FALSE){
+        if (phc_flag == "low"){
+          text(max(xlim), max(ylim_ann), labels=
+            "* Reflects low EPA health benefits - ignore results after 2025",
+            col="red", pos=2, cex=0.85)
+        }else{
+          text(max(xlim), max(ylim_ann), labels=
+            "* Reflects high EPA health benefits - ignore results after 2025",
+            col="red", pos=2, cex=0.85)
+        }
+      }
+
     }
     dev.off()
     
@@ -1151,25 +1226,53 @@ for (a in 1:length(adopt_scenarios)){
 	     	# Add individual ECM points to the cost effectiveness plot
 	     	points(results_x, results_y, col="gray70", pch=results_pch,
 	     	       bg=results_bg, lwd=0.75, cex = 1.2)
-	      	# Add x axis tick marks and axis labels
-	      	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
-	      	mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
-	      	# Add y axis tick marks and axis labels
-	      	axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
+      	# Add x axis tick marks and axis labels
+      	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
+      	mtext(plot_axis_labels_finmets_x[v], side=1, line=3.25, cex=0.9) 
+      	# Add y axis tick marks and axis labels
+      	axis(side=2, at=ylim_fm, labels=ylim_fm, cex.axis = 1.25, las=1)
 		  	# Add label with total cost effective savings
 		  	label_text = paste('Cost effective impact:', toString(sprintf("%.1f", total_save)),
 		  	                   var_units[v], sep=" ")
-	      	shadowtext(0-max(xlim)/50, max(ylim_fm)-max(ylim_fm)/50, label_text, cex=0.85,
+        # Set increment to use in plotting cost effective savings text
+        ylim_inc = (max(ylim_fm) - min(ylim_fm))*0.05
+	      shadowtext(0-max(xlim)/50, max(ylim_fm) - 0.25*ylim_inc, label_text, cex=0.85,
 	      	           bg="gray98", col="black", pos=4, offset=0, r=0.2)
+        # If needed, add disclaimer about the use of public health costs below
+        # the cost effective savings text
+        if (var_names_uncompete[v] == "cost" & phc_flag != FALSE){
+          if (phc_flag == "low"){
+            shadowtext(0-max(xlim)/50, max(ylim_fm)-1.25*ylim_inc, labels=
+              "* Reflects low EPA health benefits",
+              col="red", pos=4, cex=0.85, bg="gray98", offset=0, r=0.2)
+            shadowtext(0-max(xlim)/50, max(ylim_fm)-2.25*ylim_inc, labels=
+              "  - ignore results after 2025",
+              col="red", pos=4, cex=0.85, bg="gray98", offset=0, r=0.2)
+          }else{
+            shadowtext(0-max(xlim)/50, max(ylim_fm)-1.25*ylim_inc, labels=
+              "* Reflects high EPA health benefits",
+              col="red", pos=4, cex=0.85, bg="gray98", offset=0, r=0.2)
+            shadowtext(0-max(xlim)/50, max(ylim_fm)-2.25*ylim_inc, labels=
+              "  - ignore results after 2025",
+              col="red", pos=4, cex=0.85, bg="gray98", offset=0, r=0.2)
+          }
+        }
 	     	mtext(plot_axis_labels_finmets_y[fmp], side=2, line=3.75, cex=0.9)
 	     	if (is.finite(max(label_vals_y))){
-	      		# Add number ranking labels to top 5 ECM points
+	      	# Add number ranking labels to top 5 ECM points
 	     	 	text(label_vals_x, label_vals_y,
-	     	      	 labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
-	     	 	# Add a legend with top 5 ECM names
-	     	 	legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
-	             	   legend = meas_names_lgnd, cex=0.85)
-	      	}
+	     	       labels = seq(1, length(label_vals_x)), pos=3, cex=0.6, col="black")
+	     	 	# Add a legend with top 5 ECM names; scale this legend down when public
+          # health benefits have been considered, in which case ECM names tend to
+          # be longer
+	     	 	if (var_names_uncompete[v] == "cost" & phc_flag != FALSE){
+            cex_ce_leg = 0.7
+          }else{
+            cex_ce_leg = 0.85
+          }
+          legend("topright", border=FALSE, bty="n", col=FALSE, bg=FALSE, lwd=FALSE,
+                     legend = meas_names_lgnd, cex=cex_ce_leg)
+	      }
 	    }
     }
     

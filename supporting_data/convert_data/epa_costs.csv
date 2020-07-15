@@ -1,0 +1,45 @@
+﻿AVERT_Region,EMM_Region,Category,2017cents_kWh_3pct_low,2017cents_kWh_3pct_high,2017cents_kWh_7pct_low,2017cents_kWh_7pct_high
+California,CAMX,Uniform EE,0.48,1.08,0.42,0.96
+California,CAMX,EE at Peak,0.52,1.17,0.46,1.04
+Great Lakes/Mid-Atlantic,RFCM,Uniform EE,3.51,7.95,3.14,7.09
+Great Lakes/Mid-Atlantic,RFCM,EE at Peak,3.57,8.08,3.19,7.21
+Great Lakes/Mid-Atlantic,RFCW,Uniform EE,3.51,7.95,3.14,7.09
+Great Lakes/Mid-Atlantic,RFCW,EE at Peak,3.57,8.08,3.19,7.21
+Great Lakes/Mid-Atlantic,RFCE,Uniform EE,3.51,7.95,3.14,7.09
+Great Lakes/Mid-Atlantic,RFCE,EE at Peak,3.57,8.08,3.19,7.21
+Lower Midwest,SPNO,Uniform EE,2.31,5.23,2.06,4.66
+Lower Midwest,SPNO,EE at Peak,2.11,4.77,1.88,4.25
+Lower Midwest,SPSO,Uniform EE,2.31,5.23,2.06,4.66
+Lower Midwest,SPSO,EE at Peak,2.11,4.77,1.88,4.25
+Pacific Northwest,NWPP,Uniform EE,1.13,2.55,1.01,2.28
+Pacific Northwest,NWPP,EE at Peak,1.12,2.54,1,2.27
+Rocky Mountains,RMPA,Uniform EE,1.03,2.32,0.92,2.07
+Rocky Mountains,RMPA,EE at Peak,0.98,2.21,0.87,1.98
+Southwest,AZNM,Uniform EE,0.71,1.62,0.64,1.44
+Southwest,AZNM,EE at Peak,0.7,1.59,0.63,1.42
+Texas,ERCT,Uniform EE,1.58,3.58,1.41,3.19
+Texas,ERCT,EE at Peak,1.39,3.13,1.24,2.8
+Upper Midwest,MROW,Uniform EE,3.12,7.06,2.78,6.3
+Upper Midwest,MROW,EE at Peak,2.75,6.22,2.45,5.55
+Upper Midwest,SRGW,Uniform EE,3.12,7.06,2.78,6.3
+Upper Midwest,SRGW,EE at Peak,2.75,6.22,2.45,5.55
+Upper Midwest,MROE,Uniform EE,3.12,7.06,2.78,6.3
+Upper Midwest,MROE,EE at Peak,2.75,6.22,2.45,5.55
+Southeast,SRDA,Uniform EE,1.78,4.02,1.58,3.58
+Southeast,SRDA,EE at Peak,1.87,4.24,1.67,3.78
+Southeast,SRSE,Uniform EE,1.78,4.02,1.58,3.58
+Southeast,SRSE,EE at Peak,1.87,4.24,1.67,3.78
+Southeast,FRCC,Uniform EE,1.78,4.02,1.58,3.58
+Southeast,FRCC,EE at Peak,1.87,4.24,1.67,3.78
+Southeast,SRVC,Uniform EE,1.78,4.02,1.58,3.58
+Southeast,SRVC,EE at Peak,1.87,4.24,1.67,3.78
+Southeast,SRCE,Uniform EE,1.78,4.02,1.58,3.58
+Southeast,SRCE,EE at Peak,1.87,4.24,1.67,3.78
+Northeast,NYUP,Uniform EE,1.65,3.73,1.47,3.33
+Northeast,NYUP,EE at Peak,2.24,5.07,2,4.52
+Northeast,NYCW,Uniform EE,1.65,3.73,1.47,3.33
+Northeast,NYCW,EE at Peak,2.24,5.07,2,4.52
+Northeast,NYLI,Uniform EE,1.65,3.73,1.47,3.33
+Northeast,NYLI,EE at Peak,2.24,5.07,2,4.52
+Northeast,NEWE,Uniform EE,1.65,3.73,1.47,3.33
+Northeast,NEWE,EE at Peak,2.24,5.07,2,4.52

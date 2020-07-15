@@ -55,6 +55,7 @@ class UsefulInputFiles(object):
         tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
         tsv_metrics_data_tot (CSV): Total system load shape data by EMM region.
         tsv_metrics_data_net (CSV): Net system load shape data by EMM region.
+        health_data (CSV): EPA public health benefits data by EMM region.
         regions (str): Specifies which baseline data file to choose, based on
             intended regional breakout.
         ash_emm_map (TXT): Factors for mapping ASHRAE climates to EMM regions.
@@ -113,6 +114,8 @@ class UsefulInputFiles(object):
             "supporting_data", "tsv_data", "tsv_hrs_tot.csv")
         self.tsv_metrics_data_net = (
             "supporting_data", "tsv_data", "tsv_hrs_net.csv")
+        self.health_data = (
+            "supporting_data", "convert_data", "epa_costs.csv")
 
 
 class UsefulVars(object):
@@ -185,6 +188,7 @@ class UsefulVars(object):
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
         months (str): Month sequence for accessing time-sensitive data.
+        tsv_feature_types (list): Possible types of TSV features.
         tsv_climate_regions (list): Possible ASHRAE/IECC climate regions for
             time-sensitive analysis and metrics.
         tsv_nerc_regions (list): Possible NERC regions for time-sensitive data.
@@ -198,9 +202,12 @@ class UsefulVars(object):
         emm_name_num_map (dict): Maps EMM region names to EIA region numbers.
         cz_emm_map (dict): Maps climate zones to EMM region net system load
             shape data.
+        health_scn_names (list): List of public health data scenario names.
+        health_scn_data (numpy.ndarray): Public health cost data.
     """
 
-    def __init__(self, base_dir, handyfiles, regions, tsv_metrics):
+    def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
+                 health_costs):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.01
@@ -689,6 +696,9 @@ class UsefulVars(object):
         # for refrigerator technologies
         self.deflt_choice = [-0.01, -0.12]
 
+        # Set valid types of TSV feature types
+        self.tsv_feature_types = ["shed", "shift", "shape"]
+
         # Use EMM region setting as a proxy for desired time-sensitive
         # valuation (TSV) and associated need to initialize handy TSV variables
         if regions == "EMM":
@@ -935,6 +945,25 @@ class UsefulVars(object):
             }
         else:
             self.tsv_hourly_lafs = None
+
+        # Condition health data scenario initialization on whether user
+        # has requested that public health costs be accounted for
+        if health_costs is True:
+            # For each health data scenario, set the intended measure name
+            # appendage (tuple element 1), type of efficiency to attach health
+            # benefits to (element 2), and column in the data file from which
+            # to retrieve these benefit values (element 3)
+            self.health_scn_names = [
+                ("PHC-EE (low)", "Uniform EE", "2017cents_kWh_7pct_low"),
+                ("PHC-EE (high)", "Uniform EE", "2017cents_kWh_3pct_high")]
+            # Set data file with public health benefits information
+            self.health_scn_data = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.health_data),
+                    names=("AVERT_Region", "EMM_Region", "Category",
+                           "2017cents_kWh_3pct_low", "2017cents_kWh_3pct_high",
+                           "2017cents_kWh_7pct_low",
+                           "2017cents_kWh_7pct_high"),
+                    delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -1291,7 +1320,9 @@ class Measure(object):
         remove (boolean): Determines whether measure should be removed from
             analysis engine due to insufficient market source data.
         energy_outputs (dict): Indicates whether site energy or captured
-            energy site-source conversions were used in measure preparation.
+            energy site-source conversions were used in measure preparation,
+            as well as regions used for this preparation and whether or not
+            public health cost adders were specified.
         handyvars (object): Global variables useful across class methods.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
         technology_type (string): Flag for supply- or demand-side technology.
@@ -1311,19 +1342,20 @@ class Measure(object):
 
     def __init__(
             self, base_dir, handyvars, handyfiles, site_energy, capt_energy,
-            regions, tsv_metrics, **kwargs):
+            regions, tsv_metrics, health_costs, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
-        # Check to ensure that measure name is proper length for plotting
-        if len(self.name) > 45:
+        # Check to ensure that measure name is proper length for plotting;
+        # for now, exempt measures with public health cost adders
+        if len(self.name) > 45 and "PHC" not in self.name:
             raise ValueError(
                 "ECM '" + self.name + "' name must be <= 45 characters")
         self.remove = False
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
             "site_energy": False, "captured_energy_ss": False,
-            "alt_regions": False, "tsv_metrics": False}
+            "alt_regions": False, "tsv_metrics": False, "health_costs": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
@@ -1339,6 +1371,13 @@ class Measure(object):
                     "energy use. To address this issue, restrict the "
                     "measure's fuel type to electricity.")
             self.energy_outputs["tsv_metrics"] = tsv_metrics
+        if health_costs is not None:
+            # Look for pre-determined health cost scenario names in the
+            # UsefulVars class, "health_scn_names" attribute
+            if "PHC-EE (low)" in self.name:
+                self.energy_outputs["health_costs"] = "Uniform EE-low"
+            elif "PHC-EE (high)" in self.name:
+                self.energy_outputs["health_costs"] = "Uniform EE-high"
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
@@ -2050,46 +2089,160 @@ class Measure(object):
                     # cost, performance, and lifetime fields that is generated
                     # by the 'Add ECM' web form in certain cases *** NOTE: WILL
                     # FIX IN FUTURE UI VERSION ***
-                    if isinstance(perf_meas, dict) and "undefined" in \
-                       perf_meas.keys():
-                        perf_meas = perf_meas["undefined"]
-                    if isinstance(perf_units, dict) and "undefined" in \
-                       perf_units.keys():
-                        perf_units = perf_units["undefined"]
-                    if isinstance(cost_meas, dict) and "undefined" in \
-                       cost_meas.keys():
-                        cost_meas = cost_meas["undefined"]
-                    if isinstance(cost_units, dict) and "undefined" in \
-                       cost_units.keys():
-                        cost_units = cost_units["undefined"]
-                    if isinstance(life_meas, dict) and "undefined" in \
-                       life_meas.keys():
-                        life_meas = life_meas["undefined"]
+                    if (any([type(x) is dict and "undefined" in x.keys()
+                             for x in [perf_meas, perf_units, cost_meas,
+                                       cost_units, life_meas]])):
+                        if isinstance(perf_meas, dict) and "undefined" in \
+                           perf_meas.keys():
+                            perf_meas = perf_meas["undefined"]
+                        if isinstance(perf_units, dict) and "undefined" in \
+                           perf_units.keys():
+                            perf_units = perf_units["undefined"]
+                        if isinstance(cost_meas, dict) and "undefined" in \
+                           cost_meas.keys():
+                            cost_meas = cost_meas["undefined"]
+                        if isinstance(cost_units, dict) and "undefined" in \
+                           cost_units.keys():
+                            cost_units = cost_units["undefined"]
+                        if isinstance(life_meas, dict) and "undefined" in \
+                           life_meas.keys():
+                            life_meas = life_meas["undefined"]
 
-                    # Restrict any measure cost/performance/lifetime/market
-                    # scaling info. that is a dict type to key chain info.
-                    if isinstance(perf_meas, dict) and mskeys[i] in \
-                       perf_meas.keys():
-                        perf_meas = perf_meas[mskeys[i]]
-                    if isinstance(perf_units, dict) and mskeys[i] in \
-                       perf_units.keys():
-                        perf_units = perf_units[mskeys[i]]
-                    if isinstance(cost_meas, dict) and mskeys[i] in \
-                       cost_meas.keys():
-                        cost_meas = cost_meas[mskeys[i]]
-                    if isinstance(cost_units, dict) and mskeys[i] in \
-                       cost_units.keys():
-                        cost_units = cost_units[mskeys[i]]
-                    if isinstance(life_meas, dict) and mskeys[i] in \
-                       life_meas.keys():
-                        life_meas = life_meas[mskeys[i]]
-                    if isinstance(mkt_scale_frac, dict) and mskeys[i] in \
-                            mkt_scale_frac.keys():
-                        mkt_scale_frac = mkt_scale_frac[mskeys[i]]
-                    if isinstance(mkt_scale_frac_source, dict) and \
-                            mskeys[i] in mkt_scale_frac_source.keys():
-                        mkt_scale_frac_source = \
-                            mkt_scale_frac_source[mskeys[i]]
+                    # Check for/handle breakouts of performance, cost,
+                    # lifetime, or market scaling information
+
+                    # Determine the full set of potential breakout keys
+                    # that should be represented in the given ECM attribute for
+                    # the current microsegment level (used to check for
+                    # missing information below)
+                    if (any([type(x) is dict for x in [
+                        perf_meas, perf_units, cost_meas, cost_units,
+                        life_meas, mkt_scale_frac,
+                            mkt_scale_frac_source]])):
+                        # primary/secondary level
+                        if (i == 0):
+                            break_keys = ["primary", "secondary"]
+                            err_message = ''
+                        # full set of climate breakouts
+                        elif (i == 1):
+                            break_keys = self.climate_zone
+                            err_message = "regions the measure applies to: "
+                        # full set of building breakouts
+                        elif (i == 2):
+                            break_keys = self.bldg_type
+                            err_message = "buildings the measure applies to: "
+                        # full set of fuel breakouts
+                        elif (i == 3):
+                            break_keys = self.fuel_type[mskeys[0]]
+                            err_message = "fuel types the measure applies to: "
+                        # full set of end use breakouts
+                        elif (i == 4):
+                            break_keys = self.end_use[mskeys[0]]
+                            err_message = "end uses the measure applies to: "
+                        # full set of technology breakouts
+                        elif (i == (len(mskeys) - 2)):
+                            break_keys = self.technology[mskeys[0]]
+                            err_message = \
+                                "technologies the measure applies to: "
+                        # full set of vintage breakouts
+                        elif (i == (len(mskeys) - 1)):
+                            break_keys = self.structure_type
+                            err_message = \
+                                "building vintages the measure applies to: "
+                        else:
+                            break_keys = ''
+                            err_message = ''
+
+                        # Restrict any measure cost/performance/lifetime/market
+                        # scaling info. that is a dict type to key chain info.
+                        # - in the process, check to ensure that if there is
+                        # breakout information provided for the given level in
+                        # the microsegment, this breakout information is
+                        # complete (for example, if performance is broken out
+                        # by climate region, ALL climate regions should be
+                        # present in the breakout keys)
+                        if isinstance(perf_meas, dict) and break_keys and all([
+                                x in perf_meas.keys() for x in break_keys]):
+                            perf_meas = perf_meas[mskeys[i]]
+                        elif isinstance(perf_meas, dict) and any(
+                                [x in perf_meas.keys() for x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' energy performance (energy_efficiency) '
+                                'must be broken out '
+                                'by ALL ' + err_message + str(break_keys))
+                        if isinstance(perf_units, dict) and break_keys and \
+                                all([x in perf_units.keys() for
+                                     x in break_keys]):
+                            perf_units = perf_units[mskeys[i]]
+                        elif isinstance(perf_units, dict) and any(
+                                [x in perf_units.keys() for x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' energy performance units ('
+                                'energy_efficiency_units) must be broken '
+                                'out by ALL ' + err_message + str(break_keys))
+                        if isinstance(cost_meas, dict) and break_keys and \
+                            all([x in cost_meas.keys() for
+                                 x in break_keys]):
+                            cost_meas = cost_meas[mskeys[i]]
+                        elif isinstance(cost_meas, dict) and any(
+                                [x in cost_meas.keys() for x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' installed cost (installed_cost) must '
+                                'be broken out '
+                                'by ALL ' + err_message + str(break_keys))
+                        if isinstance(cost_units, dict) and break_keys and \
+                            all([x in cost_units.keys() for
+                                 x in break_keys]):
+                            cost_units = cost_units[mskeys[i]]
+                        elif isinstance(cost_units, dict) and any(
+                                [x in cost_units.keys() for x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' installed cost units (installed_cost_'
+                                'units) must be broken out '
+                                'by ALL ' + err_message + str(break_keys))
+                        if isinstance(life_meas, dict) and break_keys and all([
+                                x in life_meas.keys() for x in break_keys]):
+                            life_meas = life_meas[mskeys[i]]
+                        elif isinstance(life_meas, dict) and any(
+                                [x in life_meas.keys() for x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' lifetime (product_lifetime) must be '
+                                'broken out '
+                                'by ALL ' + err_message + str(break_keys))
+                        if isinstance(mkt_scale_frac, dict) and break_keys \
+                            and all([x in mkt_scale_frac.keys() for
+                                     x in break_keys]):
+                            mkt_scale_frac = mkt_scale_frac[mskeys[i]]
+                        elif isinstance(mkt_scale_frac, dict) and any(
+                                [x in mkt_scale_frac.keys() for
+                                 x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' market scaling fractions (market_'
+                                'scaling_fractions) must be '
+                                'broken out by ALL ' + err_message +
+                                str(break_keys))
+                        if isinstance(mkt_scale_frac_source, dict) and \
+                            break_keys and all([
+                                x in mkt_scale_frac_source.keys() for
+                                x in break_keys]):
+                            mkt_scale_frac_source = \
+                                mkt_scale_frac_source[mskeys[i]]
+                        elif isinstance(mkt_scale_frac_source, dict) and any(
+                                [x in mkt_scale_frac_source.keys() for
+                                 x in break_keys]):
+                            raise KeyError(
+                                self.name +
+                                ' market scaling fraction source (market_'
+                                'scaling_fraction_source) must be '
+                                'broken out by ALL ' + err_message +
+                                str(break_keys))
+
                 # If no key match, break the loop
                 else:
                     if mskeys[i] is not None:
@@ -2750,6 +2903,29 @@ class Measure(object):
                         "Invalid performance or cost units for ECM '" +
                         self.name + "'")
 
+                # For electricity microsegments in measure scenarios that
+                # require the addition of public health cost data, retrieve
+                # the appropriate cost data for the given EMM region
+                if opts is not None and opts.health_costs is True and \
+                        "PHC" in self.name and "electricity" in mskeys:
+                    # Set row/column key information for the public health
+                    # cost scenario suggested by the measure name
+                    row_key = [x[1] for x in self.handyvars.health_scn_names if
+                               x[0] in self.name][0]
+                    col_key = [x[2] for x in self.handyvars.health_scn_names if
+                               x[0] in self.name][0]
+                    # Pull the appropriate public health cost information for
+                    # the current health cost scenario and EMM region; convert
+                    # from units of cents/primary kWh to $/MMBtu source
+                    phc_dat = ((self.handyvars.health_scn_data[
+                        numpy.in1d(
+                            self.handyvars.health_scn_data["Category"],
+                            row_key) & numpy.in1d(
+                            self.handyvars.health_scn_data["EMM_Region"],
+                            mskeys[1])][col_key])[0] / 100) * 293.07107
+                else:
+                    phc_dat = None
+
                 # Reduce energy costs and stock turnover info. to appropriate
                 # building type and - for energy costs - fuel, before
                 # entering into "partition_microsegment"
@@ -2978,6 +3154,16 @@ class Measure(object):
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][
                                                  "refrigeration"]}
+
+                # Add in public health costs to existing energy cost data
+                if opts is not None and opts.health_costs is True and \
+                        "PHC" in self.name and "electricity" in mskeys:
+                    # Update base energy costs with public health data
+                    cost_energy_base = {yr: (val + phc_dat) for yr, val in
+                                        cost_energy_base.items()}
+                    # Update measure energy costs with public health data
+                    cost_energy_meas = {yr: (val + phc_dat) for yr, val in
+                                        cost_energy_meas.items()}
 
                 # Find fraction of total new buildings in each year.
                 # Note: in each year, this fraction is calculated by summing
@@ -3811,41 +3997,60 @@ class Measure(object):
         # this with an empty dict
 
         if self.tsv_features is not None:
-            # By EMM region, building type, and end use
-            try:
-                tsv_adjustments = self.tsv_features[mskeys[1]][mskeys[2]][
-                    mskeys[4]]
-            # By EMM region and building type
-            except KeyError:
+            if (type(self.tsv_features) is dict and all([
+                x not in self.handyvars.tsv_feature_types for x in
+                    self.tsv_features.keys()])):
+
+                # By EMM region, building type, and end use
                 try:
-                    tsv_adjustments = self.tsv_features[mskeys[1]][mskeys[2]]
-                # By EMM region and end use
+                    tsv_adjustments = self.tsv_features[mskeys[1]][mskeys[2]][
+                        mskeys[4]]
+                # By EMM region and building type
                 except KeyError:
                     try:
                         tsv_adjustments = self.tsv_features[mskeys[1]][
-                            mskeys[4]]
-                    # By building type and end use
+                            mskeys[2]]
+                    # By EMM region and end use
                     except KeyError:
                         try:
-                            tsv_adjustments = self.tsv_features[mskeys[2]][
+                            tsv_adjustments = self.tsv_features[mskeys[1]][
                                 mskeys[4]]
-                        # By EMM region
+                        # By building type and end use
                         except KeyError:
                             try:
-                                tsv_adjustments = self.tsv_features[mskeys[1]]
-                            # By building type
+                                tsv_adjustments = self.tsv_features[mskeys[2]][
+                                    mskeys[4]]
+                            # By EMM region
                             except KeyError:
                                 try:
                                     tsv_adjustments = self.tsv_features[
-                                        mskeys[2]]
-                                # By end use
+                                        mskeys[1]]
+                                # By building type
                                 except KeyError:
                                     try:
                                         tsv_adjustments = self.tsv_features[
-                                            mskeys[4]]
-                                    # Not broken out by any of these
+                                            mskeys[2]]
+                                    # By end use
                                     except KeyError:
-                                        tsv_adjustments = self.tsv_features
+                                        try:
+                                            tsv_adjustments = \
+                                                self.tsv_features[
+                                                    mskeys[4]]
+                                        # Not broken out by any of these
+                                        except KeyError:
+                                            raise KeyError(
+                                                "Unexpected breakout of "
+                                                "tsv_features parameter for"
+                                                "measure " + self.name +
+                                                ". If this parameter is "
+                                                "broken out by region, "
+                                                "building type, or "
+                                                "end use, ensure that ALL "
+                                                "categories of these "
+                                                "variables are correctly "
+                                                "represented in the breakout.")
+            else:
+                tsv_adjustments = self.tsv_features
         else:
             tsv_adjustments = {}
 
@@ -4196,6 +4401,13 @@ class Measure(object):
                                 "measure: " + self.name + ". Valid reshaping "
                                 "operations include 'custom_daily_savings' "
                                 "or 'custom_annual_savings'.")
+                    # Yield error if unexpected TSV feature type is present
+                    else:
+                        raise KeyError(
+                            "Invalid feature type present in tsv_features "
+                            "attribute for measure " + self.name +
+                            " - valid types include: " +
+                            str(self.handyvars.tsv_feature_types))
                 # Update hourly fractions of annual baseline and efficient
                 # energy to reflect baseline hourly load shape plus effects of
                 # time-sensitive measure features on the baseline load (if any)
@@ -5720,6 +5932,7 @@ class Measure(object):
             # formatted as a list with certain elements containing 'all' (e.g.,
             # ['all heating,' 'central AC', 'room AC'])
             if self.technology[mseg_type] == 'all' or \
+                self.technology[mseg_type] == ['all'] or \
                 (type(self.technology[mseg_type]) == list and any([
                  t is not None and 'all ' in t for t in
                  self.technology[mseg_type]])) or (
@@ -5740,7 +5953,7 @@ class Measure(object):
                 elif isinstance(self.technology[mseg_type], list):
                     self.technology[mseg_type] = [
                         t for t in self.technology[mseg_type] if
-                        'all ' not in t]
+                        ('all ' not in t and t != 'all')]
                 else:
                     self.technology[mseg_type] = [self.technology[mseg_type]]
 
@@ -5775,7 +5988,8 @@ class Measure(object):
                                  t in self.handyvars.in_all_map["technology"][
                                  b][self.technology_type[mseg_type]][f][e] if
                                  t not in self.technology[mseg_type] and
-                                 (map_tech_orig == "all" or any([
+                                 (map_tech_orig == "all" or
+                                  map_tech_orig == ["all"] or any([
                                      e in torig for torig in map_tech_orig if
                                      'all ' in torig])) or e in map_tech_orig]
 
@@ -7196,6 +7410,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         tsv_data (dict): Data needed for time sensitive efficiency valuation.
         base_dir (string): Base directory.
         opts (object): Stores user-specified execution options.
+        regions (string): Regional breakouts to use.
+        tsv_metrics (boolean or list): TSV metrics settings.
 
     Returns:
         A list of dicts, each including a set of measure attributes that has
@@ -7208,7 +7424,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     # Initialize Measure() objects based on 'measures_update' list
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
-        opts.captured_energy, regions, tsv_metrics, **m) for m in measures]
+        opts.captured_energy, regions, tsv_metrics, opts.health_costs,
+        **m) for m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -7286,7 +7503,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 meas_obj = Measure(
                     base_dir, handyvars, handyfiles, opts.site_energy,
                     opts.captured_energy, regions, tsv_metrics,
-                    **meas_summary_data[0])
+                    opts.health_costs, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -7600,6 +7817,15 @@ def main(base_dir):
     else:
         tsv_metrics = None
 
+    # Ensure that if public cost health data are to be applied, EMM regional
+    # breakouts are set (health data use this resolution)
+    if opts is not None and opts.health_costs is True and regions != "EMM":
+        opts.alt_regions, regions = [True, "EMM"]
+        warnings.warn(
+            "WARNING: Analysis regions were set to EMM to allow public health "
+            "cost adders: ensure that ECM data reflect these EMM regions "
+            "(and not the default AIA regions)")
+
     # Custom format all warning messages (ignore everything but
     # message itself) *** Note: sometimes yields error; investigate ***
     # warnings.formatwarning = custom_formatwarning
@@ -7614,7 +7840,8 @@ def main(base_dir):
     #     raise ValueError("Inconsistent AEO version used across input files")
 
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles, regions, tsv_metrics)
+    handyvars = UsefulVars(
+        base_dir, handyfiles, regions, tsv_metrics, opts.health_costs)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -7660,8 +7887,8 @@ def main(base_dir):
                 # '/supporting_data/ecm_competition_data' folder), or
                 # c) measure JSON time stamp indicates it has been modified
                 # since the last run of 'ecm_prep.py' or d) the user added/
-                # removed either the "site_energy" or "captured_energy" cmd
-                # line arguments and the measure definition was not already
+                # removed the "site_energy," "captured_energy" or "tsv_metrics"
+                # cmd line arguments and the measure definition was not already
                 # prepared using these settings
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
@@ -7683,7 +7910,7 @@ def main(base_dir):
                           y["energy_outputs"]["alt_regions"] != regions)
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
-                   (opts is None or opts.tsv_metrics is True and
+                   (opts is not None and opts.tsv_metrics is True and
                     all([y["energy_outputs"]["tsv_metrics"] is False or
                          y["energy_outputs"]["tsv_metrics"] != tsv_metrics
                          for y in meas_summary if y["name"] ==
@@ -7696,7 +7923,7 @@ def main(base_dir):
                     all([y["energy_outputs"]["captured_energy_ss"] is True
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
-                   (opts is not None and opts.alt_regions is False and
+                   (opts is None or opts.alt_regions is False and
                     all([y["energy_outputs"]["alt_regions"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
@@ -7707,6 +7934,22 @@ def main(base_dir):
                     # Append measure dict to list of measure definitions
                     # to update if it meets the above criteria
                     meas_toprep_indiv.append(meas_dict)
+                    # Add copies of the measure that examine multiple scenarios
+                    # of public health cost data additions, assuming the
+                    # measure is not already a previously prepared copy
+                    # that reflects these additions (judging by name)
+                    if opts is not None and opts.health_costs is True and \
+                            "PHC" not in meas_dict["name"]:
+                        for scn in handyvars.health_scn_names:
+                            # Determine unique measure copy name
+                            new_name = meas_dict["name"] + "-" + scn[0]
+                            # Copy the measure
+                            new_meas = copy.deepcopy(meas_dict)
+                            # Set the copied measure name to the name above
+                            new_meas["name"] = new_name
+                            # Append the copied measure to list of measure
+                            # definitions to update
+                            meas_toprep_indiv.append(new_meas)
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -7861,7 +8104,7 @@ def main(base_dir):
         if meas_toprep_package:
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
-                handyvars, handyfiles, base_dir, opts, regions, tsv_metrics)
+                handyvars, handyfiles, base_dir, opts, regions)
 
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition
@@ -7939,6 +8182,9 @@ if __name__ == "__main__":
     # Optional flag to print all warning messages to stdout
     parser.add_argument("--verbose", action="store_true",
                         help="Print all warnings to stdout")
+    # Optional flag to introduce public health cost assessment
+    parser.add_argument("--health_costs", action="store_true",
+                        help="Flag addition of public health cost data")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 

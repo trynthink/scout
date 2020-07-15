@@ -3558,8 +3558,10 @@ def main(base_dir):
             raise ValueError(
                 "Inconsistent energy output units (site vs. source) used "
                 "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
                 "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py.")
+                "and rerun ecm_prep.py with desired command line options.")
         if not (all([m.energy_outputs["captured_energy_ss"] is True for
                      m in measures_objlist]) or
                 all([m.energy_outputs["captured_energy_ss"] is False for
@@ -3567,8 +3569,10 @@ def main(base_dir):
             raise ValueError(
                 "Inconsistent site-source conversion methods used "
                 "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
                 "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py.")
+                "and rerun ecm_prep.py with desired command line options.")
         if not (all([(m.energy_outputs["alt_regions"] is not False and
                       m.energy_outputs["alt_regions"] ==
                       measures_objlist[0].energy_outputs["alt_regions"]) for
@@ -3578,8 +3582,10 @@ def main(base_dir):
             raise ValueError(
                 "Inconsistent regional breakouts used "
                 "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
                 "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py.")
+                "and rerun ecm_prep.py with desired command line options.")
         if not (all([(m.energy_outputs["tsv_metrics"] is not False and
                       m.energy_outputs["tsv_metrics"] ==
                       measures_objlist[0].energy_outputs["tsv_metrics"]) for
@@ -3589,14 +3595,30 @@ def main(base_dir):
             raise ValueError(
                 "Inconsistent time sensitive valuation metrics used "
                 "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
                 "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py.")
+                "and rerun ecm_prep.py with desired command line options.")
+        if not (all([(m.energy_outputs["health_costs"] is not False and
+                      m.energy_outputs["health_costs"] ==
+                      measures_objlist[0].energy_outputs["health_costs"]) for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["health_costs"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent public health energy cost adders used "
+                "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py with desired command line options.")
     except AttributeError:
         raise ValueError(
             "One or more active ECMs lacks information needed to determine "
             "what energy units or conversions were used in its definition. "
             "To address this issue, delete the file "
-            "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
+            "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
+            "with desired command line options.")
 
     # Set a flag for the type of energy output desired (site, source-fossil
     # fuel equivalent, source-captured energy)
@@ -3715,8 +3737,10 @@ def main(base_dir):
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
 
-    # Plot output data in R when using AIA climate regions
-    if regions == "AIA":
+    # Plot output data in R when using AIA climate regions OR when using EMM
+    # regions to assess the public health benefits of efficiency
+    if regions == "AIA" or (
+            regions == "EMM" and "PHC" in measures_objlist[0].name):
         # Notify user that the output data are being plotted
         print('Plotting output data...', end="", flush=True)
 
