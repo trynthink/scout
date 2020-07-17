@@ -13,6 +13,7 @@ from argparse import ArgumentParser
 import subprocess
 import sys
 import warnings
+import numpy_financial as npf
 
 
 class UsefulInputFiles(object):
@@ -840,7 +841,7 @@ class Engine(object):
 
         # Calculate net present values (NPVs) using the above cashflows
         npv_s_delt, npv_e_delt, npv_c_delt = [
-            numpy.npv(self.handyvars.discount_rate, x) for x in [
+            npf.npv(self.handyvars.discount_rate, x) for x in [
                 cashflows_s_delt, cashflows_e_delt, cashflows_c_delt]]
 
         # Develop arrays of energy and carbon savings across measure
@@ -852,8 +853,8 @@ class Engine(object):
 
         # Calculate Net Present Value and annuity equivalent Net Present Value
         # of the above energy and carbon savings
-        npv_esave = numpy.npv(self.handyvars.discount_rate, esave_array)
-        npv_csave = numpy.npv(self.handyvars.discount_rate, csave_array)
+        npv_esave = npf.npv(self.handyvars.discount_rate, esave_array)
+        npv_csave = npf.npv(self.handyvars.discount_rate, csave_array)
 
         # Calculate portfolio-level financial metrics
 
@@ -914,7 +915,7 @@ class Engine(object):
                         unit_cost_s_com["rate " + str(ind + 1)],\
                             unit_cost_e_com["rate " + str(ind + 1)],\
                             unit_cost_c_com["rate " + str(ind + 1)] = \
-                            [numpy.npv(tps, x) for x in [
+                            [npf.npv(tps, x) for x in [
                              cashflows_s_tot, cashflows_e_tot,
                              cashflows_c_tot]]
                         if any([not math.isfinite(x) for x in [
@@ -937,7 +938,7 @@ class Engine(object):
 
             # IRR and payback given capital + energy cash flows
             try:
-                irr_e = numpy.irr(cashflows_s_delt + cashflows_e_delt)
+                irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
                 if not math.isfinite(irr_e):
                     raise(ValueError)
             except ValueError:
@@ -948,7 +949,7 @@ class Engine(object):
                 payback_e = 999
             # IRR and payback given capital + energy + carbon cash flows
             try:
-                irr_ec = numpy.irr(
+                irr_ec = npf.irr(
                     cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
                 if not math.isfinite(irr_ec):
                     raise(ValueError)

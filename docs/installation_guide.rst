@@ -67,17 +67,17 @@ In a Terminal window, at the command prompt (a line terminated with a $ characte
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Only one package, numpy, is required for Scout. To install it, at the command prompt in Terminal, type::
+Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Two packages, numpy and numpy_financial, are required for Scout. To install them, at the command prompt in Terminal, type::
 
-   pip3 install numpy
+   pip3 install numpy numpy_financial
 
-If you'd like to confirm that numpy was installed successfully, you can start Python from the command prompt in Terminal by typing::
+If you'd like to confirm that numpy and numpy_financial were installed successfully, you can start Python from the command prompt in Terminal by typing::
 
    python3
 
-and import numpy (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
+and import numpy and numpy_financial (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
 
-   import numpy
+   import numpy, numpy_financial
 
 If no error or warning messages appear, then the installation was successful and you can exit Python by typing ``quit()``.
 

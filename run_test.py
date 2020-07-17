@@ -11,6 +11,7 @@ import numpy
 import copy
 import itertools
 import os
+import numpy_financial as npf
 
 
 class CommonTestMeasures(object):
@@ -827,58 +828,58 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "residential": {"2009": None, "2010": None},
                     "commercial": {
                         "2009": {
-                            "rate 1": numpy.npv(10.0, [1.5, 1, 0]),
-                            "rate 2": numpy.npv(1.0, [1.5, 1, 0]),
-                            "rate 3": numpy.npv(0.45, [1.5, 1, 0]),
-                            "rate 4": numpy.npv(0.25, [1.5, 1, 0]),
-                            "rate 5": numpy.npv(0.15, [1.5, 1, 0]),
-                            "rate 6": numpy.npv(0.065, [1.5, 1, 0]),
-                            "rate 7": numpy.npv(0, [1.5, 1, 0])},
+                            "rate 1": npf.npv(10.0, [1.5, 1, 0]),
+                            "rate 2": npf.npv(1.0, [1.5, 1, 0]),
+                            "rate 3": npf.npv(0.45, [1.5, 1, 0]),
+                            "rate 4": npf.npv(0.25, [1.5, 1, 0]),
+                            "rate 5": npf.npv(0.15, [1.5, 1, 0]),
+                            "rate 6": npf.npv(0.065, [1.5, 1, 0]),
+                            "rate 7": npf.npv(0, [1.5, 1, 0])},
                         "2010": {
-                            "rate 1": numpy.npv(10.0, [1.25, 0.75, 0]),
-                            "rate 2": numpy.npv(1.0, [1.25, 0.75, 0]),
-                            "rate 3": numpy.npv(0.45, [1.25, 0.75, 0]),
-                            "rate 4": numpy.npv(0.25, [1.25, 0.75, 0]),
-                            "rate 5": numpy.npv(0.15, [1.25, 0.75, 0]),
-                            "rate 6": numpy.npv(0.065, [1.25, 0.755, 0]),
-                            "rate 7": numpy.npv(0, [1.25, 0.75, 0])}}},
+                            "rate 1": npf.npv(10.0, [1.25, 0.75, 0]),
+                            "rate 2": npf.npv(1.0, [1.25, 0.75, 0]),
+                            "rate 3": npf.npv(0.45, [1.25, 0.75, 0]),
+                            "rate 4": npf.npv(0.25, [1.25, 0.75, 0]),
+                            "rate 5": npf.npv(0.15, [1.25, 0.75, 0]),
+                            "rate 6": npf.npv(0.065, [1.25, 0.755, 0]),
+                            "rate 7": npf.npv(0, [1.25, 0.75, 0])}}},
                 "energy cost": {
                     "residential": {"2009": None, "2010": None},
                     "commercial": {
                         "2009": {
-                            "rate 1": numpy.npv(10.0, [0, 1, 1]),
-                            "rate 2": numpy.npv(1.0, [0, 1, 1]),
-                            "rate 3": numpy.npv(0.45, [0, 1, 1]),
-                            "rate 4": numpy.npv(0.25, [0, 1, 1]),
-                            "rate 5": numpy.npv(0.15, [0, 1, 1]),
-                            "rate 6": numpy.npv(0.065, [0, 1, 1]),
+                            "rate 1": npf.npv(10.0, [0, 1, 1]),
+                            "rate 2": npf.npv(1.0, [0, 1, 1]),
+                            "rate 3": npf.npv(0.45, [0, 1, 1]),
+                            "rate 4": npf.npv(0.25, [0, 1, 1]),
+                            "rate 5": npf.npv(0.15, [0, 1, 1]),
+                            "rate 6": npf.npv(0.065, [0, 1, 1]),
                             "rate 7": 2},
                         "2010": {
-                            "rate 1": numpy.npv(10.0, [0, 1, 1]),
-                            "rate 2": numpy.npv(1.0, [0, 1, 1]),
-                            "rate 3": numpy.npv(0.45, [0, 1, 1]),
-                            "rate 4": numpy.npv(0.25, [0, 1, 1]),
-                            "rate 5": numpy.npv(0.15, [0, 1, 1]),
-                            "rate 6": numpy.npv(0.065, [0, 1, 1]),
+                            "rate 1": npf.npv(10.0, [0, 1, 1]),
+                            "rate 2": npf.npv(1.0, [0, 1, 1]),
+                            "rate 3": npf.npv(0.45, [0, 1, 1]),
+                            "rate 4": npf.npv(0.25, [0, 1, 1]),
+                            "rate 5": npf.npv(0.15, [0, 1, 1]),
+                            "rate 6": npf.npv(0.065, [0, 1, 1]),
                             "rate 7": 2}}},
                 "carbon cost": {
                     "residential": {"2009": None, "2010": None},
                     "commercial": {
                         "2009": {
-                            "rate 1": numpy.npv(10.0, [0, 2.5, 2.5]),
-                            "rate 2": numpy.npv(1.0, [0, 2.5, 2.5]),
-                            "rate 3": numpy.npv(0.45, [0, 2.5, 2.5]),
-                            "rate 4": numpy.npv(0.25, [0, 2.5, 2.5]),
-                            "rate 5": numpy.npv(0.15, [0, 2.5, 2.5]),
-                            "rate 6": numpy.npv(0.065, [0, 2.5, 2.5]),
+                            "rate 1": npf.npv(10.0, [0, 2.5, 2.5]),
+                            "rate 2": npf.npv(1.0, [0, 2.5, 2.5]),
+                            "rate 3": npf.npv(0.45, [0, 2.5, 2.5]),
+                            "rate 4": npf.npv(0.25, [0, 2.5, 2.5]),
+                            "rate 5": npf.npv(0.15, [0, 2.5, 2.5]),
+                            "rate 6": npf.npv(0.065, [0, 2.5, 2.5]),
                             "rate 7": 5},
                         "2010": {
-                            "rate 1": numpy.npv(10.0, [0, 1.25, 1.25]),
-                            "rate 2": numpy.npv(1.0, [0, 1.25, 1.25]),
-                            "rate 3": numpy.npv(0.45, [0, 1.25, 1.25]),
-                            "rate 4": numpy.npv(0.25, [0, 1.25, 1.25]),
-                            "rate 5": numpy.npv(0.15, [0, 1.25, 1.25]),
-                            "rate 6": numpy.npv(0.065, [0, 1.25, 1.25]),
+                            "rate 1": npf.npv(10.0, [0, 1.25, 1.25]),
+                            "rate 2": npf.npv(1.0, [0, 1.25, 1.25]),
+                            "rate 3": npf.npv(0.45, [0, 1.25, 1.25]),
+                            "rate 4": npf.npv(0.25, [0, 1.25, 1.25]),
+                            "rate 5": npf.npv(0.15, [0, 1.25, 1.25]),
+                            "rate 6": npf.npv(0.065, [0, 1.25, 1.25]),
                             "rate 7": 2.5}}}},
                 "irr (w/ energy costs)": {
                     "2009": 3.45, "2010": 2.44},

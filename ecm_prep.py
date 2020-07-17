@@ -7406,6 +7406,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         msegs (dict): Baseline microsegment stock and energy use.
         msegs_cpl (dict): Baseline technology cost, performance, and lifetime.
         handyvars (object): Global variables of use across Measure methods.
+        handyfiles (object): Input files of use across Measure methods.
         cbecs_sf_byvint (dict): Commercial square footage by vintage data.
         tsv_data (dict): Data needed for time sensitive efficiency valuation.
         base_dir (string): Base directory.
@@ -7469,8 +7470,14 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
 
     Args:
         packages (dict): Names of packages and measures that comprise them.
-        measures (dict): Attributes of individual efficiency measures.
+        meas_update_objs (dict): Attributes of individual efficiency measures.
+        meas_summary (): List of dicts including previously prepared ECM data.
+        handyvars (object): Global variables of use across Measure methods.
+        handyfiles (object): Input files of use across Measure methods.
+        base_dir (string): Base directory.
         opts (object): Stores user-specified execution options.
+        regions (string): Regional breakouts to use.
+        tsv_metrics (boolean or list): TSV metrics settings.
 
     Returns:
         A dict with packaged measure attributes that can be added to the
@@ -8104,7 +8111,7 @@ def main(base_dir):
         if meas_toprep_package:
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
-                handyvars, handyfiles, base_dir, opts, regions)
+                handyvars, handyfiles, base_dir, opts, regions, tsv_metrics)
 
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition

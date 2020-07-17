@@ -6,20 +6,18 @@
 
 # See also: https://github.com/travis-ci/travis-ci/issues/2650
 
+# Updated based on Travis-CI implementing improved python
+# support and switching to xenial as default build environment
+# https://docs.travis-ci.com/user/languages/python/
+# https://blog.travis-ci.com/2019-08-07-extensive-python-testing-on-travis-ci
+
 language: python
 python:
   - "3.6"
   - "3.7"
   - "3.8"
 
-# Download and set up anaconda
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  # Update conda itself
-  - conda update --yes conda
   # Set up grunt by installing grunt-cli
   # and the dependencies listed in package.json
   - npm install -g grunt-cli
@@ -27,9 +25,8 @@ before_install:
 
 # Install packages
 install:
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy>=1.16 scipy flake8 requests
-  - source activate testenv
-  # - pip -3 -m install xlrd
+  - pip install -U pip
+  - pip install numpy>=1.16 scipy flake8 requests numpy-financial
 
 # Run test(s)
 script:
