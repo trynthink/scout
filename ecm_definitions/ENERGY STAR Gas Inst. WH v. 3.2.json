@@ -9,32 +9,32 @@
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "",
-    "source_data": {
-      "title": "ENERGY STAR Product Specifications for Residential Water Heaters v. 3.2",
-      "author": null,
-      "organization": "U.S. Environmental Protection Agency",
-      "year": 2015,
-      "table": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}},
+    "source_data": [{
+       "title": "ENERGY STAR Product Specifications for Residential Water Heaters v. 3.2",
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 3,
+       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.9,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "High efficiency UEF in 2017",
-    "source_data": {
+    "source_data": [{
       "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
-      "author": null,
-      "organization": "U.S. Environmental Protection Agency",
-      "year": 2015,
-      "table": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}},
+       "author": "Energy Star",
+       "organization": "US EPA",
+       "year": 2015,
+       "table": 3,
+       "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_1.pdf"}]},
   "installed_cost": 2300,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Median of ENERGY STAR total installed cost in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Gas-fired Instantaneous Water Heaters",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -46,7 +46,7 @@
   "product_lifetime_source": {
     "notes": "Median of ENERGY STAR lifetime in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Gas-fired Instantaneous Water Heaters",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,

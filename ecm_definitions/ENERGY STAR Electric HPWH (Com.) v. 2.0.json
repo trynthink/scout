@@ -1,20 +1,20 @@
 {
-  "name": "ENERGY STAR HPWH (Com.) v. 2.0 (FS)",
+  "name": "ENERGY STAR Electric HPWH (Com.) v. 2.0",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
-  "fuel_type": ["natural gas", "distillate"],
-  "technology": "all",
+  "fuel_type": "electricity",
+  "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
   "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "ENERGY STAR-qualified commercial electric heat pump water heater",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters Version 2.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters, Version 2.0",
       "author": null,
       "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
-      "pages": 4,
+      "pages": null,
       "URL": "https://www.energystar.gov/sites/default/files/Program%20Requirements_Commercial%20Water%20Heaters_Final%20Version%202.0_12%2029%2017_0.pdf"}
   },
   "market_exit_year": null,
@@ -22,9 +22,9 @@
   "energy_efficiency": 3,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "From Table 2: Requirements for Certified Electric Heat Pump Water Heaters",
+    "notes": "Table 2: Requirements for Certified Electric Heat Pump Water Heaters",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters Version 2.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters, Version 2.0",
       "author": null,
       "organization": "U.S. Environmental Protection Agency",
       "year": 2018,
@@ -56,21 +56,20 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
-  "fuel_switch_to": "electricity",
+  "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "ENERGY STAR compliant commercial heat pump water heater in 2018",
+  "_description": "ENERGY STAR compliant commercial heat pump water heater in 2017 (specification forthcoming)",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Sep 26 09:00:37 EDT 2018"
-  },
+    "timestamp": "Wed Sep 26 09:00:37 EDT 2018"},
   "_updated_by": {
     "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy Laboratory",
-    "email": "ardelia.clarke@nrel.gov" ,
-    "timestamp": "Tue Jan 21 16:26:37 MST 2020"
+    "organization": "National Renewable Energy National",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 15:22:47 MST 2020"
   }
 }

@@ -33,10 +33,10 @@
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },
-  "installed_cost": 6975,
-  "cost_units": "2013$/unit",
+  "installed_cost": 7000,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "$25/kBtu/h cost premium (Table 3 in BTO MYPP) relative to best in market residential air source heat pump (see notes below Table 3 in BTO MYPP) + baseline cost of $68/kBtu/h ($5100 total installed cost / 75 kBtu/h typical capacity, from EIA data for 2020 'typical' residential air source heat pumps) * 75 kBtu/h typical capacity per unit (from EIA data)",
+    "notes": "$25/kBtu/h cost premium (Table 3 in BTO MYPP) relative to best in market residential air source heat pump (see notes below Table 3 in BTO MYPP) + baseline cost of $169.4/kBtu/h ($6100 total installed cost / 36 kBtu/h typical capacity, from EIA data for 2020 'typical' residential air source heat pumps) * 36 kBtu/h typical capacity per unit (from EIA data)",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

@@ -11,8 +11,8 @@
     "notes": "Year in which standard went into effect",
     "source_data": null
   },
-  "market_exit_year": 2023,
-  "market_exit_year_source": "Year in which standard escalates performance requirement",
+  "market_exit_year": null,
+  "market_exit_year_source": null,
   "energy_efficiency": 0.8,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {

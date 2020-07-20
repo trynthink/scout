@@ -11,11 +11,11 @@
     "oil_boiler", "oil_furnace"],
   "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,
-      "organization": "U.S. Environmental Protection Agency",
+      "organization": "ENERGY STAR",
       "year": 2018,
       "pages": 4,
       "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"
@@ -30,7 +30,7 @@
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,
-      "organization": "U.S. Environmental Protection Agency",
+      "organization": "ENERGY STAR",
       "year": 2018,
       "pages": 3,
       "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
@@ -86,7 +86,7 @@
       "fraction_derivation": "Cooling multiple of 55.7% was determined as a proportion of commercial building square footage where heating is done using natural gas from CBECS 2012 microdata. Total commercial square footage with electric cooling in the sample was 73614 million ft^2; of those buildings, natural gas heating is used in 40980 million ft^2."
     }
   },
-  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance specification in 2017",
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

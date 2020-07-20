@@ -33,10 +33,10 @@
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },
-  "installed_cost": 162.6,
+  "installed_cost": 136.8,
   "cost_units": "2013$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "$22.9/kBtu/h cost premium + $12575/90kBtu/h = $139.7/kBtu/hr baseline; cost premium from BTO MYPP Table 3, baseline cost from average of typical and best total installed cost for 2020 in EIA equipment cost data for commercial rooftop air conditioners",
+    "notes": "$22.9/kBtu/h cost premium + $10250/90kBtu/h = $113.9/kBtu/hr baseline; cost premium from BTO MYPP Table 3, baseline cost from typical total installed cost for 2020 in EIA equipment cost data for commercial rooftop air conditioners",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -50,7 +50,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 112,
+      "pages": 113,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]
   },

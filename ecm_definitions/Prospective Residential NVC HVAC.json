@@ -33,10 +33,10 @@
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },
-  "installed_cost": 6119,
+  "installed_cost": 4430.8,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "$20.3/kBtu/h cost premium (from Table 3 of BTO MYPP) * 36 kBtu/h/unit (typical capacity for 2020 'typical' residential air source heat pump in EIA document) + 5100 2017$/unit baseline cost (for 2020 'typical' residential air source heat pump in EIA document)",
+    "notes": "$20.3/kBtu/h cost premium (from Table 3 of BTO MYPP) * 36 kBtu/h/unit (typical capacity for 2020 'typical' residential CAC in EIA document) + 3700 2017$/unit baseline cost (for 2020 'typical' residential CAC in EIA document)",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -50,20 +50,20 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": 26,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]
   },
-  "product_lifetime": 15.5,
+  "product_lifetime": 18,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential air source heat pump",
+    "notes": "Median of average lifetimes for 2020 'typical' residential AC",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": 26,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },

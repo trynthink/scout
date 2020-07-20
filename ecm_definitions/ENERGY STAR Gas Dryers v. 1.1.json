@@ -6,16 +6,16 @@
   "end_use": "drying",
   "fuel_type": "natural gas",
   "technology": "all",
-  "market_entry_year": 2015,
+  "market_entry_year": 2017,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
-    "source_data": {
+    "notes": " ",
+    "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": null,
-       "organization": "U.S. Environmental Protection Agency",
-       "year": 2015,
+       "author": "US EPA",
+       "organization": "US EPA",
+       "year": 2017,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.48,
@@ -24,8 +24,8 @@
     "notes": "CEF in lbs/kWh",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": null,
-       "organization": "U.S. Environmental Protection Agency",
+       "author": "US EPA",
+       "organization": "US EPA",
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
@@ -57,7 +57,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "ENERGY STAR gas dryer in beginning 2015",
+  "_description": "ENERGY STAR gas dryer in 2017",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",

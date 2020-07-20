@@ -33,10 +33,10 @@
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },
-  "installed_cost": 8700,
+  "installed_cost": 8112,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "$3600/unit ($1.5/ft^2 floor cost premium * 2400 ft^2 floor house/unit from Scout 'ecm_cost_convert.json' file) + $5100/unit baseline (from EIA data for the total installed cost of 2020 'typical' residential air source heat pumps)",
+    "notes": "$3012/unit ($1.5/ft^2 floor cost premium * 2008 ft^2 floor house/unit from RECS 2015 Table HC10.1 Total square footage of U.S. homes, 2015 file - divide total SF by total homes) + $5100/unit baseline (from EIA data for the total installed cost of 2020 'typical' residential air source heat pumps)",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

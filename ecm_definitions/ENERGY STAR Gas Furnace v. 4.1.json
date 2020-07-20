@@ -8,14 +8,16 @@
   "technology": "furnace (NG)",
   "market_entry_year": 2013,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.1",
       "author": null,
-      "organization": "U.S. Environmental Protection Agency",
+      "organization": "ENERGY STAR",
       "year": 2013,
       "pages": 2,
-      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"}},
+      "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"
+    }
+  },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
@@ -30,7 +32,7 @@
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.1",
       "author": null,
-      "organization": "U.S. Environmental Protection Agency",
+      "organization": "ENERGY STAR",
       "year": 2013,
       "pages": 2,
       "URL": "https://www.energystar.gov/sites/default/files/Furnaces%20Version%204.1_Program%20Requirements_0.pdf"
@@ -46,7 +48,7 @@
   "installed_cost_source": {
     "notes": "ENERGY STAR total installed cost in 2017, AIA CZ1-3 map to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Gas-Fired Furances",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -59,7 +61,7 @@
   "product_lifetime_source": {
     "notes": "ENERGY STAR average lifetime in 2017, AIA CZ1/2 correspond to 'North' and all other climates to 'South'",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -71,7 +73,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Standard size residential natural gas furnace that meets the ENERGY STAR performance specification in 2017",
+  "_description": "Standard size residential natural gas furnace that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

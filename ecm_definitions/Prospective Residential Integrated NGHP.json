@@ -36,7 +36,7 @@
   "installed_cost": 4880,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "$1.1/ft^2 floor cost premium * 2400 ft^2 floor for typical home + $2240 baseline unit (2020 'typical' residential gas-fired furnace 'rest of country' from EIA data)",
+    "notes": "$2208 ($1.1/ft^2 floor cost premium * 2008 ft^2 floor house/unit from RECS 2015 Table HC10.1 Total square footage of U.S. homes, 2015 file - divide total SF by total homes) + $2240 baseline unit (2020 'typical' residential gas-fired furnace 'rest of country' from EIA data)",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

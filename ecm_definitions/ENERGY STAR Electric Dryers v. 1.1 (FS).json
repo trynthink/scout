@@ -9,13 +9,13 @@
   "market_entry_year": 2017,
   "market_entry_year_source": {
     "notes": " ",
-    "source_data": {
+    "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
        "author": null,
        "organization": "U.S. Environmental Protection Agency",
        "year": 2017,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.93, 
@@ -32,7 +32,7 @@
   "installed_cost": 655,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Average total installed cost across typical and high performance electric dryer in 2017",
+    "notes": "Total average ENERGY STAR installed cost across typical and high performance dryer in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
@@ -44,7 +44,7 @@
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetime for typical and high performance electric dryer in 2017",
+    "notes": "Median of average ENERGY STAR life for typical and high performance dryer in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
@@ -57,7 +57,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
-  "_description": "ENERGY STAR electric dryer in 2017",
+  "_description": "ENERGY STAR dryer in 2017",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",

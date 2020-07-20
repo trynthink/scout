@@ -39,9 +39,9 @@
     }
   },
   "installed_cost": 166.66,
-  "cost_units": "2013$/kBtu/h heating",
+  "cost_units": "2013$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "$25/kBtu/h + baseline cost of $141.66/kBtu/h ($5100/36 kBtu/h); incremental installed cost from Table 3 of BTO MYPP, baseline cost from 2020 typical residential air source heat pump total installed cost",
+    "notes": "$25/kBtu/h + baseline cost of $169.444/kBtu/h ($6100/36 kBtu/h); incremental installed cost from Table 3 of BTO MYPP, baseline cost from 2020 best (see MYPP footnote) residential air source heat pump total installed cost",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

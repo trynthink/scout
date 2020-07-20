@@ -1,5 +1,5 @@
 {
-  "name": "ENERGY STAR LED Bulbs (Res.) v. 2.2",
+  "name": "ENERGY STAR LED Bulbs v. 2.2",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -12,7 +12,7 @@
     ],
   "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements for Lamps (Light Bulbs): Section 9. Photometric Performance, Table 9.1 Luminous Efficacy: All Lamps",
       "author": null,
@@ -64,7 +64,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Typical wattage residential LED bulbs that meet the ENERGY STAR performance specification in 2018",
+  "_description": "Typical wattage residential LED bulbs that meet the ENERGY STAR performance standard in 2017",
   "_notes": "Assumes standard bulb is for 60 W replacement",
   "_added_by": {
     "name": "Jared Langevin",

@@ -8,11 +8,11 @@
   "technology": null,
   "market_entry_year": 2014,
   "market_entry_year_source": {
-    "notes": "",
+    "notes": " ",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements for Residential Refrigerators and Freezers",
-       "author": null ,
-       "organization": "U.S. Environmental Protection Agency",
+       "author": "Energy Star",
+       "organization": "U.S. EPA",
        "year": 2014,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/specs//private/ENERGY%20STAR%20Final%20Version%205.0%20Residential%20Refrigerators%20and%20Freezers%20Program%20Requirements.pdf"}]},

@@ -12,7 +12,7 @@
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
       "author": null,
@@ -30,7 +30,7 @@
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Split system (see table 1); conversion from original specification: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+    "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
     "source_data": [
       {
         "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
@@ -92,7 +92,7 @@
       "fraction_derivation": "Cooling multiple of 54.2% was determined as a proportion of total cooled homes where heating is done using natural gas from RECS 2015 microdata. Total cooled homes in the sample was found to be 103,100,000, and then filtered for square footage where natural gas is used for heating 55,900,000."
     }
   },
-  "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance specification in 2017",
+  "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

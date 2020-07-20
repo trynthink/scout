@@ -8,11 +8,11 @@
   "technology": "room AC",
   "market_entry_year": 2015,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which standard went into effect",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
-       "author": "null",
-       "organization": "U.S. Environmental Protection Agency",
+       "author": "Energy Star",
+       "organization": "US EPA",
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
@@ -24,8 +24,8 @@
     "notes": "Assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP (CEER / 3.412).",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
-       "author": "null",
-       "organization": "U.S. Environmental Protection Agency",
+       "author": "Energy Star",
+       "organization": "US EPA",
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},

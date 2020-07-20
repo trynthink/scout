@@ -8,7 +8,7 @@
   "technology": "boiler (NG)",
   "market_entry_year": 2014,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Boilers Version 3.0",
       "author": null,
@@ -38,7 +38,7 @@
   "installed_cost_source": {
     "notes": "Median of total ENERGY STAR installed cost range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A- Gas-Fired Boilers",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -51,7 +51,7 @@
   "product_lifetime_source": {
     "notes": "Median of average ENERGY STAR lifetime in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,

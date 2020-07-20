@@ -8,7 +8,7 @@
   "technology": "rooftop_AC",
   "market_entry_year": 2018,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR specification will go into effect (see note under table)",
+    "notes": "Year in which ENERGY STAR standard will go into effect (see note under table)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -70,7 +70,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance specification in 2017",
+  "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

@@ -1,12 +1,13 @@
 {
-  "name": "ENERGY STAR LED Bulbs (Com.) v. 2.2",
+  "name": "ENERGY STAR Commercial LED Lighting",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral",
-                 "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED PAR38"],
+                 "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38",
+                 "LED PAR38"],
   "market_entry_year": 2015,
   "market_entry_year_source": {
     "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
@@ -68,7 +69,7 @@
     "LED PAR38": 6.47},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Available ENERGY STAR commercial LED lighting lifetime levels in 2015 for appropriate type of luminaire",
+    "notes": "Available ENERGY STAR commercial LED lighting lifetime levels in 2015 for appropriate type of luminaire (in terms of lamp efficacy)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
