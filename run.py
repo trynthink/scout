@@ -1139,7 +1139,7 @@ class Engine(object):
         # captured by competing measures; also initialize a dict that sums
         # market fractions by year across competing measures (used to normalize
         # the measure market fractions such that they all sum to 1)
-        mkt_fracs = [{} for l in range(0, len(measures_adj))]
+        mkt_fracs = [{} for meas in range(0, len(measures_adj))]
         mkt_fracs_tot = dict.fromkeys(self.handyvars.aeo_years, 0)
 
         # Loop through competing measures and calculate market shares for each
@@ -1463,8 +1463,8 @@ class Engine(object):
         # the total annualized capital + operating costs for each measure
         # and discount rate level (used to choose which measure is adopted
         # under each discount rate level)
-        mkt_fracs = [{} for l in range(0, len(measures_adj))]
-        tot_cost = [{} for l in range(0, len(measures_adj))]
+        mkt_fracs = [{} for meas in range(0, len(measures_adj))]
+        tot_cost = [{} for meas in range(0, len(measures_adj))]
 
         # Calculate the total annualized cost (capital + operating) needed to
         # determine market shares below
@@ -1547,10 +1547,10 @@ class Engine(object):
                         # total cost dict entry for the given measure
                         tot_cost[ind][yr] = [
                             [] for n in range(length_array[ind_l])]
-                        for l in range(0, len(tot_cost[ind][yr])):
-                            for dr in sorted(cap_cost[l].keys()):
-                                tot_cost[ind][yr][l].append(
-                                    cap_cost[l][dr] + op_cost[l][dr])
+                        for c_l in range(0, len(tot_cost[ind][yr])):
+                            for dr in sorted(cap_cost[c_l].keys()):
+                                tot_cost[ind][yr][c_l].append(
+                                    cap_cost[c_l][dr] + op_cost[c_l][dr])
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as point values for all competing measures
                     else:
@@ -1598,12 +1598,12 @@ class Engine(object):
                     if length_array[ind_l] > 0:
                         mkt_fracs[ind][yr] = [
                             [] for n in range(length_array[ind_l])]
-                        for l in range(length_array[ind_l]):
-                            for ind2, dr in enumerate(tot_cost[ind][yr][l]):
+                        for c_l in range(length_array[ind_l]):
+                            for ind2, dr in enumerate(tot_cost[ind][yr][c_l]):
                                 # Find the lowest annualized cost for the given
                                 # set of competing measures and discount bin
                                 min_val = min([
-                                    tot_cost[x][yr][l][ind2] for x in
+                                    tot_cost[x][yr][c_l][ind2] for x in
                                     range(0, len(measures_adj)) if
                                     yr in tot_cost[x].keys()])
                                 # Determine how many of the competing measures
@@ -1612,22 +1612,22 @@ class Engine(object):
                                 min_val_ecms = [
                                     x for x in range(0, len(measures_adj)) if
                                     yr in tot_cost[x].keys() and
-                                    tot_cost[x][yr][l][ind2] == min_val]
+                                    tot_cost[x][yr][c_l][ind2] == min_val]
                                 # If the current measure has the lowest
                                 # annualized cost, assign it the appropriate
                                 # market share for the current discount rate
                                 # category being looped through, divided by the
                                 # total number of competing measures that share
                                 # the lowest annualized cost
-                                if tot_cost[ind][yr][l][ind2] == min_val:
-                                    mkt_fracs[ind][yr][l].append(
+                                if tot_cost[ind][yr][c_l][ind2] == min_val:
+                                    mkt_fracs[ind][yr][c_l].append(
                                         mkt_dists[ind2] / len(min_val_ecms))
                                 # Otherwise, set its market share for that
                                 # discount rate bin to zero
                                 else:
-                                    mkt_fracs[ind][yr][l].append(0)
-                            mkt_fracs[ind][yr][l] = sum(
-                                mkt_fracs[ind][yr][l])
+                                    mkt_fracs[ind][yr][c_l].append(0)
+                            mkt_fracs[ind][yr][c_l] = sum(
+                                mkt_fracs[ind][yr][c_l])
                         # Convert market fractions list to numpy array for
                         # use in compete_adj function below
                         mkt_fracs[ind][yr] = numpy.array(
