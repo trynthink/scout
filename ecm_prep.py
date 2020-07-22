@@ -1370,6 +1370,13 @@ class Measure(object):
                     "be calculated for non-electric baseline segments of "
                     "energy use. To address this issue, restrict the "
                     "measure's fuel type to electricity.")
+            if self.fuel_switch_to is not None:
+                raise ValueError(
+                    "Fuel switching found for measure '" + self.name +
+                    " alongside '--tsv_metrics' option. Fuel "
+                    "switching is not currently supported when these metric "
+                    "calculations are desired. To address this issue, "
+                    "set the measure's 'fuel_switch_to' attribute to null.")
             self.energy_outputs["tsv_metrics"] = tsv_metrics
         if health_costs is not None:
             # Look for pre-determined health cost scenario names in the
@@ -1448,6 +1455,13 @@ class Measure(object):
                     "features cannot be implemented for non-electric "
                     "baseline segments of energy use. To address this issue, "
                     "restrict the measure's fuel type to electricity.")
+            if self.fuel_switch_to is not None:
+                raise ValueError(
+                    "Fuel switching found for measure '" + self.name +
+                    " alongside time sensitive valuation features. Fuel "
+                    "switching is not currently supported when these features "
+                    "are present. To address this issue, "
+                    "set the measure's 'fuel_switch_to' attribute to null.")
             # If the ECM is assigned a custom savings shape, load the
             # associated custom savings shape data from a CSV file
             if "shape" in self.tsv_features.keys() and \
@@ -6712,7 +6726,9 @@ class MeasurePackage(Measure):
         remove (boolean): Determines whether package should be removed from
             analysis engine due to insufficient market source data.
         energy_outputs (dict): Indicates whether site energy or captured
-            energy site-source conversions were used in measure preparation.
+            energy site-source conversions were used in measure preparation;
+            whether alternate regions were used; whether tsv metrics were
+            used; and whether public health cost adders were used.
         market_entry_year (int): Earliest year of market entry across all
             measures in the package.
         market_exit_year (int): Latest year of market exit across all
@@ -6750,7 +6766,7 @@ class MeasurePackage(Measure):
         self.remove = False
         self.energy_outputs = {
             "site_energy": False, "captured_energy_ss": False,
-            "alt_regions": False, "tsv_metrics": False}
+            "alt_regions": False, "tsv_metrics": False, "health_costs": False}
         # Check for consistent use of site or source energy units for all
         # ECMs in package
         if all([x.energy_outputs["site_energy"] is True for
@@ -6809,6 +6825,22 @@ class MeasurePackage(Measure):
         else:
             raise ValueError(
                 'Inconsistent time sensitive valuation metrics used '
+                'across contributing ECMs for package: ' + str(self.name) +
+                "'. To address this issue, delete the file "
+                "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
+        # Check for consistent use of health costs across all ECMs in a package
+        if all([x.energy_outputs["health_costs"] is not False and (
+            x.energy_outputs["health_costs"] ==
+            self.contributing_ECMs[0].energy_outputs["health_costs"]) for
+                x in self.contributing_ECMs]):
+            self.energy_outputs["health_costs"] = \
+                self.contributing_ECMs[0].energy_outputs["health_costs"]
+        elif all([x.energy_outputs["health_costs"] is False for
+                 x in self.contributing_ECMs]):
+            self.energy_outputs["health_costs"] = False
+        else:
+            raise ValueError(
+                'Inconsistent public health cost assumptions used '
                 'across contributing ECMs for package: ' + str(self.name) +
                 "'. To address this issue, delete the file "
                 "./supporting_data/ecm_prep.json and rerun ecm_prep.py.")
