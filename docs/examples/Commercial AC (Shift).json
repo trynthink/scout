@@ -1,9 +1,13 @@
 {
   "name": "Commercial AC (Shift)",
-  "time_sensitive_valuation": {
-      "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 12}
+  "tsv_features": {
+      "shift": {
+        "offset_hrs_earlier": 12,
+        "relative energy change fraction": 0.1,
+        "start_day": 152, "stop_day": 174,
+        "start_hour": 12, "stop_hour": 20}
   },
-  "time_sensitive_valuation_source": {
+  "tsv_source": {
     "notes": "Hypothetical time sensitive valuation information, not tied to a specific source",
     "source_data": [{
       "title": "",
@@ -12,8 +16,8 @@
       "year": 0,
       "pages": 0,
       "URL": ""}]},
-  "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "climate_zone": ["ERCT", "CAMX"],
+  "bldg_type": ["assembly", "large office"],
   "structure_type": "all",
   "end_use": "cooling",
   "fuel_type": "electricity",

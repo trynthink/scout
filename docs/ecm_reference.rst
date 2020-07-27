@@ -32,14 +32,28 @@ For some keys, there are shorthand summary values that can be used when all or a
 
 .. _ecm-baseline_climate-zone:
 
-Climate zone
-~~~~~~~~~~~~
+Climate zone (default regions)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| AIA_CZ3 |chunk-b| AIA Climate Zone 3 |close|, |tooltip| AIA_CZ4 |chunk-b| AIA Climate Zone 4 |close|, |tooltip| AIA_CZ5 |chunk-b| AIA Climate Zone 5 |close|; all
 
 .. figure:: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg
 
    Map of American Institute of Architects (AIA) climate zones for the continental U.S., Alaska, and Hawaii.
+
+.. _ecm-baseline_climate-zone-alt:
+
+Alternate regions
+~~~~~~~~~~~~~~~~~
+
+.. note::
+   These alternate regions are only permitted when |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` option, as described in :ref:`tuts-2-cmd-opts`. 
+
+ERCT, FRCC, MROE, MROW, NEWE, NYCW, NYLI, NYUP, RFCE, RFCM, RFCW, SRDA, SRGW, SRSE, SRCE, SRVC, SPNO, SPSO, AZNM, CAMX, NWPP, RMPA; all
+
+.. figure:: images/eia_emm.*
+
+   Map of U.S. EIA Electricity Market Module (EMM) regions in the 2019 Annual Energy Outlook.
 
 .. _ecm-baseline_building-type:
 
@@ -459,8 +473,15 @@ climate_zone
 Either a single climate zone or list of climate zones to which the ECM applies. The climate zone strings must come from the list of :ref:`valid entries <ecm-baseline_climate-zone>` in the :ref:`ecm-def-reference`. ::
 
    {...
-    "climate_zone": ["AIA_CZ2", "AIA_CZ3"],
+    "climate_zone": ["AIA_CZ2", "AIA_CZ3", ...],
     ...}
+
+::
+
+   {...
+    "climate_zone": ["ERCT", "CAMX", "RMPA", "AZNM", "NEWE", "NWPP", ...],
+    ...}
+
 
 .. _json-bldg_type:
 
@@ -855,60 +876,61 @@ This key is used to specify the source of the ECM's product lifetime values. The
          "URL": "http://energy.gov/sites/prod/files/2016/09/f33/energysavingsforecast16_2.pdf"}]},
     ...}
 
-.. _json-time_sensitive_valuation:
+.. _json-tsv_features:
 
-time_sensitive_valuation
-~~~~~~~~~~~~~~~~~~~~~~~~
+tsv_features
+~~~~~~~~~~~~
 
 * **Parents:** root
-* **Children:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`, (optional) values of :ref:`json-end_use`
+* **Children:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`, (optional) values of :ref:`json-climate_zone`, :ref:`json-bldg_type`, and :ref:`json-end_use`
 * **Type:** dict
 
-The time sensitive valuation value(s) define the time sensitive efficiency impacts of the technology being described by the ECM. One or more time sensitive ECM features may be described, including :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, and/or :ref:`json-shape`. Each feature is indicated as a dict key as follows. ::
+This key specifies the time-sensitive (e.g., hourly or sub-annual) impacts of the technology being described by the ECM. One or more time sensitive ECM features may be described, including :ref:`json-shed`, :ref:`json-shift`, and/or :ref:`json-shape`. Each feature is indicated as a dict key as follows. ::
 
    {...
-    "time_sensitive_valuation": {
-      "conventional": {...}},
+    "tsv_features": {
+      "shed": {...}},
     ...}
 
 If an ECM has multiple time sensitive features, they may be specified as follows. ::
 
    {...
-    "time_sensitive_valuation": {
-      "conventional": {...},
+    "tsv_features": {
+      "shed": {...},
       ...,
       "shape": {...}},
     ...}
 
-Optionally, a user may define an end use break down of time sensitive features by setting the end use as the first level in the dict key hierarchy, followed by the time sensitive feature type key. ::
+Optionally, a user may break out time sensitive features by region, building type, and/or end use by setting these variables as the first levels in the dict key hierarchy, followed by the time sensitive feature type key. ::
 
    {...
-    "time_sensitive_valuation": {
-      "heating": {
-         "conventional": {...},
-         ...,
-         "shape": {...}},
-      "cooling": {
-         "conventional": {...},
-         ...,
-         "shape": {...}}},
+    "tsv_features": {
+      <region 1> : {
+        <building type 1> : {
+          <end use 1>: {
+            <time sensitive feature>: {<feature details>}}}}, ...
+      <region N> : {
+        <building type N> : {
+          <end use N>: {
+            <time sensitive feature>: {<feature details>}}}}},
     ...}
 
-Note that if an end use breakout is used, keys for all the ECM's applicable end uses must be included - e.g., if the ECM applies to both heating and cooling, *both* the heating and cooling keys must be reflected in the time sensitive valuation dict.
 
-.. _json-time_sensitive_valuation_source:
+Note that if a region, building type, and/or end use breakout is used, keys for *all* the ECM's applicable regions, building types, and/or end uses must be included. For example, if the time sensitive features dict is broken out by end use, and the ECM applies to both heating and cooling, *both* the heating and cooling keys must be reflected in the time sensitive features dict.
 
-time_sensitive_valuation_source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _json-tsv_source:
+
+tsv_source
+~~~~~~~~~~
 
 * **Parents:** root
-* **Children:** :ref:`json-notes`, :ref:`json-source_data`, (optional) :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+* **Children:** :ref:`json-notes`, :ref:`json-source_data`, (optional) :ref:`json-climate_zone`, :ref:`json-bldg_type`, :ref:`json-end_use`, :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
 * **Type:** dict
 
 This key is used to specify the source of the ECM's time sensitive valuation data. The :ref:`json-source_data` field description explains how to specify multiple sources. Any details regarding the relationship between the values in the source(s) and the values in the ECM definition should be supplied in the :ref:`json-notes` field. ::
 
    {...
-    "time_sensitive_valuation_source": {
+    "tsv_source": {
       "notes": "Study provides estimate of commercial load curtailment magnitude.",
       "source_data": [{
          "title": "Characterization of demand response in the commercial, industrial, and residential sectors in the United States",
@@ -918,6 +940,38 @@ This key is used to specify the source of the ECM's time sensitive valuation dat
          "pages": 17,
          "URL": "https://onlinelibrary.wiley.com/doi/abs/10.1002/wene.176"}]},
     ...}
+
+Optionally, a user may break out time sensitive source data by region, building type, and/or end use by setting these variables as the first levels in the dict key hierarchy, followed by the time sensitive feature type key. ::
+
+    {...
+     "tsv_source": {
+       <region 1> : {
+           <building type 1> : {
+             <end use 1>: {
+               <time sensitive feature>: {
+                 "notes": <notes>,
+                 "source_data": [{
+                   "title": <title>,
+                   "author": <author>,
+                   "organization": <organization>,
+                   "year": <year>,
+                   "pages":[<start page>, <end page>],
+                   "URL": <URL>}]}}}}, ...
+       <region N> : {
+           <building type N> : {
+             <end use N>: {
+               <time sensitive feature>: {
+                 "notes": <notes>,
+                 "source_data": [{
+                   "title": <title>,
+                   "author": <author>,
+                   "organization": <organization>,
+                   "year": <year>,
+                   "pages":[<start page>, <end page>],
+                   "URL": <URL>}]}}}},
+     ...}
+
+Note that if a region, building type, and/or end use breakout is used, keys for *all* the ECM's applicable regions, building types, and/or end uses must be included. For example, if the time sensitive features dict is broken out by end use, and the ECM applies to both heating and cooling, *both* the heating and cooling keys must be reflected in the time sensitive features dict.
 
 .. _json-measure_type:
 
@@ -993,7 +1047,7 @@ The market scaling fractions source identifies the sources that were used to det
       "year": 2016,
       "pages": 23,
       "URL": "http://energy.gov/sites/prod/files/2016/09/f33/energysavingsforecast16_2.pdf"},
-      "fraction_derivation": "In Figure 4.4, sum of 2015 data for LED - Connected Lighting, LED - Controls, and Conventional Lighting - Controls."},
+      "fraction_derivation": "In Figure 4.4, sum of 2015 data for LED - Connected Lighting, LED - Controls, and shed Lighting - Controls."},
     ...}
 
 Multiple scaling fraction values can share the same source so long as the calculation procedure for all of the values is provided in the :ref:`json-fraction_derivation` field, however, no more than one source is allowed for each scaling fraction value. If scaling fractions correspond to different sources, the source information can be given in a nested dict with the same top level structure as the scaling fractions themselves. If the market scaling fraction is set to 1 for one of the keys in the nested structure, the source information can be given as a string explaining any assumptions. ::
@@ -1112,98 +1166,78 @@ A dict containing basic information that identifies the user that last updated t
     "_updated_by": ``null``
     ...}
 
-.. _json-conventional:
+.. _json-shed:
 
-conventional
+shed
 ~~~~~~~~~~~~
-* **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** :ref:`json-start`, :ref:`json-stop`
+* **Parents:** :ref:`json-tsv_features`
+* **Children:** :ref:`json-rel_energy_frac`, :ref:`json-start`, :ref:`json-stop`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`
 * **Type:** dict
 
-This field restricts the application of a conventional efficiency impact to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+This field sheds (reduces) a certain percentage of baseline electricity demand (defined by the parameter :ref:`json-rel_energy_frac`) during certain days of the `reference year`_ (defined by the parameters :ref:`json-start_day` and :ref:`json-stop_day`) and hours of the day (defined by the parameters :ref:`json-start` and :ref:`json-stop`.) ::
 
    {...
-    "start": 12,
-    "stop": 20
-    ...}
-
-.. _json-peak_shave:
-
-shave
-~~~~~
-* **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** :ref:`json-peak_fraction`, (optional) :ref:`json-start`, :ref:`json-stop`, 
-* **Type:** dict
-
-This field sets a rule that no loads are greater than a certain percentage of peak daily load, as defined by :ref:`json-peak_fraction` (between 0 and 1). Optionally, users may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
-
-   {...
-    "peak_fraction": 0.8,
-    "start": 12,
-    "stop": 20
-    ...}
-
-.. _json-valley_fill:
-
-fill
-~~~~
-* **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** :ref:`json-peak_fraction`, (optional) :ref:`json-start`, :ref:`json-stop`, 
-* **Type:** dict
-
-This field sets a rule no loads are less than a certain percentage of peak daily load, as defined by :ref:`json-peak_fraction` (between 0 and 1). Optionally, users may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
-
-   {...
-    "peak_fraction": 0.4,
-    "start": 12,
-    "stop": 20
+    "shed": {
+      "relative energy change fraction": 0.1,
+      "start_day": 152, "stop_day": 174,
+      "start_hour": 12, "stop_hour": 20}
     ...}
 
 .. _json-shift:
 
 shift
 ~~~~~
-* **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** :ref:`json-offset_hrs_earlier`, (optional) :ref:`json-start`, :ref:`json-stop`, 
+* **Parents:** :ref:`json-tsv_features`
+* **Children:** :ref:`json-rel_energy_frac`, :ref:`json-offset_hrs_earlier`, :ref:`json-start`, :ref:`json-stop`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`  
 * **Type:** dict
 
-This field shifts loads earlier by the number of hours specified using the :ref:`json-offset_hrs_earlier` parameter. Optionally, a user may restrict this rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. In this case, total load reductions during the specified period will be evenly redistributed across the same period of time shifted earlier by the number of hours specified in :ref:`json-offset_hrs_earlier`. If no time restrictions are provided, the feature will shift the entire baseline energy load shape earlier by the number of hours specified in :ref:`json-offset_hrs_earlier`. ::
+This field shifts baseline energy loads from one time of day to another by redistributing loads reduced during a certain hour range to earlier times of day. The :ref:`json-start_day` and :ref:`json-stop_day` and :ref:`json-start` and :ref:`json-stop` parameters are used to determine the day and hour ranges from which to shift the load reductions, respectively. The magnitude of the load reduction is defined by the :ref:`json-rel_energy_frac` parameter. The :ref:`json-offset_hrs_earlier` parameter is then used to determine which hour range to redistribute the load reductions to. ::
 
    {...
-    "offset_hrs_earlier": 12,
-    "start": 12,
-    "stop": 20
+    "shift": {
+      "offset_hrs_earlier": 12,
+      "relative energy change fraction": 0.1,
+      "start_day": 152, "stop_day": 174,
+      "start_hour": 12, "stop_hour": 20}
     ...}
 
 .. _json-shape:
 
 shape
 ~~~~~
-* **Parents:** :ref:`json-time_sensitive_valuation`
-* **Children:** (if :ref:`json-flatten_fraction` and :ref:`json-custom-save` are not used) :ref:`json-custom-load`, (if :ref:`json-flatten_fraction` and :ref:`json-custom-load` are not used) :ref:`json-custom-save`, (if :ref:`json-custom-load` and :ref:`json-custom-save` are not used) :ref:`json-flatten_fraction`, (optional when :ref:`json-flatten_fraction` is used) :ref:`json-start`, :ref:`json-stop`, 
+* **Parents:** :ref:`json-tsv_features`
+* **Children:** :ref:`json-custom-save-day`, `json-custom-save-ann`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`, 
 * **Type:** dict
 
-This field allows users to either define a custom load shape or load savings shape for an ECM using the :ref:`json-custom-load` or :ref:`json-custom-save` parameters, or to flatten a baseline load shape by a certain percentage using the :ref:`json-flatten_fraction` parameter (using a value between 0 and 1). Optionally, users may restrict the latter rule to a certain period within the day, defined by :ref:`json-start` and :ref:`json-stop` parameters. ::
+The final type of time sensitive ECM feature applies hourly savings fractions to baseline loads in accordance with a custom savings shape that represents either a typical day or all 8760 hours of the year. 
+
+In the first case, custom hourly savings for a typical day are defined in the :ref:`json-custom-save-day` parameter; the hourly savings are specified as a list with 24 elements, with each element representing the fraction of hourly baseline load that an ECM saves. These hourly savings are applied for each day of the year in the range defined by the :ref:`json-start_day` and :ref:`json-stop_day` parameters, as for the shed and shift features.
+
+In the second case, the custom savings shape represents hourly load impacts for all 8760 hours in the `reference year`_. Here, the measure definition links to a supporting CSV file via the :ref:`json-custom-save-ann` parameter that is expected to be present in the |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes |html-fp-end| folder, with one CSV per measure JSON in |html-filepath| ./ecm_definitions |html-fp-end| that uses this feature. ::
 
    {...
-    "custom": [...]
+    "shape": {
+      "start_day": 152, "stop_day": 174,
+      "custom_daily_savings": [
+        0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
+        1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}
     ...}
 
    {...
-    "flatten_fraction": 0.5,
-    "start": 12, 
-    "stop": 20
+    "shape": {
+      "start_day": 152, "stop_day": 174,
+      "custom_annual_savings": "sample_8760.csv"}
     ...}
 
 .. _json-start:
 
-start
-~~~~~
-* **Parents:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+start_hour
+~~~~~~~~~~
+* **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
 * **Children:** None, 
-* **Type:** int, none
+* **Type:** int
 
-This field indicates the hour of the day (from 1 to 24) that applicaiton of a time sensitive ECM feature begins. ::
+This field indicates the hour of the day (from 1 to 24) that application of a time sensitive ECM feature begins. ::
 
    {...
     "start": 12
@@ -1211,11 +1245,11 @@ This field indicates the hour of the day (from 1 to 24) that applicaiton of a ti
 
 .. _json-stop:
 
-stop
-~~~~
-* **Parents:** :ref:`json-conventional`, :ref:`json-peak_shave`, :ref:`json-valley_fill`, :ref:`json-shift`, :ref:`json-shape`
+stop_hour
+~~~~~~~~~
+* **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
 * **Children:** None, 
-* **Type:** int, none
+* **Type:** int
 
 This field indicates the hour of the day (from 1 to 24) that application of a time sensitive ECM feature ends. ::
 
@@ -1223,18 +1257,61 @@ This field indicates the hour of the day (from 1 to 24) that application of a ti
     "stop": 20
     ...}
 
-.. _json-peak_fraction:
 
-peak_fraction
-~~~~~~~~~~~~~
-* **Parents:** :ref:`json-peak_shave`, :ref:`json-valley_fill`
+.. _json-start_day:
+
+start_day
+~~~~~~~~~~
+* **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
+* **Children:** None, 
+* **Type:** int, list
+
+This field indicates the day of the year (from 1 to 365) that application of a time sensitive ECM feature begins. ::
+
+   {...
+    "start_day": 12
+    ...}
+
+The field may alternatively be specified in list format to yield two start day values, which are paired with two :ref:`json-stop_day` values to yield two distinct day ranges of time senstive feature application. ::
+
+   {...
+    "start_day": [1, 335]
+    ...}
+
+.. _json-stop_day:
+
+stop_day
+~~~~~~~~~
+* **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
+* **Children:** None, 
+* **Type:** int, list
+
+This field indicates the day of the year (from 1 to 365) that application of a time sensitive ECM feature ends. ::
+
+   {...
+    "stop_day": 20
+    ...}
+
+The field may alternatively be specified in list format to yield two end day values, which are paired with two :ref:`json-start_day` values to yield two distinct day ranges of time senstive feature application. ::
+
+   {...
+    "stop_day": [91, 365]
+    ...}
+
+.. _reference year: https://asd.gsfc.nasa.gov/Craig.Markwardt/doy2006.html
+
+.. _json-rel_energy_frac:
+
+relative energy change fraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* **Parents:** :ref:`json-shed`, :ref:`json-shift`
 * **Children:** None, 
 * **Type:** float
 
-This field indicates the fraction of daily peak load (between 0 and 1) that hourly loads must remain either above or below (depending on whether a peak shaving or valley filling time sensitive feature is indicated). ::
+This field indicates fraction of baseline hourly loads that a measure sheds and/or shifts to another time period. ::
 
    {...
-    "peak_fraction": 0.8
+    "relative energy change fraction": 0.1
     ...}
 
 .. _json-offset_hrs_earlier:
@@ -1245,54 +1322,40 @@ offset_hrs_earlier
 * **Children:** None, 
 * **Type:** int
 
-This field indicates the number of hours earlier to shift baseline loads or load reductions. ::
+This field indicates the number of hours earlier to shift baseline load reductions. ::
 
    {...
     "offset_hrs_earlier": 12
     ...}
 
-.. _json-flatten_fraction:
+.. _json-custom-save-day:
 
-flatten_fraction
-~~~~~~~~~~~~~~~~
-* **Parents:** :ref:`json-shape`
-* **Children:** None, 
-* **Type:** float
-
-This field indicates the fraction to use (between 0 and 1) in scaling down the difference between hourly baseline energy loads and the average daily baseline energy load. ::
-
-   {...
-    "flatten_fraction": 0.5
-    ...}
-
-.. _json-custom-load:
-
-custom_load
-~~~~~~~~~~~
+custom_daily_savings
+~~~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shape`
 * **Children:** None, 
 * **Type:** list
 
-This field provides a list of 24 fractions (between 0 and 1) that are used to rescale a baseline energy load shape to conform with a user-specified load shape. The fractions, which are specified for each hour of the day, represent each hourly load's percentage of maximum daily load under the custom load shape. ::
+This field provides a list of 24 fractions that represent the percentage of baseline load saved in each hour of a typical day. ::
 
    {...
-    "custom": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
-               0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]
+    "custom_daily_savings": [
+      0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
+      1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]
     ...}
 
-.. _json-custom-save:
+.. _json-custom-save-ann:
 
-custom_savings
-~~~~~~~~~~~~~~
+custom_annual_savings
+~~~~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shape`
 * **Children:** None, 
-* **Type:** list
+* **Type:** string
 
-This field provides a list of 24 fractions that are used to rescale a baseline energy load shape to conform with a user-specified load savings shape. The fractions, which are specified for each hour of the day, represent the percentage of baseline load saved under the custom load savings shape. ::
+This field points to a CSV file containing measure savings fractions for all 8760 hours of the year. ::
 
    {...
-    "custom": [0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
-               1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]
+    "custom_annual_savings": "sample_8760.csv"
     ...}
 
 
@@ -1303,7 +1366,7 @@ This field provides a list of 24 fractions that are used to rescale a baseline e
 notes
 ~~~~~
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-time_sensitive_valuation_source`, :ref:`json-retro_rate_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-tsv_source`, :ref:`json-retro_rate_source`
 * **Children:** none
 * **Type:** string
 
@@ -1325,7 +1388,7 @@ fraction_derivation
 For the market scaling fractions, this field should provide a description of how the values were calculated. The description should have enough detail for another user to be able to easily repeat the calculations. ::
 
    {...
-    "fraction_derivation": "Sum of 2015 data for LED - Connected Lighting, LED - Controls, and Conventional Lighting - Controls.",
+    "fraction_derivation": "Sum of 2015 data for LED - Connected Lighting, LED - Controls, and shed Lighting - Controls.",
     ...}
 
 .. _json-source_data:
@@ -1333,7 +1396,7 @@ For the market scaling fractions, this field should provide a description of how
 source_data
 ~~~~~~~~~~~
 
-* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-time_sensitive_valuation_source`, :ref:`json-retro_rate_source`
+* **Parents:** :ref:`json-market_entry_year_source`, :ref:`json-market_exit_year_source`, :ref:`json-energy_efficiency_source`, :ref:`json-installed_cost_source`, :ref:`json-product_lifetime_source`, :ref:`json-tsv_source`, :ref:`json-retro_rate_source`
 * **Children:** :ref:`json-title`, :ref:`json-author`, :ref:`json-organization`, :ref:`json-year`, :ref:`json-pages`, :ref:`json-URL`
 * **Type:** list
 

@@ -152,6 +152,74 @@ euses_out_finmets_col<-brewer.pal(length(euses_out_finmets), "Dark2")
 euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting', 
 					      'Water Heating', 'Refrigeration', 'Electronics', 'Other')
 
+# Determine axis label parameters to use across plots
+
+# Determine site vs. source energy and (if source) captured vs. fossil
+# site-source conversion calculation methods, to write to label
+if (compete_results_agg$`Energy Output Type`[1] == "site"){
+  e_site_source = "Site Energy"
+  ss_calc = ""
+}else if (compete_results_agg$`Energy Output Type`[1] == "captured"){
+  e_site_source = "Primary Energy"
+  ss_calc = ", CE S-S"
+}else{
+  e_site_source = "Primary Energy"
+  ss_calc = ", FF S-S"
+}
+# Case without TSV metrics - set conversion factors, units, and
+# axis scaling factors for aggregate savings plots
+if (compete_results_agg$`Energy Output Type`[2] == "NA"){ 
+  # If results are EMM-resolved and public health cost adders
+  # are not present, convert quads to TWh for reporting
+  if ((emm_flag == TRUE)&(phc_flag == FALSE)){
+    e_conv_emm = 293.07
+    e_axis_units = "TWh"
+  }else{
+    e_conv_emm = 1
+    e_axis_units = "Quads"
+  }
+  # No further conversions needed for CO2 or cost
+  c_conv_emm = 1
+  c_axis_units = "Mt"
+  cs_conv_emm = 1
+  cs_axis_units = "Billion $"
+  # Set scaling for aggregate savings plots
+  cex_ann_ax = 0.85
+  cex_cum_ax = 0.85
+  # No further TSV metric assumptions text to append
+  append_txt = ")"
+# Case with TSV metrics - set conversion factors, units, scaling factors
+# for aggregate savings plots, and text to append to axis label indicating
+# TSV metric assumptions
+}else{
+  # When TSV metrics are present, assume that GW (hourly savings, abbreviated in
+  # the output as "Hr.") or GWh (multi-hour savings, abbreviated in the output as
+  # "Prd.") is the correct energy unit to use (savings will generally be smaller)
+  e_conv_emm = 293071.07
+  if (compete_results_agg$`Energy Output Type`[1] == "Prd."){
+    e_axis_units = "GWh"
+  }else{
+    e_axis_units = "GW"
+  }
+  # When TSV metrics are present, convert million metric tons to thousand metric
+  # tons and billion $ to million $ (savings will generally be smaller)
+  c_conv_emm = 1000
+  c_axis_units = "Tt"
+  cs_conv_emm = 1000
+  cs_axis_units = "Million $"
+  # Set scaling for aggregate savings plots (a bit lower than when there are no
+  # TSV metrics, to accomodate additional axis label text for TSV assumptions)
+  cex_ann_ax = 0.75
+  cex_cum_ax = 0.75
+  # Set text to append to axis label indicating key elements of the TSV metrics
+  # assumptions
+  append_txt = paste(paste(", ",
+      compete_results_agg$`Energy Output Type`[2], " ",
+      compete_results_agg$`Energy Output Type`[3], " ",
+      compete_results_agg$`Energy Output Type`[4], " ",
+      compete_results_agg$`Energy Output Type`[5], ")", sep=""))
+}
+
 # ============================================================================
 # Set high-level variables needed to generate individual ECM plots
 # ============================================================================
@@ -160,17 +228,11 @@ euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting',
 # Plot of individual ECM energy, carbon, and cost totals
 file_names_ecms <- c('Total Energy', 'Total CO2', 'Total Cost')
 plot_names_ecms <- c('Total Energy', expression("Total"~ CO[2]), 'Total Cost')
-# Axis labels are set conditionally on the energy output type (site, primary
-# (captured energy method), primary (fossil energy method))
-if (compete_results_agg$`Energy Output Type` == "site"){
-	plot_axis_labels_ecm<-c(
-	'Site Energy Use (Quads)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
-}else if (compete_results_agg$`Energy Output Type` == "captured"){
-	plot_axis_labels_ecm<-c(
-	'Primary Energy Use (Quads, CE S-S)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')
-}else{
-	plot_axis_labels_ecm<-c(
-	'Primary Energy Use (Quads, FF S-S)', expression(CO[2] ~" Emissions (Mt)"), 'Energy Cost (Billion $)')}
+# Set individual ECM plot y axis labels
+plot_axis_labels_ecm<-c(
+    paste(e_site_source, ' (', e_axis_units, ss_calc, append_txt, sep=""),
+    as.expression(bquote(CO[2] ~ "Emissions ("*.(c_axis_units)*.(append_txt))),
+    paste('Energy Cost (', cs_axis_units, append_txt, sep=""))
 # Set colors for uncompeted baseline, efficient and low/high results
 plot_col_uc_base = "gray60"
 plot_col_uc_eff = "gray80"
@@ -180,7 +242,7 @@ plot_col_uc_lowhigh = "gray90"
 var_names_uncompete <- c('energy', 'carbon', 'cost')
 results_folder_names <- c('energy', 'co2', 'cost')
 # Set output units for each variable type
-var_units <- c('Quads', 'Mt', 'Billion $')
+var_units <- c(e_axis_units, c_axis_units, cs_axis_units)
 # Set variable names to use in accessing competed baseline energy, carbon, and cost results from
 # JSON data. Note that each variable potentially has a '(low)' and '(high)' variant in the JSON.
 var_names_compete_base_m <- c(
@@ -210,14 +272,15 @@ var_names_compete_eff_h <- c(
 plot_names_agg <- c('Total Energy Savings', 'Total Avoided CO2', 'Total Cost Savings')
 # Titles for aggregated ECM savings plots
 plot_titles_agg <- c('Energy Savings', expression("Avoided"~ CO[2]), 'Cost Savings')
-# Axis labels for annual aggregate savings plots
-plot_axis_labels_agg_ann<-c('Annual Primary Energy Use Savings (Quads)',
-							expression("Annual Avoided"~ CO[2] ~" Emissions (Mt)"),
-							'Annual Energy Cost Savings (Billion $)')
-# Axis labels for cumulative aggregate savings plots
-plot_axis_labels_agg_cum<-c('Cumulative Primary Energy Use Savings (Quads)',
-							expression("Cumulative Avoided"~ CO[2] ~" Emissions (Mt)"),
-							'Cumulative Energy Cost Savings (Billion $)')
+# Set aggregate annual/cumulative savings plot y axis labels
+plot_axis_labels_agg_ann<-c(
+    paste('Annual ', e_site_source, ' Savings (', e_axis_units, ss_calc, append_txt, sep=""),
+    as.expression(bquote("Annual Avoided"~ CO[2] ~ "Emissions ("*.(c_axis_units)*.(append_txt))),
+    paste('Annual Energy Cost Savings (', cs_axis_units, append_txt, sep=""))
+plot_axis_labels_agg_cum<-c(
+    paste('Cumulative ', e_site_source, ' Savings (', e_axis_units, ss_calc, append_txt, sep=""),
+    as.expression(bquote("Cumulative Avoided"~ CO[2] ~ "Emissions ("*.(c_axis_units)*.(append_txt))),
+    paste('Cumulative Energy Cost Savings (', cs_axis_units, append_txt, sep=""))
 # Set names of variables used to retrieve savings data to aggregate
 var_names_compete_save <- c(
   'Energy Savings (MMBtu)', 'Avoided CO₂ Emissions (MMTons)', 'Energy Cost Savings (USD)')
@@ -235,9 +298,9 @@ plot_names_finmets = c('Cost Effective Energy Savings', 'Cost Effective Avoided 
                        'Cost Effective Operation Cost Savings') 
 # X axis labels for cost effectiveness plots
 plot_axis_labels_finmets_x<-c(
-	paste(snap_yr, 'Primary Energy Use Savings (Quads), Competed', sep=" "),
-	as.expression(bquote(.(snap_yr) ~ "Avoided" ~ CO[2] ~ " Emissions (Mt), Competed")),
-	paste(snap_yr, 'Energy Cost Savings (Billion $), Competed', sep=" "))
+    paste(snap_yr, " ", e_site_source, ' Savings (Competed, ', e_axis_units, ss_calc, append_txt, sep=""),
+    as.expression(bquote(.(snap_yr) ~ "Avoided" ~ CO[2] ~ "Emissions (Competed, "*.(c_axis_units)*.(append_txt))),
+    paste(snap_yr, ' Energy Cost Savings (Competed, ', cs_axis_units, append_txt, sep=""))
 # Y axis labels for cost effectiveness plots
 plot_axis_labels_finmets_y<-c(
 	"IRR (%)", "Payback (years)", "CCE ($/MMBtu saved)", expression("CCC ($/t " ~ CO[2] ~ " avoided)"))
@@ -330,8 +393,18 @@ for (a in 1:length(adopt_scenarios)){
     # (quads for energy, Mt for CO2, and billion $ for cost)
     if ((var_names_uncompete[v] == "energy") | (var_names_uncompete[v] == "cost")){
       unit_translate = 1/1000000000 # converts energy from MBtu -> quads or cost from $ -> billion $
+        # Layer on a second conversion factor to handle cases where alternate EMM regions are used
+        # (energy goes to TWh and/or TSV metrics are used (energy goes to GW/GWh, cost goes to million $))
+        if (var_names_uncompete[v] == "energy"){
+          unit_translate = unit_translate * e_conv_emm
+        }else if (var_names_uncompete[v] == "cost"){
+          unit_translate = unit_translate * cs_conv_emm
+        }
       }else{
         unit_translate = 1 # CO2 results data are already imported in Mt units
+        # Layer on a second conversion factor to handle cases where TSV metrics are used
+        # (carbon goes to thousand metric tons)
+        unit_translate = unit_translate * c_conv_emm
       }
     
     # Initialize a matrix for storing individual ECM energy, carbon, or cost totals (3 rows
@@ -485,7 +558,7 @@ for (a in 1:length(adopt_scenarios)){
               }else{
                 r_temp[4:6, yr] = results_database$'efficient'[years[yr]][[1]]
               }
-            # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
+        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
 		    # retrieve the ECM's uncompeted CCE/CCC financial metrics data and write to XLSX file
 		    if (years[yr] == snap_yr){
 		      for (pm_uc in (1:length(fin_metrics_port_uc))){
@@ -962,7 +1035,7 @@ for (a in 1:length(adopt_scenarios)){
       mtext("Year", side=1, line=3.25, cex=0.9)  
       # Add y axis tick marks and axis labels for total cumulative savings
       axis(side=4, at=ylim_cum, labels = ylim_cum, cex.axis = 1.25, las=1)
-      mtext(plot_axis_labels_agg_cum[v], side=4, line=4, cex=0.9) 
+      mtext(plot_axis_labels_agg_cum[v], side=4, line=4, cex=cex_cum_ax) 
       
       # Add plot of total annual savings and savings by filter variable category name
       par(new=TRUE)
@@ -1033,7 +1106,7 @@ for (a in 1:length(adopt_scenarios)){
       }
       # Add y axis labels for total annual savings and savings by filter variable category
       axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
-      mtext(plot_axis_labels_agg_ann[v], side=2, line=4, cex=0.9) 
+      mtext(plot_axis_labels_agg_ann[v], side=2, line=4, cex=cex_ann_ax) 
       
       # Add a legend
       

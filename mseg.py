@@ -1358,7 +1358,7 @@ def main():
 
         # Import EIA RESDBOUT.txt energy use and stock file
         ns_dtypes = dtype_array(eiadata.res_energy, '\t')
-        ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t'
+        ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t',
                               ['SF', 'ST', 'FP'])
     else:
         yrs_range = metajson['max year'] - metajson['min year'] + 1

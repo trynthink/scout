@@ -332,7 +332,9 @@ class TestMeasureInit(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -363,11 +365,14 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
-            handyvars, measure_list, energy_out="fossil_equivalent")
+            handyvars, measure_list, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         cls.ok_total = {"2009": 100, "2010": 100}
         cls.ok_partitions = {
             "AIA CZ1": {
@@ -461,7 +466,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1304,7 +1311,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # For first test case, verify correct adoption/competition scenario
@@ -1344,7 +1352,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_point
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1369,7 +1378,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_dist1
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1394,7 +1404,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_dist2
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1419,7 +1430,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_dist3
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1444,7 +1456,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "master_mseg"] = self.ok_master_mseg_dist4
         # Create Engine instance using test measure, run function on it
         engine_instance = run.Engine(
-            self.handyvars, [test_meas], energy_out="fossil_equivalent")
+            self.handyvars, [test_meas], energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1495,7 +1508,9 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1518,7 +1533,8 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         """Test for correct outputs given valid inputs."""
         # Create an Engine instance using sample_measure list
         engine_instance = run.Engine(
-            self.handyvars, self.measure_list, energy_out="fossil_equivalent")
+            self.handyvars, self.measure_list, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Record the output for the test run of the 'metric_update'
         # function
         function_output = engine_instance.metric_update(
@@ -1555,7 +1571,9 @@ class PaybackTest(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1566,7 +1584,8 @@ class PaybackTest(unittest.TestCase):
         """Test for correct outputs given valid inputs."""
         # Create an Engine instance using sample_measure list
         engine_instance = run.Engine(
-            self.handyvars, self.measure_list, energy_out="fossil_equivalent")
+            self.handyvars, self.measure_list, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Test that valid input cashflows yield correct output payback values
         for idx, cf in enumerate(self.ok_cashflows):
             self.assertAlmostEqual(engine_instance.payback(cf),
@@ -1638,7 +1657,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
@@ -12031,7 +12052,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                            'electricity',
                            'cooling', 'demand', 'windows', 'existing'))]]}
         cls.a_run = run.Engine(
-            cls.handyvars, cls.measures_all, energy_out="fossil_equivalent")
+            cls.handyvars, cls.measures_all, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Set information needed to finalize point value test measure
         # consumer metrics
         consumer_metrics_final = [{
@@ -12194,7 +12216,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                            'cooling', 'demand', 'windows', 'existing'))]]}
         cls.a_run_dist = run.Engine(
             cls.handyvars, cls.measures_all_dist,
-            energy_out="fossil_equivalent")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_final_dist = [{
@@ -16153,7 +16176,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         cls.handyvars.retro_rate = 0
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.test_adopt_scheme = "Max adoption potential"
@@ -22431,7 +22456,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_secondary = [cls.measures_all[1]]
         # Instantiate engine object based on above measures
         cls.a_run = run.Engine(
-            cls.handyvars, cls.measures_all, energy_out="fossil_equivalent")
+            cls.handyvars, cls.measures_all, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics = [{
@@ -22596,7 +22622,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_secondary_dist = [cls.measures_all_dist[1]]
         cls.a_run_dist = run.Engine(
             cls.handyvars, cls.measures_all_dist,
-            energy_out="fossil_equivalent")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"])
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_dist = [{
@@ -26619,7 +26646,9 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26675,7 +26704,9 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out="fossil_equivalent", regions="AIA"), regions="AIA")
+            energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"],
+            regions="AIA"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
         sample_measure1 = {
             "name": "sample sub-market test measure 1",
@@ -26844,7 +26875,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             # Generate an engine object with the appropriate sample measures
             a_run = run.Engine(
                 self.handyvars, self.sample_measlist_in[ind],
-                energy_out="fossil_equivalent")
+                energy_out=["fossil_equivalent", "NA", "NA", "NA", "NA"])
             # Execute the function
             measures_sbmkt_frac_data = a_run.find_added_sbmkt_fracs(
                 self.sample_mkt_fracs[ind], self.sample_measlist_in[ind],

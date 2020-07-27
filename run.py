@@ -45,15 +45,15 @@ class UsefulInputFiles(object):
         # (fossil equivalent site-source conversion), or source energy data
         # (captured energy site-source conversion) are needed
         if regions == "AIA":
-            if energy_out == "site":
+            if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-site.json")
-            elif energy_out == "fossil_equivalent":
+            elif energy_out[0] == "fossil_equivalent":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals.json")
-            elif energy_out == "captured":
+            elif energy_out[0] == "captured":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-ce.json")
@@ -63,15 +63,15 @@ class UsefulInputFiles(object):
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         else:
-            if energy_out == "site":
+            if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-site_emm.json")
-            elif energy_out == "fossil_equivalent":
+            elif energy_out[0] == "fossil_equivalent":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals_emm.json")
-            elif energy_out == "captured":
+            elif energy_out[0] == "captured":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-ce_emm.json")
@@ -3495,10 +3495,16 @@ def main(base_dir):
         savings and financial metrics for each measure, and write a summary
         of key results to an output JSON.
     """
+    # Initialize energy outputs variable (elements: S-S calculation method;
+    # daily hour range of focus for TSV metrics (all hours, peak, low demand
+    # hours); output type for TSV metrics (energy or power); calculation type
+    # for TSV metrics (sum, max, avg); season of focus for TSV metrics (summer,
+    # winter, intermediate)
+    energy_out = ["fossil_equivalent", "NA", "NA", "NA", "NA"]
     # Instantiate useful input files object (fossil fuel equivalency method
-    # used by default to calculate site-source conversions, with AIA regions)
-    handyfiles = UsefulInputFiles(
-        energy_out="fossil_equivalent", regions="AIA")
+    # used by default to calculate site-source conversions, with no TSV metrics
+    # and AIA regions)
+    handyfiles = UsefulInputFiles(energy_out=energy_out, regions="AIA")
     # Instantiate useful variables object (AIA climate regions used by default)
     handyvars = UsefulVars(base_dir, handyfiles, regions="AIA")
 
@@ -3625,13 +3631,44 @@ def main(base_dir):
     # fuel equivalent, source-captured energy)
     if measures_objlist[0].energy_outputs["site_energy"] is True:
         # Set energy output to site energy
-        energy_out = "site"
+        energy_out[0] = "site"
     elif measures_objlist[0].energy_outputs["captured_energy_ss"] is True:
         # Set energy output to source energy using captured energy S-S
-        energy_out = "captured"
+        energy_out[0] = "captured"
     else:
         # Otherwise, set energy output to source energy, fossil equivalent S-S
-        energy_out = "fossil_equivalent"
+        energy_out[0] = "fossil_equivalent"
+    # Set a flag for TSV metrics
+    if measures_objlist[0].energy_outputs["tsv_metrics"] is not False:
+        # TSV metrics - Hour range
+        if measures_objlist[0].energy_outputs["tsv_metrics"][1] == "1":
+            energy_out[1] = "All"
+        elif measures_objlist[0].energy_outputs["tsv_metrics"][1] == "2":
+            energy_out[1] = "Pk."
+        else:
+            energy_out[1] = "Low"
+        # TSV metrics  - Output type
+        if measures_objlist[0].energy_outputs["tsv_metrics"][0] == "1":
+            energy_out[2] = "Prd."
+        else:
+            energy_out[2] = "Hr."
+        # TSV metrics - Calc type
+        if measures_objlist[0].energy_outputs["tsv_metrics"][3] == "1" and \
+                measures_objlist[0].energy_outputs["tsv_metrics"][0] == "1":
+            energy_out[3] = "Sum."
+        elif measures_objlist[0].energy_outputs["tsv_metrics"][3] == "1":
+            energy_out[3] = "Max."
+        else:
+            energy_out[3] = "Avg."
+        # TSV metrics - Season (S - Summer, W - Winter, I - Intermediate)
+        if measures_objlist[0].energy_outputs["tsv_metrics"][2] == "1":
+            energy_out[4] = "(S)"
+        elif measures_objlist[0].energy_outputs["tsv_metrics"][2] == "2":
+            energy_out[4] = "(W)"
+        else:
+            energy_out[4] = "(I)"
+    else:
+        energy_out[1:] = ("NA" for n in range(len(energy_out) - 1))
 
     # Set a flag for geographical breakout (currently possible to breakout
     # by AIA climate zone or by NEMS EMM region).
@@ -3644,7 +3681,7 @@ def main(base_dir):
     # Re-instantiate useful input files object when site energy is output
     # instead of the default source energy or regional breakdown other than
     # default AIA climate zone breakdown is chosen
-    if energy_out != "fossil_equivalent" or regions != "AIA":
+    if energy_out[0] != "fossil_equivalent" or regions != "AIA":
         handyfiles = UsefulInputFiles(energy_out, regions)
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
@@ -3738,98 +3775,102 @@ def main(base_dir):
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
 
-    # Plot output data in R when using AIA climate regions OR when using EMM
-    # regions to assess the public health benefits of efficiency
-    if regions == "AIA" or (
-            regions == "EMM" and "PHC" in measures_objlist[0].name):
-        # Notify user that the output data are being plotted
-        print('Plotting output data...', end="", flush=True)
+    # # Plot output data in R when using AIA climate regions OR when using EMM
+    # # regions to assess the public health benefits of efficiency
+    # if regions == "AIA" or (
+    #         regions == "EMM" and "PHC" in measures_objlist[0].name):
 
-        # Ensure presence of R/Perl in Windows user PATH environment variable
-        if sys.platform.startswith('win'):
-            if "R-" not in environ["PATH"]:
-                # Find the path to the user's Rscript.exe file
-                lookfor, r_path = ("R-", None)
-                for root, directory, files in walk(path.join("C:", sep)):
-                    if lookfor in root and "Rscript.exe" in files:
-                        r_path = root
-                        break
-                # If Rscript.exe was not found, yield warning; else add to PATH
-                if r_path is None:
-                    warnings.warn("R executable not found for plotting")
-                else:
-                    environ["PATH"] += pathsep + r_path
-            if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
-                # Find the path to the user's perl.exe file
-                lookfor, perl_path = (["Perl", "perl"], None)
-                for root, directory, files in walk(path.join("C:", sep)):
-                    if any([x in root for x in lookfor]) and \
-                            "perl.exe" in files:
-                        perl_path = root
-                        break
-                # If perl.exe was not found, yield warning; else add to PATH
-                if perl_path is None:
-                    warnings.warn(
-                        "Perl executable not found for plot XLSX writing")
-                else:
-                    environ["PATH"] += pathsep + perl_path
-        # If user's operating system can't be determined, yield warning message
-        elif sys.platform == "unknown":
-            warnings.warn("Could not determine OS for plotting routine")
+    # *** NOTE: Allow plots in all cases for now, possibly restrict for
+    # EMM-based measures in the future as above ***
 
-        # Run R code
+    # Notify user that the output data are being plotted
+    print('Plotting output data...', end="", flush=True)
 
-        # Set variable used to hide subprocess output
-        FNULL = open(devnull, 'w')
+    # Ensure presence of R/Perl in Windows user PATH environment variable
+    if sys.platform.startswith('win'):
+        if "R-" not in environ["PATH"]:
+            # Find the path to the user's Rscript.exe file
+            lookfor, r_path = ("R-", None)
+            for root, directory, files in walk(path.join("C:", sep)):
+                if lookfor in root and "Rscript.exe" in files:
+                    r_path = root
+                    break
+            # If Rscript.exe was not found, yield warning; else add to PATH
+            if r_path is None:
+                warnings.warn("R executable not found for plotting")
+            else:
+                environ["PATH"] += pathsep + r_path
+        if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
+            # Find the path to the user's perl.exe file
+            lookfor, perl_path = (["Perl", "perl"], None)
+            for root, directory, files in walk(path.join("C:", sep)):
+                if any([x in root for x in lookfor]) and \
+                        "perl.exe" in files:
+                    perl_path = root
+                    break
+            # If perl.exe was not found, yield warning; else add to PATH
+            if perl_path is None:
+                warnings.warn(
+                    "Perl executable not found for plot XLSX writing")
+            else:
+                environ["PATH"] += pathsep + perl_path
+    # If user's operating system can't be determined, yield warning message
+    elif sys.platform == "unknown":
+        warnings.warn("Could not determine OS for plotting routine")
 
+    # Run R code
+
+    # Set variable used to hide subprocess output
+    FNULL = open(devnull, 'w')
+
+    try:
+        # Define shell command for R plotting function
+        shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
+        # Execute R code
+        subprocess.run(shell_command, shell=True, check=True,
+                       stdout=FNULL, stderr=FNULL)
+        # Notify user of plotting outcome if no error is thrown
+        print("Plotting complete")
+    except AttributeError:
+        # If run module in subprocess throws AttributeError, try
+        # subprocess.call() (used in Python versions before 3.5)
         try:
-            # Define shell command for R plotting function
-            shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
             # Execute R code
-            subprocess.run(shell_command, shell=True, check=True,
-                           stdout=FNULL, stderr=FNULL)
+            subprocess.check_call(shell_command, shell=True,
+                                  stdout=FNULL, stderr=FNULL)
             # Notify user of plotting outcome if no error is thrown
             print("Plotting complete")
-        except AttributeError:
-            # If run module in subprocess throws AttributeError, try
-            # subprocess.call() (used in Python versions before 3.5)
-            try:
-                # Execute R code
-                subprocess.check_call(shell_command, shell=True,
-                                      stdout=FNULL, stderr=FNULL)
-                # Notify user of plotting outcome if no error is thrown
-                print("Plotting complete")
-            except subprocess.CalledProcessError:
-                try:
-                    # Define shell command for R plotting function - handle 3.5
-                    # bug in escaping spaces/apostrophes by adding --vanilla
-                    # command (recommended here: https://stackoverflow.com/
-                    # questions/50028090/is-this-a-bug-in-r-3-5)
-                    shell_command = 'Rscript --vanilla ' + \
-                        '"' + path.join(base_dir, 'plots_shell.R') + '"'
-                    # Execute R code
-                    subprocess.check_call(shell_command, shell=True)
-                    # Notify user of plotting outcome if no error is thrown
-                    print("Plotting complete")
-                except subprocess.CalledProcessError as err:
-                    print("Plotting failed to complete: ", err)
         except subprocess.CalledProcessError:
-            # Else if run module in subprocess throws any other type of error,
-            # try handling a bug in R 3.5 where spaces/apostrophes in a
-            # directory name are not escaped
             try:
-                # Define shell command for R plotting function - handle 3.5 bug
-                # in escaping spaces/apostrophes by adding --vanilla command
-                # (recommended here: https://stackoverflow.com/questions/
-                # 50028090/is-this-a-bug-in-r-3-5)
+                # Define shell command for R plotting function - handle 3.5
+                # bug in escaping spaces/apostrophes by adding --vanilla
+                # command (recommended here: https://stackoverflow.com/
+                # questions/50028090/is-this-a-bug-in-r-3-5)
                 shell_command = 'Rscript --vanilla ' + \
                     '"' + path.join(base_dir, 'plots_shell.R') + '"'
                 # Execute R code
-                subprocess.run(shell_command, shell=True, check=True)
+                subprocess.check_call(shell_command, shell=True)
                 # Notify user of plotting outcome if no error is thrown
                 print("Plotting complete")
             except subprocess.CalledProcessError as err:
                 print("Plotting failed to complete: ", err)
+    except subprocess.CalledProcessError:
+        # Else if run module in subprocess throws any other type of error,
+        # try handling a bug in R 3.5 where spaces/apostrophes in a
+        # directory name are not escaped
+        try:
+            # Define shell command for R plotting function - handle 3.5 bug
+            # in escaping spaces/apostrophes by adding --vanilla command
+            # (recommended here: https://stackoverflow.com/questions/
+            # 50028090/is-this-a-bug-in-r-3-5)
+            shell_command = 'Rscript --vanilla ' + \
+                '"' + path.join(base_dir, 'plots_shell.R') + '"'
+            # Execute R code
+            subprocess.run(shell_command, shell=True, check=True)
+            # Notify user of plotting outcome if no error is thrown
+            print("Plotting complete")
+        except subprocess.CalledProcessError as err:
+            print("Plotting failed to complete: ", err)
 
 
 if __name__ == '__main__':

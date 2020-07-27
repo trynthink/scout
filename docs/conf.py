@@ -388,7 +388,7 @@ rst_prolog = """
 
 # Set up additional CSS that adds popover capabilities to the style
 def setup(app):
-    app.add_stylesheet('css/custom.css')
+    app.add_css_file('css/custom.css')
 
 
 # Configuration to suppress warnings on make when linking to e.g., images

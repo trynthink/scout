@@ -90,7 +90,7 @@ Selections for the applicable baseline market parameters are used in :ref:`step 
 
    * Time sensitive valuation of energy efficiency
 
-      * Optionally, a user may specify one or more ECM features that apply efficiency impacts differently according to time of day and season, using hourly baseline energy load shapes, electricity prices, and marginal |CO2| emissions factors.
+      * Optionally, a user may specify one or more ECM features that apply efficiency impacts differently according to time of day and season, using hourly baseline energy load shapes, electricity costs, and average |CO2| emissions factors.
 
 .. _analysis-step-2:
 
@@ -179,37 +179,37 @@ Calculating total efficient energy, |CO2|, and cost (uncompeted)
 
    * While the total baseline and efficient ECM energy, |CO2|, and operating costs calculated in this step account for stocks-and-flows, they do not account for competition across multiple ECMs for the same baseline market. ECM competition is handled in :ref:`step 3 <analysis-step-3>`.
 
-Time sensitive adjustment of total energy, |CO2|, and cost
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. Time sensitive adjustment of total energy, |CO2|, and cost
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   * In cases where an ECM's efficiency impacts differ according to time of day and season, adjustment factors are applied to the annual energy, |CO2|, and cost totals calculated above to reflect these sub-annual effects. [#]_ :numref:`tsv-approach` summarizes the general approach used to develop the adjustments; data sources and preparation are further described below.
+..    * In cases where an ECM's efficiency impacts differ according to time of day and season, adjustment factors are applied to the annual energy, |CO2|, and cost totals calculated above to reflect these sub-annual effects. [#]_ :numref:`tsv-approach` summarizes the general approach used to develop the adjustments; data sources and preparation are further described below.
 
-   * The adjustment factors rely on four data sources:
+..    * The adjustment factors rely on four data sources:
 
-      * `geographical mapping data`_ developed by the U.S. Department of Energy that associate states, NERC regions and AIA climate zones with U.S. county-level population data,
-      * seasonal hourly `energy load shapes data`_ from the Electric Power Research Institute (EPRI),
-      * monthly `time of use utility rate data`_ from the Utility Rate Database (URDB), and
-      * seasonal hourly `marginal emissions data`_ from a 2012 Carnegie Mellon University (CMU) study of the U.S. electricity system.
+..       * `geographical mapping data`_ developed by the U.S. Department of Energy that associate states, NERC regions and AIA climate zones with U.S. county-level population data,
+..       * seasonal hourly `energy load shapes data`_ from the Electric Power Research Institute (EPRI),
+..       * monthly `time of use utility rate data`_ from the Utility Rate Database (URDB), and
+..       * seasonal hourly `marginal emissions data`_ from a 2012 Carnegie Mellon University (CMU) study of the U.S. electricity system.
 
-   * The data are translated into the format needed to support adjustment factors as follows:
+..    * The data are translated into the format needed to support adjustment factors as follows:
 
-      * EPRI hourly load shapes, which are originally specified by NERC region, residential and commercial sector, end use, and peak (Jun--Sep) and off-peak (Oct--May) seasons, are translated to AIA climate zones using the geographical mapping data, then translated to summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons.
-      * URDB rates, which are originally specified by individual utility, residential and commercial sector, and month, are first translated to state-level geographic breakdown using `Form EIA-861`_, and then to AIA climate zones using the geographical mapping data; the monthly data are also aggregated into summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons.
-      * CMU hourly marginal emissions estimates, which are originally specified by NERC region and summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons, are translated to  AIA climate zones using the geographical mapping data.
+..       * EPRI hourly load shapes, which are originally specified by NERC region, residential and commercial sector, end use, and peak (Jun--Sep) and off-peak (Oct--May) seasons, are translated to AIA climate zones using the geographical mapping data, then translated to summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons.
+..       * URDB rates, which are originally specified by individual utility, residential and commercial sector, and month, are first translated to state-level geographic breakdown using `Form EIA-861`_, and then to AIA climate zones using the geographical mapping data; the monthly data are also aggregated into summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons.
+..       * CMU hourly marginal emissions estimates, which are originally specified by NERC region and summer (May--Sep), winter (Nov--Feb), and intermediate (all other months) seasons, are translated to  AIA climate zones using the geographical mapping data.
 
-   .. _tsv-approach:
-   .. figure:: images/TSV_Approach.* 
+..    .. _tsv-approach:
+..    .. figure:: images/TSV_Approach.* 
 
-      This figure shows the three types of adjustment factors used to re-weight energy, |CO2|, and cost totals by time of day and season. First, the energy use adjustment distributes the annual energy use of a given climate zone, building type, and end use across all 24 hours of the day in summer, winter, and intermediate seasons (using the type of curves shown at bottom left). Second, the energy cost adjustment multiplies the hourly and seasonal energy use totals by hourly electricity prices for each season (using the type of curves shown at bottom center), which are specified by climate zone and building type. Finally, the |CO2| adjustment multiplies the hourly and seasonal energy use totals by associated hourly marginal emissions factors for each season (using the type of curves shown at bottom right), which are specified by climate zone. Form EIA-861 data are used to map utility rate data from utility region to state, and county-level population data are used to develop mappings from state and NERC region to the AIA climate zones.
+..       This figure shows the three types of adjustment factors used to re-weight energy, |CO2|, and cost totals by time of day and season. First, the energy use adjustment distributes the annual energy use of a given climate zone, building type, and end use across all 24 hours of the day in summer, winter, and intermediate seasons (using the type of curves shown at bottom left). Second, the energy cost adjustment multiplies the hourly and seasonal energy use totals by hourly electricity prices for each season (using the type of curves shown at bottom center), which are specified by climate zone and building type. Finally, the |CO2| adjustment multiplies the hourly and seasonal energy use totals by associated hourly marginal emissions factors for each season (using the type of curves shown at bottom right), which are specified by climate zone. Form EIA-861 data are used to map utility rate data from utility region to state, and county-level population data are used to develop mappings from state and NERC region to the AIA climate zones.
 
 
-Once user ECM definitions have been finalized in this step, the names of the ECMs are added to |html-filepath| run_setup.json |html-fp-end|, which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by moving the names of ECMs that are not of interest in their analysis from the "active" to "inactive" lists in the |html-filepath| run_setup.json |html-fp-end| file. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets. Users may also run the |html-filepath| run_setup.py |html-fp-end| module, which can automatically move ECMs based on keyword searches of ECM names, as well as select ECMs based on the user's desired climate zone(s), building type(s), and structure type(s).
+.. Once user ECM definitions have been finalized in this step, the names of the ECMs are added to |html-filepath| run_setup.json |html-fp-end|, which contains a list of active ECM names to analyze in :ref:`step 3 <analysis-step-3>`. Users may choose to analyze only a subset of these existing ECMs by moving the names of ECMs that are not of interest in their analysis from the "active" to "inactive" lists in the |html-filepath| run_setup.json |html-fp-end| file. For example, such ECM subsets might exclude "add-on" ECMs, ECMs that involve fuel switching, or ECMs based on prospective cost or efficiency targets. Users may also run the |html-filepath| run_setup.py |html-fp-end| module, which can automatically move ECMs based on keyword searches of ECM names, as well as select ECMs based on the user's desired climate zone(s), building type(s), and structure type(s).
 
-.. _geographical mapping data: https://docs.google.com/spreadsheets/d/1zT7DFaBNU8Oq2ofPv4SBKvbhk15n-Daz-ayhpczr8Q4/edit?usp=sharing
-.. _energy load shapes data: http://loadshape.epri.com/enduse
-.. _time of use utility rate data: https://openei.org/apps/USURDB/
-.. _marginal emissions data: https://pubs.acs.org/doi/abs/10.1021/es300145v
-.. _Form EIA-861: https://www.eia.gov/electricity/data/eia861/
+.. .. _geographical mapping data: https://docs.google.com/spreadsheets/d/1zT7DFaBNU8Oq2ofPv4SBKvbhk15n-Daz-ayhpczr8Q4/edit?usp=sharing
+.. .. _energy load shapes data: http://loadshape.epri.com/enduse
+.. .. _time of use utility rate data: https://openei.org/apps/USURDB/
+.. .. _marginal emissions data: https://pubs.acs.org/doi/abs/10.1021/es300145v
+.. .. _Form EIA-861: https://www.eia.gov/electricity/data/eia861/
 
 
 .. _analysis-step-3:
@@ -262,8 +262,8 @@ ECM-specific results from the analysis of the portfolio of ECMs
 .. _ASHRAE 90.1-2004: https://www.ashrae.org/resources--publications/bookstore/standard-90-1-document-history
 .. _ASHRAE 90.1-2010: https://www.ashrae.org/resources--publications/bookstore/standard-90-1-document-history
 .. _ASHRAE 90.1-2013: https://www.ashrae.org/resources--publications/bookstore/standard-90-1-document-history
-.. __: http://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2013).pdf
-.. __: http://www.eia.gov/forecasts/aeo/nems/documentation/commercial/pdf/m066(2013).pdf
+.. __: https://www.eia.gov/outlooks/aeo/nems/documentation/residential/pdf/m067(2020).pdf
+.. __: https://www.eia.gov/outlooks/aeo/nems/documentation/commercial/pdf/m066(2018).pdf
 .. _real discount rate: https://en.wikipedia.org/wiki/Real_interest_rate
 .. _DOE Quadrennial Technology Review: http://energy.gov/sites/prod/files/2015/09/f26/Quadrennial-Technology-Review-2015_0.pdf
 .. _Guidelines and Discount Rates for Benefit-Cost Analysis of Federal Programs: https://www.whitehouse.gov/sites/default/files/omb/assets/a94/a094.pdf
@@ -272,11 +272,11 @@ ECM-specific results from the analysis of the portfolio of ECMs
 
 .. [#] Currently supported distributions: |supported-distributions|.
 .. [#] Note that this document does not cover lighting, where varying bulb types are used, or Miscellaneous Electric Loads (MELs), which are not broken into specific technologies in the Annual Energy Outlook.
-.. [#] The vintages are: pre-1980, 1980-2004, `ASHRAE 90.1-2004`_, `ASHRAE 90.1-2010`_, and `ASHRAE 90.1-2013`_.
-.. [#] A representative city is simulated for each climate zone: Houston, TX (hot humid); Baltimore, MD (mixed humid); El Paso, TX (hot dry); Albuquerque, NM (mixed dry); San Francisco, CA (marine); Chicago, IL (cold); Duluth, NM (very cold), Fairbanks, AK (sub arctic).
-.. [#] EIA provides detailed documentation on the assumptions of the National Energy Modeling System (NEMS) it uses to project residential__ and commercial__ sector energy use out to 2040 for the AEO.
-.. [#] Effectively, these adjustment factors assign value to ECMs that would not otherwise show any benefits. For example: in the absence of time-sensitive valuation, an ECM that shifted loads from peak periods of energy demand to off-peak periods of demand would not have any value in terms of energy savings, cost, or avoided |CO2|; under time-sensitive valuation, however, the ECM moves energy from a high energy price period to a low energy price period, which will be reflected as energy cost savings for the ECM.
+.. [#] EIA provides detailed documentation on the assumptions of the National Energy Modeling System (NEMS) it uses to project residential__ and commercial__ sector energy use out to 2050 for the AEO.
 .. [#] Data derived from Table A1, assuming a 3% average discount rate.
 .. [#] This assumption reflects our current inability to reliably determine how a consumer might choose between an ECM and updated version of a "business-as-usual" technology. A future version of Scout may apportion some of an available market portion to this updated "business-as-usual" technology, under an "Adjusted Adoption Potential" scenario.
 .. [#] We use a default `real discount rate`_ of 7%, based on the Office of Management and Budget's `Guidelines and Discount Rates for Benefit-Cost Analysis of Federal Programs`_, p. 9 ("Base-Case Analysis"). 
 .. [#] End use categories for the markets and savings are not the same as the AEO end uses. These end use categories are similar to the 2015 `DOE Quadrennial Technology Review`_, Figure 5.1, but with the "Drying" end use lumped together with "Other."
+.. .. [#] The vintages are: pre-1980, 1980-2004, `ASHRAE 90.1-2004`_, `ASHRAE 90.1-2010`_, and `ASHRAE 90.1-2013`_.
+.. .. [#] A representative city is simulated for each climate zone: Houston, TX (hot humid); Baltimore, MD (mixed humid); El Paso, TX (hot dry); Albuquerque, NM (mixed dry); San Francisco, CA (marine); Chicago, IL (cold); Duluth, NM (very cold), Fairbanks, AK (sub arctic).
+.. .. [#] Effectively, these adjustment factors assign value to ECMs that would not otherwise show any benefits. For example: in the absence of time-sensitive valuation, an ECM that shifted loads from peak periods of energy demand to off-peak periods of demand would not have any value in terms of energy savings, cost, or avoided |CO2|; under time-sensitive valuation, however, the ECM moves energy from a high energy price period to a low energy price period, which will be reflected as energy cost savings for the ECM.

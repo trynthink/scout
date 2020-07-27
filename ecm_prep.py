@@ -733,14 +733,14 @@ class UsefulVars(object):
                     x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
                 # Winter days of year
                 wint_days = (list(
-                            range(1, 60)) + list(range(335, 366)))
+                            range(1, 91)) + list(range(335, 366)))
                 wint_days_wkdy = [
                     x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
                 wint_days_wknd = [
                     x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
                 # Intermediate days of year
                 inter_days = (list(
-                            range(60, 152)) + list(range(274, 335)))
+                            range(91, 152)) + list(range(274, 335)))
                 inter_days_wkdy = [
                     x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
                 inter_days_wknd = [
@@ -1006,7 +1006,7 @@ class UsefulVars(object):
                                      peak_take_cz["InterPeakEndHr"][0] + 1)),
             "take range": list(range(peak_take_cz["InterTakeStartHr1"][0],
                                      peak_take_cz["InterTakeEndHr1"][0] + 1))}
-        # Handle cases where winter take periods cover two non-contiguous time
+        # Handle cases where winter low demand periods cover two non-contiguous time
         # segments (e.g., 2-6AM, 10AM-2PM)
         if not numpy.isnan(peak_take_cz["WinterTakeStartHr2"][0]):
             wint_peak_take["take range"].extend(list(
@@ -1446,8 +1446,16 @@ class Measure(object):
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
-            # If TSV features are present, ensure that the measure only
-            # applies to electricity
+            # If TSV features are present, ensure that EMM regions are selected
+            # and that the measure only applies to electricity (and no fuel
+            # switching is selected)
+            if regions != "EMM":
+                raise ValueError(
+                    "Measure '" + self.name + "' has time sensitive "
+                    "assessment features (see 'tsv_features' attribute) but "
+                    "regions are not set to EMM; try running 'ecm_prep.py' "
+                    "again with the --alt_regions option included and select "
+                    "EMM regions when prompted.")
             if self.fuel_type not in ["electricity", ["electricity"]]:
                 raise ValueError(
                     "Non-electric fuel found for measure '" + self.name +
@@ -1503,7 +1511,6 @@ class Measure(object):
                 css_dict = {}
                 # Find all unique end uses in the shape data
                 euses = numpy.unique(css_dat["End_Use"])
-
                 # Loop through all end uses in the data
                 for eu in euses:
                     # Handle case where end use names in the data are
@@ -1545,6 +1552,16 @@ class Measure(object):
                         # baseline load shapes file
                         if bd_key == "RetailStandAlone":
                             bd_key = "RetailStandalone"
+                        # Account for possible use of MediumOffice naming
+                        # in savings shape CSV, vs. MediumOfficeDetailed in
+                        # Scout's baseline load shapes file
+                        elif bd_key == "MediumOffice":
+                            bd_key = "MediumOfficeDetailed"
+                        # Account for possible use of MediumOffice naming
+                        # in savings shape CSV, vs. MediumOfficeDetailed in
+                        # Scout's baseline load shapes file
+                        elif bd_key == "LargeOffice":
+                            bd_key = "LargeOfficeDetailed"
                         # Initialize dict under the current end use and
                         # building type keys
                         css_dict[eu_key][bd_key] = {}
@@ -1578,6 +1595,11 @@ class Measure(object):
                             # shapes for the current climate zone
                             sys_v = numpy.unique(
                                 css_dat_eu_bldg_cz["Net_Load_Version"])
+                            # If "Net_Load_Version" column is blank, set unique
+                            # net load versions to 1
+                            if len(sys_v) == 0 or (
+                                    len(sys_v) == 1 and sys_v[0] == -1):
+                                sys_v = [1]
                             for sv in sys_v:
                                 v_key = "set " + str(sv)
                                 css_dict[eu_key][bd_key][cz_key][v_key] = \
@@ -2464,9 +2486,17 @@ class Measure(object):
                                 x in base_cpl[
                                 "installed cost"]["typical"].items()]) or \
                            any([y[1] in [0, "NA"] for y in base_cpl[
-                                "performance"]["typical"].items()]) or \
-                           any([z[1] in [0, "NA"] for z in base_cpl[
-                                "lifetime"]["average"].items()]):
+                                "performance"]["typical"].items()]):
+                            raise ValueError
+                        # Handle lifetime separately, as in some cases it may
+                        # be broken out by year, and in others it is a single
+                        # point value, when available
+                        if (((type(base_cpl["lifetime"]["average"]) in [
+                            float, int]) and base_cpl[
+                            "lifetime"]["average"] == 0) or (
+                            (type(base_cpl["lifetime"]["average"]) is dict) and
+                            any([z[1] in [0, "NA"] for z in base_cpl[
+                                "lifetime"]["average"].items()]))):
                             raise ValueError
 
                         # Set baseline performance; try for case where baseline
@@ -2596,8 +2626,20 @@ class Measure(object):
                                 [base_cpl["installed cost"]["typical"],
                                  base_cpl["installed cost"]["units"]]
 
-                        # Set baseline cost and lifetime
-                        life_base = base_cpl["lifetime"]["average"]
+                        # Set baseline lifetime; handle some cases where base
+                        # lifetime is not broken out across all years; extend
+                        # across year range in these cases
+                        if type(base_cpl["lifetime"]["average"]) in [
+                                float, int]:
+                            life_base = {
+                                yr: base_cpl["lifetime"]["average"] for
+                                yr in self.handyvars.aeo_years}
+                        elif type(base_cpl["lifetime"]["average"]) is dict:
+                            life_base = base_cpl["lifetime"]["average"]
+                        else:
+                            raise ValueError(
+                                "Lifetime data for microsegment " +
+                                mskeys + " must be a dict or point value")
                         # Adjust residential baseline lighting lifetimes to
                         # reflect the fact that input data assume 24 h/day of
                         # lighting use, rather than 3 h/day as assumed for
@@ -3054,7 +3096,7 @@ class Measure(object):
                             # with valid consumer choice data
                             valid_keys_consume += 1
                         # Update invalid consumer choice parameters
-                        except (ValueError, TypeError):
+                        except (ValueError, TypeError, KeyError):
                             # Record missing consumer data for primary
                             # technologies; if in verbose mode and the user
                             # has not already been warned about missing data
@@ -4174,7 +4216,20 @@ class Measure(object):
                                 range(start_stop_dy[0] - 1, start_stop_dy[1]))
                         # Error sets applicable day range to the full year
                         except TypeError:
-                            applicable_days = range(365)
+                            # Assume two day ranges are specified
+                            try:
+                                # Start/stop set 1
+                                start_1 = start_stop_dy[0][0]
+                                stop_1 = start_stop_dy[1][0]
+                                # Start/stop set 2
+                                start_2 = start_stop_dy[0][1]
+                                stop_2 = start_stop_dy[1][1]
+                                # Patch together two day ranges
+                                applicable_days = list(
+                                    range(start_1 - 1, stop_1)) + list(
+                                    range(start_2 - 1, stop_2))
+                            except TypeError:
+                                applicable_days = range(365)
                     except (TypeError, KeyError):
                         applicable_days = range(365)
 
@@ -7768,11 +7823,18 @@ def main(base_dir):
     # options require baseline data to be resolved by EMM region)
     if regions != "EMM" and any([
             x is True for x in [opts.tsv_metrics, opts.sect_shapes]]):
-        raise ValueError(
-            "'--tsv_metrics' and '--sect_shapes' options are only valid "
-            "when EIA Electricity Market Module (EMM) regions are selected as "
-            "analysis regions. To address this issue, add the '--alt_regions' "
-            "option and select EMM regions when prompted.")
+        opts.alt_regions, regions = [True, "EMM"]
+        # Craft custom warning message based on the option provided
+        if all([x is True for x in [opts.tsv_metrics, opts.sect_shapes]]):
+            warn_text = "tsv metrics and sector-level 8760 savings shapes"
+        elif opts.tsv_metrics is True:
+            warn_text = "tsv metrics"
+        else:
+            warn_text = "sector-level 8760 load shapes"
+        warnings.warn(
+            "WARNING: Analysis regions were set to EMM to allow " +
+            warn_text + ": ensure that ECM data reflect these EMM regions "
+            "(and not the default AIA regions)")
 
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
@@ -7787,14 +7849,15 @@ def main(base_dir):
         # Determine the hourly range to restrict results to (24h, peak, take)
         hours = input(
             "Enter the daily hour range to restrict to (1 = all hours, "
-            "2 = peak period hours, 3 = take period hours): ")
+            "2 = peak demand period hours, 3 = low demand period hours): ")
 
         # If peak/take hours are chosen, determine whether total or net
         # system shapes should be used to determine the hour ranges
         if hours == '2' or hours == '3':
             sys_shape = input(
-                "Enter the basis for determining peak or take hour ranges: "
-                "1 = total system load, 2 = total system load net renewables: "
+                "Enter the basis for determining peak or low demand hour "
+                "ranges: 1 = total system load, 2 = total system load net "
+                "renewables: "
                 )
         else:
             sys_shape = '0'
@@ -7823,8 +7886,8 @@ def main(base_dir):
             # Sum/average energy change across take hours
             elif hours == '3':
                 calc_type = input(
-                    "Enter calculation type (1 = sum across take "
-                    "hours, 2 = daily take period average): ")
+                    "Enter calculation type (1 = sum across low demand "
+                    "hours, 2 = daily low demand period average): ")
         # Power output case (single hour)
         else:
             # Max/average power change across all hours
@@ -7840,13 +7903,13 @@ def main(base_dir):
             # Max/average power change across take hours
             elif hours == '3':
                 calc_type = input(
-                    "Enter calculation type (1 = peak day, take period "
-                    "maximum, 2 = daily take period hourly average): ")
+                    "Enter calculation type (1 = peak day, low demand period "
+                    "maximum, 2 = daily low demand period hourly average): ")
         # Determine the day type to average over (if needed)
         if output_type == '1' or calc_type == '2':
             day_type = input(
                 "Enter day type to calculate across (1 = all days, "
-                "2 = weekdays, 3 = weekends: ")
+                "2 = weekdays, 3 = weekends): ")
         else:
             day_type = "0"
 
@@ -7979,16 +8042,36 @@ def main(base_dir):
                     # that reflects these additions (judging by name)
                     if opts is not None and opts.health_costs is True and \
                             "PHC" not in meas_dict["name"]:
-                        for scn in handyvars.health_scn_names:
-                            # Determine unique measure copy name
-                            new_name = meas_dict["name"] + "-" + scn[0]
-                            # Copy the measure
-                            new_meas = copy.deepcopy(meas_dict)
-                            # Set the copied measure name to the name above
-                            new_meas["name"] = new_name
-                            # Append the copied measure to list of measure
-                            # definitions to update
-                            meas_toprep_indiv.append(new_meas)
+                        # Check to ensure that the measure applies to the
+                        # electric fuel type (or switches to it); if not, do
+                        # not prepare additional versions of the measure with
+                        # health costs
+                        if ((((type(meas_dict["fuel_type"]) is not list) and
+                              meas_dict["fuel_type"] not in [
+                            "electricity", "all"]) or ((type(
+                                meas_dict["fuel_type"]) is list) and all([
+                                x not in ["electricity", "all"] for x in
+                                meas_dict["fuel_type"]]))) and
+                                meas_dict["fuel_switch_to"] != "electricity"):
+                            # Warn the user that ECMs that do not apply to the
+                            # electric fuel type will not be prepared with
+                            # public cost health adders
+                            warnings.warn(
+                                "WARNING: " + meas_dict["name"] + " does not "
+                                "apply to the electric fuel type; versions of "
+                                "this ECM with low/high public health cost "
+                                "adders will not be prepared.")
+                        else:
+                            for scn in handyvars.health_scn_names:
+                                # Determine unique measure copy name
+                                new_name = meas_dict["name"] + "-" + scn[0]
+                                # Copy the measure
+                                new_meas = copy.deepcopy(meas_dict)
+                                # Set the copied measure name to the name above
+                                new_meas["name"] = new_name
+                                # Append the copied measure to list of measure
+                                # definitions to update
+                                meas_toprep_indiv.append(new_meas)
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -8050,13 +8133,20 @@ def main(base_dir):
                     "Error reading in '" +
                     handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        with open(path.join(base_dir, *handyfiles.msegs_cpl_in), 'r') as bjs:
-            try:
-                msegs_cpl = json.load(bjs)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.msegs_cpl_in + "': " + str(e)) from None
+        if regions == 'EMM':  # Extract compressed CPL EMM file
+            bjs = path.join(base_dir, *handyfiles.msegs_cpl_in)
+            bjszip = path.splitext(bjs)[0] + '.gz'
+            with gzip.GzipFile(bjszip, 'r') as zip_ref:
+                msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
+        else:
+            with open(
+                    path.join(base_dir, *handyfiles.msegs_cpl_in), 'r') as bjs:
+                try:
+                    msegs_cpl = json.load(bjs)
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.msegs_cpl_in + "': " + str(e)) from None
         # Import measure cost unit conversion data
         with open(path.join(base_dir, *handyfiles.cost_convert_in), 'r') as cc:
             try:
@@ -8161,13 +8251,26 @@ def main(base_dir):
             # Measure is new (add high-level data for measure)
             else:
                 meas_summary.append(m)
-            # Measure not already in active measures list (add name to list)
-            if m["name"] not in run_setup["active"]:
-                run_setup["active"].append(m["name"])
-            # Measure in inactive measures list (remove name from list)
-            if m["name"] in run_setup["inactive"]:
-                run_setup["inactive"] = [x for x in run_setup[
-                    "inactive"] if x != m["name"]]
+            # Add measures to active list; in a scenario where public health
+            # costs are assumed, add only the "high" health costs versions of
+            # prepared measures to the active list
+            if ((opts is not None and opts.health_costs is True) and (
+                    "PHC-EE (high)" not in m["name"])):
+                # Measure not already in inactive measures list (add to list)
+                if m["name"] not in run_setup["inactive"]:
+                    run_setup["inactive"].append(m["name"])
+                # Measure in active measures list (remove name from list)
+                if m["name"] in run_setup["active"]:
+                    run_setup["active"] = [x for x in run_setup[
+                        "active"] if x != m["name"]]
+            else:
+                # Measure not already in active measures list (add to list)
+                if m["name"] not in run_setup["active"]:
+                    run_setup["active"].append(m["name"])
+                # Measure in inactive measures list (remove name from list)
+                if m["name"] in run_setup["inactive"]:
+                    run_setup["inactive"] = [x for x in run_setup[
+                        "inactive"] if x != m["name"]]
 
         # Notify user that all measure preparations are completed
         print('All ECM updates complete; writing output data...')

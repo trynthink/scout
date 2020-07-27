@@ -90,7 +90,7 @@ Applicable baseline market
 
 The applicable baseline market parameters specify the climate zones, building types, structure types, end uses, fuel types, and specific technologies for the ECM. 
 
-The climate zone(s) can be given as a single string, if only one climate zone applies, or as a list if a few climate zones apply. The climate zone entry options are outlined in the :ref:`ecm-baseline_climate-zone` section, and formatting details are in the :ref:`applicable section <json-climate_zone>` of the JSON schema. If the ECM is suitable for all climate zones, the shorthand string ``"all"`` can be used in place of a list of all of the climate zone names. These shorthand terms are discussed further in the :ref:`ecm-features-shorthand` section. 
+The climate zone(s) can be given as a single string, if only one climate zone applies, or as a list if a few climate zones apply. The climate zone entry options are outlined in the :ref:`ecm-baseline_climate-zone` and :ref:`ecm-baseline_climate-zone-alt` sections, and formatting details are in the :ref:`applicable section <json-climate_zone>` of the JSON schema. If the ECM is suitable for all climate zones, the shorthand string ``"all"`` can be used in place of a list of all of the climate zone names. These shorthand terms are discussed further in the :ref:`ecm-features-shorthand` section. 
 
 LED troffers can be installed in buildings in any climate zone, and for convenience, the available shorthand term will be used in place of a list of all of the climate zone names. ::
 
@@ -326,178 +326,309 @@ There are many ways in which an ECM definition can be augmented, beyond the basi
 Time sensitive valuation
 ************************
 
-In certain cases, ECMs might affect baseline energy loads differently depending on the time of day, necessitating time sensitive valuation of efficiency impacts. :numref:`tsv-ecm-diagram` demonstrates four possible types of time sensitive ECM impacts.
+In certain cases, ECMs might affect baseline energy loads differently depending on the time of day or season, necessitating time sensitive valuation of ECM impacts. :numref:`tsv-ecm-diagram` demonstrates three possible types of time sensitive ECM features.
 
 .. _tsv-ecm-diagram:
-.. figure:: images/TSV_ECMs.*
+.. figure:: images/Shed_Shift_Shape_Diag.*
 
-   The effect of time sensitive ECM features on baseline energy load shapes are represented as a light gray curve in each of the plots. Time sensitive ECM features include (clockwise from top left): conventional efficiency, where an efficiency improvement is constrained to certain hours of the day; peak shaving and valley filling, where peaks in the load shape are reduced and/or troughs in the load shape are filled in; load shaping, where a load shape is uniformly flattened or redistributed to reflect a custom load shape; and load shifting, where loads shed during a certain hour range are redistributed to an earlier time of day or the entire load shape is shifted earlier by a certain number of hours.
+   Time sensitive ECM features include (from left): load shedding, where an ECM reduces load during a certain daily hour range; load shifting, where load is reduced during one daily hour range and increased during another daily hour range; and load shaping, where load may be increased or decreased for any hour of the day/year in accordance with a custom hourly load savings shape.
 
-Such time sensitive ECM features are specified using the :ref:`json-time_sensitive_valuation` parameter, which adheres to the following general format: ::
+Such time sensitive ECM features are specified using the :ref:`json-tsv_features` parameter, which adheres to the following general format: ::
 
    {...
-    "time_sensitive_valuation": {
+    "tsv_features": {
       <time sensitive feature>: {<feature details>}},
     ...}
 
+The :ref:`json-tsv_features` parameter may be broken out by an ECM's :ref:`json-climate_zone`, :ref:`json-bldg_type`, and/or :ref:`json-end_use`: ::
+
+    {...
+     "tsv_features": {
+       <region 1> : {
+         <building type 1> : {
+           <end use 1>: {
+             <time sensitive feature>: {<feature details>}}}}, ...
+       <region N> : {
+         <building type N> : {
+           <end use N>: {
+             <time sensitive feature>: {<feature details>}}}}},
+     ...}
+
+Source information for time sensitive ECM features is specified using the :ref:`json-tsv_source` parameter: ::
+
+   {...
+    "tsv_source": {
+      "notes": <notes>,
+      "source_data": [{
+        "title": <title>,
+        "author": <author>,
+        "organization": <organization>,
+        "year": <year>,
+        "pages":[<start page>, <end page>],
+        "URL": <URL>}]},
+    ...}
+
+The :ref:`json-tsv_source` parameter may be broken out by an ECM's :ref:`json-climate_zone`, :ref:`json-bldg_type`, and/or :ref:`json-end_use`, and by the ECM's time sensitive valuation features: ::
+
+    {...
+     "tsv_source": {
+       <region 1> : {
+           <building type 1> : {
+             <end use 1>: {
+               <time sensitive feature>: {
+                 "notes": <notes>,
+                 "source_data": [{
+                   "title": <title>,
+                   "author": <author>,
+                   "organization": <organization>,
+                   "year": <year>,
+                   "pages":[<start page>, <end page>],
+                   "URL": <URL>}]}}}}, ...
+       <region N> : {
+           <building type N> : {
+             <end use N>: {
+               <time sensitive feature>: {
+                 "notes": <notes>,
+                 "source_data": [{
+                   "title": <title>,
+                   "author": <author>,
+                   "organization": <organization>,
+                   "year": <year>,
+                   "pages":[<start page>, <end page>],
+                   "URL": <URL>}]}}}},
+     ...}
+
 Each time sensitive ECM feature is further described below with illustrative example ECMs. 
 
-.. _ecm-download-com-peak:
+.. note::
+   Time sensitive ECM features are currently only supported for ECMs that affect the electric fuel type across the `2019 EIA Electricity Market Module (EMM) regions`_, and may not be defined as fuel switching measures.
 
-:download:`Example <examples/Commercial AC (Peak Elimination).json>` -- Commercial AC (Peak Elimination) ECM (:ref:`Details <ecm-example-com-peak>`)
+   Accordingly, when preparing an ECM with time sensitive features, the user should ensure that:
 
-The first type of time sensitive ECM feature restricts the impact of a conventional efficiency measure to certain hours of the day using :ref:`json-start` and :ref:`json-stop` parameters. ::
+   1) the ECM's :ref:`json-fuel_type` parameter is set to ``"electricity"``, and the ECM's :ref:`json-fuel_switch_to` parameter is set to ``null``;
+   2) |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` :ref:`option specified <tuts-2-cmd-opts>`; and
+   3) EMM is subsequently selected as the alternate regional breakout.
 
-   {...
-    "time_sensitive_valuation": {
-      "conventional": {"start": 12, "stop": 20}},
-    ...}
+   Users are also encouraged to use the ``--site_energy`` option when executing |html-filepath| ecm_prep.py\ |html-fp-end| for ECMs with time sensitive features, as utility planners are often most interested in the change in the electricity *demand* (rather than generation) that may result from ECM deployment.
 
-These settings constrain ECM efficiency impacts indicated by the :ref:`json-energy_efficiency` parameter to a specific time period |---| in this example, 12PM--8PM. Such a capability may be useful, for example, in exploring the total energy use, |CO2| emissions, and operating costs associated with a particular utility definition of the peak load period. This :ref:`json-time_sensitive_valuation` setting works in combination with the energy efficiency specified separately in the ECM definition. In this example, the above :ref:`json-time_sensitive_valuation` settings are combined with a 100% energy use reduction. ::
+.. note::
+   The effects of an ECM's time sensitive features are applied *on top of* the ECM's static energy efficiency impact on baseline loads, as defined in the ECM's :ref:`json-energy_efficiency` parameter.
 
-   {...
-    "energy_efficiency": 1,
-    "energy_efficiency_units": "relative savings (constant)",
-    ...}
+.. _ecm-download-com-shed:
 
-This particular combination of :ref:`json-time_sensitive_valuation` and :ref:`json-energy_efficiency` settings yields the total avoided energy, |CO2| emissions, and operating costs resulting from *eliminating* peak period energy use.
+:download:`Example <examples/Commercial AC (Shed).json>` -- Commercial AC (Shed) ECM (:ref:`Details <ecm-example-com-shed>`)
 
-.. _ecm-example-com-peak:
-
-A commercial peak elimination ECM is :ref:`available for download <ecm-download-com-peak>`.
-
-.. _ecm-download-com-shave:
-
-:download:`Example <examples/Commercial AC (Peak Shave).json>` -- Commercial AC (Peak Shave) ECM (:ref:`Details <ecm-example-com-shave>`)
-
-The second type of time sensitive ECM feature either sheds a fixed percentage of peak energy load off a baseline load shape or fills in troughs in the baseline load shape; these effects may be restricted to certain hours of the day or applied across the entire day.
-
-Given the following peak shaving settings, which include use of the :ref:`json-peak_fraction` parameter, loads are reduced to *at maximum* 75% of the peak load between 12PM--8PM. ::
+The first type of time sensitive ECM feature sheds (reduces) a certain percentage of baseline electricity demand (defined by the parameter :ref:`json-rel_energy_frac`) during certain days of a `reference year`_ (defined by the parameters :ref:`json-start_day` and :ref:`json-stop_day`) and hours of the day (defined by the parameters :ref:`json-start` and :ref:`json-stop`.) ::
 
    {...
-    "time_sensitive_valuation": {
-      "shave": {"start": 12, "stop": 20, "peak_fraction": 0.75}},
+    "tsv_features": {
+      "shed": {
+        "relative energy change fraction": 0.1,
+        "start_day": 152, "stop_day": 174,
+        "start_hour": 12, "stop_hour": 20}},
     ...}
 
-Given the following valley filling settings, loads are increased to *at minimum* 50% of the peak load between 12PM-8PM. ::
+In this example, the ECM sheds 10% of electricity demand between the hours of 12--8 PM on all summer days (Jun--Sep, days 152--173 in the `reference year`_).
 
-   {...
-    "time_sensitive_valuation": {
-      "fill": {"start": 12, "stop": 20, "peak_fraction": 0.5}},
-    ...}
+.. tip::
+   Two day ranges may be provided by specifying the parameters :ref:`json-start_day` and :ref:`json-stop_day` as lists with two elements: ::
 
-.. _ecm-example-com-shave:
+       {...
+       "start_day": [1, 335],
+       "stop_day": [91, 365],
+       ...}
 
-A commercial peak shaving ECM is :ref:`available for download <ecm-download-com-shave>`.
+   In this example, the ECM features will be applied to all winter months (Dec, days 335--365; and Jan--Mar, days 1--90 in the `reference year`_).
+
+   Moreover, if an ECM feature applies to *all* days of the year, the parameters :ref:`json-start_day` and :ref:`json-stop_day` need not be provided.
+
+.. _ecm-example-com-shed:
+
+A commercial load shedding ECM is :ref:`available for download <ecm-download-com-shed>`.
 
 .. _ecm-download-com-shift:
 
 :download:`Example <examples/Commercial AC (Shift).json>` -- Commercial AC (Load Shift) ECM (:ref:`Details <ecm-example-com-shift>`)
 
-The third type of time sensitive ECM feature shifts baseline energy loads from one time of day to another, either by redistributing loads shed during a certain hour range to earlier times of day or by shifting the entire baseline energy load shape earlier by a certain number of hours.
+The second type of time sensitive ECM feature shifts baseline energy loads from one time of day to another by redistributing loads reduced during a certain hour range to earlier times of day.
 
-In the first case, :ref:`json-start` and :ref:`json-stop` parameters are used to determine the hour range from which to shift load reductions; an :ref:`json-offset_hrs_earlier` parameter is then used to determine which hour range to redistribute the load reductions to. ::
+As with the shed feature, the :ref:`json-start_day` and :ref:`json-stop_day` and :ref:`json-start` and :ref:`json-stop` parameters are used to determine the day and hour ranges from which to shift the load reductions, respectively. The magnitude of the load reduction is again defined by the :ref:`json-rel_energy_frac` parameter. The :ref:`json-offset_hrs_earlier` parameter is used to determine which hour range to redistribute the load reductions to. ::
 
    {...
-    "time_sensitive_valuation": {
-      "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 12}},
+    "tsv_features": {
+      "shift": {
+        "offset_hrs_earlier": 12,
+        "relative energy change fraction": 0.1,
+        "start_day": 152, "stop_day": 174,
+        "start_hour": 12, "stop_hour": 20},
     ...} 
 
-These settings take any load reductions between 12PM--8PM |---| determined by the ECM's :ref:`json-energy_efficiency` parameter setting |---| and evenly redistribute the reductions across the hours of 12AM--8AM, or 12 hours earlier in the day.
-
-In the second case, no start and stop times are given for the time sensitive feature. ::
-
-   {...
-    "time_sensitive_valuation": {
-      "shift": {"start": null, "stop": null, "offset_hrs_earlier": 12}},
-    ...}
-
-These settings shift the *entire* baseline load shape earlier by 12 hours.
-
-.. tip::
-   In cases where no time constraints are desired on a time sensitive ECM feature, users may exclude the :ref:`json-start` and :ref:`json-stop` parameters entirely (in lieu of setting them to null values).
+In this example, the ECM shifts 10% of electricity demand between the hours of 12--8 PM to 12 hours earlier (e.g., to 12--8 AM) on all summer days (Jun--Sep, days 152--173 in the `reference year`_).
 
 .. _ecm-example-com-shift:
 
-A commercial load shifting ECM that demonstrates the load shifting settings from the first case above is :ref:`available for download <ecm-download-com-shift>`.
+A commercial load shifting ECM is :ref:`available for download <ecm-download-com-shift>`.
 
-.. _ecm-download-com-flatten:
+.. _ecm-download-com-shape-day:
 
-:download:`Example <examples/Commercial AC (Flatten).json>` -- Commercial AC (Load Flatten) ECM (:ref:`Details <ecm-example-com-shape>`)
+:download:`Example <examples/Commercial AC (Shape - Daily Savings).json>` -- Commercial AC (Shape - Custom Daily) ECM (:ref:`Details <ecm-example-com-shape-day>`)
 
-.. _ecm-download-com-shape:
+.. _ecm-download-com-shape-yr:
 
-:download:`Example <examples/Commercial AC (Shape).json>` -- Commercial AC (Custom Load Shape) ECM (:ref:`Details <ecm-example-com-shape>`)
+:download:`Example <examples/Commercial AC (Shape - 8760 Savings).json>` -- Commercial AC (Shape - Custom 8760) ECM (:ref:`Details <ecm-example-com-shape-yr>`)
 
-The final type of time sensitive ECM feature reshapes the baseline energy load by uniformly flattening the load or rescaling it to represent a user-defined custom load shape. 
+.. _ecm-download-com-8760_csv:
 
-The :ref:`json-flatten_fraction` parameter is used to flatten a baseline energy load shape. ::
+:download:`Example <examples/sample_8760.csv>` -- Sample 8760 CSV (:ref:`Details <sample-8760>`)
 
-   {...
-    "time_sensitive_valuation": {
-      "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
-    ...}
+The final type of time sensitive ECM feature applies hourly savings fractions to baseline loads in accordance with a custom savings shape that represents either a typical day or all 8760 hours of the year. 
 
-These settings result in all loads above the daily average being reduced by 50% of the difference between the load and the average, and all loads below the daily average being increased by 50% of the difference between the load and the average. In this case, no time constraints have been placed on the flattening operation, though it is possible to do so using the :ref:`json-start` and :ref:`json-stop` parameters. When a time interval is provided, the calculated average and resulting load reshaping are limited to the specified interval.
-
-The :ref:`json-custom-load` parameter is used to set a custom load shape. ::
+In the first case, custom hourly savings for a typical day are defined in the :ref:`json-custom-save-day` parameter; the hourly savings are specified as a list with 24 elements, with each element representing the fraction of hourly baseline load that an ECM saves. These hourly savings are applied for each day of the year in the range defined by the :ref:`json-start_day` and :ref:`json-stop_day` parameters, as for the shed and shift features. ::  
 
    {...
-    "time_sensitive_valuation": {
+    "tsv_features": {
       "shape": {
-        "custom_load": [0.79, 0.70, 0.61, 0.56, 0.52, 0.52, 0.54, 0.58, 0.63, 0.67, 0.69, 0.71,
-                        0.71, 0.71, 0.76, 0.76, 0.80, 0.85, 0.90, 0.95, 0.99, 1, 0.96, 0.88]}},
+        "start_day": 152, "stop_day": 174,
+        "custom_daily_savings": [
+          0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
+          1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}},
     ...}
 
-Here, custom load shaping fractions are specified in a list for all 24 hours of the day. Each number in the list represents the hourly load's fraction of maximum daily load. In the above settings, for example, the load for the first hour of the day is 79% of the maximum daily load, which occurs in hour 22.
+In this example, the ECM reduces hourly loads between 50--200% on all summer days (days 152--174 in the `reference year`_). Note that savings fractions may be specified as greater than 1 to represent the effects of on-site energy generation on a building's overall load profile.
 
-Alternatively, the :ref:`json-custom-save` parameter can be used to set a custom load savings shape. :: 
+.. _ecm-example-com-shape-day:
+
+A commercial daily load shaping ECM is :ref:`available for download <ecm-download-com-shape-day>`.
+
+In the second case, the custom savings shape represents hourly load impacts for all 8760 hours in the `reference year`_. Here, the measure definition links to a supporting CSV file via the :ref:`json-custom-save-ann` parameter. The CSV is expected to be present in the |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes |html-fp-end| folder, with one CSV per measure JSON in |html-filepath| ./ecm_definitions |html-fp-end| that uses this feature. ::   
 
    {...
-    "time_sensitive_valuation": {
+    "tsv_features": {
       "shape": {
-        "custom_savings": [0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4, 1.5, 1.6, 1.8,
-        	           1.9, 2, 1, 0.5, 0.75, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}},
+        "custom_annual_savings": "sample_8760.csv"}},
     ...}
 
-As in the :ref:`json-custom-load` case, custom load savings fractions are specified in a list for all 24 hours of the day. In this case, each number in the list represents the fraction of hourly baseline load that an ECM saves. In the above settings, for example, the ECM reduces the load for the first hour of the day by 50%. Note that savings fractions may be specified as greater than 1 to represent the effects of on-site energy generation on a building's overall load profile.
+In this example, the supporting CSV file path is |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes/sample_8760.csv. |html-fp-end| The CSV file must include the following data (by column name):
 
-.. _ecm-example-com-shape:
+* *Hour of Year*. Hour of the simulated year, spanning 1 to 8760. The simulated year must match the `reference year`_ in terms of starting day of the week (Sunday) and total number of days (365).
+* *Climate Zone*. Applicable `ASHRAE 90.1-2016 climate zone`_ (see Table 2); currently, only the 14 contiguous U.S. climate zones (2A through 7) are supported.
+* *Net Load Version*. For climate zones 3A, 4A, 5A, and 6A, this column indicates which of the two representative `EIA Electricity Market Module (EMM)`_ net utility system load `profiles`_ for those climate zones is used to determine energy flexibility measure characteristics; for all other climate zones and for energy efficiency measures, set to 1. :numref:`tsv-nl-tab` summarizes default periods of net peak and low system demand for each ASHRAE climate zone in the summer (S) and winter (W); the "Version" column of :numref:`tsv-nl-tab` indicates cases where two system load profiles are used to define these peak/low demand periods for a given climate zone.
 
-A commercial load flattening ECM is :ref:`available for download <ecm-download-com-flatten>`, as is a :ref:`commercial custom load shaping ECM <ecm-download-com-shape>`.
+.. _tsv-nl-tab:
+.. table:: Net peak and low system demand periods by ASHRAE climate zone in summer (S) and winter (W).
+
+   +---------+---------+----------+----------+---------+----------+----------+ 
+   | Climate | Version | EMM Reg. | Peak (S) | Peak (W)| Low (S)  | Low (W)  |
+   +=========+=========+==========+==========+=========+==========+==========+ 
+   | 2A      | 1       | FRCC     | 4-8PM    | 5-9PM   | 7-11AM   | 10AM-4PM |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 2B      | 1       | AZNM     | 4-8PM    | 5-9PM   | 12-9AM   | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 3A      | 1       | SRVC     | 6-10PM   | 5-9PM   | 12-10AM  | 12-4AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 3A      | 2       | SPSO     | 5-9PM    | 5-9PM   | 8AM-12PM | 9AM-4PM  |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 3B      | 1       | ERCT     | 5-9PM    | 7-11PM  | 2AM-9AM  | 12AM-7AM |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 3C      | 1       | CAMX     | 6-10PM   | 5-9PM   | 8AM-3PM  | 8AM-4PM  |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 4A      | 1       | NYCW     | 11AM-3PM | 4-8PM   | 12AM-6AM | 12AM-7AM |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 4A      | 2       | SPNO     | 5-9PM    | 5-9PM   | 7AM-12PM | 9AM-4PM  |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 4B      | 1       | AZNM     | 4-8PM    | 5-9PM   | 12-9AM   | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 4C      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 5A      | 1       | NYUP     | 7-11PM   | 5-9PM   | 12-6AM   | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 5A      | 2       | RFCW     | 1-5PM    | 6-10PM  | 12-7AM   | 12-7AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 5B      | 1       | RMPA     | 4-8PM    | 5-9PM   | 12-8AM   | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 5C      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 6A      | 1       | MROW     | 3-7PM    | 6-10PM  | 2-7AM    | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 6A      | 2       | NEWE     | 12-4PM   | 5-9PM   | 12-7AM   | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 6B      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+   | 7       | 1       | MROW     | 3-7PM    | 6-10PM  | 2-7AM    | 12-6AM   |
+   +---------+---------+----------+----------+---------+----------+----------+
+
+
+* *Building Type*. Applicable EnergyPlus building type; currently supported representative building types are:
+   
+    * SingleFamilyHome (`ResStock`_)
+    * MediumOfficeDetailed or MediumOffice (`DOE Commercial Prototypes`_)
+    * LargeOfficeDetailed or LargeOffice (`DOE Commercial Prototypes`_)
+    * LargeHotel (`DOE Commercial Prototypes`_)
+    * RetailStandalone (`DOE Commercial Prototypes`_)
+    * Warehouse (`DOE Commercial Prototypes`_)
+
+* *End Use*. Electric end use; currently supported options are:
+
+    * heating
+    * cooling
+    * lighting
+    * water heating
+    * refrigeration
+    * ventilation
+    * drying
+    * cooking
+    * plug loads
+    * dishwasher
+    * clothes washing
+    * clothes drying
+    * pool heaters and pumps
+    * fans and pumps
+    * other
+
+* *Baseline Load*. Load (in kW) for given hour of year, climate zone, net load version, building type, and end use under the baseline case.
+* *Measure Load*. Load (in kW) for given hour of year, climate zone, net load version, building type, and end use after measure application.
+* *Relative Savings*. Calculated as: (Hourly Measure Load - Hourly Baseline Load) / (Total Annual Baseline Load).
+
+
+
+
+.. _ecm-example-com-shape-yr:
+.. _sample-8760:
+
+A commercial 8760 load shaping ECM is :ref:`available for download <ecm-download-com-shape-yr>`; this example ECM is set up to draw from an example 8760 CSV, which is also :ref:`available for download <ecm-download-com-8760_csv>`. Note that to effectively run the :ref:`commercial 8760 load shaping ECM <ecm-download-com-shape-yr>`, the :ref:`example 8760 CSV <ecm-download-com-8760_csv>` must be moved to the |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes |html-fp-end| folder.
 
 .. _ecm-download-com-multiple:
 
 :download:`Example <examples/Commercial AC (Multiple TSV).json>` -- Commercial AC (Multiple TSV) ECM (:ref:`Details <ecm-example-com-multiple>`)
 
-Finally, it is possible to define ECMs that combine multiple time sensitive features at once |---| e.g., an ECM that both shifts and shapes load. ::
+Finally, it is possible to define ECMs that combine multiple time sensitive features at once |---| e.g., an ECM that turns down the thermostat temperature during early evening hours on winter days (shed) and pre-cools through the mid-day hours while setting up the thermostat temperature during early evening hours on summer days (shift). Such measures are handled by nesting multiple feature types under the :ref:`json-tsv_features` parameter in the ECM definition. ::
 
    {...
-    "time_sensitive_valuation": {
-      "shift": {"start": 12, "stop": 20, "offset_hrs_earlier": 10},
-      "shape": {"start": null, "stop": null, "flatten_fraction": 0.5}},
-    ...}
-
-These settings take any load reductions between 12PM-8PM |---| again defined by the ECM's :ref:`json-energy_efficiency` parameter setting |---| and redistribute them evenly across the hours of 12AM-8AM; subsequently, the resulting load shape is flattened to reduce the difference between all hourly loads and the average hourly load by 50%.
-
-.. note::
-   When multiple time sensitive features are specified for an ECM, the assumed order of implementation is: 1) conventional efficiency, 2) peak shave or valley fill, 3) load shift, and 4) load reshape.
-
-Source information for time sensitive ECM features is specified using the :ref:`json-time_sensitive_valuation_source` field. In cases where multiple time sensitive features are indicated and the sources differ across each feature, the source information can be provided using the same nested dict structure as the time sensitive features themselves, as shown below.::
-
-  {...
-    "time_sensitive_valuation_source": {
+    "tsv_features": {
+      "shed": {
+        "relative energy change fraction": 0.1,
+        "start_day": [1, 335], "stop_day": [91, 365],
+        "start_hour": 16, "stop_hour": 20},
       "shift": {
-        "notes": {...},
-        "source_data": {...}},
-      "shape": {
-        "notes": {...},
-        "source_data": {...}}},
+        "offset_hrs_earlier": 4,
+        "relative energy change fraction": 0.1,
+        "start_day": 152, "stop_day": 174,
+        "start_hour": 16, "stop_hour": 20}  
     ...}
+
+In this example, the first feature will represent baseline load shedding between the hours of 4--8 PM on all winter days, while the second feature will shift baseline loads occuring between 4--8 PM to the hours of 12--4 PM on all summer days.
 
 .. _ecm-example-com-multiple:
 
-A commercial load shifting and reshaping ECM is :ref:`available for download <ecm-download-com-multiple>`.
+A commercial load shedding and shifting ECM is :ref:`available for download <ecm-download-com-multiple>`.
+
+.. _2019 EIA Electricity Market Module (EMM) regions: https://www.eia.gov/outlooks/aeo/pdf/f2.pdf
+.. _reference year: https://asd.gsfc.nasa.gov/Craig.Markwardt/doy2006.html
+.. _ASHRAE 90.1-2016 climate zone: https://www.ashrae.org/File%20Library/Conferences/Specialty%20Conferences/2018%20Building%20Performance%20Analysis%20Conference%20and%20SimBuild/Papers/C008.pdf
+.. _EIA Electricity Market Module (EMM): https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m068(2018).pdf
+.. _ResStock: https://resstock.readthedocs.io/en/latest/
+.. _DOE Commercial Prototypes: https://www.energycodes.gov/development/commercial/prototype_models
+.. _profiles: https://drive.google.com/file/d/1SlXuazUj0-3S8ax7c-Lpe6niv6n87KSl/view?usp=sharing
 
 .. _ecm-features-shorthand:
 
@@ -1038,22 +1169,105 @@ To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, ope
    cd Documents/projects/scout-run_scheme
    python3 ecm_prep.py
 
-.. tip::
-   By default, ECMs are processed and yield results measured in primary, or source, energy, and the site-source conversion is calculated using the fossil fuel equivalence method. ECM processing can be switched to a site energy basis with the optional flag ``--site_energy`` and can be switched to the captured energy method for converting from site to source energy with the flag ``--captured_energy``. For example, ``python3 ecm_prep.py --captured-energy``. Further details on the difference between the fossil fuel equivalence and captured energy methods for calculating site-source conversion factors can be found in the DOE report `Accounting Methodology for Source Energy of Non-Combustible Renewable Electricity Generation`_.
-
-.. _Accounting Methodology for Source Energy of Non-Combustible Renewable Electricity Generation: https://www.energy.gov/sites/prod/files/2016/10/f33/Source%20Energy%20Report%20-%20Final%20-%2010.21.16.pdf
-
-.. tip::
-   Using the optional flag ``--rp_persist`` (i.e., ``python3 ecm_prep.py --rp_persist``) will prepare a measure set with the assumption that all measure relative performance levels at market entry persist across the years the measure set is on the market. For example, if a user wishes to assume that the performance level of a current 'Best Available' technology portfolio improves in lock-step with the rate of improvement of a comparable set of baseline technologies, the ``--rp_persist`` option will operationalize this assumption.
-
-   Additionally, using the optional flag ``--verbose`` (i.e., ``python3 ecm_prep.py --verbose``) will print all warning messages triggered during ECM preparation to the console.
-
 As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
 If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./supporting_data/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./supporting_data |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
 
+.. tip::
+   The format of |html-filepath| ecm_prep.json |html-fp-end| is a list of dictionaries, with each dictionary including one ECM's high-level summary data. Use the ``name`` key in these ECM summary data dictionaries to find information for a particular ECM of interest in this file.
+
 If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy efficiency that do not match the baseline cost and efficiency data in the ECM.
 
+.. _tuts-2-cmd-opts:
+
+Additional preparation options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users may include a range of additional options alongside the |html-filepath| ecm_prep.py\ |html-fp-end| command that modify default ECM preparation settings.
+
+**Windows** ::
+
+   py -3 ecm_prep.py <additional option 1> <additional option 2> ... <additional option N>
+
+**Mac** ::
+
+   python3 ecm_prep.py <additional option 1> <additional option 2> ... <additional option N>
+
+The additional ECM preparation options are described further here.
+
+
+Alternate regions
+*****************
+
+``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions. When this option is specified, the user will be prompted to select the desired alternate regional breakout upon running |html-filepath| ecm_prep.py\ |html-fp-end|. 
+
+.. note::
+   Currently, the only supported alternative regional breakout is the U.S. Electricity Information Administration (EIA) 2019 Electricity Market Module (EMM) regions (see the :ref:`ecm-baseline_climate-zone-alt` section for details regarding EMM region names.)
+
+Site energy
+***********
+
+``--site_energy`` prepares ECM markets and impacts in terms of site energy use, rather than in terms of primary (or source) energy use as in the default ECM preparation.
+
+Captured energy
+***************
+
+``--captured_energy`` prepares ECM markets and impacts with site-source energy conversion factors calculated using the `captured energy method`_, rather than with the fossil fuel equivalence method as in the default ECM preparation.
+
+Persistent relative performance
+*******************************
+
+``--rp_persist`` calculates the market entry energy performance of each ECM being prepared relative to its comparable baseline technology, and maintains this relative energy performance across the full modeling time horizon. For example, if ECMs are 10% more efficient than comparable baseline technologies at market entry, they will still be 10% more efficient than comparable baseline technologies by the end of the modeling time horizon.
+
+Public health benefits
+**********************
+
+``--health_costs`` adds low and high estimates of the public health cost benefits of avoided fossil electricity generation from the deployment of each ECM being prepared. The low and high public health cost benefits estimates are drawn from the "Uniform EE - low estimate, 7% discount" and "Uniform EE - high estimate, 3% discount" cases in the `U.S. Environmental Protection Agency (EPA) report`_ "Public Health Benefits per kWh of Energy Efficiency and Renewable Energy in the United States: a Technical Report". [#]_ [#]_
+
+.. note::
+   Public health cost adders are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--health_costs`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
+
+.. note::
+   When ECMs are prepared with the public health cost adder, three versions of the ECM will be produced: 1) the ECM prepared according to defaults, *without* health cost adders, 2) a version of the the ECM with a low public health cost adder ``<ECM Name> - PHC-EE (low)``, and 3) a version of the ECM with a high public health cost adder ``<ECM Name - PHC-EE (high)``. Since the EPA `report`_ estimates public health benefits based on the current fossil fuel generation mix, **users are advised against retaining any results for ECMs prepared with public health cost adders beyond the year 2025**.
+
+   Public health cost adders only apply to the ``electricity`` :ref:`json-fuel_type`. If ECMs that do not apply to the ``electricity`` :ref:`json-fuel_type` or switch to ``electricity`` (via :ref:`json-fuel_switch_to`) are present alongside the ``--health_costs`` option, only the default version of such ECMs will be prepared and the user will be warned accordingly.  
+
+Time sensitive valuation metrics
+********************************
+
+``--tsv_metrics`` assesses and reports out ECM impacts on electric load during pre-defined sub-annual time slices, rather than impacts on annual energy use as in the default ECM preparation. Time slice settings are based on 2006 as the `reference year`_ for the purpose of defining the days of the week and number of days in the year. When this option is specified, the user will be prompted to define the characteristics of the intended time sensitive valuation metric upon running |html-filepath| ecm_prep.py\ |html-fp-end|. Time sensitive valuation metrics are defined by several characteristics, listed here.
+
+* *Type of time sensitive metric desired*. The reported metric can represent either change in energy use across multiple hours (e.g., kWh, GWh, TWh) or change in power per hour (e.g., kW, GW, TW).
+* *Daily hour range to restrict to*. The time slice can include all 24 hours of a day or be set to specific a daily period of peak demand on the electric grid (e.g., 4--8 PM) or low demand on the electric grid (e.g., 12--4 AM).
+* *Basis for determining hour range*. Periods of peak and low demand are determined using system-level load profiles for a representative set of `EMM regions`_. These profiles and associated periods may be based on *total* system demand, or total system demand *net* renewable energy generation. [#]_
+* *Season of focus*. The analysis can be limited to one of three seasons: summer (Jun--Sep), winter (Dec--Mar), or intermediate (Oct--Nov, Apr--May).
+* *Calculation type*. The reported metric can represent a sum or average of loads across multiple hours (when reporting a change in energy use); or a maximum or average hourly load (when reporting a change in power).
+* *Day type of focus*. The time slice can include all days of the week or be restricted to only weekdays or weekends.
+
+.. _EMM regions: https://www.eia.gov/outlooks/aeo/pdf/f2.pdf
+
+.. note::
+   When the ``--tsv_metrics`` option is used, all data prepared for the ECM and written out to |html-filepath| ./supporting_data/ecm_competition_data |html-fp-end| and |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end| will reflect the specific time slice of interest, rather than the default annual outcomes.   
+
+.. note::
+   Data needed to support evaluation of TSV metrics are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--tsv_metrics`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user. 
+
+Sector-level hourly energy loads
+********************************
+
+``--sect_shapes`` modifies the results output to |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end| to include, for each ECM, the hourly energy use (in MMBtu) attributable to the portion of the building stock the ECM applies to in a given adoption scenario, EMM region, and projection year, both with and without the measure applied. These hourly energy loads are reported for all 8760 hours of a year that corresponds to a `reference year`_.
+
+.. note::
+   Sector-level 8760 load data for an ECM are written to the "sector_shapes" key within the given ECM's dictionary of summary data in |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end|. The 8760 load data are nested in another dictionary under the "sector_shapes" key according to the following key hierarchy: adoption scenario ("Technical potential" or "Max adoption potential") -> EMM region (see :ref:`ecm-baseline_climate-zone-alt` for names) -> summary projection year ("2020", "2030", "2040" or "2050") -> efficiency scenario ("baseline" or "efficient"). The terminal values at the end of each key chain will be a list with 8760 values. 
+
+Verbose mode
+************
+
+``--verbose`` prints all warning messages triggered during ECM preparation to the console.
+
+.. _captured energy method: https://www.energy.gov/sites/prod/files/2016/10/f33/Source%20Energy%20Report%20-%20Final%20-%2010.21.16.pdf
+.. _U.S. Environmental Protection Agency (EPA) report: https://www.epa.gov/sites/production/files/2019-07/documents/bpk-report-final-508.pdf
+.. _report: https://www.epa.gov/sites/production/files/2019-07/documents/bpk-report-final-508.pdf
 
 .. _tuts-ecm-list-setup:
 
@@ -1150,6 +1364,9 @@ Tutorial 4: Running an analysis
 -------------------------------
 
 Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+
+.. note::
+   ECMs prepared via |html-filepath| ecm_prep.py\ |html-fp-end| with the additional options ``--site_energy``, ``--captured_energy``, ``--alt_regions``, ``--tsv_metrics``, and/or ``--health_costs`` as outlined in :ref:`tuts-2-cmd-opts` may only be simulated in  |html-filepath| run.py |html-fp-end| alongside other ECMs that were prepared with the same options and option settings. If discrepancies are found in ECM preparation settings across ECMs in the active list, |html-filepath| run.py |html-fp-end| execution will be halted and the user will see an error message.    
 
 To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run |html-filepath| run.py |html-fp-end| as a Python script.
 
@@ -1341,6 +1558,11 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
 .. [#] The retrofit rate assumption only affects the :ref:`Maximum Adoption Potential <overview-adoption>` scenario results, in which realistic equipment turnover dynamics are considered.
 .. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
-.. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
+.. [#] With this option, low/high estimates of public health benefits are added directly to electricity costs, yielding greater savings for ECMs that are able to reduce electricity use.
+.. [#] The EPA report also includes low and high estimates of the public health benefits of avoided electricity generation from energy efficiency during the peak hours of 12-6 PM. While these estimates are ultimately very similar to the "Uniform EE" estimates and not included in Scout's health cost adders, they are summarized by region alongside the "Uniform EE" estimates in the file |html-filepath| ./supporting_data/convert_data/epa_costs.csv |html-fp-end|.
+.. [#] Total and net peak and low demand hour ranges by season, EMM region, and projection year are summarized in the files |html-filepath| ./supporting_data/tsv_data/tsv_hrs_net.csv |html-fp-end| and |html-filepath| ./supporting_data/tsv_data/tsv_hrs_tot.csv |html-fp-end|. The default periods assumed when a user adds the ``--tsv_metrics`` option reflect the projection year 2050 and a representative subset of system load shapes from 14 EMM regions: FRCC, AZNM, SRVC, SPSO, ERCOT, CAMX, NYCW, SPNO, NWPP, NYUP, RFCW, RMPA, MROW, NEWE. For a graphical understanding of the representative set of *net* system load shapes and peak/low demand period definitions used to support the ``--tsv_metrics`` option, refer to `this plot`_.
 .. [#] Building class corresponds to the four combinations of :ref:`building type <json-bldg_type>` and :ref:`structure type <json-structure_type>`.
 .. [#] When ECMs are competed against each other, demand-side heating and cooling ECMs that improve the performance of the building envelope reduce the energy required to meet heating and cooling needs (supply-side energy), and that reduction in energy requirements for heating and cooling is reflected in a reduced baseline for supply-side heating and cooling ECMs. At the same time, supply-side heating and cooling ECMs that are more efficient reduce the energy used to provide heating and cooling services, thus reducing the baseline energy for demand-side ECMs. The description of :ref:`ECM competition <ecm-competition>` in Step 3 of the analysis approach section includes further details regarding supply-side and demand-side heating and cooling energy use balancing.
+.. .. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
+
+.. _this plot: https://drive.google.com/file/d/1SlXuazUj0-3S8ax7c-Lpe6niv6n87KSl/view?usp=sharing

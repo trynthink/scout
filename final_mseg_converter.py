@@ -31,6 +31,7 @@ import mseg
 import com_mseg as cm
 import functools as ft
 import math
+import gzip
 
 
 class UsefulVars(object):
@@ -1291,6 +1292,11 @@ def main():
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
         json.dump(result, jso, indent=2)
+        # Compress CPL EMM file
+        if handyvars.json_out == 'cpl_res_com_emm.json':
+            zip_out = handyvars.json_out.split('.')[0] + '.gz'
+            with gzip.GzipFile(zip_out, 'w') as fout:
+                fout.write(json.dumps(result).encode('utf-8'))
 
 
 if __name__ == '__main__':
