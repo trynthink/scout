@@ -23,8 +23,6 @@ class EIAData(object):
         self.r_nlt_costperf = "rsmeqp.txt"
         self.r_nlt_life = "rsclass.txt"
         self.r_lt_all = "rsmlgt.txt"
-        self.r_nlt_l_names = r_nlt_l_names
-        self.r_nlt_cp_names = r_nlt_cp_names
 
 
 class UsefulVars(object):

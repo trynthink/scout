@@ -3,7 +3,7 @@
 import csv
 import xlrd
 
-from mseg_techdata import EIAData
+import mseg_techdata
 
 
 class EIAFiles(object):
@@ -18,7 +18,7 @@ class EIAFiles(object):
         self.r_class = "rsclass.txt"
         self.r_meqp = "rsmeqp.txt"
 
-        self.eiadata = EIAData()
+        self.eiadata = mseg_techdata.EIAData()
 
     def resdbout_fill_household(self):
         """
