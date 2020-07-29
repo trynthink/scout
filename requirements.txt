@@ -1,5 +1,6 @@
 certifi==2020.6.20
 chardet==3.0.4
+flake8==3.8.3
 idna==2.10
 numpy==1.19.1
 pytest==6.0.0

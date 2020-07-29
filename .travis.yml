@@ -14,22 +14,11 @@ python:
 
 # Download and set up anaconda
 before_install:
-#  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-#  - chmod +x miniconda.sh
-#  - ./miniconda.sh -b -p $HOME/miniconda
-#  - export PATH="$HOME/miniconda/bin:$PATH"
-#  # Update conda itself
-#  - conda update --yes conda
-#  # Set up grunt by installing grunt-cli
-#  # and the dependencies listed in package.json
   - npm install -g grunt-cli
   - npm install
 
 # Install packages
 install:
-#  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION numpy>=1.16 scipy flake8 requests
-#  - source activate testenv
-  # - pip -3 -m install xlrd
   - pip install -r requirements.txt
 
 # Run test(s)
