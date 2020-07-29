@@ -75,7 +75,8 @@
       "cooling": 0.557,
       "water heating": 0
     },
-    "natural gas": 1
+    "natural gas": 1,
+    "distillate": 1
   },
   "market_scaling_fractions_source": {
     "heating": "Applies to all commercial natural gas heating/water heating; no commercial buildings with electric heating or water heating are switched",
@@ -86,7 +87,8 @@
       "year": 2012,
       "URL": "https://www.eia.gov/consumption/residential/data/2015",
       "fraction_derivation": "Cooling multiple of 55.7% was determined as the proportion of total commercial square footage with cooling where heating uses natural gas from CBECS 2012 microdata. Total square footage with electric cooling in the sample was 73,614 million ft^2, total square footage with cooling where natural gas is the primary space-heating energy source was 40,980 million ft^2"
-    }
+    },
+    "water heating": "NA"
   },
   "_description": "Multi-function natural gas-fired heat pump affecting commercial heating, cooling, and water heating end uses",
   "_notes": null,

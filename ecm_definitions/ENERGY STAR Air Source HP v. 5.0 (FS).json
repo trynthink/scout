@@ -80,7 +80,9 @@
     "electricity":{
       "heating": 0,
       "cooling": 0.542},
-    "natural gas": 1},
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential gas heating; no electric heating is switched by this ECM",
     "cooling": {

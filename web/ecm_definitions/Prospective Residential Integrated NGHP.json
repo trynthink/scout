@@ -74,7 +74,9 @@
       "heating": 0,
       "cooling": 0.542,
       "water heating": 0},
-    "natural gas": 1},
+    "natural gas": 1,
+    "distillate": 1, 
+    "other fuel": 1},
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential gas heating/water heating; no electric heating or water heating is switched",
     "cooling": {
@@ -84,7 +86,8 @@
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/residential/data/2015",
       "fraction_derivation": "Cooling multiple of 54.2% was determined as a proportion of total cooled homes where heating is done using natural gas from RECS 2015 microdata. Total cooled homes in the sample was found to be 103,100,000, and then filtered for homes where natural gas is used for heating 55,900,000."
-    }
+    },
+    "water heating": "NA"
   },
   "_description": "Multi-function fuel-fired heat pump affecting residential heating, cooling, and water heating end uses",
   "_notes": null,
