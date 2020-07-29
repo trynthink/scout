@@ -74,6 +74,7 @@ node_modules/
 .Rapp.history
 *.sublime-project
 *.sublime-workspace
+.idea
 
 # Rendered reStructuredText documentation folders #
 ###################################################
