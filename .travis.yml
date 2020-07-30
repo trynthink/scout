@@ -14,15 +14,17 @@ python:
 
 # Download and set up anaconda
 before_install:
-  - npm install -g grunt-cli
+#  - npm install -g grunt-cli
   - npm install
 
 # Install packages
 install:
   - pip install -r requirements.txt
+  - pre-commit install
 
 # Run test(s)
 script:
+  - pre-commit run --all-files
   - py.test
-  - grunt travis -v
-  - flake8 --exclude docs/conf.py --max-line-length=100
+#  - grunt travis -v
+#  - flake8 --exclude docs/conf.py --max-line-length=100
