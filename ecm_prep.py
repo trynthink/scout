@@ -1320,7 +1320,7 @@ class Measure(object):
                     contrib_mseg_key]):
                 contrib_mseg_key = list(contrib_mseg_key)
                 contrib_mseg_key[numpy.where([x is not None and "windows" in x
-                                 for x in contrib_mseg_key])[0][0]] = "windows"
+                                              for x in contrib_mseg_key])[0][0]] = "windows"
                 contrib_mseg_key = tuple(contrib_mseg_key)
 
             # Initialize measure performance/cost/lifetime, associated units,
@@ -2040,8 +2040,8 @@ class Measure(object):
                 # in 'relative savings' units (no explicit check
                 # of baseline units needed in this case)
                 if (perf_units == 'relative savings (constant)' or
-                   (isinstance(perf_units, list) and perf_units[0] ==
-                    'relative savings (dynamic)') or
+                    (isinstance(perf_units, list) and perf_units[0] ==
+                     'relative savings (dynamic)') or
                     perf_base_units == perf_units) and (
                         mskeys[0] == "secondary" or
                         cost_base_units == cost_units):
@@ -4392,7 +4392,7 @@ class Measure(object):
                         map_bldgtype_orig == "all" or b[0] in
                         map_bldgtype_orig or
                         any([b[0] in borig for borig in map_bldgtype_orig if
-                            'all ' in borig]))]
+                             'all ' in borig]))]
                 # Record the measure's applicability to the residential and/or
                 # the commercial building sectors in a list (for use in filling
                 # 'fuel_type,' 'end_use,' and 'technology' attributes below)
@@ -5208,7 +5208,7 @@ class Measure(object):
             # loop, add the key chain to the list that is used to define the
             # final nested dictionary output (e.g., the key chain is valid)
             if any([x in self.technology[mseg_type]
-                   for x in dict_check.keys()]):
+                    for x in dict_check.keys()]):
                 dict_keys_fin.append(kc)
 
         # Loop through each of the valid key chains and create an
@@ -5330,7 +5330,7 @@ class MeasurePackage(Measure):
                 x in self.contributing_ECMs]):
             self.energy_outputs["captured_energy_ss"] = True
         elif all([x.energy_outputs["captured_energy_ss"] is False for
-                 x in self.contributing_ECMs]):
+                  x in self.contributing_ECMs]):
             self.energy_outputs["captured_energy_ss"] = False
         else:
             raise ValueError(
@@ -5341,7 +5341,7 @@ class MeasurePackage(Measure):
         # Set market entry year as earliest of all the packaged measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
-               self.contributing_ECMs]):
+                self.contributing_ECMs]):
             self.market_entry_year = int(handyvars.aeo_years[0])
         else:
             self.market_entry_year = min([
@@ -5656,7 +5656,7 @@ class MeasurePackage(Measure):
                     # building type, and end use to reflect the scaled down
                     # contributing microsegment energy use
                     mseg_out_break_adj["baseline"][
-                            out_cz][out_bldg][out_eu] = {
+                        out_cz][out_bldg][out_eu] = {
                         yr: mseg_out_break_adj["baseline"][
                             out_cz][out_bldg][out_eu][yr] - (
                             total_energy_orig_base[yr] - msegs_meas[k][
@@ -6193,7 +6193,7 @@ def main(base_dir):
                 # line arguments and the measure definition was not already
                 # prepared using these settings
                 if all([meas_dict["name"] != y["name"] for
-                       y in meas_summary]) or \
+                        y in meas_summary]) or \
                    all([meas_dict["name"] not in y for y in listdir(
                         path.join(*handyfiles.ecm_compete_data))]) or \
                    (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >

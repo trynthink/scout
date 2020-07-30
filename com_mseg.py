@@ -371,7 +371,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # a measure of absolute energy use)
     if tval.any():
         with np.errstate(divide='ignore', invalid='ignore'):
-            tval = tval/np.sum(tval, axis=0)
+            tval = tval / np.sum(tval, axis=0)
             tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
 
     return (tval, trunc_technames)
@@ -517,13 +517,13 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
             load_array['CDIV'] == idx_series[0],
             load_array['BLDG'] == idx_series[1],
             load_array['ENDUSE'] == idx_series[2]],
-                                 axis=0)][idx_series[-1]]
+            axis=0)][idx_series[-1]]
         # N.B. tl_multiplier is a 1x1 numpy array
 
         # Multiply together the thermal load multiplier and energy use
         # data and construct the dict with years as keys
         final_dict = {'energy': dict(zip(
-            subset['Year'], subset['Amount']*tl_multiplier*to_mmbtu)),
+            subset['Year'], subset['Amount'] * tl_multiplier * to_mmbtu)),
             'stock': 'NA'}
     elif 'MELs' in key_series:
         # Miscellaneous Electric Loads (MELs) energy use data are
@@ -540,7 +540,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount']*to_mmbtu)),
+                                         subset['Amount'] * to_mmbtu)),
                       'stock': 'NA'}
     elif 'new square footage' in key_series:
         # Extract the relevant data from KDBOUT
@@ -579,7 +579,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         for technology in tech_pct:
             tech_dict_list.append(
                 {'energy': dict(zip(subset['Year'],
-                                    technology*subset['Amount']*to_mmbtu)),
+                                    technology * subset['Amount'] * to_mmbtu)),
                  'stock': 'NA'})
 
         # The final dict should be {technology: {year: data, ...}, ...}
@@ -592,7 +592,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount']*to_mmbtu)),
+                                         subset['Amount'] * to_mmbtu)),
                       'stock': 'NA'}
 
     # Return the dict that should end up at the leaf node in the exported JSON
@@ -787,7 +787,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # row of data in the ktek file (which is the intended
         # target for these lines of code).
         if hl:
-            for i in range(0, hl+1):
+            for i in range(0, hl + 1):
                 next(filecont)
 
         # Import the data, skipping lines that are not the correct length
@@ -993,7 +993,7 @@ def main():
     # Import empty microsegments JSON file and traverse database structure
     try:
         with open(handyvars.json_in, 'r') as jsi, open(
-             handyvars.json_out, 'w') as jso:
+                handyvars.json_out, 'w') as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure

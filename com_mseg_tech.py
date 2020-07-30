@@ -425,12 +425,12 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
         # Suppress any divide by zero warnings
         with np.errstate(divide='ignore', invalid='ignore'):
             # Calculate the normalized service demand
-            select_sd = select_sd/np.sum(select_sd, 0)
+            select_sd = select_sd / np.sum(select_sd, 0)
             select_sd = np.nan_to_num(select_sd)  # Replace nan from 0/0 with 0
 
     # Using the normalized service demand as the weights, calculate the
     # weighted arithmetic mean for each year (each column)
-    val_mean = np.sum(np.transpose(select_sd)*single_tech_array[col], 1)
+    val_mean = np.sum(np.transpose(select_sd) * single_tech_array[col], 1)
 
     # Calculate the maximum cost or performance for each year (each
     # column of the technology data array), adjusting for differences
@@ -851,10 +851,10 @@ def mseg_technology_handler(
         # source to complete the dict for this technology
         the_cost['typical'] = dict(zip(
             sorted(the_cost['typical'].keys()),
-            sorted(the_cost['typical'].values())*conv_factors_tmp))
+            sorted(the_cost['typical'].values()) * conv_factors_tmp))
         the_cost['best'] = dict(zip(
             sorted(the_cost['best'].keys()),
-            sorted(the_cost['best'].values())*conv_factors_tmp))
+            sorted(the_cost['best'].values()) * conv_factors_tmp))
         the_cost['units'] = '2013$/ft^2 floor'
         the_cost['source'] = 'EIA AEO'
 
@@ -1047,7 +1047,7 @@ def kprem_import(data_file_path, dtype_list, hl):
                 # Construct this line by appending (making a flat list
                 # using extend instead of append) any missing columns
                 # from the previous line
-                row.extend(list(data[len(data)-1][diff:]))
+                row.extend(list(data[len(data) - 1][diff:]))
 
                 # Append constructed line, as a tuple, to the data
                 data.append(tuple(row))
@@ -1170,7 +1170,7 @@ def main():
     # Import empty microsegments JSON file and traverse database structure
     try:
         with open(handyvars.json_in, 'r') as jsi, open(
-             handyvars.json_out, 'w') as jso:
+                handyvars.json_out, 'w') as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure

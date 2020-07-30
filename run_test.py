@@ -42,7 +42,7 @@ class CommonTestMeasures(object):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "markets": {
                 "Technical potential": {
@@ -69,7 +69,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}}}}
         self.sample_measure2 = {
             "name": "sample measure 2",
@@ -90,7 +90,7 @@ class CommonTestMeasures(object):
             "technology_type": {"primary": "supply",
                                 "secondary": "supply"},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": ["general service (LED)"]},
             "markets": {
                 "Technical potential": {
@@ -104,7 +104,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -117,7 +117,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}}}}
         self.sample_measure3 = {
             "name": "sample measure 3 (commercial)",
@@ -138,7 +138,7 @@ class CommonTestMeasures(object):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "markets": {
                 "Technical potential": {
@@ -152,7 +152,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -165,7 +165,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}}}}
         self.sample_measure4 = {
             "name": "sample measure 4",
@@ -212,7 +212,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}}}}
         self.sample_measure5 = {
             "name": "sample measure 5 (commercial)",
@@ -246,7 +246,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}},
                 "Max adoption potential": {
                     "master_mseg": {},
@@ -259,7 +259,7 @@ class CommonTestMeasures(object):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}
-                                }}},
+                            }}},
                     "mseg_out_break": {}}}}
 
 
@@ -309,7 +309,7 @@ class CommonMethods(object):
             # At the terminal/leaf node, formatted as a numpy array
             # (for input uncertainty test cases)
             elif isinstance(i, numpy.ndarray):
-                self.assertTrue(type(i) == type(i2))
+                self.assertTrue(isinstance(i, type(i2)))
                 for x in range(0, len(i)):
                     self.assertAlmostEqual(i[x], i2[x], places=2)
 
@@ -1092,23 +1092,23 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": numpy.array([
                     3.370236, 6.877566, 4.335205, 4.218185, 3.081800]),
                  "2010": numpy.array([
-                    5.345834, 7.580577, 3.931585, 6.612039, 4.915578])},
+                     5.345834, 7.580577, 3.931585, 6.612039, 4.915578])},
             "irr (w/ energy and carbon costs)":
                 {"2009": numpy.array([
                     4.442382, 8.824726, 5.647891, 5.501689, 4.082098]),
                  "2010": numpy.array([
-                    8.446248, 11.795815, 6.327488, 10.343948, 7.801544])},
+                     8.446248, 11.795815, 6.327488, 10.343948, 7.801544])},
             "payback (w/ energy costs)":
                 {"2009": numpy.array([
                     0.255, 0.1350000, 0.2050000, 0.21, 0.2750000]),
                  "2010": numpy.array([
-                    0.1700000, 0.1233333, 0.2233333, 0.1400000, 0.1833333])},
+                     0.1700000, 0.1233333, 0.2233333, 0.1400000, 0.1833333])},
             "payback (w/ energy and carbon costs)":
                 {"2009": numpy.array([
                     0.2040000, 0.10800000, 0.1640000, 0.16800000, 0.2200000]),
                  "2010": numpy.array([
-                    0.1133333, 0.08222222, 0.1488889, 0.09333333,
-                    0.1222222])}}]
+                     0.1133333, 0.08222222, 0.1488889, 0.09333333,
+                     0.1222222])}}]
         cls.ok_out_dist3 = [{
             "savings and portfolio metrics": {
                 "Technical potential": {
@@ -1276,22 +1276,22 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": numpy.array([
                     0.9607843, 2.703704, 4.335205, 4.218185, 3.631559]),
                  "2010": numpy.array([
-                    1.9411765, 3.054054, 3.931585, 6.612039, 5.452729])},
+                     1.9411765, 3.054054, 3.931585, 6.612039, 5.452729])},
             "irr (w/ energy and carbon costs)":
                 {"2009": numpy.array([
                     1.941176, 4.555556, 5.647891, 5.501689, 4.543007]),
                  "2010": numpy.array([
-                    4.882353, 7.108108, 6.327488, 10.343948, 8.181351])},
+                     4.882353, 7.108108, 6.327488, 10.343948, 8.181351])},
             "payback (w/ energy costs)":
                 {"2009": numpy.array([
                     0.51, 0.2700000, 0.2050000, 0.21, 0.2750000]),
                  "2010": numpy.array([
-                    0.34, 0.2466667, 0.2233333, 0.14, 0.1833333])},
+                     0.34, 0.2466667, 0.2233333, 0.14, 0.1833333])},
             "payback (w/ energy and carbon costs)":
                 {"2009": numpy.array([
                     0.34, 0.1800000, 0.1640000, 0.16800000, 0.2200000]),
                  "2010": numpy.array([
-                    0.17, 0.1233333, 0.1488889, 0.09333333, 0.1222222])}}]
+                     0.17, 0.1233333, 0.1488889, 0.09333333, 0.1222222])}}]
         cls.ok_savings_mkts_comp_schemes = ["competed", "uncompeted"]
 
     def test_metrics_ok_point_res(self):
@@ -1798,7 +1798,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -2484,7 +2484,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -3217,7 +3217,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}
-                                },
+                        },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key1: {
@@ -3946,7 +3946,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}
-                                },
+                        },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key1: {
@@ -4713,7 +4713,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -5463,7 +5463,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                        },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -6162,7 +6162,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -6850,7 +6850,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -7559,7 +7559,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}
-                                },
+                        },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key2: {
@@ -8264,7 +8264,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}
-                                },
+                        },
                         "supply-demand adjustment": {
                             "savings": {
                                 cls.adjust_key2: {
@@ -9032,7 +9032,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -9782,7 +9782,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -10605,7 +10605,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -11417,7 +11417,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -19177,7 +19177,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "secondary": ["heating", "secondary heating", "cooling"]},
             "technology": ["reflector (LED)"],
             "technology_type": {
-               "primary": "supply", "secondary": "demand"},
+                "primary": "supply", "secondary": "demand"},
             "market_entry_year": 2010,
             "market_exit_year": None,
             "yrs_on_mkt": ["2010"],
@@ -22576,17 +22576,17 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "2009": None,
                     "2010": numpy.array([
                         {
-                          "rate 1": 85, "rate 2": 90, "rate 3": 95,
-                          "rate 4": 100, "rate 5": 105,
-                          "rate 6": 110, "rate 7": 115},
+                            "rate 1": 85, "rate 2": 90, "rate 3": 95,
+                            "rate 4": 100, "rate 5": 105,
+                            "rate 6": 110, "rate 7": 115},
                         {
-                          "rate 1": 205, "rate 2": 100, "rate 3": 105,
-                          "rate 4": 110, "rate 5": 115,
-                          "rate 6": 120, "rate 7": 125},
+                            "rate 1": 205, "rate 2": 100, "rate 3": 105,
+                            "rate 4": 110, "rate 5": 115,
+                            "rate 6": 120, "rate 7": 125},
                         {
-                          "rate 1": 105, "rate 2": 110, "rate 3": 115,
-                          "rate 4": 120, "rate 5": 125,
-                          "rate 6": 10, "rate 7": 135}])}},
+                            "rate 1": 105, "rate 2": 110, "rate 3": 115,
+                            "rate 4": 120, "rate 5": 125,
+                            "rate 6": 10, "rate 7": 135}])}},
             "energy cost": {
                 "residential": {
                     "2009": None, "2010": None},
@@ -26609,7 +26609,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26638,7 +26638,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26667,7 +26667,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26696,7 +26696,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             "technology_type": {"primary": "supply",
                                 "secondary": None},
             "technology": {"primary": ["resistance heat",
-                           "ASHP", "GSHP", "room AC"],
+                                       "ASHP", "GSHP", "room AC"],
                            "secondary": None},
             "market_entry_year": None,
             "market_exit_year": None,

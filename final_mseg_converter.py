@@ -194,7 +194,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             if isinstance(i, dict):
                 merge_sum(i, i2, cd, cz, cd_dict, cd_list, res_convert_array,
                           com_convert_array, cd_to_cz_factor)
-            elif type(base_dict[k]) is not str:
+            elif not isinstance(base_dict[k], str):
                 # Special handling of first dict (no addition of the
                 # second dict, only conversion of the first dict with
                 # the appropriate factor)
@@ -204,19 +204,19 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                     # as a list and must be reprocessed using a list
                     # comprehension (or comparable looping approach)
                     if isinstance(base_dict[k], list):
-                        base_dict[k] = [z*cd_to_cz_factor for z
+                        base_dict[k] = [z * cd_to_cz_factor for z
                                         in base_dict[k]]
                     else:
-                        base_dict[k] = base_dict[k]*cd_to_cz_factor
+                        base_dict[k] = base_dict[k] * cd_to_cz_factor
                 else:
                     if isinstance(base_dict[k], list):
                         base_dict[k] = [sum(y) for y
                                         in zip(base_dict[k],
-                                        [z*cd_to_cz_factor for z
-                                         in add_dict[k2]])]
+                                               [z * cd_to_cz_factor for z
+                                                in add_dict[k2]])]
                     else:
                         base_dict[k] = (base_dict[k] +
-                                        add_dict[k2]*cd_to_cz_factor)
+                                        add_dict[k2] * cd_to_cz_factor)
         else:
             raise(KeyError('Merge keys do not match!'))
 
@@ -504,13 +504,13 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
         # Record the performance value identified in the above rigmarole
 
         # Case where the performance value is not broken out by vintage
-        if type(perf_val) is not list:
+        if not isinstance(perf_val, list):
             # Note: the dict comprehension handles cases where the
             # performance value is further broken out by year; if the value
             # is not broken out by year, the comprehension assumes the same
             # performance value for all years in the analysis time horizon
             the_perf['typical'] = {
-                str(yr): perf_val[str(yr)] if type(perf_val) is dict
+                str(yr): perf_val[str(yr)] if isinstance(perf_val, dict)
                 else perf_val for yr in years}
         # Case where the performance value is broken out by vintage
         else:
@@ -520,10 +520,10 @@ def env_cpl_data_handler(cpl_data, conversions, years, key_list):
             # performance value for all years in the analysis time horizon
             the_perf['typical'] = {
                 'new': {
-                    str(yr): perf_val[0][str(yr)] if type(perf_val[0]) is dict
+                    str(yr): perf_val[0][str(yr)] if isinstance(perf_val[0], dict)
                     else perf_val[0] for yr in years},
                 'existing': {
-                    str(yr): perf_val[1][str(yr)] if type(perf_val[1]) is dict
+                    str(yr): perf_val[1][str(yr)] if isinstance(perf_val[1], dict)
                     else perf_val[1] for yr in years}}
 
         # Transfer the lifetime data as-is (the lifetime data has a
@@ -687,7 +687,7 @@ def cost_converter(cost, units, bldg_class, bldg_type, conversions):
     # Specific to the case where the building type is sufficient to
     # identify the cost conversion factor
     else:
-        adj_cost = cost*bldg_specific_cost_conv
+        adj_cost = cost * bldg_specific_cost_conv
 
     # If the units following the above conversion are still not the
     # final desired units on a per square foot floor area basis,

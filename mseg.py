@@ -15,6 +15,7 @@ class EIAData(object):
         res_energy (str): The file name for the AEO residential energy
             and stock data.
     """
+
     def __init__(self):
         self.res_energy = 'RESDBOUT.txt'
 
@@ -297,7 +298,7 @@ def json_translator(dictlist, filterformat):
         # case of a technology being handled on the end use level, raise error
         if (match_count == 0 and ms_level != (len(dictlist) - 1)) or \
            (match_count == 0 and ms_level == (len(dictlist) - 1) and
-           enduse_techlevel == 0):
+                enduse_techlevel == 0):
             raise(KeyError("Filter list element not found in dict keys!"))
 
     # Return updated filtering list of lists: [[supply filter],[demand filter]]
@@ -648,7 +649,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
             # thus needs to be disassembled before applying the
             # weighting factor)
             group_energy = dict(zip(sorted(group_energy.keys()),
-                                    list(group_energy.values())*lt_correction))
+                                    list(group_energy.values()) * lt_correction))
         else:
             # Given input numpy array and 'compare from' list, return
             # energy/stock projection lists and reduced numpy array
@@ -805,8 +806,8 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
             # Obtain the subset of the lighting data corresponding
             # to the current bulb and fixture type
             single_lt = lt_cpl_data[numpy.all([
-                            lt_cpl_data['Application'] == fixture,
-                            lt_cpl_data['BulbType'] == bulb], axis=0)]
+                lt_cpl_data['Application'] == fixture,
+                lt_cpl_data['BulbType'] == bulb], axis=0)]
 
             # Calculate the number of times each value should repeat
             # (to reflect the number of years the value stays the same)
@@ -815,12 +816,12 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
             # Generate numpy array of values using the number of
             # repeats calculated for each value
             bulb_perf_lm_watts, bulb_perf_watts = [numpy.repeat(
-              single_lt[x], n_repeat_times) for x in ['lm_per_W', 'Watts']]
+                single_lt[x], n_repeat_times) for x in ['lm_per_W', 'Watts']]
 
             # If more than the expected number of performance values
             # appear in the 1D numpy array, truncate the initial values
             bulb_perf_lm_watts, bulb_perf_watts = [
-              bulb_perf_lm_watts[-n_years:], bulb_perf_watts[-n_years:]]
+                bulb_perf_lm_watts[-n_years:], bulb_perf_watts[-n_years:]]
             # Find and remove spurious performance changes in lm/W
             # performance over time, yielding a final performance array
             bulb_perf = chk_false_eff(bulb_perf_lm_watts, bulb_perf_watts)
@@ -829,7 +830,7 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
             # bulbs (i.e., more lm/W) have lower values and thus
             # will have lower energy use associated with them (when
             # these efficiency multipliers are applied)
-            bulb_perf = 1/bulb_perf
+            bulb_perf = 1 / bulb_perf
 
             # Insert the inverted bulb performance (referred to here as
             # bulb efficiency) into the intermediate numpy array
@@ -843,7 +844,7 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
         # Calculate normalized efficiency weighting factors for each
         # year for all of the bulb types that correspond to this
         # fixture type
-        norm_fixture_group = fixture_group/numpy.sum(fixture_group, 0)
+        norm_fixture_group = fixture_group / numpy.sum(fixture_group, 0)
 
         # Combine each row of normalized efficiency weighting factors
         # with their corresponding fixture and bulb type codes and
@@ -952,7 +953,7 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
     # Calculate the number of rows for the lighting weighting factors
     # array - unique factors are calculated for each combination of
     # census division, building type, year, fixture type, and bulb type
-    n_rows = len(cdiv_list)*len(bldg_list)*n_yrs*n_lt_types
+    n_rows = len(cdiv_list) * len(bldg_list) * n_yrs * n_lt_types
 
     # Preallocate the structured array for the lighting weighting factors
     lt_wf = numpy.zeros(n_rows, dtype=lt_wf_dtype)
@@ -1015,7 +1016,7 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                     # the corresponding efficiency factors and
                     # insert them into the appropriate row in the
                     # temporary matrix
-                    tmp_vals = x*y
+                    tmp_vals = x * y
                     fixture_array_tmp[idx, ] = tmp_vals
 
                     # Add the stock for this bulb type multiplied by
@@ -1025,7 +1026,7 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                     # Develop the array of indices for the current bulb type,
                     # where each row corresponds to a single year
                     for st in range(0, n_yrs):
-                        indices = [cdiv, bldg, fixture, bulb, st+first_yr]
+                        indices = [cdiv, bldg, fixture, bulb, st + first_yr]
                         # Add the index values to the intermediate list
                         array_indices.append(indices)
                     # This loop approach is probably not the most runtime
@@ -1035,7 +1036,7 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
 
                 # Divide the stock in each row of the intermediate
                 # matrix of lighting weighting factors by the total stock
-                fixture_array_tmp = fixture_array_tmp/total_denom
+                fixture_array_tmp = fixture_array_tmp / total_denom
 
                 # Recast the 2-D array of weighting factors into a 1-D
                 # array to match the number of rows in the indices list
@@ -1046,10 +1047,10 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                 # from the indices and the value and insert it into the
                 # final array
                 for idx, val in enumerate(fixture_array_1d):
-                    lt_wf[incr+idx, ] = tuple(array_indices[idx] + [val])
+                    lt_wf[incr + idx, ] = tuple(array_indices[idx] + [val])
 
                 # Update the array position increment variable
-                incr += idx+1
+                incr += idx + 1
 
     return lt_wf
 
@@ -1200,7 +1201,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         for row in filecont:
             if row[0].strip() not in skip_rows:
                 if len(tuple(row)) != len(dtype_list):
-                    row = row + [0]*(len(dtype_list)-len(row))
+                    row = row + [0] * (len(dtype_list) - len(row))
                 data.append(tuple(row))
 
         # Convert data into numpy structured array, using a try/catch
@@ -1438,7 +1439,7 @@ def main():
 
     # Import JSON file and run through updating scheme
     with open(handyvars.json_in, 'r') as jsi, open(
-         handyvars.json_out, 'w') as jso:
+            handyvars.json_out, 'w') as jso:
         msjson = json.load(jsi)
 
         # Run through JSON objects, determine replacement information

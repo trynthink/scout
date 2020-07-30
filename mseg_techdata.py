@@ -943,9 +943,9 @@ def stitch(input_array, project_dict, col_name):
             # Find the row(s) where the absolute difference between the loop
             # year and value for the "START_EQUIP_YR" column is smallest
             array_close_ind = numpy.where(abs(int(yr) -
-                                          input_array["START_EQUIP_YR"]) ==
+                                              input_array["START_EQUIP_YR"]) ==
                                           min(abs(int(yr) -
-                                              input_array[
+                                                  input_array[
                                               "START_EQUIP_YR"])))[0]
             # If only one row has been found above, draw output information
             # from the column in that row keyed by col_name input

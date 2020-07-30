@@ -245,7 +245,7 @@ def file_processor(file_name, func_name, col_index, files_list,
     # Extract the years from the imported data, using the function
     # appropriate for the location of the years in the data, and
     # remove the name of the file with those data from the list
-    if type(data_object) is list:
+    if isinstance(data_object, list):
         # For the case where the range of years are reported in the
         # header of the data, scan the dtype to identify the year
         # range for those data
@@ -354,8 +354,8 @@ def main():
         tech_dtypes = cm.dtype_array(file_name, ',',
                                      cmt.UsefulVars().cpl_data_skip_lines - 1)
         col_indices, tech_dtypes = cmt.dtype_reducer(
-                                        tech_dtypes,
-                                        cmt.UsefulVars().columns_to_keep)
+            tech_dtypes,
+            cmt.UsefulVars().columns_to_keep)
         # Manual correction of lifetime data type
         tech_dtypes[8] = ('Life', 'f8')
         tech_data = cm.data_import(file_name, tech_dtypes, ',',

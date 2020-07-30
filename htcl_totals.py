@@ -244,7 +244,7 @@ def sum_htcl_energy(msegs, aeo_years, ss_conv):
                         "heating", "secondary heating", "cooling"] if
                             x in msegs[cz][bldg][fuel].keys()]:
                         htcl_totals[cz][bldg][vint][fuel][eu] = {
-                                yr: 0 for yr in aeo_years}
+                            yr: 0 for yr in aeo_years}
                         # Find energy value to add to total
                         sum_val = sum_htcl_branches(
                             msegs[cz][bldg][fuel][eu]["demand"],

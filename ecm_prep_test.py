@@ -59,7 +59,7 @@ class CommonMethods(object):
             # At the terminal/leaf node, formatted as a numpy array or list
             # (for time sensitive valuation test cases)
             elif isinstance(i, numpy.ndarray) or isinstance(i, list):
-                self.assertTrue(type(i) == type(i2) and len(i) == len(i2))
+                self.assertTrue(isinstance(i, type(i2)) and len(i) == len(i2))
                 for x in range(0, len(i)):
                     self.assertAlmostEqual(i[x], i2[x], places=5)
             # At the terminal/leaf node, formatted as a point value
@@ -703,6 +703,7 @@ class EPlusUpdateTest(unittest.TestCase, CommonMethods):
 
 class UserOptions(object):
     """Generate sample user-specified execution options."""
+
     def __init__(self, site, capt, rp_persist, warnings):
         # Options include site energy outputs, captured energy site-source
         # calculation method, a relative performance level that persists from
@@ -951,7 +952,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "set top box": {
                                 "stock": {"2009": 99, "2010": 99},
                                 "energy": {"2009": 999, "2010": 999}}
-                            },
+                        },
                         "computers": {
                             "desktop PC": {
                                 "stock": {"2009": 44, "2010": 44},
@@ -959,7 +960,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "laptop PC": {
                                 "stock": {"2009": 55, "2010": 55},
                                 "energy": {"2009": 5, "2010": 5}}
-                            },
+                        },
                         "other": {
                             "freezers": {
                                 "stock": {"2009": 222, "2010": 222},
@@ -1136,7 +1137,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "set top box": {
                                 "stock": {"2009": 99, "2010": 99},
                                 "energy": {"2009": 999, "2010": 999}}
-                            },
+                        },
                         "computers": {
                             "desktop PC": {
                                 "stock": {"2009": 44, "2010": 44},
@@ -1144,7 +1145,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                             "laptop PC": {
                                 "stock": {"2009": 55, "2010": 55},
                                 "energy": {"2009": 5, "2010": 5}}
-                            }},
+                        }},
                     "natural gas": {"water heating": {
                                     "stock": {"2009": 15, "2010": 15},
                                     "energy": {"2009": 15, "2010": 15}}}},
@@ -1731,7 +1732,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                             "new": {"2009": 8, "2010": 8},
                                             "existing": {
                                                 "2009": 8, "2010": 8}
-                                            },
+                                        },
                                         "best": {"2009": 8, "2010": 8},
                                         "units": "R Value",
                                         "source":
@@ -1978,8 +1979,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 140 * (3/24),
-                                            "2010": 140 * (3/24)},
+                                            "2009": 140 * (3 / 24),
+                                            "2010": 140 * (3 / 24)},
                                         "range": {"2009": 14, "2010": 14},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2013,8 +2014,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 150 * (3/24),
-                                            "2010": 150 * (3/24)},
+                                            "2009": 150 * (3 / 24),
+                                            "2010": 150 * (3 / 24)},
                                         "range": {"2009": 15, "2010": 15},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2048,8 +2049,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 160 * (3/24),
-                                            "2010": 160 * (3/24)},
+                                            "2009": 160 * (3 / 24),
+                                            "2010": 160 * (3 / 24)},
                                         "range": {"2009": 16, "2010": 16},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2083,8 +2084,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 170 * (3/24),
-                                            "2010": 170 * (3/24)},
+                                            "2009": 170 * (3 / 24),
+                                            "2010": 170 * (3 / 24)},
                                         "range": {"2009": 17, "2010": 17},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2200,7 +2201,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
+                        },
                         "computers": {
                             "desktop PC": {
                                 "performance": {
@@ -2266,7 +2267,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
+                        },
                         "other": {
                             "freezers": {
                                 "performance": {
@@ -2891,8 +2892,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 240 * (3/24),
-                                            "2010": 240 * (3/24)},
+                                            "2009": 240 * (3 / 24),
+                                            "2010": 240 * (3 / 24)},
                                         "range": {"2009": 24, "2010": 24},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2926,8 +2927,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2961,8 +2962,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -2996,8 +2997,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -3609,8 +3610,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 140 * (3/24),
-                                            "2010": 140 * (3/24)},
+                                            "2009": 140 * (3 / 24),
+                                            "2010": 140 * (3 / 24)},
                                         "range": {"2009": 14, "2010": 14},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -3644,8 +3645,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 150 * (3/24),
-                                            "2010": 150 * (3/24)},
+                                            "2009": 150 * (3 / 24),
+                                            "2010": 150 * (3 / 24)},
                                         "range": {"2009": 15, "2010": 15},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -3679,8 +3680,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 160 * (3/24),
-                                            "2010": 160 * (3/24)},
+                                            "2009": 160 * (3 / 24),
+                                            "2010": 160 * (3 / 24)},
                                         "range": {"2009": 16, "2010": 16},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -3714,8 +3715,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 170 * (3/24),
-                                            "2010": 170 * (3/24)},
+                                            "2009": 170 * (3 / 24),
+                                            "2010": 170 * (3 / 24)},
                                         "range": {"2009": 17, "2010": 17},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -3800,7 +3801,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
+                        },
                         "computers": {
                             "desktop PC": {
                                 "performance": {
@@ -3866,19 +3867,19 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            }},
+                        }},
                     "natural gas": {
                         "water heating": {
-                                "performance": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "EF",
-                                    "source":
+                            "performance": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "EF",
+                                "source":
                                     "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "2014$/unit",
+                            "installed cost": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "2014$/unit",
                                     "source": "EIA AEO"},
                                 "lifetime": {
                                     "average": {"2009": 180, "2010": 180},
@@ -3886,21 +3887,21 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                     "units": "years",
                                     "source": "EIA AEO"},
                                 "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}}},
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}}}},
                 "multi family home": {
                     "electricity": {
                         "heating": {
@@ -4088,8 +4089,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 240 * (3/24),
-                                            "2010": 240 * (3/24)},
+                                            "2009": 240 * (3 / 24),
+                                            "2010": 240 * (3 / 24)},
                                         "range": {"2009": 24, "2010": 24},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -4123,8 +4124,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -4158,8 +4159,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -4193,8 +4194,8 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                                         "source": "EIA AEO"},
                                     "lifetime": {
                                         "average": {
-                                            "2009": 250 * (3/24),
-                                            "2010": 250 * (3/24)},
+                                            "2009": 250 * (3 / 24),
+                                            "2010": 250 * (3 / 24)},
                                         "range": {"2009": 25, "2010": 25},
                                         "units": "years",
                                         "source": "EIA AEO"},
@@ -4936,7 +4937,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "market_entry_year": None,
             "market_exit_year": None,
             "technology": ["TVs", "desktop PC", "laptop PC", "electric other"]
-            },
+        },
             {
             "name": "sample measure 23",
             "markets": None,
@@ -4997,10 +4998,10 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "installed_cost": 25,
              "cost_units": "2014$/unit",
              "energy_efficiency": {
-                "AIA_CZ1": {"heating": 30,
-                            "cooling": 25},
-                "AIA_CZ2": {"heating": 30,
-                            "cooling": 15}},
+                 "AIA_CZ1": {"heating": 30,
+                             "cooling": 25},
+                 "AIA_CZ2": {"heating": 30,
+                             "cooling": 15}},
              "energy_efficiency_units": "COP",
              "market_entry_year": None,
              "market_exit_year": None,
@@ -5015,7 +5016,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
              "fuel_switch_to": None,
              "end_use": ["heating", "cooling"],
              "technology": ["resistance heat", "ASHP", "GSHP", "room AC"]}
-            ]
+        ]
         cls.ok_tpmeas_sitechk_in = [ecm_prep.Measure(
             handyvars, site_energy=None, capt_energy=None, **x) for
             x in ok_measures_site_energy]
@@ -5551,7 +5552,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                         "efficient": {"2009": 20343.64, "2010": 19768.37}}}},
             "lifetime": {"baseline": {"2009": 180, "2010": 180},
                          "measure": 1}},
-                        {
+            {
             "stock": {
                 "total": {
                     "all": {"2009": 333, "2010": 333},
@@ -5604,22 +5605,22 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             "b2": {"2009": -0.12, "2010": -0.12}},
             {
             "b1": {"2009": -0.01 * handyvars.res_typ_sf_household[
-                    "single family home"],
-                   "2010": -0.01 * handyvars.res_typ_sf_household[
-                   "single family home"]},
+                "single family home"],
+                "2010": -0.01 * handyvars.res_typ_sf_household[
+                "single family home"]},
             "b2": {"2009": -0.12 * handyvars.res_typ_sf_household[
-                    "single family home"],
-                   "2010": -0.12 * handyvars.res_typ_sf_household[
-                   "single family home"]}},
+                "single family home"],
+                "2010": -0.12 * handyvars.res_typ_sf_household[
+                "single family home"]}},
             {
             "b1": {"2009": -0.01 * handyvars.res_typ_sf_household[
-                    "multi family home"],
-                   "2010": -0.01 * handyvars.res_typ_sf_household[
-                    "multi family home"]},
+                "multi family home"],
+                "2010": -0.01 * handyvars.res_typ_sf_household[
+                "multi family home"]},
             "b2": {"2009": -0.12 * handyvars.res_typ_sf_household[
-                    "multi family home"],
-                   "2010": -0.12 * handyvars.res_typ_sf_household[
-                   "multi family home"]}},
+                "multi family home"],
+                "2010": -0.12 * handyvars.res_typ_sf_household[
+                "multi family home"]}},
             {
             "b1": {
                 "2009": -0.01 * handyvars.res_typ_sf_household[
@@ -5627,7 +5628,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 handyvars.res_typ_units_household[
                     "lighting"]["single family home"],
                 "2010": -0.01 * handyvars.res_typ_sf_household[
-                   "single family home"] /
+                    "single family home"] /
                 handyvars.res_typ_units_household[
                     "lighting"]["single family home"]},
             "b2": {
@@ -5636,7 +5637,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 handyvars.res_typ_units_household[
                     "lighting"]["single family home"],
                 "2010": -0.12 * handyvars.res_typ_sf_household[
-                   "single family home"] /
+                    "single family home"] /
                 handyvars.res_typ_units_household[
                     "lighting"]["single family home"]}},
             {
@@ -5655,7 +5656,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                 handyvars.res_typ_units_household[
                     "lighting"]["multi family home"],
                 "2010": -0.12 * handyvars.res_typ_sf_household[
-                   "multi family home"] /
+                    "multi family home"] /
                 handyvars.res_typ_units_household[
                     "lighting"]["multi family home"]}}]
         cls.ok_tpmeas_fullchk_competechoiceout = [{
@@ -8322,7 +8323,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
                     "competed": {
                         "baseline": {"2009": 2208201.73, "2010": 2188673.79},
                         "efficient": {"2009": 1104100.86, "2010": 1094336.90}}}
-                        },
+            },
             "lifetime": {"baseline": {"2009": 10, "2010": 10},
                          "measure": 1}}]
         cls.ok_mapmas_partchck_msegout = [{
@@ -8687,7 +8688,7 @@ class MarketUpdatesTest(unittest.TestCase, CommonMethods):
             test_l = test_outputs["lifetime"]["measure"]
             test_r = measure.retro_rate
             test_e, test_c, test_l, test_r = [
-                [x] if type(x) is float else x for x in [
+                [x] if isinstance(x, float) else x for x in [
                     test_e, test_c, test_l, test_r]]
             # Calculate mean values from output lists for testing
             param_e = round(sum(test_e) / len(test_e), 2)
@@ -8818,933 +8819,933 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
         # Hard code aeo_years to fit test years
         handyvars.aeo_years = ["2009", "2010"]
         cls.sample_mskeys = (
-          "primary", "AIA_CZ1", "single family home", "electricity",
-          "heating", "supply", "ASHP", "new")
+            "primary", "AIA_CZ1", "single family home", "electricity",
+            "heating", "supply", "ASHP", "new")
         cls.sample_bldg_sect = "residential"
         cls.sample_tsv_data = {
-          "load": {
-            "AIA_CZ1": {
-              "residential": {
-                "heating": {
-                  "winter": {
-                    "months": [
-                      1,
-                      2,
-                      12
-                    ],
-                    "annual_days": 90,
-                    "fractions": {
-                      "weekday": [
-                        0.012202256455352733,
-                        0.012202256455352733,
-                        0.012790369837445772,
-                        0.01354335327206579,
-                        0.014412162613847488,
-                        0.015259279121150411,
-                        0.015853297848280774,
-                        0.015928471021456836,
-                        0.015332968218593672,
-                        0.014155976960109057,
-                        0.012669478965647952,
-                        0.011162898928851443,
-                        0.009864588218574728,
-                        0.008928691840308131,
-                        0.008419616601380887,
-                        0.008337276785137526,
-                        0.008657777623759138,
-                        0.009295666950390356,
-                        0.010056738183651286,
-                        0.010714075913172366,
-                        0.011132857599974094,
-                        0.01131327739593043,
-                        0.011359135633914552,
-                        0.011432694001907577
-                      ],
-                      "weekend": [
-                        0.005241914064820976,
-                        0.005241914064820976,
-                        0.005479964558914669,
-                        0.005766692417852683,
-                        0.006121364449071813,
-                        0.006531657677672043,
-                        0.006924303274533763,
-                        0.007151601035392774,
-                        0.007047308555582134,
-                        0.006554883454248733,
-                        0.005797373314887126,
-                        0.004993297019974449,
-                        0.004324320580840767,
-                        0.003874842240940412,
-                        0.003646836954407323,
-                        0.0036070550958290726,
-                        0.0037213635750740865,
-                        0.00395311415662022,
-                        0.0042500266143626715,
-                        0.004552908776331854,
-                        0.004815668602839308,
-                        0.005012872039222633,
-                        0.00513509652610582,
-                        0.005182074671008964
-                      ]
+            "load": {
+                "AIA_CZ1": {
+                    "residential": {
+                        "heating": {
+                            "winter": {
+                                "months": [
+                                    1,
+                                    2,
+                                    12
+                                ],
+                                "annual_days": 90,
+                                "fractions": {
+                                    "weekday": [
+                                        0.012202256455352733,
+                                        0.012202256455352733,
+                                        0.012790369837445772,
+                                        0.01354335327206579,
+                                        0.014412162613847488,
+                                        0.015259279121150411,
+                                        0.015853297848280774,
+                                        0.015928471021456836,
+                                        0.015332968218593672,
+                                        0.014155976960109057,
+                                        0.012669478965647952,
+                                        0.011162898928851443,
+                                        0.009864588218574728,
+                                        0.008928691840308131,
+                                        0.008419616601380887,
+                                        0.008337276785137526,
+                                        0.008657777623759138,
+                                        0.009295666950390356,
+                                        0.010056738183651286,
+                                        0.010714075913172366,
+                                        0.011132857599974094,
+                                        0.01131327739593043,
+                                        0.011359135633914552,
+                                        0.011432694001907577
+                                    ],
+                                    "weekend": [
+                                        0.005241914064820976,
+                                        0.005241914064820976,
+                                        0.005479964558914669,
+                                        0.005766692417852683,
+                                        0.006121364449071813,
+                                        0.006531657677672043,
+                                        0.006924303274533763,
+                                        0.007151601035392774,
+                                        0.007047308555582134,
+                                        0.006554883454248733,
+                                        0.005797373314887126,
+                                        0.004993297019974449,
+                                        0.004324320580840767,
+                                        0.003874842240940412,
+                                        0.003646836954407323,
+                                        0.0036070550958290726,
+                                        0.0037213635750740865,
+                                        0.00395311415662022,
+                                        0.0042500266143626715,
+                                        0.004552908776331854,
+                                        0.004815668602839308,
+                                        0.005012872039222633,
+                                        0.00513509652610582,
+                                        0.005182074671008964
+                                    ]
+                                }
+                            },
+                            "intermediate": {
+                                "months": [
+                                    10,
+                                    11,
+                                    3,
+                                    4
+                                ],
+                                "annual_days": 122,
+                                "fractions": {
+                                    "weekday": [
+                                        0.016540836528367037,
+                                        0.016540836528367037,
+                                        0.017338056890759825,
+                                        0.018358767768800296,
+                                        0.01953648709877104,
+                                        0.020684800586448338,
+                                        0.02149002597211394,
+                                        0.02159192738464149,
+                                        0.02078469025187142,
+                                        0.01918921321259228,
+                                        0.017174182597878333,
+                                        0.015131929659109733,
+                                        0.013371997362956857,
+                                        0.012103337827973246,
+                                        0.011413258059649647,
+                                        0.011301641864297534,
+                                        0.01173609855665128,
+                                        0.012600792977195817,
+                                        0.01363246731561619,
+                                        0.014523525126744765,
+                                        0.015091206968853771,
+                                        0.015335776025594586,
+                                        0.01539793941486195,
+                                        0.015497651869252492
+                                    ],
+                                    "weekend": [
+                                        0.007105705732312879,
+                                        0.007105705732312879,
+                                        0.0074283964020843305,
+                                        0.007817071944200307,
+                                        0.008297849586519569,
+                                        0.008854024851955437,
+                                        0.009386277772145768,
+                                        0.00969439251464354,
+                                        0.00955301826423356,
+                                        0.008885508682426062,
+                                        0.00785866160462477,
+                                        0.0067686915159653645,
+                                        0.005861856787361929,
+                                        0.005252563926608114,
+                                        0.0049434900937521484,
+                                        0.004889563574346076,
+                                        0.0050445150684337615,
+                                        0.005358665856751855,
+                                        0.005761147188358289,
+                                        0.006171720785694292,
+                                        0.006527906328293286,
+                                        0.006795226542057347,
+                                        0.006960908624276779,
+                                        0.007024590109589927
+                                    ]
+                                }
+                            },
+                            "summer": {
+                                "months": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "annual_days": 153,
+                                "fractions": {
+                                    "weekday": [
+                                        0.0010590636426289091,
+                                        0.0010590636426289091,
+                                        0.001094523946095479,
+                                        0.0011479534348979225,
+                                        0.0012135479343554246,
+                                        0.0012775786485038569,
+                                        0.001316407844730775,
+                                        0.0013019566152529193,
+                                        0.0012199040244830553,
+                                        0.0010880214351182012,
+                                        0.0009479778372020717,
+                                        0.0008349335540973944,
+                                        0.0007598879766524797,
+                                        0.0007167523336559638,
+                                        0.0006985608004971985,
+                                        0.0007058953734481931,
+                                        0.0007411524747124881,
+                                        0.0007972762496801779,
+                                        0.0008575041127562266,
+                                        0.0009071925861580299,
+                                        0.0009419989359581119,
+                                        0.0009663272187837232,
+                                        0.0009884582999645222,
+                                        0.0010172826848597876
+                                    ],
+                                    "weekend": [
+                                        0.0004817841819163308,
+                                        0.0004817841819163308,
+                                        0.0005027855713473914,
+                                        0.0005286093783583508,
+                                        0.0005565142687933293,
+                                        0.0005841833554293074,
+                                        0.0006075787234184459,
+                                        0.000618502357523313,
+                                        0.0006058653602035742,
+                                        0.0005638157685378343,
+                                        0.00049960965014296,
+                                        0.00043034690944955496,
+                                        0.00037199075437145007,
+                                        0.000332194578928617,
+                                        0.0003108630908884448,
+                                        0.00030421774349246824,
+                                        0.00030762615314860656,
+                                        0.00031711380102401697,
+                                        0.00033072136392778284,
+                                        0.0003482878625037381,
+                                        0.00036938031048864233,
+                                        0.0003915214454442425,
+                                        0.00040977858976023237,
+                                        0.0004171754859352801
+                                    ]
+                                }
+                            }
+                        }
                     }
-                  },
-                  "intermediate": {
-                    "months": [
-                      10,
-                      11,
-                      3,
-                      4
-                    ],
-                    "annual_days": 122,
-                    "fractions": {
-                      "weekday": [
-                        0.016540836528367037,
-                        0.016540836528367037,
-                        0.017338056890759825,
-                        0.018358767768800296,
-                        0.01953648709877104,
-                        0.020684800586448338,
-                        0.02149002597211394,
-                        0.02159192738464149,
-                        0.02078469025187142,
-                        0.01918921321259228,
-                        0.017174182597878333,
-                        0.015131929659109733,
-                        0.013371997362956857,
-                        0.012103337827973246,
-                        0.011413258059649647,
-                        0.011301641864297534,
-                        0.01173609855665128,
-                        0.012600792977195817,
-                        0.01363246731561619,
-                        0.014523525126744765,
-                        0.015091206968853771,
-                        0.015335776025594586,
-                        0.01539793941486195,
-                        0.015497651869252492
-                      ],
-                      "weekend": [
-                        0.007105705732312879,
-                        0.007105705732312879,
-                        0.0074283964020843305,
-                        0.007817071944200307,
-                        0.008297849586519569,
-                        0.008854024851955437,
-                        0.009386277772145768,
-                        0.00969439251464354,
-                        0.00955301826423356,
-                        0.008885508682426062,
-                        0.00785866160462477,
-                        0.0067686915159653645,
-                        0.005861856787361929,
-                        0.005252563926608114,
-                        0.0049434900937521484,
-                        0.004889563574346076,
-                        0.0050445150684337615,
-                        0.005358665856751855,
-                        0.005761147188358289,
-                        0.006171720785694292,
-                        0.006527906328293286,
-                        0.006795226542057347,
-                        0.006960908624276779,
-                        0.007024590109589927
-                      ]
-                    }
-                  },
-                  "summer": {
-                    "months": [
-                      5,
-                      6,
-                      7,
-                      8,
-                      9
-                    ],
-                    "annual_days": 153,
-                    "fractions": {
-                      "weekday": [
-                        0.0010590636426289091,
-                        0.0010590636426289091,
-                        0.001094523946095479,
-                        0.0011479534348979225,
-                        0.0012135479343554246,
-                        0.0012775786485038569,
-                        0.001316407844730775,
-                        0.0013019566152529193,
-                        0.0012199040244830553,
-                        0.0010880214351182012,
-                        0.0009479778372020717,
-                        0.0008349335540973944,
-                        0.0007598879766524797,
-                        0.0007167523336559638,
-                        0.0006985608004971985,
-                        0.0007058953734481931,
-                        0.0007411524747124881,
-                        0.0007972762496801779,
-                        0.0008575041127562266,
-                        0.0009071925861580299,
-                        0.0009419989359581119,
-                        0.0009663272187837232,
-                        0.0009884582999645222,
-                        0.0010172826848597876
-                      ],
-                      "weekend": [
-                        0.0004817841819163308,
-                        0.0004817841819163308,
-                        0.0005027855713473914,
-                        0.0005286093783583508,
-                        0.0005565142687933293,
-                        0.0005841833554293074,
-                        0.0006075787234184459,
-                        0.000618502357523313,
-                        0.0006058653602035742,
-                        0.0005638157685378343,
-                        0.00049960965014296,
-                        0.00043034690944955496,
-                        0.00037199075437145007,
-                        0.000332194578928617,
-                        0.0003108630908884448,
-                        0.00030421774349246824,
-                        0.00030762615314860656,
-                        0.00031711380102401697,
-                        0.00033072136392778284,
-                        0.0003482878625037381,
-                        0.00036938031048864233,
-                        0.0003915214454442425,
-                        0.00040977858976023237,
-                        0.0004171754859352801
-                      ]
-                    }
-                  }
                 }
-              }
-            }
-          },
-          "price": {
-            "AIA_CZ1": {
-              "residential": {
-                "winter": {
-                  "months": [
-                    1,
-                    2,
-                    12
-                  ],
-                  "annual_days": 90.25,
-                  "rates": {
-                    "weekday": [
-                      0.6562552797163391,
-                      0.6562552797163391,
-                      0.6562552797163391,
-                      0.6562552797163391,
-                      0.6562722224680656,
-                      0.6578442485863384,
-                      0.7235267658386892,
-                      0.8409053866455017,
-                      1.012563919002179,
-                      1.217271077418888,
-                      1.2125005556734563,
-                      1.2057496380698587,
-                      1.1988043072105958,
-                      1.1826547505128486,
-                      1.1833338836255691,
-                      1.1835511313538214,
-                      1.2407170480621692,
-                      1.2770113386833148,
-                      1.2766376843522398,
-                      1.2525419733224212,
-                      0.997037561299839,
-                      0.7503122897528398,
-                      0.6824694705086938,
-                      0.6728076562529395
-                    ],
-                    "weekend": [
-                      0.6644122978887247,
-                      0.6644122978887247,
-                      0.6644122978887247,
-                      0.6644122978887247,
-                      0.6644122978887247,
-                      0.665113732663588,
-                      0.6738333378241788,
-                      0.6976045234405559,
-                      0.7073939270906661,
-                      0.7071505858599368,
-                      0.7065294988071219,
-                      0.7063849706660476,
-                      0.6894592001856883,
-                      0.681247569162237,
-                      0.6813266103046596,
-                      0.6816697006818776,
-                      0.7058360518456535,
-                      0.7092645790001153,
-                      0.7092918676319172,
-                      0.7100055253846985,
-                      0.7083692085692868,
-                      0.699741815510325,
-                      0.6763846942735929,
-                      0.6743807072224638
-                    ]
-                  }
-                },
-                "intermediate": {
-                  "months": [
-                    10,
-                    11,
-                    3,
-                    4
-                  ],
-                  "annual_days": 122,
-                  "rates": {
-                    "weekday": [
-                      0.6562778441085866,
-                      0.6562778441085866,
-                      0.6562778441085866,
-                      0.6562778441085866,
-                      0.656279641853995,
-                      0.6578447685953613,
-                      0.705174669017633,
-                      0.8286455185797903,
-                      0.9995293595504565,
-                      1.2047023639699554,
-                      1.2127149443241592,
-                      1.2059862624248205,
-                      1.1996754637517355,
-                      1.183527727165945,
-                      1.184196410698559,
-                      1.1851517809866334,
-                      1.2638951596822328,
-                      1.2879865402334234,
-                      1.2872477149518382,
-                      1.2566187789076564,
-                      0.9871707759014134,
-                      0.749295816267223,
-                      0.6823792035508683,
-                      0.6728309763973485
-                    ],
-                    "weekend": [
-                      0.6644478260228615,
-                      0.6644478260228615,
-                      0.6644478260228615,
-                      0.6644478260228615,
-                      0.6644478260228615,
-                      0.6651398435784992,
-                      0.6737605831198047,
-                      0.6854959315714353,
-                      0.7008227999148096,
-                      0.7005426165885539,
-                      0.6999493829042236,
-                      0.6997976349876648,
-                      0.6894625284116876,
-                      0.6812703115779266,
-                      0.6814184511586658,
-                      0.6817205786085438,
-                      0.7059317555796673,
-                      0.7092665306112451,
-                      0.709274613329601,
-                      0.7099917167610817,
-                      0.7084051532773447,
-                      0.699783289154462,
-                      0.6763460541022601,
-                      0.6744115729038507
-                    ]
-                  }
-                },
-                "summer": {
-                  "months": [
-                    5,
-                    6,
-                    7,
-                    8,
-                    9
-                  ],
-                  "annual_days": 153,
-                  "rates": {
-                    "weekday": [
-                      0.6458245873740424,
-                      0.6458245873740424,
-                      0.6458245873740424,
-                      0.6458245873740424,
-                      0.6458245873740424,
-                      0.6468994741735525,
-                      0.6721704283419366,
-                      0.7877528153346143,
-                      0.9508403698379019,
-                      1.218453626925188,
-                      1.270531964130501,
-                      1.2733827123523953,
-                      1.4115085817189656,
-                      1.4987952877758426,
-                      1.5191561886103309,
-                      1.5199249270082422,
-                      1.6247504057906499,
-                      1.6339418703545154,
-                      1.6025160033698258,
-                      1.3678843705031805,
-                      1.0303149049834759,
-                      0.7475568270923396,
-                      0.6723258865801299,
-                      0.6636779143465007
-                    ],
-                    "weekend": [
-                      0.6534945611557802,
-                      0.6534945611557802,
-                      0.6534945611557802,
-                      0.6534945611557802,
-                      0.6534945611557802,
-                      0.6542221029139391,
-                      0.6621663178269653,
-                      0.6796723657035797,
-                      0.6892275843534218,
-                      0.6890302919287634,
-                      0.688594812154047,
-                      0.6885055018323561,
-                      0.6764007903284276,
-                      0.6677141658845643,
-                      0.6678930377629508,
-                      0.6683674190022503,
-                      0.6876227199936777,
-                      0.6910965171473628,
-                      0.6911239469667035,
-                      0.690723663696209,
-                      0.6872672314327727,
-                      0.6849410388318566,
-                      0.6645116515218538,
-                      0.6634792797131637
-                    ]
-                  }
+            },
+            "price": {
+                "AIA_CZ1": {
+                    "residential": {
+                        "winter": {
+                            "months": [
+                                1,
+                                2,
+                                12
+                            ],
+                            "annual_days": 90.25,
+                            "rates": {
+                                "weekday": [
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562722224680656,
+                                    0.6578442485863384,
+                                    0.7235267658386892,
+                                    0.8409053866455017,
+                                    1.012563919002179,
+                                    1.217271077418888,
+                                    1.2125005556734563,
+                                    1.2057496380698587,
+                                    1.1988043072105958,
+                                    1.1826547505128486,
+                                    1.1833338836255691,
+                                    1.1835511313538214,
+                                    1.2407170480621692,
+                                    1.2770113386833148,
+                                    1.2766376843522398,
+                                    1.2525419733224212,
+                                    0.997037561299839,
+                                    0.7503122897528398,
+                                    0.6824694705086938,
+                                    0.6728076562529395
+                                ],
+                                "weekend": [
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.665113732663588,
+                                    0.6738333378241788,
+                                    0.6976045234405559,
+                                    0.7073939270906661,
+                                    0.7071505858599368,
+                                    0.7065294988071219,
+                                    0.7063849706660476,
+                                    0.6894592001856883,
+                                    0.681247569162237,
+                                    0.6813266103046596,
+                                    0.6816697006818776,
+                                    0.7058360518456535,
+                                    0.7092645790001153,
+                                    0.7092918676319172,
+                                    0.7100055253846985,
+                                    0.7083692085692868,
+                                    0.699741815510325,
+                                    0.6763846942735929,
+                                    0.6743807072224638
+                                ]
+                            }
+                        },
+                        "intermediate": {
+                            "months": [
+                                10,
+                                11,
+                                3,
+                                4
+                            ],
+                            "annual_days": 122,
+                            "rates": {
+                                "weekday": [
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.656279641853995,
+                                    0.6578447685953613,
+                                    0.705174669017633,
+                                    0.8286455185797903,
+                                    0.9995293595504565,
+                                    1.2047023639699554,
+                                    1.2127149443241592,
+                                    1.2059862624248205,
+                                    1.1996754637517355,
+                                    1.183527727165945,
+                                    1.184196410698559,
+                                    1.1851517809866334,
+                                    1.2638951596822328,
+                                    1.2879865402334234,
+                                    1.2872477149518382,
+                                    1.2566187789076564,
+                                    0.9871707759014134,
+                                    0.749295816267223,
+                                    0.6823792035508683,
+                                    0.6728309763973485
+                                ],
+                                "weekend": [
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6651398435784992,
+                                    0.6737605831198047,
+                                    0.6854959315714353,
+                                    0.7008227999148096,
+                                    0.7005426165885539,
+                                    0.6999493829042236,
+                                    0.6997976349876648,
+                                    0.6894625284116876,
+                                    0.6812703115779266,
+                                    0.6814184511586658,
+                                    0.6817205786085438,
+                                    0.7059317555796673,
+                                    0.7092665306112451,
+                                    0.709274613329601,
+                                    0.7099917167610817,
+                                    0.7084051532773447,
+                                    0.699783289154462,
+                                    0.6763460541022601,
+                                    0.6744115729038507
+                                ]
+                            }
+                        },
+                        "summer": {
+                            "months": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                            ],
+                            "annual_days": 153,
+                            "rates": {
+                                "weekday": [
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6468994741735525,
+                                    0.6721704283419366,
+                                    0.7877528153346143,
+                                    0.9508403698379019,
+                                    1.218453626925188,
+                                    1.270531964130501,
+                                    1.2733827123523953,
+                                    1.4115085817189656,
+                                    1.4987952877758426,
+                                    1.5191561886103309,
+                                    1.5199249270082422,
+                                    1.6247504057906499,
+                                    1.6339418703545154,
+                                    1.6025160033698258,
+                                    1.3678843705031805,
+                                    1.0303149049834759,
+                                    0.7475568270923396,
+                                    0.6723258865801299,
+                                    0.6636779143465007
+                                ],
+                                "weekend": [
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6542221029139391,
+                                    0.6621663178269653,
+                                    0.6796723657035797,
+                                    0.6892275843534218,
+                                    0.6890302919287634,
+                                    0.688594812154047,
+                                    0.6885055018323561,
+                                    0.6764007903284276,
+                                    0.6677141658845643,
+                                    0.6678930377629508,
+                                    0.6683674190022503,
+                                    0.6876227199936777,
+                                    0.6910965171473628,
+                                    0.6911239469667035,
+                                    0.690723663696209,
+                                    0.6872672314327727,
+                                    0.6849410388318566,
+                                    0.6645116515218538,
+                                    0.6634792797131637
+                                ]
+                            }
+                        }
+                    }
                 }
-              }
+            },
+            "emissions": {
+                "AIA_CZ1": {
+                    "winter": {
+                        "months": [
+                            1,
+                            2,
+                            12
+                        ],
+                        "annual_days": 90.25,
+                        "factors": [
+                            1.0808327943771008,
+                            1.0947294879594474,
+                            1.0909604832627986,
+                            0.997259933763779,
+                            1.0157987104859902,
+                            1.0160614041206557,
+                            1.0477835926945642,
+                            1.000430414155741,
+                            1.023557292451596,
+                            0.960032661017396,
+                            0.917036500578013,
+                            0.9705004448862705,
+                            0.9907681555516679,
+                            1.0253381814057205,
+                            0.9844841561876502,
+                            0.9042117573723634,
+                            1.0284123659853506,
+                            1.0036148259369406,
+                            0.9833833200372775,
+                            0.952786486602425,
+                            0.9137505041285251,
+                            0.9183607987573171,
+                            1.0297440696206162,
+                            1.0501616586607956
+                        ]
+                    },
+                    "intermediate": {
+                        "months": [
+                            9,
+                            10,
+                            11,
+                            3,
+                            4
+                        ],
+                        "annual_days": 152,
+                        "factors": [
+                            1.0658956503894756,
+                            1.0727670538462724,
+                            1.0631207028580707,
+                            1.046332293005439,
+                            1.015708019925993,
+                            1.026753672777928,
+                            1.021262021827931,
+                            0.9949980406706456,
+                            0.9757903062587946,
+                            0.9396316891528453,
+                            0.9466447200833301,
+                            0.9476982359938386,
+                            0.9727191746106075,
+                            0.9655198479731756,
+                            0.9631011731360967,
+                            0.9523456404643373,
+                            1.008536357395883,
+                            1.0106262570856785,
+                            1.020217337466093,
+                            0.995225325404544,
+                            0.9852466168013723,
+                            0.9828527161667133,
+                            0.9910882940666929,
+                            1.035918852638241
+                        ]
+                    },
+                    "summer": {
+                        "months": [
+                            5,
+                            6,
+                            7,
+                            8
+                        ],
+                        "annual_days": 123,
+                        "factors": [
+                            1.1435710315058578,
+                            1.1855937369569567,
+                            1.1841115412910492,
+                            1.1711267994327952,
+                            1.138416978159702,
+                            1.0879526698838258,
+                            1.047850567207246,
+                            0.9915300582880294,
+                            0.9257377330283679,
+                            0.9323171624462354,
+                            0.9230809453005281,
+                            0.9171957664527647,
+                            0.9220163795107141,
+                            0.9322139542622108,
+                            0.9698324615055369,
+                            0.9801952991546521,
+                            0.9454291136003109,
+                            0.9252177083898578,
+                            0.9350063389981491,
+                            0.941638621913107,
+                            0.8621879023886238,
+                            0.8691889278276335,
+                            0.9908346745164235,
+                            1.077753627979422
+                        ]
+                    }
+                }
             }
-          },
-          "emissions": {
-            "AIA_CZ1": {
-              "winter": {
-                "months": [
-                  1,
-                  2,
-                  12
-                ],
-                "annual_days": 90.25,
-                "factors": [
-                  1.0808327943771008,
-                  1.0947294879594474,
-                  1.0909604832627986,
-                  0.997259933763779,
-                  1.0157987104859902,
-                  1.0160614041206557,
-                  1.0477835926945642,
-                  1.000430414155741,
-                  1.023557292451596,
-                  0.960032661017396,
-                  0.917036500578013,
-                  0.9705004448862705,
-                  0.9907681555516679,
-                  1.0253381814057205,
-                  0.9844841561876502,
-                  0.9042117573723634,
-                  1.0284123659853506,
-                  1.0036148259369406,
-                  0.9833833200372775,
-                  0.952786486602425,
-                  0.9137505041285251,
-                  0.9183607987573171,
-                  1.0297440696206162,
-                  1.0501616586607956
-                ]
-              },
-              "intermediate": {
-                "months": [
-                  9,
-                  10,
-                  11,
-                  3,
-                  4
-                ],
-                "annual_days": 152,
-                "factors": [
-                  1.0658956503894756,
-                  1.0727670538462724,
-                  1.0631207028580707,
-                  1.046332293005439,
-                  1.015708019925993,
-                  1.026753672777928,
-                  1.021262021827931,
-                  0.9949980406706456,
-                  0.9757903062587946,
-                  0.9396316891528453,
-                  0.9466447200833301,
-                  0.9476982359938386,
-                  0.9727191746106075,
-                  0.9655198479731756,
-                  0.9631011731360967,
-                  0.9523456404643373,
-                  1.008536357395883,
-                  1.0106262570856785,
-                  1.020217337466093,
-                  0.995225325404544,
-                  0.9852466168013723,
-                  0.9828527161667133,
-                  0.9910882940666929,
-                  1.035918852638241
-                ]
-              },
-              "summer": {
-                "months": [
-                  5,
-                  6,
-                  7,
-                  8
-                ],
-                "annual_days": 123,
-                "factors": [
-                  1.1435710315058578,
-                  1.1855937369569567,
-                  1.1841115412910492,
-                  1.1711267994327952,
-                  1.138416978159702,
-                  1.0879526698838258,
-                  1.047850567207246,
-                  0.9915300582880294,
-                  0.9257377330283679,
-                  0.9323171624462354,
-                  0.9230809453005281,
-                  0.9171957664527647,
-                  0.9220163795107141,
-                  0.9322139542622108,
-                  0.9698324615055369,
-                  0.9801952991546521,
-                  0.9454291136003109,
-                  0.9252177083898578,
-                  0.9350063389981491,
-                  0.941638621913107,
-                  0.8621879023886238,
-                  0.8691889278276335,
-                  0.9908346745164235,
-                  1.077753627979422
-                ]
-              }
-            }
-          }
         }
         cls.sample_base_load = cls.sample_tsv_data[
-          "load"]["AIA_CZ1"]["residential"]["heating"]["winter"][
-          "fractions"]["weekday"]
+            "load"]["AIA_CZ1"]["residential"]["heating"]["winter"][
+            "fractions"]["weekday"]
         sample_tsv_measures_in = [
-          {"name": "sample conventional efficiency",
-           "energy_efficiency": 0.2,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "conventional": {
-                "start": 6, "stop": 10}
-           }},
-          {"name": "sample peak shaving",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shave": {
-                "start": 6, "stop": 10, "peak_fraction": 0.9}
-           }},
-          {"name": "sample valley filling",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "fill": {
-                "start": 11, "stop": 5, "peak_fraction": 0.7}
-           }},
-          {"name": "sample shifting 1",
-           "energy_efficiency": 0.2,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shift": {
-                "start": 6, "stop": 10, "offset_hrs_earlier": 10}
-           }},
-          {"name": "sample shifting 2",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shift": {
-                "start": None, "stop": None, "offset_hrs_earlier": 10}
-           }},
-          {"name": "sample shifting 3",
-           "energy_efficiency": 0.2,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shift": {
-                "start": 10, "stop": 20, "offset_hrs_earlier": 10}
-           }},
-          {"name": "sample reshaping 1",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shape": {
-                "start": 1, "stop": 24, "flatten_fraction": 0.5}
-           }},
-          {"name": "sample reshaping 2",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shape": {
-                "custom_load": [
-                  0.795398312, 0.700814216, 0.619305406, 0.56054921,
-                  0.528589128, 0.523419779, 0.543541035, 0.583588151,
-                  0.631368709, 0.672636809, 0.698928201, 0.710255076,
-                  0.713134087, 0.71775213, 0.766065772, 0.766065772,
-                  0.802987921, 0.850260722, 0.90480515, 0.957987688,
-                  0.995280578, 1, 0.962613938, 0.888721644]}
-           }},
-          {"name": "sample reshaping 3",
-           "energy_efficiency": 0,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-              "shape": {
-                "custom_savings": [
-                    0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4,
-                    1.5, 1.6, 1.8, 1.9, 2, 1, 0.5, 0.75, 0.75,
-                    0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}
-           }},
-          {"name": "sample shift, and shape",
-           "energy_efficiency": 0.2,
-           "energy_efficiency_units": "relative savings (constant)",
-           "markets": None,
-           "installed_cost": 25,
-           "cost_units": "2014$/unit",
-           "market_entry_year": None,
-           "market_exit_year": None,
-           "product_lifetime": 1,
-           "market_scaling_fractions": None,
-           "market_scaling_fractions_source": None,
-           "measure_type": "full service",
-           "structure_type": ["new", "existing"],
-           "bldg_type": "single family home",
-           "climate_zone": "AIA_CZ1",
-           "fuel_type": "electricity",
-           "fuel_switch_to": None,
-           "end_use": "heating",
-           "technology": ["resistance heat", "ASHP"],
-           "time_sensitive_valuation": {
-            "shift": {
-              "start": 6, "stop": 10, "offset_hrs_earlier": 10},
-            "shape": {
-              "start": 1, "stop": 24, "flatten_fraction": 0.5}
-            }
-           }]
+            {"name": "sample conventional efficiency",
+             "energy_efficiency": 0.2,
+             "energy_efficiency_units": "relative savings (constant)",
+             "markets": None,
+             "installed_cost": 25,
+             "cost_units": "2014$/unit",
+             "market_entry_year": None,
+             "market_exit_year": None,
+             "product_lifetime": 1,
+             "market_scaling_fractions": None,
+             "market_scaling_fractions_source": None,
+             "measure_type": "full service",
+             "structure_type": ["new", "existing"],
+             "bldg_type": "single family home",
+             "climate_zone": "AIA_CZ1",
+             "fuel_type": "electricity",
+             "fuel_switch_to": None,
+             "end_use": "heating",
+             "technology": ["resistance heat", "ASHP"],
+             "time_sensitive_valuation": {
+                 "conventional": {
+                     "start": 6, "stop": 10}
+             }},
+            {"name": "sample peak shaving",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shave": {
+                        "start": 6, "stop": 10, "peak_fraction": 0.9}
+                }},
+            {"name": "sample valley filling",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "fill": {
+                        "start": 11, "stop": 5, "peak_fraction": 0.7}
+                }},
+            {"name": "sample shifting 1",
+                "energy_efficiency": 0.2,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shift": {
+                        "start": 6, "stop": 10, "offset_hrs_earlier": 10}
+                }},
+            {"name": "sample shifting 2",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shift": {
+                        "start": None, "stop": None, "offset_hrs_earlier": 10}
+                }},
+            {"name": "sample shifting 3",
+                "energy_efficiency": 0.2,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shift": {
+                        "start": 10, "stop": 20, "offset_hrs_earlier": 10}
+                }},
+            {"name": "sample reshaping 1",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shape": {
+                        "start": 1, "stop": 24, "flatten_fraction": 0.5}
+                }},
+            {"name": "sample reshaping 2",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shape": {
+                        "custom_load": [
+                            0.795398312, 0.700814216, 0.619305406, 0.56054921,
+                            0.528589128, 0.523419779, 0.543541035, 0.583588151,
+                            0.631368709, 0.672636809, 0.698928201, 0.710255076,
+                            0.713134087, 0.71775213, 0.766065772, 0.766065772,
+                            0.802987921, 0.850260722, 0.90480515, 0.957987688,
+                            0.995280578, 1, 0.962613938, 0.888721644]}
+                }},
+            {"name": "sample reshaping 3",
+                "energy_efficiency": 0,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shape": {
+                        "custom_savings": [
+                            0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 1, 1.3, 1.4,
+                            1.5, 1.6, 1.8, 1.9, 2, 1, 0.5, 0.75, 0.75,
+                            0.75, 0.75, 0.5, 0.5, 0.5, 0.5]}
+                }},
+            {"name": "sample shift, and shape",
+                "energy_efficiency": 0.2,
+                "energy_efficiency_units": "relative savings (constant)",
+                "markets": None,
+                "installed_cost": 25,
+                "cost_units": "2014$/unit",
+                "market_entry_year": None,
+                "market_exit_year": None,
+                "product_lifetime": 1,
+                "market_scaling_fractions": None,
+                "market_scaling_fractions_source": None,
+                "measure_type": "full service",
+                "structure_type": ["new", "existing"],
+                "bldg_type": "single family home",
+                "climate_zone": "AIA_CZ1",
+                "fuel_type": "electricity",
+                "fuel_switch_to": None,
+                "end_use": "heating",
+                "technology": ["resistance heat", "ASHP"],
+                "time_sensitive_valuation": {
+                    "shift": {
+                        "start": 6, "stop": 10, "offset_hrs_earlier": 10},
+                    "shape": {
+                        "start": 1, "stop": 24, "flatten_fraction": 0.5}
+                }
+             }]
         cls.ok_tsv_measures_in = [ecm_prep.Measure(
-          handyvars, site_energy=None, capt_energy=None, **x) for
+            handyvars, site_energy=None, capt_energy=None, **x) for
             x in sample_tsv_measures_in]
         cls.sample_rel_perf = [
-          {yr: (1 - m.energy_efficiency) for yr in handyvars.aeo_years}
-          for m in cls.ok_tsv_measures_in]
+            {yr: (1 - m.energy_efficiency) for yr in handyvars.aeo_years}
+            for m in cls.ok_tsv_measures_in]
         cls.ok_eff_load_out = [
-          {"2009": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
-                    0.018015203, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.015836849, 0.013953624,
-                    0.012330735, 0.011160865, 0.010524521, 0.010421596,
-                    0.010822222, 0.011619584, 0.012570923, 0.013392595,
-                    0.013916072, 0.014141597, 0.01419892, 0.014290868],
-           "2010": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
-                    0.018015203, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.015836849, 0.013953624,
-                    0.012330735, 0.011160865, 0.010524521, 0.010421596,
-                    0.010822222, 0.011619584, 0.012570923, 0.013392595,
-                    0.013916072, 0.014141597, 0.01419892, 0.014290868]},
-          {"2009": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
-                    0.014412163, 0.014335624, 0.014335624, 0.014335624,
-                    0.014335624, 0.014155977, 0.012669479, 0.011162899,
-                    0.009864588, 0.008928692, 0.008419617, 0.008337277,
-                    0.008657778, 0.009295667, 0.010056738, 0.010714076,
-                    0.011132858, 0.011313277, 0.011359136, 0.011432694],
-           "2010": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
-                    0.014412163, 0.014335624, 0.014335624, 0.014335624,
-                    0.014335624, 0.014155977, 0.012669479, 0.011162899,
-                    0.009864588, 0.008928692, 0.008419617, 0.008337277,
-                    0.008657778, 0.009295667, 0.010056738, 0.010714076,
-                    0.011132858, 0.011313277, 0.011359136, 0.011432694]},
-          {"2009": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
-                    0.014412163, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.012669479, 0.011162899,
-                    0.01114993, 0.01114993, 0.01114993, 0.01114993,
-                    0.01114993, 0.01114993, 0.01114993, 0.01114993,
-                    0.01114993, 0.011313277, 0.011359136, 0.011432694],
-           "2010": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
-                    0.014412163, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.012669479, 0.011162899,
-                    0.01114993, 0.01114993, 0.01114993, 0.01114993,
-                    0.01114993, 0.01114993, 0.01114993, 0.01114993,
-                    0.01114993, 0.011313277, 0.011359136, 0.011432694]},
-          {"2009": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
-                    0.018015203, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.015836849, 0.013953624,
-                    0.012330735, 0.011160865, 0.010524521, 0.010421596,
-                    0.010822222, 0.011619584, 0.012570923, 0.017219095,
-                    0.017742572, 0.017968096, 0.018025419, 0.018117367],
-           "2010": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
-                    0.018015203, 0.015259279, 0.015853298, 0.015928471,
-                    0.015332968, 0.014155977, 0.015836849, 0.013953624,
-                    0.012330735, 0.011160865, 0.010524521, 0.010421596,
-                    0.010822222, 0.011619584, 0.012570923, 0.017219095,
-                    0.017742572, 0.017968096, 0.018025419, 0.018117367]},
-          {"2009": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
-                    0.008419617, 0.008337277, 0.008657778, 0.009295667,
-                    0.010056738, 0.010714076, 0.011132858, 0.011313277,
-                    0.011359136, 0.011432694, 0.012202256, 0.012202256,
-                    0.01279037, 0.013543353, 0.014412163, 0.015259279,
-                    0.015853298, 0.015928471, 0.015332968, 0.014155977],
-           "2010": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
-                    0.008419617, 0.008337277, 0.008657778, 0.009295667,
-                    0.010056738, 0.010714076, 0.011132858, 0.011313277,
-                    0.011359136, 0.011432694, 0.012202256, 0.012202256,
-                    0.01279037, 0.013543353, 0.014412163, 0.015259279,
-                    0.015853298, 0.015928471, 0.015332968, 0.014155977]},
-          {"2009": [0.017804248, 0.017804248, 0.018539389, 0.019480619,
-                    0.02056663, 0.021625526, 0.022368049, 0.022462016,
-                    0.021717637, 0.016707404, 0.012669479, 0.011162899,
-                    0.009864588, 0.008928692, 0.008419617, 0.008337277,
-                    0.008657778, 0.009295667, 0.010056738, 0.010714076,
-                    0.013916072, 0.014141597, 0.01419892, 0.016842294],
-           "2010": [0.017804248, 0.017804248, 0.018539389, 0.019480619,
-                    0.02056663, 0.021625526, 0.022368049, 0.022462016,
-                    0.021717637, 0.016707404, 0.012669479, 0.011162899,
-                    0.009864588, 0.008928692, 0.008419617, 0.008337277,
-                    0.008657778, 0.009295667, 0.010056738, 0.010714076,
-                    0.013916072, 0.014141597, 0.01419892, 0.016842294]},
-          {"2009": [0.012039153, 0.012039153, 0.012333209, 0.012709701,
-                    0.013144106, 0.013567664, 0.013864673, 0.01390226,
-                    0.013604508, 0.013016013, 0.012272764, 0.011519474,
-                    0.010870318, 0.01040237, 0.010147833, 0.010106663,
-                    0.010266913, 0.010585858, 0.010966393, 0.011295062,
-                    0.011504453, 0.011594663, 0.011617592, 0.011654371],
-           "2010": [0.012039153, 0.012039153, 0.012333209, 0.012709701,
-                    0.013144106, 0.013567664, 0.013864673, 0.01390226,
-                    0.013604508, 0.013016013, 0.012272764, 0.011519474,
-                    0.010870318, 0.01040237, 0.010147833, 0.010106663,
-                    0.010266913, 0.010585858, 0.010966393, 0.011295062,
-                    0.011504453, 0.011594663, 0.011617592, 0.011654371]},
-          {"2009": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
-                    0.008419617, 0.008337277, 0.008657778, 0.009295667,
-                    0.010056738, 0.010714076, 0.011132858, 0.011313277,
-                    0.011359136, 0.011432694, 0.012202256, 0.012202256,
-                    0.01279037, 0.013543353, 0.014412163, 0.015259279,
-                    0.015853298, 0.015928471, 0.015332968, 0.014155977],
-           "2010": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
-                    0.008419617, 0.008337277, 0.008657778, 0.009295667,
-                    0.010056738, 0.010714076, 0.011132858, 0.011313277,
-                    0.011359136, 0.011432694, 0.012202256, 0.012202256,
-                    0.01279037, 0.013543353, 0.014412163, 0.015259279,
-                    0.015853298, 0.015928471, 0.015332968, 0.014155977]},
-          {"2009": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
-                    0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
-                    -0.007077988, -0.007601687, -0.008930319, -0.008878129,
-                    -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
-                    0.002514185, 0.002678519, 0.005566429, 0.005656639,
-                    0.005679568, 0.005716347],
-           "2010": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
-                    0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
-                    -0.007077988, -0.007601687, -0.008930319, -0.008878129,
-                    -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
-                    0.002514185, 0.002678519, 0.005566429, 0.005656639,
-                    0.005679568, 0.005716347]},
-          {"2009": [0.015048941, 0.015048941, 0.015416512, 0.015887126,
-                    0.016430132, 0.01505217, 0.015349179, 0.015386766,
-                    0.015089014, 0.014500519, 0.015340955, 0.014399342,
-                    0.013587898, 0.013002963, 0.012684791, 0.012633328,
-                    0.012833641, 0.013232322, 0.013707992, 0.016032078,
-                    0.016293816, 0.016406579, 0.01643524, 0.016481214],
-           "2010": [0.015048941, 0.015048941, 0.015416512, 0.015887126,
-                    0.016430132, 0.01505217, 0.015349179, 0.015386766,
-                    0.015089014, 0.014500519, 0.015340955, 0.014399342,
-                    0.013587898, 0.013002963, 0.012684791, 0.012633328,
-                    0.012833641, 0.013232322, 0.013707992, 0.016032078,
-                    0.016293816, 0.016406579, 0.01643524, 0.016481214]}]
+            {"2009": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
+                      0.018015203, 0.015259279, 0.015853298, 0.015928471,
+                      0.015332968, 0.014155977, 0.015836849, 0.013953624,
+                      0.012330735, 0.011160865, 0.010524521, 0.010421596,
+                      0.010822222, 0.011619584, 0.012570923, 0.013392595,
+                      0.013916072, 0.014141597, 0.01419892, 0.014290868],
+             "2010": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
+                      0.018015203, 0.015259279, 0.015853298, 0.015928471,
+                      0.015332968, 0.014155977, 0.015836849, 0.013953624,
+                      0.012330735, 0.011160865, 0.010524521, 0.010421596,
+                      0.010822222, 0.011619584, 0.012570923, 0.013392595,
+                      0.013916072, 0.014141597, 0.01419892, 0.014290868]},
+            {"2009": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
+                      0.014412163, 0.014335624, 0.014335624, 0.014335624,
+                      0.014335624, 0.014155977, 0.012669479, 0.011162899,
+                      0.009864588, 0.008928692, 0.008419617, 0.008337277,
+                      0.008657778, 0.009295667, 0.010056738, 0.010714076,
+                      0.011132858, 0.011313277, 0.011359136, 0.011432694],
+                "2010": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
+                         0.014412163, 0.014335624, 0.014335624, 0.014335624,
+                         0.014335624, 0.014155977, 0.012669479, 0.011162899,
+                         0.009864588, 0.008928692, 0.008419617, 0.008337277,
+                         0.008657778, 0.009295667, 0.010056738, 0.010714076,
+                         0.011132858, 0.011313277, 0.011359136, 0.011432694]},
+            {"2009": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
+                      0.014412163, 0.015259279, 0.015853298, 0.015928471,
+                      0.015332968, 0.014155977, 0.012669479, 0.011162899,
+                      0.01114993, 0.01114993, 0.01114993, 0.01114993,
+                      0.01114993, 0.01114993, 0.01114993, 0.01114993,
+                      0.01114993, 0.011313277, 0.011359136, 0.011432694],
+                "2010": [0.012202256, 0.012202256, 0.01279037, 0.013543353,
+                         0.014412163, 0.015259279, 0.015853298, 0.015928471,
+                         0.015332968, 0.014155977, 0.012669479, 0.011162899,
+                         0.01114993, 0.01114993, 0.01114993, 0.01114993,
+                         0.01114993, 0.01114993, 0.01114993, 0.01114993,
+                         0.01114993, 0.011313277, 0.011359136, 0.011432694]},
+            {"2009": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
+                      0.018015203, 0.015259279, 0.015853298, 0.015928471,
+                      0.015332968, 0.014155977, 0.015836849, 0.013953624,
+                      0.012330735, 0.011160865, 0.010524521, 0.010421596,
+                      0.010822222, 0.011619584, 0.012570923, 0.017219095,
+                      0.017742572, 0.017968096, 0.018025419, 0.018117367],
+                "2010": [0.015252821, 0.015252821, 0.015987962, 0.016929192,
+                         0.018015203, 0.015259279, 0.015853298, 0.015928471,
+                         0.015332968, 0.014155977, 0.015836849, 0.013953624,
+                         0.012330735, 0.011160865, 0.010524521, 0.010421596,
+                         0.010822222, 0.011619584, 0.012570923, 0.017219095,
+                         0.017742572, 0.017968096, 0.018025419, 0.018117367]},
+            {"2009": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
+                      0.008419617, 0.008337277, 0.008657778, 0.009295667,
+                      0.010056738, 0.010714076, 0.011132858, 0.011313277,
+                      0.011359136, 0.011432694, 0.012202256, 0.012202256,
+                      0.01279037, 0.013543353, 0.014412163, 0.015259279,
+                      0.015853298, 0.015928471, 0.015332968, 0.014155977],
+                "2010": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
+                         0.008419617, 0.008337277, 0.008657778, 0.009295667,
+                         0.010056738, 0.010714076, 0.011132858, 0.011313277,
+                         0.011359136, 0.011432694, 0.012202256, 0.012202256,
+                         0.01279037, 0.013543353, 0.014412163, 0.015259279,
+                         0.015853298, 0.015928471, 0.015332968, 0.014155977]},
+            {"2009": [0.017804248, 0.017804248, 0.018539389, 0.019480619,
+                      0.02056663, 0.021625526, 0.022368049, 0.022462016,
+                      0.021717637, 0.016707404, 0.012669479, 0.011162899,
+                      0.009864588, 0.008928692, 0.008419617, 0.008337277,
+                      0.008657778, 0.009295667, 0.010056738, 0.010714076,
+                      0.013916072, 0.014141597, 0.01419892, 0.016842294],
+                "2010": [0.017804248, 0.017804248, 0.018539389, 0.019480619,
+                         0.02056663, 0.021625526, 0.022368049, 0.022462016,
+                         0.021717637, 0.016707404, 0.012669479, 0.011162899,
+                         0.009864588, 0.008928692, 0.008419617, 0.008337277,
+                         0.008657778, 0.009295667, 0.010056738, 0.010714076,
+                         0.013916072, 0.014141597, 0.01419892, 0.016842294]},
+            {"2009": [0.012039153, 0.012039153, 0.012333209, 0.012709701,
+                      0.013144106, 0.013567664, 0.013864673, 0.01390226,
+                      0.013604508, 0.013016013, 0.012272764, 0.011519474,
+                      0.010870318, 0.01040237, 0.010147833, 0.010106663,
+                      0.010266913, 0.010585858, 0.010966393, 0.011295062,
+                      0.011504453, 0.011594663, 0.011617592, 0.011654371],
+                "2010": [0.012039153, 0.012039153, 0.012333209, 0.012709701,
+                         0.013144106, 0.013567664, 0.013864673, 0.01390226,
+                         0.013604508, 0.013016013, 0.012272764, 0.011519474,
+                         0.010870318, 0.01040237, 0.010147833, 0.010106663,
+                         0.010266913, 0.010585858, 0.010966393, 0.011295062,
+                         0.011504453, 0.011594663, 0.011617592, 0.011654371]},
+            {"2009": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
+                      0.008419617, 0.008337277, 0.008657778, 0.009295667,
+                      0.010056738, 0.010714076, 0.011132858, 0.011313277,
+                      0.011359136, 0.011432694, 0.012202256, 0.012202256,
+                      0.01279037, 0.013543353, 0.014412163, 0.015259279,
+                      0.015853298, 0.015928471, 0.015332968, 0.014155977],
+                "2010": [0.012669479, 0.011162899, 0.009864588, 0.008928692,
+                         0.008419617, 0.008337277, 0.008657778, 0.009295667,
+                         0.010056738, 0.010714076, 0.011132858, 0.011313277,
+                         0.011359136, 0.011432694, 0.012202256, 0.012202256,
+                         0.01279037, 0.013543353, 0.014412163, 0.015259279,
+                         0.015853298, 0.015928471, 0.015332968, 0.014155977]},
+            {"2009": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
+                      0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
+                      -0.007077988, -0.007601687, -0.008930319, -0.008878129,
+                      -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
+                      0.002514185, 0.002678519, 0.005566429, 0.005656639,
+                      0.005679568, 0.005716347],
+                "2010": [0.006101128, 0.006101128, 0.006395185, 0.006771677,
+                         0.007206081, 0.006103712, 0, -0.004778541, -0.006133187,
+                         -0.007077988, -0.007601687, -0.008930319, -0.008878129,
+                         -0.008928692, 0, 0.004168638, 0.002164444, 0.002323917,
+                         0.002514185, 0.002678519, 0.005566429, 0.005656639,
+                         0.005679568, 0.005716347]},
+            {"2009": [0.015048941, 0.015048941, 0.015416512, 0.015887126,
+                      0.016430132, 0.01505217, 0.015349179, 0.015386766,
+                      0.015089014, 0.014500519, 0.015340955, 0.014399342,
+                      0.013587898, 0.013002963, 0.012684791, 0.012633328,
+                      0.012833641, 0.013232322, 0.013707992, 0.016032078,
+                      0.016293816, 0.016406579, 0.01643524, 0.016481214],
+                "2010": [0.015048941, 0.015048941, 0.015416512, 0.015887126,
+                         0.016430132, 0.01505217, 0.015349179, 0.015386766,
+                         0.015089014, 0.014500519, 0.015340955, 0.014399342,
+                         0.013587898, 0.013002963, 0.012684791, 0.012633328,
+                         0.012833641, 0.013232322, 0.013707992, 0.016032078,
+                         0.016293816, 0.016406579, 0.01643524, 0.016481214]}]
         cls.ok_tsv_facts_out = [[{
             "energy": {
                 "efficient": {
-                  "2009": 1.18249064, "2010": 1.18249064}
-                },
+                    "2009": 1.18249064, "2010": 1.18249064}
+            },
             "cost": {
                 "baseline": 0.857055123,
                 "efficient": {
-                  "2009": 1.016109525, "2010": 1.016109525}
+                    "2009": 1.016109525, "2010": 1.016109525}
             },
             "carbon": {
                 "baseline": 1.002314946,
                 "efficient": {
-                  "2009": 1.185384091, "2010": 1.185384091}
+                    "2009": 1.185384091, "2010": 1.185384091}
             }}, {"2009": 0.8, "2010": 0.8}], [{
-             "energy": {
-                "efficient": {
-                  "2009": 0.984918266, "2010": 0.984918266}
+                "energy": {
+                    "efficient": {
+                        "2009": 0.984918266, "2010": 0.984918266}
                 },
-             "cost": {
-                "baseline": 0.857055123,
-                "efficient": {
-                  "2009": 0.845306061, "2010": 0.845306061}},
-             "carbon": {
-                "baseline": 1.002314946,
-                "efficient": {
-                  "2009": 0.987089849, "2010": 0.987089849}}},
+                "cost": {
+                    "baseline": 0.857055123,
+                    "efficient": {
+                        "2009": 0.845306061, "2010": 0.845306061}},
+                "carbon": {
+                    "baseline": 1.002314946,
+                    "efficient": {
+                        "2009": 0.987089849, "2010": 0.987089849}}},
             {"2009": 1, "2010": 1}], [{
-             "energy": {
-                "efficient": {
-                  "2009": 0.078210128, "2010": 0.078210128}
+                "energy": {
+                    "efficient": {
+                        "2009": 0.078210128, "2010": 0.078210128}
                 },
-             "cost": {
-                "baseline": 0.857055123,
-                "efficient": {
-                  "2009": 0.014835211, "2010": 0.014835211}},
-             "carbon": {
-                "baseline": 1.002314946,
-                "efficient": {
-                  "2009": 0.088939244, "2010": 0.088939244}}},
+                "cost": {
+                    "baseline": 0.857055123,
+                    "efficient": {
+                        "2009": 0.014835211, "2010": 0.014835211}},
+                "carbon": {
+                    "baseline": 1.002314946,
+                    "efficient": {
+                        "2009": 0.088939244, "2010": 0.088939244}}},
             {"2009": 1, "2010": 1}]]
 
     def test_load_modification(self):
         """Test the 'apply_tsv' function given valid inputs."""
         for idx, measure in enumerate(self.ok_tsv_measures_in):
             eff_load_out = measure.apply_tsv(
-              self.sample_base_load, self.sample_mskeys,
-              self.sample_rel_perf[idx])
+                self.sample_base_load, self.sample_mskeys,
+                self.sample_rel_perf[idx])
             self.dict_check(eff_load_out, self.ok_eff_load_out[idx])
 
     def test_frac_gen(self):
@@ -9756,8 +9757,8 @@ class TimeSensitiveValuationTest(unittest.TestCase, CommonMethods):
         # Run ECMs through the function and test outputs
         for idx, measure in enumerate(test_list):
             tsv_facts_out = measure.gen_tsv_facts(
-              self.sample_tsv_data, self.sample_mskeys, self.sample_bldg_sect,
-              self.sample_rel_perf[idx])
+                self.sample_tsv_data, self.sample_mskeys, self.sample_bldg_sect,
+                self.sample_rel_perf[idx])
             # Check first output from 'gen_tsv_facts' function
             self.dict_check(tsv_facts_out[0], self.ok_tsv_facts_out[idx][0])
             # Check second output from 'gen_tsv_facts' function
@@ -9948,32 +9949,32 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         #                         ('2026', '<f8'), ('2027', '<f8')])
         #      for n in range(2))
         cls.ok_out = [[[
-                {"2009": 100, "2010": 200, "2011": 300},
-                {"2009": 10, "2010": 20, "2011": 30},
-                {"2009": 30, "2010": 60, "2011": 90},
-                {"2009": 100, "2010": 200, "2011": 300},
-                {"2009": 3, "2010": 6, "2011": 9},
-                {"2009": 9, "2010": 18, "2011": 27},
-                {"2009": 100, "2010": 200, "2011": 300},
-                {"2009": 10, "2010": 20, "2011": 30},
-                {"2009": 30, "2010": 60, "2011": 90},
-                {"2009": 100, "2010": 200, "2011": 300},
-                {"2009": 3, "2010": 6, "2011": 9},
-                {"2009": 9, "2010": 18, "2011": 27},
-                {"2009": 1000, "2010": 2000, "2011": 3000},
-                {"2009": 10, "2010": 40, "2011": 60},
-                {"2009": 30, "2010": 240, "2011": 90},
-                {"2009": 2000, "2010": 4000, "2011": 6000},
-                {"2009": 3, "2010": 12, "2011": 18},
-                {"2009": 9, "2010": 72, "2011": 27},
-                {"2009": 1000, "2010": 2000, "2011": 3000},
-                {"2009": 10, "2010": 40, "2011": 60},
-                {"2009": 30, "2010": 240, "2011": 90},
-                {"2009": 2000, "2010": 4000, "2011": 6000},
-                {"2009": 3, "2010": 12, "2011": 18},
-                {"2009": 9, "2010": 72, "2011": 27}],
-                [
-                {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 10, "2010": 20, "2011": 30},
+            {"2009": 30, "2010": 60, "2011": 90},
+            {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 3, "2010": 6, "2011": 9},
+            {"2009": 9, "2010": 18, "2011": 27},
+            {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 10, "2010": 20, "2011": 30},
+            {"2009": 30, "2010": 60, "2011": 90},
+            {"2009": 100, "2010": 200, "2011": 300},
+            {"2009": 3, "2010": 6, "2011": 9},
+            {"2009": 9, "2010": 18, "2011": 27},
+            {"2009": 1000, "2010": 2000, "2011": 3000},
+            {"2009": 10, "2010": 40, "2011": 60},
+            {"2009": 30, "2010": 240, "2011": 90},
+            {"2009": 2000, "2010": 4000, "2011": 6000},
+            {"2009": 3, "2010": 12, "2011": 18},
+            {"2009": 9, "2010": 72, "2011": 27},
+            {"2009": 1000, "2010": 2000, "2011": 3000},
+            {"2009": 10, "2010": 40, "2011": 60},
+            {"2009": 30, "2010": 240, "2011": 90},
+            {"2009": 2000, "2010": 4000, "2011": 6000},
+            {"2009": 3, "2010": 12, "2011": 18},
+            {"2009": 9, "2010": 72, "2011": 27}],
+            [
+            {"2009": 100, "2010": 200, "2011": 300},
                 {"2009": 10, "2010": 20, "2011": 30},
                 {"2009": 30, "2010": 60, "2011": 90},
                 {"2009": 100, "2010": 200, "2011": 300},
@@ -9997,33 +9998,33 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
                 {"2009": 2000, "2010": 4000, "2011": 6000},
                 {"2009": 3, "2010": 12, "2011": 18},
                 {"2009": 9, "2010": 72, "2011": 27}]],
-                [[
-                 {"2009": 100, "2010": 200, "2011": 300},
-                 {"2009": 10, "2010": 20, "2011": 30},
-                 {"2009": 30, "2010": 60, "2011": 90},
-                 {"2009": 100, "2010": 200, "2011": 300},
-                 {"2009": 3, "2010": 6, "2011": 9},
-                 {"2009": 9, "2010": 18, "2011": 27},
-                 {"2009": 100, "2010": 100, "2011": 100},
-                 {"2009": 10, "2010": 10, "2011": 10},
-                 {"2009": 30, "2010": 30, "2011": 30},
-                 {"2009": 100, "2010": 100, "2011": 100},
-                 {"2009": 3, "2010": 3, "2011": 3},
-                 {"2009": 9, "2010": 9, "2011": 9},
-                 {"2009": 1000, "2010": 2000, "2011": 3000},
-                 {"2009": 10, "2010": 40, "2011": 60},
-                 {"2009": 30, "2010": 240, "2011": 90},
-                 {"2009": 2000, "2010": 4000, "2011": 6000},
-                 {"2009": 3, "2010": 12, "2011": 18},
-                 {"2009": 9, "2010": 72, "2011": 27},
-                 {"2009": 1000, "2010": 1000, "2011": 1000},
-                 {"2009": 10, "2010": 20, "2011": 20},
-                 {"2009": 30, "2010": 120, "2011": 30},
-                 {"2009": 2000, "2010": 2000, "2011": 2000},
-                 {"2009": 3, "2010": 6, "2011": 6},
-                 {"2009": 9, "2010": 36, "2011": 9}],
-                 [
-                 {"2009": 100, "2010": 200, "2011": 300},
+            [[
+                {"2009": 100, "2010": 200, "2011": 300},
+                {"2009": 10, "2010": 20, "2011": 30},
+                {"2009": 30, "2010": 60, "2011": 90},
+                {"2009": 100, "2010": 200, "2011": 300},
+                {"2009": 3, "2010": 6, "2011": 9},
+                {"2009": 9, "2010": 18, "2011": 27},
+                {"2009": 100, "2010": 100, "2011": 100},
+                {"2009": 10, "2010": 10, "2011": 10},
+                {"2009": 30, "2010": 30, "2011": 30},
+                {"2009": 100, "2010": 100, "2011": 100},
+                {"2009": 3, "2010": 3, "2011": 3},
+                {"2009": 9, "2010": 9, "2011": 9},
+                {"2009": 1000, "2010": 2000, "2011": 3000},
+                {"2009": 10, "2010": 40, "2011": 60},
+                {"2009": 30, "2010": 240, "2011": 90},
+                {"2009": 2000, "2010": 4000, "2011": 6000},
+                {"2009": 3, "2010": 12, "2011": 18},
+                {"2009": 9, "2010": 72, "2011": 27},
+                {"2009": 1000, "2010": 1000, "2011": 1000},
+                {"2009": 10, "2010": 20, "2011": 20},
+                {"2009": 30, "2010": 120, "2011": 30},
+                {"2009": 2000, "2010": 2000, "2011": 2000},
+                {"2009": 3, "2010": 6, "2011": 6},
+                {"2009": 9, "2010": 36, "2011": 9}],
+             [
+                {"2009": 100, "2010": 200, "2011": 300},
                  {"2009": 10, "2010": 20, "2011": 30},
                  {"2009": 30, "2010": 60, "2011": 90},
                  {"2009": 12, "2010": 48, "2011": 108},
@@ -10266,12 +10267,12 @@ class PartitionMicrosegmentTest(unittest.TestCase, CommonMethods):
         self.measure_instance.market_exit_year = \
             int(self.time_horizons[-1]) + 1
         ok_tsv_scale_fracs_in = {
-          "energy": {"efficient": {
-              yr: 1 for yr in self.measure_instance.handyvars.aeo_years}},
-          "cost": {"baseline": 1, "efficient": {
-              yr: 1 for yr in self.measure_instance.handyvars.aeo_years}},
-          "carbon": {"baseline": 1, "efficient": {
-              yr: 1 for yr in self.measure_instance.handyvars.aeo_years}}}
+            "energy": {"efficient": {
+                yr: 1 for yr in self.measure_instance.handyvars.aeo_years}},
+            "cost": {"baseline": 1, "efficient": {
+                yr: 1 for yr in self.measure_instance.handyvars.aeo_years}},
+            "carbon": {"baseline": 1, "efficient": {
+                yr: 1 for yr in self.measure_instance.handyvars.aeo_years}}}
 
         # Loop through two test schemes (Technical potential and Max
         # adoption potential)
@@ -12303,1761 +12304,1761 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             site=None, capt=None, rp_persist=None, warnings=None)
         cls.tsv_data = {
             "load": {
-              "AIA_CZ1": {
-                "residential": {
-                  "heating": {
-                    "winter": {
-                      "months": [
-                        1,
-                        2,
-                        12
-                      ],
-                      "annual_days": 90,
-                      "fractions": {
-                        "weekday": [
-                          0.012202256455352733,
-                          0.012202256455352733,
-                          0.012790369837445772,
-                          0.01354335327206579,
-                          0.014412162613847488,
-                          0.015259279121150411,
-                          0.015853297848280774,
-                          0.015928471021456836,
-                          0.015332968218593672,
-                          0.014155976960109057,
-                          0.012669478965647952,
-                          0.011162898928851443,
-                          0.009864588218574728,
-                          0.008928691840308131,
-                          0.008419616601380887,
-                          0.008337276785137526,
-                          0.008657777623759138,
-                          0.009295666950390356,
-                          0.010056738183651286,
-                          0.010714075913172366,
-                          0.011132857599974094,
-                          0.01131327739593043,
-                          0.011359135633914552,
-                          0.011432694001907577
-                        ],
-                        "weekend": [
-                          0.005241914064820976,
-                          0.005241914064820976,
-                          0.005479964558914669,
-                          0.005766692417852683,
-                          0.006121364449071813,
-                          0.006531657677672043,
-                          0.006924303274533763,
-                          0.007151601035392774,
-                          0.007047308555582134,
-                          0.006554883454248733,
-                          0.005797373314887126,
-                          0.004993297019974449,
-                          0.004324320580840767,
-                          0.003874842240940412,
-                          0.003646836954407323,
-                          0.0036070550958290726,
-                          0.0037213635750740865,
-                          0.00395311415662022,
-                          0.0042500266143626715,
-                          0.004552908776331854,
-                          0.004815668602839308,
-                          0.005012872039222633,
-                          0.00513509652610582,
-                          0.005182074671008964
-                        ]
-                      }
-                    },
-                    "summer": {
-                      "months": [
-                        5,
-                        6,
-                        7,
-                        8,
-                        9
-                      ],
-                      "annual_days": 153,
-                      "fractions": {
-                        "weekday": [
-                          0.0010590636426289091,
-                          0.0010590636426289091,
-                          0.001094523946095479,
-                          0.0011479534348979225,
-                          0.0012135479343554246,
-                          0.0012775786485038569,
-                          0.001316407844730775,
-                          0.0013019566152529193,
-                          0.0012199040244830553,
-                          0.0010880214351182012,
-                          0.0009479778372020717,
-                          0.0008349335540973944,
-                          0.0007598879766524797,
-                          0.0007167523336559638,
-                          0.0006985608004971985,
-                          0.0007058953734481931,
-                          0.0007411524747124881,
-                          0.0007972762496801779,
-                          0.0008575041127562266,
-                          0.0009071925861580299,
-                          0.0009419989359581119,
-                          0.0009663272187837232,
-                          0.0009884582999645222,
-                          0.0010172826848597876
-                        ],
-                        "weekend": [
-                          0.0004817841819163308,
-                          0.0004817841819163308,
-                          0.0005027855713473914,
-                          0.0005286093783583508,
-                          0.0005565142687933293,
-                          0.0005841833554293074,
-                          0.0006075787234184459,
-                          0.000618502357523313,
-                          0.0006058653602035742,
-                          0.0005638157685378343,
-                          0.00049960965014296,
-                          0.00043034690944955496,
-                          0.00037199075437145007,
-                          0.000332194578928617,
-                          0.0003108630908884448,
-                          0.00030421774349246824,
-                          0.00030762615314860656,
-                          0.00031711380102401697,
-                          0.00033072136392778284,
-                          0.0003482878625037381,
-                          0.00036938031048864233,
-                          0.0003915214454442425,
-                          0.00040977858976023237,
-                          0.0004171754859352801
-                        ]
-                      }
-                    },
-                    "intermediate": {
-                      "months": [
-                        10,
-                        11,
-                        3,
-                        4
-                      ],
-                      "annual_days": 122,
-                      "fractions": {
-                        "weekday": [
-                          0.016540836528367037,
-                          0.016540836528367037,
-                          0.017338056890759825,
-                          0.018358767768800296,
-                          0.01953648709877104,
-                          0.020684800586448338,
-                          0.02149002597211394,
-                          0.02159192738464149,
-                          0.02078469025187142,
-                          0.01918921321259228,
-                          0.017174182597878333,
-                          0.015131929659109733,
-                          0.013371997362956857,
-                          0.012103337827973246,
-                          0.011413258059649647,
-                          0.011301641864297534,
-                          0.01173609855665128,
-                          0.012600792977195817,
-                          0.01363246731561619,
-                          0.014523525126744765,
-                          0.015091206968853771,
-                          0.015335776025594586,
-                          0.01539793941486195,
-                          0.015497651869252492
-                        ],
-                        "weekend": [
-                          0.007105705732312879,
-                          0.007105705732312879,
-                          0.0074283964020843305,
-                          0.007817071944200307,
-                          0.008297849586519569,
-                          0.008854024851955437,
-                          0.009386277772145768,
-                          0.00969439251464354,
-                          0.00955301826423356,
-                          0.008885508682426062,
-                          0.00785866160462477,
-                          0.0067686915159653645,
-                          0.005861856787361929,
-                          0.005252563926608114,
-                          0.0049434900937521484,
-                          0.004889563574346076,
-                          0.0050445150684337615,
-                          0.005358665856751855,
-                          0.005761147188358289,
-                          0.006171720785694292,
-                          0.006527906328293286,
-                          0.006795226542057347,
-                          0.006960908624276779,
-                          0.007024590109589927
-                        ]
-                      }
-                    }
-                  },
-                  "cooling": {
-                    "winter": {
-                      "months": [
-                        1,
-                        2,
-                        12
-                      ],
-                      "annual_days": 90,
-                      "fractions": {
-                        "weekday": [
-                          0.00029388695616978906,
-                          0.00029388695616978906,
-                          0.0002272911239088048,
-                          0.0001862752788241577,
-                          0.00016366394068718788,
-                          0.00015345765257191167,
-                          0.00015204597235863684,
-                          0.00015930601383760677,
-                          0.00017839530716971818,
-                          0.0002138646323280441,
-                          0.0002700160616097575,
-                          0.00035025438210998925,
-                          0.0004550485160393275,
-                          0.0005788167876161717,
-                          0.0007087420314413435,
-                          0.0008249179903766019,
-                          0.000902147642474604,
-                          0.000919763959698822,
-                          0.0008757603039163335,
-                          0.0007879516022946396,
-                          0.0006811311900149874,
-                          0.0005758465473089568,
-                          0.0004853777281694694,
-                          0.000417210396139057
-                        ],
-                        "weekend": [
-                          0.00017198724621535864,
-                          0.00017198724621535864,
-                          0.0001448203226654988,
-                          0.00012430459765636404,
-                          0.00010962872727193139,
-                          0.00010032155133870697,
-                          9.675559574179694e-05,
-                          0.0001006950819154731,
-                          0.00011527100727456558,
-                          0.0001438039321707539,
-                          0.00018808298936304126,
-                          0.00024721733935680393,
-                          0.0003172369055665132,
-                          0.00039166578409408455,
-                          0.00046282408177673244,
-                          0.0005219832028562106,
-                          0.0005589542804663337,
-                          0.0005654913037505377,
-                          0.0005413065164472199,
-                          0.0004945543965493874,
-                          0.00043616247179917625,
-                          0.0003750154635123981,
-                          0.00031682778933344994,
-                          0.0002649468311053816
-                        ]
-                      }
-                    },
-                    "summer": {
-                      "months": [
-                        5,
-                        6,
-                        7,
-                        8,
-                        9
-                      ],
-                      "annual_days": 153,
-                      "fractions": {
-                        "weekday": [
-                          0.0178088887958826,
-                          0.0178088887958826,
-                          0.014536854461312478,
-                          0.01227834761570038,
-                          0.010855986007362237,
-                          0.01012533621858267,
-                          0.010014340354937873,
-                          0.010565668182555539,
-                          0.011946601116842035,
-                          0.01439426977798482,
-                          0.018117069323786088,
-                          0.023182300524433597,
-                          0.029401334959849496,
-                          0.03629853484339642,
-                          0.04319544884521712,
-                          0.0492252062720987,
-                          0.0532917583536315,
-                          0.05441884594599187,
-                          0.05242354274540074,
-                          0.048053564600871124,
-                          0.042430182138863994,
-                          0.03651397256114906,
-                          0.03094469115389148,
-                          0.026101788619276922
-                        ],
-                        "weekend": [
-                          0.007192612245437178,
-                          0.007192612245437178,
-                          0.005896374300210337,
-                          0.00500025925774603,
-                          0.00441780603466515,
-                          0.004084926818068662,
-                          0.003993932570955657,
-                          0.004221738764403182,
-                          0.004908787278297272,
-                          0.006174856157130429,
-                          0.008050458669069673,
-                          0.010476732191630676,
-                          0.013305527379358343,
-                          0.01628373850668657,
-                          0.019083559062004343,
-                          0.021345222778859585,
-                          0.022693136070019188,
-                          0.022838103003205577,
-                          0.021769641978571088,
-                          0.019791106527092022,
-                          0.017341365539618115,
-                          0.014819949432887782,
-                          0.012528892232201546,
-                          0.010686532395010731
-                        ]
-                      }
-                    },
-                    "intermediate": {
-                      "months": [
-                        10,
-                        11,
-                        3,
-                        4
-                      ],
-                      "annual_days": 122,
-                      "fractions": {
-                        "weekday": [
-                          0.00039838009614126963,
-                          0.00039838009614126963,
-                          0.00030810574574304656,
-                          0.0002525064890727471,
-                          0.00022185556404263253,
-                          0.0002080203734863692,
-                          0.00020610676253059662,
-                          0.00021594815209097812,
-                          0.00024182474971895133,
-                          0.00028990539048912646,
-                          0.000366021772404338,
-                          0.0004747892735268743,
-                          0.0006168435439644217,
-                          0.0007846183121019218,
-                          0.0009607391981760436,
-                          0.0011182221647327271,
-                          0.0012229112486877966,
-                          0.0012467911453695145,
-                          0.0011871417453088078,
-                          0.0010681121719994004,
-                          0.000923311168686983,
-                          0.0007805919863521416,
-                          0.0006579564759630585,
-                          0.0005655518703218328
-                        ],
-                        "weekend": [
-                          0.00023313826709193063,
-                          0.00023313826709193063,
-                          0.00019631199294656504,
-                          0.00016850178793418236,
-                          0.00014860783030195144,
-                          0.0001359914362591361,
-                          0.0001311575853388803,
-                          0.00013649777770764133,
-                          0.00015625625430552224,
-                          0.00019493421916479977,
-                          0.00025495694113656704,
-                          0.00033511683779477864,
-                          0.00043003224976794017,
-                          0.000530924729549759,
-                          0.0006273837552973484,
-                          0.0007075772305384189,
-                          0.0007576935801876968,
-                          0.0007665548784173957,
-                          0.0007337710556284536,
-                          0.0006703959597669474,
-                          0.0005912424617722168,
-                          0.0005083542949834729,
-                          0.0004294776699853433,
-                          0.00035915014883173955
-                        ]
-                      }
-                    }
-                  }}},
-              "AIA_CZ2": {
-                "residential": {
-                  "heating": {
-                    "winter": {
-                      "months": [
-                        1,
-                        2,
-                        12
-                      ],
-                      "annual_days": 90,
-                      "fractions": {
-                        "weekday": [
-                          0.012328325644744146,
-                          0.012328325644744146,
-                          0.01292944656564235,
-                          0.013696112711290006,
-                          0.01457856924649585,
-                          0.015433740380703598,
-                          0.016017408874061726,
-                          0.016047648811339597,
-                          0.015368664270279565,
-                          0.014093632635079652,
-                          0.012535759134544862,
-                          0.01100932986990283,
-                          0.009733726578093594,
-                          0.00883583942118992,
-                          0.008360675389510937,
-                          0.00830484348500009,
-                          0.008646190980309455,
-                          0.009297762070867558,
-                          0.010065459149265247,
-                          0.010728761483143417,
-                          0.011161292725380368,
-                          0.0113678676013609,
-                          0.011451361161904944,
-                          0.011568794765278995
-                        ],
-                        "weekend": [
-                          0.005309212872748672,
-                          0.005309212872748672,
-                          0.005535713662746949,
-                          0.005819632025359939,
-                          0.006173004111628854,
-                          0.00657859563517025,
-                          0.006960950428698515,
-                          0.007172643098210336,
-                          0.00704910659251082,
-                          0.006536142805715583,
-                          0.005760272913918485,
-                          0.004944107710216288,
-                          0.004270995106846551,
-                          0.003822662209656965,
-                          0.003596565738074613,
-                          0.0035568366162615403,
-                          0.0036689782568839853,
-                          0.0038967600961714983,
-                          0.004189315911028903,
-                          0.004490352702852043,
-                          0.004756708902044259,
-                          0.004963925299846759,
-                          0.005100741803816752,
-                          0.005162409674321511
-                        ]
-                      }
-                    },
-                    "summer": {
-                      "months": [
-                        5,
-                        6,
-                        7,
-                        8,
-                        9
-                      ],
-                      "annual_days": 153,
-                      "fractions": {
-                        "weekday": [
-                          0.00104208660061774,
-                          0.00104208660061774,
-                          0.0010793761693862892,
-                          0.0011334748067871325,
-                          0.0011988531851171644,
-                          0.0012623933066180319,
-                          0.0013012147155246098,
-                          0.0012876916720357737,
-                          0.0012071835346915583,
-                          0.0010765459246448881,
-                          0.0009368239329836688,
-                          0.0008233559084441718,
-                          0.0007477585231276835,
-                          0.0007044649892616131,
-                          0.0006866281956131476,
-                          0.0006943939408031098,
-                          0.0007294438986384539,
-                          0.0007845316662159281,
-                          0.0008435761379043598,
-                          0.000892712631247282,
-                          0.0009275611431055113,
-                          0.0009515116563989013,
-                          0.0009711837608622172,
-                          0.0009935036040558429
-                        ],
-                        "weekend": [
-                          0.0004373638853776625,
-                          0.0004373638853776625,
-                          0.0004555421334352469,
-                          0.0004786211919526792,
-                          0.0005038898992500097,
-                          0.0005291146366347936,
-                          0.0005506635838727076,
-                          0.0005612619807500183,
-                          0.0005508889132636936,
-                          0.000513860577238207,
-                          0.0004561561638926308,
-                          0.000393070015658586,
-                          0.00033949378758980437,
-                          0.00030294053307570345,
-                          0.0002834657987607928,
-                          0.0002773465723638926,
-                          0.00028012957996336287,
-                          0.00028828849734042713,
-                          0.00030024250648906465,
-                          0.0003158838022720821,
-                          0.0003347228693727044,
-                          0.00035443589722291207,
-                          0.0003705665841250921,
-                          0.00037688845230795837
-                        ]
-                      }
-                    },
-                    "intermediate": {
-                      "months": [
-                        10,
-                        11,
-                        3,
-                        4
-                      ],
-                      "annual_days": 122,
-                      "fractions": {
-                        "weekday": [
-                          0.016711730318430956,
-                          0.016711730318430956,
-                          0.017526583122315188,
-                          0.018565841675304232,
-                          0.019762060534138818,
-                          0.02092129251606488,
-                          0.021712487584839235,
-                          0.0217534794998159,
-                          0.020833078233045636,
-                          0.01910470201644131,
-                          0.01699291793793859,
-                          0.014923758268090507,
-                          0.013194607139193541,
-                          0.01197747121539078,
-                          0.011333359972448161,
-                          0.011257676724111232,
-                          0.011720392217752819,
-                          0.012603633029398245,
-                          0.013644289069004003,
-                          0.014543432232705523,
-                          0.015129752361071166,
-                          0.01540977608184478,
-                          0.015522956241693371,
-                          0.015682144015155976
-                        ],
-                        "weekend": [
-                          0.007196933005281533,
-                          0.007196933005281533,
-                          0.00750396740950142,
-                          0.007888834523265695,
-                          0.00836785001798578,
-                          0.008917651861008562,
-                          0.009435955025569097,
-                          0.009722916199796233,
-                          0.009555455603181336,
-                          0.008860104692192235,
-                          0.00780836994997839,
-                          0.006702012673848746,
-                          0.005789571144836436,
-                          0.005181830995312775,
-                          0.004875344667167809,
-                          0.004821489635376755,
-                          0.004973503859331625,
-                          0.005282274797032475,
-                          0.005678850457172513,
-                          0.006086922552754993,
-                          0.0064479831783266625,
-                          0.006728876517570051,
-                          0.006914338889618264,
-                          0.006997933114080271
-                        ]
-                      }
-                    }
-                  },
-                  "cooling": {
-                    "winter": {
-                      "months": [
-                        1,
-                        2,
-                        12
-                      ],
-                      "annual_days": 90,
-                      "fractions": {
-                        "weekday": [
-                          0.0005300091336117748,
-                          0.0005300091336117748,
-                          0.0004221795216523343,
-                          0.00035196890617842573,
-                          0.0003103591636854973,
-                          0.0002899940288915328,
-                          0.00028648383970524764,
-                          0.00029978137777895514,
-                          0.0003346316221272169,
-                          0.00039917492732269804,
-                          0.0005020539198869063,
-                          0.0006484175467390152,
-                          0.0008351713983307837,
-                          0.0010488319213534565,
-                          0.0012675355776307527,
-                          0.0014614414579304461,
-                          0.0015923500937396271,
-                          0.0016271131808821761,
-                          0.0015609580794978743,
-                          0.0014208088023084672,
-                          0.0012448867282422982,
-                          0.001064243586781173,
-                          0.0008977442807991897,
-                          0.0007545969564686696
-                        ],
-                        "weekend": [
-                          0.00017181268912529635,
-                          0.00017181268912529635,
-                          0.00014767002645267794,
-                          0.00012826647934427468,
-                          0.0001140013970314869,
-                          0.00010517245543939914,
-                          0.00010236644309561494,
-                          0.0001070305005186204,
-                          0.00012184881018502623,
-                          0.0001502837476230197,
-                          0.00019517461480859943,
-                          0.00025699294771985273,
-                          0.00033242141555419794,
-                          0.0004142956381487231,
-                          0.0004931385048222993,
-                          0.000558197467494742,
-                          0.0005978071718920404,
-                          0.0006030992716937094,
-                          0.0005740800297508947,
-                          0.0005200538644268434,
-                          0.0004537447295639849,
-                          0.00038623655465746165,
-                          0.0003256841054095974,
-                          0.0002780339885941499
-                        ]
-                      }
-                    },
-                    "summer": {
-                      "months": [
-                        5,
-                        6,
-                        7,
-                        8,
-                        9
-                      ],
-                      "annual_days": 153,
-                      "fractions": {
-                        "weekday": [
-                          0.017453347080087375,
-                          0.017453347080087375,
-                          0.014318337364974908,
-                          0.01213526118783814,
-                          0.010747227329010864,
-                          0.010029641128642573,
-                          0.009930216634337824,
-                          0.010509938311424926,
-                          0.011946902362372102,
-                          0.014473048633380623,
-                          0.018273678292171677,
-                          0.02338301188450458,
-                          0.029580170841633894,
-                          0.036368814782070984,
-                          0.04307383358551025,
-                          0.04886651672165595,
-                          0.05271814236195521,
-                          0.05371313471475342,
-                          0.05168204216580169,
-                          0.04734089291228339,
-                          0.04177022051567407,
-                          0.03590688108643249,
-                          0.03038762231836138,
-                          0.025603423648539708
-                        ],
-                        "weekend": [
-                          0.006783345569545233,
-                          0.006783345569545233,
-                          0.005541638314082507,
-                          0.004695076942793867,
-                          0.004152845071093804,
-                          0.0038475896970159647,
-                          0.003769707731771681,
-                          0.00399468972335188,
-                          0.004659680066909567,
-                          0.005878016853924299,
-                          0.0076742572954088765,
-                          0.009989974306203029,
-                          0.012684765744682063,
-                          0.01551579984171551,
-                          0.018165264162198307,
-                          0.02028784441423032,
-                          0.021531226386438576,
-                          0.021628829698162974,
-                          0.020575465296081348,
-                          0.018660942164656864,
-                          0.01630532786692724,
-                          0.013894767901503978,
-                          0.011724989138890416,
-                          0.010012581807600826
-                        ]
-                      }
-                    },
-                    "intermediate": {
-                      "months": [
-                        10,
-                        11,
-                        3,
-                        4
-                      ],
-                      "annual_days": 122,
-                      "fractions": {
-                        "weekday": [
-                          0.0007184568255626282,
-                          0.0007184568255626282,
-                          0.0005722877960176088,
-                          0.0004771134061529771,
-                          0.00042070908855145194,
-                          0.00039310301694185564,
-                          0.0003883447604893357,
-                          0.00040637031210036153,
-                          0.0004536117544391163,
-                          0.0005411037903707685,
-                          0.0006805619802911397,
-                          0.0008789660078017763,
-                          0.0011321212288483958,
-                          0.001421749937834686,
-                          0.0017182148941216873,
-                          0.0019810650874168274,
-                          0.0021585190159581612,
-                          0.0022056423118625057,
-                          0.0021159653966526743,
-                          0.0019259852653514783,
-                          0.0016875131205062266,
-                          0.0014426413065255902,
-                          0.0012169422473055683,
-                          0.001022898096546419
-                        ],
-                        "weekend": [
-                          0.0002329016452587351,
-                          0.0002329016452587351,
-                          0.00020017492474696342,
-                          0.00017387233866668342,
-                          0.00015453522708712671,
-                          0.00014256710626229664,
-                          0.0001387634006407225,
-                          0.00014508578959190766,
-                          0.0001651728315841467,
-                          0.00020371796900009337,
-                          0.00026457003340721254,
-                          0.00034836821802024487,
-                          0.00045061569664013503,
-                          0.0005616007539349358,
-                          0.000668476639870228,
-                          0.0007566676781595393,
-                          0.0008103608330092104,
-                          0.0008175345682959171,
-                          0.0007781973736623241,
-                          0.0007049619051119432,
-                          0.0006150761889645129,
-                          0.0005235651074245592,
-                          0.0004414828984441209,
-                          0.00037689051787207
-                        ]
-                      }
-                    }
-                  }}}},
+                "AIA_CZ1": {
+                    "residential": {
+                        "heating": {
+                            "winter": {
+                                "months": [
+                                    1,
+                                    2,
+                                    12
+                                ],
+                                "annual_days": 90,
+                                "fractions": {
+                                    "weekday": [
+                                        0.012202256455352733,
+                                        0.012202256455352733,
+                                        0.012790369837445772,
+                                        0.01354335327206579,
+                                        0.014412162613847488,
+                                        0.015259279121150411,
+                                        0.015853297848280774,
+                                        0.015928471021456836,
+                                        0.015332968218593672,
+                                        0.014155976960109057,
+                                        0.012669478965647952,
+                                        0.011162898928851443,
+                                        0.009864588218574728,
+                                        0.008928691840308131,
+                                        0.008419616601380887,
+                                        0.008337276785137526,
+                                        0.008657777623759138,
+                                        0.009295666950390356,
+                                        0.010056738183651286,
+                                        0.010714075913172366,
+                                        0.011132857599974094,
+                                        0.01131327739593043,
+                                        0.011359135633914552,
+                                        0.011432694001907577
+                                    ],
+                                    "weekend": [
+                                        0.005241914064820976,
+                                        0.005241914064820976,
+                                        0.005479964558914669,
+                                        0.005766692417852683,
+                                        0.006121364449071813,
+                                        0.006531657677672043,
+                                        0.006924303274533763,
+                                        0.007151601035392774,
+                                        0.007047308555582134,
+                                        0.006554883454248733,
+                                        0.005797373314887126,
+                                        0.004993297019974449,
+                                        0.004324320580840767,
+                                        0.003874842240940412,
+                                        0.003646836954407323,
+                                        0.0036070550958290726,
+                                        0.0037213635750740865,
+                                        0.00395311415662022,
+                                        0.0042500266143626715,
+                                        0.004552908776331854,
+                                        0.004815668602839308,
+                                        0.005012872039222633,
+                                        0.00513509652610582,
+                                        0.005182074671008964
+                                    ]
+                                }
+                            },
+                            "summer": {
+                                "months": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "annual_days": 153,
+                                "fractions": {
+                                    "weekday": [
+                                        0.0010590636426289091,
+                                        0.0010590636426289091,
+                                        0.001094523946095479,
+                                        0.0011479534348979225,
+                                        0.0012135479343554246,
+                                        0.0012775786485038569,
+                                        0.001316407844730775,
+                                        0.0013019566152529193,
+                                        0.0012199040244830553,
+                                        0.0010880214351182012,
+                                        0.0009479778372020717,
+                                        0.0008349335540973944,
+                                        0.0007598879766524797,
+                                        0.0007167523336559638,
+                                        0.0006985608004971985,
+                                        0.0007058953734481931,
+                                        0.0007411524747124881,
+                                        0.0007972762496801779,
+                                        0.0008575041127562266,
+                                        0.0009071925861580299,
+                                        0.0009419989359581119,
+                                        0.0009663272187837232,
+                                        0.0009884582999645222,
+                                        0.0010172826848597876
+                                    ],
+                                    "weekend": [
+                                        0.0004817841819163308,
+                                        0.0004817841819163308,
+                                        0.0005027855713473914,
+                                        0.0005286093783583508,
+                                        0.0005565142687933293,
+                                        0.0005841833554293074,
+                                        0.0006075787234184459,
+                                        0.000618502357523313,
+                                        0.0006058653602035742,
+                                        0.0005638157685378343,
+                                        0.00049960965014296,
+                                        0.00043034690944955496,
+                                        0.00037199075437145007,
+                                        0.000332194578928617,
+                                        0.0003108630908884448,
+                                        0.00030421774349246824,
+                                        0.00030762615314860656,
+                                        0.00031711380102401697,
+                                        0.00033072136392778284,
+                                        0.0003482878625037381,
+                                        0.00036938031048864233,
+                                        0.0003915214454442425,
+                                        0.00040977858976023237,
+                                        0.0004171754859352801
+                                    ]
+                                }
+                            },
+                            "intermediate": {
+                                "months": [
+                                    10,
+                                    11,
+                                    3,
+                                    4
+                                ],
+                                "annual_days": 122,
+                                "fractions": {
+                                    "weekday": [
+                                        0.016540836528367037,
+                                        0.016540836528367037,
+                                        0.017338056890759825,
+                                        0.018358767768800296,
+                                        0.01953648709877104,
+                                        0.020684800586448338,
+                                        0.02149002597211394,
+                                        0.02159192738464149,
+                                        0.02078469025187142,
+                                        0.01918921321259228,
+                                        0.017174182597878333,
+                                        0.015131929659109733,
+                                        0.013371997362956857,
+                                        0.012103337827973246,
+                                        0.011413258059649647,
+                                        0.011301641864297534,
+                                        0.01173609855665128,
+                                        0.012600792977195817,
+                                        0.01363246731561619,
+                                        0.014523525126744765,
+                                        0.015091206968853771,
+                                        0.015335776025594586,
+                                        0.01539793941486195,
+                                        0.015497651869252492
+                                    ],
+                                    "weekend": [
+                                        0.007105705732312879,
+                                        0.007105705732312879,
+                                        0.0074283964020843305,
+                                        0.007817071944200307,
+                                        0.008297849586519569,
+                                        0.008854024851955437,
+                                        0.009386277772145768,
+                                        0.00969439251464354,
+                                        0.00955301826423356,
+                                        0.008885508682426062,
+                                        0.00785866160462477,
+                                        0.0067686915159653645,
+                                        0.005861856787361929,
+                                        0.005252563926608114,
+                                        0.0049434900937521484,
+                                        0.004889563574346076,
+                                        0.0050445150684337615,
+                                        0.005358665856751855,
+                                        0.005761147188358289,
+                                        0.006171720785694292,
+                                        0.006527906328293286,
+                                        0.006795226542057347,
+                                        0.006960908624276779,
+                                        0.007024590109589927
+                                    ]
+                                }
+                            }
+                        },
+                        "cooling": {
+                            "winter": {
+                                "months": [
+                                    1,
+                                    2,
+                                    12
+                                ],
+                                "annual_days": 90,
+                                "fractions": {
+                                    "weekday": [
+                                        0.00029388695616978906,
+                                        0.00029388695616978906,
+                                        0.0002272911239088048,
+                                        0.0001862752788241577,
+                                        0.00016366394068718788,
+                                        0.00015345765257191167,
+                                        0.00015204597235863684,
+                                        0.00015930601383760677,
+                                        0.00017839530716971818,
+                                        0.0002138646323280441,
+                                        0.0002700160616097575,
+                                        0.00035025438210998925,
+                                        0.0004550485160393275,
+                                        0.0005788167876161717,
+                                        0.0007087420314413435,
+                                        0.0008249179903766019,
+                                        0.000902147642474604,
+                                        0.000919763959698822,
+                                        0.0008757603039163335,
+                                        0.0007879516022946396,
+                                        0.0006811311900149874,
+                                        0.0005758465473089568,
+                                        0.0004853777281694694,
+                                        0.000417210396139057
+                                    ],
+                                    "weekend": [
+                                        0.00017198724621535864,
+                                        0.00017198724621535864,
+                                        0.0001448203226654988,
+                                        0.00012430459765636404,
+                                        0.00010962872727193139,
+                                        0.00010032155133870697,
+                                        9.675559574179694e-05,
+                                        0.0001006950819154731,
+                                        0.00011527100727456558,
+                                        0.0001438039321707539,
+                                        0.00018808298936304126,
+                                        0.00024721733935680393,
+                                        0.0003172369055665132,
+                                        0.00039166578409408455,
+                                        0.00046282408177673244,
+                                        0.0005219832028562106,
+                                        0.0005589542804663337,
+                                        0.0005654913037505377,
+                                        0.0005413065164472199,
+                                        0.0004945543965493874,
+                                        0.00043616247179917625,
+                                        0.0003750154635123981,
+                                        0.00031682778933344994,
+                                        0.0002649468311053816
+                                    ]
+                                }
+                            },
+                            "summer": {
+                                "months": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "annual_days": 153,
+                                "fractions": {
+                                    "weekday": [
+                                        0.0178088887958826,
+                                        0.0178088887958826,
+                                        0.014536854461312478,
+                                        0.01227834761570038,
+                                        0.010855986007362237,
+                                        0.01012533621858267,
+                                        0.010014340354937873,
+                                        0.010565668182555539,
+                                        0.011946601116842035,
+                                        0.01439426977798482,
+                                        0.018117069323786088,
+                                        0.023182300524433597,
+                                        0.029401334959849496,
+                                        0.03629853484339642,
+                                        0.04319544884521712,
+                                        0.0492252062720987,
+                                        0.0532917583536315,
+                                        0.05441884594599187,
+                                        0.05242354274540074,
+                                        0.048053564600871124,
+                                        0.042430182138863994,
+                                        0.03651397256114906,
+                                        0.03094469115389148,
+                                        0.026101788619276922
+                                    ],
+                                    "weekend": [
+                                        0.007192612245437178,
+                                        0.007192612245437178,
+                                        0.005896374300210337,
+                                        0.00500025925774603,
+                                        0.00441780603466515,
+                                        0.004084926818068662,
+                                        0.003993932570955657,
+                                        0.004221738764403182,
+                                        0.004908787278297272,
+                                        0.006174856157130429,
+                                        0.008050458669069673,
+                                        0.010476732191630676,
+                                        0.013305527379358343,
+                                        0.01628373850668657,
+                                        0.019083559062004343,
+                                        0.021345222778859585,
+                                        0.022693136070019188,
+                                        0.022838103003205577,
+                                        0.021769641978571088,
+                                        0.019791106527092022,
+                                        0.017341365539618115,
+                                        0.014819949432887782,
+                                        0.012528892232201546,
+                                        0.010686532395010731
+                                    ]
+                                }
+                            },
+                            "intermediate": {
+                                "months": [
+                                    10,
+                                    11,
+                                    3,
+                                    4
+                                ],
+                                "annual_days": 122,
+                                "fractions": {
+                                    "weekday": [
+                                        0.00039838009614126963,
+                                        0.00039838009614126963,
+                                        0.00030810574574304656,
+                                        0.0002525064890727471,
+                                        0.00022185556404263253,
+                                        0.0002080203734863692,
+                                        0.00020610676253059662,
+                                        0.00021594815209097812,
+                                        0.00024182474971895133,
+                                        0.00028990539048912646,
+                                        0.000366021772404338,
+                                        0.0004747892735268743,
+                                        0.0006168435439644217,
+                                        0.0007846183121019218,
+                                        0.0009607391981760436,
+                                        0.0011182221647327271,
+                                        0.0012229112486877966,
+                                        0.0012467911453695145,
+                                        0.0011871417453088078,
+                                        0.0010681121719994004,
+                                        0.000923311168686983,
+                                        0.0007805919863521416,
+                                        0.0006579564759630585,
+                                        0.0005655518703218328
+                                    ],
+                                    "weekend": [
+                                        0.00023313826709193063,
+                                        0.00023313826709193063,
+                                        0.00019631199294656504,
+                                        0.00016850178793418236,
+                                        0.00014860783030195144,
+                                        0.0001359914362591361,
+                                        0.0001311575853388803,
+                                        0.00013649777770764133,
+                                        0.00015625625430552224,
+                                        0.00019493421916479977,
+                                        0.00025495694113656704,
+                                        0.00033511683779477864,
+                                        0.00043003224976794017,
+                                        0.000530924729549759,
+                                        0.0006273837552973484,
+                                        0.0007075772305384189,
+                                        0.0007576935801876968,
+                                        0.0007665548784173957,
+                                        0.0007337710556284536,
+                                        0.0006703959597669474,
+                                        0.0005912424617722168,
+                                        0.0005083542949834729,
+                                        0.0004294776699853433,
+                                        0.00035915014883173955
+                                    ]
+                                }
+                            }
+                        }}},
+                "AIA_CZ2": {
+                    "residential": {
+                        "heating": {
+                            "winter": {
+                                "months": [
+                                    1,
+                                    2,
+                                    12
+                                ],
+                                "annual_days": 90,
+                                "fractions": {
+                                    "weekday": [
+                                        0.012328325644744146,
+                                        0.012328325644744146,
+                                        0.01292944656564235,
+                                        0.013696112711290006,
+                                        0.01457856924649585,
+                                        0.015433740380703598,
+                                        0.016017408874061726,
+                                        0.016047648811339597,
+                                        0.015368664270279565,
+                                        0.014093632635079652,
+                                        0.012535759134544862,
+                                        0.01100932986990283,
+                                        0.009733726578093594,
+                                        0.00883583942118992,
+                                        0.008360675389510937,
+                                        0.00830484348500009,
+                                        0.008646190980309455,
+                                        0.009297762070867558,
+                                        0.010065459149265247,
+                                        0.010728761483143417,
+                                        0.011161292725380368,
+                                        0.0113678676013609,
+                                        0.011451361161904944,
+                                        0.011568794765278995
+                                    ],
+                                    "weekend": [
+                                        0.005309212872748672,
+                                        0.005309212872748672,
+                                        0.005535713662746949,
+                                        0.005819632025359939,
+                                        0.006173004111628854,
+                                        0.00657859563517025,
+                                        0.006960950428698515,
+                                        0.007172643098210336,
+                                        0.00704910659251082,
+                                        0.006536142805715583,
+                                        0.005760272913918485,
+                                        0.004944107710216288,
+                                        0.004270995106846551,
+                                        0.003822662209656965,
+                                        0.003596565738074613,
+                                        0.0035568366162615403,
+                                        0.0036689782568839853,
+                                        0.0038967600961714983,
+                                        0.004189315911028903,
+                                        0.004490352702852043,
+                                        0.004756708902044259,
+                                        0.004963925299846759,
+                                        0.005100741803816752,
+                                        0.005162409674321511
+                                    ]
+                                }
+                            },
+                            "summer": {
+                                "months": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "annual_days": 153,
+                                "fractions": {
+                                    "weekday": [
+                                        0.00104208660061774,
+                                        0.00104208660061774,
+                                        0.0010793761693862892,
+                                        0.0011334748067871325,
+                                        0.0011988531851171644,
+                                        0.0012623933066180319,
+                                        0.0013012147155246098,
+                                        0.0012876916720357737,
+                                        0.0012071835346915583,
+                                        0.0010765459246448881,
+                                        0.0009368239329836688,
+                                        0.0008233559084441718,
+                                        0.0007477585231276835,
+                                        0.0007044649892616131,
+                                        0.0006866281956131476,
+                                        0.0006943939408031098,
+                                        0.0007294438986384539,
+                                        0.0007845316662159281,
+                                        0.0008435761379043598,
+                                        0.000892712631247282,
+                                        0.0009275611431055113,
+                                        0.0009515116563989013,
+                                        0.0009711837608622172,
+                                        0.0009935036040558429
+                                    ],
+                                    "weekend": [
+                                        0.0004373638853776625,
+                                        0.0004373638853776625,
+                                        0.0004555421334352469,
+                                        0.0004786211919526792,
+                                        0.0005038898992500097,
+                                        0.0005291146366347936,
+                                        0.0005506635838727076,
+                                        0.0005612619807500183,
+                                        0.0005508889132636936,
+                                        0.000513860577238207,
+                                        0.0004561561638926308,
+                                        0.000393070015658586,
+                                        0.00033949378758980437,
+                                        0.00030294053307570345,
+                                        0.0002834657987607928,
+                                        0.0002773465723638926,
+                                        0.00028012957996336287,
+                                        0.00028828849734042713,
+                                        0.00030024250648906465,
+                                        0.0003158838022720821,
+                                        0.0003347228693727044,
+                                        0.00035443589722291207,
+                                        0.0003705665841250921,
+                                        0.00037688845230795837
+                                    ]
+                                }
+                            },
+                            "intermediate": {
+                                "months": [
+                                    10,
+                                    11,
+                                    3,
+                                    4
+                                ],
+                                "annual_days": 122,
+                                "fractions": {
+                                    "weekday": [
+                                        0.016711730318430956,
+                                        0.016711730318430956,
+                                        0.017526583122315188,
+                                        0.018565841675304232,
+                                        0.019762060534138818,
+                                        0.02092129251606488,
+                                        0.021712487584839235,
+                                        0.0217534794998159,
+                                        0.020833078233045636,
+                                        0.01910470201644131,
+                                        0.01699291793793859,
+                                        0.014923758268090507,
+                                        0.013194607139193541,
+                                        0.01197747121539078,
+                                        0.011333359972448161,
+                                        0.011257676724111232,
+                                        0.011720392217752819,
+                                        0.012603633029398245,
+                                        0.013644289069004003,
+                                        0.014543432232705523,
+                                        0.015129752361071166,
+                                        0.01540977608184478,
+                                        0.015522956241693371,
+                                        0.015682144015155976
+                                    ],
+                                    "weekend": [
+                                        0.007196933005281533,
+                                        0.007196933005281533,
+                                        0.00750396740950142,
+                                        0.007888834523265695,
+                                        0.00836785001798578,
+                                        0.008917651861008562,
+                                        0.009435955025569097,
+                                        0.009722916199796233,
+                                        0.009555455603181336,
+                                        0.008860104692192235,
+                                        0.00780836994997839,
+                                        0.006702012673848746,
+                                        0.005789571144836436,
+                                        0.005181830995312775,
+                                        0.004875344667167809,
+                                        0.004821489635376755,
+                                        0.004973503859331625,
+                                        0.005282274797032475,
+                                        0.005678850457172513,
+                                        0.006086922552754993,
+                                        0.0064479831783266625,
+                                        0.006728876517570051,
+                                        0.006914338889618264,
+                                        0.006997933114080271
+                                    ]
+                                }
+                            }
+                        },
+                        "cooling": {
+                            "winter": {
+                                "months": [
+                                    1,
+                                    2,
+                                    12
+                                ],
+                                "annual_days": 90,
+                                "fractions": {
+                                    "weekday": [
+                                        0.0005300091336117748,
+                                        0.0005300091336117748,
+                                        0.0004221795216523343,
+                                        0.00035196890617842573,
+                                        0.0003103591636854973,
+                                        0.0002899940288915328,
+                                        0.00028648383970524764,
+                                        0.00029978137777895514,
+                                        0.0003346316221272169,
+                                        0.00039917492732269804,
+                                        0.0005020539198869063,
+                                        0.0006484175467390152,
+                                        0.0008351713983307837,
+                                        0.0010488319213534565,
+                                        0.0012675355776307527,
+                                        0.0014614414579304461,
+                                        0.0015923500937396271,
+                                        0.0016271131808821761,
+                                        0.0015609580794978743,
+                                        0.0014208088023084672,
+                                        0.0012448867282422982,
+                                        0.001064243586781173,
+                                        0.0008977442807991897,
+                                        0.0007545969564686696
+                                    ],
+                                    "weekend": [
+                                        0.00017181268912529635,
+                                        0.00017181268912529635,
+                                        0.00014767002645267794,
+                                        0.00012826647934427468,
+                                        0.0001140013970314869,
+                                        0.00010517245543939914,
+                                        0.00010236644309561494,
+                                        0.0001070305005186204,
+                                        0.00012184881018502623,
+                                        0.0001502837476230197,
+                                        0.00019517461480859943,
+                                        0.00025699294771985273,
+                                        0.00033242141555419794,
+                                        0.0004142956381487231,
+                                        0.0004931385048222993,
+                                        0.000558197467494742,
+                                        0.0005978071718920404,
+                                        0.0006030992716937094,
+                                        0.0005740800297508947,
+                                        0.0005200538644268434,
+                                        0.0004537447295639849,
+                                        0.00038623655465746165,
+                                        0.0003256841054095974,
+                                        0.0002780339885941499
+                                    ]
+                                }
+                            },
+                            "summer": {
+                                "months": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "annual_days": 153,
+                                "fractions": {
+                                    "weekday": [
+                                        0.017453347080087375,
+                                        0.017453347080087375,
+                                        0.014318337364974908,
+                                        0.01213526118783814,
+                                        0.010747227329010864,
+                                        0.010029641128642573,
+                                        0.009930216634337824,
+                                        0.010509938311424926,
+                                        0.011946902362372102,
+                                        0.014473048633380623,
+                                        0.018273678292171677,
+                                        0.02338301188450458,
+                                        0.029580170841633894,
+                                        0.036368814782070984,
+                                        0.04307383358551025,
+                                        0.04886651672165595,
+                                        0.05271814236195521,
+                                        0.05371313471475342,
+                                        0.05168204216580169,
+                                        0.04734089291228339,
+                                        0.04177022051567407,
+                                        0.03590688108643249,
+                                        0.03038762231836138,
+                                        0.025603423648539708
+                                    ],
+                                    "weekend": [
+                                        0.006783345569545233,
+                                        0.006783345569545233,
+                                        0.005541638314082507,
+                                        0.004695076942793867,
+                                        0.004152845071093804,
+                                        0.0038475896970159647,
+                                        0.003769707731771681,
+                                        0.00399468972335188,
+                                        0.004659680066909567,
+                                        0.005878016853924299,
+                                        0.0076742572954088765,
+                                        0.009989974306203029,
+                                        0.012684765744682063,
+                                        0.01551579984171551,
+                                        0.018165264162198307,
+                                        0.02028784441423032,
+                                        0.021531226386438576,
+                                        0.021628829698162974,
+                                        0.020575465296081348,
+                                        0.018660942164656864,
+                                        0.01630532786692724,
+                                        0.013894767901503978,
+                                        0.011724989138890416,
+                                        0.010012581807600826
+                                    ]
+                                }
+                            },
+                            "intermediate": {
+                                "months": [
+                                    10,
+                                    11,
+                                    3,
+                                    4
+                                ],
+                                "annual_days": 122,
+                                "fractions": {
+                                    "weekday": [
+                                        0.0007184568255626282,
+                                        0.0007184568255626282,
+                                        0.0005722877960176088,
+                                        0.0004771134061529771,
+                                        0.00042070908855145194,
+                                        0.00039310301694185564,
+                                        0.0003883447604893357,
+                                        0.00040637031210036153,
+                                        0.0004536117544391163,
+                                        0.0005411037903707685,
+                                        0.0006805619802911397,
+                                        0.0008789660078017763,
+                                        0.0011321212288483958,
+                                        0.001421749937834686,
+                                        0.0017182148941216873,
+                                        0.0019810650874168274,
+                                        0.0021585190159581612,
+                                        0.0022056423118625057,
+                                        0.0021159653966526743,
+                                        0.0019259852653514783,
+                                        0.0016875131205062266,
+                                        0.0014426413065255902,
+                                        0.0012169422473055683,
+                                        0.001022898096546419
+                                    ],
+                                    "weekend": [
+                                        0.0002329016452587351,
+                                        0.0002329016452587351,
+                                        0.00020017492474696342,
+                                        0.00017387233866668342,
+                                        0.00015453522708712671,
+                                        0.00014256710626229664,
+                                        0.0001387634006407225,
+                                        0.00014508578959190766,
+                                        0.0001651728315841467,
+                                        0.00020371796900009337,
+                                        0.00026457003340721254,
+                                        0.00034836821802024487,
+                                        0.00045061569664013503,
+                                        0.0005616007539349358,
+                                        0.000668476639870228,
+                                        0.0007566676781595393,
+                                        0.0008103608330092104,
+                                        0.0008175345682959171,
+                                        0.0007781973736623241,
+                                        0.0007049619051119432,
+                                        0.0006150761889645129,
+                                        0.0005235651074245592,
+                                        0.0004414828984441209,
+                                        0.00037689051787207
+                                    ]
+                                }
+                            }
+                        }}}},
             "price": {
-              "AIA_CZ1": {
-                "residential": {
-                  "winter": {
-                    "months": [
-                      1,
-                      2,
-                      12
-                    ],
-                    "annual_days": 90.25,
-                    "rates": {
-                      "weekday": [
-                        0.6562552797163391,
-                        0.6562552797163391,
-                        0.6562552797163391,
-                        0.6562552797163391,
-                        0.6562722224680656,
-                        0.6578442485863384,
-                        0.7235267658386892,
-                        0.8409053866455017,
-                        1.012563919002179,
-                        1.217271077418888,
-                        1.2125005556734563,
-                        1.2057496380698587,
-                        1.1988043072105958,
-                        1.1826547505128486,
-                        1.1833338836255691,
-                        1.1835511313538214,
-                        1.2407170480621692,
-                        1.2770113386833148,
-                        1.2766376843522398,
-                        1.2525419733224212,
-                        0.997037561299839,
-                        0.7503122897528398,
-                        0.6824694705086938,
-                        0.6728076562529395
-                      ],
-                      "weekend": [
-                        0.6644122978887247,
-                        0.6644122978887247,
-                        0.6644122978887247,
-                        0.6644122978887247,
-                        0.6644122978887247,
-                        0.665113732663588,
-                        0.6738333378241788,
-                        0.6976045234405559,
-                        0.7073939270906661,
-                        0.7071505858599368,
-                        0.7065294988071219,
-                        0.7063849706660476,
-                        0.6894592001856883,
-                        0.681247569162237,
-                        0.6813266103046596,
-                        0.6816697006818776,
-                        0.7058360518456535,
-                        0.7092645790001153,
-                        0.7092918676319172,
-                        0.7100055253846985,
-                        0.7083692085692868,
-                        0.699741815510325,
-                        0.6763846942735929,
-                        0.6743807072224638
-                      ]
+                "AIA_CZ1": {
+                    "residential": {
+                        "winter": {
+                            "months": [
+                                1,
+                                2,
+                                12
+                            ],
+                            "annual_days": 90.25,
+                            "rates": {
+                                "weekday": [
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562552797163391,
+                                    0.6562722224680656,
+                                    0.6578442485863384,
+                                    0.7235267658386892,
+                                    0.8409053866455017,
+                                    1.012563919002179,
+                                    1.217271077418888,
+                                    1.2125005556734563,
+                                    1.2057496380698587,
+                                    1.1988043072105958,
+                                    1.1826547505128486,
+                                    1.1833338836255691,
+                                    1.1835511313538214,
+                                    1.2407170480621692,
+                                    1.2770113386833148,
+                                    1.2766376843522398,
+                                    1.2525419733224212,
+                                    0.997037561299839,
+                                    0.7503122897528398,
+                                    0.6824694705086938,
+                                    0.6728076562529395
+                                ],
+                                "weekend": [
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.6644122978887247,
+                                    0.665113732663588,
+                                    0.6738333378241788,
+                                    0.6976045234405559,
+                                    0.7073939270906661,
+                                    0.7071505858599368,
+                                    0.7065294988071219,
+                                    0.7063849706660476,
+                                    0.6894592001856883,
+                                    0.681247569162237,
+                                    0.6813266103046596,
+                                    0.6816697006818776,
+                                    0.7058360518456535,
+                                    0.7092645790001153,
+                                    0.7092918676319172,
+                                    0.7100055253846985,
+                                    0.7083692085692868,
+                                    0.699741815510325,
+                                    0.6763846942735929,
+                                    0.6743807072224638
+                                ]
+                            }
+                        },
+                        "summer": {
+                            "months": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                            ],
+                            "annual_days": 153,
+                            "rates": {
+                                "weekday": [
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6458245873740424,
+                                    0.6468994741735525,
+                                    0.6721704283419366,
+                                    0.7877528153346143,
+                                    0.9508403698379019,
+                                    1.218453626925188,
+                                    1.270531964130501,
+                                    1.2733827123523953,
+                                    1.4115085817189656,
+                                    1.4987952877758426,
+                                    1.5191561886103309,
+                                    1.5199249270082422,
+                                    1.6247504057906499,
+                                    1.6339418703545154,
+                                    1.6025160033698258,
+                                    1.3678843705031805,
+                                    1.0303149049834759,
+                                    0.7475568270923396,
+                                    0.6723258865801299,
+                                    0.6636779143465007
+                                ],
+                                "weekend": [
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6534945611557802,
+                                    0.6542221029139391,
+                                    0.6621663178269653,
+                                    0.6796723657035797,
+                                    0.6892275843534218,
+                                    0.6890302919287634,
+                                    0.688594812154047,
+                                    0.6885055018323561,
+                                    0.6764007903284276,
+                                    0.6677141658845643,
+                                    0.6678930377629508,
+                                    0.6683674190022503,
+                                    0.6876227199936777,
+                                    0.6910965171473628,
+                                    0.6911239469667035,
+                                    0.690723663696209,
+                                    0.6872672314327727,
+                                    0.6849410388318566,
+                                    0.6645116515218538,
+                                    0.6634792797131637
+                                ]
+                            }
+                        },
+                        "intermediate": {
+                            "months": [
+                                10,
+                                11,
+                                3,
+                                4
+                            ],
+                            "annual_days": 122,
+                            "rates": {
+                                "weekday": [
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.6562778441085866,
+                                    0.656279641853995,
+                                    0.6578447685953613,
+                                    0.705174669017633,
+                                    0.8286455185797903,
+                                    0.9995293595504565,
+                                    1.2047023639699554,
+                                    1.2127149443241592,
+                                    1.2059862624248205,
+                                    1.1996754637517355,
+                                    1.183527727165945,
+                                    1.184196410698559,
+                                    1.1851517809866334,
+                                    1.2638951596822328,
+                                    1.2879865402334234,
+                                    1.2872477149518382,
+                                    1.2566187789076564,
+                                    0.9871707759014134,
+                                    0.749295816267223,
+                                    0.6823792035508683,
+                                    0.6728309763973485
+                                ],
+                                "weekend": [
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6644478260228615,
+                                    0.6651398435784992,
+                                    0.6737605831198047,
+                                    0.6854959315714353,
+                                    0.7008227999148096,
+                                    0.7005426165885539,
+                                    0.6999493829042236,
+                                    0.6997976349876648,
+                                    0.6894625284116876,
+                                    0.6812703115779266,
+                                    0.6814184511586658,
+                                    0.6817205786085438,
+                                    0.7059317555796673,
+                                    0.7092665306112451,
+                                    0.709274613329601,
+                                    0.7099917167610817,
+                                    0.7084051532773447,
+                                    0.699783289154462,
+                                    0.6763460541022601,
+                                    0.6744115729038507
+                                ]
+                            }
+                        }
+                    },
+                    "commercial": {
+                        "winter": {
+                            "months": [
+                                1,
+                                2,
+                                12
+                            ],
+                            "annual_days": 90.25,
+                            "rates": {
+                                "weekday": [
+                                    0.7205377764969411,
+                                    0.7205377764969411,
+                                    0.7205413338353452,
+                                    0.7205499086137372,
+                                    0.7205827476257217,
+                                    0.7206534903518366,
+                                    0.7428535758106363,
+                                    0.8003921514970507,
+                                    0.917806328499009,
+                                    1.2136745446820991,
+                                    1.1882156592468782,
+                                    1.1849713667006732,
+                                    1.17899643189409,
+                                    1.1784705199117274,
+                                    1.1781947300567381,
+                                    1.1782157555195445,
+                                    1.2165445223153428,
+                                    1.2763514302607766,
+                                    1.2757532512417125,
+                                    1.2415597681168078,
+                                    0.9780590763376096,
+                                    0.8107292342104534,
+                                    0.7400972246396254,
+                                    0.7205377764969411
+                                ],
+                                "weekend": [
+                                    0.7412161219824536,
+                                    0.7412161219824536,
+                                    0.7412161219824536,
+                                    0.7412161219824536,
+                                    0.7412161219824536,
+                                    0.7412478401753293,
+                                    0.7467732270209331,
+                                    0.7561435578620747,
+                                    0.7559166568283232,
+                                    0.7583443482253794,
+                                    0.7583335022990093,
+                                    0.7579333886760348,
+                                    0.7473677590798047,
+                                    0.7473689802556748,
+                                    0.7473976778886215,
+                                    0.7474318442656821,
+                                    0.7562169189597919,
+                                    0.7624451218729195,
+                                    0.7670861841244224,
+                                    0.7670925554767881,
+                                    0.7603242970947867,
+                                    0.7601178324466221,
+                                    0.743698930185894,
+                                    0.7412161219824536
+                                ]
+                            }
+                        },
+                        "summer": {
+                            "months": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                            ],
+                            "annual_days": 153,
+                            "rates": {
+                                "weekday": [
+                                    0.7115796922700992,
+                                    0.7115796922700992,
+                                    0.7115796922700992,
+                                    0.7115796922700992,
+                                    0.7115796922700992,
+                                    0.7116016410560142,
+                                    0.7257011780679133,
+                                    0.7762423849231626,
+                                    0.9001021701197353,
+                                    1.2058686735328008,
+                                    1.237133921833585,
+                                    1.2364964889854737,
+                                    1.3103669663261985,
+                                    1.4540365800905397,
+                                    1.4549769203256,
+                                    1.45658286681849,
+                                    1.5092289868724638,
+                                    1.51546495486032,
+                                    1.374160621562411,
+                                    1.29914398905371,
+                                    0.9554244917313884,
+                                    0.8257425558107331,
+                                    0.7264866867531394,
+                                    0.7115796922700992
+                                ],
+                                "weekend": [
+                                    0.7295382641238173,
+                                    0.7295382641238173,
+                                    0.7295382641238173,
+                                    0.7295382641238173,
+                                    0.7295382641238173,
+                                    0.7295590979230683,
+                                    0.7359977075558998,
+                                    0.7440531069705892,
+                                    0.7586727245017822,
+                                    0.7647310835238869,
+                                    0.7647278814414719,
+                                    0.7644574097064895,
+                                    0.7569421376440743,
+                                    0.7584933318257066,
+                                    0.7585106300473792,
+                                    0.7585315599399002,
+                                    0.766319183090172,
+                                    0.7669193687972687,
+                                    0.7660759243529977,
+                                    0.7693510638748012,
+                                    0.7642703937573375,
+                                    0.7641835113303687,
+                                    0.7298548667201737,
+                                    0.7295382641238173
+                                ]
+                            }
+                        },
+                        "intermediate": {
+                            "months": [
+                                10,
+                                11,
+                                3,
+                                4
+                            ],
+                            "annual_days": 122,
+                            "rates": {
+                                "weekday": [
+                                    0.7209954326211352,
+                                    0.7209954326211352,
+                                    0.7209981603563667,
+                                    0.7210017442420723,
+                                    0.7210160598744189,
+                                    0.7210721551269182,
+                                    0.7392430156709856,
+                                    0.7965994368219024,
+                                    0.9139410447944187,
+                                    1.196225286155943,
+                                    1.1861622674475183,
+                                    1.1829831087056009,
+                                    1.178006410860889,
+                                    1.1781344090715444,
+                                    1.1779713309008437,
+                                    1.1780726729801054,
+                                    1.231171088644311,
+                                    1.275229259474271,
+                                    1.2739867949892427,
+                                    1.2318195002854422,
+                                    0.9749694849457833,
+                                    0.8094868447595314,
+                                    0.7400036939544639,
+                                    0.7209954326211352
+                                ],
+                                "weekend": [
+                                    0.7416487904590888,
+                                    0.7416487904590888,
+                                    0.7416487904590888,
+                                    0.7416487904590888,
+                                    0.7416487904590888,
+                                    0.7416740045630911,
+                                    0.7467352721935584,
+                                    0.7552073737042055,
+                                    0.7552326284306445,
+                                    0.7577410378866258,
+                                    0.7577344723873682,
+                                    0.7573195427154136,
+                                    0.7479494214236384,
+                                    0.7479573856140954,
+                                    0.7479746499879586,
+                                    0.7479849815340289,
+                                    0.7561184249609694,
+                                    0.7624018948643082,
+                                    0.7664678165610375,
+                                    0.7664751521777626,
+                                    0.7602935249243234,
+                                    0.7600467216514943,
+                                    0.7436193156606876,
+                                    0.7416487904590888
+                                ]
+                            }
+                        }
                     }
-                  },
-                  "summer": {
-                    "months": [
-                      5,
-                      6,
-                      7,
-                      8,
-                      9
-                    ],
-                    "annual_days": 153,
-                    "rates": {
-                      "weekday": [
-                        0.6458245873740424,
-                        0.6458245873740424,
-                        0.6458245873740424,
-                        0.6458245873740424,
-                        0.6458245873740424,
-                        0.6468994741735525,
-                        0.6721704283419366,
-                        0.7877528153346143,
-                        0.9508403698379019,
-                        1.218453626925188,
-                        1.270531964130501,
-                        1.2733827123523953,
-                        1.4115085817189656,
-                        1.4987952877758426,
-                        1.5191561886103309,
-                        1.5199249270082422,
-                        1.6247504057906499,
-                        1.6339418703545154,
-                        1.6025160033698258,
-                        1.3678843705031805,
-                        1.0303149049834759,
-                        0.7475568270923396,
-                        0.6723258865801299,
-                        0.6636779143465007
-                      ],
-                      "weekend": [
-                        0.6534945611557802,
-                        0.6534945611557802,
-                        0.6534945611557802,
-                        0.6534945611557802,
-                        0.6534945611557802,
-                        0.6542221029139391,
-                        0.6621663178269653,
-                        0.6796723657035797,
-                        0.6892275843534218,
-                        0.6890302919287634,
-                        0.688594812154047,
-                        0.6885055018323561,
-                        0.6764007903284276,
-                        0.6677141658845643,
-                        0.6678930377629508,
-                        0.6683674190022503,
-                        0.6876227199936777,
-                        0.6910965171473628,
-                        0.6911239469667035,
-                        0.690723663696209,
-                        0.6872672314327727,
-                        0.6849410388318566,
-                        0.6645116515218538,
-                        0.6634792797131637
-                      ]
-                    }
-                  },
-                  "intermediate": {
-                    "months": [
-                      10,
-                      11,
-                      3,
-                      4
-                    ],
-                    "annual_days": 122,
-                    "rates": {
-                      "weekday": [
-                        0.6562778441085866,
-                        0.6562778441085866,
-                        0.6562778441085866,
-                        0.6562778441085866,
-                        0.656279641853995,
-                        0.6578447685953613,
-                        0.705174669017633,
-                        0.8286455185797903,
-                        0.9995293595504565,
-                        1.2047023639699554,
-                        1.2127149443241592,
-                        1.2059862624248205,
-                        1.1996754637517355,
-                        1.183527727165945,
-                        1.184196410698559,
-                        1.1851517809866334,
-                        1.2638951596822328,
-                        1.2879865402334234,
-                        1.2872477149518382,
-                        1.2566187789076564,
-                        0.9871707759014134,
-                        0.749295816267223,
-                        0.6823792035508683,
-                        0.6728309763973485
-                      ],
-                      "weekend": [
-                        0.6644478260228615,
-                        0.6644478260228615,
-                        0.6644478260228615,
-                        0.6644478260228615,
-                        0.6644478260228615,
-                        0.6651398435784992,
-                        0.6737605831198047,
-                        0.6854959315714353,
-                        0.7008227999148096,
-                        0.7005426165885539,
-                        0.6999493829042236,
-                        0.6997976349876648,
-                        0.6894625284116876,
-                        0.6812703115779266,
-                        0.6814184511586658,
-                        0.6817205786085438,
-                        0.7059317555796673,
-                        0.7092665306112451,
-                        0.709274613329601,
-                        0.7099917167610817,
-                        0.7084051532773447,
-                        0.699783289154462,
-                        0.6763460541022601,
-                        0.6744115729038507
-                      ]
-                    }
-                  }
                 },
-                "commercial": {
-                  "winter": {
-                    "months": [
-                      1,
-                      2,
-                      12
-                    ],
-                    "annual_days": 90.25,
-                    "rates": {
-                      "weekday": [
-                        0.7205377764969411,
-                        0.7205377764969411,
-                        0.7205413338353452,
-                        0.7205499086137372,
-                        0.7205827476257217,
-                        0.7206534903518366,
-                        0.7428535758106363,
-                        0.8003921514970507,
-                        0.917806328499009,
-                        1.2136745446820991,
-                        1.1882156592468782,
-                        1.1849713667006732,
-                        1.17899643189409,
-                        1.1784705199117274,
-                        1.1781947300567381,
-                        1.1782157555195445,
-                        1.2165445223153428,
-                        1.2763514302607766,
-                        1.2757532512417125,
-                        1.2415597681168078,
-                        0.9780590763376096,
-                        0.8107292342104534,
-                        0.7400972246396254,
-                        0.7205377764969411
-                      ],
-                      "weekend": [
-                        0.7412161219824536,
-                        0.7412161219824536,
-                        0.7412161219824536,
-                        0.7412161219824536,
-                        0.7412161219824536,
-                        0.7412478401753293,
-                        0.7467732270209331,
-                        0.7561435578620747,
-                        0.7559166568283232,
-                        0.7583443482253794,
-                        0.7583335022990093,
-                        0.7579333886760348,
-                        0.7473677590798047,
-                        0.7473689802556748,
-                        0.7473976778886215,
-                        0.7474318442656821,
-                        0.7562169189597919,
-                        0.7624451218729195,
-                        0.7670861841244224,
-                        0.7670925554767881,
-                        0.7603242970947867,
-                        0.7601178324466221,
-                        0.743698930185894,
-                        0.7412161219824536
-                      ]
+                "AIA_CZ2": {
+                    "residential": {
+                        "winter": {
+                            "months": [
+                                1,
+                                2,
+                                12
+                            ],
+                            "annual_days": 90.25,
+                            "rates": {
+                                "weekday": [
+                                    0.7316915700768777,
+                                    0.7316915700768777,
+                                    0.7316915700768777,
+                                    0.7316915700768777,
+                                    0.7317033321035448,
+                                    0.7552900300918178,
+                                    0.8226544622776824,
+                                    0.9142687771174831,
+                                    0.9814930775863582,
+                                    1.0941773089233215,
+                                    1.1241661637494853,
+                                    1.074363692826858,
+                                    1.0809367319784724,
+                                    1.0605096167219756,
+                                    1.01922290180229,
+                                    1.0409148720513626,
+                                    1.1016900648582957,
+                                    1.3289191700466993,
+                                    1.3775524377575605,
+                                    1.315400343229818,
+                                    1.0669000433260145,
+                                    0.8719960078696121,
+                                    0.7921397366659657,
+                                    0.7500601852594996
+                                ],
+                                "weekend": [
+                                    0.736735889566547,
+                                    0.736735889566547,
+                                    0.736735889566547,
+                                    0.736735889566547,
+                                    0.736735889566547,
+                                    0.7556686447763918,
+                                    0.7608448042659574,
+                                    0.7836885461000579,
+                                    0.7895174392127189,
+                                    0.7881823961211574,
+                                    0.7914929816126687,
+                                    0.7923744083418933,
+                                    0.7820493019495912,
+                                    0.7630498791669946,
+                                    0.7824001722895619,
+                                    0.7843539880600577,
+                                    0.7886557756808379,
+                                    0.8215662381729987,
+                                    0.8221785414753836,
+                                    0.8246083246223305,
+                                    0.8021083104675605,
+                                    0.7901060924580815,
+                                    0.7690513257992789,
+                                    0.7478062026728524
+                                ]
+                            }
+                        },
+                        "summer": {
+                            "months": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                            ],
+                            "annual_days": 153,
+                            "rates": {
+                                "weekday": [
+                                    0.7495809207750027,
+                                    0.7495809207750027,
+                                    0.7495809207750027,
+                                    0.7495809207750027,
+                                    0.7495809207750027,
+                                    0.7701088403081495,
+                                    0.7806797725722616,
+                                    0.8301777081608774,
+                                    0.8917226599786222,
+                                    0.9742296364313614,
+                                    1.089548412424175,
+                                    1.1544829173735325,
+                                    1.2603907056637045,
+                                    1.3308406888455804,
+                                    1.4145525381994923,
+                                    1.441126760789947,
+                                    1.5681838098052348,
+                                    1.6474108034992343,
+                                    1.5699271469049405,
+                                    1.3368917746211497,
+                                    0.9677042303951087,
+                                    0.8835845958175031,
+                                    0.7908433426928246,
+                                    0.7691810327982223
+                                ],
+                                "weekend": [
+                                    0.7528922978925378,
+                                    0.7528922978925378,
+                                    0.7528922978925378,
+                                    0.7528922978925378,
+                                    0.7528922978925378,
+                                    0.7714634479748301,
+                                    0.7759037884307903,
+                                    0.7882915296894144,
+                                    0.7975629053927803,
+                                    0.7965490779661469,
+                                    0.805591873222608,
+                                    0.8067656546809132,
+                                    0.8015095289042871,
+                                    0.7844497412741083,
+                                    0.8032083366451127,
+                                    0.805718897437873,
+                                    0.8100221458492244,
+                                    0.8395995605437871,
+                                    0.8398195794078622,
+                                    0.8359281181795717,
+                                    0.8132372556286078,
+                                    0.8076054187720259,
+                                    0.7825917829699133,
+                                    0.7639774572644759
+                                ]
+                            }
+                        },
+                        "intermediate": {
+                            "months": [
+                                10,
+                                11,
+                                3,
+                                4
+                            ],
+                            "annual_days": 122,
+                            "rates": {
+                                "weekday": [
+                                    0.7319509654359847,
+                                    0.7319509654359847,
+                                    0.7319509654359847,
+                                    0.7319509654359847,
+                                    0.731952213469939,
+                                    0.7555141644645146,
+                                    0.8021532696997766,
+                                    0.8857141994766777,
+                                    0.9512848637324858,
+                                    1.0721074323084783,
+                                    1.1321012137563657,
+                                    1.0824587232062468,
+                                    1.089252569161349,
+                                    1.069647268295233,
+                                    1.028289784228049,
+                                    1.053236743620014,
+                                    1.1342596596822652,
+                                    1.340907914653053,
+                                    1.33170667913807,
+                                    1.2076728986790333,
+                                    1.0437703009592394,
+                                    0.8704707399447128,
+                                    0.791669260291943,
+                                    0.7503172636287222
+                                ],
+                                "weekend": [
+                                    0.736731430869897,
+                                    0.736731430869897,
+                                    0.736731430869897,
+                                    0.736731430869897,
+                                    0.736731430869897,
+                                    0.7556543547835727,
+                                    0.7606268276779431,
+                                    0.7653773920828586,
+                                    0.7773178387288284,
+                                    0.7759572190534243,
+                                    0.7841418608058195,
+                                    0.7850774789998485,
+                                    0.7820553236796779,
+                                    0.7631893126810845,
+                                    0.7829557537431892,
+                                    0.7846673103962851,
+                                    0.7889832582334468,
+                                    0.8215721731612435,
+                                    0.8215982921648831,
+                                    0.824030467376909,
+                                    0.8006996675592478,
+                                    0.7900837412439528,
+                                    0.7685614079236551,
+                                    0.74779566555065
+                                ]
+                            }
+                        }
+                    },
+                    "commercial": {
+                        "winter": {
+                            "months": [
+                                1,
+                                2,
+                                12
+                            ],
+                            "annual_days": 90.25,
+                            "rates": {
+                                "weekday": [
+                                    0.7489003805767075,
+                                    0.7489003805767075,
+                                    0.7489028501583815,
+                                    0.748908802955999,
+                                    0.7489316005122001,
+                                    0.7491560471027127,
+                                    0.8386612785345405,
+                                    0.9709525424394335,
+                                    1.0435128459658074,
+                                    1.172892178518513,
+                                    1.096230743720652,
+                                    1.0772113337597469,
+                                    0.9819845805007349,
+                                    0.9819074875426435,
+                                    0.9924856024110523,
+                                    0.9944809952866005,
+                                    1.0516121867438153,
+                                    1.2161107357049625,
+                                    1.3097832128437588,
+                                    1.30447848135753,
+                                    1.0886052587360664,
+                                    0.9146114458170342,
+                                    0.80814737726382,
+                                    0.7489003805767075
+                                ],
+                                "weekend": [
+                                    0.7666624354825922,
+                                    0.7666624354825922,
+                                    0.7666624354825922,
+                                    0.7666624354825922,
+                                    0.7666624354825922,
+                                    0.7667893680287652,
+                                    0.8087306096287916,
+                                    0.8139432391419437,
+                                    0.813912277620187,
+                                    0.8170998152480557,
+                                    0.8171154156666702,
+                                    0.8149084815605357,
+                                    0.7799785065474677,
+                                    0.7799793543143111,
+                                    0.7892742010449716,
+                                    0.7892979200868718,
+                                    0.7923123521839034,
+                                    0.835069517357263,
+                                    0.8655071042675646,
+                                    0.8655115273989213,
+                                    0.8289467702084574,
+                                    0.8267284085685997,
+                                    0.8140540510890655,
+                                    0.7666624354825922
+                                ]
+                            }
+                        },
+                        "summer": {
+                            "months": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                            ],
+                            "annual_days": 153,
+                            "rates": {
+                                "weekday": [
+                                    0.7888287270138659,
+                                    0.7888287270138659,
+                                    0.7888287270138659,
+                                    0.7888287270138659,
+                                    0.7888287270138659,
+                                    0.7889488774252921,
+                                    0.8117322469185145,
+                                    0.8725727207461356,
+                                    0.9472194328517902,
+                                    1.0640937974006555,
+                                    1.1122814787292419,
+                                    1.1079980011786625,
+                                    1.2022337775355092,
+                                    1.374862076069252,
+                                    1.4116271571507053,
+                                    1.42169878705685,
+                                    1.538086506912954,
+                                    1.5638640297026465,
+                                    1.370689511585874,
+                                    1.3310685701071516,
+                                    1.0471975593592247,
+                                    0.9300086923379542,
+                                    0.8056656688356038,
+                                    0.7888287270138659
+                                ],
+                                "weekend": [
+                                    0.8041639782853334,
+                                    0.8041639782853334,
+                                    0.8041639782853334,
+                                    0.8041639782853334,
+                                    0.8041639782853334,
+                                    0.8042833546487722,
+                                    0.8059045114211196,
+                                    0.8087565423738539,
+                                    0.8193822228963382,
+                                    0.8201909295254707,
+                                    0.8227407497202675,
+                                    0.8211909636372704,
+                                    0.8319146255259092,
+                                    0.8397309932132342,
+                                    0.8509498374669687,
+                                    0.8510386280261835,
+                                    0.8535573691890912,
+                                    0.8568336459738631,
+                                    0.8494188553460068,
+                                    0.8682695618121168,
+                                    0.8296745210574148,
+                                    0.8252382083020103,
+                                    0.8101263601214234,
+                                    0.8041639782853334
+                                ]
+                            }
+                        },
+                        "intermediate": {
+                            "months": [
+                                10,
+                                11,
+                                3,
+                                4
+                            ],
+                            "annual_days": 122,
+                            "rates": {
+                                "weekday": [
+                                    0.756489537642857,
+                                    0.756489537642857,
+                                    0.7564914312959691,
+                                    0.7564939193073573,
+                                    0.7565038575306243,
+                                    0.7567005299352499,
+                                    0.8318943261200098,
+                                    0.9320658008883707,
+                                    1.0075917440268958,
+                                    1.1265718415744808,
+                                    1.0963488725983204,
+                                    1.0774369018947785,
+                                    0.9926434035932892,
+                                    0.9925749361706508,
+                                    1.0032681737491391,
+                                    1.005487618240672,
+                                    1.074814886471723,
+                                    1.2200417150237457,
+                                    1.2378229178933422,
+                                    1.23217934789683,
+                                    1.0478403122225513,
+                                    0.9122333991280481,
+                                    0.8052972648207765,
+                                    0.756489537642857
+                                ],
+                                "weekend": [
+                                    0.7742342455804521,
+                                    0.7742342455804521,
+                                    0.7742342455804521,
+                                    0.7742342455804521,
+                                    0.7742342455804521,
+                                    0.7743566628466987,
+                                    0.8061573106164389,
+                                    0.8103010485753738,
+                                    0.8114269022464343,
+                                    0.814487086689793,
+                                    0.8144998761998503,
+                                    0.8122826564703403,
+                                    0.7875530074265378,
+                                    0.7875585363407336,
+                                    0.7982479346248332,
+                                    0.7982551070087738,
+                                    0.8012709873668807,
+                                    0.8470173419649478,
+                                    0.8643022337672288,
+                                    0.8643073263118718,
+                                    0.8264878614846082,
+                                    0.8242472972598779,
+                                    0.8112265316252133,
+                                    0.7742342455804521
+                                ]
+                            }
+                        }
                     }
-                  },
-                  "summer": {
-                    "months": [
-                      5,
-                      6,
-                      7,
-                      8,
-                      9
-                    ],
-                    "annual_days": 153,
-                    "rates": {
-                      "weekday": [
-                        0.7115796922700992,
-                        0.7115796922700992,
-                        0.7115796922700992,
-                        0.7115796922700992,
-                        0.7115796922700992,
-                        0.7116016410560142,
-                        0.7257011780679133,
-                        0.7762423849231626,
-                        0.9001021701197353,
-                        1.2058686735328008,
-                        1.237133921833585,
-                        1.2364964889854737,
-                        1.3103669663261985,
-                        1.4540365800905397,
-                        1.4549769203256,
-                        1.45658286681849,
-                        1.5092289868724638,
-                        1.51546495486032,
-                        1.374160621562411,
-                        1.29914398905371,
-                        0.9554244917313884,
-                        0.8257425558107331,
-                        0.7264866867531394,
-                        0.7115796922700992
-                      ],
-                      "weekend": [
-                        0.7295382641238173,
-                        0.7295382641238173,
-                        0.7295382641238173,
-                        0.7295382641238173,
-                        0.7295382641238173,
-                        0.7295590979230683,
-                        0.7359977075558998,
-                        0.7440531069705892,
-                        0.7586727245017822,
-                        0.7647310835238869,
-                        0.7647278814414719,
-                        0.7644574097064895,
-                        0.7569421376440743,
-                        0.7584933318257066,
-                        0.7585106300473792,
-                        0.7585315599399002,
-                        0.766319183090172,
-                        0.7669193687972687,
-                        0.7660759243529977,
-                        0.7693510638748012,
-                        0.7642703937573375,
-                        0.7641835113303687,
-                        0.7298548667201737,
-                        0.7295382641238173
-                      ]
-                    }
-                  },
-                  "intermediate": {
-                    "months": [
-                      10,
-                      11,
-                      3,
-                      4
-                    ],
-                    "annual_days": 122,
-                    "rates": {
-                      "weekday": [
-                        0.7209954326211352,
-                        0.7209954326211352,
-                        0.7209981603563667,
-                        0.7210017442420723,
-                        0.7210160598744189,
-                        0.7210721551269182,
-                        0.7392430156709856,
-                        0.7965994368219024,
-                        0.9139410447944187,
-                        1.196225286155943,
-                        1.1861622674475183,
-                        1.1829831087056009,
-                        1.178006410860889,
-                        1.1781344090715444,
-                        1.1779713309008437,
-                        1.1780726729801054,
-                        1.231171088644311,
-                        1.275229259474271,
-                        1.2739867949892427,
-                        1.2318195002854422,
-                        0.9749694849457833,
-                        0.8094868447595314,
-                        0.7400036939544639,
-                        0.7209954326211352
-                      ],
-                      "weekend": [
-                        0.7416487904590888,
-                        0.7416487904590888,
-                        0.7416487904590888,
-                        0.7416487904590888,
-                        0.7416487904590888,
-                        0.7416740045630911,
-                        0.7467352721935584,
-                        0.7552073737042055,
-                        0.7552326284306445,
-                        0.7577410378866258,
-                        0.7577344723873682,
-                        0.7573195427154136,
-                        0.7479494214236384,
-                        0.7479573856140954,
-                        0.7479746499879586,
-                        0.7479849815340289,
-                        0.7561184249609694,
-                        0.7624018948643082,
-                        0.7664678165610375,
-                        0.7664751521777626,
-                        0.7602935249243234,
-                        0.7600467216514943,
-                        0.7436193156606876,
-                        0.7416487904590888
-                      ]
-                    }
-                  }
                 }
-              },
-              "AIA_CZ2": {
-                "residential": {
-                  "winter": {
-                    "months": [
-                      1,
-                      2,
-                      12
-                    ],
-                    "annual_days": 90.25,
-                    "rates": {
-                      "weekday": [
-                        0.7316915700768777,
-                        0.7316915700768777,
-                        0.7316915700768777,
-                        0.7316915700768777,
-                        0.7317033321035448,
-                        0.7552900300918178,
-                        0.8226544622776824,
-                        0.9142687771174831,
-                        0.9814930775863582,
-                        1.0941773089233215,
-                        1.1241661637494853,
-                        1.074363692826858,
-                        1.0809367319784724,
-                        1.0605096167219756,
-                        1.01922290180229,
-                        1.0409148720513626,
-                        1.1016900648582957,
-                        1.3289191700466993,
-                        1.3775524377575605,
-                        1.315400343229818,
-                        1.0669000433260145,
-                        0.8719960078696121,
-                        0.7921397366659657,
-                        0.7500601852594996
-                      ],
-                      "weekend": [
-                        0.736735889566547,
-                        0.736735889566547,
-                        0.736735889566547,
-                        0.736735889566547,
-                        0.736735889566547,
-                        0.7556686447763918,
-                        0.7608448042659574,
-                        0.7836885461000579,
-                        0.7895174392127189,
-                        0.7881823961211574,
-                        0.7914929816126687,
-                        0.7923744083418933,
-                        0.7820493019495912,
-                        0.7630498791669946,
-                        0.7824001722895619,
-                        0.7843539880600577,
-                        0.7886557756808379,
-                        0.8215662381729987,
-                        0.8221785414753836,
-                        0.8246083246223305,
-                        0.8021083104675605,
-                        0.7901060924580815,
-                        0.7690513257992789,
-                        0.7478062026728524
-                      ]
-                    }
-                  },
-                  "summer": {
-                    "months": [
-                      5,
-                      6,
-                      7,
-                      8,
-                      9
-                    ],
-                    "annual_days": 153,
-                    "rates": {
-                      "weekday": [
-                        0.7495809207750027,
-                        0.7495809207750027,
-                        0.7495809207750027,
-                        0.7495809207750027,
-                        0.7495809207750027,
-                        0.7701088403081495,
-                        0.7806797725722616,
-                        0.8301777081608774,
-                        0.8917226599786222,
-                        0.9742296364313614,
-                        1.089548412424175,
-                        1.1544829173735325,
-                        1.2603907056637045,
-                        1.3308406888455804,
-                        1.4145525381994923,
-                        1.441126760789947,
-                        1.5681838098052348,
-                        1.6474108034992343,
-                        1.5699271469049405,
-                        1.3368917746211497,
-                        0.9677042303951087,
-                        0.8835845958175031,
-                        0.7908433426928246,
-                        0.7691810327982223
-                      ],
-                      "weekend": [
-                        0.7528922978925378,
-                        0.7528922978925378,
-                        0.7528922978925378,
-                        0.7528922978925378,
-                        0.7528922978925378,
-                        0.7714634479748301,
-                        0.7759037884307903,
-                        0.7882915296894144,
-                        0.7975629053927803,
-                        0.7965490779661469,
-                        0.805591873222608,
-                        0.8067656546809132,
-                        0.8015095289042871,
-                        0.7844497412741083,
-                        0.8032083366451127,
-                        0.805718897437873,
-                        0.8100221458492244,
-                        0.8395995605437871,
-                        0.8398195794078622,
-                        0.8359281181795717,
-                        0.8132372556286078,
-                        0.8076054187720259,
-                        0.7825917829699133,
-                        0.7639774572644759
-                      ]
-                    }
-                  },
-                  "intermediate": {
-                    "months": [
-                      10,
-                      11,
-                      3,
-                      4
-                    ],
-                    "annual_days": 122,
-                    "rates": {
-                      "weekday": [
-                        0.7319509654359847,
-                        0.7319509654359847,
-                        0.7319509654359847,
-                        0.7319509654359847,
-                        0.731952213469939,
-                        0.7555141644645146,
-                        0.8021532696997766,
-                        0.8857141994766777,
-                        0.9512848637324858,
-                        1.0721074323084783,
-                        1.1321012137563657,
-                        1.0824587232062468,
-                        1.089252569161349,
-                        1.069647268295233,
-                        1.028289784228049,
-                        1.053236743620014,
-                        1.1342596596822652,
-                        1.340907914653053,
-                        1.33170667913807,
-                        1.2076728986790333,
-                        1.0437703009592394,
-                        0.8704707399447128,
-                        0.791669260291943,
-                        0.7503172636287222
-                      ],
-                      "weekend": [
-                        0.736731430869897,
-                        0.736731430869897,
-                        0.736731430869897,
-                        0.736731430869897,
-                        0.736731430869897,
-                        0.7556543547835727,
-                        0.7606268276779431,
-                        0.7653773920828586,
-                        0.7773178387288284,
-                        0.7759572190534243,
-                        0.7841418608058195,
-                        0.7850774789998485,
-                        0.7820553236796779,
-                        0.7631893126810845,
-                        0.7829557537431892,
-                        0.7846673103962851,
-                        0.7889832582334468,
-                        0.8215721731612435,
-                        0.8215982921648831,
-                        0.824030467376909,
-                        0.8006996675592478,
-                        0.7900837412439528,
-                        0.7685614079236551,
-                        0.74779566555065
-                      ]
-                    }
-                  }
-                },
-                "commercial": {
-                  "winter": {
-                    "months": [
-                      1,
-                      2,
-                      12
-                    ],
-                    "annual_days": 90.25,
-                    "rates": {
-                      "weekday": [
-                        0.7489003805767075,
-                        0.7489003805767075,
-                        0.7489028501583815,
-                        0.748908802955999,
-                        0.7489316005122001,
-                        0.7491560471027127,
-                        0.8386612785345405,
-                        0.9709525424394335,
-                        1.0435128459658074,
-                        1.172892178518513,
-                        1.096230743720652,
-                        1.0772113337597469,
-                        0.9819845805007349,
-                        0.9819074875426435,
-                        0.9924856024110523,
-                        0.9944809952866005,
-                        1.0516121867438153,
-                        1.2161107357049625,
-                        1.3097832128437588,
-                        1.30447848135753,
-                        1.0886052587360664,
-                        0.9146114458170342,
-                        0.80814737726382,
-                        0.7489003805767075
-                      ],
-                      "weekend": [
-                        0.7666624354825922,
-                        0.7666624354825922,
-                        0.7666624354825922,
-                        0.7666624354825922,
-                        0.7666624354825922,
-                        0.7667893680287652,
-                        0.8087306096287916,
-                        0.8139432391419437,
-                        0.813912277620187,
-                        0.8170998152480557,
-                        0.8171154156666702,
-                        0.8149084815605357,
-                        0.7799785065474677,
-                        0.7799793543143111,
-                        0.7892742010449716,
-                        0.7892979200868718,
-                        0.7923123521839034,
-                        0.835069517357263,
-                        0.8655071042675646,
-                        0.8655115273989213,
-                        0.8289467702084574,
-                        0.8267284085685997,
-                        0.8140540510890655,
-                        0.7666624354825922
-                      ]
-                    }
-                  },
-                  "summer": {
-                    "months": [
-                      5,
-                      6,
-                      7,
-                      8,
-                      9
-                    ],
-                    "annual_days": 153,
-                    "rates": {
-                      "weekday": [
-                        0.7888287270138659,
-                        0.7888287270138659,
-                        0.7888287270138659,
-                        0.7888287270138659,
-                        0.7888287270138659,
-                        0.7889488774252921,
-                        0.8117322469185145,
-                        0.8725727207461356,
-                        0.9472194328517902,
-                        1.0640937974006555,
-                        1.1122814787292419,
-                        1.1079980011786625,
-                        1.2022337775355092,
-                        1.374862076069252,
-                        1.4116271571507053,
-                        1.42169878705685,
-                        1.538086506912954,
-                        1.5638640297026465,
-                        1.370689511585874,
-                        1.3310685701071516,
-                        1.0471975593592247,
-                        0.9300086923379542,
-                        0.8056656688356038,
-                        0.7888287270138659
-                      ],
-                      "weekend": [
-                        0.8041639782853334,
-                        0.8041639782853334,
-                        0.8041639782853334,
-                        0.8041639782853334,
-                        0.8041639782853334,
-                        0.8042833546487722,
-                        0.8059045114211196,
-                        0.8087565423738539,
-                        0.8193822228963382,
-                        0.8201909295254707,
-                        0.8227407497202675,
-                        0.8211909636372704,
-                        0.8319146255259092,
-                        0.8397309932132342,
-                        0.8509498374669687,
-                        0.8510386280261835,
-                        0.8535573691890912,
-                        0.8568336459738631,
-                        0.8494188553460068,
-                        0.8682695618121168,
-                        0.8296745210574148,
-                        0.8252382083020103,
-                        0.8101263601214234,
-                        0.8041639782853334
-                      ]
-                    }
-                  },
-                  "intermediate": {
-                    "months": [
-                      10,
-                      11,
-                      3,
-                      4
-                    ],
-                    "annual_days": 122,
-                    "rates": {
-                      "weekday": [
-                        0.756489537642857,
-                        0.756489537642857,
-                        0.7564914312959691,
-                        0.7564939193073573,
-                        0.7565038575306243,
-                        0.7567005299352499,
-                        0.8318943261200098,
-                        0.9320658008883707,
-                        1.0075917440268958,
-                        1.1265718415744808,
-                        1.0963488725983204,
-                        1.0774369018947785,
-                        0.9926434035932892,
-                        0.9925749361706508,
-                        1.0032681737491391,
-                        1.005487618240672,
-                        1.074814886471723,
-                        1.2200417150237457,
-                        1.2378229178933422,
-                        1.23217934789683,
-                        1.0478403122225513,
-                        0.9122333991280481,
-                        0.8052972648207765,
-                        0.756489537642857
-                      ],
-                      "weekend": [
-                        0.7742342455804521,
-                        0.7742342455804521,
-                        0.7742342455804521,
-                        0.7742342455804521,
-                        0.7742342455804521,
-                        0.7743566628466987,
-                        0.8061573106164389,
-                        0.8103010485753738,
-                        0.8114269022464343,
-                        0.814487086689793,
-                        0.8144998761998503,
-                        0.8122826564703403,
-                        0.7875530074265378,
-                        0.7875585363407336,
-                        0.7982479346248332,
-                        0.7982551070087738,
-                        0.8012709873668807,
-                        0.8470173419649478,
-                        0.8643022337672288,
-                        0.8643073263118718,
-                        0.8264878614846082,
-                        0.8242472972598779,
-                        0.8112265316252133,
-                        0.7742342455804521
-                      ]
-                    }
-                  }
-                }
-              }
             },
             "emissions": {
-              "AIA_CZ1": {
-                "winter": {
-                  "months": [
-                    1,
-                    2,
-                    12
-                  ],
-                  "annual_days": 90.25,
-                  "factors": [
-                    1.0808327943771008,
-                    1.0947294879594474,
-                    1.0909604832627986,
-                    0.997259933763779,
-                    1.0157987104859902,
-                    1.0160614041206557,
-                    1.0477835926945642,
-                    1.000430414155741,
-                    1.023557292451596,
-                    0.960032661017396,
-                    0.917036500578013,
-                    0.9705004448862705,
-                    0.9907681555516679,
-                    1.0253381814057205,
-                    0.9844841561876502,
-                    0.9042117573723634,
-                    1.0284123659853506,
-                    1.0036148259369406,
-                    0.9833833200372775,
-                    0.952786486602425,
-                    0.9137505041285251,
-                    0.9183607987573171,
-                    1.0297440696206162,
-                    1.0501616586607956
-                  ]
+                "AIA_CZ1": {
+                    "winter": {
+                        "months": [
+                            1,
+                            2,
+                            12
+                        ],
+                        "annual_days": 90.25,
+                        "factors": [
+                            1.0808327943771008,
+                            1.0947294879594474,
+                            1.0909604832627986,
+                            0.997259933763779,
+                            1.0157987104859902,
+                            1.0160614041206557,
+                            1.0477835926945642,
+                            1.000430414155741,
+                            1.023557292451596,
+                            0.960032661017396,
+                            0.917036500578013,
+                            0.9705004448862705,
+                            0.9907681555516679,
+                            1.0253381814057205,
+                            0.9844841561876502,
+                            0.9042117573723634,
+                            1.0284123659853506,
+                            1.0036148259369406,
+                            0.9833833200372775,
+                            0.952786486602425,
+                            0.9137505041285251,
+                            0.9183607987573171,
+                            1.0297440696206162,
+                            1.0501616586607956
+                        ]
+                    },
+                    "summer": {
+                        "months": [
+                            5,
+                            6,
+                            7,
+                            8
+                        ],
+                        "annual_days": 123,
+                        "factors": [
+                            1.1435710315058578,
+                            1.1855937369569567,
+                            1.1841115412910492,
+                            1.1711267994327952,
+                            1.138416978159702,
+                            1.0879526698838258,
+                            1.047850567207246,
+                            0.9915300582880294,
+                            0.9257377330283679,
+                            0.9323171624462354,
+                            0.9230809453005281,
+                            0.9171957664527647,
+                            0.9220163795107141,
+                            0.9322139542622108,
+                            0.9698324615055369,
+                            0.9801952991546521,
+                            0.9454291136003109,
+                            0.9252177083898578,
+                            0.9350063389981491,
+                            0.941638621913107,
+                            0.8621879023886238,
+                            0.8691889278276335,
+                            0.9908346745164235,
+                            1.077753627979422
+                        ]
+                    },
+                    "intermediate": {
+                        "months": [
+                            9,
+                            10,
+                            11,
+                            3,
+                            4
+                        ],
+                        "annual_days": 152,
+                        "factors": [
+                            1.0658956503894756,
+                            1.0727670538462724,
+                            1.0631207028580707,
+                            1.046332293005439,
+                            1.015708019925993,
+                            1.026753672777928,
+                            1.021262021827931,
+                            0.9949980406706456,
+                            0.9757903062587946,
+                            0.9396316891528453,
+                            0.9466447200833301,
+                            0.9476982359938386,
+                            0.9727191746106075,
+                            0.9655198479731756,
+                            0.9631011731360967,
+                            0.9523456404643373,
+                            1.008536357395883,
+                            1.0106262570856785,
+                            1.020217337466093,
+                            0.995225325404544,
+                            0.9852466168013723,
+                            0.9828527161667133,
+                            0.9910882940666929,
+                            1.035918852638241
+                        ]
+                    }
                 },
-                "summer": {
-                  "months": [
-                    5,
-                    6,
-                    7,
-                    8
-                  ],
-                  "annual_days": 123,
-                  "factors": [
-                    1.1435710315058578,
-                    1.1855937369569567,
-                    1.1841115412910492,
-                    1.1711267994327952,
-                    1.138416978159702,
-                    1.0879526698838258,
-                    1.047850567207246,
-                    0.9915300582880294,
-                    0.9257377330283679,
-                    0.9323171624462354,
-                    0.9230809453005281,
-                    0.9171957664527647,
-                    0.9220163795107141,
-                    0.9322139542622108,
-                    0.9698324615055369,
-                    0.9801952991546521,
-                    0.9454291136003109,
-                    0.9252177083898578,
-                    0.9350063389981491,
-                    0.941638621913107,
-                    0.8621879023886238,
-                    0.8691889278276335,
-                    0.9908346745164235,
-                    1.077753627979422
-                  ]
-                },
-                "intermediate": {
-                  "months": [
-                    9,
-                    10,
-                    11,
-                    3,
-                    4
-                  ],
-                  "annual_days": 152,
-                  "factors": [
-                    1.0658956503894756,
-                    1.0727670538462724,
-                    1.0631207028580707,
-                    1.046332293005439,
-                    1.015708019925993,
-                    1.026753672777928,
-                    1.021262021827931,
-                    0.9949980406706456,
-                    0.9757903062587946,
-                    0.9396316891528453,
-                    0.9466447200833301,
-                    0.9476982359938386,
-                    0.9727191746106075,
-                    0.9655198479731756,
-                    0.9631011731360967,
-                    0.9523456404643373,
-                    1.008536357395883,
-                    1.0106262570856785,
-                    1.020217337466093,
-                    0.995225325404544,
-                    0.9852466168013723,
-                    0.9828527161667133,
-                    0.9910882940666929,
-                    1.035918852638241
-                  ]
+                "AIA_CZ2": {
+                    "winter": {
+                        "months": [
+                            1,
+                            2,
+                            12
+                        ],
+                        "annual_days": 90.25,
+                        "factors": [
+                            1.0535658672762813,
+                            1.096526332978691,
+                            1.0771622576644349,
+                            0.9861997106791047,
+                            0.9811011622781287,
+                            0.9790545864565884,
+                            1.0263760698119722,
+                            0.9956915484970449,
+                            1.0078219995749305,
+                            0.9716016307332266,
+                            0.9493542036289454,
+                            0.9813922518937052,
+                            0.9776775198440708,
+                            1.0141604106509272,
+                            0.9850587993552904,
+                            0.9316484224260333,
+                            0.9949688278695517,
+                            1.01055961509294,
+                            1.017103893763983,
+                            0.9590350781891323,
+                            0.9704093503233061,
+                            0.9672264348385085,
+                            1.0146181260811424,
+                            1.0516859000920609
+                        ]
+                    },
+                    "summer": {
+                        "months": [
+                            5,
+                            6,
+                            7,
+                            8
+                        ],
+                        "annual_days": 123,
+                        "factors": [
+                            1.0872807529906836,
+                            1.156405393861518,
+                            1.1726965583124587,
+                            1.1707509351020557,
+                            1.1360032758413263,
+                            1.0739651110736461,
+                            1.0479111560933447,
+                            1.005681341580094,
+                            0.9408650160642685,
+                            0.9353227765467297,
+                            0.9366381324121216,
+                            0.9278327467710181,
+                            0.9416270357604664,
+                            0.9513652843599338,
+                            0.9772729438597565,
+                            0.9942083133989313,
+                            0.9640059582039975,
+                            0.9578643188353364,
+                            0.958175448972868,
+                            0.9836535108930796,
+                            0.9166676067058098,
+                            0.860476258184747,
+                            0.9084788781257114,
+                            0.9948512460500967
+                        ]
+                    },
+                    "intermediate": {
+                        "months": [
+                            9,
+                            10,
+                            11,
+                            3,
+                            4
+                        ],
+                        "annual_days": 152,
+                        "factors": [
+                            1.077260761114282,
+                            1.091509595687165,
+                            1.0822368284391288,
+                            1.0565532492467509,
+                            1.0136147466311083,
+                            1.0078873939572586,
+                            1.016867635285059,
+                            0.993705048362059,
+                            0.9600070040455235,
+                            0.9425520430464386,
+                            0.9424622396992823,
+                            0.9527367144684524,
+                            0.9831562117694889,
+                            0.9724453429835529,
+                            0.9870323960038236,
+                            0.9829837910623043,
+                            1.0028892034459056,
+                            1.0037169087173556,
+                            1.0251019365755865,
+                            0.9931279014580454,
+                            0.974609000569764,
+                            0.943542113476512,
+                            0.9581810311526768,
+                            1.035820902802477
+                        ]
+                    }
                 }
-              },
-              "AIA_CZ2": {
-                "winter": {
-                  "months": [
-                    1,
-                    2,
-                    12
-                  ],
-                  "annual_days": 90.25,
-                  "factors": [
-                    1.0535658672762813,
-                    1.096526332978691,
-                    1.0771622576644349,
-                    0.9861997106791047,
-                    0.9811011622781287,
-                    0.9790545864565884,
-                    1.0263760698119722,
-                    0.9956915484970449,
-                    1.0078219995749305,
-                    0.9716016307332266,
-                    0.9493542036289454,
-                    0.9813922518937052,
-                    0.9776775198440708,
-                    1.0141604106509272,
-                    0.9850587993552904,
-                    0.9316484224260333,
-                    0.9949688278695517,
-                    1.01055961509294,
-                    1.017103893763983,
-                    0.9590350781891323,
-                    0.9704093503233061,
-                    0.9672264348385085,
-                    1.0146181260811424,
-                    1.0516859000920609
-                  ]
-                },
-                "summer": {
-                  "months": [
-                    5,
-                    6,
-                    7,
-                    8
-                  ],
-                  "annual_days": 123,
-                  "factors": [
-                    1.0872807529906836,
-                    1.156405393861518,
-                    1.1726965583124587,
-                    1.1707509351020557,
-                    1.1360032758413263,
-                    1.0739651110736461,
-                    1.0479111560933447,
-                    1.005681341580094,
-                    0.9408650160642685,
-                    0.9353227765467297,
-                    0.9366381324121216,
-                    0.9278327467710181,
-                    0.9416270357604664,
-                    0.9513652843599338,
-                    0.9772729438597565,
-                    0.9942083133989313,
-                    0.9640059582039975,
-                    0.9578643188353364,
-                    0.958175448972868,
-                    0.9836535108930796,
-                    0.9166676067058098,
-                    0.860476258184747,
-                    0.9084788781257114,
-                    0.9948512460500967
-                  ]
-                },
-                "intermediate": {
-                  "months": [
-                    9,
-                    10,
-                    11,
-                    3,
-                    4
-                  ],
-                  "annual_days": 152,
-                  "factors": [
-                    1.077260761114282,
-                    1.091509595687165,
-                    1.0822368284391288,
-                    1.0565532492467509,
-                    1.0136147466311083,
-                    1.0078873939572586,
-                    1.016867635285059,
-                    0.993705048362059,
-                    0.9600070040455235,
-                    0.9425520430464386,
-                    0.9424622396992823,
-                    0.9527367144684524,
-                    0.9831562117694889,
-                    0.9724453429835529,
-                    0.9870323960038236,
-                    0.9829837910623043,
-                    1.0028892034459056,
-                    1.0037169087173556,
-                    1.0251019365755865,
-                    0.9931279014580454,
-                    0.974609000569764,
-                    0.943542113476512,
-                    0.9581810311526768,
-                    1.035820902802477
-                  ]
-                }
-              }
             }
-          }
+        }
         cls.sample_mseg_in = {
             "AIA_CZ1": {
                 "single family home": {
@@ -14065,7 +14066,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                     "total homes": {"2009": 1000, "2010": 1000},
                     "new homes": {"2009": 100, "2010": 50},
                     "electricity": {
-                      "heating": {
+                        "heating": {
                             "demand": {
                                 "windows conduction": {
                                     "stock": "NA",
@@ -14086,7 +14087,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                 "GSHP": {
                                     "stock": {"2009": 4, "2010": 4},
                                     "energy": {"2009": 4, "2010": 4}}}},
-                      "cooling": {
+                        "cooling": {
                             "demand": {
                                 "windows conduction": {
                                     "stock": "NA",
@@ -14381,7 +14382,7 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
                                             "new": {"2009": 8, "2010": 8},
                                             "existing": {
                                                 "2009": 8, "2010": 8}
-                                            },
+                                        },
                                         "best": {"2009": 8, "2010": 8},
                                         "units": "R Value",
                                         "source":
@@ -15131,8 +15132,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "end_use": "heating",
             "technology": "ASHP",
             "time_sensitive_valuation": {
-              "conventional": {
-                "start": 6, "stop": 10}}},
+                "conventional": {
+                    "start": 6, "stop": 10}}},
             {
             "name": "sample time sens. measure 2 to prepare",
             "markets": None,
@@ -15154,8 +15155,8 @@ class UpdateMeasuresTest(unittest.TestCase, CommonMethods):
             "end_use": "heating",
             "technology": "ASHP",
             "time_sensitive_valuation": {
-              "conventional": {
-                "start": 6, "stop": 10}}}]
+                "conventional": {
+                    "start": 6, "stop": 10}}}]
         cls.ok_out = [{
             "stock": {
                 "total": {
@@ -15713,7 +15714,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -16632,7 +16633,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -17222,7 +17223,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}}}}}}},
-            },
+        },
             {
             "name": "sample measure pkg 2",
             "market_entry_year": None,
@@ -17454,7 +17455,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -18252,7 +18253,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -18839,7 +18840,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}}}}}}},
-            },
+        },
             {
             "name": "sample measure pkg 3",
             "market_entry_year": None,
@@ -18856,8 +18857,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                 "primary": ["cooling", "lighting"],
                 "secondary": None},
             "technology": [
-                    "ASHP",
-                    "reflector (incandescent)"],
+                "ASHP",
+                "reflector (incandescent)"],
             "technology_type": {
                 "primary": "supply", "secondary": None},
             "markets": {
@@ -19075,7 +19076,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -19891,7 +19892,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -20493,7 +20494,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}}}}}}},
-            },
+        },
             {
             "name": "sample measure pkg 4",
             "market_entry_year": None,
@@ -20667,7 +20668,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -21384,7 +21385,7 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                 "original energy (competed and captured)": {},
                                 "adjusted energy (total captured)": {},
                                 "adjusted energy (competed and captured)": {}}}
-                                },
+                    },
                     "mseg_out_break": {
                         "baseline": {
                             'AIA CZ1': {
@@ -21947,8 +21948,8 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}}}}
-                                    }}},
-            }]
+                    }}},
+        }]
         cls.sample_measures_in = [ecm_prep.Measure(
             handyvars, site_energy=None, capt_energy=None, **x) for
             x in sample_measures_in]
@@ -22230,22 +22231,22 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                              "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 100, "2010": 100},
-                                        "measure": {"2009": 60, "2010": 60}},
-                                    "competed": {
-                                        "all": {"2009": 50, "2010": 50},
-                                        "measure": {"2009": 10, "2010": 10}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 200, "2010": 200},
-                                        "efficient": {
-                                            "2009": 120, "2010": 120}},
-                                    "competed": {
-                                        "baseline": {"2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 20, "2010": 20}}},
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {
+                                        "2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 20, "2010": 20}}},
                                 "carbon": {
                                     "total": {
                                         "baseline": {"2009": 300, "2010": 300},
@@ -23289,22 +23290,22 @@ class MergeMeasuresandApplyBenefitsTest(unittest.TestCase, CommonMethods):
                              "'electricity',"
                              "'lighting', 'reflector (incandescent)', "
                              "'existing')"): {
-                                "stock": {
-                                    "total": {
-                                        "all": {"2009": 100, "2010": 100},
-                                        "measure": {"2009": 60, "2010": 60}},
-                                    "competed": {
-                                        "all": {"2009": 50, "2010": 50},
-                                        "measure": {"2009": 10, "2010": 10}}},
-                                "energy": {
-                                    "total": {
-                                        "baseline": {"2009": 200, "2010": 200},
-                                        "efficient": {
-                                            "2009": 120, "2010": 120}},
-                                    "competed": {
-                                        "baseline": {"2009": 100, "2010": 100},
-                                        "efficient": {
-                                            "2009": 20, "2010": 20}}},
+                            "stock": {
+                                "total": {
+                                    "all": {"2009": 100, "2010": 100},
+                                    "measure": {"2009": 60, "2010": 60}},
+                                "competed": {
+                                    "all": {"2009": 50, "2010": 50},
+                                    "measure": {"2009": 10, "2010": 10}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 200, "2010": 200},
+                                    "efficient": {
+                                        "2009": 120, "2010": 120}},
+                                "competed": {
+                                    "baseline": {"2009": 100, "2010": 100},
+                                    "efficient": {
+                                        "2009": 20, "2010": 20}}},
                                 "carbon": {
                                     "total": {
                                         "baseline": {"2009": 300, "2010": 300},

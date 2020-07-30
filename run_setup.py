@@ -31,6 +31,7 @@ class UsefulVars(object):
             keys in the JSON for the applicable baseline market
             parameters that are handled by this module
     """
+
     def __init__(self):
         self.setup_file = 'run_setup.json'
         self.ecm_folder_location = './ecm_definitions'
@@ -58,6 +59,7 @@ class IndexLists(object):
             order as the structure_type attribute, but in the desired
             format for printing for user selection (_pr = for printing)
     """
+
     def __init__(self):
         self.climate_zone = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3',
                              'AIA_CZ4', 'AIA_CZ5']
@@ -198,7 +200,7 @@ def fix_ecm_move_conflicts(conflict_ecm_list, move_order_text):
 
     # Print each ECM with a corresponding number
     for idx, entry in enumerate(conflict_ecm_list):
-        print(idx+1, '-', entry)
+        print(idx + 1, '-', entry)
 
     # Construct string to print for the input field
     instruct_str = ('\nFrom the list, indicate which ECMs you would '
@@ -239,8 +241,8 @@ def fix_ecm_move_conflicts(conflict_ecm_list, move_order_text):
 
     # Create a list of all of the ECMs that are going to be kept
     # in place/not moved
-    keep_in_place = [conflict_ecm_list[i-1]
-                     for i in range(1, len(conflict_ecm_list)+1)
+    keep_in_place = [conflict_ecm_list[i - 1]
+                     for i in range(1, len(conflict_ecm_list) + 1)
                      if i not in move_ecm_numbers]
 
     return keep_in_place
@@ -415,7 +417,7 @@ def user_input_baseline_market_filters(market_cat):
 
     # Print and label the options for the user
     for idx, val in enumerate(user_options):
-        print(idx+1, '-', val)
+        print(idx + 1, '-', val)
 
     # Prompt the user for input
     selections = input('\nPlease enter your selections, separated by commas: ')
@@ -449,7 +451,7 @@ def user_input_baseline_market_filters(market_cat):
                 int(x.strip()) for x in selections.split(',') if x.strip()]
 
     # Build the list of keys to match against individual ECM JSON data
-    user_match_filters = [json_keys[i-1] for i in user_select_keep_numbers]
+    user_match_filters = [json_keys[i - 1] for i in user_select_keep_numbers]
 
     # Set the target return value of this function to boolean False
     # to prevent further evaluation function calls to subset the list

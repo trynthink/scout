@@ -201,7 +201,7 @@ class JSONTranslatorTest(unittest.TestCase):
               [['HW', 1, 1, 'GS'], ''],
               [['SQ', 1, 1], ''],
               [['SH', 1, 1,
-               ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND'],
+                ('LG', 'KS', 'CL', 'GE', 'WD')], 'WIND_COND'],
               [['HS', 1, 1], ''],
               [['HT', 1, 1, 'EL', 'ELEC_RAD'], ''],
               [['TVS', 7, 3, 'EL'], '']]
@@ -320,24 +320,24 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Define filter to select a subset of the sample EIA supply data
     EIA_nrg_stock_filter = [
-      [['DW', 2, 1, 'EL', 'DS_WASH'], ''],
-      [['HT', 1, 1, 'EL', 'ELEC_RAD'], ''],
-      [['HT', 2, 3, 'KS', 'KERO_FA'], ''],
-      [['CL', 1, 1, 'EL', 'GEO_HP'], ''],
-      [['HT', 9, 2, 'GS', 'NG_RAD'], '']]
+        [['DW', 2, 1, 'EL', 'DS_WASH'], ''],
+        [['HT', 1, 1, 'EL', 'ELEC_RAD'], ''],
+        [['HT', 2, 3, 'KS', 'KERO_FA'], ''],
+        [['CL', 1, 1, 'EL', 'GEO_HP'], ''],
+        [['HT', 9, 2, 'GS', 'NG_RAD'], '']]
 
     # Set up selected data from EIA sample array as the basis for comparison
     EIA_nrg_stock_out = [
-      ({"2010": 9417809, "2011": 9387396, "2012": 9386813},
-       {"2010": 6423576, "2011": 6466014, "2012": 6513706}),
-      ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
-       {"2010": 126007.0, "2011": 125784.0, "2012": 125386.0}),
-      ({"2010": 5955503, "2011": 5550354, "2012": 4490571},
-       {"2010": 155340.0, "2011": 151349.0, "2012": 147470.0}),
-      ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
-       {"2010": 126007, "2011": 125784, "2012": 125386}),
-      ({"2010": 3, "2011": 2, "2012": 1},
-       {"2010": 1, "2011": 2, "2012": 3})]
+        ({"2010": 9417809, "2011": 9387396, "2012": 9386813},
+         {"2010": 6423576, "2011": 6466014, "2012": 6513706}),
+        ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
+            {"2010": 126007.0, "2011": 125784.0, "2012": 125386.0}),
+        ({"2010": 5955503, "2011": 5550354, "2012": 4490571},
+            {"2010": 155340.0, "2011": 151349.0, "2012": 147470.0}),
+        ({"2010": 1452680, "2011": 1577350, "2012": 1324963},
+            {"2010": 126007, "2011": 125784, "2012": 125386}),
+        ({"2010": 3, "2011": 2, "2012": 1},
+            {"2010": 1, "2011": 2, "2012": 3})]
 
     # Define filter to select square footage subset of sample EIA supply data
     EIA_sqft_homes_filter = [[['SQ', 2, 2], ''],
@@ -347,9 +347,9 @@ class NumpyArrayReductionTest(unittest.TestCase):
 
     # Set up selected data from EIA sample array as the basis for comparison
     EIA_sqft_homes_out = [
-      {"2010": 8245, "2011": 8246, "2012": 8247},
-      {"2010": 3, "2011": 4, "2012": 5},
-      {"2010": 266, "2011": 665, "2012": 66, "2013": 26, "2014": 2665}]
+        {"2010": 8245, "2011": 8246, "2012": 8247},
+        {"2010": 3, "2011": 4, "2012": 5},
+        {"2010": 266, "2011": 665, "2012": 66, "2013": 26, "2014": 2665}]
 
     # Define sample structured array comparable in form to the thermal
     # loads data (note that the numeric data here do not represent
@@ -406,7 +406,7 @@ class NumpyArrayReductionTest(unittest.TestCase):
     # components data
     def test_recording_of_thermal_loads_data(self):
         self.assertEqual(rm.thermal_load_select(self.tloads_example,
-                         self.tl_flt),
+                                                self.tl_flt),
                          self.tloads_sample)
 
 
@@ -461,10 +461,10 @@ class DataToListFormatTest(unittest.TestCase):
 
     # Convert stock/energy data into numpy array with column names
     nrg_stock_array = np.array(nrg_stock, dtype=[
-      ('ENDUSE', '<U50'), ('CDIV', 'i4'), ('BLDG', 'i4'),
-      ('FUEL', '<U50'), ('EQPCLASS', '<U50'), ('YEAR', 'i4'),
-      ('EQSTOCK', 'i4'), ('CONSUMPTION', 'i4'), ('HOUSEHOLDS', 'i4'),
-      ('BULBTYPE', '<U50')])
+        ('ENDUSE', '<U50'), ('CDIV', 'i4'), ('BLDG', 'i4'),
+        ('FUEL', '<U50'), ('EQPCLASS', '<U50'), ('YEAR', 'i4'),
+        ('EQSTOCK', 'i4'), ('CONSUMPTION', 'i4'), ('HOUSEHOLDS', 'i4'),
+        ('BULBTYPE', '<U50')])
 
     # Define a sample set of thermal load components data
     loads_data = [('CL', 2, 3, 100, -0.25, 0.25, 0, 0, 0.25, 0, 0.5, 0),

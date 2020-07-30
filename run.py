@@ -1474,7 +1474,7 @@ class Engine(object):
 
         # Unit stock cost dictionary
         unit_cost_s_in = [m.consumer_metrics["unit cost"]["stock cost"][
-                     "commercial"] for m in measures_adj]
+            "commercial"] for m in measures_adj]
         # Unit operating cost dictionary
         unit_cost_e_in = [m.consumer_metrics["unit cost"]["energy cost"][
             "commercial"] for m in measures_adj]
@@ -1906,7 +1906,7 @@ class Engine(object):
             noapply_sbsbmkt_distrib_fracs_yr = [{
                 yr: noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for
                 yr in self.handyvars.aeo_years} for
-                     ind in range(len(measures_adj))]
+                ind in range(len(measures_adj))]
 
             # Initialize a list of dicts where each dict represents the
             # additional market fraction an ECM should receive to reflect the
@@ -1938,7 +1938,7 @@ class Engine(object):
                             distrib_inds[x] == 1])) or \
                        (type(mkt_fracs[0][yr]) == numpy.ndarray and all(
                         [all([mkt_fracs[x][yr][y] == 0 for
-                             y in range(len(mkt_fracs[x][yr]))]) for
+                              y in range(len(mkt_fracs[x][yr]))]) for
                             x in range(0, len(distrib_inds)) if
                             distrib_inds[x] == 1])):
                         # Set weights to use in distributing the current ECM's
@@ -1970,7 +1970,7 @@ class Engine(object):
                             and sum(sbmkt_distrib_fracs_yr) != 0) or \
                            (type(sbmkt_distrib_fracs_yr[0]) == numpy.ndarray
                             and all([sum(sbmkt_distrib_fracs_yr[x]) != 0 for
-                                    x in range(len(sbmkt_distrib_fracs_yr))])):
+                                     x in range(len(sbmkt_distrib_fracs_yr))])):
                             sbmkt_distrib_fracs_yr = [
                                 x / sum(sbmkt_distrib_fracs_yr) for
                                 x in sbmkt_distrib_fracs_yr]
@@ -2965,7 +2965,7 @@ class Engine(object):
                 # Apply savings partitioning fractions to savings values
                 else:
                     mkt_save_brk[k] = self.out_break_walk(
-                       copy.deepcopy(frac_save), mkt_save_brk[k], divide=False)
+                        copy.deepcopy(frac_save), mkt_save_brk[k], divide=False)
 
             # Record low and high estimates on markets, if available
 
