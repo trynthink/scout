@@ -3,22 +3,6 @@ exclude: |
         docs/conf.py
     )
 repos:
-#  - repo: git://github.com/pre-commit/pre-commit-hooks
-#    rev: v2.2.3
-#    hooks:
-#      - id: trailing-whitespace
-#      - id: check-added-large-files
-#        args: ['--maxkb=1700']
-#      - id: check-ast
-#      - id: check-json
-#      - id: check-merge-conflict
-#      - id: check-xml
-#      - id: check-yaml
-#      - id: debug-statements
-#      - id: end-of-file-fixer
-#      - id: requirements-txt-fixer
-#      - id: mixed-line-ending
-#        args: ['--fix=auto']
   - repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.4.4
     hooks:
