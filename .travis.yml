@@ -12,9 +12,7 @@ python:
   - "3.7"
   - "3.8"
 
-# Download and set up anaconda
 before_install:
-#  - npm install -g grunt-cli
   - npm install
 
 # Install packages
@@ -26,5 +24,3 @@ install:
 script:
   - pre-commit run --all-files
   - py.test
-#  - grunt travis -v
-#  - flake8 --exclude docs/conf.py --max-line-length=100
