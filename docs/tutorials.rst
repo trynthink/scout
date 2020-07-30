@@ -1163,17 +1163,41 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
    cd Documents/projects/scout-run_scheme
    python3 run.py
 
-.. tip::
-   Using the optional flag ``--mkt_fracs`` (i.e., ``python3 run.py --mkt_fracs``) will report annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. ECM market penetration data are summarized in the file |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the field "Stock Penetration (%)".
-
-   Additionally, using the optional flag ``--verbose`` (i.e., ``python3 run.py --verbose``) will print all warning messages triggered during analysis execution to the console.
-
 While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, writing results to an output file, and plotting results. This text is principally to assure users that the analysis is proceeding apace. Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder.
 
 Uncompeted and competed ECM results are automatically converted into graphical form by |html-filepath| run.py |html-fp-end| using R. Output plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
 
 .. note::
    The first time you execute |html-filepath| run.py\ |html-fp-end|, any missing R packages needed to generate the plots will be installed. This installation process may take some time, but is only required once.  
+
+Additional run options
+~~~~~~~~~~~~~~~~~~~~~~
+
+Users may include additional options alongside the |html-filepath| run.py |html-fp-end| command that modify default analysis run settings.
+
+**Windows** ::
+
+   py -3 run.py <additional option> <additional option 2> ... <additional option N>
+
+**Mac** ::
+
+   python3 run.py <additional option> <additional option 2> ... <additional option N>
+
+The additional run options are described further here.
+
+Market penetration fractions
+****************************
+
+``--mkt_fracs`` reports annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. 
+
+.. tip::
+
+   ECM market penetration data are summarized in the file |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the field "Stock Penetration (%)".
+
+Verbose mode
+************
+
+``--verbose`` prints all warning messages triggered during an analysis run to the console.
 
 .. _tuts-results:
 

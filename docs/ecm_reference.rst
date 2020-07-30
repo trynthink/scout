@@ -332,12 +332,22 @@ Energy efficiency units
 
    * Drying (CEF)
    * Lighting (lm/W)
+   * Fans and pumps (kWh/yr)
+   * Ceiling fan (kWh/yr)
+   * TVs (kWh/yr)
+   * Computers (kWh/yr)
    * Other
 
      * Clothes washing (kWh/cycle)
      * Dishwasher (kWh/cycle)
      * Freezers (kWh/yr)
-     * All other equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
+     * Dehumidifier (kWh/yr)
+     * Microwave (kWh/yr)
+     * Pool heaters and pumps (kWh/yr)
+     * Portable electric spas (kWh/yr)
+     * Wine coolers (kWh/yr)
+   
+   * All other end uses/equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
 
 ..   * Ceiling fan (W)
      * Fans & pumps (HP/W)
@@ -354,6 +364,8 @@ Energy efficiency units
    * Cooking (BTU out/BTU in)
    * Lighting (lm/W)
    * Refrigeration (BTU out/BTU in)
+   * PCs (kWh/yr)
+   * All other end uses/equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
 
 ..   * PCs
 ..   * Non-PC office equipment
@@ -380,14 +392,16 @@ Installed cost units
 
 **Residential -- Equipment (Supply)**
 
-   * All equipment except sensors and controls ($/unit)
+   * All equipment ($/unit)
 
 **Commercial -- Equipment (Supply)**
 
    * Ventilation ($/1000 CFM)
    * Lighting ($/1000 lm)
    * Cooking ($/ft^2 floor)
-   * Heating, cooling, water heating, and refrigeration ($/kBtu/h service, e.g., $/kBtu/h heating)   
+   * Heating, cooling, water heating, and refrigeration ($/kBtu/h service, e.g., $/kBtu/h heating)
+   * PCs ($/ft^2 floor)
+   * All other equipment ($/ft^2 floor)
 
 **Residential and Commercial -- Sensors and Controls (Supply)**
 
