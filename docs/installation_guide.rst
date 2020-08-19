@@ -26,7 +26,7 @@ If you're comfortable at the command line, install or set up everything in this 
 
 * R
 * Python 3
-* Python packages: pip [#]_, numpy
+* Python packages: pip [#]_, numpy, numpy_financial
 * A text editor of your choice
 
 The installation instructions for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` assume that none of these prerequisite programs or distributions are installed on your system. Please follow the instructions as appropriate, given what might already installed on your system and checking for updates if appropriate.
@@ -191,22 +191,22 @@ Download the executable installer for Windows available on the Python Software F
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 installation is complete, the numpy package needs to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
+Once Python 3 installation is complete, the numpy and numpy_financial packages need to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
 
-   py -3 -m pip install numpy
+   py -3 -m pip install numpy numpy_financial
 
 .. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
 
-If you would like to confirm that numpy was installed successfully, you can open an interactive session of Python in a command prompt window by typing::
+If you would like to confirm that numpy and numpy_financial were installed successfully, you can open an interactive session of Python in a command prompt window by typing::
 
    py -3
 
-and then importing numpy (within the Python interactive session, indicated by a ``>>>`` prompt)::
+and then importing numpy and numpy_financial (within the Python interactive session, indicated by a ``>>>`` prompt)::
 
-   import numpy
+   import numpy, numpy_financial
 
-If no error or warning messages appear, numpy was installed successfully. Exit the interactive session of Python by typing::
+If no error or warning messages appear, the packages were installed successfully. Exit the interactive session of Python by typing::
 
    quit()
 
