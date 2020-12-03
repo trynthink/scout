@@ -1006,8 +1006,8 @@ class UsefulVars(object):
                                      peak_take_cz["InterPeakEndHr"][0] + 1)),
             "take range": list(range(peak_take_cz["InterTakeStartHr1"][0],
                                      peak_take_cz["InterTakeEndHr1"][0] + 1))}
-        # Handle cases where winter low demand periods cover two non-contiguous time
-        # segments (e.g., 2-6AM, 10AM-2PM)
+        # Handle cases where winter low demand periods cover two non-contiguous
+        # time segments (e.g., 2-6AM, 10AM-2PM)
         if not numpy.isnan(peak_take_cz["WinterTakeStartHr2"][0]):
             wint_peak_take["take range"].extend(list(
                 range(peak_take_cz["WinterTakeStartHr2"][0],
@@ -1870,6 +1870,21 @@ class Measure(object):
         # zone, building type, fuel type, end use, and/or technology attributes
         # marked 'all' by users
         self.fill_attr()
+
+        # Fill in sector baseline/efficient 8760 shapes attribute across all
+        # applicable regions for the measure with a list of 8760 zeros (if
+        # necessary)
+        if opts.sect_shapes is True:
+            # Find applicable region list (ensure it is in list format)s
+            if type(self.climate_zone) is str:
+                regions = copy.deepcopy([self.climate_zone])
+            else:
+                regions = copy.deepcopy(self.climate_zone)
+            for a_s in self.handyvars.adopt_schemes:
+                self.sector_shapes[a_s] = {reg: {yr: {
+                    "baseline": [0 for x in range(8760)],
+                    "efficient": [0 for x in range(8760)]} for yr in
+                    self.handyvars.aeo_years_summary} for reg in regions}
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -3359,7 +3374,7 @@ class Measure(object):
                             life_base, life_meas, site_source_conv_base,
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
-                            tsv_scale_fracs)
+                            tsv_scale_fracs, tsv_shapes, opts)
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
@@ -3416,56 +3431,6 @@ class Measure(object):
                                 yr: life_base[yr] * add_stock_total[yr] for
                                 yr in self.handyvars.aeo_years},
                             "measure": life_meas}}
-
-                    # If sector-level load shapes are desired and hourly
-                    # fraction of annual load data are available for
-                    # the current contributing microsegment, multiply the
-                    # microsegment's annual energy data by these hourly
-                    # fractions to yield hourly energy totals for the
-                    # microsegment in each year. Then add these hourly data
-                    # into the sector-level totals for the measure across all
-                    # affected microsegments, which are summarzied by EMM
-                    # region. If sector-level load shapes are desired and
-                    # hourly load fraction data are unavailable when they
-                    # should be available (primary electric microsegments or
-                    # secondary lighting microsegments), yield an error
-                    if opts.sect_shapes is True and tsv_shapes is not None:
-                        # If sector-level totals across all affected
-                        # microsegments have not yet been initiated for the
-                        # current EMM region, initiate using the load shape
-                        # data for the current contributing microsegment;
-                        # otherwise, add to the previously initiated data
-                        if mskeys[1] not in self.sector_shapes[
-                                adopt_scheme].keys():
-                            self.sector_shapes[adopt_scheme][mskeys[1]] = {
-                                yr: {"baseline": [tsv_shapes["baseline"][x] *
-                                                  add_energy_total[yr] for x
-                                                  in range(8760)],
-                                     "efficient": [tsv_shapes["efficient"][x] *
-                                                   add_energy_total_eff[yr] for
-                                                   x in range(8760)]} for yr in
-                                self.handyvars.aeo_years_summary}
-                        else:
-                            for yr in self.handyvars.aeo_years_summary:
-                                self.sector_shapes[adopt_scheme][mskeys[1]][
-                                    yr]["baseline"] = [self.sector_shapes[
-                                        adopt_scheme][mskeys[1]][yr][
-                                        "baseline"][x] + tsv_shapes[
-                                        "baseline"][x] * add_energy_total[yr]
-                                        for x in range(8760)]
-                                self.sector_shapes[adopt_scheme][mskeys[1]][
-                                    yr]["efficient"] = [self.sector_shapes[
-                                        adopt_scheme][mskeys[1]][yr][
-                                        "efficient"][x] + tsv_shapes[
-                                        "efficient"][x] * add_energy_total_eff[
-                                        yr] for x in range(8760)]
-                    elif opts.sect_shapes is True and tsv_shapes is None and (
-                        mskeys[0] == "secondary" or (
-                            mskeys[0] == "primary" and
-                            mskeys[3] == "electricity")):
-                        raise ValueError(
-                            "Missing hourly fraction of annual load data for "
-                            "baseline energy use segment: " + mskeys + ". ")
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -4195,7 +4160,7 @@ class Measure(object):
                         base_load_hourly = load_fact
 
                 # Initialize efficient load shape as equal to base load
-                eff_load_hourly = base_load_hourly
+                eff_load_hourly = copy.deepcopy(base_load_hourly)
 
                 # Loop through all time-varying efficiency features in sorted
                 # order, applying each successively to the base load shape
@@ -4462,6 +4427,11 @@ class Measure(object):
                                 custom_hr_save_shape[x]) if not
                                 numpy.isnan(custom_hr_save_shape[x]) else
                                 eff_load_hourly[x] for x in range(8760)]
+                            # Ensure all efficient load fractions are greater
+                            # than zero
+                            eff_load_hourly = [
+                                eff_load_hourly[x] if eff_load_hourly[x] >= 0
+                                else 0 for x in range(8760)]
                         else:
                             # Throw an error if the load reshaping operation
                             # name is invalid
@@ -5027,7 +4997,7 @@ class Measure(object):
             carb_total_init, cost_base, cost_meas, cost_energy_base,
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
-            intensity_carb_meas, energy_total_scnd, tsv_adj):
+            intensity_carb_meas, energy_total_scnd, tsv_adj, tsv_shapes, opts):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -5061,6 +5031,8 @@ class Measure(object):
                 by year.
             intensity_carb_meas (dict): Measure fuel carbon intensity, by year.
             tsv_adj (dict): Adjustment for time sensitive efficiency valuation.
+            tsv_shapes (dict): 8760 hourly adjustments (sum to tsv_adj values)
+            opts (object): Stores user-specified execution options.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -5226,6 +5198,28 @@ class Measure(object):
             energy_total[yr] = energy_total_sbmkt[yr] * tsv_energy_base
             carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
             carb_total[yr] = carb_total_sbmkt[yr] * tsv_carb_base
+
+            # Re-apportion total baseline microsegment energy across all 8760
+            # hours of the year, if necessary (supports sector-level savings
+            # shapes)
+
+            # Only update sector-level shapes for certain years of focus;
+            # ensure that load shape information is available for the
+            # update and if not, yield an error message
+            if opts.sect_shapes is True and yr in \
+                    self.handyvars.aeo_years_summary and \
+                    tsv_shapes is not None:
+                self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
+                    self.sector_shapes[adopt_scheme][mskeys[1]][yr][
+                        "baseline"][x] + tsv_shapes["baseline"][x] *
+                    energy_total_sbmkt[yr] for x in range(8760)]
+            elif opts.sect_shapes is True and tsv_shapes is None and (
+                mskeys[0] == "secondary" or (
+                    mskeys[0] == "primary" and
+                    mskeys[3] == "electricity")):
+                raise ValueError(
+                    "Missing hourly fraction of annual load data for "
+                    "baseline energy use segment: " + mskeys + ". ")
 
             # For a primary microsegment and adjusted adoption potential case,
             # determine the portion of competed stock that remains with the
@@ -5592,22 +5586,43 @@ class Measure(object):
             # carbon is dependent upon whether the measure is on the market
             # for the given year (if not, use baseline energy and carbon)
 
-            # Competed-efficient energy
-            energy_compete_eff[yr] = energy_total_sbmkt[yr] * \
-                competed_captured_eff_frac * rel_perf_capt * \
-                tsv_energy_eff * \
-                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
-                energy_total_sbmkt[yr] * (
+            # Set common variables for the efficient energy calculations
+            energy_tot_comp_meas = energy_total_sbmkt[yr] * \
+                competed_captured_eff_frac * rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+            energy_tot_comp_base = energy_total_sbmkt[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
-                rel_perf_uncapt * tsv_energy_base
+                rel_perf_uncapt
+            energy_tot_uncomp_meas = (
+                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
+                captured_eff_frac * rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+            energy_tot_uncomp_base = (
+                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
+                (1 - captured_eff_frac) * rel_perf_uncapt
+
+            # Competed-efficient energy
+            energy_compete_eff[yr] = energy_tot_comp_meas * tsv_energy_eff + \
+                energy_tot_comp_base * tsv_energy_base
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
-                (energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                captured_eff_frac * rel_perf_capt * \
-                tsv_energy_eff * \
-                (site_source_conv_meas[yr] / site_source_conv_base[yr]) + \
-                (energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                (1 - captured_eff_frac) * rel_perf_uncapt * tsv_energy_base
+                energy_tot_uncomp_meas * tsv_energy_eff + \
+                energy_tot_uncomp_base * tsv_energy_base
+            # Re-apportion total efficient microsegment energy across all 8760
+            # hours of the year, if necessary (supports sector-level savings
+            # shapes)
+            if opts.sect_shapes is True and yr in \
+                    self.handyvars.aeo_years_summary:
+                self.sector_shapes[adopt_scheme][mskeys[1]][yr][
+                    "efficient"] = [
+                    self.sector_shapes[adopt_scheme][
+                        mskeys[1]][yr]["efficient"][x] + (
+                        energy_tot_comp_meas * tsv_shapes["efficient"][x] +
+                        energy_tot_comp_base * tsv_shapes["baseline"][x] +
+                        energy_tot_uncomp_meas * tsv_shapes["efficient"][x] +
+                        energy_tot_uncomp_base * tsv_shapes["baseline"][x])
+                    for x in range(8760)]
+
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total_sbmkt[yr] * \
                 competed_captured_eff_frac * rel_perf_capt * \
