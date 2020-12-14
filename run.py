@@ -148,18 +148,20 @@ class UsefulVars(object):
         self.region_check = {
             "AIA": ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'],
             "EMM": [
-                'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-                'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']}
+                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']}
         self.region_inout_namepairs = {
             "AIA": [
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
                 ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
                 ('AIA CZ5', 'AIA_CZ5')],
             "EMM": [(x, x) for x in [
-                'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-                'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']]}
+                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']]}
         regions_out = self.region_inout_namepairs[regions]
         self.out_break_czones = OrderedDict(regions_out)
         self.out_break_bldgtypes = OrderedDict([
