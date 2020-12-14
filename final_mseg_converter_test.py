@@ -1771,7 +1771,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         self.dict_check(dict1, dict2)
 
     # Compare the converted dict of energy, stock, and square footage
-    # data to the expected data reported on a climate zone basis, given
+    # data to the expected data reported on an EMM region basis, given
     # conversion arrays that are split out by fuel type
     def test_conversion_of_energy_stock_square_footage_data_emm(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
@@ -1791,7 +1791,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         self.dict_check(dict1, dict2)
 
     # Compare the converted dict of cost, performance, and lifetime
-    # data to the expected data on a climate zone basis, given conversion
+    # data to the expected data on an EMM region basis, given conversion
     # arrays that are split out by fuel type
     def test_conversion_of_cost_performance_lifetime_data_emm(self):
         dict1 = fmc.clim_converter(self.test_cpl_input,
@@ -2315,9 +2315,9 @@ class EnvelopeDataUnitTest(CommonUnitTest):
         (3, 0, 0, 1, 0, 0),
         (4, 0, 0, 0, 1, 0),
         (5, 0, 0, 0, 0, 1)],
-        dtype=[('AIA', 'float64'), ('ERCT', 'float64'),
-               ('FRCC', 'float64'), ('MROE', 'float64'),
-               ('MROW', 'float64'), ('NEWE', 'float64')])
+        dtype=[('AIA', 'float64'), ('TRE', 'float64'),
+               ('FRCC', 'float64'), ('SPPN', 'float64'),
+               ('MISW', 'float64'), ('ISNE', 'float64')])
 
 
 class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
@@ -2350,13 +2350,13 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
     sample_keys_alt = [
         ['FRCC', 'warehouse', 'natural gas',
          'heating', 'demand', 'windows solar'],
-        ['MROE', 'health care', 'electricity',
+        ['MISW', 'health care', 'electricity',
          'cooling', 'demand', 'people gain'],
-        ['MROW', 'single family home', 'electricity',
+        ['SPPN', 'single family home', 'electricity',
          'heating', 'demand', 'windows conduction'],
-        ['NEWE', 'mobile home', 'electricity',
+        ['ISNE', 'mobile home', 'electricity',
          'cooling', 'demand', 'infiltration'],
-        ['ERCT', 'large office', 'electricity',
+        ['TRE', 'large office', 'electricity',
          'cooling', 'demand', 'ground']]
 
     # Create a list that indicates for each entry in the sample_keys

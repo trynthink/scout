@@ -352,9 +352,10 @@ class UsefulVars(object):
                 ('AIA CZ5', 'AIA_CZ5')]
         elif regions == "EMM":
             valid_regions = [
-             'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-             'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-             'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']
+                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
             regions_out = [(x, x) for x in valid_regions]
             try:
                 self.ash_emm_map = numpy.genfromtxt(
@@ -707,6 +708,61 @@ class UsefulVars(object):
                 "4C", "5A", "5B", "5C", "6A", "6B", "7"]
             self.tsv_nerc_regions = [
                 "FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
+            # Set a dict that maps each ASH climate zone to an EMM region
+            # in the climate zone with the most representative set of
+            # min/max system load hour and peak/take system load hour
+            # windows to use for that climate zone. For most climates, two
+            # of these representative regions is assumed to account for
+            # varying types of renewable mixes (e.g., high solar vs. low
+            # solar, which yield differences in net load shapes and net
+            # peak/take periods). In these cases, the terminal value is
+            # formatted as a list with the EMM region number with the
+            # representative load hour data stored in the first element,
+            # and all other EMM regions in the climate that are covered
+            # by that representative load hour data stored in the second
+            # element. NOTE: the selection of representative EMM regions
+            # for each ASH region is based on the plots found here:
+            # https://drive.google.com/drive/folders/
+            # 1JSoQb78LgooUD_uXqBOzAC7Nl7eLJZnc?usp=sharing
+            self.cz_emm_map = {
+                "2A": {
+                    "set 1": [2, (2, 1)],
+                    "set 2": [6, (6, 15)]},
+                "2B": {
+                    "set 1": [20, (20, 1)],
+                    "set 2": [22, (22)]},
+                "3A": {
+                    "set 1": [15, (15, 6, 14, 16)],
+                    "set 2": [1, (1, 17)]},
+                "3B": {
+                    "set 1": [22, (22, 21)],
+                    "set 2": [25, (25, 1, 17, 20)]},
+                "3C": 21,
+                "4A": {
+                    "set 1": [10, (10, 9, 11, 4, 17, 18)],
+                    "set 2": [16, (16, 14, 15, 6)]},
+                "4B": {
+                    "set 1": [20, (20, 1, 17, 24)],
+                    "set 2": [21, (21, 22)]},
+                "4C": {
+                    "set 1": [23, (23)],
+                    "set 2": [21, (21)]},
+                "5A": {
+                    "set 1": [11, (11, 3, 4, 7, 9, 10, 18, 19)],
+                    "set 2": [5, (5, 14)]},
+                "5B": {
+                    "set 1": [24, (24, 23, 25, 20)],
+                    "set 2": [21, (21)]},
+                "5C": 23,
+                "6A": {
+                    "set 1": [3, (3, 5, 19)],
+                    "set 2": [7, (7, 9, 10, 24)]},
+                "6B": {
+                    "set 1": [23, (23, 24, 19, 25)],
+                    "set 2": [22, (21, 22)]},
+                "7": {
+                    "set 1": [3, (3, 5, 19)],
+                    "set 2": [24, (24, 7, 25)]}}
             if tsv_metrics is not None:
                 # Develop weekend day flags
                 wknd_day_flags = [0 for n in range(365)]
@@ -785,43 +841,14 @@ class UsefulVars(object):
                 # (https://www.eia.gov/outlooks/aeo/pdf/f2.pdf)
                 self.emm_name_num_map = {
                     name: (ind + 1) for ind, name in enumerate(valid_regions)}
-                # Set a dict that maps each climate zone to an EMM region
-                # number with the most representative set of min/max system
-                # load hour and peak/take system load hour windows to use
-                # for that climate zone. For larger climate zones (3A, 4A, 5A,
-                # 6A), more than one of these representative regions is
-                # assumed. In these cases, the terminal value is formatted as a
-                # list with the EMM region number with the representative
-                # load hour data stored in the first element, and all EMM
-                # regions covered by that representative load hour data
-                # stored in the second element
-                self.cz_emm_map = {
-                    "2A": 2, "2B": 19, "3A": {
-                        "set 1": [16, (16, 1, 12)],
-                        "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
-                    "4A": {
-                        "set 1": [6, (6, 7, 9, 11)],
-                        "set 2": [17, (17, 18, 12, 13, 14, 15, 16)]}, "4B": 19,
-                    "4C": 21, "5A": {
-                        "set 1": [8, (8, 4, 13, 15, 16, 17)],
-                        "set 2": [11, (11, 3, 5, 6, 9, 10, 22)]},
-                    "5B": 22, "5C": 21, "6A": {
-                        "set 1": [4, (4, 8, 22)],
-                        "set 2": [5, (3, 5, 9, 10, 11)]},
-                    "6B": 21, "7": 4}
                 # Initialize a set of dicts that will store representative
                 # system load data for the summer, winter, and intermediate
                 # seasons
                 sysld_sum, sysld_wint, sysld_int = (
-                    {"2A": None, "2B": None, "3A": {
-                        "set 1": None, "set 2": None}, "3B": None, "3C": None,
-                     "4A": {
-                        "set 1": None, "set 2": None}, "4B": None, "4C": None,
-                     "5A": {
-                        "set 1": None, "set 2": None}, "5B": None, "5C": None,
-                     "6A": {
-                        "set 1": None, "set 2": None}, "6B": None, "7": None}
-                    for n in range(3))
+                    {key: {key_sub: None for
+                     key_sub in self.cz_emm_map[key].keys()} if
+                     type(self.cz_emm_map[key]) is dict else None
+                     for key in self.cz_emm_map.keys()} for n in range(3))
                 # Fill in the dicts with seasonal system load data
                 for cz in self.cz_emm_map.keys():
                     # Handle climate zones with one representative system
@@ -907,20 +934,6 @@ class UsefulVars(object):
                 self.tsv_metrics_data = None
                 self.emm_name_num_map = {
                     name: (ind + 1) for ind, name in enumerate(valid_regions)}
-                self.cz_emm_map = {
-                    "2A": 2, "2B": 19, "3A": {
-                        "set 1": [16, (16, 1, 12)],
-                        "set 2": [18, (18, 14, 15, 17)]}, "3B": 1, "3C": 20,
-                    "4A": {
-                        "set 1": [6, (6, 7, 9, 11)],
-                        "set 2": [17, (17, 18, 12, 13, 14, 15, 16)]}, "4B": 19,
-                    "4C": 21, "5A": {
-                        "set 1": [8, (8, 4, 13, 15, 16, 17)],
-                        "set 2": [11, (11, 3, 5, 6, 9, 10, 22)]},
-                    "5B": 22, "5C": 21, "6A": {
-                        "set 1": [4, (4, 8, 22)],
-                        "set 2": [5, (3, 5, 9, 10, 11)]},
-                    "6B": 21, "7": 4}
             self.tsv_hourly_price, self.tsv_hourly_emissions = ({
                 reg: None for reg in valid_regions
             } for n in range(2))
@@ -1637,9 +1650,10 @@ class Measure(object):
         # measure 'climate_zone' attribute if time sensitive ECM features
         # and/or output metrics are desired
         valid_tsv_regions = [
-            'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-            'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-            'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']
+            'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+            'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+            'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+            'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
         if (any([x is not None for x in [
             self.tsv_features, tsv_metrics]]) and ((
                 type(self.climate_zone) == list and any([
