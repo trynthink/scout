@@ -112,9 +112,10 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
 }else{
   # Set region legend names
   czones_out<-c(
-    'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-    'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-    'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA')
+    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN')
   # Set region legend colors; in the EMM case, extend the color list to
   # accomodate the larger number of region categories
   czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))

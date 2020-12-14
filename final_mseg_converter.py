@@ -452,40 +452,31 @@ def env_cpl_data_handler(
     """
 
     # Preallocate variables for the building class (i.e., residential
-    # or commercial) and the building type
+    # or commercial), building type, and region
     bldg_class = ''
     bldg_type = ''
+    cz_int = ''
 
+    # Set AIA climate zone list
+    aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
+    # Set EMM region list
+    emm_list = ['TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
     # Loop through the keys specifying the current microsegment to
     # determine the building type, whether the building is residential
     # or commercial, and identify the custom region
     for entry in key_list:
-        # Identify the building type and thus determine the building class
+        # Identify the building type and thus determine the building class,
+        # or region name
         if entry in mseg.bldgtypedict.keys():
             bldg_class = 'residential'
             bldg_type = entry
         elif entry in cm.CommercialTranslationDicts().bldgtypedict.keys():
             bldg_class = 'commercial'
             bldg_type = entry
-
-        # Identify and record the custom region name
-
-        # In the case where envelope conversion data are being converted to
-        # an EMM region breakout, an array of conversions from the AIA
-        # breakouts of the envelope performance data to the EMM regions will
-        # be made available
-        if perf_convert is not None and entry in [
-            'ERCT', 'FRCC', 'MROE', 'MROW', 'NEWE', 'NYCW', 'NYLI', 'NYUP',
-            'RFCE', 'RFCM', 'RFCW', 'SRDA', 'SRGW', 'SRSE', 'SRCE', 'SRVC',
-                'SPNO', 'SPSO', 'AZNM', 'CAMX', 'NWPP', 'RMPA']:
-            # Record the EMM region name
-            cz_int = entry
-            # Set the list of AIA climate zones that are used to breakout
-            # envelope performance data values; a weighted sum of performance
-            # values across these regions will be performed for each EMM region
-            aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
-        elif entry in ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']:
-            # Record the AIA region name
+        elif any([entry in y for y in [aia_list, emm_list]]):
             cz_int = entry
 
     # Some envelope components are reported as two or more words, but
