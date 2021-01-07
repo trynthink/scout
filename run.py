@@ -214,21 +214,15 @@ class Measure(object):
                variables (e.g., climate zone, building type, end use, etc.)
         savings (dict): Energy, carbon, and stock, energy, and carbon cost
             savings for measure over baseline technology case.
-        portfolio_metrics (dict): Financial metrics relevant to assessing a
-            large portfolio of efficiency measures (e.g., CCE, CCC).
-        consumer_metrics (dict): Financial metrics relevant to the adoption
-            decisions of individual consumers (e.g., unit costs, IRR, payback).
+        financial_metrics (dict): Measure financial metrics.
     """
 
     def __init__(self, handyvars, **kwargs):
         # Read Measure object attributes from measures input JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.savings, self.portfolio_metrics, self.consumer_metrics = (
-            {} for n in range(3))
-        self.update_results = {
-            "savings and portfolio metrics": {},
-            "consumer metrics": True}
+        self.savings, self.financial_metrics = ({} for n in range(2))
+        self.update_results = {"savings": {}, "financial metrics": True}
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
         self.convert_to_numpy(self.markets)
@@ -238,49 +232,28 @@ class Measure(object):
             self.markets[adopt_scheme] = {
                 "uncompeted": copy.deepcopy(self.markets[adopt_scheme]),
                 "competed": copy.deepcopy(self.markets[adopt_scheme])}
-            self.update_results["savings and portfolio metrics"][
+            self.update_results["savings"][
                 adopt_scheme] = {"uncompeted": True, "competed": True}
             self.savings[adopt_scheme] = {
                 "uncompeted": {
                     "stock": {
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None},
+                        "cost savings": None},
                     "energy": {
-                        "savings (total)": None,
-                        "savings (annual)": None,
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None},
+                        "savings": None,
+                        "cost savings": None},
                     "carbon": {
-                        "savings (total)": None,
-                        "savings (annual)": None,
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None}},
+                        "savings": None,
+                        "cost savings": None}},
                 "competed": {
                     "stock": {
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None},
+                        "cost savings": None},
                     "energy": {
-                        "savings (total)": None,
-                        "savings (annual)": None,
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None},
+                        "savings": None,
+                        "cost savings": None},
                     "carbon": {
-                        "savings (total)": None,
-                        "savings (annual)": None,
-                        "cost savings (total)": None,
-                        "cost savings (annual)": None}}}
-            self.portfolio_metrics[adopt_scheme] = {
-                "uncompeted": {
-                    "cce": None,
-                    "cce (w/ carbon cost benefits)": None,
-                    "ccc": None,
-                    "ccc (w/ energy cost benefits)": None},
-                "competed": {
-                    "cce": None,
-                    "cce (w/ carbon cost benefits)": None,
-                    "ccc": None,
-                    "ccc (w/ energy cost benefits)": None}}
-            self.consumer_metrics = {
+                        "savings": None,
+                        "cost savings": None}}}
+            self.financial_metrics = {
                 "unit cost": {
                     "stock cost": {
                         "residential": None,
@@ -297,7 +270,12 @@ class Measure(object):
                 "irr (w/ energy costs)": None,
                 "irr (w/ energy and carbon costs)": None,
                 "payback (w/ energy costs)": None,
-                "payback (w/ energy and carbon costs)": None}
+                "payback (w/ energy and carbon costs)": None,
+                "cce": None,
+                "cce (w/ carbon cost benefits)": None,
+                "ccc": None,
+                "ccc (w/ energy cost benefits)": None
+                }
 
     def convert_to_numpy(self, markets):
         """Convert terminal/leaf node lists in a dict to numpy arrays.
@@ -390,9 +368,7 @@ class Engine(object):
                     ("Applicable End Uses", end_uses)])),
                 ("Markets and Savings (Overall)", OrderedDict()),
                 ("Markets and Savings (by Category)", OrderedDict()),
-                ("Financial Metrics", OrderedDict([
-                    ("Portfolio Level", OrderedDict()),
-                    ("Consumer Level", OrderedDict())]))])
+                ("Financial Metrics", OrderedDict())])
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Initialize measure overall markets and savings
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
@@ -402,8 +378,7 @@ class Engine(object):
                 self.output_ecms[m.name]["Markets and Savings (by Category)"][
                     adopt_scheme] = OrderedDict()
                 # Initialize measure financial metrics
-                self.output_ecms[m.name]["Financial Metrics"][
-                    "Portfolio Level"][adopt_scheme] = OrderedDict()
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
 
     def calc_savings_metrics(self, adopt_scheme, comp_scheme):
         """Calculate and update measure savings and financial metrics.
@@ -421,331 +396,343 @@ class Engine(object):
         """
         # Find all active measures that require savings updates
         measures_update = [m for m in self.measures if m.update_results[
-            "savings and portfolio metrics"][
-            adopt_scheme][comp_scheme] is True]
+            "savings"][adopt_scheme][comp_scheme] is True]
 
         # Update measure savings and associated financial metrics
         for m in measures_update:
             # Initialize energy/energy cost savings, carbon/
-            # carbon cost savings, and dicts for financial metrics
-            scostsave_tot, scostsave, esave_tot, esave, ecostsave_tot, \
-                ecostsave, csave_tot, csave, ccostsave_tot, ccostsave, \
-                stock_unit_cost_res, stock_unit_cost_com, \
-                energy_unit_cost_res, energy_unit_cost_com, \
-                carb_unit_cost_res, carb_unit_cost_com, \
-                irr_e, irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, \
-                ccc_bens, scost_meas_tot, ecost_meas_tot, ccost_meas_tot = ({
+            # carbon cost savings dicts
+            scostsave_tot, esave_tot, ecostsave_tot, csave_tot, \
+                ccostsave_tot = ({
                     yr: None for yr in self.handyvars.aeo_years} for
-                    n in range(27))
+                    n in range(5))
+            # Shorthand for data used to determine uncompeted and competed
+            # savings by adoption scheme
+            markets_c = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
 
-            # Determine the total uncompeted measure/baseline capital
-            # cost and total number of applicable baseline stock units,
-            # used below to calculate incremental capital cost per unit
-            # stock for the measure in each year
-
-            # Total uncompeted baseline capital cost
-            stock_meas_cost_tot = {
-                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "cost"]["stock"]["total"]["efficient"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Total uncompeted measure capital cost
-            stock_base_cost_tot = {
-                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "cost"]["stock"]["total"]["baseline"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Total number of applicable stock units
-            nunits_tot = {
-                yr: m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
-                    "stock"]["total"]["all"][yr] for
-                yr in self.handyvars.aeo_years}
-
-            # Set measure master microsegments for the current adoption and
-            # competition schemes
-            markets = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
-
-            # Calculate measure capital cost savings, energy/carbon savings,
-            # energy/carbon cost savings, and financial metrics for each
-            # projection year
+            # Calculate measure energy/carbon savings, capital cost savings,
+            # and energy/carbon cost savings for each projection year
             for yr in self.handyvars.aeo_years:
-
-                # Calculate per unit baseline capital cost and incremental
-                # measure capital cost (used in financial metrics
-                # calculations below); set these values to zero for
-                # years in which total number of units is zero
-                if nunits_tot[yr] != 0:
-                    # Per unit baseline capital cost
-                    scostbase = \
-                        stock_base_cost_tot[yr] / nunits_tot[yr]
-                    # Per unit measure incremental capital cost
-                    scostmeas_delt = \
-                        (stock_base_cost_tot[yr] -
-                         stock_meas_cost_tot[yr]) / nunits_tot[yr]
-                else:
-                    scostbase, scost_save = (0 for n in range(2))
-
-                # Calculate total annual capital/energy/carbon costs for the
-                # measure. Total costs reflect the impact of all measure
-                # adoptions simulated up until and including the current year
-                scost_meas_tot[yr] = \
-                    markets["cost"]["stock"]["total"]["efficient"][yr]
-                ecost_meas_tot[yr] = \
-                    markets["cost"]["energy"]["total"]["efficient"][yr]
-                ccost_meas_tot[yr] = \
-                    markets["cost"]["carbon"]["total"]["efficient"][yr]
-
                 # Calculate total annual energy/carbon and capital/energy/
                 # carbon cost savings for the measure vs. baseline. Total
                 # savings reflect the impact of all measure adoptions
                 # simulated up until and including the current year
                 esave_tot[yr] = \
-                    markets["energy"]["total"]["baseline"][yr] - \
-                    markets["energy"]["total"]["efficient"][yr]
+                    markets_c["energy"]["total"]["baseline"][yr] - \
+                    markets_c["energy"]["total"]["efficient"][yr]
                 csave_tot[yr] = \
-                    markets["carbon"]["total"]["baseline"][yr] - \
-                    markets["carbon"]["total"]["efficient"][yr]
+                    markets_c["carbon"]["total"]["baseline"][yr] - \
+                    markets_c["carbon"]["total"]["efficient"][yr]
                 scostsave_tot[yr] = \
-                    markets["cost"]["stock"]["total"]["baseline"][yr] - \
-                    markets["cost"]["stock"]["total"]["efficient"][yr]
+                    markets_c["cost"]["stock"]["total"]["baseline"][yr] - \
+                    markets_c["cost"]["stock"]["total"]["efficient"][yr]
                 ecostsave_tot[yr] = \
-                    markets["cost"]["energy"]["total"]["baseline"][yr] - \
-                    markets["cost"]["energy"]["total"]["efficient"][yr]
+                    markets_c["cost"]["energy"]["total"]["baseline"][yr] - \
+                    markets_c["cost"]["energy"]["total"]["efficient"][yr]
                 ccostsave_tot[yr] = \
-                    markets["cost"]["carbon"]["total"]["baseline"][yr] - \
-                    markets["cost"]["carbon"]["total"]["efficient"][yr]
+                    markets_c["cost"]["carbon"]["total"]["baseline"][yr] - \
+                    markets_c["cost"]["carbon"]["total"]["efficient"][yr]
 
-                # Calculate the annual energy/carbon and capital/energy/carbon
-                # cost savings for the measure vs. baseline. (Annual savings
-                # will later be used in measure competition routines). Annual
-                # savings reflect the impact of only the measure adoptions
-                # that are new in the current year
-                esave[yr] = \
-                    markets["energy"]["competed"]["baseline"][yr] - \
-                    markets["energy"]["competed"]["efficient"][yr]
-                csave[yr] = \
-                    markets["carbon"]["competed"]["baseline"][yr] - \
-                    markets["carbon"]["competed"]["efficient"][yr]
-                scostsave[yr] = markets[
-                    "cost"]["stock"]["competed"]["baseline"][yr] - \
-                    markets["cost"]["stock"]["competed"]["efficient"][yr]
-                ecostsave[yr] = markets[
-                    "cost"]["energy"]["competed"]["baseline"][yr] - \
-                    markets["cost"]["energy"]["competed"]["efficient"][yr]
-                ccostsave[yr] = markets[
-                    "cost"]["carbon"]["competed"]["baseline"][yr] - \
-                    markets["cost"]["carbon"]["competed"]["efficient"][yr]
-
-                # Set the lifetime of the baseline technology for comparison
-                # with measure lifetime
-                life_base = markets["lifetime"]["baseline"][yr]
-                # Ensure that baseline lifetime is at least 1 year
-                if type(life_base) == numpy.ndarray and any(life_base) < 1:
-                    life_base[numpy.where(life_base) < 1] = 1
-                elif type(life_base) != numpy.ndarray and life_base < 1:
-                    life_base = 1
-                # Set lifetime of the measure
-                life_meas = markets["lifetime"]["measure"]
-                # Ensure that measure lifetime is at least 1 year
-                if type(life_meas) == numpy.ndarray and any(life_meas) < 1:
-                    life_meas[numpy.where(life_meas) < 1] = 1
-                elif type(life_meas) != numpy.ndarray and life_meas < 1:
-                    life_meas = 1
-
-                # Calculate measure financial metrics
-
-                # Create short name for number of captured measure stock units
-                nunits_meas = markets["stock"]["total"]["measure"][yr]
-                # If the total baseline stock is zero or no measure units
-                # have been captured for a given year, set financial metrics
-                # to 999
-                if nunits_tot[yr] == 0 or (
-                    type(nunits_meas) != numpy.ndarray and nunits_meas < 1 or
-                        type(nunits_meas) == numpy.ndarray and all(
-                            nunits_meas) < 1):
-                    if yr == self.handyvars.aeo_years[0]:
-                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                            irr_e[yr], irr_ec[yr], payback_e[yr], \
-                            payback_ec[yr], cce[yr], cce_bens[yr], \
-                            ccc[yr], ccc_bens[yr] = [999 for n in range(14)]
-                    else:
-                        yr_prev = str(int(yr) - 1)
-                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                            irr_e[yr], irr_ec[yr], payback_e[yr], \
-                            payback_ec[yr], cce[yr], cce_bens[yr], \
-                            ccc[yr], ccc_bens[yr] = [x[yr_prev] for x in [
-                                stock_unit_cost_res, energy_unit_cost_res,
-                                carb_unit_cost_res, stock_unit_cost_com,
-                                energy_unit_cost_com, carb_unit_cost_com,
-                                irr_e, irr_ec, payback_e, payback_ec, cce,
-                                cce_bens, ccc, ccc_bens]]
-                # Otherwise, check whether any financial metric calculation
-                # inputs that can be arrays are in fact arrays
-                elif any(type(x) == numpy.ndarray for x in [
-                        scostmeas_delt, esave[yr], life_meas]):
-                    # Make copies of the above stock, energy, carbon, and cost
-                    # variables for possible further manipulation below before
-                    # using as inputs to the "metric update" function
-                    scostmeas_delt_tmp, esave_tmp, ecostsave_tmp, csave_tmp, \
-                        ccostsave_tmp, life_meas_tmp, scost_meas_tmp, \
-                        ecost_meas_tmp, ccost_meas_tmp = [
-                            scostmeas_delt, esave_tot[yr], ecostsave_tot[yr],
-                            csave_tot[yr], ccostsave_tot[yr], life_meas,
-                            scost_meas_tot[yr], ecost_meas_tot[yr],
-                            ccost_meas_tot[yr]]
-
-                    # Ensure consistency in length of all "metric_update"
-                    # inputs that can be arrays
-
-                    # Determine the length that any array inputs to
-                    # "metric_update" should consistently have
-                    len_arr = next((len(item) for item in [
-                        scostmeas_delt, esave_tot[yr], life_meas] if
-                        type(item) == numpy.ndarray), None)
-
-                    # Ensure all array inputs to "metric_update" are of the
-                    # above length
-
-                    # Check capital cost inputs
-                    if type(scostmeas_delt_tmp) != numpy.ndarray:
-                        scostmeas_delt_tmp = numpy.repeat(
-                            scostmeas_delt_tmp, len_arr)
-                        scost_meas_tmp = numpy.repeat(scost_meas_tmp, len_arr)
-                    # Check energy/energy cost and carbon/cost savings inputs
-                    if type(esave_tmp) != numpy.ndarray:
-                        esave_tmp = numpy.repeat(esave_tmp, len_arr)
-                        ecostsave_tmp = numpy.repeat(ecostsave_tmp, len_arr)
-                        csave_tmp = numpy.repeat(csave_tmp, len_arr)
-                        ccostsave_tmp = numpy.repeat(ccostsave_tmp, len_arr)
-                        ecost_meas_tmp = numpy.repeat(ecost_meas_tmp, len_arr)
-                        ccost_meas_tmp = numpy.repeat(ccost_meas_tmp, len_arr)
-                    # Check measure lifetime input
-                    if type(life_meas_tmp) != numpy.ndarray:
-                        life_meas_tmp = numpy.repeat(life_meas_tmp, len_arr)
-
-                    # Initialize numpy arrays for financial metrics outputs
-                    stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                        carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                        energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                        irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
-                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = (
-                            numpy.repeat(None, len(scostmeas_delt_tmp)) for
-                            v in range(14))
-
-                    # Run measure energy/carbon/cost savings and lifetime
-                    # inputs through "metric_update" function to yield
-                    # financial metric outputs. To handle inputs that are
-                    # arrays, use a for loop to generate an output for each
-                    # input array element one-by-one and append it to the
-                    # appropriate output list. Note that lifetime float
-                    # values are translated to integers, and all
-                    # energy, carbon, and energy/carbon cost savings values
-                    # are normalized by total applicable stock units
-                    for x in range(0, len(scostmeas_delt_tmp)):
-                        stock_unit_cost_res[yr][x], \
-                            energy_unit_cost_res[yr][x], \
-                            carb_unit_cost_res[yr][x], \
-                            stock_unit_cost_com[yr][x], \
-                            energy_unit_cost_com[yr][x], \
-                            carb_unit_cost_com[yr][x], \
-                            irr_e[yr][x], irr_ec[yr][x], \
-                            payback_e[yr][x], payback_ec[yr][x], \
-                            cce[yr][x], cce_bens[yr][x], ccc[yr][x], \
-                            ccc_bens[yr][x] = self.metric_update(
-                                m, int(round(life_base)),
-                                int(round(life_meas_tmp[x])),
-                                scostbase, scostmeas_delt_tmp[x],
-                                esave_tmp[x] / nunits_tot[yr],
-                                ecostsave_tmp[x] / nunits_tot[yr],
-                                csave_tmp[x] / nunits_tot[yr],
-                                ccostsave_tmp[x] / nunits_tot[yr],
-                                scost_meas_tmp[x] / nunits_tot[yr],
-                                ecost_meas_tmp[x] / nunits_tot[yr],
-                                ccost_meas_tmp[x] / nunits_tot[yr])
-                else:
-                    # Run measure energy/carbon/cost savings and lifetime
-                    # inputs through "metric_update" function to yield
-                    # financial metric outputs. Note that lifetime float
-                    # values are translated to integers, and all
-                    # energy, carbon, and energy/carbon cost savings values
-                    # are normalized by total applicable stock units
-                    stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                        carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                        energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                        irr_e[yr], irr_ec[yr], payback_e[yr], payback_ec[yr], \
-                        cce[yr], cce_bens[yr], ccc[yr], ccc_bens[yr] = \
-                        self.metric_update(
-                            m, int(round(life_base)),
-                            int(round(life_meas)), scostbase, scostmeas_delt,
-                            esave_tot[yr] / nunits_tot[yr],
-                            ecostsave_tot[yr] / nunits_tot[yr],
-                            csave_tot[yr] / nunits_tot[yr],
-                            ccostsave_tot[yr] / nunits_tot[yr],
-                            scost_meas_tot[yr] / nunits_tot[yr],
-                            ecost_meas_tot[yr] / nunits_tot[yr],
-                            ccost_meas_tot[yr] / nunits_tot[yr])
-
-            # Record final measure savings figures and financial metrics
+            # Record final measure savings figures (across all years)
 
             # Set measure savings dict to update
             save = m.savings[adopt_scheme][comp_scheme]
             # Update capital cost savings
-            save["stock"]["cost savings (total)"] = scostsave_tot
-            save["stock"]["cost savings (annual)"] = scostsave
+            save["stock"]["cost savings"] = scostsave_tot
             # Update energy and energy cost savings
-            save["energy"]["savings (total)"] = esave_tot
-            save["energy"]["savings (annual)"] = esave
-            save["energy"]["cost savings (total)"] = ecostsave_tot
-            save["energy"]["cost savings (annual)"] = ecostsave
+            save["energy"]["savings"] = esave_tot
+            save["energy"]["cost savings"] = ecostsave_tot
             # Update carbon and carbon cost savings
-            save["carbon"]["savings (total)"] = csave_tot
-            save["carbon"]["savings (annual)"] = csave
-            save["carbon"]["cost savings (total)"] = ccostsave_tot
-            save["carbon"]["cost savings (annual)"] = ccostsave
+            save["carbon"]["savings"] = csave_tot
+            save["carbon"]["cost savings"] = ccostsave_tot
 
-            # Set measure portfolio-level financial metrics dict to update
-            metrics_port = m.portfolio_metrics[adopt_scheme][comp_scheme]
-            # Update cost of conserved energy
-            metrics_port["cce"] = cce
-            metrics_port["cce (w/ carbon cost benefits)"] = cce_bens
-            # Update cost of conserved carbon
-            metrics_port["ccc"] = ccc
-            metrics_port["ccc (w/ energy cost benefits)"] = ccc_bens
+            # Set measure savings for the current adoption and competition
+            # schemes to finalized status
+            m.update_results["savings"][adopt_scheme][comp_scheme] = False
 
-            # Set measure savings and portolio-level metrics for the current
-            # adoption and competition schemes to finalized status
-            m.update_results["savings and portfolio metrics"][
-                adopt_scheme][comp_scheme] = False
-
-            # Update measure consumer-level financial metrics if they have
-            # not already been finalized (these metrics remain constant across
+            # Update measure financial metrics if they have not already been
+            # finalized (these metrics remain constant across
             # all consumer adoption and measure competition schemes)
-            if m.update_results["consumer metrics"] is True:
-                # Set measure consumer-level financial metrics dict to update
-                metrics_consumer = m.consumer_metrics
+            if m.update_results["financial metrics"] is True:
+                # Shorthand for data used to determine financial metrics (since
+                # these data do not vary based on competition or adoption
+                # scheme, use only uncompeted TP data for the calculations)
+                markets_uc = m.markets[
+                    "Technical potential"]["uncompeted"]["master_mseg"]
+                # Initialize per unit measure stock, energy, and carbon costs;
+                # per unit energy and carbon cost savings; per unit energy and
+                # carbon savings; unit stock, energy, and carbon costs to use
+                # in residential and commercial competition calculations; and
+                # financial metrics (irr, payback, cce, ccc)
+                scostbase_unit, scostmeas_delt_unit, scostmeas_tot_unit, \
+                    ecost_meas_tot_unit, ccost_meas_tot_unit, \
+                    ecostsave_tot_unit, ccostsave_tot_unit, esave_tot_unit, \
+                    csave_tot_unit, stock_unit_cost_res, stock_unit_cost_com, \
+                    energy_unit_cost_res, energy_unit_cost_com, \
+                    carb_unit_cost_res, carb_unit_cost_com, irr_e, irr_ec, \
+                    payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = ({
+                        yr: None for yr in self.handyvars.aeo_years} for
+                        n in range(23))
+
+                # Calculate per unit stock costs, energy and carbon savings,
+                # and energy and carbon cost savings for each projection year
+                for yr in self.handyvars.aeo_years:
+
+                    # Total baseline capital cost
+                    stock_base_cost_tot = \
+                        markets_uc["cost"]["stock"]["total"]["baseline"][yr]
+                    # Total measure capital cost
+                    stock_meas_cost_tot = \
+                        markets_uc["cost"]["stock"]["total"]["efficient"][yr]
+                    # Total number of applicable baseline stock units
+                    nunits_tot = \
+                        markets_uc["stock"]["total"]["all"][yr]
+                    # Total number of applicable stock units capt. by measure
+                    nunits_meas = \
+                        markets_uc["stock"]["total"]["measure"][yr]
+
+                    # Calculate per unit baseline capital cost and incremental
+                    # measure capital cost (used in financial metrics
+                    # calculations below); set these values to zero for
+                    # years in which total number of base/meas units is zero
+                    if nunits_tot != 0 and (
+                        type(nunits_meas) != numpy.ndarray and
+                        nunits_meas >= 1 or
+                            type(nunits_meas) == numpy.ndarray and all(
+                                nunits_meas) >= 1):
+                        # Per unit baseline capital cost
+                        scostbase_unit[yr] = \
+                            stock_base_cost_tot / nunits_tot
+                        # Per unit measure incremental capital cost
+                        scostmeas_delt_unit[yr] = \
+                            (stock_base_cost_tot - stock_meas_cost_tot) / \
+                            nunits_meas
+                        # Per unit measure total capital cost
+                        scostmeas_tot_unit[yr] = \
+                            scostbase_unit[yr] - scostmeas_delt_unit[yr]
+                        # Per unit measure energy savings
+                        esave_tot_unit[yr] = \
+                            esave_tot[yr] / nunits_meas
+                        # Per unit measure carbon savings
+                        csave_tot_unit[yr] = \
+                            csave_tot[yr] / nunits_meas
+                        # Per unit measure energy cost savings
+                        ecostsave_tot_unit[yr] = \
+                            ecostsave_tot[yr] / nunits_meas
+                        # Per unit measure carbon cost savings
+                        ccostsave_tot_unit[yr] = \
+                            ccostsave_tot[yr] / nunits_meas
+                        # Per unit measure energy costs
+                        ecost_meas_tot_unit[yr] = (
+                            markets_uc["cost"]["energy"]["total"][
+                                "baseline"][yr] / nunits_tot) - \
+                            ecostsave_tot_unit[yr]
+                        # Per unit measure carbon costs
+                        ccost_meas_tot_unit[yr] = (
+                            markets_uc["cost"]["carbon"]["total"][
+                                "baseline"][yr] / nunits_tot) - \
+                            ccostsave_tot_unit[yr]
+
+                    # Set the lifetime of the baseline technology for
+                    # comparison with measure lifetime
+                    life_base = markets_uc["lifetime"]["baseline"][yr]
+                    # Ensure that baseline lifetime is at least 1 year
+                    if type(life_base) == numpy.ndarray and any(life_base) < 1:
+                        life_base[numpy.where(life_base) < 1] = 1
+                    elif type(life_base) != numpy.ndarray and life_base < 1:
+                        life_base = 1
+                    # Set lifetime of the measure
+                    life_meas = markets_uc["lifetime"]["measure"]
+                    # Ensure that measure lifetime is at least 1 year
+                    if type(life_meas) == numpy.ndarray and any(life_meas) < 1:
+                        life_meas[numpy.where(life_meas) < 1] = 1
+                    elif type(life_meas) != numpy.ndarray and life_meas < 1:
+                        life_meas = 1
+
+                    # Calculate measure financial metrics
+
+                    # If the total baseline stock is zero or no measure units
+                    # have been captured for a given year, set finance metrics
+                    # to 999
+                    if nunits_tot == 0 or (
+                        type(nunits_meas) != numpy.ndarray and
+                        nunits_meas < 1 or
+                            type(nunits_meas) == numpy.ndarray and all(
+                                nunits_meas) < 1):
+                        if yr == self.handyvars.aeo_years[0]:
+                            stock_unit_cost_res[yr], \
+                                energy_unit_cost_res[yr], \
+                                carb_unit_cost_res[yr], \
+                                stock_unit_cost_com[yr], \
+                                energy_unit_cost_com[yr], \
+                                carb_unit_cost_com[yr], \
+                                irr_e[yr], irr_ec[yr], payback_e[yr], \
+                                payback_ec[yr], cce[yr], cce_bens[yr], \
+                                ccc[yr], ccc_bens[yr] = [
+                                    999 for n in range(14)]
+                        else:
+                            yr_prev = str(int(yr) - 1)
+                            stock_unit_cost_res[yr], \
+                                energy_unit_cost_res[yr], \
+                                carb_unit_cost_res[yr], \
+                                stock_unit_cost_com[yr], \
+                                energy_unit_cost_com[yr], \
+                                carb_unit_cost_com[yr], \
+                                irr_e[yr], irr_ec[yr], \
+                                payback_e[yr], payback_ec[yr], \
+                                cce[yr], cce_bens[yr], \
+                                ccc[yr], ccc_bens[yr] = [x[yr_prev] for x in [
+                                    stock_unit_cost_res, energy_unit_cost_res,
+                                    carb_unit_cost_res, stock_unit_cost_com,
+                                    energy_unit_cost_com, carb_unit_cost_com,
+                                    irr_e, irr_ec, payback_e, payback_ec, cce,
+                                    cce_bens, ccc, ccc_bens]]
+                    # Otherwise, check whether any financial metric calculation
+                    # inputs that can be arrays are in fact arrays
+                    elif any(type(x) == numpy.ndarray for x in [
+                            scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                            life_meas]):
+                        # Make copies of the above stock, energy/carbon/cost
+                        # variables for possible further manipulation below
+                        # before using as inputs to "metric update" function
+                        scostmeas_delt_unit_tmp, esave_tmp_unit, \
+                            ecostsave_tmp_unit, csave_tmp_unit, \
+                            ccostsave_tmp_unit, life_meas_tmp, \
+                            scost_meas_tmp, ecost_meas_tmp, ccost_meas_tmp = [
+                                scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                                ecostsave_tot_unit[yr], csave_tot_unit[yr],
+                                ccostsave_tot_unit[yr], life_meas,
+                                scostmeas_tot_unit[yr],
+                                ecost_meas_tot_unit[yr],
+                                ccost_meas_tot_unit[yr]]
+
+                        # Ensure consistency in length of all "metric_update"
+                        # inputs that can be arrays
+
+                        # Determine the length that any array inputs to
+                        # "metric_update" should consistently have
+                        len_arr = next((len(item) for item in [
+                            scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                            life_meas] if type(item) == numpy.ndarray), None)
+
+                        # Ensure all array inputs to "metric_update" are of the
+                        # above length
+
+                        # Check capital cost inputs
+                        if type(scostmeas_delt_unit_tmp) != numpy.ndarray:
+                            scostmeas_delt_unit_tmp = numpy.repeat(
+                                scostmeas_delt_unit_tmp, len_arr)
+                            scost_meas_tmp = numpy.repeat(
+                                scost_meas_tmp, len_arr)
+                        # Check energy/energy cost and carbon/cost savings
+                        # inputs
+                        if type(esave_tmp_unit) != numpy.ndarray:
+                            esave_tmp_unit = numpy.repeat(
+                                esave_tmp_unit, len_arr)
+                            ecostsave_tmp_unit = \
+                                numpy.repeat(ecostsave_tmp_unit, len_arr)
+                            csave_tmp_unit = numpy.repeat(
+                                csave_tmp_unit, len_arr)
+                            ccostsave_tmp_unit = \
+                                numpy.repeat(ccostsave_tmp_unit, len_arr)
+                            ecost_meas_tmp = numpy.repeat(
+                                ecost_meas_tmp, len_arr)
+                            ccost_meas_tmp = numpy.repeat(
+                                ccost_meas_tmp, len_arr)
+                        # Check measure lifetime input
+                        if type(life_meas_tmp) != numpy.ndarray:
+                            life_meas_tmp = numpy.repeat(
+                                life_meas_tmp, len_arr)
+
+                        # Initialize numpy arrays for financial metrics outputs
+                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
+                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
+                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
+                            irr_e[yr], irr_ec[yr], payback_e[yr], \
+                            payback_ec[yr], cce[yr], cce_bens[yr], ccc[yr], \
+                            ccc_bens[yr] = (numpy.repeat(None, len(
+                                scostmeas_delt_unit_tmp)) for v in range(14))
+
+                        # Run measure energy/carbon/cost savings and lifetime
+                        # inputs through "metric_update" function to yield
+                        # financial metric outputs. To handle inputs that are
+                        # arrays, use a for loop to generate an output for each
+                        # input array element one-by-one and append it to the
+                        # appropriate output list. Note that lifetime float
+                        # values are translated to integers, and all
+                        # energy, carbon, and energy/carbon cost savings values
+                        # are normalized by total applicable stock units
+                        for x in range(0, len(scostmeas_delt_unit_tmp)):
+                            stock_unit_cost_res[yr][x], \
+                                energy_unit_cost_res[yr][x], \
+                                carb_unit_cost_res[yr][x], \
+                                stock_unit_cost_com[yr][x], \
+                                energy_unit_cost_com[yr][x], \
+                                carb_unit_cost_com[yr][x], \
+                                irr_e[yr][x], irr_ec[yr][x], \
+                                payback_e[yr][x], payback_ec[yr][x], \
+                                cce[yr][x], cce_bens[yr][x], ccc[yr][x], \
+                                ccc_bens[yr][x] = self.metric_update(
+                                    m, int(round(life_base)),
+                                    int(round(life_meas_tmp[x])),
+                                    scostbase_unit[yr],
+                                    scostmeas_delt_unit_tmp[x],
+                                    esave_tmp_unit[x], ecostsave_tmp_unit[x],
+                                    csave_tmp_unit[x], ccostsave_tmp_unit[x],
+                                    scost_meas_tmp[x], ecost_meas_tmp[x],
+                                    ccost_meas_tmp[x])
+                    else:
+                        # Run measure energy/carbon/cost savings and lifetime
+                        # inputs through "metric_update" function to yield
+                        # financial metric outputs. Note that lifetime float
+                        # values are translated to integers, and all
+                        # energy, carbon, and energy/carbon cost savings values
+                        # are normalized by total applicable stock units
+                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
+                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
+                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
+                            irr_e[yr], irr_ec[yr], payback_e[yr], \
+                            payback_ec[yr], cce[yr], cce_bens[yr], ccc[yr], \
+                            ccc_bens[yr] = \
+                            self.metric_update(
+                                m, int(round(life_base)),
+                                int(round(life_meas)), scostbase_unit[yr],
+                                scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                                ecostsave_tot_unit[yr], csave_tot_unit[yr],
+                                ccostsave_tot_unit[yr],
+                                scostmeas_tot_unit[yr],
+                                ecost_meas_tot_unit[yr],
+                                ccost_meas_tot_unit[yr])
+
+                # Set measure financial metrics dict to update (across years)
+                metrics_finance = m.financial_metrics
                 # Update unit capital and operating costs
-                metrics_consumer["unit cost"]["stock cost"]["residential"], \
-                    metrics_consumer["unit cost"]["stock cost"][
+                metrics_finance["unit cost"]["stock cost"]["residential"], \
+                    metrics_finance["unit cost"]["stock cost"][
                     "commercial"] = [stock_unit_cost_res, stock_unit_cost_com]
-                metrics_consumer["unit cost"]["energy cost"]["residential"], \
-                    metrics_consumer["unit cost"]["energy cost"][
+                metrics_finance["unit cost"]["energy cost"]["residential"], \
+                    metrics_finance["unit cost"]["energy cost"][
                     "commercial"] = [energy_unit_cost_res,
                                      energy_unit_cost_com]
-                metrics_consumer["unit cost"]["carbon cost"]["residential"], \
-                    metrics_consumer["unit cost"]["carbon cost"][
+                metrics_finance["unit cost"]["carbon cost"]["residential"], \
+                    metrics_finance["unit cost"]["carbon cost"][
                     "commercial"] = [carb_unit_cost_res, carb_unit_cost_com]
                 # Update internal rate of return
-                metrics_consumer["irr (w/ energy costs)"] = irr_e
-                metrics_consumer["irr (w/ energy and carbon costs)"] = irr_ec
+                metrics_finance["irr (w/ energy costs)"] = irr_e
+                metrics_finance["irr (w/ energy and carbon costs)"] = irr_ec
                 # Update payback period
-                metrics_consumer["payback (w/ energy costs)"] = payback_e
-                metrics_consumer["payback (w/ energy and carbon costs)"] = \
+                metrics_finance["payback (w/ energy costs)"] = payback_e
+                metrics_finance["payback (w/ energy and carbon costs)"] = \
                     payback_ec
+                # Update cost of conserved energy
+                metrics_finance["cce"] = cce
+                metrics_finance["cce (w/ carbon cost benefits)"] = cce_bens
+                # Update cost of conserved carbon
+                metrics_finance["ccc"] = ccc
+                metrics_finance["ccc (w/ energy cost benefits)"] = ccc_bens
 
                 # Set measure consumer-level metrics to finalized status
-                m.update_results["consumer metrics"] = False
+                m.update_results["financial metrics"] = False
 
     def metric_update(self, m, life_base, life_meas, scost_base,
                       scost_meas_delt, esave, ecostsave, csave, ccostsave,
@@ -877,97 +864,87 @@ class Engine(object):
         else:
             ccc, ccc_bens = [999 for n in range(2)]
 
-        # Calculate consumer-level financial metrics
+        # Calculate internal rate of return and simple payback for capital
+        # + energy and capital + energy + carbon cash flows.  Use try/
+        # except to handle cases where IRR/payback cannot be calculated
 
-        # Only calculate consumer-level financial metrics once; do not
-        # recalculate if already finalized
-        if m.update_results["consumer metrics"] is True:
-            # Set unit capital and operating costs using the above
-            # cashflows for later use in measure competition calculations. For
-            # residential sector measures, unit costs are simply the unit-level
-            # capital and operating costs for the measure.  For commerical
-            # sector measures, unit costs are translated to life cycle capital
-            # and operating costs across the measure lifetime using multiple
-            # discount rate levels that reflect various degrees of risk
-            # tolerance observed amongst commercial adopters.  These discount
-            # rate levels are imported from commercial AEO demand module data.
-
-            # Populate unit costs for residential sector
-            # Check whether measure applies to residential sector
-            if any([x in ["single family home", "multi family home",
-                          "mobile home"] for x in m.bldg_type]):
-                unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = [
-                    scost_meas, ecost_meas, ccost_meas]
-            # If measure does not apply to residential sector, set residential
-            # unit costs to 'None'
-            else:
-                unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = (
-                    None for n in range(3))
-
-            # Populate unit costs for commercial sector
-            # Check whether measure applies to commercial sector
-            if any([x not in ["single family home", "multi family home",
-                              "mobile home"] for x in m.bldg_type]):
-                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                    {} for n in range(3))
-                # Set unit cost values under 7 discount rate categories
-                try:
-                    for ind, tps in enumerate(
-                            self.handyvars.com_timeprefs["rates"]):
-                        unit_cost_s_com["rate " + str(ind + 1)],\
-                            unit_cost_e_com["rate " + str(ind + 1)],\
-                            unit_cost_c_com["rate " + str(ind + 1)] = \
-                            [npf.npv(tps, x) for x in [
-                             cashflows_s_tot, cashflows_e_tot,
-                             cashflows_c_tot]]
-                        if any([not math.isfinite(x) for x in [
-                                unit_cost_s_com["rate " + str(ind + 1)],
-                                unit_cost_e_com["rate " + str(ind + 1)],
-                                unit_cost_c_com["rate " + str(ind + 1)]]]):
-                            raise(ValueError)
-                except ValueError:
-                    unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                        999 for n in range(3))
-            # If measure does not apply to commercial sector, set commercial
-            # unit costs to 'None'
-            else:
-                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                    None for n in range(3))
-
-            # Calculate internal rate of return and simple payback for capital
-            # + energy and capital + energy + carbon cash flows.  Use try/
-            # except to handle cases where IRR/payback cannot be calculated
-
-            # IRR and payback given capital + energy cash flows
-            try:
-                irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
-                if not math.isfinite(irr_e):
-                    raise(ValueError)
-            except ValueError:
-                irr_e = 999
-            try:
-                payback_e = self.payback(cashflows_s_delt + cashflows_e_delt)
-            except (ValueError, LinAlgError):
-                payback_e = 999
-            # IRR and payback given capital + energy + carbon cash flows
-            try:
-                irr_ec = npf.irr(
+        # IRR and payback given capital + energy cash flows
+        try:
+            irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
+            if not math.isfinite(irr_e):
+                raise(ValueError)
+        except ValueError:
+            irr_e = 999
+        try:
+            payback_e = self.payback(cashflows_s_delt + cashflows_e_delt)
+        except (ValueError, LinAlgError):
+            payback_e = 999
+        # IRR and payback given capital + energy + carbon cash flows
+        try:
+            irr_ec = npf.irr(
+                cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
+            if not math.isfinite(irr_ec):
+                raise(ValueError)
+        except ValueError:
+            irr_ec = 999
+        try:
+            payback_ec = \
+                self.payback(
                     cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
-                if not math.isfinite(irr_ec):
-                    raise(ValueError)
-            except ValueError:
-                irr_ec = 999
-            try:
-                payback_ec = \
-                    self.payback(
-                        cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
-            except (ValueError, LinAlgError):
-                payback_ec = 999
+        except (ValueError, LinAlgError):
+            payback_ec = 999
+
+        # Set unit capital and operating costs using the above
+        # cashflows for later use in measure competition calculations. For
+        # residential sector measures, unit costs are simply the unit-level
+        # capital and operating costs for the measure.  For commerical
+        # sector measures, unit costs are translated to life cycle capital
+        # and operating costs across the measure lifetime using multiple
+        # discount rate levels that reflect various degrees of risk
+        # tolerance observed amongst commercial adopters.  These discount
+        # rate levels are imported from commercial AEO demand module data.
+
+        # Populate unit costs for residential sector
+        # Check whether measure applies to residential sector
+        if any([x in ["single family home", "multi family home",
+                      "mobile home"] for x in m.bldg_type]):
+            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = [
+                scost_meas, ecost_meas, ccost_meas]
+        # If measure does not apply to residential sector, set residential
+        # unit costs to 'None'
         else:
-            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res, \
-                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com, \
-                irr_e, irr_ec, payback_e, payback_ec = (
-                    None for n in range(10))
+            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = (
+                None for n in range(3))
+
+        # Populate unit costs for commercial sector
+        # Check whether measure applies to commercial sector
+        if any([x not in ["single family home", "multi family home",
+                          "mobile home"] for x in m.bldg_type]):
+            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
+                {} for n in range(3))
+            # Set unit cost values under 7 discount rate categories
+            try:
+                for ind, tps in enumerate(
+                        self.handyvars.com_timeprefs["rates"]):
+                    unit_cost_s_com["rate " + str(ind + 1)],\
+                        unit_cost_e_com["rate " + str(ind + 1)],\
+                        unit_cost_c_com["rate " + str(ind + 1)] = \
+                        [npf.npv(tps, x) for x in [
+                         cashflows_s_tot, cashflows_e_tot,
+                         cashflows_c_tot]]
+                    if any([not math.isfinite(x) for x in [
+                            unit_cost_s_com["rate " + str(ind + 1)],
+                            unit_cost_e_com["rate " + str(ind + 1)],
+                            unit_cost_c_com["rate " + str(ind + 1)]]]):
+                        raise(ValueError)
+            except ValueError:
+                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
+                    999 for n in range(3))
+        # If measure does not apply to commercial sector, set commercial
+        # unit costs to 'None'
+        else:
+            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
+                None for n in range(3))
 
         # Return all updated economic metrics
         return unit_cost_s_res, unit_cost_e_res, unit_cost_c_res, \
@@ -1191,10 +1168,10 @@ class Engine(object):
         # capital and operating cost values, accessed further below
 
         # Unit capital cost dictionary
-        unit_cost_s_in = [m.consumer_metrics["unit cost"]["stock cost"][
+        unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
             "residential"] for m in measures_adj]
         # Unit operating cost dictionary
-        unit_cost_e_in = [m.consumer_metrics["unit cost"]["energy cost"][
+        unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
             "residential"] for m in measures_adj]
 
         # Find the year range in which at least one measure that applies
@@ -1524,10 +1501,10 @@ class Engine(object):
         # capital and operating cost values, accessed further below
 
         # Unit stock cost dictionary
-        unit_cost_s_in = [m.consumer_metrics["unit cost"]["stock cost"][
+        unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
                      "commercial"] for m in measures_adj]
         # Unit operating cost dictionary
-        unit_cost_e_in = [m.consumer_metrics["unit cost"]["energy cost"][
+        unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
             "commercial"] for m in measures_adj]
 
         # Find the year range in which at least one measure that applies
@@ -3009,14 +2986,10 @@ class Engine(object):
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
-            # Set competed measure markets and savings; competed and uncompeted
-            # portfolio-level financial metrics; and consumer-level
-            # financial metrics
+            # Set competed measure markets and savings and financial metrics
             mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
             save = m.savings[adopt_scheme]["competed"]
-            metrics_port_uc = m.portfolio_metrics[adopt_scheme]["uncompeted"]
-            metrics_port_c = m.portfolio_metrics[adopt_scheme]["competed"]
-            metrics_consume = m.consumer_metrics
+            metrics_finance = m.financial_metrics
 
             # Group baseline/efficient markets, savings, and financial
             # metrics into list for updates
@@ -3029,22 +3002,18 @@ class Engine(object):
                 mkts["carbon"]["total"]["efficient"],
                 mkts["cost"]["energy"]["total"]["efficient"],
                 mkts["cost"]["carbon"]["total"]["efficient"],
-                save["energy"]["savings (total)"],
-                save["energy"]["cost savings (total)"],
-                save["carbon"]["savings (total)"],
-                save["carbon"]["cost savings (total)"],
-                metrics_port_uc["cce"],
-                metrics_port_uc["cce (w/ carbon cost benefits)"],
-                metrics_port_uc["ccc"],
-                metrics_port_uc["ccc (w/ energy cost benefits)"],
-                metrics_port_c["cce"],
-                metrics_port_c["cce (w/ carbon cost benefits)"],
-                metrics_port_c["ccc"],
-                metrics_port_c["ccc (w/ energy cost benefits)"],
-                metrics_consume["irr (w/ energy costs)"],
-                metrics_consume["irr (w/ energy and carbon costs)"],
-                metrics_consume["payback (w/ energy costs)"],
-                metrics_consume["payback (w/ energy and carbon costs)"]]
+                save["energy"]["savings"],
+                save["energy"]["cost savings"],
+                save["carbon"]["savings"],
+                save["carbon"]["cost savings"],
+                metrics_finance["cce"],
+                metrics_finance["cce (w/ carbon cost benefits)"],
+                metrics_finance["ccc"],
+                metrics_finance["ccc (w/ energy cost benefits)"],
+                metrics_finance["irr (w/ energy costs)"],
+                metrics_finance["irr (w/ energy and carbon costs)"],
+                metrics_finance["payback (w/ energy costs)"],
+                metrics_finance["payback (w/ energy and carbon costs)"]]
             # Order the year entries in the above markets, savings,
             # and portfolio metrics outputs
             summary_vals = [OrderedDict(
@@ -3063,8 +3032,7 @@ class Engine(object):
                 carb_cost_base_avg, energy_eff_avg, carb_eff_avg, \
                 energy_cost_eff_avg, carb_cost_eff_avg, energy_save_avg, \
                 energy_costsave_avg, carb_save_avg, carb_costsave_avg, \
-                cce_avg_uc, cce_c_avg_uc, ccc_avg_uc, ccc_e_avg_uc, \
-                cce_avg_c, cce_c_avg_c, ccc_avg_c, ccc_e_avg_c, \
+                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, \
                 irr_e_avg, irr_ec_avg, payback_e_avg, \
                 payback_ec_avg = [{
                     k: numpy.mean(v) for k, v in z.items()} for
@@ -3074,8 +3042,7 @@ class Engine(object):
                 carb_cost_base_low, energy_eff_low, carb_eff_low, \
                 energy_cost_eff_low, carb_cost_eff_low, energy_save_low, \
                 energy_costsave_low, carb_save_low, carb_costsave_low, \
-                cce_low_uc, cce_c_low_uc, ccc_low_uc, ccc_e_low_uc, \
-                cce_low_c, cce_c_low_c, ccc_low_c, ccc_e_low_c, \
+                cce_low, cce_c_low, ccc_low, ccc_e_low, \
                 irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = [{
                     k: numpy.percentile(v, 5) for k, v in z.items()} for
                     z in summary_vals]
@@ -3084,8 +3051,7 @@ class Engine(object):
                 carb_cost_base_high, energy_eff_high, carb_eff_high, \
                 energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
                 energy_costsave_high, carb_save_high, carb_costsave_high, \
-                cce_high_uc, cce_c_high_uc, ccc_high_uc, ccc_e_high_uc, \
-                cce_high_c, cce_c_high_c, ccc_high_c, ccc_e_high_c, \
+                cce_high, cce_c_high, ccc_high, ccc_e_high, \
                 irr_e_high, irr_ec_high, payback_e_high, payback_ec_high = [{
                     k: numpy.percentile(v, 95) for k, v in z.items()} for
                     z in summary_vals]
@@ -3286,60 +3252,25 @@ class Engine(object):
                 mkt_sv["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
                     carb_cost_eff_high
 
-            # Record updated portfolio metrics in Engine 'output' attribute;
+            # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
-            if cce_avg_uc != cce_low_uc:
-                self.output_ecms[m.name]["Financial Metrics"][
-                    "Portfolio Level"][adopt_scheme] = OrderedDict([
-                        ("Cost of Conserved Energy (uncompeted) "
-                         "($/MMBtu saved)", cce_avg_uc),
-                        ("Cost of Conserved Energy (uncompeted) (low)"
-                         "($/MMBtu saved)", cce_low_uc),
-                        ("Cost of Conserved Energy (uncompeted) (high)"
-                         "($/MMBtu saved)", cce_high_uc),
-                        (("Cost of Conserved CO2 (uncompeted) "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg_uc),
-                        (("Cost of Conserved CO2 (uncompeted) (low) "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_low_uc),
-                        (("Cost of Conserved CO2 (uncompeted) (high) "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_high_uc),
+            if cce_avg != cce_low:
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
                         ("Cost of Conserved Energy ($/MMBtu saved)",
-                            cce_avg_c),
+                            cce_avg),
                         ("Cost of Conserved Energy (low) ($/MMBtu saved)",
-                            cce_low_c),
+                            cce_low),
                         ("Cost of Conserved Energy (high) ($/MMBtu saved)",
-                            cce_high_c),
+                            cce_high),
                         (("Cost of Conserved CO2 "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg_c),
+                         translate(sub), ccc_avg),
                         (("Cost of Conserved CO2 (low) "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_low_c),
+                         translate(sub), ccc_low),
                         (("Cost of Conserved CO2 (high) "
                           "($/MTon CO2 avoided)").
-                         translate(sub), ccc_high_c)])
-            else:
-                self.output_ecms[m.name]["Financial Metrics"][
-                    "Portfolio Level"][adopt_scheme] = OrderedDict([
-                        ("Cost of Conserved Energy (uncompeted) "
-                         "($/MMBtu saved)", cce_avg_uc),
-                        (("Cost of Conserved CO2 (uncompeted) "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg_uc),
-                        ("Cost of Conserved Energy ($/MMBtu saved)",
-                            cce_avg_c),
-                        (("Cost of Conserved CO2 "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg_c)])
-
-            # Record updated consumer metrics in Engine 'output' attribute;
-            # yield low and high estimates on the metrics if available
-            if irr_e_avg != irr_e_low:
-                self.output_ecms[m.name]["Financial Metrics"][
-                    "Consumer Level"] = OrderedDict([
+                         translate(sub), ccc_high),
                         ("IRR (%)", irr_e_avg),
                         ("IRR (low) (%)", irr_e_low),
                         ("IRR (high) (%)", irr_e_high),
@@ -3347,8 +3278,12 @@ class Engine(object):
                         ("Payback (low) (years)", payback_e_low),
                         ("Payback (high) (years)", payback_e_high)])
             else:
-                self.output_ecms[m.name]["Financial Metrics"][
-                    "Consumer Level"] = OrderedDict([
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
+                        ("Cost of Conserved Energy ($/MMBtu saved)",
+                            cce_avg),
+                        (("Cost of Conserved CO2 "
+                          "($/MTon CO2 avoided)").
+                         translate(sub), ccc_avg),
                         ("IRR (%)", irr_e_avg),
                         ("Payback (years)", payback_e_avg)])
 
