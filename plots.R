@@ -315,20 +315,8 @@ plot_lims_finmets <- c(
 # Cost effectiveness threshold lines for each financial metric
 plot_ablines_finmets <- c(0, 5, 13, 73)
 # Financial metric type and key names for retrieving JSON data on each
-# (note: competed CCE/CCC variable names are listed below and used in the cost effectiveness plots;
-# IRR/payback variable values do not change after competition)
-fin_metrics <- c(
-	list(c('Consumer Level', 'IRR (%)')),
-	list(c('Consumer Level', 'Payback (years)')),
-	list(c('Portfolio Level', 'Cost of Conserved Energy ($/MMBtu saved)')),
-	list(c('Portfolio Level', 'Cost of Conserved CO₂ ($/MTon CO₂ avoided)')))
-# Uncompeted CCE/CCC financial metric key names for retrieving JSON data
-# (note: uncompeted CCE/CCC variables are not used in the cost effectiveness
-# plots, but their values are written out to the XLSX raw data summary)
-fin_metrics_port_uc <- c(
-	'Cost of Conserved Energy (uncompeted) ($/MMBtu saved)',
-	'Cost of Conserved CO₂ (uncompeted) ($/MTon CO₂ avoided)')
-
+fin_metrics <- c('IRR (%)', 'Payback (years)', 'Cost of Conserved Energy ($/MMBtu saved)',
+                 'Cost of Conserved CO₂ ($/MTon CO₂ avoided)')
 # ============================================================================
 # Set high-level variables needed to generate XLSX data
 # ============================================================================
@@ -559,15 +547,6 @@ for (a in 1:length(adopt_scenarios)){
               }else{
                 r_temp[4:6, yr] = results_database$'efficient'[years[yr]][[1]]
               }
-        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
-		    # retrieve the ECM's uncompeted CCE/CCC financial metrics data and write to XLSX file
-		    if (years[yr] == snap_yr){
-		      for (pm_uc in (1:length(fin_metrics_port_uc))){
-		        xlsx_data[(row_ind_start:(row_ind_start + 1)), (7 + pm_uc)] = 
-		        results_database_finmets[["Portfolio Level"]][[
-		        adopt_scenarios[a]]][[fin_metrics_port_uc[pm_uc]]][[years[yr]]][[1]]
-              }
-            }
           }
         # Find data for competed energy, carbon, and/or cost
         }else{
@@ -709,39 +688,24 @@ for (a in 1:length(adopt_scenarios)){
 		        if (years[yr] == snap_yr){
 		          # Retrieve ECM competed portfolio-level and consumer-level financial metrics data
 		          for (fm in 1:length(fin_metrics)){
-		          	# Retrieve ECM competed portfolio-level metrics data (CCE, CCC); retrieve
-		          	# consumer-level data (IRR, payback)
-		          	if ((fin_metrics[[fm]][1]) == "Portfolio Level"){
-		          		# Portfolio-level data are keyed by adoption scenario
-		          		results_finmets[(m - 1), fm][[1]] = 
-		          			results_database_finmets[[fin_metrics[[fm]][1]]][[
-		          				adopt_scenarios[a]]][[fin_metrics[[fm]][2]]][[years[yr]]][[1]]
-		          	}else{
-		          		# Multiply IRR fractions in JSON data by 100 to convert to final % units
-		          		if ((fin_metrics[[fm]][2]) == "IRR (%)"){
-		          			unit_translate_finmet = 100
-		          		}else{
-		          			unit_translate_finmet = 1	
-		          		}
-		          		# Consumer-level data are NOT keyed by adoption scenario
-		          		results_finmets[(m - 1), fm][[1]] = 
-		          		results_database_finmets[[fin_metrics[[fm]][1]]][[
-		          			fin_metrics[[fm]][2]]][[years[yr]]][[1]] * unit_translate_finmet
-		          	}
+	          		# Multiply IRR fractions in JSON data by 100 to convert to final % units
+	          		if ((fin_metrics[fm]) == "IRR (%)"){
+	          			unit_translate_finmet = 100
+	          		}else{
+	          			unit_translate_finmet = 1	
+	          		}
+	          		# Consumer-level data are NOT keyed by adoption scenario
+	          		results_finmets[(m - 1), fm][[1]] = 
+	          		results_database_finmets[[fin_metrics[fm]]][[years[yr]]][[1]] * unit_translate_finmet
 		          	# Replace all 99900 values with 999 (proxy for NaN)
 		          	results_finmets[(m - 1), fm][[1]][results_finmets[(m - 1), fm][[1]] == 99900] = 999		 	
 		          }
 	
 		          # Write ECM cost effectiveness metrics data to XLSX sheet
-		          # Write ECM IRR/payback metrics (note: not dependent on competition)
 		          xlsx_data[row_ind_start:(row_ind_start + 3),
-	              			6: (6 + ((length(plot_title_labels_finmets))/2) - 1)] =
-	              			as.matrix(results_finmets[(m - 1),1:2])
-	              # Write ECM competed CCE/CCC metrics
-	              xlsx_data[(row_ind_start + 2):(row_ind_start + 3),
-	              			(6 + ((length(plot_title_labels_finmets))/2)):
-	              			(6 + (length(plot_title_labels_finmets)))] =
-	              			as.matrix(results_finmets[(m - 1),3:4])
+	              			6: (6 + length(plot_title_labels_finmets) - 1)] =
+	              			as.matrix(results_finmets[(m - 1),1:4])
+
 		          # Retrieve, ECM energy, carbon, or cost savings data, convert to final units
 		          results_finmets[(m - 1), (length(fin_metrics)+1)][[1]] =
 		          	results_database[[var_names_compete_save[v]]][years[yr]][[1]] * unit_translate

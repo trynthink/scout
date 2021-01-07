@@ -436,27 +436,27 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         ok_master_mseg_dist4 (dict): Sample measure master microsegment
             including stock cost and measure lifetime array.
         ok_out_point_res (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_point' with a residential sample
             measure.
         ok_out_point_com (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_point' with a residential sample
             measure.
         ok_out_dist1 (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_dist1' with a residential sample
             measure.
         ok_out_dist2 (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_dist2' with a residential sample
             measure.
         ok_out_dist3 (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_dist3' with a residential sample
             measure.
         ok_out_dist4 (dict): Measure attribute update status, savings,
-            and portfolio/consumer-level financial metrics that should be
+            and financial metrics that should be
             generated given 'ok_master_mseg_dist4' with a residential sample
             measure.
     """
@@ -473,13 +473,13 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         cls.handyvars.aeo_years = ["2009", "2010"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
-        cls.test_adopt_scheme = 'Max adoption potential'
+        cls.test_adopt_scheme = 'Technical potential'
         cls.ok_rate = 0.07
         cls.ok_master_mseg_point = {
             "stock": {
                 "total": {
                     "all": {"2009": 10, "2010": 20},
-                    "measure": {"2009": 15, "2010": 25}},
+                    "measure": {"2009": 10, "2010": 20}},
                 "competed": {
                     "all": {"2009": 5, "2010": 10},
                     "measure": {"2009": 5, "2010": 10}}},
@@ -526,7 +526,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {"2009": 10, "2010": 20},
-                    "measure": {"2009": 15, "2010": 25}},
+                    "measure": {"2009": 10, "2010": 20}},
                 "competed": {
                     "all": {"2009": 5, "2010": 10},
                     "measure": {"2009": 5, "2010": 10}}},
@@ -597,7 +597,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {"2009": 10, "2010": 20},
-                    "measure": {"2009": 15, "2010": 25}},
+                    "measure": {"2009": 10, "2010": 20}},
                 "competed": {
                     "all": {"2009": 5, "2010": 10},
                     "measure": {"2009": 5, "2010": 10}}},
@@ -652,7 +652,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {"2009": 10, "2010": 20},
-                    "measure": {"2009": 15, "2010": 25}},
+                    "measure": {"2009": 10, "2010": 20}},
                 "competed": {
                     "all": {"2009": 5, "2010": 10},
                     "measure": {"2009": 5, "2010": 10}}},
@@ -698,7 +698,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {"2009": 10, "2010": 20},
-                    "measure": {"2009": 15, "2010": 25}},
+                    "measure": {"2009": 10, "2010": 20}},
                 "competed": {
                     "all": {"2009": 5, "2010": 10},
                     "measure": {"2009": 5, "2010": 10}}},
@@ -749,33 +749,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "lifetime": {"baseline": {"2009": 1, "2010": 1},
                          "measure": numpy.array([0.5, 1.2, 2.1, 2.2, 4.6])}}
         cls.ok_out_point_res = [{
-            "savings and portfolio metrics": {
+            "savings": {
                 "Technical potential": {
-                    "uncompeted": True, "competed": True},
+                    "uncompeted": False, "competed": True},
                 "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
             {
             "stock": {
-                "cost savings (total)": {"2009": -5, "2010": -10},
-                "cost savings (annual)": {"2009": -5, "2010": -10}},
+                "cost savings": {"2009": -5, "2010": -10}},
             "energy": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 100, "2010": 100},
-                "cost savings (total)": {"2009": 10, "2010": 15},
-                "cost savings (annual)": {"2009": 10, "2010": 15}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 10, "2010": 15}},
             "carbon": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 50, "2010": 50},
-                "cost savings (total)": {"2009": 5, "2010": 15},
-                "cost savings (annual)": {"2009": 5, "2010": 15}}},
-            {
-            "cce": {"2009": -0.01602415, "2010": -0.01111353},
-            "cce (w/ carbon cost benefits)": {
-                "2009": -0.04935749, "2010": -0.08611353},
-            "ccc": {"2009": -1.602415e-08, "2010": -1.111353e-08},
-            "ccc (w/ energy cost benefits)": {
-                "2009": -8.269082e-08, "2010": -8.611353e-08}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 5, "2010": 15}}},
             {
             "unit cost": {
                 "stock cost": {
@@ -800,35 +788,29 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "payback (w/ energy costs)": {
                 "2009": 0.25, "2010": 0.33},
             "payback (w/ energy and carbon costs)": {
-                "2009": 0.2, "2010": 0.22}}]
-        cls.ok_out_point_com = [{
-            "savings and portfolio metrics": {
-                "Technical potential": {
-                    "uncompeted": True, "competed": True},
-                "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
-            {
-            "stock": {
-                "cost savings (total)": {"2009": -5, "2010": -10},
-                "cost savings (annual)": {"2009": -5, "2010": -10}},
-            "energy": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 100, "2010": 100},
-                "cost savings (total)": {"2009": 10, "2010": 15},
-                "cost savings (annual)": {"2009": 10, "2010": 15}},
-            "carbon": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 50, "2010": 50},
-                "cost savings (total)": {"2009": 5, "2010": 15},
-                "cost savings (annual)": {"2009": 5, "2010": 15}}},
-            {
+                "2009": 0.2, "2010": 0.22},
             "cce": {"2009": -0.01602415, "2010": -0.01111353},
             "cce (w/ carbon cost benefits)": {
                 "2009": -0.04935749, "2010": -0.08611353},
             "ccc": {"2009": -1.602415e-08, "2010": -1.111353e-08},
             "ccc (w/ energy cost benefits)": {
-                "2009": -8.269082e-08, "2010": -8.611353e-08}},
+                "2009": -8.269082e-08, "2010": -8.611353e-08}}]
+        cls.ok_out_point_com = [{
+            "savings": {
+                "Technical potential": {
+                    "uncompeted": False, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
+            {
+            "stock": {
+                "cost savings": {"2009": -5, "2010": -10}},
+            "energy": {
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 10, "2010": 15}},
+            "carbon": {
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 5, "2010": 15}}},
             {
             "unit cost": {
                 "stock cost": {
@@ -888,80 +870,44 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                             "rate 5": npf.npv(0.15, [0, 1.25, 1.25]),
                             "rate 6": npf.npv(0.065, [0, 1.25, 1.25]),
                             "rate 7": 2.5}}}},
-                "irr (w/ energy costs)": {
-                    "2009": 3.45, "2010": 2.44},
-                "irr (w/ energy and carbon costs)": {
-                    "2009": 4.54, "2010": 4.09},
-                "payback (w/ energy costs)": {
-                    "2009": 0.25, "2010": 0.33},
-                "payback (w/ energy and carbon costs)": {
-                    "2009": 0.2, "2010": 0.22}}]
+            "irr (w/ energy costs)": {
+                "2009": 3.45, "2010": 2.44},
+            "irr (w/ energy and carbon costs)": {
+                "2009": 4.54, "2010": 4.09},
+            "payback (w/ energy costs)": {
+                "2009": 0.25, "2010": 0.33},
+            "payback (w/ energy and carbon costs)": {
+                "2009": 0.2, "2010": 0.22},
+            "cce": {"2009": -0.01602415, "2010": -0.01111353},
+            "cce (w/ carbon cost benefits)": {
+                "2009": -0.04935749, "2010": -0.08611353},
+            "ccc": {"2009": -1.602415e-08, "2010": -1.111353e-08},
+            "ccc (w/ energy cost benefits)": {
+                "2009": -8.269082e-08, "2010": -8.611353e-08}}]
         cls.ok_out_dist1 = [{
-            "savings and portfolio metrics": {
+            "savings": {
                 "Technical potential": {
-                    "uncompeted": True, "competed": True},
+                    "uncompeted": False, "competed": True},
                 "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
             {
             "stock": {
-                "cost savings (total)": {"2009": -5, "2010": -10},
-                "cost savings (annual)": {"2009": -5, "2010": -10}},
+                "cost savings": {"2009": -5, "2010": -10}},
             "energy": {
-                "savings (total)": {
+                "savings": {
                     "2009": numpy.array([184, 173, 169, 194, 149]),
                     "2010": numpy.array([194, 205, 219, 289, 176])},
-                "savings (annual)": {
-                    "2009": numpy.array([94, 93, 99, 84, 99]),
-                    "2010": numpy.array([114, 105, 89, 145, 96])},
-                "cost savings (total)": {
-                    "2009": numpy.array([10.9, 11.3, 12.3, 8.8, 7.5]),
-                    "2010": numpy.array([14.9, 16.3, 13.3, 13.8, 12.5])},
-                "cost savings (annual)": {
+                "cost savings": {
                     "2009": numpy.array([10.9, 11.3, 12.3, 8.8, 7.5]),
                     "2010": numpy.array([14.9, 16.3, 13.3, 13.8, 12.5])}},
             "carbon": {
-                "savings (total)": {
+                "savings": {
                     "2009": numpy.array([149.4, 142.3, 141.9, 150.0, 148.9]),
                     "2010": numpy.array([199.4, 191.3, 194.9, 195.0, 193.9])},
-                "savings (annual)": {
-                    "2009": numpy.array([49.4, 42.3, 41.9, 50.0, 48.9]),
-                    "2010": numpy.array([49.4, 41.3, 44.9, 45.0, 43.9])},
-                "cost savings (total)": {
-                    "2009": numpy.array([4.9, 5.3, 6.3, -1.2, 11.5]),
-                    "2010": numpy.array([19.9, 21.3, 18.3, 18.8, 17.5])},
-                "cost savings (annual)": {
+                "cost savings": {
                     "2009": numpy.array([4.9, 5.3, 6.3, -1.2, 11.5]),
                     "2010": numpy.array([19.9, 21.3, 18.3, 18.8, 17.5])}}},
-            {
-            "cce": {
-                "2009": numpy.array([
-                    -0.01306317, -0.01389378, -0.01422262,
-                    -0.01238981, -0.01613170]),
-                "2010": numpy.array([
-                    -0.01145724, -0.01084246, -0.01014934,
-                    -0.007691022, -0.01262901])},
-            "cce (w/ carbon cost benefits)": {
-                "2009": numpy.array([
-                    -0.0396936, -0.04452961, -0.05150073,
-                    -0.006204243, -0.09331291]),
-                "2010": numpy.array([
-                    -0.1140346, -0.11474490, -0.09371098,
-                    -0.072742925, -0.11206083])},
-            "ccc": {
-                "2009": numpy.array([
-                    -1.608851e-08, -1.689124e-08, -1.693885e-08,
-                    -1.602415e-08, -1.614253e-08]),
-                "2010": numpy.array([
-                    -1.114697e-08, -1.161895e-08, -1.140434e-08,
-                    -1.139849e-08, -1.146315e-08])},
-            "ccc (w/ energy cost benefits)": {
-                "2009": numpy.array([
-                    -8.904701e-08, -9.630094e-08, -1.036196e-07,
-                    -7.469082e-08, -6.651191e-08]),
-                "2010": numpy.array([
-                    -8.587114e-08, -9.682543e-08, -7.964446e-08,
-                    -8.216772e-08, -7.592937e-08])}},
             {
             "unit cost": {
                 "stock cost": {
@@ -993,84 +939,76 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "2009": numpy.repeat(None, 5),
                         "2010": numpy.repeat(None, 5)
                     }}},
-                "irr (w/ energy costs)": {
-                    "2009": numpy.array([
-                        3.648926, 3.737086, 3.956335, 3.180956, 2.886001]),
-                    "2010": numpy.array([
-                        2.425032, 2.584709, 2.240438, 2.298386, 2.147181])},
-                "irr (w/ energy and carbon costs)": {
-                    "2009": numpy.array([
-                        4.713113, 4.884221, 5.309580, 2.908860, 5.394281]),
-                    "2010": numpy.array([
-                        4.601286, 4.897553, 4.260683, 4.367373, 4.089454])},
-                "payback (w/ energy costs)": {
-                    "2009": numpy.array([
-                        0.2392344, 0.2347418, 0.2242152, 0.2659574,
-                        0.2857143]),
-                    "2010": numpy.array([
-                        0.3344482, 0.3194888, 0.3533569, 0.3472222,
-                        0.3636364])},
-                "payback (w/ energy and carbon costs)": {
-                    "2009": numpy.array([
-                        0.1937984, 0.1879699, 0.1748252, 0.2840909,
-                        0.1724138]),
-                    "2010": numpy.array([
-                        0.2008032, 0.1901141, 0.2145923, 0.2100840,
-                        0.2222222])}}]
+            "irr (w/ energy costs)": {
+                "2009": numpy.array([
+                    3.648926, 3.737086, 3.956335, 3.180956, 2.886001]),
+                "2010": numpy.array([
+                    2.425032, 2.584709, 2.240438, 2.298386, 2.147181])},
+            "irr (w/ energy and carbon costs)": {
+                "2009": numpy.array([
+                    4.713113, 4.884221, 5.309580, 2.908860, 5.394281]),
+                "2010": numpy.array([
+                    4.601286, 4.897553, 4.260683, 4.367373, 4.089454])},
+            "payback (w/ energy costs)": {
+                "2009": numpy.array([
+                    0.2392344, 0.2347418, 0.2242152, 0.2659574,
+                    0.2857143]),
+                "2010": numpy.array([
+                    0.3344482, 0.3194888, 0.3533569, 0.3472222,
+                    0.3636364])},
+            "payback (w/ energy and carbon costs)": {
+                "2009": numpy.array([
+                    0.1937984, 0.1879699, 0.1748252, 0.2840909,
+                    0.1724138]),
+                "2010": numpy.array([
+                    0.2008032, 0.1901141, 0.2145923, 0.2100840,
+                    0.2222222])},
+            "cce": {
+                "2009": numpy.array([
+                    -0.01306317, -0.01389378, -0.01422262,
+                    -0.01238981, -0.01613170]),
+                "2010": numpy.array([
+                    -0.01145724, -0.01084246, -0.01014934,
+                    -0.007691022, -0.01262901])},
+            "cce (w/ carbon cost benefits)": {
+                "2009": numpy.array([
+                    -0.0396936, -0.04452961, -0.05150073,
+                    -0.006204243, -0.09331291]),
+                "2010": numpy.array([
+                    -0.1140346, -0.11474490, -0.09371098,
+                    -0.072742925, -0.11206083])},
+            "ccc": {
+                "2009": numpy.array([
+                    -1.608851e-08, -1.689124e-08, -1.693885e-08,
+                    -1.602415e-08, -1.614253e-08]),
+                "2010": numpy.array([
+                    -1.114697e-08, -1.161895e-08, -1.140434e-08,
+                    -1.139849e-08, -1.146315e-08])},
+            "ccc (w/ energy cost benefits)": {
+                "2009": numpy.array([
+                    -8.904701e-08, -9.630094e-08, -1.036196e-07,
+                    -7.469082e-08, -6.651191e-08]),
+                "2010": numpy.array([
+                    -8.587114e-08, -9.682543e-08, -7.964446e-08,
+                    -8.216772e-08, -7.592937e-08])}}]
         cls.ok_out_dist2 = [{
-            "savings and portfolio metrics": {
+            "savings": {
                 "Technical potential": {
-                    "uncompeted": True, "competed": True},
+                    "uncompeted": False, "competed": True},
                 "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
             {
             "stock": {
-                "cost savings (total)": {
-                    "2009": numpy.array([-5.1, -2.7, -4.1, -4.2, -5.5]),
-                    "2010": numpy.array([-5.1, -3.7, -6.7, -4.2, -5.5])},
-                "cost savings (annual)": {
+                "cost savings": {
                     "2009": numpy.array([-5.1, -2.7, -4.1, -4.2, -5.5]),
                     "2010": numpy.array([-5.1, -3.7, -6.7, -4.2, -5.5])}},
             "energy": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 100, "2010": 100},
-                "cost savings (total)": {"2009": 10, "2010": 15},
-                "cost savings (annual)": {"2009": 10, "2010": 15}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 10, "2010": 15}},
             "carbon": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 50, "2010": 50},
-                "cost savings (total)": {"2009": 5, "2010": 15},
-                "cost savings (annual)": {"2009": 5, "2010": 15}}},
-            {
-            "cce": {
-                "2009": numpy.array([
-                    -0.01565543, -0.02450490, -0.01934271, -0.01897398,
-                    -0.01418052]),
-                "2010": numpy.array([
-                    -0.02466428, -0.02853592, -0.02023954, -0.02715319,
-                    -0.02355809])},
-            "cce (w/ carbon cost benefits)": {
-                "2009": numpy.array([
-                    -0.04898876, -0.05783823, -0.05267604,
-                    -0.05230731, -0.04751385]),
-                "2010": numpy.array([
-                    -0.09966428, -0.10353592, -0.09523954, -0.10215319,
-                    -0.09855809])},
-            "ccc": {
-                "2009": numpy.array([
-                    -1.565543e-08, -2.450490e-08, -1.934271e-08,
-                    -1.897398e-08, -1.418052e-08]),
-                "2010": numpy.array([
-                    -2.466428e-08, -2.853592e-08, -2.023954e-08,
-                    -2.715319e-08, -2.355809e-08])},
-            "ccc (w/ energy cost benefits)": {
-                "2009": numpy.array([
-                    -8.232209e-08, -9.117156e-08, -8.600937e-08,
-                    -8.564064e-08, -8.084718e-08]),
-                "2010": numpy.array([
-                    -9.966428e-08, -1.035359e-07, -9.523954e-08, -1.021532e-07,
-                    -9.855809e-08])}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 5, "2010": 15}}},
             {
             "unit cost": {
                 "stock cost": {
@@ -1116,57 +1054,51 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     0.2040000, 0.10800000, 0.1640000, 0.16800000, 0.2200000]),
                  "2010": numpy.array([
                     0.1133333, 0.08222222, 0.1488889, 0.09333333,
-                    0.1222222])}}]
-        cls.ok_out_dist3 = [{
-            "savings and portfolio metrics": {
-                "Technical potential": {
-                    "uncompeted": True, "competed": True},
-                "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
-            {
-            "stock": {
-                "cost savings (total)": {"2009": -5, "2010": -10},
-                "cost savings (annual)": {"2009": -5, "2010": -10}},
-            "energy": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 100, "2010": 100},
-                "cost savings (total)": {"2009": 10, "2010": 15},
-                "cost savings (annual)": {"2009": 10, "2010": 15}},
-            "carbon": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 50, "2010": 50},
-                "cost savings (total)": {"2009": 5, "2010": 15},
-                "cost savings (annual)": {"2009": 5, "2010": 15}}},
-            {
+                    0.1222222])},
             "cce": {
                 "2009": numpy.array([
-                    0.03566667, 0.03566667, -0.01602415,
-                    -0.01602415, -0.04694426]),
+                    -0.01565543, -0.02450490, -0.01934271, -0.01897398,
+                    -0.01418052]),
                 "2010": numpy.array([
-                    0.05350000, 0.05350000, -0.01111353,
-                    -0.01111353, -0.04976366])},
+                    -0.02466428, -0.02853592, -0.02023954, -0.02715319,
+                    -0.02355809])},
             "cce (w/ carbon cost benefits)": {
                 "2009": numpy.array([
-                    0.002333333, 0.002333333, -0.04935749,
-                    -0.04935749, -0.0802776]),
+                    -0.04898876, -0.05783823, -0.05267604,
+                    -0.05230731, -0.04751385]),
                 "2010": numpy.array([
-                    -0.021500000, -0.021500000, -0.08611353,
-                    -0.08611353, -0.1247637])},
+                    -0.09966428, -0.10353592, -0.09523954, -0.10215319,
+                    -0.09855809])},
             "ccc": {
                 "2009": numpy.array([
-                    3.566667e-08, 3.566667e-08, -1.602415e-08,
-                    -1.602415e-08, -4.694426e-08]),
+                    -1.565543e-08, -2.450490e-08, -1.934271e-08,
+                    -1.897398e-08, -1.418052e-08]),
                 "2010": numpy.array([
-                    5.350000e-08, 5.350000e-08, -1.111353e-08,
-                    -1.111353e-08, -4.976366e-08])},
+                    -2.466428e-08, -2.853592e-08, -2.023954e-08,
+                    -2.715319e-08, -2.355809e-08])},
             "ccc (w/ energy cost benefits)": {
                 "2009": numpy.array([
-                    -3.10e-08, -3.10e-08, -8.269082e-08,
-                    -8.269082e-08, -1.136109e-07]),
+                    -8.232209e-08, -9.117156e-08, -8.600937e-08,
+                    -8.564064e-08, -8.084718e-08]),
                 "2010": numpy.array([
-                    -2.15e-08, -2.15e-08, -8.611353e-08,
-                    -8.611353e-08, -1.247637e-07])}},
+                    -9.966428e-08, -1.035359e-07, -9.523954e-08, -1.021532e-07,
+                    -9.855809e-08])}}]
+        cls.ok_out_dist3 = [{
+            "savings": {
+                "Technical potential": {
+                    "uncompeted": False, "competed": True},
+                "Max adoption potential": {
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
+            {
+            "stock": {
+                "cost savings": {"2009": -5, "2010": -10}},
+            "energy": {
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 10, "2010": 15}},
+            "carbon": {
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 5, "2010": 15}}},
             {
             "unit cost": {
                 "stock cost": {
@@ -1201,61 +1133,53 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                  "2010": numpy.array([0.67, 0.67, 0.33, 0.33, 0.33])},
             "payback (w/ energy and carbon costs)":
                 {"2009": numpy.array([0.33, 0.33, 0.20, 0.20, 0.20]),
-                 "2010": numpy.array([0.33, 0.33, 0.22, 0.22, 0.22])}}]
+                 "2010": numpy.array([0.33, 0.33, 0.22, 0.22, 0.22])},
+            "cce": {
+                "2009": numpy.array([
+                    0.03566667, 0.03566667, -0.01602415,
+                    -0.01602415, -0.04694426]),
+                "2010": numpy.array([
+                    0.05350000, 0.05350000, -0.01111353,
+                    -0.01111353, -0.04976366])},
+            "cce (w/ carbon cost benefits)": {
+                "2009": numpy.array([
+                    0.002333333, 0.002333333, -0.04935749,
+                    -0.04935749, -0.0802776]),
+                "2010": numpy.array([
+                    -0.021500000, -0.021500000, -0.08611353,
+                    -0.08611353, -0.1247637])},
+            "ccc": {
+                "2009": numpy.array([
+                    3.566667e-08, 3.566667e-08, -1.602415e-08,
+                    -1.602415e-08, -4.694426e-08]),
+                "2010": numpy.array([
+                    5.350000e-08, 5.350000e-08, -1.111353e-08,
+                    -1.111353e-08, -4.976366e-08])},
+            "ccc (w/ energy cost benefits)": {
+                "2009": numpy.array([
+                    -3.10e-08, -3.10e-08, -8.269082e-08,
+                    -8.269082e-08, -1.136109e-07]),
+                "2010": numpy.array([
+                    -2.15e-08, -2.15e-08, -8.611353e-08,
+                    -8.611353e-08, -1.247637e-07])}}]
         cls.ok_out_dist4 = [{
-            "savings and portfolio metrics": {
+            "savings": {
                 "Technical potential": {
-                    "uncompeted": True, "competed": True},
+                    "uncompeted": False, "competed": True},
                 "Max adoption potential": {
-                    "uncompeted": False, "competed": True}},
-            "consumer metrics": False},
+                    "uncompeted": True, "competed": True}},
+            "financial metrics": False},
             {
             "stock": {
-                "cost savings (total)": {
-                    "2009": numpy.array([-5.1, -2.7, -4.1, -4.2, -5.5]),
-                    "2010": numpy.array([-5.1, -3.7, -6.7, -4.2, -5.5])},
-                "cost savings (annual)": {
+                "cost savings": {
                     "2009": numpy.array([-5.1, -2.7, -4.1, -4.2, -5.5]),
                     "2010": numpy.array([-5.1, -3.7, -6.7, -4.2, -5.5])}},
             "energy": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 100, "2010": 100},
-                "cost savings (total)": {"2009": 10, "2010": 15},
-                "cost savings (annual)": {"2009": 10, "2010": 15}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 10, "2010": 15}},
             "carbon": {
-                "savings (total)": {"2009": 150, "2010": 200},
-                "savings (annual)": {"2009": 50, "2010": 50},
-                "cost savings (total)": {"2009": 5, "2010": 15},
-                "cost savings (annual)": {"2009": 5, "2010": 15}}},
-            {
-            "cce": {
-                "2009": numpy.array([
-                    0.036380, 0.019260, -0.01934271,
-                    -0.01897398, -0.04613129]),
-                "2010": numpy.array([
-                    0.027285, 0.019795, -0.02023954,
-                    -0.02715319, -0.05525120])},
-            "cce (w/ carbon cost benefits)": {
-                "2009": numpy.array([
-                    0.003046667, -0.01407333, -0.05267604,
-                    -0.05230731, -0.07946463]),
-                "2010": numpy.array([
-                    -0.047715000, -0.05520500, -0.09523954,
-                    -0.10215319, -0.13025120])},
-            "ccc": {
-                "2009": numpy.array([
-                    3.6380e-08, 1.9260e-08, -1.934271e-08,
-                    -1.897398e-08, -4.613129e-08]),
-                "2010": numpy.array([
-                    2.7285e-08, 1.9795e-08, -2.023954e-08,
-                    -2.715319e-08, -5.525120e-08])},
-            "ccc (w/ energy cost benefits)": {
-                "2009": numpy.array([
-                    -3.028667e-08, -4.740667e-08, -8.600937e-08,
-                    -8.564064e-08, -1.127980e-07]),
-                "2010": numpy.array([
-                    -4.771500e-08, -5.520500e-08, -9.523954e-08,
-                    -1.021532e-07, -1.302512e-07])}},
+                "savings": {"2009": 150, "2010": 200},
+                "cost savings": {"2009": 5, "2010": 15}}},
             {
             "unit cost": {
                 "stock cost": {
@@ -1299,7 +1223,35 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                 {"2009": numpy.array([
                     0.34, 0.1800000, 0.1640000, 0.16800000, 0.2200000]),
                  "2010": numpy.array([
-                    0.17, 0.1233333, 0.1488889, 0.09333333, 0.1222222])}}]
+                    0.17, 0.1233333, 0.1488889, 0.09333333, 0.1222222])},
+            "cce": {
+                "2009": numpy.array([
+                    0.036380, 0.019260, -0.01934271,
+                    -0.01897398, -0.04613129]),
+                "2010": numpy.array([
+                    0.027285, 0.019795, -0.02023954,
+                    -0.02715319, -0.05525120])},
+            "cce (w/ carbon cost benefits)": {
+                "2009": numpy.array([
+                    0.003046667, -0.01407333, -0.05267604,
+                    -0.05230731, -0.07946463]),
+                "2010": numpy.array([
+                    -0.047715000, -0.05520500, -0.09523954,
+                    -0.10215319, -0.13025120])},
+            "ccc": {
+                "2009": numpy.array([
+                    3.6380e-08, 1.9260e-08, -1.934271e-08,
+                    -1.897398e-08, -4.613129e-08]),
+                "2010": numpy.array([
+                    2.7285e-08, 1.9795e-08, -2.023954e-08,
+                    -2.715319e-08, -5.525120e-08])},
+            "ccc (w/ energy cost benefits)": {
+                "2009": numpy.array([
+                    -3.028667e-08, -4.740667e-08, -8.600937e-08,
+                    -8.564064e-08, -1.127980e-07]),
+                "2010": numpy.array([
+                    -4.771500e-08, -5.520500e-08, -9.523954e-08,
+                    -1.021532e-07, -1.302512e-07])}}]
         cls.ok_savings_mkts_comp_schemes = ["competed", "uncompeted"]
 
     def test_metrics_ok_point_res(self):
@@ -1326,22 +1278,15 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             self.assertEqual(list(sorted(
                 engine_instance.measures[0].savings[adopt_scheme].keys())),
                 self.ok_savings_mkts_comp_schemes)
-            # Portfolio metrics
-            self.assertEqual(list(sorted(engine_instance.measures[
-                0].portfolio_metrics[adopt_scheme].keys())),
-                self.ok_savings_mkts_comp_schemes)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_point_res[0])
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_point_res[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_res[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_point_res[3])
+            0].financial_metrics, self.ok_out_point_res[2])
 
     def test_metrics_ok_point_com(self):
         """Test output given commercial measure with point value inputs."""
@@ -1362,12 +1307,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_point_com[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_point_com[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_point_com[3])
+            0].financial_metrics, self.ok_out_point_com[2])
 
     def test_metrics_ok_distrib1(self):
         """Test output given residential measure with array inputs."""
@@ -1388,12 +1330,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_dist1[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist1[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_dist1[3])
+            0].financial_metrics, self.ok_out_dist1[2])
 
     def test_metrics_ok_distrib2(self):
         """Test output given residential measure with array inputs."""
@@ -1414,12 +1353,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_dist2[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist2[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_dist2[3])
+            0].financial_metrics, self.ok_out_dist2[2])
 
     def test_metrics_ok_distrib3(self):
         """Test output given residential measure with array inputs."""
@@ -1440,12 +1376,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_dist3[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist3[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_dist3[3])
+            0].financial_metrics, self.ok_out_dist3[2])
 
     def test_metrics_ok_distrib4(self):
         """Test output given residential measure with array inputs."""
@@ -1466,12 +1399,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         # Verify test measure savings
         self.dict_check(engine_instance.measures[0].savings[
             self.test_adopt_scheme]["uncompeted"], self.ok_out_dist4[1])
-        # Verify test measure portfolio-level financial metrics
-        self.dict_check(engine_instance.measures[0].portfolio_metrics[
-            self.test_adopt_scheme]["uncompeted"], self.ok_out_dist4[2])
-        # Verify test measure consumer-level metrics
+        # Verify test measure financial metrics
         self.dict_check(engine_instance.measures[
-            0].consumer_metrics, self.ok_out_dist4[3])
+            0].financial_metrics, self.ok_out_dist4[2])
 
 
 class MetricUpdateTest(unittest.TestCase, CommonMethods):
@@ -12168,7 +12098,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "2010": None}}}]
         # Adjust/finalize point value test measure consumer metrics
         for ind, m in enumerate(cls.a_run.measures):
-            m.consumer_metrics['unit cost'] = consumer_metrics_final[ind]
+            m.financial_metrics['unit cost'] = consumer_metrics_final[ind]
         cls.measures_all_dist = [run.Measure(cls.handyvars, **x) for x in [
             cls.compete_meas1_dist, copy.deepcopy(cls.compete_meas2),
             cls.compete_meas3_dist, copy.deepcopy(cls.compete_meas4),
@@ -12332,7 +12262,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "2010": None}}}]
         # Adjust/finalize point value test measure consumer metrics
         for ind, m in enumerate(cls.a_run_dist.measures):
-            m.consumer_metrics['unit cost'] = consumer_metrics_final_dist[ind]
+            m.financial_metrics['unit cost'] = consumer_metrics_final_dist[ind]
         cls.measures_master_msegs_out = [{
             "stock": {
                 "total": {
@@ -22595,7 +22525,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "rate 7": -120}}}}]
         # Adjust/finalize point value test measure consumer metrics
         for ind, m in enumerate(cls.a_run.measures):
-            m.consumer_metrics['unit cost'] = consumer_metrics[ind]
+            m.financial_metrics['unit cost'] = consumer_metrics[ind]
         cls.measures_all_dist = [run.Measure(
             cls.handyvars, **x) for x in [
             copy.deepcopy(cls.compete_meas1),
@@ -22769,7 +22699,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         "rate 7": -120}}}}]
         # Adjust/finalize point value test measure consumer metrics
         for ind, m in enumerate(cls.a_run_dist.measures):
-            m.consumer_metrics['unit cost'] = consumer_metrics_dist[ind]
+            m.financial_metrics['unit cost'] = consumer_metrics_dist[ind]
         cls.measures_master_msegs_out = [{
             "stock": {
                 "total": {
