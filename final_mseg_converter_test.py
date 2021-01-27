@@ -88,8 +88,10 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     res_cd_cz_array_fuelsplit = {
-        "electric": res_cd_cz_array,
-        "non-electric": res_cd_cz_array}
+        "electricity": res_cd_cz_array,
+        "natural gas": res_cd_cz_array,
+        "distillate": res_cd_cz_array,
+        "other fuel": res_cd_cz_array}
 
     # Array of census division to climate zone conversion factors for
     # energy, stock, and square footage data for commercial buildings
@@ -113,8 +115,9 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     com_cd_cz_array_fuelsplit = {
-        "electric": com_cd_cz_array,
-        "non-electric": com_cd_cz_array}
+        "electricity": com_cd_cz_array,
+        "natural gas": com_cd_cz_array,
+        "distillate": com_cd_cz_array}
 
     # Residential building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -138,8 +141,10 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     res_cd_cz_wtavg_array_fuelsplit = {
-        "electric": res_cd_cz_wtavg_array,
-        "non-electric": res_cd_cz_wtavg_array}
+        "electricity": res_cd_cz_wtavg_array,
+        "natural gas": res_cd_cz_wtavg_array,
+        "distillate": res_cd_cz_wtavg_array,
+        "other fuel": res_cd_cz_wtavg_array}
 
     # Commercial building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -163,8 +168,9 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     com_cd_cz_wtavg_array_fuelsplit = {
-        "electric": com_cd_cz_wtavg_array,
-        "non-electric": com_cd_cz_wtavg_array}
+        "electricity": com_cd_cz_wtavg_array,
+        "natural gas": com_cd_cz_wtavg_array,
+        "distillate": com_cd_cz_wtavg_array}
 
 
 class DataRestructuringFunctionTest(CommonUnitTest):
