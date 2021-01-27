@@ -112,11 +112,14 @@ class UsefulVars(object):
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
             self.res_climate_convert = {
-                "electric": 'Res_Cdiv_EMM_ConvertTable_Final.txt',
-                "non-electric": 'NElec_Cdiv_EMM_Convert_Final.txt'}
+                "electricity": 'Res_Cdiv_EMM_Elec_ConvertTable_Final.txt',
+                "natural gas": 'Res_Cdiv_EMM_NG_ConvertTable_Final.txt',
+                "distillate": 'Res_Cdiv_EMM_Dist_ConvertTable_Final.txt',
+                "other fuel": 'Res_Cdiv_EMM_Other_ConvertTable_Final.txt'}
             self.com_climate_convert = {
-                "electric": 'Com_Cdiv_EMM_ConvertTable_Final.txt',
-                "non-electric": 'NElec_Cdiv_EMM_Convert_Final.txt'}
+                "electricity": 'Com_Cdiv_EMM_Elec_ConvertTable_Final.txt',
+                "natural gas": 'Com_Cdiv_EMM_NG_ConvertTable_Final.txt',
+                "distillate": 'Com_Cdiv_EMM_Dist_ConvertTable_Final.txt'}
             # Set output JSON
             self.json_out = 'mseg_res_com_emm.json'
 
@@ -135,11 +138,14 @@ class UsefulVars(object):
             self.json_out = 'cpl_res_com_cz.json'
         elif self.geo_break == '2':
             self.res_climate_convert = {
-                "electric": 'Res_Cdiv_EMM_ConvertTable_Rev_Final.txt',
-                "non-electric": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'}
+                "electricity": 'Res_Cdiv_EMM_Elec_ConvertTable_Rev_Final.txt',
+                "natural gas": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt',
+                "distillate": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt',
+                "other fuel": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'}
             self.com_climate_convert = {
-                "electric": 'Com_Cdiv_EMM_ConvertTable_Rev_Final.txt',
-                "non-electric": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'
+                "electricity": 'Com_Cdiv_EMM_Elec_ConvertTable_Rev_Final.txt',
+                "natural gas": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt',
+                "distillate": 'NElec_Cdiv_EMM_Convert_Rev_Final.txt'
             }
             # When breaking out to EMM regions, an additional conversion
             # between AIA climate zones in the envelope data and the EMM
@@ -252,10 +258,10 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             # Flag the current fuel type being updated, which is relevant
             # to ultimate selection of conversion factor from the conversion
             # array when translating to EMM region, in which case conversion
-            # factors are different for electric and non-electric fuels. Use
-            # the expectation that conversion arrays will be in dict format
-            # in the EMM region case (with keys for electric and non-electric
-            # conversion factors) to trigger the fuel flag update
+            # factors are different for different fuels. Use the expectation
+            # that conversion arrays will be in dict format in the EMM region
+            # case (with keys for fuel conversion factors) to trigger the fuel
+            # flag update
             elif (k in res_fuel_types or k in com_fuel_types) and \
                     type(res_convert_array) is dict:
                 fuel_flag = k
@@ -269,14 +275,9 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                 # by fuel type, as is the case when converting to EMM region;
                 # in such cases, the fuel flag indicates the key value to use
                 if fuel_flag is not None:
-                    # Find conversion factor for the electric fuel and given
+                    # Find conversion factor for the fuel and given
                     # combination of census division and EMM region
-                    if fuel_flag == "electricity":
-                        convert_fact = cd_to_cz_factor["electric"][cd][cz]
-                    # Find conversion data for the non-electric fuels and given
-                    # combination of census division and EMM region
-                    else:
-                        convert_fact = cd_to_cz_factor["non-electric"][cd][cz]
+                    convert_fact = cd_to_cz_factor[fuel_flag][cd][cz]
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
@@ -346,10 +347,9 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     try:
         cz_list = res_convert_array.dtype.names[1:]
     # Handle conversion to EMM regions, in which custom region names will
-    # be one level-deep in a dict that breaks out conversion factors by the
-    # electric and non-electric fuels
+    # be one level-deep in a dict that breaks out conversion factors by fuel
     except AttributeError:
-        cz_list = res_convert_array["electric"].dtype.names[1:]
+        cz_list = res_convert_array["electricity"].dtype.names[1:]
 
     # Obtain list of all census divisions in the input data
     cd_list = list(input_dict.keys())
@@ -1223,23 +1223,32 @@ def main():
     elif input_var[1] == '2':
         # Import residential census division to EMM conversion data; import
         # data into a dict that is keyed by fuel type, since separate
-        # census to EMM conversions are used for electric/non-electric fuels
+        # census to EMM conversions are used for different fuels
         res_cd_cz_conv = {
-            "electric": np.genfromtxt(
-                handyvars.res_climate_convert["electric"], names=True,
+            "electricity": np.genfromtxt(
+                handyvars.res_climate_convert["electricity"], names=True,
                 delimiter='\t', dtype="float64"),
-            "non-electric": np.genfromtxt(
-                handyvars.res_climate_convert["non-electric"], names=True,
+            "natural gas": np.genfromtxt(
+                handyvars.res_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.res_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "other fuel": np.genfromtxt(
+                handyvars.res_climate_convert["other fuel"], names=True,
                 delimiter='\t', dtype="float64")}
         # Import commercial census division to EMM conversion data; import
         # data into a dict that is keyed by fuel type, since separate
-        # census to EMM conversions are used for electric/non-electric fuels
+        # census to EMM conversions are used for different fuels
         com_cd_cz_conv = {
-            "electric": np.genfromtxt(
-                handyvars.com_climate_convert["electric"], names=True,
+            "electricity": np.genfromtxt(
+                handyvars.com_climate_convert["electricity"], names=True,
                 delimiter='\t', dtype="float64"),
-            "non-electric": np.genfromtxt(
-                handyvars.com_climate_convert["non-electric"], names=True,
+            "natural gas": np.genfromtxt(
+                handyvars.com_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.com_climate_convert["distillate"], names=True,
                 delimiter='\t', dtype="float64")}
         # Import data needed to convert envelope performance data from an
         # AIA climate zone to EMM region breakdown
