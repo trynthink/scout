@@ -75,13 +75,14 @@ start_yr = 2015
 end_yr = max(years)
 
 
-# Set the year to take a 'snapshot' of certain results in;
+# Set the years to take a 'snapshot' of certain results in;
 # if the measure set was prepared with public cost adders, set
 # this year to 2020, as these adders are reflective of current/
 # near term utility conditions from EPA data; also flag for the particular
 # type of public cost adder (low/high), if any
 if (grepl("PHC", meas_names[2], fixed=TRUE) == TRUE){
   snap_yr = "2020"
+  snap_yr_set = c("2020")
   if (grepl("low", meas_names[2], fixed=TRUE) == TRUE){
       phc_flag = "low"
   }else{
@@ -89,6 +90,7 @@ if (grepl("PHC", meas_names[2], fixed=TRUE) == TRUE){
   }
 }else{
   snap_yr = "2040"
+  snap_yr_set = c("2030", "2050")
   phc_flag = FALSE}
 
 # Filter and order the year range
@@ -866,22 +868,34 @@ for (a in 1:length(adopt_scenarios)){
       # Add tick marks to top and right axes
       axis(side=3, at=pretty(c(min(years), max(years))), labels = NA)
       axis(side=4, at=ylims, labels = NA)
-      # Annotate total savings in a snapshot year for the 'All ECMs' case;
+      # Annotate total savings in a snapshot years for the 'All ECMs' case;
       # otherwise, annotate the applicable ECM end uses         
       if (meas_names[m] == "All ECMs"){
-      	# Annotate the plot with snapshot year total savings figure
+      # Annotate the plot with snapshot year total savings figure
 	    # Find x and y values for annotation
-	    xval_snap = as.numeric(snap_yr)
-	    yval_snap_eff = eff_c_m[which(years==snap_yr)]
-	    yval_snap_base = base_c_m[which(years== snap_yr)]
-	    # Draw line segment connecting snapshot year baseline and efficient results
-	    points(xval_snap, yval_snap_base, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
-	    points(xval_snap, yval_snap_eff, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
-	    segments(xval_snap, yval_snap_eff, xval_snap, yval_snap_base, col="forestgreen", lty=3)
-	    # Add snapshot year savings figure
-	    text(xval_snap, yval_snap_eff - (yval_snap_eff - min(ylims))/7,
-	         paste(toString(sprintf("%.1f", yval_snap_base-yval_snap_eff)),
-	               toString(var_units[v]), sep=" "), pos = 1, col="forestgreen")
+	    for (s in 1:length(snap_yr_set)){
+		    # Set the x value for annotation point
+        xval_snap = as.numeric(snap_yr_set[s])
+		    # Set x value for annotation label
+        if (as.numeric(snap_yr_set[s])>2045){
+          # For later years, set the label to the left of the x val;
+          # otherwise, set the label under the x val
+          xlab_pos = 2
+		    }else{
+		    	xlab_pos = 1
+		    }
+		    # Set y values for annotation point
+        yval_snap_eff = eff_c_m[which(years==snap_yr_set[s])]
+		    yval_snap_base = base_c_m[which(years== snap_yr_set[s])]
+		    # Draw line segment connecting snapshot year baseline and efficient results
+		    points(xval_snap, yval_snap_base, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+		    points(xval_snap, yval_snap_eff, col="forestgreen", pch = 1, cex=1.5, lwd=2.5)
+		    segments(xval_snap, yval_snap_eff, xval_snap, yval_snap_base, col="forestgreen", lty=3)
+		    # Add snapshot year savings figure
+		    text(xval_snap, yval_snap_eff - (yval_snap_eff - min(ylims))/7,
+		         paste(toString(sprintf("%.1f", yval_snap_base-yval_snap_eff)),
+		               toString(var_units[v]), sep=" "), pos = xlab_pos, col="forestgreen")
+		    }
 	    }else{
 	  	# Add ECM end use labels
       text(min(years), max(ylims), labels=paste("End Uses: ", end_uses, sep=""), col="gray50",
