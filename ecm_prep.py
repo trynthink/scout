@@ -48,17 +48,21 @@ class UsefulInputFiles(object):
             needed to run measure competition in the analysis engine.
         run_setup (tuple): Names of active measures that should be run in
             the analysis engine.
-        cpi_data (tuple): Historical Consumer Price Index data.
-        ss_data (tuple): Site-source conversion data.
-        tsv_load_data (tuple): Time sensitive energy demand data.
-        tsv_cost_data (tuple): Time sensitive electricity price data.
-        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data.
-        tsv_shape_data (tuple): Custom time sensitive hourly savings data.
-        tsv_metrics_data_tot (tuple): Total system load data by EMM region.
-        tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
-        health_data (tuple): EPA public health benefits data by EMM region.
+        cpi_data (CSV): Historical Consumer Price Index data.
+        ss_data (JSON): Site-source, emissions, and price data, national.
+        ss_data_emm (JSON): Emissions and price data, EMM-resolved
+        tsv_load_data (JSON): Time sensitive energy demand data.
+        tsv_cost_data (JSON): Time sensitive electricity price data.
+        tsv_carbon_data (JSON): Time sensitive average CO2 emissions data.
+        tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
+        tsv_metrics_data_tot (CSV): Total system load shape data by EMM region.
+        tsv_metrics_data_net (CSV): Net system load shape data by EMM region.
+        health_data (CSV): EPA public health benefits data by EMM region.
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
+        regions (str): Specifies which baseline data file to choose, based on
+            intended regional breakout.
+        ash_emm_map (TXT): Factors for mapping ASHRAE climates to EMM regions.
     """
 
     def __init__(self, capt_energy, regions, site_energy):
@@ -80,6 +84,8 @@ class UsefulInputFiles(object):
                                  "cpl_res_com_emm.json")
             self.ash_emm_map = ("supporting_data", "convert_data",
                                 "ASH_EMM_Mapping_USAMainland.txt")
+            self.ss_data_emm = ("supporting_data", "convert_data",
+                                "emm_region_emissions_prices-updated.json")
 
         self.metadata = "metadata.json"
         # UNCOMMENT WITH ISSUE 188
@@ -172,6 +178,7 @@ class UsefulVars(object):
         retro_rate (float): Rate at which existing stock is retrofitted.
         nsamples (int): Number of samples to draw from probability distribution
             on measure inputs.
+        regions (string): User region settings.
         aeo_years (list): Modeling time horizon.
         aeo_years_summary (list): Reduced set of snapshot years in the horizon.
         demand_tech (list): All demand-side heating/cooling technologies.
@@ -259,6 +266,7 @@ class UsefulVars(object):
         self.discount_rate = 0.07
         self.retro_rate = 0.01
         self.nsamples = 100
+        self.regions = regions
         # Load metadata including AEO year range
         with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
             try:
@@ -296,8 +304,7 @@ class UsefulVars(object):
             raise ValueError(
                 "Error reading in '" +
                 handyfiles.cpi_data + "': " + str(e)) from None
-        # Read in JSON with site to source conversion, fuel CO2 intensity,
-        # and energy/carbon costs data
+        # Read in national-level site-source, emissions, and costs data
         with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
             try:
                 cost_ss_carb = json.load(ss)
@@ -305,59 +312,80 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.ss_data + "': " + str(e)) from None
-        # Set site to source conversions
+        # Set national site to source conversion factors
         self.ss_conv = {
             "electricity": cost_ss_carb[
                 "electricity"]["site to source conversion"]["data"],
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
             "other fuel": {yr: 1 for yr in self.aeo_years}}
-        # Set CO2 intensity by fuel type
-        carb_int_init = {
-            "residential": {
-                "electricity": cost_ss_carb[
-                    "electricity"]["CO2 intensity"]["data"]["residential"],
-                "natural gas": cost_ss_carb[
-                    "natural gas"]["CO2 intensity"]["data"]["residential"],
-                "distillate": cost_ss_carb[
-                    "other"]["CO2 intensity"]["data"]["residential"],
-                "other fuel": cost_ss_carb[
-                    "other"]["CO2 intensity"]["data"]["residential"]},
-            "commercial": {
-                "electricity": cost_ss_carb[
-                    "electricity"]["CO2 intensity"]["data"]["commercial"],
-                "natural gas": cost_ss_carb[
-                    "natural gas"]["CO2 intensity"]["data"]["commercial"],
-                "distillate": cost_ss_carb[
-                    "other"]["CO2 intensity"]["data"]["commercial"],
-                "other fuel": cost_ss_carb[
-                    "other"]["CO2 intensity"]["data"]["commercial"]}}
-        # Divide CO2 intensity by fuel type data by 1000000000 to reflect
-        # conversion from import units of MMTon/quad to MMTon/MMBtu
-        self.carb_int = {bldg: {fuel: {
-            yr: (carb_int_init[bldg][fuel][yr] / 1000000000) for
-            yr in self.aeo_years} for fuel in carb_int_init[bldg].keys()} for
-            bldg in carb_int_init.keys()}
-        # Set energy costs
-        self.ecosts = {
-            "residential": {
-                "electricity": cost_ss_carb[
-                    "electricity"]["price"]["data"]["residential"],
-                "natural gas": cost_ss_carb[
-                    "natural gas"]["price"]["data"]["residential"],
-                "distillate": cost_ss_carb[
-                    "other"]["price"]["data"]["residential"],
-                "other fuel": cost_ss_carb[
-                    "other"]["price"]["data"]["residential"]},
-            "commercial": {
-                "electricity": cost_ss_carb[
-                    "electricity"]["price"]["data"]["commercial"],
-                "natural gas": cost_ss_carb[
-                    "natural gas"]["price"]["data"]["commercial"],
-                "distillate": cost_ss_carb[
-                    "other"]["price"]["data"]["commercial"],
-                "other fuel": cost_ss_carb[
-                    "other"]["price"]["data"]["commercial"]}}
+        # Set electric emissions intensities and prices differently
+        # depending on whether EMM regions are specified (use EMM-specific
+        # data) or not (use national data)
+        if self.regions == "EMM":
+            # Read in EMM-specific emissions factors and price data
+            with open(path.join(base_dir, *handyfiles.ss_data_emm), 'r') as ss:
+                try:
+                    cost_ss_carb_emm = json.load(ss)
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.ss_data_emm + "': " + str(e)) from None
+            # Initialize CO2 intensities based on electricity intensities by
+            # EMM region; convert CO2 intensities from Mt/TWh site to
+            # MMTon/MMBTu site to match expected multiplication by site energy
+            self.carb_int = {bldg: {"electricity": {reg: {
+                yr: round((cost_ss_carb_emm["CO2 intensity of electricity"][
+                    "data"][reg][yr] / 3412141.6331), 10) for
+                yr in self.aeo_years} for reg in cost_ss_carb_emm[
+                    "CO2 intensity of electricity"]["data"].keys()}} for
+                bldg in ["residential", "commercial"]}
+            # Initialize energy costs based on electricity prices by EMM
+            # region; convert prices from $/kWh site to $/MMBTu site to match
+            # expected multiplication by site energy units
+            self.ecosts = {bldg: {"electricity": {reg: {
+                yr: round((cost_ss_carb_emm["End-use electricity price"][
+                    "data"][bldg][reg][yr] / 0.003412), 6) for
+                yr in self.aeo_years} for reg in cost_ss_carb_emm[
+                    "End-use electricity price"]["data"][bldg].keys()}} for
+                bldg in ["residential", "commercial"]}
+        else:
+            # Initialize CO2 intensities based on national CO2 intensities
+            # for electricity; convert CO2 intensities from Mt/quad source to
+            # Mt/MMBTu source to match expected multiplication by source energy
+            self.carb_int = {bldg: {"electricity": {yr: cost_ss_carb[
+                "electricity"]["CO2 intensity"]["data"][bldg][yr] /
+                1000000000 for yr in self.aeo_years}} for bldg in [
+                "residential", "commercial"]}
+            # Initialize energy costs based on national electricity prices; no
+            # conversion needed as the prices will be multiplied by MMBtu
+            # source energy units and are already in units of $/MMBtu source
+            self.ecosts = {bldg: {"electricity": {yr: cost_ss_carb[
+                "electricity"]["price"]["data"][bldg][yr] for
+                yr in self.aeo_years}} for bldg in [
+                "residential", "commercial"]}
+        # Pull non-electric CO2 intensities and energy prices and update
+        # the CO2 intensity and energy cost dicts initialized above
+        # accordingly; convert CO2 intensities from Mt/quad source to
+        # Mt/MMBTu source to match expected multiplication by source energy;
+        # price data are already in units of $/MMBtu source and do not require
+        # further conversion
+        carb_int_nonelec = {bldg: {fuel: {yr: (
+            cost_ss_carb[fuel_map]["CO2 intensity"]["data"][
+                bldg][yr] / 1000000000) for yr in self.aeo_years}
+                for fuel, fuel_map in zip(
+                ["natural gas", "distillate", "other fuel"],
+                ["natural gas", "other", "other"])
+            } for bldg in ["residential", "commercial"]}
+        ecosts_nonelec = {bldg: {fuel: {yr: cost_ss_carb[
+            fuel_map]["price"]["data"][bldg] for yr in
+            self.aeo_years} for fuel, fuel_map in zip([
+                "natural gas", "distillate", "other fuel"], [
+                "natural gas", "other", "other"])} for bldg in [
+            "residential", "commercial"]}
+        for bldg in ["residential", "commercial"]:
+            self.carb_int[bldg].update(carb_int_nonelec[bldg])
+            self.ecosts[bldg].update(ecosts_nonelec[bldg])
         # Set carbon costs
         ccosts_init = cost_ss_carb["CO2 price"]["data"]
         # Multiply carbon costs by 1000000 to reflect
@@ -2144,59 +2172,252 @@ class Measure(object):
                     mkt_scale_frac_source = \
                         self.market_scaling_fractions_source
 
-            # Set appropriate site-source conversion factor, energy cost, and
-            # carbon intensity for given key chain
-            if mskeys[3] in self.handyvars.ss_conv.keys():
-                # Set baseline and measure site-source conversions and
-                # carbon intensities, accounting for any fuel switching from
-                # baseline technology to measure technology
-                if self.fuel_switch_to is None:
-                    # Set site-source conversions to 1 if user flagged
-                    # site energy use outputs, while multiplying CO2
-                    # intensities by the appropriate site-source conversion
-                    # factor (CO2 conversions are based on primary energy use)
-                    if opts is not None and opts.site_energy is True:
-                        site_source_conv_base, site_source_conv_meas = [{
-                            yr: 1 for yr in self.handyvars.aeo_years}
-                            for n in range(2)]
+            # Set baseline and measure site-source conversion factors,
+            # accounting for any fuel switching from baseline to measure tech.
+            if self.fuel_switch_to is None:
+                # Set site-source conversions to 1 if user flagged
+                # site energy use outputs, to appropriate input data otherwise
+                if opts is not None and opts.site_energy is True:
+                    site_source_conv_base, site_source_conv_meas = [{
+                        yr: 1 for yr in self.handyvars.aeo_years}
+                        for n in range(2)]
+                else:
+                    site_source_conv_base, site_source_conv_meas = (
+                        self.handyvars.ss_conv[mskeys[3]] for
+                        n in range(2))
+            else:
+                # Set site-source conversions to 1 if user flagged
+                # site energy use outputs, to appropriate input data otherwise
+                if opts is not None and opts.site_energy is True:
+                    site_source_conv_base, site_source_conv_meas = [{
+                        yr: 1 for yr in self.handyvars.aeo_years}
+                        for n in range(2)]
+                else:
+                    site_source_conv_base = self.handyvars.ss_conv[
+                        mskeys[3]]
+                    site_source_conv_meas = self.handyvars.ss_conv[
+                        self.fuel_switch_to]
+
+            # Set baseline and measure carbon intensities, accounting for any
+            # fuel switching from baseline technology to measure technology
+            if self.fuel_switch_to is None:
+                # Case where use has flagged site energy outputs
+                if opts is not None and opts.site_energy is True:
+                    # Intensities are specified by EMM region based on site
+                    # energy and require no further conversion to match the
+                    # user's site energy setting
+                    try:
+                        intensity_carb_base, intensity_carb_meas = [{
+                            yr: self.handyvars.carb_int[bldg_sect][mskeys[3]][
+                                mskeys[1]][yr] for
+                            yr in self.handyvars.aeo_years} for n in range(2)]
+                    # Intensities are specified nationally based on source
+                    # energy and require multiplication by site-source factor
+                    # to match the user's site energy setting
+                    except KeyError:
                         intensity_carb_base, intensity_carb_meas = [{
                             yr: self.handyvars.carb_int[bldg_sect][
                                 mskeys[3]][yr] *
                             self.handyvars.ss_conv[mskeys[3]][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
-                    else:
-                        site_source_conv_base, site_source_conv_meas = (
-                            self.handyvars.ss_conv[mskeys[3]] for
-                            n in range(2))
+                # Case where user has not flagged site energy outputs
+                else:
+                    # Intensities are specified by EMM region based on site
+                    # energy and require division by site-source factor to
+                    # match the user's source energy setting
+                    try:
+                        intensity_carb_base, intensity_carb_meas = [{
+                            yr: self.handyvars.carb_int[bldg_sect][mskeys[3]][
+                                mskeys[1]][yr] /
+                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                            yr in self.handyvars.aeo_years} for n in range(2)]
+                    # Intensities are specified nationally based on source
+                    # energy and require no further conversion to match the
+                    # user's source energy setting
+                    except KeyError:
                         intensity_carb_base, intensity_carb_meas = (
                             self.handyvars.carb_int[bldg_sect][
                                 mskeys[3]] for n in range(2))
-                else:
-                    # Set site-source conversions to 1 if user flagged
-                    # site energy use outputs, while multiplying CO2
-                    # intensities by the appropriate site-source conversion
-                    # factor (CO2 conversions are based on primary energy use)
-                    if opts is not None and opts.site_energy is True:
-                        site_source_conv_base, site_source_conv_meas = [{
-                            yr: 1 for yr in self.handyvars.aeo_years}
-                            for n in range(2)]
+            else:
+                # Interpretation of the calculations below is the same as for
+                # the case above without fuel switching; the only difference
+                # here is that baseline vs. measure settings use different
+                # fuels and must therefore be calculated separately
+
+                # Case where use has flagged site energy outputs
+                if opts is not None and opts.site_energy is True:
+                    # Intensities broken out by EMM region
+                    try:
+                        # Base fuel intensity
+                        intensity_carb_base = self.handyvars.carb_int[
+                            bldg_sect][mskeys[3]][mskeys[1]]
+                        # Measure fuel intensity
+                        intensity_carb_meas = self.handyvars.carb_int[
+                            bldg_sect][self.fuel_switch_to][mskeys[1]]
+                    # National intensities
+                    except KeyError:
+                        # Base fuel intensity
                         intensity_carb_base = {yr: self.handyvars.carb_int[
                             bldg_sect][mskeys[3]][yr] *
                             self.handyvars.ss_conv[mskeys[3]][yr]
                             for yr in self.handyvars.aeo_years}
+                        # Measure fuel intensity
                         intensity_carb_meas = {yr: self.handyvars.carb_int[
                             bldg_sect][self.fuel_switch_to][yr] *
                             self.handyvars.ss_conv[self.fuel_switch_to][yr]
                             for yr in self.handyvars.aeo_years}
-                    else:
-                        site_source_conv_base = self.handyvars.ss_conv[
-                            mskeys[3]]
-                        site_source_conv_meas = self.handyvars.ss_conv[
-                            self.fuel_switch_to]
+                # Case where user has not flagged site energy outputs
+                else:
+                    # Intensities broken out by EMM region
+                    try:
+                        # Base fuel intensity
+                        intensity_carb_base = {yr: self.handyvars.carb_int[
+                            bldg_sect][mskeys[3]][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[mskeys[3]][yr]
+                            for yr in self.handyvars.aeo_years}
+                        # Measure fuel intensity
+                        intensity_carb_meas = {yr: self.handyvars.carb_int[
+                            bldg_sect][self.fuel_switch_to][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[self.fuel_switch_to][yr]
+                            for yr in self.handyvars.aeo_years}
+                    # National intensities
+                    except KeyError:
+                        # Base fuel intensity
                         intensity_carb_base = self.handyvars.carb_int[
                             bldg_sect][mskeys[3]]
+                        # Measure fuel intensity
                         intensity_carb_meas = self.handyvars.carb_int[
                             bldg_sect][self.fuel_switch_to]
+
+            # Set baseline and measure fuel costs, accounting for any
+            # fuel switching from baseline technology to measure technology;
+            # interpretation of the calculations is the same as for the carbon
+            # intensity calculations above
+            if self.fuel_switch_to is None:
+                # Case where use has flagged site energy outputs
+                if opts is not None and opts.site_energy is True:
+                    # Costs broken out by EMM region
+                    try:
+                        cost_energy_base, cost_energy_meas = (
+                            self.handyvars.ecosts[bldg_sect][mskeys[3]][
+                                mskeys[1]] for n in range(2))
+                    # National fuel costs
+                    except KeyError:
+                        cost_energy_base, cost_energy_meas = [{
+                            yr: self.handyvars.ecosts[bldg_sect][
+                                mskeys[3]][yr] * self.handyvars.ss_conv[
+                                mskeys[3]][yr] for yr in
+                            self.handyvars.aeo_years} for n in range(2)]
+                # Case where user has not flagged site energy outputs
+                else:
+                    # Costs broken out by EMM region
+                    try:
+                        cost_energy_base, cost_energy_meas = [{
+                            yr: self.handyvars.ecosts[
+                                bldg_sect][mskeys[3]][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                            yr in self.handyvars.aeo_years} for
+                            n in range(2)]
+                    # National fuel costs
+                    except KeyError:
+                        cost_energy_base, cost_energy_meas = (
+                            self.handyvars.ecosts[bldg_sect][mskeys[3]] for
+                            n in range(2))
+            else:
+                # Case where use has flagged site energy outputs
+                if opts is not None and opts.site_energy is True:
+                    # Costs broken out by EMM region
+                    try:
+                        # Base fuel cost
+                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
+                            mskeys[3]][mskeys[1]]
+                        # Measure fuel cost
+                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
+                            self.fuel_switch_to][mskeys[1]]
+                    # National fuel costs
+                    except KeyError:
+                        # Base fuel cost
+                        cost_energy_base = {
+                            yr: self.handyvars.ecosts[bldg_sect][
+                                mskeys[3]][yr] * self.handyvars.ss_conv[
+                                mskeys[3]][yr] for yr in
+                            self.handyvars.aeo_years}
+                        # Measure fuel cost
+                        cost_energy_meas = {
+                            yr: self.handyvars.ecosts[bldg_sect][
+                                self.fuel_switch_to][yr] *
+                            self.handyvars.ss_conv[self.fuel_switch_to][yr] for
+                            yr in self.handyvars.aeo_years}
+                # Case where user has not flagged site energy outputs
+                else:
+                    # Costs broken out by EMM region
+                    try:
+                        # Base fuel cost
+                        cost_energy_base = {
+                            yr: self.handyvars.ecosts[bldg_sect][mskeys[3]][
+                                mskeys[1]][yr] / self.handyvars.ss_conv[
+                                mskeys[3]][yr] for yr in
+                            self.handyvars.aeo_years}
+                        # Measure fuel cost
+                        cost_energy_meas = {
+                            yr: self.handyvars.ecosts[bldg_sect][
+                                self.fuel_switch_to][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[self.fuel_switch_to][yr] for
+                            yr in self.handyvars.aeo_years}
+                    # National fuel costs
+                    except KeyError:
+                        # Base fuel cost
+                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
+                            mskeys[3]]
+                        # Measure fuel cost
+                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
+                            self.fuel_switch_to]
+
+            # For electricity microsegments in measure scenarios that
+            # require the addition of public health cost data, retrieve
+            # the appropriate cost data for the given EMM region and add
+            if opts is not None and opts.health_costs is True and (
+                    "PHC" in self.name and (
+                        "electricity" in mskeys or
+                        self.fuel_switch_to == "electricity")):
+                # Set row/column key information for the public health
+                # cost scenario suggested by the measure name
+                row_key = [x[1] for x in self.handyvars.health_scn_names if
+                           x[0] in self.name][0]
+                col_key = [x[2] for x in self.handyvars.health_scn_names if
+                           x[0] in self.name][0]
+                # Public health costs are specified in units of $/MMBtu source;
+                # add a multiplier to account for the case where the energy
+                # outputs that these data will be multiplied by are specified
+                # in site units; otherwise, set this multiplier to 1
+                if opts is not None and opts.site_energy is True:
+                    phc_site_mult = self.handyvars.ss_conv["electricity"]
+                else:
+                    phc_site_mult = {yr: 1 for yr in self.handyvars.aeo_years}
+                # Pull the appropriate public health cost information for
+                # the current health cost scenario and EMM region; convert
+                # from units of cents/primary kWh to $/MMBtu source and add
+                # source-site multiplier, if necessary
+                phc_dat = {yr: ((self.handyvars.health_scn_data[
+                    numpy.in1d(
+                        self.handyvars.health_scn_data["Category"], row_key) &
+                    numpy.in1d(
+                        self.handyvars.health_scn_data["EMM_Region"],
+                        mskeys[1])][col_key])[0] / 100) * 293.07107 *
+                    phc_site_mult[yr] for yr in self.handyvars.aeo_years}
+                # Update energy costs with public health data; in fuel switch
+                # case, do not add to baseline as baseline was non-electric
+                if self.fuel_switch_to == "electricity":
+                    # Update measure
+                    cost_energy_meas = {yr: (val + phc_dat[yr]) for yr, val in
+                                        cost_energy_meas.items()}
+                else:
+                    # Update baseline
+                    cost_energy_base = {yr: (val + phc_dat[yr]) for yr, val in
+                                        cost_energy_base.items()}
+                    # Update measure
+                    cost_energy_meas = {yr: (val + phc_dat[yr]) for yr, val in
+                                        cost_energy_meas.items()}
 
             # Initialize cost/performance/lifetime, stock/energy, square
             # footage, and new building fraction variables for the baseline
@@ -3081,76 +3302,9 @@ class Measure(object):
                         "Invalid performance or cost units for ECM '" +
                         self.name + "'")
 
-                # For electricity microsegments in measure scenarios that
-                # require the addition of public health cost data, retrieve
-                # the appropriate cost data for the given EMM region
-                if opts is not None and opts.health_costs is True and \
-                        "PHC" in self.name and "electricity" in mskeys:
-                    # Set row/column key information for the public health
-                    # cost scenario suggested by the measure name
-                    row_key = [x[1] for x in self.handyvars.health_scn_names if
-                               x[0] in self.name][0]
-                    col_key = [x[2] for x in self.handyvars.health_scn_names if
-                               x[0] in self.name][0]
-                    # Pull the appropriate public health cost information for
-                    # the current health cost scenario and EMM region; convert
-                    # from units of cents/primary kWh to $/MMBtu source
-                    phc_dat = ((self.handyvars.health_scn_data[
-                        numpy.in1d(
-                            self.handyvars.health_scn_data["Category"],
-                            row_key) & numpy.in1d(
-                            self.handyvars.health_scn_data["EMM_Region"],
-                            mskeys[1])][col_key])[0] / 100) * 293.07107
-                else:
-                    phc_dat = None
-
-                # Reduce energy costs and stock turnover info. to appropriate
-                # building type and - for energy costs - fuel, before
-                # entering into "partition_microsegment"
+                # Set stock turnover info. and consumer choice info. to
+                # appropriate building type
                 if bldg_sect == "residential":
-                    # Update residential baseline and measure energy cost
-                    # information, accounting for any fuel switching from
-                    # baseline technology to measure technology
-                    if self.fuel_switch_to is None:
-                        # If user flagged site energy use outputs, multiply
-                        # energy costs by the appropriate site-source
-                        # conversion factor (energy costs are based on
-                        # primary energy use numbers)
-                        if opts is not None and opts.site_energy is True:
-                            cost_energy_base, cost_energy_meas = [{
-                                yr: self.handyvars.ecosts[
-                                    "residential"][mskeys[3]][yr] *
-                                self.handyvars.ss_conv[mskeys[3]][yr] for
-                                yr in self.handyvars.aeo_years} for
-                                n in range(2)]
-                        else:
-                            cost_energy_base, cost_energy_meas = (
-                                self.handyvars.ecosts[
-                                    "residential"][mskeys[3]] for
-                                n in range(2))
-                    else:
-                        # If user flagged site energy use outputs, multiply
-                        # energy costs by the appropriate site-source
-                        # conversion factor (energy costs are based on
-                        # primary energy use numbers)
-                        if opts is not None and opts.site_energy is True:
-                            cost_energy_base = {
-                                yr: self.handyvars.ecosts[
-                                    "residential"][mskeys[3]][yr] *
-                                self.handyvars.ss_conv[mskeys[3]][yr] for
-                                yr in self.handyvars.aeo_years}
-                            cost_energy_meas = {
-                                yr: self.handyvars.ecosts[
-                                    "residential"][self.fuel_switch_to][yr] *
-                                self.handyvars.ss_conv[
-                                    self.fuel_switch_to][yr] for
-                                yr in self.handyvars.aeo_years}
-                        else:
-                            cost_energy_base = self.handyvars.ecosts[
-                                "residential"][mskeys[3]]
-                            cost_energy_meas = self.handyvars.ecosts[
-                                "residential"][self.fuel_switch_to]
-
                     # Update new building construction information
                     for yr in self.handyvars.aeo_years:
                         # Find new and total buildings for current year
@@ -3243,49 +3397,6 @@ class Measure(object):
                                     choice_param_adj for key in
                                     self.handyvars.aeo_years}}
                 else:
-                    # Update commercial baseline and measure energy cost
-                    # information, accounting for any fuel switching from
-                    # baseline technology to measure technology
-                    if self.fuel_switch_to is None:
-                        # If user flagged site energy use outputs, multiply
-                        # energy costs by the appropriate site-source
-                        # conversion factor (energy costs are based on
-                        # primary energy use numbers)
-                        if opts is not None and opts.site_energy is True:
-                            cost_energy_base, cost_energy_meas = [{
-                                yr: self.handyvars.ecosts[
-                                    "commercial"][mskeys[3]][yr] *
-                                self.handyvars.ss_conv[mskeys[3]][yr] for
-                                yr in self.handyvars.aeo_years} for
-                                n in range(2)]
-                        else:
-                            cost_energy_base, cost_energy_meas = (
-                                self.handyvars.ecosts[
-                                    "commercial"][mskeys[3]] for
-                                n in range(2))
-                    else:
-                        # If user flagged site energy use outputs, multiply
-                        # energy costs by the appropriate site-source
-                        # conversion factor (energy costs are based on
-                        # primary energy use numbers)
-                        if opts is not None and opts.site_energy is True:
-                            cost_energy_base = {
-                                yr: self.handyvars.ecosts[
-                                    "commercial"][mskeys[3]][yr] *
-                                self.handyvars.ss_conv[mskeys[3]][yr] for
-                                yr in self.handyvars.aeo_years}
-                            cost_energy_meas = {
-                                yr: self.handyvars.ecosts[
-                                    "commercial"][self.fuel_switch_to][yr] *
-                                self.handyvars.ss_conv[
-                                    self.fuel_switch_to][yr] for
-                                yr in self.handyvars.aeo_years}
-                        else:
-                            cost_energy_base = self.handyvars.ecosts[
-                                "commercial"][mskeys[3]]
-                            cost_energy_meas = self.handyvars.ecosts[
-                                "commercial"][self.fuel_switch_to]
-
                     # Update new building construction information
                     for yr in self.handyvars.aeo_years:
                         # Find new and total square footage for current year
@@ -3299,9 +3410,9 @@ class Measure(object):
                     # access this baseline microsegment. For the commercial
                     # sector, these parameters are specified at the
                     # beginning of run.py in com_timeprefs (* Note:
-                    # com_timeprefs info. may eventually be integrated into the
-                    # baseline technology cost, performance, and lifetime JSON
-                    # as for residential)
+                    # com_timeprefs info. may eventually be integrated into
+                    # the  baseline technology cost, performance, and
+                    # lifetime JSON as for residential)
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
                     else:
@@ -3332,16 +3443,6 @@ class Measure(object):
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][
                                                  "refrigeration"]}
-
-                # Add in public health costs to existing energy cost data
-                if opts is not None and opts.health_costs is True and \
-                        "PHC" in self.name and "electricity" in mskeys:
-                    # Update base energy costs with public health data
-                    cost_energy_base = {yr: (val + phc_dat) for yr, val in
-                                        cost_energy_base.items()}
-                    # Update measure energy costs with public health data
-                    cost_energy_meas = {yr: (val + phc_dat) for yr, val in
-                                        cost_energy_meas.items()}
 
                 # Find fraction of total new buildings in each year.
                 # Note: in each year, this fraction is calculated by summing
@@ -5732,7 +5833,6 @@ class Measure(object):
                         energy_tot_uncomp_meas * tsv_shapes["efficient"][x] +
                         energy_tot_uncomp_base * tsv_shapes["baseline"][x])
                     for x in range(8760)]
-
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total_sbmkt[yr] * \
                 competed_captured_eff_frac * rel_perf_capt * \
@@ -5750,7 +5850,6 @@ class Measure(object):
                 (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
                 (carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * (
                     1 - captured_eff_frac) * rel_perf_uncapt * tsv_carb_base
-
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
             # cost for the measure are dependent upon whether that measure is
@@ -5784,7 +5883,6 @@ class Measure(object):
                 # Total-efficient stock cost (full service measure)
                 stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas \
                     + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
-
             # Competed baseline energy cost
             energy_compete_cost[yr] = energy_compete_sbmkt[yr] * \
                 cost_energy_base[yr] * tsv_ecost_base
@@ -5808,7 +5906,6 @@ class Measure(object):
                     energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
                 (1 - captured_eff_frac) * \
                 rel_perf_uncapt * cost_energy_base[yr] * tsv_ecost_base
-
             # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * \
                 self.handyvars.ccosts[yr]
