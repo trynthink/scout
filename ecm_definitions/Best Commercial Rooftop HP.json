@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.86,
+  "energy_efficiency": 3.84,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "High efficiency commercial rooftop HP EER in 2017, COP = EER * 0.293",
@@ -79,9 +79,9 @@
     "timestamp": "Fri Sep 14 11:38:03 EDT 2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov,
+    "timestamp": "Tue Feb 23 5:29:00 PDT 2021"
   }
 }
