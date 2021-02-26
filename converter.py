@@ -55,7 +55,8 @@ class UsefulVars(object):
         self.emm_conv_file = ('supporting_data/convert_data/' +
                               'emm_region_emissions_prices.json')
         self.emm_conv_file_out = ('supporting_data/convert_data/' +
-                                  'emm_region_emissions_prices-new.json')
+                                  'emm_region_emissions_prices-updated.json')
+        self.metadata = ('metadata.json')
 
 
 class ValidQueries(object):
@@ -64,7 +65,13 @@ class ValidQueries(object):
     Attributes:
         years (list): A list of valid AEO report years for which this
             module has been evaluated to work.
+        emm_years (list): A list of valid AEO report years for which
+            this module has been evaluted to work for EMM-resolved data
+            updates
         cases (list): A list of valid AEO cases investigated with NEMS,
+            specified with the strings employed by the API.
+        emm_cases (list): A list of valid AEO cases investigated with NEMS,
+            which are available for EMM-resolved data queries and are
             specified with the strings employed by the API.
         regions_dict (dict): A dict of valid AEO regions, with keys
             denoting region abbreviations to use when querying the
@@ -73,8 +80,10 @@ class ValidQueries(object):
     """
     def __init__(self):
         self.years = ['2018', '2019', '2020']
+        self.emm_years = ['2020']
         self.cases = ['REF2018', 'REF2019', 'REF2020', 'CO2FEE25', 'LOWOGS',
                       'LORENCST']
+        self.emm_cases = ['REF2020', 'LOWOGS', 'LORENCST']
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
@@ -260,6 +269,48 @@ def data_processor(data):
     years = np.array(years)
     data = np.array(data)[years.argsort()]  # Re-sort in ascending year order
     years = years[years.argsort()]  # Re-sort to be in ascending year order
+
+    # Load metadata including AEO year range
+    with open(UsefulVars().metadata, 'r') as aeo_yrs:
+        try:
+            aeo_yrs = json.load(aeo_yrs)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                UsefulVars().metadata + "': " + str(e)) from None
+    # Get minimum AEO modeling year and convert to np.datetime64
+    aeo_min = aeo_yrs["min year"]
+
+    # If/else loop to handle issue of conversion file not matching
+    # aeo_min from metadata.json. In this case, years for each region
+    # in conversion file are extended to match aeo_min, using replicated
+    # values from minimum year in conversion file.
+
+    if str(aeo_min) not in years:
+
+        # convert aeo_min and year data to datetime64
+        aeo_min = np.datetime64(str(aeo_min))
+        years = [np.datetime64(year) for year in years]
+
+        # Get difference between earliest data year and aeo_min year
+        # from metadata.json
+        diff = (min(years) - aeo_min).astype(int)
+
+        # add prior years to array for length of diff
+        new_years = np.array([aeo_min + np.timedelta64(i, 'Y') for i in range(diff)])  # noqa: E501
+        years = np.insert(years, 0, new_years, axis=0)
+
+        # add repeated data to array to match number of prior years added
+        data_insert = [data[0]] * diff
+        data = np.insert(data, 0, data_insert, axis=0)
+
+        # convert years back to array of strings
+        years = np.array([np.datetime_as_string(year, unit='Y') for year in years])  # noqa: E501
+
+        # Re-sort in ascending year order
+        data = np.array(data)[years.argsort()]
+        years = years[years.argsort()]
+
     return data, years
 
 
@@ -600,6 +651,10 @@ def updater_emm(conv, api_key, aeo_yr, scen):
             for idx, year in enumerate(yrs):
                 conv['CO2 intensity of electricity']['data'][value][year] = (
                     round(co2_ints[idx], 6))
+            # Ensure years are ordered chronologically
+            conv['CO2 intensity of electricity']['data'][value] = (
+                OrderedDict(sorted(conv['CO2 intensity of electricity']['data'][value].items())))  # noqa:E501
+
         except KeyError:
             print('\nDue to failed data retrieval from the API, '
                   'electricity CO2 emissions intensities were not updated.')
@@ -609,6 +664,10 @@ def updater_emm(conv, api_key, aeo_yr, scen):
             for idx, year in enumerate(yrs):
                 conv['End-use electricity price']['data']['residential'][value][year] = (  # noqa:E501
                     round((z['elec_enduse_price_res_'+key][idx] / 100), 6))
+            # Ensure years are ordered chronologically
+            conv['End-use electricity price']['data']['residential'][value] = (
+                OrderedDict(sorted(conv['End-use electricity price']['data']['residential'][value].items())))  # noqa:E501
+
         except KeyError:
             print('\nDue to failed data retrieval from the API, residential '
                   'electricity prices were not updated.')
@@ -618,6 +677,10 @@ def updater_emm(conv, api_key, aeo_yr, scen):
             for idx, year in enumerate(yrs):
                 conv['End-use electricity price']['data']['commercial'][value][year] = (  # noqa:E501
                     round((z['elec_enduse_price_com_'+key][idx] / 100), 6))
+            # Ensure years are ordered chronologically
+            conv['End-use electricity price']['data']['commercial'][value] = (
+                OrderedDict(sorted(conv['End-use electricity price']['data']['commercial'][value].items())))  # noqa:E501
+
         except KeyError:
             print('\nDue to failed data retrieval from the API, commercial '
                   'electricity prices were not updated.')
@@ -655,31 +718,34 @@ if __name__ == '__main__':
     # Load current file to be updated
     conv = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))
 
-    # Ask the user to specify the desired report year, informing the
-    # user about the valid year options
-    while True:
-        year = input('Please specify the desired AEO year. '
-                     'Valid entries are: ' +
-                     ', '.join(ValidQueries().years) + '.\n')
-        if year not in ValidQueries().years:
-            print('Invalid year entered.')
-        else:
-            break
-
-    # Ask the user to specify the desired AEO case or scenario,
-    # informing the user about the valid scenario options
-    while True:
-        scenario = input('Please specify the desired AEO scenario. '
-                         'Valid entries are: ' +
-                         ', '.join(ValidQueries().cases) + '.\n')
-        if scenario not in ValidQueries().cases:
-            print('Invalid scenario entered.')
-        else:
-            break
-
     # Update routine specific to whether user is updating site-to-source
-    # file or EMM emission/price projections file.
+    # file or EMM emissions/prices projections file
+    # NOTE: EMM-resolved data not available prior to 2020, so year/scenario
+    # settings are specific to each file being updated.
+
     if conv_file == 'site_source_co2_conversions.json':
+
+        # Ask the user to specify the desired report year, informing the
+        # user about the valid year options
+        while True:
+            year = input('Please specify the desired AEO year. '
+                         'Valid entries are: ' +
+                         ', '.join(ValidQueries().years) + '.\n')
+            if year not in ValidQueries().years:
+                print('Invalid year entered.')
+            else:
+                break
+
+        # Ask the user to specify the desired AEO case or scenario,
+        # informing the user about the valid scenario options
+        while True:
+            scenario = input('Please specify the desired AEO scenario. '
+                             'Valid entries are: ' +
+                             ', '.join(ValidQueries().cases) + '.\n')
+            if scenario not in ValidQueries().cases:
+                print('Invalid scenario entered.')
+            else:
+                break
 
         # Set up command line argument for switching to the "captured
         # energy" method for calculating electricity site-source conversions
@@ -718,14 +784,39 @@ if __name__ == '__main__':
 
     else:
 
+        # Ask the user to specify the desired report year, informing the
+        # user about the valid year options
+        while True:
+            year = input('Please specify the desired AEO year. '
+                         'Valid entries are: ' +
+                         ', '.join(ValidQueries().emm_years) + '.\n')
+            if year not in ValidQueries().emm_years:
+                print('Invalid year entered.')
+            else:
+                break
+
+        # Ask the user to specify the desired AEO case or scenario,
+        # informing the user about the valid scenario options
+        while True:
+            scenario = input('Please specify the desired AEO scenario. '
+                             'Valid entries are: ' +
+                             ', '.join(ValidQueries().emm_cases) + '.\n')
+            if scenario not in ValidQueries().emm_cases:
+                print('Invalid scenario entered.')
+            else:
+                break
+
         # Change conversion factors dict imported from JSON to OrderedDict
         # so that the AEO year and scenario specified by the user can be
         # added with the indicated keys to the beginning of the file
-        # conv = OrderedDict(conv)
+        conv = OrderedDict(conv)
         conv['updated_to_aeo_year'] = year
         conv['updated_to_aeo_case'] = scenario
+        conv.move_to_end('updated_to_aeo_case', last=False)
+        conv.move_to_end('updated_to_aeo_year', last=False)
 
-        updater_emm(conv, api_key, year, scenario)
+        # Update regional CO2 emissions and electricity price conversions
+        conv = updater_emm(conv, api_key, year, scenario)
 
         # Output modified EMM emissions/price projections data
         with open(UsefulVars().emm_conv_file_out, 'w') as js_out:
