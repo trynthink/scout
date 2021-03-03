@@ -17,6 +17,7 @@ class EIAData(object):
     """
     def __init__(self):
         self.res_energy = 'RESDBOUT.txt'
+        self.res_generation = 'RDGENOUT.txt'
 
 
 class UsefulVars(object):
@@ -53,6 +54,42 @@ class UsefulVars(object):
         self.aeo_metadata = 'metadata.json'
         self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
         self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
+
+
+class SkipLines(object):
+    """Class of variables that would otherwise be global.
+
+    Attributes:
+        json_in (str): Filename for empty input JSON with the structure
+            to be populated with AEO data.
+        json_out (str): Filename for JSON with residential building data added.
+        aeo_metadata (str): File name for the custom AEO metadata JSON.
+    """
+    def __init__(self, aeo_import_year=2021):
+        self.aeo_import_year = aeo_import_year
+        if self.aeo_import_year == 2015:
+            self.nlt_cp_skip_header = 20
+            self.nlt_l_skip_header = 19
+            self.lt_skip_header = 35
+            self.lt_skip_footer = 54
+        elif self.aeo_import_year in [2016, 2017, 2018]:
+            self.nlt_cp_skip_header = 25
+            self.nlt_l_skip_header = 20
+            self.lt_skip_header = 37
+            if aeo_import_year in [2016, 2017]:
+                self.lt_skip_footer = 54
+            else:
+                self.lt_skip_footer = 52
+        elif self.aeo_import_year == 2019:
+            self.nlt_cp_skip_header = 2
+            self.nlt_l_skip_header = 2
+            self.lt_skip_header = 37
+            self.lt_skip_footer = 52
+        else:
+            self.nlt_cp_skip_header = 2
+            self.nlt_l_skip_header = 2
+            self.lt_skip_header = 37
+            self.lt_skip_footer = 51
 
 
 # Define a series of dicts that will translate imported JSON
@@ -538,7 +575,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
     if aeo_years in [42, 36]:  # AEO 2017-2019 formatting
-        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),
+        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-2019
                           ('REF', 'INC'), ('EXT', 'INC')]
     else:  # AEO 2015 formatting
         lt_with_energy = [('GSL', 'Inc'), ('LFL', 'T12'),
@@ -559,7 +596,6 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
 
             # Construct a new text filter using the lighting type
             # that has data available, and avoiding the use of
-            # copy.deepcopy to limit computational expense
             addl_txt_filter = txt_filter[0][:4]
             addl_txt_filter.append(new_lt_filt)
             addl_txt_filter = [addl_txt_filter, txt_filter[1]]
@@ -699,7 +735,6 @@ def walk(nrg_stock, loads, json_dict, yrs_range, lt_factors, key_list=[]):
 
     # Explore the data structure from the current location
     for key, item in json_dict.items():
-
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
@@ -713,7 +748,6 @@ def walk(nrg_stock, loads, json_dict, yrs_range, lt_factors, key_list=[]):
         else:
             if key_list[1] in bldgtypedict.keys():
                 leaf_node_keys = key_list + [key]
-
                 # Extract data from original data sources
                 data_dict = list_generator(nrg_stock, loads, leaf_node_keys,
                                            yrs_range, lt_factors)
@@ -1054,6 +1088,42 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
     return lt_wf
 
 
+def onsite_calc(generation_file, json_results):
+    """ Calculates net electricity use using EIA's pre-2021 methodology
+    and adds a new PV technology type. """
+
+    def array_mult(dct, factor):
+        scaled = {key: val * factor for key, val in dct.items()}
+        return scaled
+
+    # Factor to convert commercial energy data from TBTU to MMBTU
+    to_mmbtu = 1000000
+
+    # Read in AEO's onsite generation file
+    gen_dtypes = dtype_array(generation_file)
+    gen_dtypes[1] = ('Year', '<U50')
+    gen_data = data_import(generation_file, gen_dtypes)
+
+    # Define impacted building type
+    res_bld = 'single family home'
+
+    # Pull the onsite generation by census division
+    for div in cdivdict:
+        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][['Year', 'OwnUse']]
+        years = numpy.unique(cdiv['Year'])
+        cdiv['OwnUse'] = cdiv['OwnUse']*to_mmbtu
+        onsite_gen = dict([(i, cdiv[cdiv['Year'] == i][
+                    'OwnUse'].sum()) for i in years])
+
+        # Add in new onsite generation end use
+        elec_slice = json_results[div][res_bld]['electricity']
+        elec_slice['onsite generation'] = {}
+        elec_slice['onsite generation']['energy'] = array_mult(onsite_gen, -1)
+        elec_slice['onsite generation']['stock'] = 'NA'
+
+    return json_results
+
+
 def dtype_eval(entry):
     """ Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or
@@ -1340,6 +1410,7 @@ def main():
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
+    skip = SkipLines()
 
     # Import metadata generated based on EIA AEO data files
     with open(handyvars.aeo_metadata, 'r') as metadata:
@@ -1353,21 +1424,13 @@ def main():
     # how to specify the year range to be used for processing the data
     if aeo_import_year == 2015:
         yrs_range = metajson['max year'] - metajson['min year'] + 1
-        lt_skip_header = 35
-        lt_skip_footer = 54
 
         # Import EIA RESDBOUT.txt energy use and stock file
         ns_dtypes = dtype_array(eiadata.res_energy, '\t')
         ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t',
                               ['SF', 'ST', 'FP'])
     else:
-        yrs_range = metajson['max year'] - metajson['min year'] + 1
-        lt_skip_header = 37
-        if aeo_import_year in [2016, 2017]:
-            lt_skip_footer = 54
-        else:
-            yrs_range = 36
-            lt_skip_footer = 52
+        yrs_range = 36
         update_lighting_dict()
 
         # Import EIA RESDBOUT.txt energy use and stock file
@@ -1408,8 +1471,8 @@ def main():
     # are reported for only one lighting technology type (bulb type)
     # for each fixture/luminaire type
     eia_lt = numpy.genfromtxt(rmt.EIAData().r_lt_all, dtype=eia_lt_dtype,
-                              skip_header=lt_skip_header,
-                              skip_footer=lt_skip_footer,
+                              skip_header=skip.lt_skip_header,
+                              skip_footer=skip.lt_skip_footer,
                               encoding="latin1")
 
     # Compute the number of unique lighting fixture and bulb type combinations
@@ -1444,6 +1507,10 @@ def main():
         # Run through JSON objects, determine replacement information
         # to mine from the imported data, and make the replacements
         result = walk(ns_data, tl_data, msjson, yrs_range, lt_wt_fac)
+
+        # Add in onsite generation for SF as a new end-use from
+        # RGENOUT.txt
+        result = onsite_calc(eiadata.res_generation, result)
 
         # Write the updated dict of data to a new JSON file
         json.dump(result, jso, indent=2, default=fix_ints)

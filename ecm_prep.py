@@ -513,18 +513,18 @@ class UsefulVars(object):
                 bldg][yr] / 1000000000) for yr in self.aeo_years}
                 for fuel, fuel_map in zip(
                 ["natural gas", "distillate", "other fuel"],
-                ["natural gas", "other", "other"])
+                ["natural gas", "distillate", "propane"])
             } for bldg in ["residential", "commercial"]}
         ecosts_nonelec = {bldg: {fuel: {yr: cost_ss_carb[
             fuel_map]["price"]["data"][bldg][yr] for yr in
             self.aeo_years} for fuel, fuel_map in zip([
                 "natural gas", "distillate", "other fuel"], [
-                "natural gas", "other", "other"])} for bldg in [
+                "natural gas", "distillate", "propane"])} for bldg in [
             "residential", "commercial"]}
         for bldg in ["residential", "commercial"]:
             self.carb_int[bldg].update(carb_int_nonelec[bldg])
             self.ecosts[bldg].update(ecosts_nonelec[bldg])
-            # Update base-case base-case emissions/cost data to use in
+            # Update base-case emissions/cost data to use in
             # assessing reductions for non-fuel switching microsegments
             # under a high grid decarbonization case to reflect non-electric
             # emissions intensities/energy costs
@@ -2508,6 +2508,14 @@ class Measure(object):
                     site_source_conv_meas = self.handyvars.ss_conv[
                         self.fuel_switch_to]
 
+            # Set fuel type string for selection of baseline and measure
+            # carbon intensities and fuel prices to handle special
+            # technology cases
+            if mskeys[6] == 'furnace (kerosene)':
+                ftkey = 'distillate'
+            else:
+                ftkey = mskeys[3]
+
             # Set baseline and measure carbon intensities, accounting for any
             # fuel switching from baseline technology to measure technology
             if self.fuel_switch_to is None:
@@ -2518,7 +2526,7 @@ class Measure(object):
                     # the user's site energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
-                            yr: carb_int_dat[bldg_sect][mskeys[3]][
+                            yr: carb_int_dat[bldg_sect][ftkey][
                                 mskeys[1]][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
                     # Intensities are specified nationally based on source
@@ -2527,8 +2535,8 @@ class Measure(object):
                     except KeyError:
                         intensity_carb_base, intensity_carb_meas = [{
                             yr: carb_int_dat[bldg_sect][
-                                mskeys[3]][yr] *
-                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                                ftkey][yr] *
+                            self.handyvars.ss_conv[ftkey][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
                 # Case where user has not flagged site energy outputs
                 else:
@@ -2537,9 +2545,9 @@ class Measure(object):
                     # match the user's source energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
-                            yr: carb_int_dat[bldg_sect][mskeys[3]][
+                            yr: carb_int_dat[bldg_sect][ftkey][
                                 mskeys[1]][yr] /
-                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                            self.handyvars.ss_conv[ftkey][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
                     # Intensities are specified nationally based on source
                     # energy and require no further conversion to match the
@@ -2547,7 +2555,7 @@ class Measure(object):
                     except KeyError:
                         intensity_carb_base, intensity_carb_meas = (
                             carb_int_dat[bldg_sect][
-                                mskeys[3]] for n in range(2))
+                                ftkey] for n in range(2))
             else:
                 # Interpretation of the calculations below is the same as for
                 # the case above without fuel switching; the only difference
@@ -2560,12 +2568,12 @@ class Measure(object):
                     try:
                         # Base fuel intensity broken by region
                         intensity_carb_base = carb_int_dat[
-                            bldg_sect][mskeys[3]][mskeys[1]]
+                            bldg_sect][ftkey][mskeys[1]]
                     except KeyError:
                         # Base fuel intensity not broken by region
                         intensity_carb_base = {yr: carb_int_dat[
-                            bldg_sect][mskeys[3]][yr] *
-                            self.handyvars.ss_conv[mskeys[3]][yr]
+                            bldg_sect][ftkey][yr] *
+                            self.handyvars.ss_conv[ftkey][yr]
                             for yr in self.handyvars.aeo_years}
                     try:
                         # Measure fuel intensity broken by region
@@ -2582,13 +2590,13 @@ class Measure(object):
                     try:
                         # Base fuel intensity broken by region
                         intensity_carb_base = {yr: carb_int_dat[
-                            bldg_sect][mskeys[3]][mskeys[1]][yr] /
-                            self.handyvars.ss_conv[mskeys[3]][yr]
+                            bldg_sect][ftkey][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[ftkey][yr]
                             for yr in self.handyvars.aeo_years}
                     except KeyError:
                         # Base fuel intensity not broken by region
                         intensity_carb_base = carb_int_dat[
-                            bldg_sect][mskeys[3]]
+                            bldg_sect][ftkey]
                     try:
                         # Measure fuel intensity broken by region
                         intensity_carb_meas = {yr: carb_int_dat[
@@ -2610,14 +2618,14 @@ class Measure(object):
                     # Costs broken out by EMM region or state
                     try:
                         cost_energy_base, cost_energy_meas = (
-                            cost_dat[bldg_sect][mskeys[3]][
+                            cost_dat[bldg_sect][ftkey][
                                 mskeys[1]] for n in range(2))
                     # National fuel costs
                     except KeyError:
                         cost_energy_base, cost_energy_meas = [{
                             yr: cost_dat[bldg_sect][
-                                mskeys[3]][yr] * self.handyvars.ss_conv[
-                                mskeys[3]][yr] for yr in
+                                ftkey][yr] * self.handyvars.ss_conv[
+                                ftkey][yr] for yr in
                             self.handyvars.aeo_years} for n in range(2)]
                 # Case where user has not flagged site energy outputs
                 else:
@@ -2625,14 +2633,14 @@ class Measure(object):
                     try:
                         cost_energy_base, cost_energy_meas = [{
                             yr: cost_dat[
-                                bldg_sect][mskeys[3]][mskeys[1]][yr] /
-                            self.handyvars.ss_conv[mskeys[3]][yr] for
+                                bldg_sect][ftkey][mskeys[1]][yr] /
+                            self.handyvars.ss_conv[ftkey][yr] for
                             yr in self.handyvars.aeo_years} for
                             n in range(2)]
                     # National fuel costs
                     except KeyError:
                         cost_energy_base, cost_energy_meas = (
-                            cost_dat[bldg_sect][mskeys[3]] for
+                            cost_dat[bldg_sect][ftkey] for
                             n in range(2))
             else:
                 # Case where use has flagged site energy outputs
@@ -2640,13 +2648,13 @@ class Measure(object):
                     try:
                         # Base fuel cost broken out by region
                         cost_energy_base = cost_dat[bldg_sect][
-                            mskeys[3]][mskeys[1]]
+                            ftkey][mskeys[1]]
                     except KeyError:
                         # Base fuel cost not broken out by region
                         cost_energy_base = {
                             yr: cost_dat[bldg_sect][
-                                mskeys[3]][yr] * self.handyvars.ss_conv[
-                                mskeys[3]][yr] for yr in
+                                ftkey][yr] * self.handyvars.ss_conv[
+                                ftkey][yr] for yr in
                             self.handyvars.aeo_years}
                     try:
                         # Measure fuel cost broken out by region
@@ -2664,14 +2672,14 @@ class Measure(object):
                     try:
                         # Base fuel cost broken out by region
                         cost_energy_base = {
-                            yr: cost_dat[bldg_sect][mskeys[3]][
+                            yr: cost_dat[bldg_sect][ftkey][
                                 mskeys[1]][yr] / self.handyvars.ss_conv[
-                                mskeys[3]][yr] for yr in
+                                ftkey][yr] for yr in
                             self.handyvars.aeo_years}
                     except KeyError:
                         # Base fuel cost not broken out by region
                         cost_energy_base = cost_dat[bldg_sect][
-                            mskeys[3]]
+                            ftkey]
                     try:
                         # Measure fuel cost broken out by region
                         cost_energy_meas = {
@@ -2683,6 +2691,15 @@ class Measure(object):
                         # Measure fuel cost not broken out by region
                         cost_energy_meas = cost_dat[bldg_sect][
                             self.fuel_switch_to]
+
+            # For the case where the baseline technology is a wood
+            # stove, set the energy cost and carbon intensity to zero
+            if mskeys[6] == 'stove (wood)':
+                intensity_carb_base = dict.fromkeys(intensity_carb_base, 0)
+                cost_energy_base = dict.fromkeys(cost_energy_base, 0)
+                if self.fuel_switch_to is None:
+                    intensity_carb_meas = dict.fromkeys(intensity_carb_meas, 0)
+                    cost_energy_meas = dict.fromkeys(cost_energy_meas, 0)
 
             # For electricity microsegments in measure scenarios that
             # require the addition of public health cost data, retrieve

@@ -64,7 +64,7 @@ comp_schemes <- c('uncompeted', 'competed')
 meas_names <- names(compete_results)
 # Set list of ECM names excluding 'All ECMs' (representing results summed across all ECMs)
 # and the high-level information about site-source energy calculations (stored in 'Energy Output Type' key)
-meas_names_no_all <- meas_names[(meas_names!= "All ECMs" & meas_names!= "Energy Output Type")]
+meas_names_no_all <- meas_names[(meas_names!= "All ECMs" & meas_names!= "Energy Output Type" & meas_names!="On-site Generation")]
 # Order the list of ECM names excluding 'All ECMs'
 meas_names_no_all <- meas_names_no_all[order(meas_names_no_all)]
 # Combine the 'All ECMs' name with the ordered list of the individual ECM names

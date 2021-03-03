@@ -943,10 +943,10 @@ def stitch(input_array, project_dict, col_name):
             # Find the row(s) where the absolute difference between the loop
             # year and value for the "START_EQUIP_YR" column is smallest
             array_close_ind = numpy.where(abs(int(yr) -
-                                          input_array["START_EQUIP_YR"]) ==
+                                          input_array["START_EQUIP_YR"].astype(int)) ==
                                           min(abs(int(yr) -
-                                              input_array[
-                                              "START_EQUIP_YR"])))[0]
+                                              input_array["START_EQUIP_YR"].astype(int))))[0]
+
             # If only one row has been found above, draw output information
             # from the column in that row keyed by col_name input
             if len(array_close_ind) == 1:
@@ -992,48 +992,28 @@ def main():
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
 
-    # Specify the number of header and footer lines to skip based on the
-    # optional AEO year indicated by the user when this module is called
-    if aeo_import_year == 2015:
-        nlt_cp_skip_header = 20
-        nlt_l_skip_header = 19
-        lt_skip_header = 35
-        lt_skip_footer = 54
-    elif aeo_import_year in [2016, 2017, 2018]:
-        nlt_cp_skip_header = 25
-        nlt_l_skip_header = 20
-        lt_skip_header = 37
-        if aeo_import_year in [2016, 2017]:
-            lt_skip_footer = 54
-        else:
-            lt_skip_footer = 52
-    else:
-        nlt_cp_skip_header = 2
-        nlt_l_skip_header = 2
-        lt_skip_header = 37
-        lt_skip_footer = 52
-
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
+    skip = mseg.SkipLines(aeo_import_year=aeo_import_year)
 
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,
                                   dtype=None, comments=None,
-                                  skip_header=nlt_cp_skip_header,
+                                  skip_header=skip.nlt_cp_skip_header,
                                   encoding="latin1")
 
     # Import EIA non-lighting residential lifetime data
     eia_nlt_l = numpy.genfromtxt(eiadata.r_nlt_life, names=r_nlt_l_names,
                                  dtype=None, comments=None,
-                                 skip_header=nlt_l_skip_header,
+                                 skip_header=skip.nlt_l_skip_header,
                                  encoding="latin1")
 
     # Import EIA lighting residential cost, performance and lifetime data
     eia_lt = numpy.genfromtxt(eiadata.r_lt_all, names=r_lt_names,
                               dtype=None, comments=None,
-                              skip_header=lt_skip_header,
-                              skip_footer=lt_skip_footer,
+                              skip_header=skip.lt_skip_header,
+                              skip_footer=skip.lt_skip_footer,
                               encoding="latin1")
 
     # Establish the modeling time horizon based on metadata generated

@@ -431,7 +431,9 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
 
     Using data from the AEO year and specified NEMS modeling scenario,
     calculate revised site-source conversion factors, CO2 emissions
-    rates, and energy prices. In the case of the "other" fuel types,
+    rates, and energy prices.
+
+    In the case of the "other" fuel types,
     energy prices are based on a energy use by fuel type-weighted
     average.
 
@@ -533,26 +535,37 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
         print('\nDue to failed data retrieval from the API, commercial '
               'natural gas CO2 emissions intensities were not updated.')
 
-    # Residential other fuel CO2 intensities [Mt CO2/quads]
+    # Residential propane CO2 intensities [Mt CO2/quads]
     try:
-        co2_res_ot_ints = z['petro_res_co2']/z['petro_res_energy']
         for idx, year in enumerate(yrs):
-            conv['other']['CO2 intensity']['data']['residential'][year] = (
-                round(co2_res_ot_ints[idx], 6))
+            conv['propane']['CO2 intensity']['data']['residential'][year] = (
+                62.88)  # hard coded  CO2 intensity of propane
     except KeyError:
-        print('\nDue to failed data retrieval from the API, residential '
-              '"other fuel" CO2 emissions intensities were not updated.')
+        print('\nError updating residential propane CO2 emissions intensities.')
 
-    # Commercial other fuel CO2 intensities [Mt CO2/quads]
+    # Commercial propane CO2 intensities [Mt CO2/quads]
     try:
-        co2_com_ot_ints = ((z['petro_com_co2'] + z['coal_com_co2']) /
-                           (z['petro_com_energy'] + z['coal_com_energy']))
         for idx, year in enumerate(yrs):
-            conv['other']['CO2 intensity']['data']['commercial'][year] = (
-                round(co2_com_ot_ints[idx], 6))
+            conv['propane']['CO2 intensity']['data']['commercial'][year] = (
+                62.88)  # hard coded  CO2 intensity of propane
     except KeyError:
-        print('\nDue to failed data retrieval from the API, commercial '
-              '"other fuel" CO2 emissions intensities were not updated.')
+        print('\nError updating commercial propane CO2 emissions intensities.')
+
+    # Residential distillate CO2 intensities [Mt CO2/quads]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['distillate']['CO2 intensity']['data']['residential'][year] = (
+                74.14)  # hard coded CO2 intensity of distillate
+    except KeyError:
+        print('\nError updating residential distillate CO2 emissions intensities.')
+
+    # Commercial distillate CO2 intensities [Mt CO2/quads]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['distillate']['CO2 intensity']['data']['commercial'][year] = (
+                74.14)  # hard coded CO2 intensity of distillate
+    except KeyError:
+        print('\nError updating commercial distillate CO2 emissions intensities.')
 
     # Residential electricity prices [$/MMBtu source]
     try:
@@ -590,34 +603,41 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
         print('\nDue to failed data retrieval from the API, commercial '
               'natural gas prices were not updated.')
 
-    # Residential other fuel price as energy use-weighted average
-    # of propane and distillate (fuel oil) prices [$/MMBtu source]
+    # Residential propane prices [$/MMBtu source]
     try:
-        res_other_price = (z['lpg_res_price']*z['lpg_res_energy']/(
-                            z['lpg_res_energy'] + z['distl_res_energy']) +
-                           z['distl_res_price']*z['distl_res_energy']/(
-                            z['lpg_res_energy'] + z['distl_res_energy']))
         for idx, year in enumerate(yrs):
-            conv['other']['price']['data']['residential'][year] = (
-                round(res_other_price[idx], 6))
+            conv['propane']['price']['data']['residential'][year] = (
+                round(z['lpg_res_price'][idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
-              '"other fuel" prices were not updated.')
+              'propane prices were not updated.')
 
-    # Commercial other fuel price as energy use-weighted average of
-    # propane, distillate (fuel oil), and residual (fuel oil) prices
-    # [$/MMBtu source]
+    # Commercial propane prices [$/MMBtu source]
     try:
-        denom = z['lpg_com_energy']+z['distl_com_energy']+z['rsid_com_energy']
-        com_other_price = (z['lpg_com_price']*z['lpg_com_energy']/denom +
-                           z['distl_com_price']*z['distl_com_energy']/denom +
-                           z['rsid_com_price']*z['rsid_com_energy']/denom)
         for idx, year in enumerate(yrs):
-            conv['other']['price']['data']['commercial'][year] = (
-                round(com_other_price[idx], 6))
+            conv['propane']['price']['data']['commercial'][year] = (
+                round(z['lpg_com_price'][idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
-              '"other fuel" prices were not updated.')
+              'propane prices were not updated.')
+
+    # Residential distillate prices [$/MMBtu source]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['distillate']['price']['data']['residential'][year] = (
+                round(z['distl_res_price'][idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, residential '
+              'distillate prices were not updated.')
+
+    # Commercial distillate prices [$/MMBtu source]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['distillate']['price']['data']['commercial'][year] = (
+                round(z['distl_com_price'][idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, commercial '
+              'distillate prices were not updated.')
 
     return conv
 

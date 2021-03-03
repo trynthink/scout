@@ -36,8 +36,9 @@ class EIADataFileIntegrityTest(unittest.TestCase):
         with open(self.eiafiles.cpl_data, 'r') as tech:
             tech_fl = csv.reader(tech)
 
-            # Skip content preceding header row
-            for i in range(0, self.usefulvars.cpl_data_skip_lines):
+            # Skip content preceding header row, adjust skip
+            # lines to stop at first of two header rows
+            for i in range(0, self.usefulvars.cpl_data_skip_lines - 1):
                 next(tech_fl)
 
             self.tech_head = [entry.strip() for entry in next(tech_fl)]

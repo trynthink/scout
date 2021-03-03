@@ -19,6 +19,7 @@ class EIAData(object):
     def __init__(self):
         self.serv_dmd = 'KSDOUT.txt'
         self.catg_dmd = 'KDBOUT.txt'
+        self.com_generation = 'KDGENOUT.txt'
 
 
 class UsefulVars(object):
@@ -297,7 +298,9 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # Also check the special case where the technology name is so
         # long that the year number is partially truncated at the end
         # of the string
-        exc_tech_name = re.search(r'.+?(?=\s+2[0-9]{1,2}$)', row['Description'])
+        exc_tech_name = re.search(
+            r'.+?(?=\s+2[0-9]{1,2}$)',
+            row['Description'])
 
         # If the regex matched, overwrite the original description with
         # the matching text, which describes the technology without
@@ -371,7 +374,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # a measure of absolute energy use)
     if tval.any():
         with np.errstate(divide='ignore', invalid='ignore'):
-            tval = tval/np.sum(tval, axis=0)
+            tval = tval / np.sum(tval, axis=0)
             tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
 
     return (tval, trunc_technames)
@@ -480,6 +483,10 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         JSON specified by 'key_series'.
     """
 
+    def array_mult(dct, factor):
+        scaled = {key: val * factor for key, val in dct.items()}
+        return scaled
+
     # Convert the list of keys into a list of numeric indices that can
     # be used to select the appropriate data
     idx_series = json_interpreter(key_series)
@@ -517,13 +524,13 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
             load_array['CDIV'] == idx_series[0],
             load_array['BLDG'] == idx_series[1],
             load_array['ENDUSE'] == idx_series[2]],
-                                 axis=0)][idx_series[-1]]
+            axis=0)][idx_series[-1]]
         # N.B. tl_multiplier is a 1x1 numpy array
 
         # Multiply together the thermal load multiplier and energy use
         # data and construct the dict with years as keys
         final_dict = {'energy': dict(zip(
-            subset['Year'], subset['Amount']*tl_multiplier*to_mmbtu)),
+            subset['Year'], subset['Amount'] * tl_multiplier * to_mmbtu)),
             'stock': 'NA'}
     elif 'MELs' in key_series:
         # Miscellaneous Electric Loads (MELs) energy use data are
@@ -540,7 +547,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount']*to_mmbtu)),
+                                         subset['Amount'] * to_mmbtu)),
                       'stock': 'NA'}
     elif 'new square footage' in key_series:
         # Extract the relevant data from KDBOUT
@@ -579,7 +586,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         for technology in tech_pct:
             tech_dict_list.append(
                 {'energy': dict(zip(subset['Year'],
-                                    technology*subset['Amount']*to_mmbtu)),
+                                    technology * subset['Amount'] * to_mmbtu)),
                  'stock': 'NA'})
 
         # The final dict should be {technology: {year: data, ...}, ...}
@@ -592,7 +599,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount']*to_mmbtu)),
+                                         subset['Amount'] * to_mmbtu)),
                       'stock': 'NA'}
 
     # Return the dict that should end up at the leaf node in the exported JSON
@@ -787,7 +794,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # row of data in the ktek file (which is the intended
         # target for these lines of code).
         if hl:
-            for i in range(0, hl+1):
+            for i in range(0, hl + 1):
                 next(filecont)
 
         # Import the data, skipping lines that are not the correct length
@@ -956,6 +963,112 @@ def str_cleaner(data_array, column_name, return_str_len=False):
         return data_array
 
 
+def onsite_prep(generation_file):
+    """ Preps the onsite generation file for commercial
+    by adding together all technologies by segment and
+    converting building and census division names to
+    stings for easier querying"""
+
+    bldgtypedict = {'Assembly': 'assembly',
+                    'Education': 'education',
+                    'Food Sales': 'food sales',
+                    'Food Service': 'food service',
+                    'Health Care': 'health care',
+                    'Lodging': 'lodging',
+                    'Office-Large': 'large office',
+                    'Office-Small': 'small office',
+                    'Merc/Service': 'mercantile/service',
+                    'Warehouse': 'warehouse',
+                    'Other': 'other'
+                    }
+
+    # Read in AEO's onsite generation file
+    gen_dtypes = dtype_array(generation_file)
+    gen_dtypes[1] = ('Year', '<U50')
+    gen_data = data_import(generation_file, gen_dtypes)
+
+    # Pull all the unique microsegment combinations
+    years = np.unique(gen_data['Year'])
+    div = np.unique(gen_data['Division'])
+    bld = np.unique(gen_data['BldgType'])
+
+    # Define datatypes of OwnUse aggregated
+    gen_dtypes = [('Year', '<U50'),
+                  ('Division', '<i4'),
+                  ('BldgType', '<U50'),
+                  ('OwnUse', '<f8')]
+
+    # Sum all onsite generation by microsegment
+    gen_data = np.array([(i, j, k, gen_data[(gen_data['Year'] == i) &
+                                            (gen_data['Division'] == j) &
+                                            (gen_data['BldgType'] == k)][
+                                                'OwnUse'].sum())
+                         for i in years for j in div
+                         for k in bld], dtype=gen_dtypes)
+
+    # Factor to convert commercial energy data from TBTU to MMBTU
+    to_mmbtu = 1000000  # 1e6
+
+    # Convert cdivision to names
+    cdiv_dct = {str(v): k for k, v in
+                CommercialTranslationDicts().cdivdict.items()}
+
+    gen_dtypes = [('Year', '<U50'), ('Division', '<U50'),
+                  ('BldgType', '<U50'),
+                  ('OwnUse', '<f8')]
+    gen_data = gen_data.astype(gen_dtypes)
+
+    # Unit converstion of TBTU to MMBTU
+    gen_data['OwnUse'] = gen_data['OwnUse'] * to_mmbtu
+
+    def name_map(data_array, trans_dict):
+        newArray = np.copy(data_array)
+        for k, v in trans_dict.items():
+            newArray[data_array == k] = v
+        return newArray
+
+    gen_data['Division'] = name_map(gen_data['Division'], cdiv_dct)
+    gen_data['BldgType'] = np.char.rstrip(gen_data['BldgType'])
+    gen_data['BldgType'] = name_map(gen_data['BldgType'], bldgtypedict)
+
+    return gen_data
+
+
+def onsite_calc(generation_file, json_results):
+    """ Calculates net electricity use using EIA's pre-2021 methodology
+    and adds a new PV technology type. """
+
+    def array_mult(dct, factor):
+        scaled = {key: val * factor for key, val in dct.items()}
+        return scaled
+
+    def onsite_pull(cdiv, bld):
+        pull = generation_file[np.all([generation_file['Division'] == cdiv,
+                                       generation_file['BldgType'] == bld],
+                                      axis=0)]
+        years = np.unique(pull['Year'])
+        pull = dict([(i, pull[pull['Year'] == i]['OwnUse'].sum())
+                     for i in years])
+        pull = array_mult(pull, -1)
+        return pull
+
+# Pull the onsite generation by census division and building type
+    cdiv = np.unique(generation_file['Division'])
+    bldtype = np.unique(generation_file['BldgType'])
+
+    for div in cdiv:
+        for bld in bldtype:
+            gen = onsite_pull(div, bld)
+
+            # Add onsite generation as new end use
+            elec_slice = json_results[div][bld]['electricity']
+            elec_slice['onsite generation'] = {}
+            elec_slice['onsite generation']['energy'] = gen
+            elec_slice['onsite generation']['stock'] = 'NA'
+
+    return json_results
+
+
 def main():
     """ Import input data files and do other things """
 
@@ -977,6 +1090,9 @@ def main():
     load_dtypes = dtype_array(handyvars.com_tloads, '\t')
     load_data = data_import(handyvars.com_tloads, load_dtypes, '\t')
 
+    # Import and process onsite generation from KDGENOUT.txt
+    onsite_gen = onsite_prep(eiadata.com_generation)
+
     # Not all end uses are broken down by equipment type and vintage in
     # KSDOUT; determine which end uses are present so that the service
     # demand data are not explored unnecessarily when they are not even
@@ -992,14 +1108,16 @@ def main():
 
     # Import empty microsegments JSON file and traverse database structure
     try:
-        with open(handyvars.json_in, 'r') as jsi, open(
-             handyvars.json_out, 'w') as jso:
+        with open(handyvars.json_in, 'r') as jsi, open(handyvars.json_out,
+                                                       'w') as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
             result = walk(catg_data, serv_data, load_data,
                           serv_data_end_uses, msjson, years)
 
+            # Add in onsite generation
+            result = onsite_calc(onsite_gen, result)
             # Write the updated dict of data to a new JSON file
             json.dump(result, jso, indent=2)
 

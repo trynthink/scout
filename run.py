@@ -3,7 +3,7 @@ import json
 import numpy
 import copy
 from numpy.linalg import LinAlgError
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import gzip
 import pickle
 from os import getcwd, path, pathsep, sep, environ, walk, devnull
@@ -21,6 +21,7 @@ class UsefulInputFiles(object):
 
     Attributes:
         glob_vars (str) = Global run settings from ecm_prep.
+        msegs_in (JSON): Database of baseline microsegment stock/energy.
         meas_summary_data (tuple): High-level measure summary data.
         meas_compete_data (tuple): Contributing microsegment data needed
             for measure competition.
@@ -34,7 +35,6 @@ class UsefulInputFiles(object):
 
     def __init__(self, energy_out, regions, grid_decarb):
         self.glob_vars = "glob_run_vars.json"
-        # UNCOMMENT WITH ISSUE 188
         self.meas_summary_data = \
             ("supporting_data", "ecm_prep.json")
         self.meas_compete_data = ("supporting_data", "ecm_competition_data")
@@ -47,6 +47,8 @@ class UsefulInputFiles(object):
         # (fossil equivalent site-source conversion), or source energy data
         # (captured energy site-source conversion) are needed
         if regions == "AIA":
+            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+                             "mseg_res_com_cz.json")
             if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -72,6 +74,8 @@ class UsefulInputFiles(object):
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "EMM":
+            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+                             "mseg_res_com_emm.json")
             if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -97,6 +101,8 @@ class UsefulInputFiles(object):
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "State":
+            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+                             "mseg_res_com_state.gz")
             if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -116,6 +122,47 @@ class UsefulInputFiles(object):
                     "energy) are currently supported)")
         else:
             raise ValueError("Unsupported regional breakout (" + regions + ")")
+        # Use the user-specified grid_decarb flag and energy
+        # calculation method to determine which site-source
+        # conversions to select
+        if grid_decarb is not False:
+            self.ss_data = ("supporting_data", "convert_data",
+                            "site_source_co2_conversions-decarb.json")
+        elif energy_out[0] == "captured":
+            self.ss_data = ("supporting_data", "convert_data",
+                            "site_source_co2_conversions-ce.json")
+        else:
+            self.ss_data = ("supporting_data", "convert_data",
+                            "site_source_co2_conversions.json")
+        # Use the user-specified grid_decarb flag and region selection
+        # to select the correct electricity price and CO2 intensity data
+        if regions == 'EMM':
+            if grid_decarb is not False:
+                self.elec_price_co2 = (
+                    "supporting_data", "convert_data",
+                    "emm_region_emissions_prices-decarb.json")
+            else:
+                self.elec_price_co2 = (
+                    "supporting_data", "convert_data",
+                    "emm_region_emissions_prices-updated.json")
+        elif regions == 'State':
+            self.elec_price_co2 = (
+                "supporting_data", "convert_data",
+                "state_emissions_prices-updated.json")
+        else:
+            if grid_decarb is not False:
+                self.elec_price_co2 = (
+                    "supporting_data", "convert_data",
+                    "site_source_co2_conversions-decarb.json")
+            else:
+                if energy_out[0] == 'captured':
+                    self.elec_price_co2 = (
+                        "supporting_data", "convert_data",
+                        "site_source_co2_conversions-ce.json")
+                else:
+                    self.elec_price_co2 = (
+                        "supporting_data", "convert_data",
+                        "site_source_co2_conversions.json")
 
 
 class UsefulVars(object):
@@ -3838,7 +3885,6 @@ def main(base_dir):
                           handyvars.aeo_years[-1])
             else:
                 trim_yrs = False
-
     else:
         trim_out, trim_yrs = (False for n in range(2))
 
@@ -4069,6 +4115,136 @@ def main(base_dir):
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
           flush=True)
+
+    # Import baseline microsegments
+    if regions == 'State':  # Extract compressed state stock/energy data
+        bjszip = path.join(base_dir, *handyfiles.msegs_in)
+        with gzip.GzipFile(bjszip, 'r') as zip_ref:
+            msegs = json.loads(zip_ref.read().decode('utf-8'))
+    else:
+        with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
+            try:
+                msegs = json.load(msi)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.msegs_in + "': " + str(e)) from None
+
+    # Import site-source conversions
+    with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
+        try:
+            cost_ss_carb = json.load(ss)
+            ss_conv = cost_ss_carb['electricity'][
+                'site to source conversion']['data']
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                handyfiles.ss_data + "': " + str(e)) from None
+
+    # Import electricity price and CO2 emissions intensity
+    with open(path.join(base_dir, *handyfiles.elec_price_co2), 'r') as ece:
+        try:
+            elec_cost_carb = json.load(ece)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                handyfiles.elec_price_co2 + "': " + str(e)) from None
+    # Extract separate price and CO2 emissions intensity variables
+    try:
+        elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
+        elec_cost = elec_cost_carb['End-use electricity price']['data']
+        fmt = True  # Boolean for indicating data key substructure
+    except KeyError:
+        # Data are structured as in the site_source_co2_conversions files
+        elec_carb = elec_cost_carb['electricity']['CO2 intensity']['data']
+        elec_cost = elec_cost_carb['electricity']['price']['data']
+        fmt = False
+
+    # Determine regions and building types used by active measures for
+    # aggregating onsite generation data
+    czgrp = set([cz for m in meas_summary
+                 if m["name"] in active_meas_all and m["remove"] is False
+                 for cz in m['climate_zone']])
+    btgrp = [bt for m in meas_summary
+             if m["name"] in active_meas_all and m["remove"] is False
+             for bt in m['bldg_type']]
+    # Drop multi family and mobile homes; no onsite generation data
+    # are provided for these building types
+    btgrp = set([bt for bt in btgrp
+                 if bt not in ['mobile home', 'multi family home']])
+
+    # Set up recursively extensible empty dict to populate with onsite
+    # generation data
+    def variable_depth_dict(): return defaultdict(variable_depth_dict)
+    osg_temp = variable_depth_dict()
+
+    # Aggregate onsite generation data
+    osg = {k: 0 for k in handyvars.aeo_years}
+    osgcarb = {k: 0 for k in handyvars.aeo_years}
+    osgcost = {k: 0 for k in handyvars.aeo_years}
+    for cz in czgrp:
+        for bt in btgrp:
+            z = msegs[cz][bt]['electricity']['onsite generation']['energy']
+            # Get onsite generation and adjust by appropriate factor
+            # unless site energy outputs are expected
+            if not measures_objlist[0].energy_outputs["site_energy"]:
+                z = {k: z.get(k, 0)*ss_conv.get(k, 0)
+                     for k in handyvars.aeo_years}
+            # Get building sector from building type
+            if bt in ["single family home", "multi family home",
+                      "mobile home"]:
+                bt_bin = 'residential'
+            else:
+                bt_bin = 'commercial'
+            # Get CO2 intensity and electricity cost data and convert units
+            if fmt:  # Data (and data structure) from emm_region files
+                # Convert Mt/TWh to Mt/MMBtu
+                carbtmp = {k: elec_carb[cz].get(k, 0)/3.41214e6
+                           for k in elec_carb[cz].keys()}
+                # Convert $/kWh to $/MMBtu
+                costtmp = {k: elec_cost[bt_bin][cz].get(k, 0)/3.41214e-3
+                           for k in elec_cost[bt_bin][cz].keys()}
+            else:
+                if not measures_objlist[0].energy_outputs["site_energy"]:
+                    # Convert Mt/quads to Mt/MMBtu
+                    carbtmp = {k: elec_carb[bt_bin].get(k, 0)/1e9
+                               for k in elec_carb[bt_bin].keys()}
+                    costtmp = elec_cost[bt_bin]
+                else:
+                    # Convert Mt/quads to Mt/MMBtu and account for need to
+                    # add site-source conversion factor to the carbon and
+                    # cost multiplications
+                    carbtmp = {k: (elec_carb[bt_bin].get(k, 0)/1e9) *
+                               ss_conv.get(k, 0) for k in
+                               elec_carb[bt_bin].keys()}
+                    costtmp = {k: elec_cost[bt_bin].get(k, 0) *
+                               ss_conv.get(k, 0) for k in
+                               elec_cost[bt_bin].keys()}
+            # Report out onsite generation and corresponding emissions
+            # and energy cost savings at the AEO building type level
+            osg_temp['Energy (MMBtu)']['By Category'][cz][bt] = z
+            osg_temp['CO\u2082 Emissions (MMTons)']['By Category'][cz][bt] = {
+                k: z.get(k, 0)*carbtmp.get(k, 0) for k in handyvars.aeo_years}
+            osg_temp['Energy Cost (USD)']['By Category'][cz][bt] = {
+                k: z.get(k, 0)*costtmp.get(k, 0) for k in handyvars.aeo_years}
+            # Calculate total annual onsite generation and corresponding
+            # emissions and energy cost savings
+            osg = {k: osg.get(k, 0) + z.get(k, 0)
+                   for k in handyvars.aeo_years}
+            osgcarb = {k: osgcarb.get(k, 0) + z.get(k, 0)*carbtmp.get(k, 0)
+                       for k in handyvars.aeo_years}
+            osgcost = {k: osgcost.get(k, 0) + z.get(k, 0)*costtmp.get(k, 0)
+                       for k in handyvars.aeo_years}
+    # Report out onsite generation and corresponding emissions and
+    # energy cost savings in aggregate
+    osg_temp['Energy (MMBtu)']['Overall'] = osg
+    osg_temp['CO\u2082 Emissions (MMTons)']['Overall'] = osgcarb
+    osg_temp['Energy Cost (USD)']['Overall'] = osgcost
+
+    # Add onsite generation data as additional measure-level data
+    # written with ECM results output
+    a_run.output_ecms['On-site Generation'] = osg_temp
+
     # Write summary outputs for individual measures to a JSON
     with open(path.join(
             base_dir, *handyfiles.meas_engine_out_ecms), "w") as jso:
