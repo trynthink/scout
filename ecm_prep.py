@@ -258,6 +258,8 @@ class UsefulVars(object):
         health_scn_data (numpy.ndarray): Public health cost data.
         htcl_totals (tuple): Heating/cooling energy totals by region,
             building type, and building structure type.
+        heat_ls_tech_scrn (tuple): Heat gains to screen out of time-
+            sensitive valuation for heating (no load shapes for these gains).
     """
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
@@ -282,7 +284,7 @@ class UsefulVars(object):
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
-        self.aeo_years_summary = ["2020", "2030", "2040", "2050"]
+        self.aeo_years_summary = ["2030", "2050"]
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -378,7 +380,7 @@ class UsefulVars(object):
                 ["natural gas", "other", "other"])
             } for bldg in ["residential", "commercial"]}
         ecosts_nonelec = {bldg: {fuel: {yr: cost_ss_carb[
-            fuel_map]["price"]["data"][bldg] for yr in
+            fuel_map]["price"]["data"][bldg][yr] for yr in
             self.aeo_years} for fuel, fuel_map in zip([
                 "natural gas", "distillate", "other fuel"], [
                 "natural gas", "other", "other"])} for bldg in [
@@ -436,7 +438,7 @@ class UsefulVars(object):
                 self.ash_emm_map = numpy.genfromtxt(
                     path.join(base_dir, *handyfiles.ash_emm_map),
                     names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * 22))
+                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
             except ValueError as e:
                 raise ValueError(
                     "Error reading in '" +
@@ -801,43 +803,44 @@ class UsefulVars(object):
             # 1JSoQb78LgooUD_uXqBOzAC7Nl7eLJZnc?usp=sharing
             self.cz_emm_map = {
                 "2A": {
-                    "set 1": [2, (2, 1)],
+                    "set 1": [2, (1, 2, 17)],
                     "set 2": [6, (6, 15)]},
                 "2B": {
-                    "set 1": [20, (20, 1)],
-                    "set 2": [22, (22)]},
+                    "set 1": [20, (1, 20)]},
                 "3A": {
-                    "set 1": [15, (15, 6, 14, 16)],
+                    "set 1": [15, (6, 13, 14, 15, 16)],
                     "set 2": [1, (1, 17)]},
                 "3B": {
-                    "set 1": [22, (22, 21)],
-                    "set 2": [25, (25, 1, 17, 20)]},
-                "3C": 21,
+                    "set 1": [22, (21, 22)],
+                    "set 2": [25, (1, 17, 20, 25)]},
+                "3C": {
+                    "set 1": [21, (21, 22)]},
                 "4A": {
-                    "set 1": [10, (10, 9, 11, 4, 17, 18)],
-                    "set 2": [16, (16, 14, 15, 6)]},
+                    "set 1": [10, (4, 8, 10, 11, 17, 18)],
+                    "set 2": [16, (6, 13, 14, 15, 16)]},
                 "4B": {
-                    "set 1": [20, (20, 1, 17, 24)],
+                    "set 1": [20, (1, 17, 20, 24)],
                     "set 2": [21, (21, 22)]},
                 "4C": {
-                    "set 1": [23, (23)],
-                    "set 2": [21, (21)]},
+                    "set 1": [23, (23,)],
+                    "set 2": [21, (21,)]},
                 "5A": {
-                    "set 1": [11, (11, 3, 4, 7, 9, 10, 18, 19)],
-                    "set 2": [5, (5, 14)]},
+                    "set 1": [11, (3, 4, 7, 9, 10, 11, 18, 19, 24)],
+                    "set 2": [5, (5, 12, 14)]},
                 "5B": {
-                    "set 1": [24, (24, 23, 25, 20)],
-                    "set 2": [21, (21)]},
-                "5C": 23,
+                    "set 1": [24, (20, 23, 24, 25)],
+                    "set 2": [21, (21,)]},
+                "5C": {
+                    "set 1": [23, (23,)]},
                 "6A": {
                     "set 1": [3, (3, 5, 19)],
                     "set 2": [7, (7, 9, 10, 24)]},
                 "6B": {
-                    "set 1": [23, (23, 24, 19, 25)],
+                    "set 1": [23, (3, 19, 23, 24, 25)],
                     "set 2": [22, (21, 22)]},
                 "7": {
-                    "set 1": [3, (3, 5, 19)],
-                    "set 2": [24, (24, 7, 25)]}}
+                    "set 1": [3, (3, 19)],
+                    "set 2": [24, (7, 24, 25)]}}
             if tsv_metrics is not None:
                 # Develop weekend day flags
                 wknd_day_flags = [0 for n in range(365)]
@@ -1078,6 +1081,9 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.htcl_totals + "': " + str(e)) from None
+        self.heat_ls_tech_scrn = (
+            "windows solar", "equipment gain", "people gain", "lighting gain",
+            "other heat gain")
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -1471,7 +1477,10 @@ class Measure(object):
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use)
         sector_shapes (dict): Sector-level hourly baseline and efficient load
-            shapes by adopt scheme and Electricity Market Module (EMM) region.
+            shapes by adopt scheme, EMM region, and year
+        sector_shapes_pkg (dict): Sector-level hourly baseline and efficient
+            load shapes by adopt scheme, contributing microsegment, and year
+            (used to generate package sector shapes data if applicable).
     """
 
     def __init__(
@@ -1519,7 +1528,8 @@ class Measure(object):
                 self.energy_outputs["health_costs"] = "Uniform EE-low"
             elif "PHC-EE (high)" in self.name:
                 self.energy_outputs["health_costs"] = "Uniform EE-high"
-        self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
+        self.sector_shapes, self.sector_shapes_pkg = (
+            {a_s: {} for a_s in handyvars.adopt_schemes} for n in range(2))
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
         self.handyvars = copy.deepcopy(handyvars)
@@ -1921,7 +1931,8 @@ class Measure(object):
                 "Scout building type(s) " + str(self.bldg_type) +
                 "in ECM '" + self.name + "'")
 
-    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data, opts):
+    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data, opts,
+                  contrib_meas_pkg):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -1931,6 +1942,8 @@ class Measure(object):
             convert_data (dict): Measure -> baseline cost unit conversions.
             tsv_data (dict): Data for time sensitive valuation of efficiency.
             opts (object): Stores user-specified execution options.
+            contrib_meas_pkg (list): List of measure names that contribute
+                to active packages in the preparation run.
 
         Returns:
             Updated measure stock, energy/carbon, and cost market microsegment
@@ -2012,14 +2025,14 @@ class Measure(object):
         if opts.sect_shapes is True:
             # Find applicable region list (ensure it is in list format)s
             if type(self.climate_zone) is str:
-                regions = copy.deepcopy([self.climate_zone])
+                grid_regions = copy.deepcopy([self.climate_zone])
             else:
-                regions = copy.deepcopy(self.climate_zone)
+                grid_regions = copy.deepcopy(self.climate_zone)
             for a_s in self.handyvars.adopt_schemes:
                 self.sector_shapes[a_s] = {reg: {yr: {
                     "baseline": [0 for x in range(8760)],
                     "efficient": [0 for x in range(8760)]} for yr in
-                    self.handyvars.aeo_years_summary} for reg in regions}
+                    self.handyvars.aeo_years_summary} for reg in grid_regions}
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -2630,6 +2643,14 @@ class Measure(object):
 
             # Continue loop if key chain doesn't yield "stock"/"energy" keys
             if any([x not in list(mseg.keys()) for x in ["stock", "energy"]]):
+                continue
+            # Continue loop if time-sensitive valuation is required and the
+            # current microsegment technology does not have the necessary
+            # load shape information (pertinent to internal heat gains)
+            elif (((self.energy_outputs["tsv_metrics"] is not False or
+                   opts.sect_shapes is True) or self.tsv_features is not None)
+                  and (mskeys[4] in ["heating", "secondary heating"] and
+                       mskeys[-2] in self.handyvars.heat_ls_tech_scrn)):
                 continue
             # Continue loop if key chain yields "stock"/"energy" keys but
             # the stock or energy data are missing
@@ -3544,7 +3565,9 @@ class Measure(object):
                 # average carbon emissions across the desired annual or
                 # sub-annual time horizon; also pull hourly fraction of annual
                 # load data needed to calculate sector-level shapes below if
-                # the user has specified the '--sect_shapes' option
+                # the user has specified the '--sect_shapes' option. Note:
+                # appropriate shapes are unavailable for the windows solar
+                # microsegment, therefore it is excluded from these calcs
                 if ((self.energy_outputs["tsv_metrics"] is not False or
                      opts.sect_shapes is True) or
                     self.tsv_features is not None) and (
@@ -3582,7 +3605,8 @@ class Measure(object):
                             life_base, life_meas, site_source_conv_base,
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
-                            tsv_scale_fracs, tsv_shapes, opts)
+                            tsv_scale_fracs, tsv_shapes, opts,
+                            contrib_mseg_key, contrib_meas_pkg)
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
@@ -5208,7 +5232,8 @@ class Measure(object):
             carb_total_init, cost_base, cost_meas, cost_energy_base,
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
-            intensity_carb_meas, energy_total_scnd, tsv_adj, tsv_shapes, opts):
+            intensity_carb_meas, energy_total_scnd, tsv_adj, tsv_shapes, opts,
+            contrib_mseg_key, contrib_meas_pkg):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -5244,6 +5269,9 @@ class Measure(object):
             tsv_adj (dict): Adjustment for time sensitive efficiency valuation.
             tsv_shapes (dict): 8760 hourly adjustments (sum to tsv_adj values)
             opts (object): Stores user-specified execution options.
+            contrib_mseg_key (tuple): The same as mskeys, but adjusted to merge
+                windows solar/conduction msegs into "windows" if applicable.
+            contrib_meas_pkg (list): Names of measures that contribute to pkgs.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -5354,6 +5382,15 @@ class Measure(object):
         else:
             secnd_mseg_adjkey = None
 
+        # Initialize data needed to merge sector-level information about the
+        # current microsegment into a package, if the current measure is part
+        # of a package
+        if opts.sect_shapes is True and tsv_shapes is not None and \
+                self.name in contrib_meas_pkg:
+            self.sector_shapes_pkg[adopt_scheme][str(contrib_mseg_key)] = {
+                yr: {"baseline": [], "efficient": []} for yr in
+                self.handyvars.aeo_years_summary}
+
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
         for yr in self.handyvars.aeo_years:
@@ -5418,19 +5455,28 @@ class Measure(object):
             # ensure that load shape information is available for the
             # update and if not, yield an error message
             if opts.sect_shapes is True and yr in \
-                    self.handyvars.aeo_years_summary and \
+                self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
                     energy_total_sbmkt[yr] for x in range(8760)]
+                # If current measure is part of an active package, add sector-
+                # level information for the current baseline mseg to the
+                # attribute that is later used to feed these data into the pkg.
+                if str(contrib_mseg_key) in \
+                        self.sector_shapes_pkg[adopt_scheme].keys():
+                    self.sector_shapes_pkg[adopt_scheme][
+                        str(contrib_mseg_key)][yr]["baseline"] = [
+                        tsv_shapes["baseline"][x] * energy_total_sbmkt[yr] for
+                        x in range(8760)]
             elif opts.sect_shapes is True and tsv_shapes is None and (
                 mskeys[0] == "secondary" or (
                     mskeys[0] == "primary" and
                     mskeys[3] == "electricity")):
                 raise ValueError(
                     "Missing hourly fraction of annual load data for "
-                    "baseline energy use segment: " + mskeys + ". ")
+                    "baseline energy use segment: " + str(mskeys) + ". ")
 
             # For a primary microsegment and adjusted adoption potential case,
             # determine the portion of competed stock that remains with the
@@ -5822,8 +5868,9 @@ class Measure(object):
             # Re-apportion total efficient microsegment energy across all 8760
             # hours of the year, if necessary (supports sector-level savings
             # shapes)
-            if opts.sect_shapes is True and yr in \
-                    self.handyvars.aeo_years_summary:
+            if opts.sect_shapes is True and \
+                yr in self.handyvars.aeo_years_summary and \
+                    tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                     "efficient"] = [
                     self.sector_shapes[adopt_scheme][
@@ -5833,6 +5880,19 @@ class Measure(object):
                         energy_tot_uncomp_meas * tsv_shapes["efficient"][x] +
                         energy_tot_uncomp_base * tsv_shapes["baseline"][x])
                     for x in range(8760)]
+                # If current measure is part of an active package, add sector-
+                # level information for the current efficient mseg to the
+                # attribute that is later used to feed these data into the pkg.
+                if str(contrib_mseg_key) in \
+                        self.sector_shapes_pkg[adopt_scheme].keys():
+                    self.sector_shapes_pkg[adopt_scheme][
+                        str(contrib_mseg_key)][yr]["efficient"] = [(
+                            energy_tot_comp_meas * tsv_shapes["efficient"][x] +
+                            energy_tot_comp_base * tsv_shapes["baseline"][x] +
+                            energy_tot_uncomp_meas *
+                            tsv_shapes["efficient"][x] +
+                            energy_tot_uncomp_base *
+                            tsv_shapes["baseline"][x]) for x in range(8760)]
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total_sbmkt[yr] * \
                 competed_captured_eff_frac * rel_perf_capt * \
@@ -7088,10 +7148,13 @@ class MeasurePackage(Measure):
         htcl_overlaps (dict): Dict to store data on heating/cooling overlaps
             across contributing equipment vs. envelope ECMs that apply to the
             same region, building type/vintage, fuel type, and end use.
+        sector_shapes (dict): Sector-level hourly baseline and efficient load
+            shapes by adopt scheme, EMM region, and year.
 
     """
 
-    def __init__(self, measure_list_package, p, bens, handyvars, handyfiles):
+    def __init__(self, measure_list_package, p, bens, handyvars, handyfiles,
+                 opts):
         self.handyvars = handyvars
         self.contributing_ECMs = copy.deepcopy(measure_list_package)
         # Sort contributing ECMs in the package such that any measures that
@@ -7227,6 +7290,12 @@ class MeasurePackage(Measure):
         self.markets = {}
         self.htcl_overlaps = {adopt: {"keys": [], "data": {}} for
                               adopt in handyvars.adopt_schemes}
+        # Only initialize sector-level load shape information for the package
+        # if this option is specified by the user
+        if opts.sect_shapes is True:
+            self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
+        else:
+            self.sector_shapes = None
         for adopt_scheme in handyvars.adopt_schemes:
             self.markets[adopt_scheme] = {
                 "master_mseg": {
@@ -7285,8 +7354,11 @@ class MeasurePackage(Measure):
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]}}
 
-    def merge_measures(self):
+    def merge_measures(self, opts):
         """Merge the markets information of multiple individual measures.
+
+        Attributes:
+            opts (object): Stores user-specified execution options.
 
         Note:
             Combines the 'markets' attributes of each individual measure into
@@ -7341,6 +7413,14 @@ class MeasurePackage(Measure):
                 # Set contributing microsegment data to update for package
                 # under the current adoption scheme
                 msegs_pkg_init = self.markets[adopt_scheme]["mseg_adjust"]
+                # Set sector-level load shape data for individual measure,
+                # if sector-level load shapes are being generated for the
+                # package; otherwise set to None
+                if self.sector_shapes:
+                    sect_shapes_init = copy.deepcopy(
+                        m.sector_shapes_pkg[adopt_scheme])
+                else:
+                    sect_shapes_init = None
                 # Loop through/update all microsegment data for measure
                 for k in msegs_meas_init.keys():
                     # Remove any direct overlaps between the measure's
@@ -7348,26 +7428,28 @@ class MeasurePackage(Measure):
                     # package (e.g., msegs with the exact same key information)
                     if k == "contributing mseg keys and values":
                         for cm in msegs_meas_init[k].keys():
-                            msegs_meas_init[k][cm], mseg_out_break_init = \
-                                self.merge_direct_overlaps(
+                            msegs_meas_init[k][cm], mseg_out_break_init, \
+                                sect_shapes_init = self.merge_direct_overlaps(
                                     msegs_meas_init[k][cm], cm, adopt_scheme,
                                     mseg_out_break_init, m.name,
-                                    m.technology_type["primary"][0])
+                                    m.technology_type["primary"][0],
+                                    sect_shapes_init)
                     # Add all other contributing microsegment data for
                     # the measure
                     elif k in ["competed choice parameters",
                                "secondary mseg adjustments"]:
                         self.update_dict(msegs_pkg_init[k], msegs_meas_init[k])
-                # Record adjusted contributing microsegment and output
-                # breakout data for the measure for subsequent use in
-                # removing any overlaps between heating/cooling equipment and
-                # envelope measures (if applicable) and finalizing the
-                # measure's contribution to the package
+                # Record adjusted contributing microsegment, output
+                # breakout data, and sector shapes data for the measure for
+                # subsequent use in removing any overlaps between heating/
+                # cooling equipment and envelope measures (if applicable) and
+                # finalizing the measure's contribution to the package
                 mseg_dat_rec[ind][adopt_scheme] = {
                     "name": m.name,
                     "htcl_type": m.technology_type["primary"][0],
                     "microsegments": msegs_meas_init,
-                    "breakouts": mseg_out_break_init}
+                    "breakouts": mseg_out_break_init,
+                    "sector_shapes": sect_shapes_init}
 
         # Loop through all previously adjusted/recorded microsegment and
         # outbreak data for the measures that contribute to the package;
@@ -7377,20 +7459,24 @@ class MeasurePackage(Measure):
         for m in mseg_dat_rec:
             # Update measure contributing mseg data by adoption scheme
             for adopt_scheme in self.handyvars.adopt_schemes:
-                # Set shorthands for contributing mseg, outbreak, and
-                # package data to finalize
+                # Set shorthands for contributing mseg, outbreak, sector shapes
+                # data (if applicable), and package data to finalize
                 msegs_meas_fin = m[adopt_scheme]["microsegments"][
                     "contributing mseg keys and values"]
                 mseg_out_break_fin = m[adopt_scheme]["breakouts"]
+                if self.sector_shapes:
+                    sect_shapes_fin = m[adopt_scheme]["sector_shapes"]
+                else:
+                    sect_shapes_fin = None
                 msegs_pkg_fin = self.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"]
                 # Loop through/update all microsegment data for measure
                 for cm in msegs_meas_fin.keys():
-                    msegs_meas_fin[cm], mseg_out_break_fin = \
-                        self.merge_htcl_overlaps(
+                    msegs_meas_fin[cm], mseg_out_break_fin, \
+                        sect_shapes_fin = self.merge_htcl_overlaps(
                             msegs_meas_fin[cm], cm, adopt_scheme,
                             mseg_out_break_fin, m[adopt_scheme]["name"],
-                            m[adopt_scheme]["htcl_type"])
+                            m[adopt_scheme]["htcl_type"], sect_shapes_fin)
                     # Add finalized contributing microsegment information for
                     # individual measure to the packaged measure, creating a
                     # new contributing microsegment key if one does not already
@@ -7402,7 +7488,8 @@ class MeasurePackage(Measure):
                             msegs_pkg_fin[cm], msegs_meas_fin[cm])
                     # Check for additional energy savings and/or installed cost
                     # benefits from packaging and apply if applicable
-                    self.apply_pkg_benefits(msegs_pkg_fin)
+                    self.apply_pkg_benefits(
+                        msegs_pkg_fin[cm], adopt_scheme, sect_shapes_fin, cm)
                 # Generate a dictionary including data on how much of the
                 # packaged measure's baseline energy/carbon/cost is attributed
                 # to each of the output climate zones, building types, and end
@@ -7568,7 +7655,7 @@ class MeasurePackage(Measure):
 
     def merge_direct_overlaps(
             self, msegs_meas, cm_key, adopt_scheme,
-            mseg_out_break_adj, name_meas, tech_htcl_meas):
+            mseg_out_break_adj, name_meas, tech_htcl_meas, sect_shapes_meas):
         """Adjust measure mseg data to address direct overlaps in package.
 
         Args:
@@ -7583,12 +7670,16 @@ class MeasurePackage(Measure):
             name_meas (string): Measure name.
             tech_htcl_meas (string): Measure applicability to either
                 equipment ("supply") or envelope ("demand").
+            sect_shapes_meas (dict or NoneType): Sector-level baseline and
+                efficient load shape information for the current contributing
+                microsegment, if applicable (otherwise, None).
 
         Returns:
-            Updated contributing microsegment and out break info. for the
-            measure that accounts for direct overlaps between the measure
-            and other contributing measures in the package given the current
-            contributing microsegment information (e.g., an exact key match).
+            Updated contributing microsegment, out break info., and (if
+            applicable), sector shape data for the measure that accounts for
+            direct overlaps between the measure and other contributing measures
+            in the package given the current contributing microsegment
+            information (e.g., an exact key match).
         """
 
         # Translate mseg key string to list elements
@@ -7627,6 +7718,19 @@ class MeasurePackage(Measure):
             # in this contributing microsegment, as well as the relative
             # performance of the overlapping measure(s)
             for k in ["energy", "carbon"]:
+                # Adjust sector-level energy load shape for the current
+                # contributing microsegment, if applicable
+                if k == "energy" and self.sector_shapes and (
+                    sect_shapes_meas and
+                        cm_key in sect_shapes_meas.keys()):
+                    # Update baseline/efficient sector-level load data by year
+                    for yr in self.handyvars.aeo_years_summary:
+                        sect_shapes_meas[cm_key][yr]["baseline"] = [
+                            x * base_adj[yr] for x in sect_shapes_meas[cm_key][
+                                yr]["baseline"]]
+                        sect_shapes_meas[cm_key][yr]["efficient"] = [
+                            x * eff_adj[yr] for x in sect_shapes_meas[cm_key][
+                                yr]["efficient"]]
                 # Make adjustments to energy/carbon/cost microsegments
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
                     tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
@@ -7677,11 +7781,11 @@ class MeasurePackage(Measure):
                         msegs_meas["energy"]["total"]["baseline"][yr] -
                         msegs_meas["energy"]["total"]["efficient"][yr])
 
-        return msegs_meas, mseg_out_break_adj
+        return msegs_meas, mseg_out_break_adj, sect_shapes_meas
 
     def merge_htcl_overlaps(
             self, msegs_meas, cm_key, adopt_scheme,
-            mseg_out_break_adj, name_meas, tech_htcl_meas):
+            mseg_out_break_adj, name_meas, tech_htcl_meas, sect_shapes_meas):
         """Adjust measure mseg data to address equip/env overlaps in package.
 
         Args:
@@ -7696,13 +7800,17 @@ class MeasurePackage(Measure):
             name_meas (string): Measure name.
             tech_htcl_meas (string): Measure applicability to either
                 equipment ("supply") or envelope ("demand").
+            sect_shapes_meas (dict or NoneType): Sector-level baseline and
+                efficient load shape information for the current contributing
+                microsegment, if applicable (otherwise, None).
 
         Returns:
-            Updated contributing microsegment and out break info. for the
-            measure that accounts for indirect overlaps between the measure and
-            other heating/cooling equipment or envelope measures in the
-            package given the current contributing microsegment information
-            (e.g., key match by region, bldg. type/vintage, fuel, and end use).
+            Updated contributing microsegment, out break info., and (if
+            applicable), sector shape data for the measure that accounts for
+            indirect overlaps between the measure and other heating/cooling
+            equipment or envelope measures in the package given the current
+            contributing microsegment information (e.g., key match by region,
+            bldg. type/vintage, fuel, and end use).
         """
         # Translate mseg key string to list elements
         key_list = literal_eval(cm_key)
@@ -7729,6 +7837,44 @@ class MeasurePackage(Measure):
         # in this contributing microsegment, as well as the relative
         # performance of the overlapping measure(s)
         for k in ["energy", "carbon"]:
+            # Adjust sector-level energy load shape for the current
+            # contributing microsegment, if applicable
+            if k == "energy" and self.sector_shapes and (
+                    sect_shapes_meas and cm_key in sect_shapes_meas.keys()):
+                # Update baseline/efficient sector-level load data by year
+                for yr in self.handyvars.aeo_years_summary:
+                    sect_shapes_meas[cm_key][yr]["baseline"] = [
+                        x * base_adj[yr] for x in sect_shapes_meas[cm_key][
+                            yr]["baseline"]]
+                    sect_shapes_meas[cm_key][yr]["efficient"] = [
+                        x * eff_adj[yr] for x in sect_shapes_meas[cm_key][
+                            yr]["efficient"]]
+                # Merge updated sector-level load shape information for current
+                # contributing microsegment into a final sector-level load
+                # dataset for the package that is broken out by adopt scheme,
+                # EMM region, and year
+
+                # If data do not already exist for the EMM region that the
+                # current mseg applies to, initialize the sector shape
+                # information for that region; otherwise add to existing key
+                if str(key_list[1]) not in \
+                        self.sector_shapes[adopt_scheme].keys():
+                    self.sector_shapes[adopt_scheme][str(key_list[1])] = {yr: {
+                        "baseline": sect_shapes_meas[cm_key][yr]["baseline"],
+                        "efficient": sect_shapes_meas[cm_key][yr]["efficient"]}
+                        for yr in self.handyvars.aeo_years_summary}
+                else:
+                    for yr in self.handyvars.aeo_years_summary:
+                        self.sector_shapes[adopt_scheme][str(key_list[1])][yr][
+                            "baseline"] = [x + y for x, y in zip(
+                                self.sector_shapes[adopt_scheme][
+                                    str(key_list[1])][yr]["baseline"],
+                                sect_shapes_meas[cm_key][yr]["baseline"])]
+                        self.sector_shapes[adopt_scheme][str(key_list[1])][yr][
+                            "efficient"] = [x + y for x, y in zip(
+                                self.sector_shapes[adopt_scheme][
+                                    str(key_list[1])][yr]["efficient"],
+                                sect_shapes_meas[cm_key][yr]["efficient"])]
             # Make adjustments to energy/carbon/cost microsegments
             mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
                 tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
@@ -7741,7 +7887,7 @@ class MeasurePackage(Measure):
                 tot_base_orig_ecost, tot_eff_orig_ecost,
                 tot_save_orig_ecost, key_list)
 
-        return msegs_meas, mseg_out_break_adj
+        return msegs_meas, mseg_out_break_adj, sect_shapes_meas
 
     def find_base_eff_adj_fracs(self, msegs_meas, cm_key, adopt_scheme,
                                 tech_htcl_meas, name_meas, htcl_key_match,
@@ -7814,9 +7960,8 @@ class MeasurePackage(Measure):
             # Loop through all years in the modeling time horizon and use
             # data above to develop baseline/efficient adjustment factors
             for yr in self.handyvars.aeo_years:
-                # Temporarily raise divide by zero FloatingPoint errors
-                # when numpy arrays of data are involved
-                with numpy.errstate(divide='raise'):
+                # Ignore numpy divide by zero errors and handle NaNs
+                with numpy.errstate(all='ignore'):
                     # Find the fraction of total potential overlapping energy
                     # use for given region region, building type/vintage, fuel
                     # type, and end use combination that is affected by the
@@ -7824,7 +7969,10 @@ class MeasurePackage(Measure):
                     try:
                         affected_htcl_frac[yr] = (
                             overlp_data["total affected"][yr] / totals[yr])
-                    except (ZeroDivisionError, FloatingPointError):
+                    except ZeroDivisionError:
+                        affected_htcl_frac[yr] = 0
+                    # Handle numpy NaNs
+                    if numpy.isnan(affected_htcl_frac[yr]):
                         affected_htcl_frac[yr] = 0
                     # Find relative savings fraction for the measure;
                     # handle zero denominator
@@ -7832,7 +7980,10 @@ class MeasurePackage(Measure):
                         save_meas_htcl[yr] = (
                             tech_data["affected savings"][yr] /
                             tech_data["total affected"][yr])
-                    except (ZeroDivisionError, FloatingPointError):
+                    except ZeroDivisionError:
+                        save_meas_htcl[yr] = 0
+                    # Handle numpy NaNs
+                    if numpy.isnan(save_meas_htcl[yr]):
                         save_meas_htcl[yr] = 0
                     # Find relative savings fraction for the overlapping
                     # measure(s); handle zero denominator
@@ -7840,7 +7991,10 @@ class MeasurePackage(Measure):
                         save_overlp_htcl[yr] = (
                             overlp_data["affected savings"][yr] /
                             overlp_data["total affected"][yr])
-                    except (ZeroDivisionError, FloatingPointError):
+                    except ZeroDivisionError:
+                        save_overlp_htcl[yr] = 0
+                    # Handle numpy NaNs
+                    if numpy.isnan(save_overlp_htcl[yr]):
                         save_overlp_htcl[yr] = 0
                     # Set relative performance for the overlapping measure(s)
                     rp_overlp_htcl[yr] = 1 - save_overlp_htcl[yr]
@@ -7853,7 +8007,10 @@ class MeasurePackage(Measure):
                         save_wt_meas_htcl[yr] = (abs(save_meas_htcl[yr]) / (
                             abs(save_meas_htcl[yr]) +
                             abs(save_overlp_htcl[yr])))
-                    except (ZeroDivisionError, FloatingPointError):
+                    except ZeroDivisionError:
+                        save_wt_meas_htcl[yr] = 0.5
+                    # Handle numpy NaNs
+                    if numpy.isnan(save_wt_meas_htcl[yr]):
                         save_wt_meas_htcl[yr] = 0.5
             # Final baseline adjustment factor is determined by the measure's
             # fractional contribution to total affected overlapping savings
@@ -7959,14 +8116,17 @@ class MeasurePackage(Measure):
                     # evenly across all measures without sub-market scaling;
                     # handle zero denominator
 
-                    # Temporarily raise divide by zero FloatingPoint errors
-                    # when numpy arrays of data are involved
-                    with numpy.errstate(divide='raise'):
+                    # Ignore numpy divide by zero errors and handle NaNs
+                    with numpy.errstate(all='ignore'):
                         try:
                             sbmkt_save_wt_meas = (abs(save_meas[yr]) / (
                                 abs(save_meas[yr]) +
                                 abs(sum(save_overlp_sbmkt[yr]))))
-                        except (ZeroDivisionError, FloatingPointError):
+                        except ZeroDivisionError:
+                            sbmkt_save_wt_meas = (
+                                1 / len([x for x in sbmkts_all[yr] if x == 0]))
+                        # Handle numpy NaNs
+                        if numpy.isnan(sbmkt_save_wt_meas):
                             sbmkt_save_wt_meas = (
                                 1 / len([x for x in sbmkts_all[yr] if x == 0]))
 
@@ -8217,8 +8377,19 @@ class MeasurePackage(Measure):
         else:
             dict1.update(dict2)
 
-    def apply_pkg_benefits(self, msegs_meas):
+    def apply_pkg_benefits(
+            self, msegs_meas, adopt_scheme, sect_shapes_meas, cm_key):
         """Apply additional energy savings or cost benefits from packaging.
+
+        Attributes:
+            msegs_meas (dict): Data for the contributing microsegment of an
+                individual measure that is being merged into the package.
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            sect_shapes_meas (dict or NoneType): Sector-level baseline and
+                efficient load shape information for the current contributing
+                microsegment, if applicable (otherwise, None).
+            cm_key (tuple): Microsegment key describing the contributing
+                microsegment currently being added (e.g. reg->bldg, etc.)
 
         Note:
             Users may define additional percent energy savings improvements or
@@ -8281,6 +8452,28 @@ class MeasurePackage(Measure):
                                 x in eff_c[key]))
                         else eff_c[key] - (base_c[key] - eff_c[key]) *
                         energy_ben for key in self.handyvars.aeo_years}
+                # Adjust sector-level energy load shapes for the current mseg
+                # to reflect additional energy performance benefits, if needed
+                if x == "energy" and self.sector_shapes:
+                    # Translate mseg key string to list elements
+                    key_list = literal_eval(cm_key)
+                    # Pull out EMM region from the contributing mseg info.
+                    reg = key_list[1]
+                    # Loop through all years with sector-level load data
+                    for yr in self.handyvars.aeo_years_summary:
+                        # Shorthand for baseline values
+                        base_s = sect_shapes_meas[cm_key][yr]["baseline"]
+                        # Shorthand for efficient values
+                        eff_s = sect_shapes_meas[cm_key][yr]["efficient"]
+                        save_s = [x - y for x, y in zip(base_s, eff_s)]
+                        # Adjust efficient values to reflect additional
+                        # performance benefits
+                        self.sector_shapes[adopt_scheme][reg][yr][
+                            "efficient"] = [y - x * energy_ben if (
+                                (y - x * energy_ben) >= 0) else
+                                0 for x, y in zip(save_s, self.sector_shapes[
+                                    adopt_scheme][reg][yr]["efficient"])]
+
         # If additional installed cost benefits are not None and are non-zero,
         # apply them to the measure's stock cost
         if cost_ben not in [None, 0]:
@@ -8345,7 +8538,7 @@ class MeasurePackage(Measure):
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                      handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
-                     regions, tsv_metrics):
+                     regions, tsv_metrics, contrib_meas_pkg):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -8368,6 +8561,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts (object): Stores user-specified execution options.
         regions (string): Regional breakouts to use.
         tsv_metrics (boolean or list): TSV metrics settings.
+        contrib_meas_pkg (list): Names of measures that contribute to pkgs.
 
     Returns:
         A list of dicts, each including a set of measure attributes that has
@@ -8412,8 +8606,9 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             'EnergyPlus-based ECM performance data are currently unsupported.')
 
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(msegs, msegs_cpl, convert_data, tsv_data, opts) for
-     m in meas_update_objs]
+    [m.fill_mkts(
+        msegs, msegs_cpl, convert_data, tsv_data, opts, contrib_meas_pkg)
+     for m in meas_update_objs]
 
     return meas_update_objs
 
@@ -8526,11 +8721,11 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # subset above
             packaged_measure = MeasurePackage(
                 measure_list_package, p["name"], p["benefits"],
-                handyvars, handyfiles)
+                handyvars, handyfiles, opts)
             # Record heating/cooling overlaps in package
             packaged_measure.htcl_adj_rec()
             # Merge measures in the package object
-            packaged_measure.merge_measures()
+            packaged_measure.merge_measures(opts)
             # Print update on measure status
             print("Success")
 
@@ -8588,10 +8783,11 @@ def split_clean_data(meas_prepped_objs):
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
-        # Delete 'tsv_features' measure attribute (not relevant) for
-        # individual measures
+        # Delete 'tsv_features' and 'sector_shapes_pkg' measure attributes
+        # (not relevant) for individual measures
         if not isinstance(m, MeasurePackage):
             del m.tsv_features
+            del m.sector_shapes_pkg
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -8838,6 +9034,15 @@ def main(base_dir):
     except FileNotFoundError:
         meas_summary = []
 
+    # Import packages JSON
+    with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
+        try:
+            meas_toprep_package_init = json.load(mpk)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in ECM package '" + handyfiles.ecm_packages +
+                "': " + str(e)) from None
+
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
 
@@ -8866,9 +9071,16 @@ def main(base_dir):
                 # '/supporting_data/ecm_competition_data' folder), or
                 # c) measure JSON time stamp indicates it has been modified
                 # since the last run of 'ecm_prep.py' or d) the user added/
-                # removed the "site_energy," "captured_energy" or "tsv_metrics"
-                # cmd line arguments and the measure definition was not already
-                # prepared using these settings
+                # removed the "site_energy," "captured_energy", "alt_regions",
+                # or "tsv_metrics" cmd line arguments and the measure def.
+                # was not already prepared using these settings or e) the user
+                # added the "sect_shapes" cmd line argument and the measure
+                # does not already have sector-level load shape data or f) the
+                # user specified the "sect_shapes" cmd line argument with a
+                # package present, and the measure contributes to the package
+                # (measure information needed to generate sector shapes
+                # for the package was not previously written out and must be
+                # regenerated)
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
                    all([meas_dict["name"] not in y for y in listdir(
@@ -8909,7 +9121,14 @@ def main(base_dir):
                    (opts is None or opts.tsv_metrics is False and
                     all([y["energy_outputs"]["tsv_metrics"] is not False
                          for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])):
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.sect_shapes is True and
+                    all([len(y["sector_shapes"]["Technical potential"]) == 0
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.sect_shapes is True and
+                    any([meas_dict["name"] in pkg["contributing_ECMs"]
+                         for pkg in meas_toprep_package_init])):
                     # Append measure dict to list of measure definitions
                     # to update if it meets the above criteria
                     meas_toprep_indiv.append(meas_dict)
@@ -8959,16 +9178,10 @@ def main(base_dir):
     # individual measures that are new or were edited since the last time
     # 'ecm_prep.py' routine was run
 
-    # Import packages JSON
-    with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
-        try:
-            meas_toprep_package_init = json.load(mpk)
-        except ValueError as e:
-            raise ValueError(
-                "Error reading in ECM package '" + handyfiles.ecm_packages +
-                "': " + str(e)) from None
     # Initialize list of measure package dicts to prepare
     meas_toprep_package = []
+    # Initialize a list to track which individual ECMs contribute to packages
+    contrib_meas_pkg = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [
         mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
@@ -8991,6 +9204,7 @@ def main(base_dir):
                 len(m_exist) == 1 and any([m[x] != m_exist[0][x] for x in [
                     "contributing_ECMs", "benefits"]])):
             meas_toprep_package.append(m)
+            contrib_meas_pkg.extend(m["contributing_ECMs"])
         # Raise an error if the current package matches the name of
         # multiple previously prepared packages
         elif len(m_exist) > 1:
@@ -9043,46 +9257,40 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        # Import load shape, price, and emissions data needed for
-        # time sensitive analysis of measure energy efficiency impacts
-        with open(path.join(
-                base_dir, *handyfiles.tsv_load_data), 'r') as tsv_l:
-            try:
-                tsv_load_data = json.load(tsv_l)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.tsv_load_data + "': " + str(e)) from None
-        with open(path.join(
-                base_dir, *handyfiles.tsv_cost_data), 'r') as tsv_c:
-            try:
-                tsv_cost_data = json.load(tsv_c)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.tsv_cost_data + "': " + str(e)) from None
-        with open(path.join(
-                base_dir, *handyfiles.tsv_carbon_data), 'r') as tsv_e:
-            try:
-                tsv_carbon_data = json.load(tsv_e)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.tsv_carbon_data + "': " + str(e)) from None
-
-        # Map year range available in 8760 TSV cost/carbon data to AEO years
-        tsv_cost_yrmap = tsv_cost_carb_yrmap(
-            tsv_cost_data["electricity price shapes"], handyvars.aeo_years)
-        tsv_carbon_yrmap = tsv_cost_carb_yrmap(
-            tsv_carbon_data["average carbon emissions rates"],
-            handyvars.aeo_years)
-
-        # Stitch together load shape, cost, emissions, and year
-        # mapping datasets
-        tsv_data = {
-            "load": tsv_load_data, "price": tsv_cost_data,
-            "price_yr_map": tsv_cost_yrmap, "emissions": tsv_carbon_data,
-            "emissions_yr_map": tsv_carbon_yrmap}
+        if (regions == 'EMM' and (tsv_metrics is not None or any([
+                ("tsv_features" in m.keys() and m["tsv_features"]) is not None
+                for m in meas_toprep_indiv])) or
+                opts is not None and opts.sect_shapes is True):
+            # Import load, price, and emissions shape data needed for time
+            # sensitive analysis of measure energy efficiency impacts
+            tsv_l = path.join(base_dir, *handyfiles.tsv_load_data)
+            tsv_l_zip = path.splitext(tsv_l)[0] + '.gz'
+            with gzip.GzipFile(tsv_l_zip, 'r') as zip_ref_l:
+                tsv_load_data = json.loads(zip_ref_l.read().decode('utf-8'))
+            tsv_c = path.join(base_dir, *handyfiles.tsv_cost_data)
+            tsv_c_zip = path.splitext(tsv_c)[0] + '.gz'
+            with gzip.GzipFile(tsv_c_zip, 'r') as zip_ref_c:
+                tsv_cost_data = \
+                    json.loads(zip_ref_c.read().decode('utf-8'))
+            tsv_cb = path.join(base_dir, *handyfiles.tsv_carbon_data)
+            tsv_cb_zip = path.splitext(tsv_cb)[0] + '.gz'
+            with gzip.GzipFile(tsv_cb_zip, 'r') as zip_ref_cb:
+                tsv_carbon_data = \
+                    json.loads(zip_ref_cb.read().decode('utf-8'))
+            # Map year range available in 8760 TSV cost/carbon data to AEO yrs.
+            tsv_cost_yrmap = tsv_cost_carb_yrmap(
+                tsv_cost_data["electricity price shapes"], handyvars.aeo_years)
+            tsv_carbon_yrmap = tsv_cost_carb_yrmap(
+                tsv_carbon_data["average carbon emissions rates"],
+                handyvars.aeo_years)
+            # Stitch together load shape, cost, emissions, and year
+            # mapping datasets
+            tsv_data = {
+                "load": tsv_load_data, "price": tsv_cost_data,
+                "price_yr_map": tsv_cost_yrmap, "emissions": tsv_carbon_data,
+                "emissions_yr_map": tsv_carbon_yrmap}
+        else:
+            tsv_data = None
 
         # Import analysis engine setup file to write prepared ECM names
         # to (if file does not exist, provide empty active/inactive ECM
@@ -9104,7 +9312,7 @@ def main(base_dir):
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
             handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts, regions,
-            tsv_metrics)
+            tsv_metrics, contrib_meas_pkg)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
