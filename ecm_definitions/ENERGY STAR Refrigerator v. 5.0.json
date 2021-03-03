@@ -6,9 +6,9 @@
   "end_use": "refrigeration",
   "fuel_type": "electricity",
   "technology": null,
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements for Residential Refrigerators and Freezers",
        "author": "Energy Star",

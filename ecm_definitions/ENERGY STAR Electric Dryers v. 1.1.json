@@ -6,9 +6,9 @@
   "end_use": "drying",
   "fuel_type": "electricity",
   "technology": "all",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
        "author": null,

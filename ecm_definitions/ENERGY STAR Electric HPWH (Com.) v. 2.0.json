@@ -6,9 +6,9 @@
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "ENERGY STAR-qualified commercial electric heat pump water heater",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters, Version 2.0",
       "author": null,

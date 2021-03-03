@@ -6,9 +6,9 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "90.1-2019 efficiency commercial chillers in 2017",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

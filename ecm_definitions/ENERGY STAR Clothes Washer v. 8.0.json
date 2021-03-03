@@ -6,9 +6,9 @@
   "end_use": "other",
   "fuel_type": "electricity",
   "technology": "clothes washing",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Washers",
        "author": null,

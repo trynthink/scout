@@ -6,9 +6,9 @@
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Product specification is only met by HPWH type",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": [{
        "title": "ENERGY STAR Product Specifications for Residential Water Heaters",
        "author": "Energy Star",

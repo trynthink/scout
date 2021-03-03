@@ -6,9 +6,9 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": "rooftop_AC",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard will go into effect (see note under table)",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

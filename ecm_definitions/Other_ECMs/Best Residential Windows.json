@@ -13,9 +13,9 @@
       "windows conduction",
       "windows solar"
     ],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest R value, lowest SHGC in the NREL database",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,

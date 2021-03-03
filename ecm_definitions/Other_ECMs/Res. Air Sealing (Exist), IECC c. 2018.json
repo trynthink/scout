@@ -1,8 +1,8 @@
 {
-  "name": "Res. Air Sealing (New), IECC c. 2018",
+  "name": "Res. Air Sealing (Exist), IECC c. 2018",
   "climate_zone": "all",
   "bldg_type": "all residential",
-  "structure_type": "new",
+  "structure_type": "existing",
   "end_use": [
       "heating",
       "secondary heating",
@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "IECC 2018 air leakage requirements",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,
@@ -42,10 +42,10 @@
       "URL": "https://codes.iccsafe.org/public/document/iecc2018/chapter-4-re-residential-energy-efficiency"
     }
   },
-  "installed_cost": 0,
+  "installed_cost": 1.2,
   "cost_units": "2017$/ft^2 wall",
   "installed_cost_source": {
-    "notes": "Based on average cost for 3 ACH vs. 3 ACH (new)",
+    "notes": "Based on average cost for 3 ACH vs. 10 ACH (existing)",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,

@@ -1,52 +1,52 @@
 {
-  "name": "Commercial Roofs, 90.1 c. 2019",
+  "name": "Best Commercial Roofs",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2019,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2019",
+      "title": "50 Percent Advanced Energy Design Guide",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2019,
+      "year": 2014,
       "pages": null,
-      "URL": null
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 30.58,
+      "AIA_CZ1": 30.6,
       "AIA_CZ2": 30,
-      "AIA_CZ3": 29.97,
-      "AIA_CZ4": 25.86,
-      "AIA_CZ5": 24.57
+      "AIA_CZ3": 30,
+      "AIA_CZ4": 25.9,
+      "AIA_CZ5": 24.6
       },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "notes": "From AEDG design recommendations by climate zone; see calculations in: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=0",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2019",
+      "title": "50 Percent Advanced Energy Design Guide",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2019,
+      "year": 2014,
       "pages": null,
-      "URL": null}
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
     },
-  "installed_cost": 6.33,
+  "installed_cost": 7.04,
   "cost_units": "2016$/ft^2 roof",
   "installed_cost_source": {
-    "notes": "Assume baseline roof cost from Scout data",
+    "notes": "Based on cost premium-per-R-value implied by residential 'best' roof measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $4.49/ft^2 roof for an R value improvement of 30 in 2017; thus the cost premium to add to the baseline commercial roof cost of $6.33/ft^2 roof is $0.71/ft^2 roof ($4.49/ft^2 roof premium / R-30 improvement)*(R-4.74 improvement for commercial roofs in AIA CZ1 in 2017)",
     "source_data": {
-      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "title": "Scout Baseline Envelope Cost and Performance Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2016,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -68,24 +68,18 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Metal commercial roofing that meets the 90.1-2019 performance standard",
-  "_notes": "R value for continuous insulation",
+  "_description": "Latest 50% AEDG recommendations for small/medium commercial building above-deck roof insulation",
+  "_notes": null,
   "_added_by": {
-    "name": "Valerie Nubbe",
-    "organization": "BTO",
-    "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "1/04/2018"
-  },
-  "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 15:18:20 EDT 2018"
+    "timestamp": "Fri Sep 21 16:33:51 EDT 2018"
   },
   "_updated_by": {
-    "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy Laboratory",
-    "email": "ardelia.Clarke@nrel.gov",
-    "timestamp": "Mon Feb 10 12:57:20 MST 2020"
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
   }
 }

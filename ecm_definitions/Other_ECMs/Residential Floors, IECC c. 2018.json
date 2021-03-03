@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "ground",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,

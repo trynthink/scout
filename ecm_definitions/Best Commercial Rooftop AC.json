@@ -6,9 +6,9 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": "rooftop_AC",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency RTU in 2017",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

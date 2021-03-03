@@ -10,9 +10,9 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "ENERGY STAR Program Requirements for Lamps (Light Bulbs): Section 9. Photometric Performance, Table 9.1 Luminous Efficacy: All Lamps",
       "author": null,

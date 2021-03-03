@@ -1,21 +1,21 @@
 { 
-  "name": "ENERGY STAR Room AC v. 4.1",
+  "name": "ENERGY STAR Room AC v. 4.2",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "cooling",
   "fuel_type": "all",
   "technology": "room AC",
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
        "author": "Energy Star",
        "organization": "US EPA",
-       "year": 2015,
+       "year": 2020,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%204.2%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 3.52,
@@ -26,9 +26,9 @@
       "title": "ENERGY STAR Program Requirements Product Specification for Room Air Conditioners",
        "author": "Energy Star",
        "organization": "US EPA",
-       "year": 2015,
+       "year": 2020,
        "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%204.1%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
+       "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%204.2%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
   "installed_cost": 640,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
@@ -70,10 +70,14 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 13:16:38 EDT 2018"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 17 12:24:38 MST 2020"
-  }
+    "timestamp": "Fri Jan 17 12:24:38 MST 2020"},
+    {
+    "name": "Sang Hoon Lee",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "sanghlee@lbl.gov",
+    "timestamp": "Fri Feb 26 16:15:00 PST 2021"}]
 }

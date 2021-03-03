@@ -8,9 +8,9 @@
   "technology": ["Commercial Reach-In Freezers", "Commercial Reach-In Refrigerators",
                  "Commercial Supermarket Display Cases", "Commercial Walk-In Freezers",
                  "Commercial Walk-In Refrigerators"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest efficiency major category refrigeration units in 2017",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,

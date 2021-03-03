@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "ground",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Most efficient exterior floor slab insulation",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,

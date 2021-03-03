@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "AEDG air leakage recommendation",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "50 Percent Advanced Energy Design Guide",
       "author": null,

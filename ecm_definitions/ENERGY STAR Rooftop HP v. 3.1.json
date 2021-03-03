@@ -7,9 +7,9 @@
       "heating", "cooling"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,

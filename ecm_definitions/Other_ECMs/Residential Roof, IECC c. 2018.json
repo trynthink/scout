@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "IECC 2018 ceiling insulation requirements",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,

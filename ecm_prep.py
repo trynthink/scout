@@ -1506,20 +1506,14 @@ class Measure(object):
         if regions != "AIA":
             self.energy_outputs["alt_regions"] = regions
         if tsv_metrics is not None:
-            if self.fuel_type not in ["electricity", ["electricity"]]:
+            if (self.fuel_type not in ["electricity", ["electricity"]]) and \
+                    self.fuel_switch_to != "electricity":
                 raise ValueError(
                     "Non-electric fuel found for measure '" + self.name +
                     " alongside '--tsv_metrics' option. Such metrics cannot "
                     "be calculated for non-electric baseline segments of "
                     "energy use. To address this issue, restrict the "
                     "measure's fuel type to electricity.")
-            if self.fuel_switch_to is not None:
-                raise ValueError(
-                    "Fuel switching found for measure '" + self.name +
-                    " alongside '--tsv_metrics' option. Fuel "
-                    "switching is not currently supported when these metric "
-                    "calculations are desired. To address this issue, "
-                    "set the measure's 'fuel_switch_to' attribute to null.")
             self.energy_outputs["tsv_metrics"] = tsv_metrics
         if health_costs is not None:
             # Look for pre-determined health cost scenario names in the
@@ -1600,20 +1594,14 @@ class Measure(object):
                     "regions are not set to EMM; try running 'ecm_prep.py' "
                     "again with the --alt_regions option included and select "
                     "EMM regions when prompted.")
-            if self.fuel_type not in ["electricity", ["electricity"]]:
+            if (self.fuel_type not in ["electricity", ["electricity"]]) and \
+                    self.fuel_switch_to != "electricity":
                 raise ValueError(
                     "Non-electric fuel found for measure '" + self.name +
                     " alongside time sensitive valuation features. Such "
                     "features cannot be implemented for non-electric "
                     "baseline segments of energy use. To address this issue, "
                     "restrict the measure's fuel type to electricity.")
-            if self.fuel_switch_to is not None:
-                raise ValueError(
-                    "Fuel switching found for measure '" + self.name +
-                    " alongside time sensitive valuation features. Fuel "
-                    "switching is not currently supported when these features "
-                    "are present. To address this issue, "
-                    "set the measure's 'fuel_switch_to' attribute to null.")
             # If the ECM is assigned a custom savings shape, load the
             # associated custom savings shape data from a CSV file
             if "shape" in self.tsv_features.keys() and \
@@ -2261,44 +2249,45 @@ class Measure(object):
                 if opts is not None and opts.site_energy is True:
                     # Intensities broken out by EMM region
                     try:
-                        # Base fuel intensity
+                        # Base fuel intensity broken by region
                         intensity_carb_base = self.handyvars.carb_int[
                             bldg_sect][mskeys[3]][mskeys[1]]
-                        # Measure fuel intensity
-                        intensity_carb_meas = self.handyvars.carb_int[
-                            bldg_sect][self.fuel_switch_to][mskeys[1]]
-                    # National intensities
                     except KeyError:
-                        # Base fuel intensity
+                        # Base fuel intensity not broken by region
                         intensity_carb_base = {yr: self.handyvars.carb_int[
                             bldg_sect][mskeys[3]][yr] *
                             self.handyvars.ss_conv[mskeys[3]][yr]
                             for yr in self.handyvars.aeo_years}
-                        # Measure fuel intensity
+                    try:
+                        # Measure fuel intensity broken by region
+                        intensity_carb_meas = self.handyvars.carb_int[
+                            bldg_sect][self.fuel_switch_to][mskeys[1]]
+                    except KeyError:
+                        # Measure fuel intensity not broken by region
                         intensity_carb_meas = {yr: self.handyvars.carb_int[
                             bldg_sect][self.fuel_switch_to][yr] *
                             self.handyvars.ss_conv[self.fuel_switch_to][yr]
                             for yr in self.handyvars.aeo_years}
                 # Case where user has not flagged site energy outputs
                 else:
-                    # Intensities broken out by EMM region
                     try:
-                        # Base fuel intensity
+                        # Base fuel intensity broken by region
                         intensity_carb_base = {yr: self.handyvars.carb_int[
                             bldg_sect][mskeys[3]][mskeys[1]][yr] /
                             self.handyvars.ss_conv[mskeys[3]][yr]
                             for yr in self.handyvars.aeo_years}
-                        # Measure fuel intensity
+                    except KeyError:
+                        # Base fuel intensity not broken by region
+                        intensity_carb_base = self.handyvars.carb_int[
+                            bldg_sect][mskeys[3]]
+                    try:
+                        # Measure fuel intensity broken by region
                         intensity_carb_meas = {yr: self.handyvars.carb_int[
                             bldg_sect][self.fuel_switch_to][mskeys[1]][yr] /
                             self.handyvars.ss_conv[self.fuel_switch_to][yr]
                             for yr in self.handyvars.aeo_years}
-                    # National intensities
                     except KeyError:
-                        # Base fuel intensity
-                        intensity_carb_base = self.handyvars.carb_int[
-                            bldg_sect][mskeys[3]]
-                        # Measure fuel intensity
+                        # Measure fuel intensity not broken by region
                         intensity_carb_meas = self.handyvars.carb_int[
                             bldg_sect][self.fuel_switch_to]
 
@@ -2339,23 +2328,23 @@ class Measure(object):
             else:
                 # Case where use has flagged site energy outputs
                 if opts is not None and opts.site_energy is True:
-                    # Costs broken out by EMM region
                     try:
-                        # Base fuel cost
+                        # Base fuel cost broken out by region
                         cost_energy_base = self.handyvars.ecosts[bldg_sect][
                             mskeys[3]][mskeys[1]]
-                        # Measure fuel cost
-                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
-                            self.fuel_switch_to][mskeys[1]]
-                    # National fuel costs
                     except KeyError:
-                        # Base fuel cost
+                        # Base fuel cost not broken out by region
                         cost_energy_base = {
                             yr: self.handyvars.ecosts[bldg_sect][
                                 mskeys[3]][yr] * self.handyvars.ss_conv[
                                 mskeys[3]][yr] for yr in
                             self.handyvars.aeo_years}
-                        # Measure fuel cost
+                    try:
+                        # Measure fuel cost broken out by region
+                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
+                            self.fuel_switch_to][mskeys[1]]
+                    except KeyError:
+                        # Measure fuel cost not broken out by region
                         cost_energy_meas = {
                             yr: self.handyvars.ecosts[bldg_sect][
                                 self.fuel_switch_to][yr] *
@@ -2363,26 +2352,26 @@ class Measure(object):
                             yr in self.handyvars.aeo_years}
                 # Case where user has not flagged site energy outputs
                 else:
-                    # Costs broken out by EMM region
                     try:
-                        # Base fuel cost
+                        # Base fuel cost broken out by region
                         cost_energy_base = {
                             yr: self.handyvars.ecosts[bldg_sect][mskeys[3]][
                                 mskeys[1]][yr] / self.handyvars.ss_conv[
                                 mskeys[3]][yr] for yr in
                             self.handyvars.aeo_years}
-                        # Measure fuel cost
+                    except KeyError:
+                        # Base fuel cost not broken out by region
+                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
+                            mskeys[3]]
+                    try:
+                        # Measure fuel cost broken out by region
                         cost_energy_meas = {
                             yr: self.handyvars.ecosts[bldg_sect][
                                 self.fuel_switch_to][mskeys[1]][yr] /
                             self.handyvars.ss_conv[self.fuel_switch_to][yr] for
                             yr in self.handyvars.aeo_years}
-                    # National fuel costs
                     except KeyError:
-                        # Base fuel cost
-                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
-                            mskeys[3]]
-                        # Measure fuel cost
+                        # Measure fuel cost not broken out by region
                         cost_energy_meas = self.handyvars.ecosts[bldg_sect][
                             self.fuel_switch_to]
 
@@ -3571,8 +3560,10 @@ class Measure(object):
                 if ((self.energy_outputs["tsv_metrics"] is not False or
                      opts.sect_shapes is True) or
                     self.tsv_features is not None) and (
-                    mskeys[0] == "secondary" or (mskeys[0] == "primary" and
-                                                 mskeys[3] == "electricity")):
+                    mskeys[0] == "secondary" or (
+                        mskeys[0] == "primary" and ((
+                            mskeys[3] == "electricity") or (
+                            self.fuel_switch_to == "electricity")))):
                     tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
                         tsv_data, mskeys, bldg_sect, convert_data, opts)
                 else:

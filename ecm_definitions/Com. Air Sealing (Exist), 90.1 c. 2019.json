@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "ASHRAE 90.1-2019 whole envelope air leakage requirement",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "ASHRAE Standard 90.1-2019",
       "author": null,
