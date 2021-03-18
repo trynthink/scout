@@ -1,0 +1,91 @@
+{
+  "name": "Commercial Roofs, 90.1 c. 2019",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "roof",
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2019",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2019,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": 30.58,
+      "AIA_CZ2": 30,
+      "AIA_CZ3": 29.97,
+      "AIA_CZ4": 25.86,
+      "AIA_CZ5": 24.57
+      },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2019",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2019,
+      "pages": null,
+      "URL": null}
+    },
+  "installed_cost": 6.33,
+  "cost_units": "2016$/ft^2 roof",
+  "installed_cost_source": {
+    "notes": "Assume baseline roof cost from Scout data",
+    "source_data": {
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Typical least cost commercial roof service life",
+    "source_data": {
+      "title": "Life-Cycle Costs of Commercial Roof Systems",
+      "author": "Coffelt et al.",
+      "organization": "Carnegie Mellon University",
+      "year": 2010,
+      "pages": [29, 36],
+      "URL": "http://www.cmu.edu/gdi/docs/life-cycle-costs.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Metal commercial roofing that meets the 90.1-2019 performance standard",
+  "_notes": "R value for continuous insulation",
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "1/04/2018"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 15:18:20 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.Clarke@nrel.gov",
+    "timestamp": "Mon Feb 10 12:57:20 MST 2020"
+  }
+}

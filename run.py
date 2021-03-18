@@ -21,12 +21,12 @@ class UsefulInputFiles(object):
 
     Attributes:
         metadata = Baseline metadata including common min/max for year range.
-        meas_summary_data (string): High-level measure summary data.
-        meas_compete_data (string): Contributing microsegment data needed
+        meas_summary_data (tuple): High-level measure summary data.
+        meas_compete_data (tuple): Contributing microsegment data needed
             for measure competition.
-        active_measures (string): Measures that are active for the analysis.
-        meas_engine_out (string): Measure output summaries.
-        htcl_totals (string): Heating/cooling energy totals by climate zone,
+        active_measures (tuple): Measures that are active for the analysis.
+        meas_engine_out (tuple): Measure output summaries.
+        htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
     """
 
@@ -1332,16 +1332,16 @@ class Engine(object):
                         (1 / eff_life[yr]) + self.handyvars.retro_rate
 
         # For new baseline stock segments, calculate the portion of total stock
-        # that is newly added in each year, as well as the portion of total
-        # new stock in each year that has been previously captured by a
-        # comparable baseline technology (e.g., because an efficient technology
-        # was not yet on the market). The sum of these fractions determines
-        # the baseline stock replacement rate calculated below for new stock
-        # segments, and is consistent across all competing measures
+        # that is newly added in each year, as well as the total new stock in
+        # each year that was captured by a comparable baseline technology
+        # (e.g., because an efficient technology was not yet on the market).
+        # The sum of these fractions determines the baseline stock replacement
+        # rate calculated below for new stock segments, and is consistent
+        # across all competing measures
         if "new" in mseg_key:
             # Initialize the annual fractions of new stock additions and total
             # new stock previously captured by the baseline technology
-            new_stock_add_frac, new_stock_base_frac = ({
+            new_stock_add_frac, new_stock_base = ({
                 yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
             # Set variable that represents the total new stock in each year
             # across all competing measures; use the first measure's data
@@ -1351,18 +1351,8 @@ class Engine(object):
                 "competed"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key]["stock"][
                 "total"]["all"]
-            # Calculate the final year in which previously captured baseline
-            # stock remains to turn over; assume this year occurs 2 baseline
-            # lifetimes after the market entry year (1 baseline lifetime
-            # before the previously captured baseline stock begins to turn
-            # over, an additional baseline lifetime for the full turnover)
-            new_stock_base_endyr = min(mkt_entry_yrs) + \
-                2 * measures_adj[0].markets[adopt_scheme][
-                "competed"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key][
-                "lifetime"]["baseline"][str(min(mkt_entry_yrs))]
 
-            # Update the annual fractions of new stock additions and total
+            # Update the annual fraction of new stock additions and total
             # new stock previously captured by the baseline technology given
             # the total new stock data for each year
             for ind, yr in enumerate(self.handyvars.aeo_years):
@@ -1371,7 +1361,13 @@ class Engine(object):
                 # this year on)
                 if ind == 0:
                     new_stock_add_frac[yr] = 1
-                # Otherwise, update both fractions in accordance with the total
+                    # If year is before earliest measure market entry year,
+                    # assign the new stock to the baseline
+                    if int(yr) < min(mkt_entry_yrs):
+                        new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
+                    else:
+                        new_stock_base[yr] = 0
+                # Otherwise, update both variables in accordance with the total
                 # new stock data for that year (if total new stock is not zero)
                 elif new_stock_tot[yr] != 0:
                     # The new stock addition fraction divides the difference
@@ -1380,19 +1376,14 @@ class Engine(object):
                     new_stock_add_frac[yr] = (
                         new_stock_tot[yr] - new_stock_tot[
                             str(int(yr) - 1)]) / new_stock_tot[yr]
-                    # For all years in which total new stock that has been
-                    # previously captured by the baseline technology remains,
-                    # the previously captured baseline fraction divides the
-                    # total new stock value for the year just before an
-                    # efficient measure (or measures) came onto the market
-                    # by the total new stock value for the current year.
-                    # Note: no new stock is captured by the baseline in the
-                    # case where an efficient measure or measures is on the
-                    # market in the first year of the time horizon
-                    if int(yr) < new_stock_base_endyr and str(
-                            min(mkt_entry_yrs)) != self.handyvars.aeo_years[0]:
-                        new_stock_base_frac[yr] = new_stock_tot[
-                            str(min(mkt_entry_yrs) - 1)] / new_stock_tot[yr]
+                    # If year is before earliest measure market entry year,
+                    # assign the new stock to the baseline
+                    if int(yr) < min(mkt_entry_yrs):
+                        new_stock_base[yr] = (
+                            new_stock_tot[yr] - new_stock_tot[
+                                str(int(yr) - 1)])
+                    else:
+                        new_stock_base[yr] = 0
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1440,14 +1431,32 @@ class Engine(object):
                     if "new" in mseg_key:
                         # Update baseline stock turnover rate such that it
                         # represents the sum of newly added stock (as
-                        # initialized above) and the portion of total new stock
-                        # previously captured by the baseline technology that
-                        # is up for replacement or retrofit
+                        # initialized above) and new stock that was
+                        # captured by the baseline technology before any of
+                        # the competed measures were on the market
+
+                        # Determine the portion of the total stock in the
+                        # future turnover year represented by the captured
+                        # baseline stock in the current year; if the future
+                        # stock is zero, set fraction to zero accordingly
+                        if new_stock_tot[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] != 0:
+                            add_base_capt_frac = (
+                                new_stock_base[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_base_turnover_yr]])
+                        else:
+                            add_base_capt_frac = 0
+                        # Add any previously captured baseline stock that
+                        # is turning over in the future year to the replacement
+                        # rate for that future year
                         base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += ((
-                                1 / base_life) + self.handyvars.retro_rate) * \
-                            new_stock_base_frac[self.handyvars.aeo_years[
-                                future_base_turnover_yr]]
+                            future_base_turnover_yr]] += add_base_capt_frac
+                        # Safeguard ensures new turnover rate never > 1
+                        if base_turnover_rt[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] > 1:
+                            base_turnover_rt[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] = 1
                     # Existing stock segment baseline turnover case
                     else:
                         # Update baseline stock turnover rate to be the
@@ -1758,16 +1767,16 @@ class Engine(object):
                         (1 / eff_life[yr]) + self.handyvars.retro_rate
 
         # For new baseline stock segments, calculate the portion of total stock
-        # that is newly added in each year, as well as the portion of total
-        # new stock in each year that has been previously captured by a
-        # comparable baseline technology (e.g., because an efficient technology
-        # was not yet on the market). The sum of these fractions determines
-        # the baseline stock replacement rate calculated below for new stock
-        # segments, and is consistent across all competing measures
+        # that is newly added in each year, as well as the total new stock in
+        # each year that was captured by a comparable baseline technology
+        # (e.g., because an efficient technology was not yet on the market).
+        # The sum of these fractions determines the baseline stock replacement
+        # rate calculated below for new stock segments, and is consistent
+        # across all competing measures
         if "new" in mseg_key:
             # Initialize the annual fractions of new stock additions and total
             # new stock previously captured by the baseline technology
-            new_stock_add_frac, new_stock_base_frac = ({
+            new_stock_add_frac, new_stock_base = ({
                 yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
             # Set variable that represents the total new stock in each year
             # across all competing measures; use the first measure's data
@@ -1777,18 +1786,8 @@ class Engine(object):
                 "competed"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key]["stock"][
                 "total"]["all"]
-            # Calculate the final year in which previously captured baseline
-            # stock remains to turn over; assume this year occurs 2 baseline
-            # lifetimes after the market entry year (1 baseline lifetime
-            # before the previously captured baseline stock begins to turn
-            # over, an additional baseline lifetime for the full turnover)
-            new_stock_base_endyr = min(mkt_entry_yrs) + \
-                2 * measures_adj[0].markets[adopt_scheme][
-                "competed"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key][
-                "lifetime"]["baseline"][str(min(mkt_entry_yrs))]
 
-            # Update the annual fractions of new stock additions and total
+            # Update the annual fraction of new stock additions and total
             # new stock previously captured by the baseline technology given
             # the total new stock data for each year
             for ind, yr in enumerate(self.handyvars.aeo_years):
@@ -1797,7 +1796,13 @@ class Engine(object):
                 # this year on)
                 if ind == 0:
                     new_stock_add_frac[yr] = 1
-                # Otherwise, update both fractions in accordance with the total
+                    # If year is before earliest measure market entry year,
+                    # assign the new stock to the baseline
+                    if int(yr) < min(mkt_entry_yrs):
+                        new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
+                    else:
+                        new_stock_base[yr] = 0
+                # Otherwise, update both variables in accordance with the total
                 # new stock data for that year (if total new stock is not zero)
                 elif new_stock_tot[yr] != 0:
                     # The new stock addition fraction divides the difference
@@ -1806,19 +1811,14 @@ class Engine(object):
                     new_stock_add_frac[yr] = (
                         new_stock_tot[yr] - new_stock_tot[
                             str(int(yr) - 1)]) / new_stock_tot[yr]
-                    # For all years in which total new stock that has been
-                    # previously captured by the baseline technology remains,
-                    # the previously captured baseline fraction divides the
-                    # total new stock value for the year just before an
-                    # efficient measure (or measures) came onto the market
-                    # by the total new stock value for the current year.
-                    # Note: no new stock is captured by the baseline in the
-                    # case where an efficient measure or measures is on the
-                    # market in the first year of the time horizon
-                    if int(yr) < new_stock_base_endyr and str(
-                            min(mkt_entry_yrs)) != self.handyvars.aeo_years[0]:
-                        new_stock_base_frac[yr] = new_stock_tot[
-                            str(min(mkt_entry_yrs) - 1)] / new_stock_tot[yr]
+                    # If year is before earliest measure market entry year,
+                    # assign the new stock to the baseline
+                    if int(yr) < min(mkt_entry_yrs):
+                        new_stock_base[yr] = (
+                            new_stock_tot[yr] - new_stock_tot[
+                                str(int(yr) - 1)])
+                    else:
+                        new_stock_base[yr] = 0
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1866,14 +1866,32 @@ class Engine(object):
                     if "new" in mseg_key:
                         # Update baseline stock turnover rate such that it
                         # represents the sum of newly added stock (as
-                        # initialized above) and the portion of total new stock
-                        # previously captured by the baseline technology that
-                        # is up for replacement or retrofit
+                        # initialized above) and new stock that was
+                        # captured by the baseline technology before any of
+                        # the competed measures were on the market
+
+                        # Determine the portion of the total stock in the
+                        # future turnover year represented by the captured
+                        # baseline stock in the current year; if the future
+                        # stock is zero, set fraction to zero accordingly
+                        if new_stock_tot[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] != 0:
+                            add_base_capt_frac = (
+                                new_stock_base[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_base_turnover_yr]])
+                        else:
+                            add_base_capt_frac = 0
+                        # Add any previously captured baseline stock that
+                        # is turning over in the future year to the replacement
+                        # rate for that future year
                         base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += ((
-                                1 / base_life) + self.handyvars.retro_rate) * \
-                            new_stock_base_frac[self.handyvars.aeo_years[
-                                future_base_turnover_yr]]
+                            future_base_turnover_yr]] += add_base_capt_frac
+                        # Safeguard ensures new turnover rate never > 1
+                        if base_turnover_rt[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] > 1:
+                            base_turnover_rt[self.handyvars.aeo_years[
+                                future_base_turnover_yr]] = 1
                     # Existing stock segment baseline turnover case
                     else:
                         # Update baseline stock turnover rate to be the
