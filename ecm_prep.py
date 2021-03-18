@@ -36,7 +36,9 @@ class UsefulInputFiles(object):
     Attributes:
         msegs_in (tuple): Database of baseline microsegment stock/energy.
         msegs_cpl_in (tuple): Database of baseline technology characteristics.
-        ash_emm_map (tuple): Factors to map ASHRAE climates to EMM regions.
+        iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions.
+        ash_emm_map (tuple): Maps ASHRAE climates to EMM regions.
+        aia_emm_map (tuple): Maps AIA climates to EMM regions.
         metadata (tuple) = Baseline metadata inc. min/max for year range.
         cost_convert_in (tuple): Database of measure cost unit conversions.
         cbecs_sf_byvint (tuple): Commercial sq.ft. by vintage data.
@@ -77,13 +79,19 @@ class UsefulInputFiles(object):
             #                      "cpl_res_com_cz_2017.json")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
                                  "cpl_res_com_cz.json")
+            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
+                                 "IECC_AIA_ColSums.txt")
         elif regions == 'EMM':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_emm.json")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
                                  "cpl_res_com_emm.json")
-            self.ash_emm_map = ("supporting_data", "convert_data",
-                                "ASH_EMM_Mapping_USAMainland.txt")
+            self.ash_emm_map = ("supporting_data", "convert_data", "geo_map",
+                                "ASH_EMM_ColSums.txt")
+            self.aia_emm_map = ("supporting_data", "convert_data", "geo_map",
+                                "AIA_EMM_ColSums.txt")
+            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
+                                 "IECC_EMM_ColSums.txt")
             self.ss_data_emm = ("supporting_data", "convert_data",
                                 "emm_region_emissions_prices-updated.json")
 
@@ -239,6 +247,8 @@ class UsefulVars(object):
         deflt_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
+        alt_perfcost_brk_map (dict): Mapping factors used to handle alternate
+            regional breakouts in measure performance or cost units.
         months (str): Month sequence for accessing time-sensitive data.
         tsv_feature_types (list): Possible types of TSV features.
         tsv_climate_regions (list): Possible ASHRAE/IECC climate regions for
@@ -277,7 +287,7 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
-        # Set minimum AEO modeling year
+        # # Set minimum AEO modeling year
         aeo_min = aeo_yrs["min year"]
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
@@ -427,6 +437,21 @@ class UsefulVars(object):
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
                 ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
                 ('AIA CZ5', 'AIA_CZ5')]
+            # Read in mapping for alternate performance/cost unit breakouts
+            # IECC -> AIA mapping
+            try:
+                iecc_reg_map = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.iecc_reg_map),
+                    names=True, delimiter='\t', dtype=(
+                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.iecc_reg_map + "': " + str(e)) from None
+            # Store alternate breakout mapping in dict for later use
+            self.alt_perfcost_brk_map = {
+                "IECC": iecc_reg_map, "levels": str([
+                    "IECC_CZ" + str(n + 1) for n in range(8)])}
         elif regions == "EMM":
             valid_regions = [
                 'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
@@ -443,6 +468,33 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.ash_emm_map + "': " + str(e)) from None
+            # Read in mapping for alternate performance/cost unit breakouts
+            # AIA -> EMM mapping
+            try:
+                aia_emm_map = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.aia_emm_map),
+                    names=True, delimiter='\t', dtype=(
+                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.aia_emm_map + "': " + str(e)) from None
+            # IECC -> EMM mapping
+            try:
+                iecc_emm_map = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.iecc_reg_map),
+                    names=True, delimiter='\t', dtype=(
+                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" +
+                    handyfiles.iecc_reg_map + "': " + str(e)) from None
+            # Store alternate breakout mapping in dict for later use
+            self.alt_perfcost_brk_map = {
+                "IECC": iecc_emm_map, "AIA": aia_emm_map,
+                "levels": str([
+                    "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " + str([
+                        "AIA_CZ" + str(n + 1) for n in range(5)])}
         self.months = ["january", "february", "march", "april", "may", "june",
                        "july", "august", "september", "october", "november",
                        "december"]
@@ -2495,43 +2547,54 @@ class Measure(object):
                     # Determine the full set of potential breakout keys
                     # that should be represented in the given ECM attribute for
                     # the current microsegment level (used to check for
-                    # missing information below)
-                    if (any([type(x) is dict for x in [
+                    # missing information below); for region (level 2), provide
+                    # a set of alternate breakout keys that may be used
+                    if (any([(type(x) is dict or type(x) is list) for x in [
                         perf_meas, perf_units, cost_meas, cost_units,
                         life_meas, mkt_scale_frac,
                             mkt_scale_frac_source]])):
                         # primary/secondary level
                         if (i == 0):
                             break_keys = ["primary", "secondary"]
+                            alt_break_keys = ''
                             err_message = ''
                         # full set of climate breakouts
                         elif (i == 1):
                             break_keys = self.climate_zone
+                            # set of alternate regional breakout possibilities
+                            alt_break_keys = \
+                                self.handyvars.alt_perfcost_brk_map["levels"]
                             err_message = "regions the measure applies to: "
                         # full set of building breakouts
                         elif (i == 2):
                             break_keys = self.bldg_type
+                            alt_break_keys = ''
                             err_message = "buildings the measure applies to: "
                         # full set of fuel breakouts
                         elif (i == 3):
                             break_keys = self.fuel_type[mskeys[0]]
+                            alt_break_keys = ''
                             err_message = "fuel types the measure applies to: "
                         # full set of end use breakouts
                         elif (i == 4):
                             break_keys = self.end_use[mskeys[0]]
+                            alt_break_keys = ''
                             err_message = "end uses the measure applies to: "
                         # full set of technology breakouts
                         elif (i == (len(mskeys) - 2)):
                             break_keys = self.technology[mskeys[0]]
+                            alt_break_keys = ''
                             err_message = \
                                 "technologies the measure applies to: "
                         # full set of vintage breakouts
                         elif (i == (len(mskeys) - 1)):
                             break_keys = self.structure_type
+                            alt_break_keys = ''
                             err_message = \
                                 "building vintages the measure applies to: "
                         else:
                             break_keys = ''
+                            alt_break_keys = ''
                             err_message = ''
 
                         # Restrict any measure cost/performance/lifetime/market
@@ -2542,16 +2605,173 @@ class Measure(object):
                         # complete (for example, if performance is broken out
                         # by climate region, ALL climate regions should be
                         # present in the breakout keys)
+
+                        # Performance data
+
+                        # Case where data are broken out directly by mseg info.
                         if isinstance(perf_meas, dict) and break_keys and all([
                                 x in perf_meas.keys() for x in break_keys]):
                             perf_meas = perf_meas[mskeys[i]]
+                        # Case where region is being looped through in the mseg
+                        # and performance data use alternate regional breakout
+                        elif isinstance(perf_meas, dict) and alt_break_keys:
+                            # Determine the alternate regions by which the
+                            # performance data are broken out (e.g., IECC, or
+                            # - if the analysis uses EMM regions - AIA)
+                            alt_key_reg_typ = [
+                                x for x in
+                                self.handyvars.alt_perfcost_brk_map.keys()
+                                if any([
+                                    x in y for y in perf_meas.keys()])]
+                            # If the alternate regional breakout is supported,
+                            # reformat the performance data for subsequent
+                            # calculations
+                            if len(alt_key_reg_typ) > 0:
+                                alt_key_reg_typ = alt_key_reg_typ[0]
+                                # Check to ensure the expected alternate
+                                # breakout keys are provided
+                                if sorted(perf_meas.keys()) == sorted(
+                                    self.handyvars.alt_perfcost_brk_map[
+                                        alt_key_reg_typ][alt_key_reg_typ]):
+                                    # Store data in a list, where the first
+                                    # element is a dict of performance data
+                                    # broken out by each alternate region and
+                                    # the second element is the portion of
+                                    # each alternate region that falls in the
+                                    # current mseg region
+                                    perf_meas = copy.deepcopy([
+                                        perf_meas,
+                                        self.handyvars.alt_perfcost_brk_map[
+                                            alt_key_reg_typ][mskeys[1]]])
+                                # If unexpected keys are present, yield error
+                                else:
+                                    raise KeyError(
+                                        self.name +
+                                        ' energy performance (energy_'
+                                        'efficiency) must be broken out '
+                                        'by ALL ' + err_message +
+                                        str(break_keys) + ' OR alternate '
+                                        'regions ' + alt_break_keys)
+                        # Case where performance data broken out by alternate
+                        # regions were reformatted as a list and require
+                        # further work to finalize as a single value for the
+                        # current mseg
+                        elif isinstance(perf_meas, list) and \
+                                isinstance(perf_meas[0], dict):
+                            # Check the first element of the list for
+                            # performance data in each of the alternate regions
+                            # that is still in dict format and must be keyed
+                            # in further by info. for the current mseg.
+                            for k in perf_meas[0].keys():
+                                if isinstance(perf_meas[0][k], dict) and \
+                                    break_keys and all([
+                                        x in perf_meas[0][k].keys()
+                                        for x in break_keys]):
+                                    perf_meas[0][k] = perf_meas[0][k][
+                                        mskeys[i]]
+                            # If none of the performance data in the first
+                            # element of the list needs to be keyed in further,
+                            # perform a weighted sum of the data across the
+                            # alternate regions into the current mseg region,
+                            # to arrive at a final performance value for that
+                            # region
+                            if all([type(x) != dict for
+                                    x in perf_meas[0].values()]):
+                                perf_meas = sum([x * y for x, y in zip(
+                                    perf_meas[0].values(), perf_meas[1])])
+                        # If none of the above cases holds, yield error
                         elif isinstance(perf_meas, dict) and any(
                                 [x in perf_meas.keys() for x in break_keys]):
                             raise KeyError(
-                                self.name +
-                                ' energy performance (energy_efficiency) '
-                                'must be broken out '
-                                'by ALL ' + err_message + str(break_keys))
+                                    self.name +
+                                    ' energy performance (energy_efficiency) '
+                                    'must be broken out '
+                                    'by ALL ' + err_message + str(break_keys))
+                        # Cost data - same approach as performance data
+
+                        # Case where data are broken out directly by mseg info.
+                        if isinstance(cost_meas, dict) and break_keys and \
+                            all([x in cost_meas.keys() for
+                                 x in break_keys]):
+                            cost_meas = cost_meas[mskeys[i]]
+                        # Case where region is being looped through in the mseg
+                        # and cost data use alternate regional breakout
+                        elif isinstance(cost_meas, dict) and alt_break_keys:
+                            # Determine the alternate regions by which the
+                            # cost data are broken out (e.g., IECC, or
+                            # - if the analysis uses EMM regions - AIA)
+                            alt_key_reg_typ = [
+                                x for x in
+                                self.handyvars.alt_perfcost_brk_map.keys()
+                                if any([
+                                    x in y for y in cost_meas.keys()])]
+                            # If the alternate regional breakout is supported,
+                            # reformat the cost data for subsequent
+                            # calculations
+                            if len(alt_key_reg_typ) > 0:
+                                alt_key_reg_typ = alt_key_reg_typ[0]
+                                # Check to ensure the expected alternate
+                                # breakout keys are provided
+                                if sorted(cost_meas.keys()) == sorted(
+                                    self.handyvars.alt_perfcost_brk_map[
+                                        alt_key_reg_typ][alt_key_reg_typ]):
+                                    # Store data in a list, where the first
+                                    # element is a dict of cost data
+                                    # broken out by each alternate region and
+                                    # the second element is the portion of
+                                    # each alternate region that falls in the
+                                    # current mseg region
+                                    cost_meas = copy.deepcopy([
+                                        cost_meas,
+                                        self.handyvars.alt_perfcost_brk_map[
+                                            alt_key_reg_typ][mskeys[1]]])
+                                # If unexpected keys are present, yield error
+                                else:
+                                    raise KeyError(
+                                        self.name +
+                                        ' installed cost (installed_'
+                                        'cost) must be broken out '
+                                        'by ALL ' + err_message +
+                                        str(break_keys) + ' OR alternate '
+                                        'regions ' + alt_break_keys)
+                        # Case where cost data broken out by alternate
+                        # regions were reformatted as a list and require
+                        # further work to finalize as a single value for the
+                        # current mseg
+                        elif isinstance(cost_meas, list) and \
+                                isinstance(cost_meas[0], dict):
+                            # Check the first element of the list for
+                            # cost data in each of the alternate regions
+                            # that is still in dict format and must be keyed
+                            # in further by info. for the current mseg.
+                            for k in cost_meas[0].keys():
+                                if isinstance(cost_meas[0][k], dict) and \
+                                    break_keys and all([
+                                        x in cost_meas[0][k].keys()
+                                        for x in break_keys]):
+                                    cost_meas[0][k] = cost_meas[0][k][
+                                        mskeys[i]]
+                            # If none of the cost data in the first element of
+                            # the list needs to be keyed in further, perform a
+                            # weighted sum of the data across the alternate
+                            # regions into the current mseg region, to arrive
+                            # at a final cost value for that region
+                            if all([type(x) != dict for
+                                    x in cost_meas[0].values()]):
+                                cost_meas = sum([x * y for x, y in zip(
+                                    cost_meas[0].values(), cost_meas[1])])
+                        elif isinstance(cost_meas, dict) and any(
+                                [x in cost_meas.keys() for x in break_keys]):
+                            if alt_break_keys:
+                                pass
+                            else:
+                                raise KeyError(
+                                    self.name +
+                                    ' installed cost (installed_cost) must '
+                                    'be broken out '
+                                    'by ALL ' + err_message + str(break_keys))
+
+                        # Performance units data
                         if isinstance(perf_units, dict) and break_keys and \
                                 all([x in perf_units.keys() for
                                      x in break_keys]):
@@ -2562,18 +2782,9 @@ class Measure(object):
                                 self.name +
                                 ' energy performance units ('
                                 'energy_efficiency_units) must be broken '
-                                'out by ALL ' + err_message + str(break_keys))
-                        if isinstance(cost_meas, dict) and break_keys and \
-                            all([x in cost_meas.keys() for
-                                 x in break_keys]):
-                            cost_meas = cost_meas[mskeys[i]]
-                        elif isinstance(cost_meas, dict) and any(
-                                [x in cost_meas.keys() for x in break_keys]):
-                            raise KeyError(
-                                self.name +
-                                ' installed cost (installed_cost) must '
-                                'be broken out '
-                                'by ALL ' + err_message + str(break_keys))
+                                'out by ALL ' + err_message +
+                                str(break_keys))
+                        # Cost units data
                         if isinstance(cost_units, dict) and break_keys and \
                             all([x in cost_units.keys() for
                                  x in break_keys]):
@@ -2585,6 +2796,7 @@ class Measure(object):
                                 ' installed cost units (installed_cost_'
                                 'units) must be broken out '
                                 'by ALL ' + err_message + str(break_keys))
+                        # Lifetime data
                         if isinstance(life_meas, dict) and break_keys and all([
                                 x in life_meas.keys() for x in break_keys]):
                             life_meas = life_meas[mskeys[i]]
@@ -2595,6 +2807,7 @@ class Measure(object):
                                 ' lifetime (product_lifetime) must be '
                                 'broken out '
                                 'by ALL ' + err_message + str(break_keys))
+                        # Market scaling fractions
                         if isinstance(mkt_scale_frac, dict) and break_keys \
                             and all([x in mkt_scale_frac.keys() for
                                      x in break_keys]):
@@ -2608,6 +2821,7 @@ class Measure(object):
                                 'scaling_fractions) must be '
                                 'broken out by ALL ' + err_message +
                                 str(break_keys))
+                        # Market scaling fraction source
                         if isinstance(mkt_scale_frac_source, dict) and \
                             break_keys and all([
                                 x in mkt_scale_frac_source.keys() for
@@ -3251,27 +3465,41 @@ class Measure(object):
                     elif perf_units not in \
                             self.handyvars.inverted_relperf_list:
                         for yr in self.handyvars.aeo_years:
-                            try:
-                                # In cases where an ECM enhances the
-                                # performance of a baseline technology,
-                                # add the ECM and baseline performance values
-                                # and compare to the baseline performance
-                                # value; otherwise, compare the ECM performance
-                                # value to the baseline performance value
-                                if self.measure_type == "add-on":
-                                    rel_perf[yr] = (
-                                        perf_base[yr] /
-                                        (perf_meas + perf_base[yr]))
-                                else:
-                                    rel_perf[yr] = (perf_base[yr] / perf_meas)
-                            except ZeroDivisionError:
-                                verboseprint(
-                                    opts.verbose,
-                                    "WARNING: Measure '" + self.name +
-                                    "' has measure performance of zero; " +
-                                    "baseline and measure performance set " +
-                                    "equal")
-                                rel_perf[yr] = 1
+                            # Suppress numpy warnings about ZeroDivision
+                            # errors, which are handled explicitly
+                            with numpy.errstate(all='ignore'):
+                                try:
+                                    # In cases where an ECM enhances the
+                                    # performance of a baseline technology,
+                                    # add the ECM and baseline performance
+                                    # values and compare to the baseline
+                                    # performance value; otherwise, compare
+                                    # the ECM performance
+                                    # value to the baseline performance value
+                                    if self.measure_type == "add-on":
+                                        rel_perf[yr] = (
+                                            perf_base[yr] /
+                                            (perf_meas + perf_base[yr]))
+                                    else:
+                                        rel_perf[yr] = (
+                                            perf_base[yr] / perf_meas)
+                                except ZeroDivisionError:
+                                    verboseprint(
+                                        opts.verbose,
+                                        "WARNING: Measure '" + self.name +
+                                        "' has measure performance of zero; " +
+                                        "baseline and measure performance set "
+                                        + "equal")
+                                    rel_perf[yr] = 1
+                                # Ensure that relative performance is a finite
+                                # number; if not, set to 1
+                                if (type(rel_perf[yr]) != numpy.ndarray and (
+                                    numpy.isnan(rel_perf[yr]) or
+                                        numpy.isinf(rel_perf[yr]))) or (
+                                   type(rel_perf[yr]) == numpy.ndarray and
+                                   any([(numpy.isnan(x) or numpy.isinf(x)) for
+                                        x in rel_perf[yr]])):
+                                    rel_perf[yr] = 1
                     else:
                         for yr in self.handyvars.aeo_years:
                             try:
@@ -3464,9 +3692,15 @@ class Measure(object):
                         new_constr["total new"][yr] = \
                             new_constr["annual new"][yr]
                     else:
-                        new_constr["total new"][yr] = \
-                            new_constr["annual new"][yr] + \
-                            new_constr["total new"][str(int(yr) - 1)]
+                        # Handle case where data for previous year are
+                        # unavailable; set to current year's data
+                        try:
+                            new_constr["total new"][yr] = \
+                                new_constr["annual new"][yr] + \
+                                new_constr["total new"][str(int(yr) - 1)]
+                        except KeyError:
+                            new_constr["total new"][yr] = \
+                                new_constr["annual new"][yr]
                     # Calculate new vs. existing fraction of stock
                     if new_constr["total new"][yr] <= new_constr["total"][yr]:
                         new_constr["new fraction"][yr] = \
@@ -5492,85 +5726,61 @@ class Measure(object):
                 # For a case where the current microsegment applies to new
                 # structures, determine whether enough years have passed
                 # since the baseline technology was first adopted in new
-                # homes in year 1 of the modeling time horizon to begin
-                # replacing that baseline stock; if so, the baseline
-                # replacement fraction is the fraction of new construction
-                # stock from previous years that has already been
-                # captured by the baseline technology * (1 / baseline
-                # lifetime + retrofit rate); if not, the baseline replacement
-                # fraction is 0
+                # homes in the years before a measure was on mkt. to begin
+                # replacing that baseline stock; if so, represent replacement
+                # of this new baseline stock
                 if mskeys[-1] == "new":
-                    # Determine the fraction of total new stock in the given
-                    # year that was previously captured by the baseline
-                    # technology; screen for cases where the total new stock
-                    # in the given year is zero
-                    if stock_total_init[yr] != 0:
-                        # Use try and except to handle cases where the market
-                        # entry year occurs in the first year of the modeling
-                        # time horizon (in this case, there were no previous
-                        # years in which new stock could be captured by the
-                        # baseline technology)
-                        try:
-                            new_stock_base_frac = stock_total_init[str(
-                                self.market_entry_year - 1)] / \
-                                stock_total_init[yr]
-                        except KeyError:
-                            new_stock_base_frac = 0
-                    else:
-                        new_stock_base_frac = 0
-
-                    # If some of the total new stock was previously captured
-                    # by the baseline technology, determine the annual baseline
-                    # replacement fraction
-                    if new_stock_base_frac != 0:
-                        # Set maximum annual baseline replacement rate
-                        base_repl_rt_max = (
-                            (1 / life_base[yr]) + self.retro_rate) * \
-                            new_stock_base_frac
+                    # Replacement fraction is only relevant in cases where a
+                    # measure enters the market after the beginning of the
+                    # modeling time horizon
+                    if int(self.handyvars.aeo_years[0]) < int(
+                            self.market_entry_year):
                         # Set an indicator for when the previously captured
                         # base stock begins to turnover, using the baseline
                         # lifetime (zero or negative value indicates turnover)
-                        turnover_base = life_base[yr] - (
+                        turnover_base = int(life_base[yr]) - (
                             int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
-                        # Handle case without life or retro. rate distributions
-                        if type(base_repl_rt_max) != numpy.ndarray:
-                            # If the previously captured baseline stock has
-                            # begun to turnover, the turnover rate equals the
-                            # max annual baseline replacement rate above
-                            if turnover_base <= 0:
-                                captured_base_replace_frac = base_repl_rt_max
-                            # Otherwise, the turnover rate is zero
+                        # If the previously captured baseline stock has
+                        # begun to turnover, the replacement rate equals the
+                        # ratio of baseline stock captured in a given previous
+                        # year over the total stock in the current year
+                        if turnover_base <= 0:
+                            # Determine the pre-market-entry year in which
+                            # the new stock was captured by the baseline
+                            pre_mkt_yr = int(yr) - int(life_base[yr])
+                            # Ensure that pre-market-entry year is not
+                            # earlier than the earliest year in the AEO
+                            # range
+                            if pre_mkt_yr >= int(
+                                    self.handyvars.aeo_years[0]) and \
+                                    pre_mkt_yr < self.market_entry_year:
+                                # Calculate the ratio of the new stock
+                                # captured by the baseline in the pre-
+                                # market-entry year to the total new
+                                # stock in the current analysis year
+
+                                # Pre-market-entry year is not first
+                                # AEO year and non-zero denominator
+                                if (str(pre_mkt_yr) !=
+                                    self.handyvars.aeo_years[0]) and \
+                                        stock_total[yr] != 0:
+                                    captured_base_replace_frac = (
+                                        stock_total[str(pre_mkt_yr)] -
+                                        stock_total[str(pre_mkt_yr - 1)]
+                                        ) / stock_total[yr]
+                                # Pre-market-entry year is first
+                                # AEO year and non-zero denominator
+                                elif stock_total[yr] != 0:
+                                    captured_base_replace_frac = (
+                                        stock_total[str(pre_mkt_yr)] /
+                                        stock_total[yr])
+                                else:
+                                    captured_base_replace_frac = 0
                             else:
                                 captured_base_replace_frac = 0
-                        # Handle case with life or retro. rate distributions
+                        # Otherwise, the turnover rate is zero
                         else:
-                            # Ensure that all variables involved in the
-                            # calculation are set to lists with the same length
-                            # (and that list elements are of the float type)
-                            turnover_base, base_repl_rt_max, \
-                                captured_base_frac, captured_eff_frac = [
-                                    numpy.repeat(float(x),
-                                                 self.handyvars.nsamples) if
-                                    type(x) in (int, float) else x for x in [
-                                        turnover_base, base_repl_rt_max,
-                                        captured_base_frac, captured_eff_frac]]
-                            # Initialize the final base replacement fraction
-                            # output as a list of zeros with the appropriate
-                            # length
-                            captured_base_replace_frac = numpy.zeros(
-                                self.handyvars.nsamples)
-                            # Using a for loop, complete the set of operations
-                            # used above (under 'try') for each list element
-                            for ind in range(self.handyvars.nsamples):
-                                # If the previously captured baseline stock has
-                                # begun to turnover, the turnover rate equals
-                                # the max annual base replacement rate above
-                                if turnover_base[ind] <= 0:
-                                    captured_base_replace_frac[ind] = \
-                                        base_repl_rt_max[ind]
-                                # Otherwise, the turnover rate is zero
-                                else:
-                                    captured_base_replace_frac[ind] = 0
+                            captured_base_replace_frac = 0
                     else:
                         captured_base_replace_frac = 0
 
@@ -5642,8 +5852,14 @@ class Measure(object):
                     # by the current year's stock (assuming it is not zero)
                     if yr != self.handyvars.aeo_years[0] and \
                             stock_total[yr] != 0:
-                        new_stock_add_frac = (stock_total[yr] - stock_total[
-                            str(int(yr) - 1)]) / stock_total[yr]
+                        # Handle case where data for previous year are
+                        # unavailable; set newly added fraction to 1
+                        try:
+                            new_stock_add_frac = (
+                                stock_total[yr] - stock_total[
+                                    str(int(yr) - 1)]) / stock_total[yr]
+                        except KeyError:
+                            new_stock_add_frac = 1
                     # For the first year in the modeling time horizon, the
                     # newly added stock fraction is 1
                     elif yr == self.handyvars.aeo_years[0]:
@@ -5765,22 +5981,29 @@ class Measure(object):
                     # a fraction for mapping the portion of captured stock as
                     # of the previous year to the stock total for the current
                     # year, such that the captured portion remains consistent
-                    if "existing" in mskeys and \
-                        yr != self.handyvars.aeo_years[0] and \
-                            (stock_total[str(int(yr) - 1)]) != 0:
-                        stock_adj_frac = stock_total[yr] / \
-                            stock_total[str(int(yr) - 1)]
-                    else:
-                        stock_adj_frac = 1
-                    # Update total number of stock units captured by the
-                    # measure (reflects all previously captured stock +
-                    # captured competed stock from the current year). Note
-                    # that previously captured stock that is now competed
-                    # must be subtracted from the previously captured stock
-                    stock_total_meas[yr] = (stock_total_meas[
-                        str(int(yr) - 1)]) * stock_adj_frac + \
-                        stock_compete_meas[yr]
 
+                    # Handle case where data for previous year are
+                    # unavailable; set total captured stock to current year's
+                    # competed/captured stock
+                    try:
+                        if "existing" in mskeys and \
+                            yr != self.handyvars.aeo_years[0] and \
+                                (stock_total[str(int(yr) - 1)]) != 0:
+                            stock_adj_frac = stock_total[yr] / \
+                                stock_total[str(int(yr) - 1)]
+                        else:
+                            stock_adj_frac = 1
+                        # Update total number of stock units captured by the
+                        # measure (reflects all previously captured stock +
+                        # captured competed stock from the current year). Note
+                        # that previously captured stock that is now competed
+                        # must be subtracted from the previously captured stock
+                        stock_total_meas[yr] = (stock_total_meas[
+                            str(int(yr) - 1)]) * stock_adj_frac + \
+                            stock_compete_meas[yr]
+                    except KeyError:
+                        stock_total_meas[yr] = \
+                            copy.deepcopy(stock_compete_meas[yr])
                     # Ensure captured stock never exceeds total stock
 
                     # Handle case where stock captured by measure is an array
@@ -5841,6 +6064,7 @@ class Measure(object):
             energy_tot_comp_base = energy_total_sbmkt[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
                 rel_perf_uncapt
+            # print(yr, mskeys, rel_perf_capt, rel_perf[yr])
             energy_tot_uncomp_meas = (
                 energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
                 captured_eff_frac * rel_perf_capt * (
@@ -5884,13 +6108,23 @@ class Measure(object):
                             tsv_shapes["efficient"][x] +
                             energy_tot_uncomp_base *
                             tsv_shapes["baseline"][x]) for x in range(8760)]
+            # Anticipate and handle case with base carbon intensity of zero for
+            # electricity; in this case, assume the measure and baseline
+            # intensity is the same (zero intensity is only possible for
+            # electricity; assume measures will not be switched away from
+            # electricity)
+            try:
+                intensity_carb_ratio = (
+                    intensity_carb_meas[yr] / intensity_carb_base[yr])
+            except ZeroDivisionError:
+                intensity_carb_ratio = 1
+
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_total_sbmkt[yr] * \
                 competed_captured_eff_frac * rel_perf_capt * \
                 tsv_carb_eff * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                carb_total_sbmkt[yr] * (
+                intensity_carb_ratio + carb_total_sbmkt[yr] * (
                     competed_frac - competed_captured_eff_frac) * \
                 rel_perf_uncapt * tsv_carb_base
             # Total-efficient carbon
@@ -5898,8 +6132,8 @@ class Measure(object):
                 (carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * \
                 captured_eff_frac * rel_perf_capt * tsv_carb_eff * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                (intensity_carb_meas[yr] / intensity_carb_base[yr]) + \
-                (carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * (
+                intensity_carb_ratio + (
+                    carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * (
                     1 - captured_eff_frac) * rel_perf_uncapt * tsv_carb_base
             # Update total and competed stock, energy, and carbon
             # costs. * Note: total-efficient and competed-efficient stock
@@ -9252,6 +9486,8 @@ def main(base_dir):
                 ("tsv_features" in m.keys() and m["tsv_features"]) is not None
                 for m in meas_toprep_indiv])) or
                 opts is not None and opts.sect_shapes is True):
+            print("Importing hourly load, cost, and emissions data...", end="",
+                  flush=True)
             # Import load, price, and emissions shape data needed for time
             # sensitive analysis of measure energy efficiency impacts
             tsv_l = path.join(base_dir, *handyfiles.tsv_load_data)
@@ -9280,6 +9516,7 @@ def main(base_dir):
                 "load": tsv_load_data, "price": tsv_cost_data,
                 "price_yr_map": tsv_cost_yrmap, "emissions": tsv_carbon_data,
                 "emissions_yr_map": tsv_carbon_yrmap}
+            print(" Complete")
         else:
             tsv_data = None
 
