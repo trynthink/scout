@@ -1,0 +1,103 @@
+{
+  "name": "Min. Res. Opaque Env.",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "secondary heating", "cooling"],
+  "fuel_type": "all",
+  "technology": ["wall", "ground", "roof"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Current year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+        "wall": 25,
+        "ground": 15,
+        "roof": 60},
+      "AIA_CZ2": {
+        "wall": 25,
+        "ground": 15,
+        "roof": 60},
+      "AIA_CZ3": {
+        "wall": 25,
+        "ground": 15,
+        "roof": 59.9},
+      "AIA_CZ4": {
+        "wall": 20.9,
+        "ground": 0,
+        "roof": 50.9},
+      "AIA_CZ5": {
+        "wall": 15,
+        "ground": 0,
+        "roof": 47.4}
+  },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Min. efficiency package",
+    "source_data": null
+  },
+  "installed_cost": {
+      "AIA_CZ1": {
+        "wall": 8.86,
+        "ground": 5.03,
+        "roof": 6.6},
+      "AIA_CZ2": {
+        "wall": 8.86,
+        "ground": 5.03,
+        "roof": 6.6},
+      "AIA_CZ3": {
+        "wall": 8.86,
+        "ground": 5.03,
+        "roof": 6.6},
+      "AIA_CZ4": {
+        "wall": 8.86,
+        "ground": 5.03,
+        "roof": 6.6},
+      "AIA_CZ5": {
+        "wall": 8.86,
+        "ground": 5.03,
+        "roof": 6.6}
+  },
+  "cost_units": {
+      "wall": "2016$/ft^2 wall",
+      "ground": "2016$/ft^2 footprint",
+      "roof": "2017$/ft^2 roof"
+  },
+  "installed_cost_source": {
+    "notes": "Min. efficiency package",
+    "source_data": null
+  },
+  "product_lifetime": {
+      "wall": 100,
+      "ground": 100,
+      "roof": 25
+  },
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Min. efficiency package",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Min. efficiency package for for opaque envelope components in residential buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
+

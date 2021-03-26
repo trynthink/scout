@@ -1,0 +1,90 @@
+{
+  "name": "Best Com. Opaque Env.",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": ["wall", "roof", "ground"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Current year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "AIA_CZ1": {
+      "roof": 30.6,
+      "wall": 31.5,
+      "ground": 17}, 
+    "AIA_CZ2": {
+      "roof": 30,
+      "wall": 28.5,
+      "ground": 14.6},
+    "AIA_CZ3": {
+      "roof": 30,
+      "wall": 20.9,
+      "ground": 14.6},  
+    "AIA_CZ4": {
+      "roof": 25.9,
+      "wall": 20.5,
+      "ground": 12.9},
+    "AIA_CZ5": {
+      "roof": 24.6,
+      "wall": 20.5,
+      "ground": 10.5}
+  },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Best available package",
+    "source_data": null
+  },
+  "installed_cost": {
+    "wall": {
+      "new": 36.95,
+      "existing": 41.75
+    },
+    "roof": 7.04,
+    "ground": {
+      "new": 9.97,
+      "existing": 11.85
+    }
+  },
+  "cost_units": {
+    "wall": "2016$/ft^2 wall",
+    "roof": "2016$/ft^2 roof",
+    "ground": "2017$/ft^2 footprint"
+  },
+  "installed_cost_source": {
+    "notes": "Best available package",
+    "source_data": null
+  },
+  "product_lifetime": {
+    "wall": 100,
+    "roof": 30,
+    "ground": 100},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Best available package",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Best available package for for opaque envelope components in commercial buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

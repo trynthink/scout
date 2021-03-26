@@ -1,1 +1,42 @@
-[]
+[
+ {"name": "Prospective Res. ASHP (FS) + Ctls.",
+  "contributing_ECMs": ["Prospective Residential ASHP (FS)", "Prospective Residential Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prospective Com. ASHP (FS) + Ctls.",
+  "contributing_ECMs": ["Prospective Commercial ASHP (FS)", "Prospective Commercial Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
+  "contributing_ECMs": [
+  	"Prospective Residential ASHP (FS)", "Prospective Residential Controls",
+    "Prospective Res. Windows & Air Seal", "Prospective Res. Opaque Env."],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
+  "contributing_ECMs": [
+  	"Prospective Commercial ASHP (FS)", "Prospective Commercial Controls",
+    "Prospective Com. Windows & Air Seal", "Prospective Com. Opaque Env."],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prospective Res. ASHP + Ctls.",
+  "contributing_ECMs": ["Prospective Residential ASHP", "Prospective Residential Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prospective Com. ASHP + Ctls.",
+  "contributing_ECMs": ["Prospective Commercial ASHP", "Prospective Commercial Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prosp. Res. ASHP + Env. + Ctls.",
+  "contributing_ECMs": [
+    "Prospective Residential ASHP", "Prospective Residential Controls",
+    "Prospective Res. Windows & Air Seal", "Prospective Res. Opaque Env."],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prosp. Com. ASHP + Env. + Ctls.",
+  "contributing_ECMs": [
+    "Prospective Commercial ASHP", "Prospective Commercial Controls",
+    "Prospective Com. Windows & Air Seal", "Prospective Com. Opaque Env."],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prospective Res. SSL + Ctls.",
+  "contributing_ECMs": [
+    "Prospective Residential SSL", "Prospective Residential Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "Prospective Com. SSL + Ctls.",
+  "contributing_ECMs": [
+    "Prospective Commercial SSL", "Prospective Commercial Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}}
+]
