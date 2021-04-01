@@ -1,0 +1,80 @@
+{
+  "name": "Commercial HVAC + Ice (DR + EE)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "DR_EE_HVAC_IceStorage.csv"
+    }
+  },
+  "climate_zone": "all",
+  "bldg_type": ["large office", "assembly", "health care", "lodging"],
+  "structure_type": "all",
+  "end_use": ["heating", "ventilation", "cooling"],
+  "fuel_type": "electricity",
+  "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller"],
+  "market_entry_year": 2017,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": {
+      "reciprocating_chiller": 3.16,
+      "centrifugal_chiller": 2.19,
+      "scroll_chiller": 3.35,
+      "screw_chiller": 3.20},
+  "cost_units": "2017$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Total installed cost of ice storage is median of 400/600-ton capacity 'Connected Site-Built' 2020$ values for ice storage divided by 12 kBtu/h cooling per ton and then converted to $2017/ft^floor using ecm_cost_convert.json. This cost is added to the best available chiller cost to yield a total installed cost for the measure.",
+    "source_data": [
+    {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 67,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [102, 104, 106, 108],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  ]},
+  "product_lifetime": {
+      "reciprocating_chiller": 20,
+      "centrifugal_chiller": 25,
+      "scroll_chiller": 20,
+      "screw_chiller": 20},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for high efficiency chillers in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [102, 109],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Adjust heating/cooling set point down/up to shed peak period electricity use, pair with ice storage (lg. commercial), in parallel with installing efficient HVAC equipment generally corresponding to the AEDG 50% guideline",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 10 12:00:36 EDT 2019"
+  },
+  "_updated_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Fri Mar 26 17:33:36 EDT 2021"
+  }
+}
