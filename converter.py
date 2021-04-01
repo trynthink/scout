@@ -31,6 +31,7 @@ import sys
 import numpy as np
 import json
 import argparse
+import pandas as pd
 from collections import OrderedDict
 
 
@@ -56,6 +57,13 @@ class UsefulVars(object):
                               'emm_region_emissions_prices.json')
         self.emm_conv_file_out = ('supporting_data/convert_data/' +
                                   'emm_region_emissions_prices-updated.json')
+        self.emm_state_map = ('supporting_data/convert_data/geo_map/' +
+                              'EMM_State_ColSums.txt')
+        self.state_baseline_data = ('supporting_data/convert_data/' +
+                                    'EIA_State_Price_Emissions_\
+                                    Baselines_2019.csv')
+        self.state_conv_file_out = ('supporting_data/convert_data/' +
+                                    'state_emissions_prices-updated.json')
         self.metadata = ('metadata.json')
 
 
@@ -616,9 +624,9 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
 
 
 def updater_emm(conv, api_key, aeo_yr, scen):
-    """Perform calculations using EIA data to update conversion factors JSON.
+    """Perform calculations using EIA data to update EMM conversion factors JSON.
     Using data from the AEO year and specified NEMS modeling scenario,
-    calculate CO2 emissions intensities and energy prices.
+    calculate CO2 emissions intensities and energy prices for EIA EMM regions.
     For each of the calculations performed, in case of data missing from
     the record dict 'z' not obtained from the API due to invalid series
     IDs, run each calculation and update in a try/except block to catch
@@ -632,7 +640,8 @@ def updater_emm(conv, api_key, aeo_yr, scen):
         scen (str): The desired AEO "case" or scenario to query.
 
     Returns:
-        Updated conversion factors dict to be exported to the conversions JSON.
+        Updated EMM conversion factors dict to be exported to the
+        conversions JSON.
     """
 
     # Get data via EIA API
@@ -688,6 +697,145 @@ def updater_emm(conv, api_key, aeo_yr, scen):
     return conv
 
 
+def updater_state(conv, api_key, aeo_yr, scen):
+    """Perform calculations using EIA data to generate state conversion
+    factors JSON.
+    Using data from the AEO year and specified NEMS modeling scenario,
+    calculate CO2 emissions intensities and energy prices for EIA EMM regions.
+    Using state-level emissions and prices baseline data from EIA and
+    EMM-level projections in these metrics through 2050, as well as
+    EMM-level to state-level mapping factors, generate projections in
+    conversion factors for all contiguous US states.
+    Args:
+        conv (dict): Data structure from conversion JSON data file.
+        api_key (str): EIA API key from system environment variable.
+        aeo_yr (str): The desired year of the Annual Energy Outlook
+            to query for data.
+        scen (str): The desired AEO "case" or scenario to query.
+
+    Returns:
+        New state-level conversion factors dict to be exported to a
+        conversions JSON.
+    """
+
+    # Load metadata including AEO year range
+    with open(UsefulVars().metadata, 'r') as aeo_yrs:
+        try:
+            aeo_yrs = json.load(aeo_yrs)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                UsefulVars().metadata + "': " + str(e)) from None
+    # Get minimum AEO modeling year
+    aeo_min = str(aeo_yrs["min year"])
+
+    # Load and clean state baselines data from CSV
+    # Drop AK and HI and rename columns
+    state_baselines = pd.read_csv(UsefulVars().state_baseline_data).set_index(
+         'Name').drop(['AK', 'HI'], axis='index').drop(
+         ['Avg. res retail price (cents/kWh)',
+          'Avg. com retail price (cents/kWh)',
+          'Total Emissions (thousand metric tons CO2)',
+          'Total retail sales (MWh)'], axis=1)
+
+    # Load and clean EMM to State mapping file
+    emm_state_map = pd.read_csv(UsefulVars().emm_state_map,
+                                delimiter="\t").dropna(
+        axis=0).set_index('EMM').drop(
+        ['AK', 'HI'], axis=1).sort_index()
+
+    # Create dataframe of EMM emissions ratios from base year through 2050
+    # Get EMM emissions factors from EMM conversion file
+    emm_co2 = pd.DataFrame.from_dict(
+        conv_emm['CO2 intensity of electricity']['data'], orient='index')
+    # Divide each year in dataframe by base year
+    emm_co2_ratios = emm_co2.iloc[:, 1:].div(emm_co2[aeo_min], axis=0)
+    # Re-insert base year into new dataframe
+    emm_co2_ratios.insert(0, aeo_min, '')
+    emm_co2_ratios[aeo_min] = 1.0
+
+    # Create dataframe of EMM price ratios for base year through 2050
+    # Get prices from EMM conversion file
+    emm_price_res = pd.DataFrame.from_dict(
+        conv_emm['End-use electricity price']['data']['residential'],
+        orient='index')  # residential
+    emm_price_com = pd.DataFrame.from_dict(
+        conv_emm['End-use electricity price']['data']['commercial'],
+        orient='index')  # commercial
+    # Divide each year in dataframe by base year
+    # Residential
+    emm_price_res_ratios = emm_price_res.iloc[:, 1:].div(
+        emm_price_res[aeo_min], axis=0)
+    # Commercial
+    emm_price_com_ratios = emm_price_com.iloc[:, 1:].div(
+        emm_price_com[aeo_min], axis=0)
+    # Re-insert base year into new dataframe
+    # Residential
+    emm_price_res_ratios.insert(0, aeo_min, '')
+    emm_price_res_ratios[aeo_min] = 1.0
+    # Commercial
+    emm_price_com_ratios.insert(0, aeo_min, '')
+    emm_price_com_ratios[aeo_min] = 1.0
+
+    # Generate state factors using baseline state data and
+    # projections based on EMM trends (base year ratios),
+    # weighted using EMM to State mapping factors
+
+    # Emissions
+    state_co2 = {state:
+                 {yr: np.average(emm_co2_ratios.loc[:, yr],
+                                 weights=emm_state_map.loc[:, state]) for
+                  yr in emm_co2_ratios.columns} for
+                 state in emm_state_map.columns}
+    state_co2_proj = {state:
+                      {yr: state_co2[state][yr] *
+                       state_baselines.loc[state,
+                       'Emissions Rate (Mt/TWh)'] for
+                       yr in emm_co2_ratios.columns} for
+                      state in state_co2.keys()}
+
+    # Prices - residential
+    state_price_res = {state:
+                       {yr: np.average(emm_price_res_ratios.loc[:, yr],
+                                       weights=emm_state_map.loc[:, state]) for
+                        yr in emm_price_res_ratios.columns} for
+                       state in emm_state_map.columns}
+    state_price_res_proj = {state:
+                            {yr: state_price_res[state][yr] *
+                             state_baselines.loc[state,
+                             'Residential price ($/kWh)'] for
+                             yr in emm_price_res_ratios.columns} for
+                            state in state_price_res.keys()}
+
+    # Prices - commerical
+    state_price_com = {state:
+                       {yr: np.average(emm_price_com_ratios.loc[:, yr],
+                                       weights=emm_state_map.loc[:, state]) for
+                        yr in emm_price_com_ratios.columns} for
+                       state in emm_state_map.columns}
+    state_price_com_proj = {state:
+                            {yr: state_price_com[state][yr] *
+                             state_baselines.loc[state,
+                             'Commercial price ($/kWh)'] for
+                             yr in emm_price_com_ratios.columns} for
+                            state in state_price_com.keys()}
+
+    # Create new json file to store state factors
+    conv_state = conv_emm.copy()
+    conv_state['CO2 intensity of electricity']['data'] = state_co2_proj
+    conv_state['CO2 intensity of electricity']['source'] = 'Base year data from EIA State Electricity \
+    Data website, projected to 2050 using sales-weighted average trends in \
+    CO2 intensity for EMM regions that comprise a given state.'
+    conv_state['End-use electricity price']['data']['residential'] = state_price_res_proj  # noqa: E501
+    conv_state['End-use electricity price']['data']['commercial'] = state_price_com_proj  # noqa: E501
+    conv_state['End-use electricity price']['source'] = 'Base year data from EIA State Electricity \
+    Data website, projected to 2050 using sales-weighted average trends in \
+    residential & commercial electricity prices for EMM regions that comprise \
+    a given state.'
+
+    return conv_state
+
+
 if __name__ == '__main__':
     # Get API key from available environment variables
     if 'EIA_API_KEY' in os.environ:
@@ -704,48 +852,47 @@ if __name__ == '__main__':
     # to the site_to_source conversions json or the EMM region
     # emissions/price projections json.
     while True:
-        conv_file = input('Please specify the desired file to update. '
+        geography = input('Please specify the desired file type to update. '
                           'Valid entries are: ' +
-                          ', '.join(['site_source_co2_conversions.json',
-                                     'emm_region_emissions_prices.json']) +
+                          ', '.join(['National factors file',
+                                     'Regional factors file']) +
                           '.\n')
-        if conv_file not in ['site_source_co2_conversions.json',
-                             'emm_region_emissions_prices.json']:
-            print('Invalid file entered.')
+        if geography not in ['National factors file',
+                             'Regional factors file']:
+            print('Invalid file type entered.')
         else:
             break
 
-    # Load current file to be updated
-    conv = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))
+    # Ask the user to specify the desired report year, informing the
+    # user about the valid year options
+    while True:
+        year = input('Please specify the desired AEO year. '
+                     'Valid entries are: ' +
+                     ', '.join(ValidQueries().years) + '.\n')
+        if year not in ValidQueries().years:
+            print('Invalid year entered.')
+        else:
+            break
+
+    # Ask the user to specify the desired AEO case or scenario,
+    # informing the user about the valid scenario options
+    while True:
+        scenario = input('Please specify the desired AEO scenario. '
+                         'Valid entries are: ' +
+                         ', '.join(ValidQueries().cases) + '.\n')
+        if scenario not in ValidQueries().cases:
+            print('Invalid scenario entered.')
+        else:
+            break
 
     # Update routine specific to whether user is updating site-to-source
-    # file or EMM emissions/prices projections file
-    # NOTE: EMM-resolved data not available prior to 2020, so year/scenario
-    # settings are specific to each file being updated.
+    # file or regional emission/price projections file.
 
-    if conv_file == 'site_source_co2_conversions.json':
-
-        # Ask the user to specify the desired report year, informing the
-        # user about the valid year options
-        while True:
-            year = input('Please specify the desired AEO year. '
-                         'Valid entries are: ' +
-                         ', '.join(ValidQueries().years) + '.\n')
-            if year not in ValidQueries().years:
-                print('Invalid year entered.')
-            else:
-                break
-
-        # Ask the user to specify the desired AEO case or scenario,
-        # informing the user about the valid scenario options
-        while True:
-            scenario = input('Please specify the desired AEO scenario. '
-                             'Valid entries are: ' +
-                             ', '.join(ValidQueries().cases) + '.\n')
-            if scenario not in ValidQueries().cases:
-                print('Invalid scenario entered.')
-            else:
-                break
+    if geography == 'National factors file':
+        # Set converter file variable
+        conv_file = 'site_source_co2_conversions.json'
+        # Load current file to be updated
+        conv = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))  # noqa: E501
 
         # Set up command line argument for switching to the "captured
         # energy" method for calculating electricity site-source conversions
@@ -784,40 +931,36 @@ if __name__ == '__main__':
 
     else:
 
-        # Ask the user to specify the desired report year, informing the
-        # user about the valid year options
-        while True:
-            year = input('Please specify the desired AEO year. '
-                         'Valid entries are: ' +
-                         ', '.join(ValidQueries().emm_years) + '.\n')
-            if year not in ValidQueries().emm_years:
-                print('Invalid year entered.')
-            else:
-                break
-
-        # Ask the user to specify the desired AEO case or scenario,
-        # informing the user about the valid scenario options
-        while True:
-            scenario = input('Please specify the desired AEO scenario. '
-                             'Valid entries are: ' +
-                             ', '.join(ValidQueries().emm_cases) + '.\n')
-            if scenario not in ValidQueries().emm_cases:
-                print('Invalid scenario entered.')
-            else:
-                break
+        # Set converter file variable to EMM region file
+        conv_file = 'emm_region_emissions_prices.json'
+        # Load file
+        conv_init = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))  # noqa: E501
 
         # Change conversion factors dict imported from JSON to OrderedDict
         # so that the AEO year and scenario specified by the user can be
         # added with the indicated keys to the beginning of the file
-        conv = OrderedDict(conv)
+        conv = OrderedDict(conv_init)
         conv['updated_to_aeo_year'] = year
         conv['updated_to_aeo_case'] = scenario
         conv.move_to_end('updated_to_aeo_case', last=False)
         conv.move_to_end('updated_to_aeo_year', last=False)
 
-        # Update regional CO2 emissions and electricity price conversions
-        conv = updater_emm(conv, api_key, year, scenario)
+        print('\nUpdating EMM region CO2 emissions and prices '
+              'conversion factors.\n')
 
-        # Output modified EMM emissions/price projections data
+        # Update EMM region emissions and electricity price factors
+        conv_emm = updater_emm(conv, api_key, year, scenario)
+
+        # Output updated EMM emissions/price projections data
         with open(UsefulVars().emm_conv_file_out, 'w') as js_out:
-            json.dump(conv, js_out, indent=5)
+            json.dump(conv_emm, js_out, indent=5)
+
+        print('\nUpdating state CO2 emissions and prices '
+              'conversion factors.\n')
+
+        # Update state emissions and electricity price factors
+        conv_state = updater_state(conv_emm, api_key, year, scenario)
+
+        # Output updated state emissions/price projections data
+        with open(UsefulVars().state_conv_file_out, 'w') as js_out:
+            json.dump(conv_state, js_out, indent=5)
