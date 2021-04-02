@@ -36,9 +36,9 @@ class UsefulInputFiles(object):
     Attributes:
         msegs_in (tuple): Database of baseline microsegment stock/energy.
         msegs_cpl_in (tuple): Database of baseline technology characteristics.
-        iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions.
+        iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions/states.
         ash_emm_map (tuple): Maps ASHRAE climates to EMM regions.
-        aia_emm_map (tuple): Maps AIA climates to EMM regions.
+        aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
         metadata (tuple) = Baseline metadata inc. min/max for year range.
         cost_convert_in (tuple): Database of measure cost unit conversions.
         cbecs_sf_byvint (tuple): Commercial sq.ft. by vintage data.
@@ -52,7 +52,7 @@ class UsefulInputFiles(object):
             the analysis engine.
         cpi_data (CSV): Historical Consumer Price Index data.
         ss_data (JSON): Site-source, emissions, and price data, national.
-        ss_data_emm (JSON): Emissions and price data, EMM-resolved
+        ss_data_altreg (JSON): Emissions/price data, EMM- or state-resolved.
         tsv_load_data (JSON): Time sensitive energy demand data.
         tsv_cost_data (JSON): Time sensitive electricity price data.
         tsv_carbon_data (JSON): Time sensitive average CO2 emissions data.
@@ -85,15 +85,28 @@ class UsefulInputFiles(object):
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_emm.json")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_emm.json")
+                                 "cpl_res_com_emm.gz")
             self.ash_emm_map = ("supporting_data", "convert_data", "geo_map",
                                 "ASH_EMM_ColSums.txt")
-            self.aia_emm_map = ("supporting_data", "convert_data", "geo_map",
-                                "AIA_EMM_ColSums.txt")
+            self.aia_altreg_map = ("supporting_data", "convert_data",
+                                   "geo_map", "AIA_EMM_ColSums.txt")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_EMM_ColSums.txt")
-            self.ss_data_emm = ("supporting_data", "convert_data",
-                                "emm_region_emissions_prices-updated.json")
+            self.ss_data_altreg = ("supporting_data", "convert_data",
+                                   "emm_region_emissions_prices-updated.json")
+        elif regions == 'State':
+            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+                             "mseg_res_com_state.gz")
+            self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
+                                 "cpl_res_com_cdiv.json")
+            self.aia_altreg_map = ("supporting_data", "convert_data",
+                                   "geo_map", "AIA_State_ColSums.txt")
+            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
+                                 "IECC_State_ColSums.txt")
+            self.ss_data_altreg = ("supporting_data", "convert_data",
+                                   "state_emissions_prices-updated.json")
+        else:
+            raise ValueError("Unsupported regional breakout (" + regions + ")")
 
         self.metadata = "metadata.json"
         # UNCOMMENT WITH ISSUE 188
@@ -157,7 +170,7 @@ class UsefulInputFiles(object):
                     "Unsupported energy output type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
-        else:
+        elif regions == "EMM":
             if site_energy is True:
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -175,6 +188,26 @@ class UsefulInputFiles(object):
                     "Unsupported energy output type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
+        elif regions == "State":
+            if site_energy is True:
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-site_state.json")
+            elif capt_energy is not True:
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals_state.json")
+            elif capt_energy is True:
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-ce_state.json")
+            else:
+                raise ValueError(
+                    "Unsupported energy output type (site, source "
+                    "(fossil fuel equivalent), and source (captured "
+                    "energy) are currently supported)")
+        else:
+            raise ValueError("Unsupported regional breakout (" + regions + ")")
 
 
 class UsefulVars(object):
@@ -247,6 +280,8 @@ class UsefulVars(object):
         deflt_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
+        region_cpl_mapping (str or dict): Maps states to census divisions for
+            the case where states are used; otherwise empty string.
         alt_perfcost_brk_map (dict): Mapping factors used to handle alternate
             regional breakouts in measure performance or cost units.
         months (str): Month sequence for accessing time-sensitive data.
@@ -334,31 +369,32 @@ class UsefulVars(object):
         # Set electric emissions intensities and prices differently
         # depending on whether EMM regions are specified (use EMM-specific
         # data) or not (use national data)
-        if self.regions == "EMM":
-            # Read in EMM-specific emissions factors and price data
-            with open(path.join(base_dir, *handyfiles.ss_data_emm), 'r') as ss:
+        if self.regions in ["EMM", "State"]:
+            # Read in EMM- or state-specific emissions factors and price data
+            with open(path.join(base_dir,
+                                *handyfiles.ss_data_altreg), 'r') as ss:
                 try:
-                    cost_ss_carb_emm = json.load(ss)
+                    cost_ss_carb_altreg = json.load(ss)
                 except ValueError as e:
                     raise ValueError(
                         "Error reading in '" +
-                        handyfiles.ss_data_emm + "': " + str(e)) from None
+                        handyfiles.ss_data_altreg + "': " + str(e)) from None
             # Initialize CO2 intensities based on electricity intensities by
-            # EMM region; convert CO2 intensities from Mt/TWh site to
+            # EMM region or state; convert CO2 intensities from Mt/TWh site to
             # MMTon/MMBTu site to match expected multiplication by site energy
             self.carb_int = {bldg: {"electricity": {reg: {
-                yr: round((cost_ss_carb_emm["CO2 intensity of electricity"][
+                yr: round((cost_ss_carb_altreg["CO2 intensity of electricity"][
                     "data"][reg][yr] / 3412141.6331), 10) for
-                yr in self.aeo_years} for reg in cost_ss_carb_emm[
+                yr in self.aeo_years} for reg in cost_ss_carb_altreg[
                     "CO2 intensity of electricity"]["data"].keys()}} for
                 bldg in ["residential", "commercial"]}
-            # Initialize energy costs based on electricity prices by EMM
-            # region; convert prices from $/kWh site to $/MMBTu site to match
+            # Initialize energy costs based on electricity prices by EMM region
+            # or state; convert prices from $/kWh site to $/MMBTu site to match
             # expected multiplication by site energy units
             self.ecosts = {bldg: {"electricity": {reg: {
-                yr: round((cost_ss_carb_emm["End-use electricity price"][
+                yr: round((cost_ss_carb_altreg["End-use electricity price"][
                     "data"][bldg][reg][yr] / 0.003412), 6) for
-                yr in self.aeo_years} for reg in cost_ss_carb_emm[
+                yr in self.aeo_years} for reg in cost_ss_carb_altreg[
                     "End-use electricity price"]["data"][bldg].keys()}} for
                 bldg in ["residential", "commercial"]}
         else:
@@ -437,6 +473,7 @@ class UsefulVars(object):
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
                 ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
                 ('AIA CZ5', 'AIA_CZ5')]
+            self.region_cpl_mapping = ''
             # Read in mapping for alternate performance/cost unit breakouts
             # IECC -> AIA mapping
             try:
@@ -452,36 +489,61 @@ class UsefulVars(object):
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_reg_map, "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)])}
-        elif regions == "EMM":
-            valid_regions = [
-                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+        elif regions in ["EMM", "State"]:
+            if regions == "EMM":
+                valid_regions = [
+                    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+                self.region_cpl_mapping = ''
+                try:
+                    self.ash_emm_map = numpy.genfromtxt(
+                        path.join(base_dir, *handyfiles.ash_emm_map),
+                        names=True, delimiter='\t', dtype=(
+                            ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.ash_emm_map + "': " + str(e)) from None
+            else:
+                # Note: for now, exclude AK and HI
+                valid_regions = [
+                    'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+                    'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+                    'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+                    'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+                    'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
+                    'WY']
+                self.region_cpl_mapping = {
+                    "new england": ['CT', 'MA', 'ME', 'NH', 'RI', 'VT'],
+                    "mid atlantic": ['NJ', 'NY', 'PA'],
+                    "east north central": ['IL', 'IN', 'MI', 'OH', 'WI'],
+                    "west north central": [
+                        'IA', 'KS', 'MN', 'MO', 'ND', 'NE', 'SD'],
+                    "south atlantic": [
+                        'DC', 'DE', 'FL', 'GA', 'MD', 'NC', 'SC', 'VA', 'WV'],
+                    "east south central": ['AL', 'KY', 'MS', 'TN'],
+                    "west south central": ['AR', 'LA', 'OK', 'TX'],
+                    "mountain": [
+                        'AZ', 'CO', 'ID', 'MT', 'NM', 'NV', 'UT', 'WY'],
+                    "pacific": ['AK', 'CA', 'HI', 'OR', 'WA']}
             regions_out = [(x, x) for x in valid_regions]
-            try:
-                self.ash_emm_map = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.ash_emm_map),
-                    names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.ash_emm_map + "': " + str(e)) from None
+
             # Read in mapping for alternate performance/cost unit breakouts
-            # AIA -> EMM mapping
+            # AIA -> EMM or State mapping
             try:
-                aia_emm_map = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.aia_emm_map),
+                aia_altreg_map = numpy.genfromtxt(
+                    path.join(base_dir, *handyfiles.aia_altreg_map),
                     names=True, delimiter='\t', dtype=(
                         ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
             except ValueError as e:
                 raise ValueError(
                     "Error reading in '" +
-                    handyfiles.aia_emm_map + "': " + str(e)) from None
-            # IECC -> EMM mapping
+                    handyfiles.aia_altreg_map + "': " + str(e)) from None
+            # IECC -> EMM or State mapping
             try:
-                iecc_emm_map = numpy.genfromtxt(
+                iecc_altreg_map = numpy.genfromtxt(
                     path.join(base_dir, *handyfiles.iecc_reg_map),
                     names=True, delimiter='\t', dtype=(
                         ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
@@ -491,7 +553,7 @@ class UsefulVars(object):
                     handyfiles.iecc_reg_map + "': " + str(e)) from None
             # Store alternate breakout mapping in dict for later use
             self.alt_perfcost_brk_map = {
-                "IECC": iecc_emm_map, "AIA": aia_emm_map,
+                "IECC": iecc_altreg_map, "AIA": aia_altreg_map,
                 "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " + str([
                         "AIA_CZ" + str(n + 1) for n in range(5)])}
@@ -2256,9 +2318,9 @@ class Measure(object):
             if self.fuel_switch_to is None:
                 # Case where use has flagged site energy outputs
                 if opts is not None and opts.site_energy is True:
-                    # Intensities are specified by EMM region based on site
-                    # energy and require no further conversion to match the
-                    # user's site energy setting
+                    # Intensities are specified by EMM region or state based on
+                    # site energy and require no further conversion to match
+                    # the user's site energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
                             yr: self.handyvars.carb_int[bldg_sect][mskeys[3]][
@@ -2275,8 +2337,8 @@ class Measure(object):
                             yr in self.handyvars.aeo_years} for n in range(2)]
                 # Case where user has not flagged site energy outputs
                 else:
-                    # Intensities are specified by EMM region based on site
-                    # energy and require division by site-source factor to
+                    # Intensities are specified by EMM region or state based on
+                    # site energy and require division by site-source factor to
                     # match the user's source energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
@@ -2299,7 +2361,7 @@ class Measure(object):
 
                 # Case where use has flagged site energy outputs
                 if opts is not None and opts.site_energy is True:
-                    # Intensities broken out by EMM region
+                    # Intensities broken out by EMM region or state
                     try:
                         # Base fuel intensity broken by region
                         intensity_carb_base = self.handyvars.carb_int[
@@ -2350,7 +2412,7 @@ class Measure(object):
             if self.fuel_switch_to is None:
                 # Case where use has flagged site energy outputs
                 if opts is not None and opts.site_energy is True:
-                    # Costs broken out by EMM region
+                    # Costs broken out by EMM region or state
                     try:
                         cost_energy_base, cost_energy_meas = (
                             self.handyvars.ecosts[bldg_sect][mskeys[3]][
@@ -2364,7 +2426,7 @@ class Measure(object):
                             self.handyvars.aeo_years} for n in range(2)]
                 # Case where user has not flagged site energy outputs
                 else:
-                    # Costs broken out by EMM region
+                    # Costs broken out by EMM region or state
                     try:
                         cost_energy_base, cost_energy_meas = [{
                             yr: self.handyvars.ecosts[
@@ -2491,15 +2553,39 @@ class Measure(object):
             # as nested dicts, loop recursively through dict levels until
             # appropriate terminal value is reached
             for i in range(0, len(mskeys)):
+                # For use of state regions, cost/performance/lifetime data
+                # are broken out by census division; map the state of the
+                # current microsegment to the census division it belongs to,
+                # to enable retrieval of the cost/performance/lifetime data
+                if (i == 1) and self.handyvars.region_cpl_mapping:
+                    mskeys_cpl_map = [
+                        x[0] for x in
+                        self.handyvars.region_cpl_mapping.items() if
+                        mskeys[1] in x[1]][0]
+                    # Mapping should yield single string for census division
+                    if not isinstance(mskeys_cpl_map, str):
+                        raise ValueError("State " + mskeys[1] +
+                                         " could not be mapped to a census "
+                                         "division for the purpose of "
+                                         "retrieving baseline cost, "
+                                         "performance, and lifetime data")
+                else:
+                    mskeys_cpl_map = ''
+
                 # Check whether baseline microsegment cost/performance/lifetime
                 # data are in dict format and current key is in dict keys; if
                 # so, proceed further with the recursive loop. * Note: dict key
                 # hierarchies and syntax are assumed to be consistent across
                 # all measure and baseline cost/performance/lifetime and
-                # stock/energy market data
-                if isinstance(base_cpl, dict) and mskeys[i] in \
-                    base_cpl.keys() or mskeys[i] in [
-                        "primary", "secondary", "new", "existing", None]:
+                # stock/energy market data, with the exception of state data,
+                # where cost/performance/lifetime data are broken out by
+                # census divisions and must be mapped to the state breakouts
+                # used in the stock_energy market data
+                if (isinstance(base_cpl, dict) and (
+                    (mskeys[i] in base_cpl.keys()) or (
+                     mskeys_cpl_map and mskeys_cpl_map in base_cpl.keys())) or
+                    mskeys[i] in [
+                        "primary", "secondary", "new", "existing", None]):
                     # Skip over "primary", "secondary", "new", and "existing"
                     # keys in updating baseline stock/energy, cost and lifetime
                     # information (this information is not broken out by these
@@ -2509,7 +2595,10 @@ class Measure(object):
 
                         # Restrict base cost/performance/lifetime dict to key
                         # chain info.
-                        base_cpl = base_cpl[mskeys[i]]
+                        if mskeys_cpl_map:
+                            base_cpl = base_cpl[mskeys_cpl_map]
+                        else:
+                            base_cpl = base_cpl[mskeys[i]]
 
                         # Restrict stock/energy dict to key chain info.
                         mseg = mseg[mskeys[i]]
@@ -2617,7 +2706,8 @@ class Measure(object):
                         elif isinstance(perf_meas, dict) and alt_break_keys:
                             # Determine the alternate regions by which the
                             # performance data are broken out (e.g., IECC, or
-                            # - if the analysis uses EMM regions - AIA)
+                            # - if the analysis uses EMM regions or states -
+                            # AIA)
                             alt_key_reg_typ = [
                                 x for x in
                                 self.handyvars.alt_perfcost_brk_map.keys()
@@ -2699,7 +2789,8 @@ class Measure(object):
                         elif isinstance(cost_meas, dict) and alt_break_keys:
                             # Determine the alternate regions by which the
                             # cost data are broken out (e.g., IECC, or
-                            # - if the analysis uses EMM regions - AIA)
+                            # - if the analysis uses EMM regions or states -
+                            # AIA)
                             alt_key_reg_typ = [
                                 x for x in
                                 self.handyvars.alt_perfcost_brk_map.keys()
@@ -3530,8 +3621,12 @@ class Measure(object):
                     # improvement over the comparable baseline technology
                     # across its lifetime). In this case, set the measure's
                     # relative performance value for all years to that
-                    # calculated for its market entry year
-                    if opts.rp_persist is True:
+                    # calculated for its market entry year; *NOTE*, preclude
+                    # consistent performance improvements for prospective
+                    # measures, which tend to already be at performance limits
+                    if opts.rp_persist is True and all([
+                        x not in self.name for x in [
+                            "Prospective", "Emerging", "Target"]]):
                         rel_perf = {
                             yr: rel_perf[str(self.market_entry_year)] for
                             yr in self.handyvars.aeo_years}
@@ -4356,7 +4451,7 @@ class Measure(object):
 
             # Set time-varying electricity price scaling factors for the EMM
             # region (dict with keys distinguished by year, *CURRENTLY* every
-            # four years beginning in 2018)
+            # two years beginning in 2018)
             if self.handyvars.tsv_hourly_price[mskeys[1]] is None:
                 cost_fact_hourly,  self.handyvars.tsv_hourly_price[
                     mskeys[1]] = ({yr: tsv_data["price"][
@@ -4370,7 +4465,7 @@ class Measure(object):
             cost_yr_map = tsv_data["price_yr_map"]
             # Set time-varying emissions scaling factors for the EMM
             # region (dict with keys distinguished by year, *CURRENTLY* every
-            # four years beginning in 2018)
+            # two years beginning in 2018)
             if self.handyvars.tsv_hourly_emissions[mskeys[1]] is None:
                 carbon_fact_hourly,  self.handyvars.tsv_hourly_emissions[
                     mskeys[1]] = ({yr: tsv_data["emissions"][
@@ -8316,9 +8411,10 @@ class MeasurePackage(Measure):
             # Calculate overall relative performance of overlapping measures (
             # excluding the current measure being adjusted), relative to the
             # common baseline across all measures being considered
-            rp_overlp = {yr: 1 - (
+            rp_overlp = {yr: (1 - (
                 sum([x * y for x, y in zip(
-                    save_wt_overlp[yr], save_overlp[yr])]) / common_base[yr])
+                    save_wt_overlp[yr], save_overlp[yr])]) / common_base[yr]))
+                if common_base[yr] != 0 else 1
                 for yr in self.handyvars.aeo_years}
             # If applicable, update the sub-market adjustment for each year
             # in the analysis time horizon
@@ -9097,17 +9193,21 @@ def main(base_dir):
     # alternate regional breakout. Currently the only alternate is NEMS EMM.
     if opts.alt_regions is True:
         input_var = 0
-        # Determine the regional breakdown to use (NEMS EMM (1) vs. AIA (2))
-        while input_var not in ['1', '2']:
+        # Determine the regional breakdown to use (NEMS EMM (1) vs. State (2)
+        # vs. AIA (3))
+        while input_var not in ['1', '2', '3']:
             input_var = input(
                 "Enter 1 to use an EIA NEMS Electricity Market Module (EMM) "
-                "geographical breakdown or 2 to use an AIA climate zone"
+                "geographical breakdown,\n 2 to use a state geographical "
+                "breakdown,\n or 3 to use an AIA climate zone"
                 " geographical breakdown: ")
-            if input_var not in ['1', '2']:
-                print('Please try again. Enter either 1 or 2. '
+            if input_var not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
         if input_var == '1':
             regions = "EMM"
+        elif input_var == '2':
+            regions = "State"
         else:
             regions = "AIA"
     else:
@@ -9425,9 +9525,13 @@ def main(base_dir):
         if any([x["name"] in m["contributing_ECMs"] for
                 x in meas_toprep_indiv]) or len(m_exist) == 0 or \
             all([m["name"] not in y for y in listdir(path.join(
-                *handyfiles.ecm_compete_data))]) or (
-                len(m_exist) == 1 and any([m[x] != m_exist[0][x] for x in [
-                    "contributing_ECMs", "benefits"]])):
+                *handyfiles.ecm_compete_data))]) or (len(m_exist) == 1 and (
+                    sorted(m["contributing_ECMs"]) !=
+                    sorted(m_exist[0]["contributing_ECMs"]) or (
+                        m["benefits"]["energy savings increase"] !=
+                        m_exist[0]["benefits"]["energy savings increase"]) or (
+                        m["benefits"]["cost reduction"] !=
+                        m_exist[0]["benefits"]["cost reduction"]))):
             meas_toprep_package.append(m)
             contrib_meas_pkg.extend(m["contributing_ECMs"])
         # Raise an error if the current package matches the name of
@@ -9441,17 +9545,23 @@ def main(base_dir):
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
 
         # Import baseline microsegments
-        with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
-            try:
-                msegs = json.load(msi)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.msegs_in + "': " + str(e)) from None
+        if regions == 'State':  # Extract compressed state stock/energy data
+            bjszip = path.join(base_dir, *handyfiles.msegs_in)
+            # bjszip = path.splitext(bjs)[0] + '.gz'
+            with gzip.GzipFile(bjszip, 'r') as zip_ref:
+                msegs = json.loads(zip_ref.read().decode('utf-8'))
+        else:
+            with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
+                try:
+                    msegs = json.load(msi)
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
         if regions == 'EMM':  # Extract compressed CPL EMM file
-            bjs = path.join(base_dir, *handyfiles.msegs_cpl_in)
-            bjszip = path.splitext(bjs)[0] + '.gz'
+            bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
+            # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
         else:
@@ -9482,10 +9592,10 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        if (regions == 'EMM' and (tsv_metrics is not None or any([
-                ("tsv_features" in m.keys() and m["tsv_features"]) is not None
+        if (regions == 'EMM' and ((tsv_metrics is not None or any([
+                ("tsv_features" in m.keys() and m["tsv_features"] is not None)
                 for m in meas_toprep_indiv])) or
-                opts is not None and opts.sect_shapes is True):
+                opts is not None and opts.sect_shapes is True)):
             print("Importing hourly load, cost, and emissions data...", end="",
                   flush=True)
             # Import load, price, and emissions shape data needed for time

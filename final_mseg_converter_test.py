@@ -84,14 +84,15 @@ class CommonUnitTest(unittest.TestCase):
 
     # Test a case where the residential array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
-    # Market Module (EMM) region data (in this case, the array column headings
-    # will actually be EMM regions, but this test setup demonstrates the
-    # intended functionality nonetheless)
+    # Market Module (EMM) region or states data (in this case, the array column
+    # headings will actually be EMM regions or states, but this test setup
+    # demonstrates the intended functionality nonetheless)
     res_cd_cz_array_fuelsplit = {
         "electricity": res_cd_cz_array,
         "natural gas": res_cd_cz_array,
         "distillate": res_cd_cz_array,
-        "other fuel": res_cd_cz_array}
+        "other fuel": res_cd_cz_array,
+        "building stock and square footage": res_cd_cz_array}
 
     # Array of census division to climate zone conversion factors for
     # energy, stock, and square footage data for commercial buildings
@@ -111,13 +112,14 @@ class CommonUnitTest(unittest.TestCase):
 
     # Test a case where the commercial array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
-    # Market Module (EMM) region data (in this case, the array column headings
-    # will actually be EMM regions, but this test setup demonstrates the
-    # intended functionality nonetheless)
+    # Market Module (EMM) region or states data (in this case, the array column
+    # headings will actually be EMM regions or states, but this test setup
+    # demonstrates the intended functionality nonetheless)
     com_cd_cz_array_fuelsplit = {
         "electricity": com_cd_cz_array,
         "natural gas": com_cd_cz_array,
-        "distillate": com_cd_cz_array}
+        "distillate": com_cd_cz_array,
+        "building stock and square footage": com_cd_cz_array}
 
     # Residential building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -144,7 +146,8 @@ class CommonUnitTest(unittest.TestCase):
         "electricity": res_cd_cz_wtavg_array,
         "natural gas": res_cd_cz_wtavg_array,
         "distillate": res_cd_cz_wtavg_array,
-        "other fuel": res_cd_cz_wtavg_array}
+        "other fuel": res_cd_cz_wtavg_array,
+        "building stock and square footage": res_cd_cz_wtavg_array}
 
     # Commercial building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -170,7 +173,8 @@ class CommonUnitTest(unittest.TestCase):
     com_cd_cz_wtavg_array_fuelsplit = {
         "electricity": com_cd_cz_wtavg_array,
         "natural gas": com_cd_cz_wtavg_array,
-        "distillate": com_cd_cz_wtavg_array}
+        "distillate": com_cd_cz_wtavg_array,
+        "building stock and square footage": com_cd_cz_wtavg_array}
 
 
 class DataRestructuringFunctionTest(CommonUnitTest):
@@ -1777,9 +1781,9 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         self.dict_check(dict1, dict2)
 
     # Compare the converted dict of energy, stock, and square footage
-    # data to the expected data reported on an EMM region basis, given
-    # conversion arrays that are split out by fuel type
-    def test_conversion_of_energy_stock_square_footage_data_emm(self):
+    # data to the expected data reported on an alternate region (EMM or state)
+    # basis, given conversion arrays that are split out by fuel type
+    def test_conversion_of_energy_stock_square_footage_data_alt(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array_fuelsplit,
                                    self.com_cd_cz_array_fuelsplit)
