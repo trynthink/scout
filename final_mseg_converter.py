@@ -64,9 +64,10 @@ class UsefulVars(object):
     energy use reported must be accounted for when switching to
     custom regions.
 
-    Currently, two custom region sets are supported: AIA climate regions, and
+    Currently, three custom region sets are supported: AIA climate regions,
     U.S. Energy Information Administration (EIA) National Energy Modeling
-    System (NEMS) Electricity Market Module (EMM) regions.
+    System (NEMS) Electricity Market Module (EMM) regions, and (for stock/
+    energy data only), states.
 
     Attributes:
         addl_cpl_data (str): File name for database of cost,
@@ -116,7 +117,7 @@ class UsefulVars(object):
             self.res_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Res_Cdiv_EMM_RowSums.txt'),
+                    'Res_Cdiv_EMM_Elec_RowSums.txt'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'Res_Cdiv_EMM_NG_RowSums.txt'),
@@ -125,7 +126,11 @@ class UsefulVars(object):
                     'Res_Cdiv_EMM_Dist_RowSums.txt'),
                 "other fuel": (
                     'supporting_data/convert_data/geo_map/'
-                    'Res_Cdiv_EMM_Other_RowSums.txt')}
+                    'Res_Cdiv_EMM_Other_RowSums.txt'),
+                # Use electricity splits to apportion no. building/sf data
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_EMM_Elec_RowSums.txt')}
             self.com_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
@@ -135,9 +140,47 @@ class UsefulVars(object):
                     'Com_Cdiv_EMM_NG_RowSums.txt'),
                 "distillate": (
                     'supporting_data/convert_data/geo_map/'
-                    'Com_Cdiv_EMM_Dist_RowSums.txt')}
+                    'Com_Cdiv_EMM_Dist_RowSums.txt'),
+                # Use electricity splits to apportion no. building/sf data
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_EMM_Elec_RowSums.txt')}
             # Set output JSON
             self.json_out = 'mseg_res_com_emm.json'
+        elif self.geo_break == '3':
+            self.res_climate_convert = {
+                "electricity": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_State_Elec_RowSums.txt'),
+                "natural gas": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_State_NG_RowSums.txt'),
+                "distillate": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_State_Dist_RowSums.txt'),
+                "other fuel": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_State_Other_RowSums.txt'),
+                # Use total consumption splits to apportion no. building/sf
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_State_AllFuels_RowSums.txt')}
+            self.com_climate_convert = {
+                "electricity": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_State_Elec_RowSums.txt'),
+                "natural gas": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_State_NG_RowSums.txt'),
+                "distillate": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_State_Dist_RowSums.txt'),
+                # Use total consumption splits to apportion no. building/sf
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_State_AllFuels_RowSums.txt')}
+            # Set output JSON
+            self.json_out = 'mseg_res_com_state.json'
 
     def configure_for_cost_performance_lifetime_data(self):
         """Reconfigure cost, performance, and life data to custom region."""
@@ -167,17 +210,25 @@ class UsefulVars(object):
                     'NElec_Cdiv_EMM_ColSums.txt'),
                 "other fuel": (
                     'supporting_data/convert_data/geo_map/'
-                    'NElec_Cdiv_EMM_ColSums.txt')}
+                    'NElec_Cdiv_EMM_ColSums.txt'),
+                # Use electricity splits to apportion no. building/sf data
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Res_Cdiv_EMM_Elec_ColSums.txt')}
             self.com_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Com_Cdiv_EMM_Elec_ConvertTable_Rev_Final.txt'),
+                    'Com_Cdiv_EMM_Elec_ColSums.txt'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'NElec_Cdiv_EMM_ColSums.txt'),
                 "distillate": (
                     'supporting_data/convert_data/geo_map/'
-                    'NElec_Cdiv_EMM_ColSums.txt')
+                    'NElec_Cdiv_EMM_ColSums.txt'),
+                # Use electricity splits to apportion no. building/sf data
+                "building stock and square footage": (
+                    'supporting_data/convert_data/geo_map/'
+                    'Com_Cdiv_EMM_Elec_ColSums.txt')
             }
             # When breaking out to EMM regions, an additional conversion
             # between AIA climate zones in the envelope data and the EMM
@@ -291,27 +342,40 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                     cd_to_cz_factor = com_convert_array
             # Flag the current fuel type being updated, which is relevant
             # to ultimate selection of conversion factor from the conversion
-            # array when translating to EMM region, in which case conversion
-            # factors are different for different fuels. Use the expectation
-            # that conversion arrays will be in dict format in the EMM region
-            # case (with keys for fuel conversion factors) to trigger the fuel
-            # flag update
+            # array when translating to EMM region or state, in which case
+            # conversion factors are different for different fuels. Use the
+            # expectation that conversion arrays will be in dict format in the
+            # EMM region or state case (with keys for fuel conversion factors)
+            # to trigger the fuel flag update
             elif (k in res_fuel_types or k in com_fuel_types) and \
                     type(res_convert_array) is dict:
                 fuel_flag = k
-
+            # When updating total building stock or square footage data for
+            # EMM regions or states, which are not keyed by fuel type, set the
+            # fuel type flag accordingly; for states, this will pull in
+            # mapping data based on consumption splits across all fuels; for
+            # EMM regions, this will pull in mapping data based on electricity
+            elif (k in ["total homes", "new homes", "total square footage",
+                        "new square footage"]):
+                fuel_flag = "building stock and square footage"
             # Recursively loop through both dicts
             if isinstance(i, dict):
                 merge_sum(i, i2, cd, cz, cd_dict, cd_list, res_convert_array,
                           com_convert_array, cd_to_cz_factor, fuel_flag)
             elif type(base_dict[k]) is not str:
                 # Check whether the conversion array needs to be further keyed
-                # by fuel type, as is the case when converting to EMM region;
-                # in such cases, the fuel flag indicates the key value to use
+                # by fuel type, as is the case when converting to EMM region or
+                # state; in such cases, the fuel flag indicates the key value
+                # to use
                 if fuel_flag is not None:
                     # Find conversion factor for the fuel and given
-                    # combination of census division and EMM region
-                    convert_fact = cd_to_cz_factor[fuel_flag][cd][cz]
+                    # combination of census division and EMM region or state;
+                    # handle case where conversion data are not broken out
+                    # by fuel type (AIA regions)
+                    try:
+                        convert_fact = cd_to_cz_factor[fuel_flag][cd][cz]
+                    except ValueError:
+                        convert_fact = cd_to_cz_factor[cd][cz]
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
@@ -380,8 +444,8 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     # Obtain list of all custom region names as strings
     try:
         cz_list = res_convert_array.dtype.names[1:]
-    # Handle conversion to EMM regions, in which custom region names will
-    # be one level-deep in a dict that breaks out conversion factors by fuel
+    # Handle conversion to EMM regions or states, in which custom region names
+    # will be one level-deep in a dict that breaks out conv. factors by fuel
     except AttributeError:
         cz_list = res_convert_array["electricity"].dtype.names[1:]
 
@@ -1220,17 +1284,33 @@ def main():
     while input_var[0] not in ['1', '2']:
         input_var[0] = input(
             "Enter 1 for energy, stock, and square footage" +
-            " data\nor 2 for cost, performance, lifetime data: ")
+            " data\n or 2 for cost, performance, lifetime data: ")
         if input_var[0] not in ['1', '2']:
             print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
-    # Determine the regional breakdown to use (AIA (1) vs. NEMS EMM (2))
-    while input_var[1] not in ['1', '2']:
-        input_var[1] = input(
-            "Enter 1 to use an AIA climate zone geographical" +
-            " breakdown\nor 2 to use an EIA Electricity Market Module "
-            "geographical breakdown: ")
-        if input_var[1] not in ['1', '2']:
-            print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
+    # Determine the regional breakdown to use (AIA (1) vs. NEMS EMM (2) vs.
+    # state (3))
+
+    # AIA, EMM, or state are possible for stock/energy data
+    if input_var[0] == '1':
+        while input_var[1] not in ['1', '2', '3']:
+            input_var[1] = input(
+                "Enter 1 to use an AIA climate zone geographical" +
+                " breakdown,\n 2 to use an EIA Electricity Market Module "
+                "geographical breakdown,\n or 3 to use a state geographical "
+                "breakdown: ")
+            if input_var[1] not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
+    # AIA, or EMM are possible for cost/performance/lifetime data
+    elif input_var[0] == '2':
+        while input_var[1] not in ['1', '2']:
+            input_var[1] = input(
+                "Enter 1 to use an AIA climate zone geographical" +
+                " breakdown,\n or 2 to use an EIA Electricity Market Module "
+                "geographical breakdown: ")
+            if input_var[1] not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
 
     # Instantiate object that contains useful variables
     handyvars = UsefulVars(input_var[1])
@@ -1254,10 +1334,10 @@ def main():
             handyvars.com_climate_convert, names=True,
             delimiter='\t', dtype="float64")
         env_perf_convert = None
-    elif input_var[1] == '2':
-        # Import residential census division to EMM conversion data; import
-        # data into a dict that is keyed by fuel type, since separate
-        # census to EMM conversions are used for different fuels
+    elif input_var[1] in ['2', '3']:
+        # Import residential census division to EMM or state conversion data;
+        # import data into a dict that is keyed by fuel type, since separate
+        # census to EMM or state conversions are used for different fuels
         res_cd_cz_conv = {
             "electricity": np.genfromtxt(
                 handyvars.res_climate_convert["electricity"], names=True,
@@ -1270,10 +1350,14 @@ def main():
                 delimiter='\t', dtype="float64"),
             "other fuel": np.genfromtxt(
                 handyvars.res_climate_convert["other fuel"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.res_climate_convert[
+                    "building stock and square footage"], names=True,
                 delimiter='\t', dtype="float64")}
-        # Import commercial census division to EMM conversion data; import
-        # data into a dict that is keyed by fuel type, since separate
-        # census to EMM conversions are used for different fuels
+        # Import commercial census division to EMM or state conversion data;
+        # import data into a dict that is keyed by fuel type, since separate
+        # census to EMM or state conversions are used for different fuels
         com_cd_cz_conv = {
             "electricity": np.genfromtxt(
                 handyvars.com_climate_convert["electricity"], names=True,
@@ -1283,6 +1367,10 @@ def main():
                 delimiter='\t', dtype="float64"),
             "distillate": np.genfromtxt(
                 handyvars.com_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.com_climate_convert[
+                    "building stock and square footage"], names=True,
                 delimiter='\t', dtype="float64")}
         # Import data needed to convert envelope performance data from an
         # AIA climate zone to EMM region breakdown
@@ -1328,9 +1416,14 @@ def main():
         json.dump(result, jso, indent=2)
         # Compress CPL EMM file
         if handyvars.json_out == 'cpl_res_com_emm.json':
-            zip_out = handyvars.json_out.split('.')[0] + '.gz'
-            with gzip.GzipFile(zip_out, 'w') as fout:
-                fout.write(json.dumps(result).encode('utf-8'))
+            zip_out_cpl = handyvars.json_out.split('.')[0] + '.gz'
+            with gzip.GzipFile(zip_out_cpl, 'w') as fout_cpl:
+                fout_cpl.write(json.dumps(result).encode('utf-8'))
+        # Compress stock/energy state file
+        if handyvars.json_out == 'mseg_res_com_state.json':
+            zip_out_se = handyvars.json_out.split('.')[0] + '.gz'
+            with gzip.GzipFile(zip_out_se, 'w') as fout_se:
+                fout_se.write(json.dumps(result).encode('utf-8'))
 
 
 if __name__ == '__main__':

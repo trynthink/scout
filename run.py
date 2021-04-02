@@ -62,7 +62,7 @@ class UsefulInputFiles(object):
                     "Unsupported energy output type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
-        else:
+        elif regions == "EMM":
             if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -80,6 +80,26 @@ class UsefulInputFiles(object):
                     "Unsupported energy output type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
+        elif regions == "State":
+            if energy_out[0] == "site":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-site_state.json")
+            elif energy_out[0] == "fossil_equivalent":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals_state.json")
+            elif energy_out[0] == "captured":
+                self.htcl_totals = (
+                    "supporting_data", "stock_energy_tech_data",
+                    "htcl_totals-ce_state.json")
+            else:
+                raise ValueError(
+                    "Unsupported energy output type (site, source "
+                    "(fossil fuel equivalent), and source (captured "
+                    "energy) are currently supported)")
+        else:
+            raise ValueError("Unsupported regional breakout (" + regions + ")")
 
 
 class UsefulVars(object):
@@ -151,7 +171,14 @@ class UsefulVars(object):
                 'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
                 'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
                 'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']}
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN'],
+            "State": [
+                'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+                'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+                'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+                'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+                'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
+                'WY']}
         self.region_inout_namepairs = {
             "AIA": [
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
@@ -161,7 +188,14 @@ class UsefulVars(object):
                 'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
                 'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
                 'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']]}
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']],
+            "State": [(x, x) for x in [
+                'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+                'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+                'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+                'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+                'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
+                'WY']]}
         regions_out = self.region_inout_namepairs[regions]
         self.out_break_czones = OrderedDict(regions_out)
         self.out_break_bldgtypes = OrderedDict([
@@ -3626,11 +3660,12 @@ def main(base_dir):
         energy_out[1:] = ("NA" for n in range(len(energy_out) - 1))
 
     # Set a flag for geographical breakout (currently possible to breakout
-    # by AIA climate zone or by NEMS EMM region).
+    # by AIA climate zone, NEMS EMM region, or state).
     if measures_objlist[0].energy_outputs["alt_regions"] == "EMM":
         regions = "EMM"
-    else:
-        # Otherwise, set regional breakdown to AIA climate zones
+    elif measures_objlist[0].energy_outputs["alt_regions"] == "State":
+        regions = "State"
+    else:  # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
 
     # Re-instantiate useful input files object when site energy is output

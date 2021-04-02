@@ -100,30 +100,54 @@ years<-years[order(years)]
 # Set list of possible climate zones and associated colors/legend entries for aggregate savings
 # and cost effectiveness plots
 
+# Set various region names lists
+aia_reg_names <- c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
+emm_reg_names <- c(
+  'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+  'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+  'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+  'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN')
+state_names <- c(
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+  'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+  'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+  'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+  'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
+  'WY')
+
 # Pull czones from first available ECM
 czones_test = toString(compete_results[[meas_names[2]]]$'Filter Variables'$'Applicable Regions')
-# Check for AIA regional breakouts; if not there, assume EMM regional breakouts and flag
+# Check for AIA regional breakouts; if not there, check for EMM regional breakouts;
+# if not there, assume state breakouts
 if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
   # Set region legend names
-  czones_out<-c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
+  czones_out<-aia_reg_names
   # Set region legend colors
   czones_out_col<-brewer.pal(length(czones_out), "Dark2")
   czones_out_lgnd<-czones_out
-  # Set flag for alternate EMM region data to false
+  # Set alternate region flags
   emm_flag = FALSE
-}else{
+  state_flag = FALSE
+}else if (any(grepl(paste(emm_reg_names, collapse="|"), czones_test) == TRUE)){
   # Set region legend names
-  czones_out<-c(
-    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN')
+  czones_out<-emm_reg_names
   # Set region legend colors; in the EMM case, extend the color list to
   # accomodate the larger number of region categories
   czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))
   czones_out_lgnd<-czones_out
-  # Set flag for alternate EMM region data to true
+  # Set alternate region flags
   emm_flag = TRUE
+  state_flag = FALSE
+}else{
+  # Set region legend names
+  czones_out<-state_names
+  # Set region legend colors; in the state case, extend the color list to
+  # accomodate the larger number of region categories
+  czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))
+  czones_out_lgnd<-czones_out
+  # Set alternate region flags
+  emm_flag = FALSE
+  state_flag = TRUE 
 }
 
 
@@ -173,12 +197,16 @@ if (compete_results_agg$`Energy Output Type`[1] == "site"){
 # axis scaling factors for aggregate savings plots
 if (compete_results_agg$`Energy Output Type`[2] == "NA"){ 
   # If results are EMM-resolved and public health cost adders
-  # are not present, convert quads to TWh for reporting
+  # are not present, convert quads to TWh for reporting;
+  # if results are state-resolved, used TBtu for reporting
   if ((emm_flag == TRUE)&(phc_flag == FALSE)){
-    e_conv_emm = 293.07
+    e_conv_emm_st = 293.07
     e_axis_units = "TWh"
+  }else if (state_flag == TRUE){
+    e_conv_emm_st = 1000
+    e_axis_units = "TBtu"
   }else{
-    e_conv_emm = 1
+    e_conv_emm_st = 1
     e_axis_units = "Quads"
   }
   # No further conversions needed for CO2 or cost
@@ -198,7 +226,7 @@ if (compete_results_agg$`Energy Output Type`[2] == "NA"){
   # When TSV metrics are present, assume that GW (hourly savings, abbreviated in
   # the output as "Hr.") or GWh (multi-hour savings, abbreviated in the output as
   # "Prd.") is the correct energy unit to use (savings will generally be smaller)
-  e_conv_emm = 293071.07
+  e_conv_emm_st = 293071.07
   if (compete_results_agg$`Energy Output Type`[1] == "Prd."){
     e_axis_units = "GWh"
   }else{
@@ -290,7 +318,7 @@ var_names_compete_save <- c(
 # Set names of variables to filter aggregated savings
 filter_var<-c('Climate Zone', 'Building Class', 'End Use')
 # Set transparent background for legend
-transparent_back<-alpha("white", 0.75)
+transparent_back<-alpha("white", 0.5)
 
 # ============================================================================
 # Set high-level variables needed to generate ECM cost effectiveness plots
@@ -387,7 +415,7 @@ for (a in 1:length(adopt_scenarios)){
         # Layer on a second conversion factor to handle cases where alternate EMM regions are used
         # (energy goes to TWh and/or TSV metrics are used (energy goes to GW/GWh, cost goes to million $))
         if (var_names_uncompete[v] == "energy"){
-          unit_translate = unit_translate * e_conv_emm
+          unit_translate = unit_translate * e_conv_emm_st
         }else if (var_names_uncompete[v] == "cost"){
           unit_translate = unit_translate * cs_conv_emm
         }
@@ -1100,8 +1128,13 @@ for (a in 1:length(adopt_scenarios)){
       # only for the first filter variable, region)
       if ((emm_flag == TRUE) & (f == 1)){
         cex_agg_leg = 0.7
+        ncol_leg = 1
+      }else if ((state_flag == TRUE) & (f == 1)){
+        cex_agg_leg = 0.7
+        ncol_leg = 2
       }else{
         cex_agg_leg = 0.95
+        ncol_leg = 1
       }
       # Find plot extremes for setting legend position
       plot_extremes <- par("usr")
@@ -1111,7 +1144,7 @@ for (a in 1:length(adopt_scenarios)){
       	     legend=legend_entries,
       		 lwd=c(4, 4, rep(2, (length(legend_entries) - 2))),
              col=color_entries, lty=c(1, 3, rep(1, (length(legend_entries)-2))), 
-       		 bg=transparent_back, box.col="NA", cex=cex_agg_leg)
+       		 bg=transparent_back, box.col="NA", cex=cex_agg_leg, ncol=ncol_leg)
       # If needed, add disclaimer about the use of public health costs
       if (var_names_uncompete[v] == "cost" & phc_flag != FALSE){
         if (phc_flag == "low"){
