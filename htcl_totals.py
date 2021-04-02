@@ -12,6 +12,8 @@ class UsefulInputFiles(object):
         msegs_in (string): Database of baseline microsegment stock/energy.
         msegs_in_emm (string): Same as 'msegs_in' but broken out by EMM region
             instead of AIA climate region.
+        msegs_in_state (string): Same as 'msegs_in' but broken out by state
+            instead of AIA climate region.
         htcl_totals (string): File name for an output of this module -
             heating and cooling primary energy totals by climate zone,
             building type, and structure type calculated using the
@@ -36,6 +38,12 @@ class UsefulInputFiles(object):
             EMM region instead of AIA climate region.
         htcl_totals_site_emm (str): Same as 'htcl_totals_site' but broken out
             by EMM region instead of AIA climate region.
+        htcl_totals_state (string): Same as 'htcl_totals' but broken out by
+            state instead of AIA climate region.
+        htcl_totals_ce_state (str): Same as 'htcl_totals_ce' but broken out by
+            state instead of AIA climate region.
+        htcl_totals_site_state (str): Same as 'htcl_totals_site' but broken out
+            by state instead of AIA climate region.
         ss_fp (str): Site-source conversions file path for fossil fuel
             equivalent version.
         ss_fp_ce (str): Site-source conversions file path for captured
@@ -48,6 +56,8 @@ class UsefulInputFiles(object):
                          "mseg_res_com_cz.json")
         self.msegs_in_emm = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_emm.json")
+        self.msegs_in_state = ("supporting_data", "stock_energy_tech_data",
+                               "mseg_res_com_state.json")
         self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
                             "htcl_totals.json")
         self.htcl_totals_ce = ("supporting_data", "stock_energy_tech_data",
@@ -63,6 +73,15 @@ class UsefulInputFiles(object):
         self.htcl_totals_site_emm = (
             "supporting_data", "stock_energy_tech_data",
             "htcl_totals-site_emm.json")
+        self.htcl_totals_state = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals_state.json")
+        self.htcl_totals_ce_state = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals-ce_state.json")
+        self.htcl_totals_site_state = (
+            "supporting_data", "stock_energy_tech_data",
+            "htcl_totals-site_state.json")
         self.ss_fp = ("supporting_data", "convert_data",
                       "site_source_co2_conversions.json")
         self.ss_fp_ce = ("supporting_data", "convert_data",
@@ -288,21 +307,27 @@ def main():
     handyvars = UsefulVars(base_dir, handyfiles)
 
     # Generate data for both the default AIA climate region baseline data
-    # breakout and EMM region baseline data breakout
-    for f in ["AIA", "EMM"]:
+    # breakout and EMM region and state baseline data breakout
+    for f in ["AIA", "EMM", "State"]:
         # Determine input/output file names based on whether default AIA
-        # climates or EMM regions are used to breakout the baseline data
+        # climates, EMM regions, or states are used to breakout baseline data
         if f == "AIA":
             mseg_fi = handyfiles.msegs_in
             fo = handyfiles.htcl_totals
             fo_site = handyfiles.htcl_totals_site
             fo_capt = handyfiles.htcl_totals_ce
 
-        else:
+        elif f == "EMM":
             mseg_fi = handyfiles.msegs_in_emm
             fo = handyfiles.htcl_totals_emm
             fo_site = handyfiles.htcl_totals_site_emm
             fo_capt = handyfiles.htcl_totals_ce_emm
+
+        else:
+            mseg_fi = handyfiles.msegs_in_state
+            fo = handyfiles.htcl_totals_state
+            fo_site = handyfiles.htcl_totals_site_state
+            fo_capt = handyfiles.htcl_totals_ce_state
 
         # Import baseline microsegment stock and energy data
         with open(path.join(base_dir, *mseg_fi), 'r') as msi:
