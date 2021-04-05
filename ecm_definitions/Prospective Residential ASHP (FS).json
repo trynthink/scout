@@ -50,7 +50,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/residential/data/2015",
-      "fraction_derivation": "Cooling fraction excludes homes that use electricity for heating (4.9M out of 118.2M total homes)."
+      "fraction_derivation": "Cooling fraction excludes homes that use electricity for heating (40.9M out of 118.2M total homes)."
   },
   "_notes": null,
   "_added_by": {
