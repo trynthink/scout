@@ -322,7 +322,7 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
-        # # Set minimum AEO modeling year
+        # Set minimum AEO modeling year
         aeo_min = aeo_yrs["min year"]
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
@@ -827,7 +827,9 @@ class UsefulVars(object):
             "ventilation": ["$/1000 CFM"],
             "lighting": ["$/1000 lm"],
             "water heating": ["$/kBtu/h water heating"],
-            "refrigeration": ["$/kBtu/h refrigeration"]}
+            "refrigeration": ["$/kBtu/h refrigeration"],
+            "cooking": ["$/kBtu/h cooking"],
+            "PCs": ["$/computer"]}
         self.cconv_htclkeys_map = {
             "supply": [
                 "$/kBtu/h heating", "$/kBtu/h cooling"],
@@ -5256,6 +5258,21 @@ class Measure(object):
             #              cost_scale_eff_aeo[str(int(yr) - 1)],
             #              carb_scale_base_aeo[str(int(yr) - 1)],
             #              carb_scale_eff_aeo[str(int(yr) - 1)]])]
+
+        # After calculations are complete, if measure fuel switches from
+        # fossil to electricity and the current baseline microsegment indicates
+        # fossil fuel, set all baseline values to zero (it is assumed that
+        # sector-level load shapes and time sensitive valuation metric outputs
+        # will only be relevant to the electricity system, which will not
+        # see a baseline load that is satisfied by non-electric fuel (from
+        # this perspective, measures that fuel switch heating or water
+        # heating to electricity add load to the electricity system that wasn't
+        # there before)
+        if self.fuel_switch_to == "electricity" and \
+                "electricity" not in mskeys:
+            energy_base_shape = [0 for x in range(len(energy_base_shape))]
+            energy_scale_base, cost_scale_base_aeo, carb_scale_base_aeo = (
+                0 for n in range(3))
 
         # Return hourly fractions of annual baseline and efficient energy
         # if sector-level load shape information is desired by the user
