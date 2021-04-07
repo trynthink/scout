@@ -1,6 +1,6 @@
 {
   "name": "Prospective Commercial ASHP",
-  "_description": "10 yr ET target - heat pumps; upgrade existing electric; exclude chillers",
+  "_description": "10 yr ET target - heat pumps; upgrade existing electric; exclude chillers on the cooling side and electric boilers on the heating side, which are assumed to be installed with a chiller configuration",
   "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "all commercial",
@@ -8,7 +8,7 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
   "technology": ["rooftop_AC", "rooftop_ASHP-cool", "comm_GSHP-cool", "res_type_central_AC", "wall-window_room_AC",
-                 "all heating"],
+                 "electric_res-heat", "comm_GSHP-heat", "rooftop_ASHP-heat"],
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "null",

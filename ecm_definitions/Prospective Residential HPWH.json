@@ -21,10 +21,9 @@
     }
   },
   "energy_efficiency": 3.55,
-  "comment": "using EIA NEMS appendix efficinecy rise from electric resistance to HP high performance",
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "using EIA NEMS appendix efficinecy rise from electric resistance to HP high performance",
+    "notes": "Target high HP performance from AEO",
     "source_data": {
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-a.pdf",
       "title": null,

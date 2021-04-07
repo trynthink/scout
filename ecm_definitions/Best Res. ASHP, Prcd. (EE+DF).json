@@ -1,0 +1,87 @@
+{
+  "name": "Best Res. ASHP, Prcd. (EE+DF)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "electricity",
+  "technology": "all",
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P3_upgrade_3_ASHP_ICT_precond.csv"
+    }
+  },
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": 6343.40,
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP",
+    "source_data": [
+      {
+      "title": "U.S. Department of Energy Commercial Reference Building Models of the National Building Stock",
+      "author": "Deru et al. 2011",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2011,
+      "pages": 29,
+      "URL": "https://www.nrel.gov/docs/fy11osti/46861.pdf"},
+      {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 17,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
+    ]},
+  "product_lifetime": 15.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low/high 'Average Life (yrs.)'",
+    "source_data": {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 19,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Highest efficiency residential air source heat pump in 2019 combined with an internet-connected thermostat (ICT) and pre-cooling and pre-heating in anticipation of DR events",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Sep 16 2019 19:20:00 UTC"},
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Apr 27 2020 00:00:00 UTC"
+  },
+  "_updated_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 14:39:36 EDT 2021"
+  }
+}
