@@ -1,0 +1,80 @@
+{
+  "name": "Res. Deep Retrofit (Aggressive–FS)",
+  "_description": "An ECM that represents a deep energy retrofit that includes fuel switching for heating equipment and deep envelope upgrades.",
+  "measure_type": "add-on",
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "end_use": "all",
+  "fuel_type": "all",
+  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
+                 "stove (wood)", "resistance", "all secondary heating", "electric WH",
+                 "all cooking", "all drying", "all lighting", "all refrigeration", "all ceiling fan",
+                 "all fans and pumps", "all computers", "all TVs", "all other"],
+  "energy_efficiency": 0.61,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Energy efficiency calculated from unpublished data shared by LBNL DER cost team.",
+    "source_data": {
+        "title": "Costs of Deep Energy Retrofits",
+        "author": "Iain Walker, Brennan Less, Rengie Chan, Leo Rainer, Haoran Zhao",
+        "organization": "Lawrence Berkeley National Laboratory",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://homes.lbl.gov/projects/costs-deep-energy-retrofits"
+    }
+  },
+  "installed_cost": 68647,
+  "cost_units": "$/unit",
+  "installed_cost_source": {
+    "notes": "Installed cost calculated from unpublished data shared by LBNL DER cost team.",
+    "source_data": {
+        "title": "Costs of Deep Energy Retrofits",
+        "author": "Iain Walker, Brennan Less, Rengie Chan, Leo Rainer, Haoran Zhao",
+        "organization": "Lawrence Berkeley National Laboratory",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://homes.lbl.gov/projects/costs-deep-energy-retrofits"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes 30-year fixed-rate mortgage",
+    "source_data": {
+        "title": "Why America’s Homebuyers and Communities Rely on the 30-Year Fixed-Rate Mortgage",
+        "author": "Sean Becketti",
+        "organization": "Freddie Mac",
+        "year": "Last modified April 10, 2017",
+        "pages": null,
+        "URL": "http://www.freddiemac.com/perspectives/sean_becketti/20170410_homebuyers_communities_fixed_mortgage.page"
+    }
+  },
+  "_added_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "LBL",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "2021-02-03 19:01:10 UTC"
+  },
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.65, "heating": 1, "secondary heating": 1, "water heating": 1,
+    "cooking": 1, "drying": 1, "lighting": 1, "refrigeration": 1, "ceiling fan": 1,
+    "fans and pumps": 1, "computers": 1, "TVs": 1, "other": 1
+  },
+  "market_scaling_fractions_source": {
+      "title": "RECS 2015 - Tables HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Cooling fraction excludes homes that use electricity for heating (40.9M out of 118.2M total homes); all other end uses remain unscaled."
+  },
+  "_notes": "See supporting calculations in https://docs.google.com/document/d/1Kc2JJfStupnCbgfEhreqgqwmatYhNJOshX39ATYKp6k/edit#heading=h.vtlbrjszxeu",
+  "_updated_by": null
+}

@@ -1,0 +1,107 @@
+{
+  "name": "Commercial ZER Office (New)",
+  "_description": "An ECM package that represents a new zero energy ready (ZER) commercial office where the baseline and ZER package are assumed to have non-electric heating and service hot water equipment",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": ["small office", "large office"],
+  "structure_type": "new",
+  "end_use": "all",
+  "fuel_type": "all",
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
+                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace",
+                 "oil_boiler", "oil_furnace", "gas_water_heater", "gas_instantaneous_WH",
+                 "gas_booster_WH", "all ventilation", "all lighting", "all refrigeration",
+                 "all cooking", "all PCs", "all non-PC office equipment", "all MELs"],
+  "energy_efficiency": {
+  	"IECC_CZ1": 0.29,
+  	"IECC_CZ2": 0.27,
+    "IECC_CZ3": 0.26,
+    "IECC_CZ4": 0.27,
+    "IECC_CZ5": 0.24,
+    "IECC_CZ6": 0.20,
+    "IECC_CZ7": 0.00,
+    "IECC_CZ8": 0.00},
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "See supporting calculations in https://docs.google.com/spreadsheets/d/109z9KKxmICA6l2N2DAwqpvVTh-YKvNg1I7-c8y7JZIk/edit?pli=1#gid=861697243",
+    "source_data":
+      {
+        "title": "Advanced Energy Design Guide for Small to Medium Office Buildings",
+        "author": "ASHRAE, The American Institute of Architects, Illuminating Engineering Society, U.S. Green Building Council, U.S. Department of Energy",
+        "organization": "ASHRAE, The American Institute of Architects, Illuminating Engineering Society, U.S. Green Building Council, U.S. Department of Energy",
+        "year": 2019,
+        "pages": 240,
+        "URL": "https://www.ashrae.org/technical-resources/aedgs/zero-energy-aedg-free-download"
+      }
+  },
+  "installed_cost": {
+    "IECC_CZ1": 30.28,
+    "IECC_CZ2": 30.09,
+  	"IECC_CZ3": 30.07,
+    "IECC_CZ4": 30.37,
+    "IECC_CZ5": 30.46,
+    "IECC_CZ6": 30.99,
+    "IECC_CZ7": 31.02,
+    "IECC_CZ8": 30.95},
+  "cost_units": "$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "See supporting calculations in https://docs.google.com/spreadsheets/d/109z9KKxmICA6l2N2DAwqpvVTh-YKvNg1I7-c8y7JZIk/edit?pli=1#gid=861697243",
+    "source_data": [
+      {
+		    "title": "Scout best available commercial measures",
+        "author": "U.S. Department of Energy",
+        "organization": "U.S. Department of Energy",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://github.com/trynthink/scout/tree/master/ecm_definitions"
+      },
+      {
+		    "title": "Commercial Building Energy Saver (CBES) cost data",
+        "author": "Lawrence Berkeley National Laboratory",
+        "organization": "Lawrence Berkeley National Laboratory",
+        "year": 2021,
+        "pages": null,
+        "URL": "http://cbespro.lbl.gov/buildings"
+      }
+    ]
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Map to HVAC lifetime (RTAC system)",
+    "source_data": {
+        "title": "Best Commercial Rooftop AC",
+        "author": "U.S. Department of Energy",
+        "organization": "U.S. Department of Energy",
+        "year": "Last modified Sep 14, 2018",
+        "pages": null,
+        "URL": "https://github.com/trynthink/scout/blob/master/ecm_definitions/Best%20Commercial%20Rooftop%20AC.json"
+    }
+  },
+  "_added_by": {
+    "name": "Sang Hoon Lee",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "sanghlee@lbl.gov",
+    "timestamp": "2021-03-23 18:00:00 UTC"
+  },
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "cooling": 0.66, "heating": 0.73, "ventilation": 0.73, "water heating": 0.73,
+    "lighting": 0.73, "refrigeration": 0.73, "cooking": 0.73, "PCs": 0.73,
+    "non-PC office equipment": 0.73, "MELs": 0.73
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf); all other fractions exclude floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump."
+  },
+  "_notes": "See supporting calculations in https://docs.google.com/spreadsheets/d/109z9KKxmICA6l2N2DAwqpvVTh-YKvNg1I7-c8y7JZIk/edit?pli=1#gid=861697243",
+  "_updated_by": null
+}

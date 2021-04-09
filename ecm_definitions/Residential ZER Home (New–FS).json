@@ -1,0 +1,96 @@
+{
+  "name": "Residential ZER Home (New–FS)",
+  "_description": "An ECM that represents a new zero energy ready (ZER) home in cold climates where the baseline is assumed to have non-electric heating equipment and electric WH",
+  "measure_type": "add-on",
+  "climate_zone": ["MISW", "MISE", "ISNE", "NYUP", "PJME", "SPPN", "CANO", "CASO", "NWPP", "RMRG", "BASN"],
+  "bldg_type": "single family home",
+  "structure_type": "new",
+  "end_use": "all",
+  "fuel_type": "all",
+  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
+                 "stove (wood)", "resistance", "all secondary heating", "electric WH",
+                 "all cooking", "all drying", "all lighting", "all refrigeration", "all ceiling fan",
+                 "all fans and pumps", "all computers", "all TVs", "all other"],
+  "energy_efficiency": {
+  	"IECC_CZ1": 0,
+    "IECC_CZ2": 0,
+    "IECC_CZ3": 0,
+    "IECC_CZ4": 0,
+    "IECC_CZ5": 0,
+    "IECC_CZ6": 0.684,
+    "IECC_CZ7": 0.75,
+    "IECC_CZ8": 0.75},
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Relative savings are based on BEopt models for select cities in each climate zone and are not necessarily representative. See source for more details.",
+    "source_data": {
+        "title": "The Economics of Zero-Energy Homes",
+        "author": "Alisa Peterson, Michael Gartman, and Jacob Corvidae",
+        "organization": "Rocky Mountain Institute",
+        "year": 2019,
+        "pages": 72,
+        "URL": "https://rmi.org/insight/economics-of-zero-energy-homes/"
+    }
+  },
+  "installed_cost": {
+    "IECC_CZ1": 0,
+    "IECC_CZ2": 0,
+    "IECC_CZ3": 0,
+    "IECC_CZ4": 0,
+    "IECC_CZ5": 0,
+  	"IECC_CZ6": 5358,
+    "IECC_CZ7": 6722,
+    "IECC_CZ8": 6722},
+  "cost_units": "$/unit",
+  "installed_cost_source": {
+    "notes": "Installed costs reflect incremental costs to achieve ZER status and are specific to select cities in each climate zone and therefore not necessarily representative. See source for more details.",
+    "source_data": {
+        "title": "The Economics of Zero-Energy Homes",
+        "author": "Alisa Peterson, Michael Gartman, and Jacob Corvidae",
+        "organization": "Rocky Mountain Institute",
+        "year": 2019,
+        "pages": 72,
+        "URL": "https://rmi.org/insight/economics-of-zero-energy-homes/"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes 30-year fixed-rate mortgage.",
+    "source_data": {
+        "title": "Why America’s Homebuyers and Communities Rely on the 30-Year Fixed-Rate Mortgage",
+        "author": "Sean Becketti",
+        "organization": "Freddie Mac",
+        "year": "Last modified April 10, 2017",
+        "pages": null,
+        "URL": "http://www.freddiemac.com/perspectives/sean_becketti/20170410_homebuyers_communities_fixed_mortgage.page"
+    }
+  },
+  "_added_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "LBL",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "2021-02-03 19:01:10 UTC"
+  },
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.65, "heating": 1, "secondary heating": 1, "water heating": 1,
+    "cooking": 1, "drying": 1, "lighting": 1, "refrigeration": 1, "ceiling fan": 1,
+    "fans and pumps": 1, "computers": 1, "TVs": 1, "other": 1
+  },
+  "market_scaling_fractions_source": {
+      "title": "RECS 2015 - Tables HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Cooling fraction excludes homes that use electricity for heating (40.9M out of 118.2M total homes); all other end uses remain unscaled."
+  },
+  "_notes": "See supporting calculations in https://docs.google.com/document/d/1k8lPnWFDudlbmDIxwiEORc88g94qkGJlq6_s2gWSrMM/edit?usp=sharing",
+  "_updated_by": null
+}

@@ -23,20 +23,20 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.40,
-      "heating": 2.49
+      "cooling": 4.69,
+      "heating": 2.70
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+    "notes": "Split system (see table 2); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
     "source_data": [
       {
-        "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+        "title": "ENERGY STAR Program Requirements for Central Air-Conditioners and Heat Pumps, v6",
         "author": null,
         "organization": "U.S. Environmental Protection Agency",
-        "year": 2015,
-        "pages": 2,
-        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+        "year": 2021,
+        "pages": 3,
+        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.0%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20and%20Partner%20Commitments.pdf"
       },
       {
         "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",

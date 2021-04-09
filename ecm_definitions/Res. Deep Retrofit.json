@@ -1,0 +1,65 @@
+{
+  "name": "Residential DER",
+  "_description": "An ECM that represents a deep energy retrofit that includes heating equipment replacement and home performance upgrades.",
+  "measure_type": "add-on",
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "end_use": "all",
+  "fuel_type": "electricity",
+  "technology": "all",
+  "energy_efficiency": 0.45,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Energy efficiency calculated from unpublished data shared by LBNL DER cost team.",
+    "source_data": {
+        "title": "Costs of Deep Energy Retrofits",
+        "author": "Iain Walker, Brennan Less, Rengie Chan, Leo Rainer, Haoran Zhao",
+        "organization": "Lawrence Berkeley National Laboratory",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://homes.lbl.gov/projects/costs-deep-energy-retrofits"
+    }
+  },
+  "installed_cost": 22807,
+  "cost_units": "$/unit",
+  "installed_cost_source": {
+    "notes": "Installed cost calculated from unpublished data shared by LBNL DER cost team.",
+    "source_data": {
+        "title": "Costs of Deep Energy Retrofits",
+        "author": "Iain Walker, Brennan Less, Rengie Chan, Leo Rainer, Haoran Zhao",
+        "organization": "Lawrence Berkeley National Laboratory",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://homes.lbl.gov/projects/costs-deep-energy-retrofits"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes 30-year fixed-rate mortgage",
+    "source_data": {
+        "title": "Why America’s Homebuyers and Communities Rely on the 30-Year Fixed-Rate Mortgage",
+        "author": "Sean Becketti",
+        "organization": "Freddie Mac",
+        "year": "Last modified April 10, 2017",
+        "pages": null,
+        "URL": "http://www.freddiemac.com/perspectives/sean_becketti/20170410_homebuyers_communities_fixed_mortgage.page"
+    }
+  },
+  "_added_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "LBL",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "2021-02-03 19:01:10 UTC"
+  },
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": "See supporting calculations in https://docs.google.com/document/d/1Kc2JJfStupnCbgfEhreqgqwmatYhNJOshX39ATYKp6k/edit#heading=h.vtlbrjszxeu",
+  "_updated_by": null
+}

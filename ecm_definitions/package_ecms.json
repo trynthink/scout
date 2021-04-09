@@ -7,12 +7,12 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
-  	"Prospective Residential ASHP (FS)", "Prospective Residential Controls",
+    "Prospective Residential ASHP (FS)", "Prospective Residential Controls",
     "Prospective Res. Windows & Air Seal", "Prospective Res. Opaque Env."],
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
-  	"Prospective Commercial ASHP (FS)", "Prospective Commercial Controls",
+    "Prospective Commercial ASHP (FS)", "Prospective Commercial Controls",
     "Prospective Com. Windows & Air Seal", "Prospective Com. Opaque Env."],
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prospective Res. ASHP + Ctls.",
@@ -38,5 +38,23 @@
  {"name": "Prospective Com. SSL + Ctls.",
   "contributing_ECMs": [
     "Prospective Commercial SSL", "Prospective Commercial Controls"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Res. ASHP (FS) + Env.",
+  "contributing_ECMs": ["ENERGY STAR Res. ASHP (FS)", "Res. Windows & Air Seal, ESTAR IECC", "Res. Opaque Env., IECC"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Res. ASHP + Env.",
+  "contributing_ECMs": ["ENERGY STAR Res. ASHP", "Res. Windows & Air Seal, ESTAR IECC", "Res. Opaque Env., IECC"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Res. CAC + Env.",
+  "contributing_ECMs": ["ENERGY STAR Res. CAC", "Res. Windows & Air Seal, ESTAR IECC", "Res. Opaque Env., IECC"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Com. ASHP (FS) + Env.",
+  "contributing_ECMs": ["ENERGY STAR Com. ASHP (FS)", "Com. Windows & Air Seal, 90.1", "Com. Opaque Env., 90.1"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Com. ASHP + Env.",
+  "contributing_ECMs": ["ENERGY STAR Com. ASHP", "Com. Windows & Air Seal, 90.1", "Com. Opaque Env., 90.1"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Com. RTU + Env.",
+  "contributing_ECMs": ["ENERGY STAR Com. RTU", "Com. Windows & Air Seal, 90.1", "Com. Opaque Env., 90.1"],
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}}
 ]

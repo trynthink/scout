@@ -15,10 +15,10 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.57,
+  "energy_efficiency": 3.46,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ENERGY STAR efficiency, see table 1; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating or no heating, COP = EER * 0.293",
+    "notes": "ENERGY STAR efficiency, see table 2; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,

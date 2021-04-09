@@ -1,0 +1,81 @@
+{
+  "name": "Residential ZER Home (New)",
+  "_description": "An ECM that represents a new zero energy ready (ZER) home in warm and moderate climate zones where the baseline is assumed to have all-electric heating & cooling equipment.",
+  "measure_type": "add-on",
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "new",
+  "end_use": "all",
+  "fuel_type": "electricity",
+  "technology": "all",
+  "energy_efficiency": {
+  	"IECC_CZ1": 0.409,
+  	"IECC_CZ2": 0.409,
+    "IECC_CZ3": 0.436,
+    "IECC_CZ4": 0.487,
+    "IECC_CZ5": 0.517,
+    "IECC_CZ6": 0,
+    "IECC_CZ7": 0,
+    "IECC_CZ8": 0},
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Relative savings are based on BEopt models for select cities in each climate zone and are not necessarily representative. See source for more details.",
+    "source_data": {
+        "title": "The Economics of Zero-Energy Homes",
+        "author": "Alisa Peterson, Michael Gartman, and Jacob Corvidae",
+        "organization": "Rocky Mountain Institute",
+        "year": 2019,
+        "pages": 72,
+        "URL": "https://rmi.org/insight/economics-of-zero-energy-homes/"
+    }
+  },
+  "installed_cost": {
+    "IECC_CZ1": 2488,
+    "IECC_CZ2": 2488,
+  	"IECC_CZ3": 6925,
+    "IECC_CZ4": 6514,
+    "IECC_CZ5": 4260,
+    "IECC_CZ6": 0,
+    "IECC_CZ7": 0,
+    "IECC_CZ8": 0},
+  "cost_units": "$/unit",
+  "installed_cost_source": {
+    "notes": "Installed costs reflect average incremental costs in each climate zone to achieve ZER status. See source for more details.",
+    "source_data": {
+        "title": "The Economics of Zero-Energy Homes",
+        "author": "Alisa Peterson, Michael Gartman, and Jacob Corvidae",
+        "organization": "Rocky Mountain Institute",
+        "year": 2019,
+        "pages": 72,
+        "URL": "https://rmi.org/insight/economics-of-zero-energy-homes/"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes 30-year fixed-rate mortgage.",
+    "source_data": {
+        "title": "Why America’s Homebuyers and Communities Rely on the 30-Year Fixed-Rate Mortgage",
+        "author": "Sean Becketti",
+        "organization": "Freddie Mac",
+        "year": "Last modified April 10, 2017",
+        "pages": null,
+        "URL": "http://www.freddiemac.com/perspectives/sean_becketti/20170410_homebuyers_communities_fixed_mortgage.page"
+    }
+  },
+  "_added_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "LBL",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "2021-02-03 19:01:10 UTC"
+  },
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": "See supporting calculations in https://docs.google.com/document/d/1k8lPnWFDudlbmDIxwiEORc88g94qkGJlq6_s2gWSrMM/edit?usp=sharing",
+  "_updated_by": null
+}
