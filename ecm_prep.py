@@ -247,6 +247,8 @@ class UsefulVars(object):
             the building sector categories used in summarizing measure outputs.
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
+        out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
+            non-electric fuels (for heating, cooling, WH, and cooking).
         out_break_in (OrderedDict): Breaks out key measure results by
             climate zone, building sector, and end use.
         cconv_topkeys_map (dict): Maps measure cost units to top-level keys in
@@ -309,7 +311,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
-                 health_costs):
+                 health_costs, split_fuel):
         self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.retro_rate = 0.01
@@ -797,11 +799,19 @@ class UsefulVars(object):
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
             ('Refrigeration', ["refrigeration", "other"]),
+            ('Cooking', ["cooking"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
             ('Other', [
-                "cooking", "drying", "ceiling fan", "fans and pumps",
+                "drying", "ceiling fan", "fans and pumps",
                 "MELs", "other"])])
+        # Configure output breakouts for fuel type if user has set this option
+        if split_fuel is True:
+            self.out_break_fuels = OrderedDict([
+                ('Electric', ["electricity"]),
+                ('Non-Electric', ["natural gas", "distillate", "other fuel"])])
+        else:
+            self.out_break_fuels = {}
         # Use the above output categories to establish a dictionary with blank
         # values at terminal leaf nodes; this dict will eventually store
         # partitioning fractions needed to breakout the measure results
@@ -815,7 +825,17 @@ class UsefulVars(object):
         for kc in out_levels_keys:
             current_level = self.out_break_in
             for ind, elem in enumerate(kc):
-                if elem not in current_level:
+                # If fuel splits are desired and applicable for the current
+                # end use breakout, add the fuel splits to the dict vals
+                if len(self.out_break_fuels.keys()) != 0 and (elem in [
+                    "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
+                    "Cooling (Env.)", "Water Heating", "Cooking"]) and \
+                        elem not in current_level:
+                    current_level[elem] = OrderedDict(
+                        [(x, OrderedDict()) for x in
+                         self.out_break_fuels.keys()])
+                # Otherwise, set dict vals to another empty dict
+                elif elem not in current_level:
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
         self.cconv_bybldg_units = [
@@ -1604,7 +1624,7 @@ class Measure(object):
 
     def __init__(
             self, base_dir, handyvars, handyfiles, site_energy, capt_energy,
-            regions, tsv_metrics, health_costs, **kwargs):
+            regions, tsv_metrics, health_costs, split_fuel, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1617,7 +1637,8 @@ class Measure(object):
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
             "site_energy": False, "captured_energy_ss": False,
-            "alt_regions": False, "tsv_metrics": False, "health_costs": False}
+            "alt_regions": False, "tsv_metrics": False, "health_costs": False,
+            "split_fuel": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
@@ -1641,6 +1662,8 @@ class Measure(object):
                 self.energy_outputs["health_costs"] = "Uniform EE-low"
             elif "PHC-EE (high)" in self.name:
                 self.energy_outputs["health_costs"] = "Uniform EE-high"
+        if split_fuel is True:
+            self.energy_outputs["split_fuel"] = True
         self.sector_shapes, self.sector_shapes_pkg = (
             {a_s: {} for a_s in handyvars.adopt_schemes} for n in range(2))
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -4037,6 +4060,17 @@ class Measure(object):
                                 out_eu = eu[0]
                         elif "lighting gain" in mskeys:
                             out_eu = "Lighting"
+                    # If applicable, establish fuel type breakout (electric vs.
+                    # non-electric)
+                    if (len(self.handyvars.out_break_fuels.keys()) != 0) and (
+                        out_eu in ["Heating (Equip.)", "Cooling (Equip.)",
+                                   "Heating (Env.)", "Cooling (Env.)",
+                                   "Water Heating", "Cooking"]):
+                        for f in self.handyvars.out_break_fuels.items():
+                            if mskeys[3] in f[1]:
+                                out_fuel = f[0]
+                    else:
+                        out_fuel = ""
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
@@ -4058,57 +4092,105 @@ class Measure(object):
                                      add_carb_total]
                         eff_data = [add_energy_total_eff, add_energy_cost_eff,
                                     add_carb_total_eff]
-                        # If this is the first time the output breakout
-                        # dictionary is being updated, replace appropriate
-                        # terminal leaf node value with energy/ecost/carbon
-                        # baseline, efficient energy/ecost/carbon, and energy/
-                        # ecost/carbon savings values for the current
-                        # contributing microsegment
-                        if len(self.markets[adopt_scheme]["mseg_out_break"][
-                                "energy"]["baseline"][out_cz][out_bldg][
-                                out_eu].keys()) == 0:
-                            for ind, key in enumerate([
-                                    "energy", "cost", "carbon"]):
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    key]["baseline"][out_cz][out_bldg][
-                                        out_eu] = {
-                                        yr: base_data[ind][yr] for
-                                        yr in self.handyvars.aeo_years}
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    key]["efficient"][out_cz][out_bldg][
-                                        out_eu] = {
-                                        yr: eff_data[ind][yr] for
-                                        yr in self.handyvars.aeo_years}
-                                self.markets[adopt_scheme]["mseg_out_break"][
-                                    key]["savings"][out_cz][out_bldg][
-                                        out_eu] = {
-                                        yr: (base_data[ind][yr] -
-                                             eff_data[ind][yr]) for
-                                        yr in self.handyvars.aeo_years}
-
-                        # If the output breakout dictionary has already been
-                        # updated for a previous microsegment, add the energy/
-                        # ecost/carbon baseline, efficient energy/ecost/carbon,
-                        # and energy/ecost/carbon savings values for the
-                        # current contributing microsegment to the dictionary's
-                        # existing terminal leaf node values
-                        else:
-                            for yr in self.handyvars.aeo_years:
+                        # Handle case where output breakout includes fuel type
+                        # breakout or not
+                        if out_fuel:
+                            # If the output breakout dictionary has already
+                            # been updated for a previous microsegment, add the
+                            # energy/ecost/carbon baseline, efficient energy/
+                            # ecost/carbon, and energy/ecost/carbon savings
+                            # values for the current contributing microsegment
+                            # to the dictionary's existing terminal values
+                            try:
+                                for yr in self.handyvars.aeo_years:
+                                    for ind, key in enumerate([
+                                            "energy", "cost", "carbon"]):
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "baseline"][out_cz][out_bldg][
+                                            out_eu][out_fuel][yr] += \
+                                            base_data[ind][yr]
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "efficient"][out_cz][out_bldg][
+                                            out_eu][out_fuel][yr] += \
+                                            eff_data[ind][yr]
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "savings"][out_cz][out_bldg][
+                                            out_eu][out_fuel][yr] += (
+                                                base_data[ind][yr] -
+                                                eff_data[ind][yr])
+                            # If this is the first time the output breakout
+                            # dictionary is being updated, replace appropriate
+                            # terminal leaf node value with energy/ecost/carbon
+                            # baseline, efficient energy/ecost/carbon, and
+                            # energy/ecost/carbon savings values for current
+                            # contributing microsegment
+                            except KeyError:
                                 for ind, key in enumerate([
                                         "energy", "cost", "carbon"]):
                                     self.markets[adopt_scheme][
-                                        "mseg_out_break"][key][
-                                        "baseline"][out_cz][out_bldg][
-                                        out_eu][yr] += base_data[ind][yr]
+                                        "mseg_out_break"][key]["baseline"][
+                                        out_cz][out_bldg][out_eu][out_fuel] = {
+                                            yr: base_data[ind][yr] for
+                                            yr in self.handyvars.aeo_years}
                                     self.markets[adopt_scheme][
-                                        "mseg_out_break"][key][
-                                        "efficient"][out_cz][out_bldg][
-                                        out_eu][yr] += eff_data[ind][yr]
+                                        "mseg_out_break"][key]["efficient"][
+                                        out_cz][out_bldg][out_eu][out_fuel] = {
+                                            yr: eff_data[ind][yr] for
+                                            yr in self.handyvars.aeo_years}
                                     self.markets[adopt_scheme][
-                                        "mseg_out_break"][key][
-                                        "savings"][out_cz][out_bldg][
-                                        out_eu][yr] += (base_data[ind][yr] -
-                                                        eff_data[ind][yr])
+                                        "mseg_out_break"][key]["savings"][
+                                        out_cz][out_bldg][
+                                            out_eu][out_fuel] = {
+                                            yr: (base_data[ind][yr] -
+                                                 eff_data[ind][yr]) for
+                                            yr in self.handyvars.aeo_years}
+                        else:
+                            # If the output breakout dictionary has already
+                            # been updated for a previous microsegment, add the
+                            # energy/ecost/carbon baseline, efficient energy/
+                            # ecost/carbon, and energy/ecost/carbon savings
+                            # values for the current contributing microsegment
+                            # to the dictionary's existing terminal values
+                            try:
+                                for yr in self.handyvars.aeo_years:
+                                    for ind, key in enumerate([
+                                            "energy", "cost", "carbon"]):
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "baseline"][out_cz][out_bldg][
+                                            out_eu][yr] += base_data[ind][yr]
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "efficient"][out_cz][out_bldg][
+                                            out_eu][yr] += eff_data[ind][yr]
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "savings"][out_cz][out_bldg][
+                                            out_eu][yr] += (
+                                                base_data[ind][yr] -
+                                                eff_data[ind][yr])
+                            except KeyError:
+                                for ind, key in enumerate([
+                                        "energy", "cost", "carbon"]):
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key]["baseline"][
+                                        out_cz][out_bldg][out_eu] = {
+                                            yr: base_data[ind][yr] for
+                                            yr in self.handyvars.aeo_years}
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key]["efficient"][
+                                        out_cz][out_bldg][out_eu] = {
+                                            yr: eff_data[ind][yr] for
+                                            yr in self.handyvars.aeo_years}
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"][key]["savings"][
+                                        out_cz][out_bldg][out_eu] = {
+                                            yr: (base_data[ind][yr] -
+                                                 eff_data[ind][yr]) for
+                                            yr in self.handyvars.aeo_years}
 
                     # Yield error if current contributing microsegment cannot
                     # be mapped to an output breakout category
@@ -5302,7 +5384,8 @@ class Measure(object):
         # there before)
         if self.fuel_switch_to == "electricity" and \
                 "electricity" not in mskeys:
-            energy_base_shape = [0 for x in range(len(energy_base_shape))]
+            if opts.sect_shapes is True:
+                energy_base_shape = [0 for x in range(len(energy_base_shape))]
             energy_scale_base, cost_scale_base_aeo, carb_scale_base_aeo = (
                 0 for n in range(3))
 
@@ -7536,6 +7619,16 @@ class MeasurePackage(Measure):
         # measures are removed
         self.contributing_ECMs.sort(
             key=lambda x: x.technology_type["primary"][0], reverse=True)
+        # Check to ensure energy output settings for all measures that
+        # contribute to the package are identical
+        if not all([all([m.energy_outputs[x] ==
+                         self.contributing_ECMs[0].energy_outputs[x] for
+                         x in self.contributing_ECMs[0].energy_outputs.keys()]
+                        for m in self.contributing_ECMs[1:])]):
+            raise ValueError(
+                "Package '" + self.name + "' attempts to merge measures with "
+                "different energy output settings; re-prepare package's "
+                "contributing ECMs to ensure these settings are identical")
         self.htcl_ECMs = {}
         self.name = p
         # Check to ensure that measure name is proper length for plotting
@@ -8106,7 +8199,7 @@ class MeasurePackage(Measure):
                     tot_save_orig_ecost = self.make_base_eff_adjs(
                         k, cm_key, msegs_meas, base_adj, eff_adj)
                 # Make adjustments to energy/carbon/cost output breakouts
-                out_cz, out_bldg, out_eu = self.find_adj_out_break_cats(
+                mseg_out_break_adj = self.find_adj_out_break_cats(
                     k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
                     tot_base_orig, tot_eff_orig, tot_save_orig,
                     tot_base_orig_ecost, tot_eff_orig_ecost,
@@ -8250,7 +8343,7 @@ class MeasurePackage(Measure):
                 tot_save_orig_ecost = self.make_base_eff_adjs(
                     k, cm_key, msegs_meas, base_adj, eff_adj)
             # Make adjustments to energy/carbon/cost output breakouts
-            out_cz, out_bldg, out_eu = self.find_adj_out_break_cats(
+            mseg_out_break_adj = self.find_adj_out_break_cats(
                 k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
                 tot_base_orig, tot_eff_orig, tot_save_orig,
                 tot_base_orig_ecost, tot_eff_orig_ecost,
@@ -8669,54 +8762,122 @@ class MeasurePackage(Measure):
                     out_eu = eu[0]
             elif "lighting gain" in key_list:
                 out_eu = "Lighting"
-        # Adjust contributions to total baseline energy/carbon
-        mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][out_eu] = {
-            yr: mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][out_eu][yr]
-            - (tot_base_orig[yr] - msegs_ecarb["total"]["baseline"][yr])
-            for yr in self.handyvars.aeo_years}
-        # Adjust contributions to total efficient energy/carbon
-        mseg_out_break_adj[k]["efficient"][out_cz][out_bldg][out_eu] = {
-            yr: mseg_out_break_adj[k]["efficient"][
-                out_cz][out_bldg][out_eu][yr] -
-            (tot_eff_orig[yr] - msegs_ecarb["total"]["efficient"][yr])
-            for yr in self.handyvars.aeo_years}
-        # Adjust contributions to total energy/carbon savings
-        mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu] = {
-            yr: mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu][yr]
-            - (tot_save_orig[yr] - (
-                msegs_ecarb["total"]["baseline"][yr] -
-                msegs_ecarb["total"]["efficient"][yr])) for
-            yr in self.handyvars.aeo_years}
-        # Adjust energy cost contributions for measure in package
-        if all([x for x in [
-            tot_base_orig_ecost, tot_eff_orig_ecost,
-                tot_save_orig_ecost]]):
-            # Adjust contributions to total energy cost
-            mseg_out_break_adj["cost"]["baseline"][
-                out_cz][out_bldg][out_eu] = {
-                yr: mseg_out_break_adj["cost"]["baseline"][
-                    out_cz][out_bldg][out_eu][yr] - (
-                    tot_base_orig_ecost[yr] - msegs_ecarb_cost[
-                        "total"]["baseline"][yr]) for yr in
-                self.handyvars.aeo_years}
-            # Adjust contributions to efficient energy cost
-            mseg_out_break_adj["cost"]["efficient"][
-                out_cz][out_bldg][out_eu] = {
-                yr: mseg_out_break_adj["cost"]["efficient"][
-                    out_cz][out_bldg][out_eu][yr] - (
-                    tot_eff_orig_ecost[yr] -
-                    msegs_ecarb_cost["total"][
-                        "efficient"][yr]) for yr in
-                self.handyvars.aeo_years}
-            # Adjust contributions to energy cost savings
-            mseg_out_break_adj["cost"]["savings"][
-                out_cz][out_bldg][out_eu] = {
-                yr: mseg_out_break_adj["cost"]["savings"][
-                    out_cz][out_bldg][out_eu][yr] - (
-                    tot_save_orig_ecost[yr] - (
-                        msegs_ecarb_cost["total"]["baseline"][yr] -
-                        msegs_ecarb_cost["total"]["efficient"][yr]))
-                    for yr in self.handyvars.aeo_years}
+        # If applicable, establish fuel type breakout (electric vs. non-elec.)
+        if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
+            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
+                "Cooling (Env.)", "Water Heating", "Cooking"]:
+            for f in self.handyvars.out_break_fuels.items():
+                if key_list[3] in f[1]:
+                    out_fuel = f[0]
+        else:
+            out_fuel = ""
+
+        # Handle case where output breakout includes fuel type breakout or not
+        if out_fuel:
+            # Adjust contributions to total baseline energy/carbon
+            mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][out_eu][
+                out_fuel] = {
+                yr: mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][
+                    out_eu][out_fuel][yr]
+                - (tot_base_orig[yr] - msegs_ecarb["total"]["baseline"][yr])
+                for yr in self.handyvars.aeo_years}
+            # Adjust contributions to total efficient energy/carbon
+            mseg_out_break_adj[k]["efficient"][out_cz][out_bldg][out_eu][
+                out_fuel] = {
+                yr: mseg_out_break_adj[k]["efficient"][
+                    out_cz][out_bldg][out_eu][out_fuel][yr] -
+                (tot_eff_orig[yr] - msegs_ecarb["total"]["efficient"][yr])
+                for yr in self.handyvars.aeo_years}
+            # Adjust contributions to total energy/carbon savings
+            mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu][
+                out_fuel] = {
+                yr: mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu][
+                    out_fuel][yr]
+                - (tot_save_orig[yr] - (
+                    msegs_ecarb["total"]["baseline"][yr] -
+                    msegs_ecarb["total"]["efficient"][yr])) for
+                yr in self.handyvars.aeo_years}
+            # Adjust energy cost contributions for measure in package
+            if all([x for x in [
+                tot_base_orig_ecost, tot_eff_orig_ecost,
+                    tot_save_orig_ecost]]):
+                # Adjust contributions to total energy cost
+                mseg_out_break_adj["cost"]["baseline"][
+                    out_cz][out_bldg][out_eu][out_fuel] = {
+                    yr: mseg_out_break_adj["cost"]["baseline"][
+                        out_cz][out_bldg][out_eu][out_fuel][yr] - (
+                        tot_base_orig_ecost[yr] - msegs_ecarb_cost[
+                            "total"]["baseline"][yr]) for yr in
+                    self.handyvars.aeo_years}
+                # Adjust contributions to efficient energy cost
+                mseg_out_break_adj["cost"]["efficient"][
+                    out_cz][out_bldg][out_eu][out_fuel] = {
+                    yr: mseg_out_break_adj["cost"]["efficient"][
+                        out_cz][out_bldg][out_eu][out_fuel][yr] - (
+                        tot_eff_orig_ecost[yr] -
+                        msegs_ecarb_cost["total"][
+                            "efficient"][yr]) for yr in
+                    self.handyvars.aeo_years}
+                # Adjust contributions to energy cost savings
+                mseg_out_break_adj["cost"]["savings"][
+                    out_cz][out_bldg][out_eu][out_fuel] = {
+                    yr: mseg_out_break_adj["cost"]["savings"][
+                        out_cz][out_bldg][out_eu][out_fuel][yr] - (
+                        tot_save_orig_ecost[yr] - (
+                            msegs_ecarb_cost["total"]["baseline"][yr] -
+                            msegs_ecarb_cost["total"]["efficient"][yr]))
+                        for yr in self.handyvars.aeo_years}
+        else:
+            # Adjust contributions to total baseline energy/carbon
+            mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][out_eu] = {
+                yr: mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][
+                    out_eu][yr]
+                - (tot_base_orig[yr] - msegs_ecarb["total"]["baseline"][yr])
+                for yr in self.handyvars.aeo_years}
+            # Adjust contributions to total efficient energy/carbon
+            mseg_out_break_adj[k]["efficient"][out_cz][out_bldg][out_eu] = {
+                yr: mseg_out_break_adj[k]["efficient"][
+                    out_cz][out_bldg][out_eu][yr] -
+                (tot_eff_orig[yr] - msegs_ecarb["total"]["efficient"][yr])
+                for yr in self.handyvars.aeo_years}
+            # Adjust contributions to total energy/carbon savings
+            mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu] = {
+                yr: mseg_out_break_adj[k]["savings"][out_cz][out_bldg][
+                    out_eu][yr]
+                - (tot_save_orig[yr] - (
+                    msegs_ecarb["total"]["baseline"][yr] -
+                    msegs_ecarb["total"]["efficient"][yr])) for
+                yr in self.handyvars.aeo_years}
+            # Adjust energy cost contributions for measure in package
+            if all([x for x in [
+                tot_base_orig_ecost, tot_eff_orig_ecost,
+                    tot_save_orig_ecost]]):
+                # Adjust contributions to total energy cost
+                mseg_out_break_adj["cost"]["baseline"][
+                    out_cz][out_bldg][out_eu] = {
+                    yr: mseg_out_break_adj["cost"]["baseline"][
+                        out_cz][out_bldg][out_eu][yr] - (
+                        tot_base_orig_ecost[yr] - msegs_ecarb_cost[
+                            "total"]["baseline"][yr]) for yr in
+                    self.handyvars.aeo_years}
+                # Adjust contributions to efficient energy cost
+                mseg_out_break_adj["cost"]["efficient"][
+                    out_cz][out_bldg][out_eu] = {
+                    yr: mseg_out_break_adj["cost"]["efficient"][
+                        out_cz][out_bldg][out_eu][yr] - (
+                        tot_eff_orig_ecost[yr] -
+                        msegs_ecarb_cost["total"][
+                            "efficient"][yr]) for yr in
+                    self.handyvars.aeo_years}
+                # Adjust contributions to energy cost savings
+                mseg_out_break_adj["cost"]["savings"][
+                    out_cz][out_bldg][out_eu] = {
+                    yr: mseg_out_break_adj["cost"]["savings"][
+                        out_cz][out_bldg][out_eu][yr] - (
+                        tot_save_orig_ecost[yr] - (
+                            msegs_ecarb_cost["total"]["baseline"][yr] -
+                            msegs_ecarb_cost["total"]["efficient"][yr]))
+                        for yr in self.handyvars.aeo_years}
 
         return mseg_out_break_adj
 
@@ -8945,7 +9106,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
-        **m) for m in measures]
+        opts.split_fuel, **m) for m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -9030,7 +9191,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 meas_obj = Measure(
                     base_dir, handyvars, handyfiles, opts.site_energy,
                     opts.captured_energy, regions, tsv_metrics,
-                    opts.health_costs, **meas_summary_data[0])
+                    opts.health_costs, opts.split_fuel, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -9283,7 +9444,7 @@ def main(base_dir):
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
     # to reach the desired metric type
-    if opts.tsv_metrics is True:
+    if opts and opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
         output_type = input(
             "Enter the type of time-sensitive metric desired "
@@ -9367,7 +9528,7 @@ def main(base_dir):
 
     # Ensure that if public cost health data are to be applied, EMM regional
     # breakouts are set (health data use this resolution)
-    if opts is not None and opts.health_costs is True and regions != "EMM":
+    if opts and opts.health_costs is True and regions != "EMM":
         opts.alt_regions, regions = [True, "EMM"]
         warnings.warn(
             "WARNING: Analysis regions were set to EMM to allow public health "
@@ -9390,7 +9551,8 @@ def main(base_dir):
 
     # Instantiate useful variables object
     handyvars = UsefulVars(
-        base_dir, handyfiles, regions, tsv_metrics, opts.health_costs)
+        base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
+        opts.split_fuel)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -9446,15 +9608,15 @@ def main(base_dir):
                 # c) measure JSON time stamp indicates it has been modified
                 # since the last run of 'ecm_prep.py' or d) the user added/
                 # removed the "site_energy," "captured_energy", "alt_regions",
-                # or "tsv_metrics" cmd line arguments and the measure def.
-                # was not already prepared using these settings or e) the user
-                # added the "sect_shapes" cmd line argument and the measure
-                # does not already have sector-level load shape data or f) the
-                # user specified the "sect_shapes" cmd line argument with a
-                # package present, and the measure contributes to the package
-                # (measure information needed to generate sector shapes
-                # for the package was not previously written out and must be
-                # regenerated)
+                # "tsv_metrics", "health_costs", or "split_fuel" cmd line
+                # arguments and the measure def. was not already prepared using
+                # these settings or e) the user added the "sect_shapes" cmd
+                # line argument and the measure does not already have
+                # sector-level load shape data or f) the user specified the
+                # "sect_shapes" cmd line argument with a package present, and
+                # the measure contributes to the package (measure information
+                # needed to generate sector shapes for the package was not
+                # previously written out and must be regenerated)
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
                    all([meas_dict["name"] not in y for y in listdir(
@@ -9480,6 +9642,14 @@ def main(base_dir):
                          y["energy_outputs"]["tsv_metrics"] != tsv_metrics
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
+                   (opts is not None and opts.health_costs is True and
+                    all([y["energy_outputs"]["health_costs"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.split_fuel is True and
+                    all([y["energy_outputs"]["split_fuel"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
                     all([y["energy_outputs"]["site_energy"] is True for
                          y in meas_summary if y["name"] ==
@@ -9494,6 +9664,14 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.tsv_metrics is False and
                     all([y["energy_outputs"]["tsv_metrics"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.health_costs is False and
+                    all([y["energy_outputs"]["health_costs"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.split_fuel is False and
+                    all([y["energy_outputs"]["split_fuel"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -9821,6 +9999,9 @@ if __name__ == "__main__":
     # Optional flag to introduce public health cost assessment
     parser.add_argument("--health_costs", action="store_true",
                         help="Flag addition of public health cost data")
+    # Optional flag to introduce output fuel splits
+    parser.add_argument("--split_fuel", action="store_true",
+                        help="Split electric vs. non-electric fuel in results")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
