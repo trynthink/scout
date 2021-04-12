@@ -481,21 +481,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 10, "2010": 20},
                     "measure": {"2009": 10, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 10},
-                    "measure": {"2009": 5, "2010": 10}}},
+                    "all": {"2009": 10, "2010": 20},
+                    "measure": {"2009": 10, "2010": 20}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
-                    "efficient": {"2009": 0, "2010": 50}}},
+                    "baseline": {"2009": 200, "2010": 300},
+                    "efficient": {"2009": 50, "2010": 100}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}}},
             "cost": {
                 "stock": {
@@ -528,8 +528,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 10, "2010": 20},
                     "measure": {"2009": 10, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 10},
-                    "measure": {"2009": 5, "2010": 10}}},
+                    "all": {"2009": 10, "2010": 20},
+                    "measure": {"2009": 10, "2010": 20}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
@@ -537,10 +537,10 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "2009": numpy.array([16, 27, 31, 6, 51]),
                         "2010": numpy.array([106, 95, 81, 11, 124])}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {
-                        "2009": numpy.array([6, 7, 1, 16, 1]),
-                        "2010": numpy.array([36, 45, 61, 5, 54])}}},
+                        "2009": numpy.array([16, 27, 31, 6, 51]),
+                        "2010": numpy.array([106, 95, 81, 11, 124])}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
@@ -549,7 +549,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                         "2010": numpy.array(
                             [100.6, 108.7, 105.1, 105, 106.1])}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {
                         "2009": numpy.array([50.6, 57.7, 58.1, 50, 51.1]),
                         "2010": numpy.array(
@@ -599,21 +599,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 10, "2010": 20},
                     "measure": {"2009": 10, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 10},
-                    "measure": {"2009": 5, "2010": 10}}},
+                    "all": {"2009": 10, "2010": 20},
+                    "measure": {"2009": 10, "2010": 20}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
-                    "efficient": {"2009": 0, "2010": 50}}},
+                    "baseline": {"2009": 200, "2010": 300},
+                    "efficient": {"2009": 50, "2010": 100}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}}},
             "cost": {
                 "stock": {
@@ -654,21 +654,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 10, "2010": 20},
                     "measure": {"2009": 10, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 10},
-                    "measure": {"2009": 5, "2010": 10}}},
+                    "all": {"2009": 10, "2010": 20},
+                    "measure": {"2009": 10, "2010": 20}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
-                    "efficient": {"2009": 0, "2010": 50}}},
+                    "baseline": {"2009": 200, "2010": 300},
+                    "efficient": {"2009": 50, "2010": 100}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}}},
             "cost": {
                 "stock": {
@@ -700,21 +700,21 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
                     "all": {"2009": 10, "2010": 20},
                     "measure": {"2009": 10, "2010": 20}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 10},
-                    "measure": {"2009": 5, "2010": 10}}},
+                    "all": {"2009": 10, "2010": 20},
+                    "measure": {"2009": 10, "2010": 20}}},
             "energy": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
-                    "efficient": {"2009": 0, "2010": 50}}},
+                    "baseline": {"2009": 200, "2010": 300},
+                    "efficient": {"2009": 50, "2010": 100}}},
             "carbon": {
                 "total": {
                     "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}},
                 "competed": {
-                    "baseline": {"2009": 100, "2010": 150},
+                    "baseline": {"2009": 200, "2010": 300},
                     "efficient": {"2009": 50, "2010": 100}}},
             "cost": {
                 "stock": {
