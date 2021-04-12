@@ -14,6 +14,7 @@ import subprocess
 import sys
 import warnings
 import numpy_financial as npf
+from datetime import datetime
 
 
 class UsefulInputFiles(object):
@@ -133,8 +134,10 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
-        # Set minimum AEO modeling year
-        aeo_min = aeo_yrs["min year"]
+        # # Set minimum AEO modeling year
+        # aeo_min = aeo_yrs["min year"]
+        # Set minimum year to current year
+        aeo_min = datetime.today().year
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -224,6 +227,7 @@ class UsefulVars(object):
             ('Lighting', ["lighting"]),
             ('Water Heating', ["water heating"]),
             ('Refrigeration', ["refrigeration", "other"]),
+            ('Cooking', ["cooking"]),
             ('Computers and Electronics', [
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
             ('Other', [
@@ -490,18 +494,29 @@ class Engine(object):
             if m.update_results["financial metrics"] is True:
                 # Shorthand for data used to determine financial metrics (since
                 # these data do not vary based on competition or adoption
-                # scheme, use only uncompeted TP data for the calculations)
-                markets_uc = m.markets[
-                    "Technical potential"]["uncompeted"]["master_mseg"]
+                # scheme, use only uncompeted data for the calculations)
+                if self.handyvars.adopt_schemes[0] in [
+                        "Technical potential", "Max adoption potential"]:
+                    markets_uc = m.markets[self.handyvars.adopt_schemes[0]][
+                        "uncompeted"]["master_mseg"]
+                else:
+                    raise ValueError(
+                        "Data from adoption scheme in which measure captures "
+                        "less than 100 pct. of competed stock is being used "
+                        "for financial metrics calculations, which is "
+                        "inconsistent with the assumptions of these "
+                        "calculations; add one or both of 'Technical "
+                        "potential' or 'Max adoption potential' to the list "
+                        "defined by 'self.adopt_schemes' to address.")
                 # Initialize per unit measure stock, energy, and carbon costs;
-                # per unit energy and carbon cost savings; per unit energy and
+                # per unit energy and carbon cost savings; per sunit energy and
                 # carbon savings; unit stock, energy, and carbon costs to use
                 # in residential and commercial competition calculations; and
                 # financial metrics (irr, payback, cce, ccc)
-                scostbase_unit, scostmeas_delt_unit, scostmeas_tot_unit, \
-                    ecost_meas_tot_unit, ccost_meas_tot_unit, \
-                    ecostsave_tot_unit, ccostsave_tot_unit, esave_tot_unit, \
-                    csave_tot_unit, stock_unit_cost_res, stock_unit_cost_com, \
+                scostbase_unit, scostmeas_delt_unit, scostmeas_unit, \
+                    ecost_meas_unit, ccost_meas_unit, \
+                    ecostsave_unit, ccostsave_unit, esave_unit, \
+                    csave_unit, stock_unit_cost_res, stock_unit_cost_com, \
                     energy_unit_cost_res, energy_unit_cost_com, \
                     carb_unit_cost_res, carb_unit_cost_com, irr_e, irr_ec, \
                     payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = ({
@@ -509,63 +524,80 @@ class Engine(object):
                         n in range(23))
 
                 # Calculate per unit stock costs, energy and carbon savings,
-                # and energy and carbon cost savings for each projection year
+                # and energy and carbon cost savings for each projection year;
+                # base calculations on competed stock in each year
                 for yr in self.handyvars.aeo_years:
 
-                    # Total baseline capital cost
-                    stock_base_cost_tot = \
-                        markets_uc["cost"]["stock"]["total"]["baseline"][yr]
-                    # Total measure capital cost
-                    stock_meas_cost_tot = \
-                        markets_uc["cost"]["stock"]["total"]["efficient"][yr]
-                    # Total number of applicable baseline stock units
-                    nunits_tot = \
-                        markets_uc["stock"]["total"]["all"][yr]
-                    # Total number of applicable stock units capt. by measure
-                    nunits_meas = \
-                        markets_uc["stock"]["total"]["measure"][yr]
+                    # Baseline capital cost
+                    stock_base_cost_comp = \
+                        markets_uc["cost"]["stock"]["competed"]["baseline"][yr]
+                    # Measure capital cost
+                    stock_meas_cost_comp = markets_uc["cost"]["stock"][
+                        "competed"]["efficient"][yr]
+                    # Energy savings
+                    esave_comp = \
+                        markets_c["energy"]["competed"]["baseline"][yr] - \
+                        markets_c["energy"]["competed"]["efficient"][yr]
+                    # Carbon savings
+                    csave_comp = \
+                        markets_c["carbon"]["competed"]["baseline"][yr] - \
+                        markets_c["carbon"]["competed"]["efficient"][yr]
+                    # Energy cost savings
+                    ecostsave_comp = markets_c["cost"]["energy"]["competed"][
+                            "baseline"][yr] - markets_c["cost"]["energy"][
+                            "competed"]["efficient"][yr]
+                    # Carbon cost savings
+                    ccostsave_comp = markets_c["cost"]["carbon"]["competed"][
+                        "baseline"][yr] - markets_c["cost"]["carbon"][
+                        "competed"]["efficient"][yr]
+                    # Number of applicable baseline stock units
+                    nunits_comp = \
+                        markets_uc["stock"]["competed"]["all"][yr]
+                    # Number of applicable stock units capt. by measure
+                    nunits_meas_comp = \
+                        markets_uc["stock"]["competed"]["measure"][yr]
 
                     # Calculate per unit baseline capital cost and incremental
                     # measure capital cost (used in financial metrics
                     # calculations below); set these values to zero for
                     # years in which total number of base/meas units is zero
-                    if nunits_tot != 0 and (
-                        type(nunits_meas) != numpy.ndarray and
-                        nunits_meas >= 1 or
-                            type(nunits_meas) == numpy.ndarray and all(
-                                nunits_meas) >= 1):
+                    if nunits_comp != 0 and (
+                        type(nunits_meas_comp) != numpy.ndarray and
+                        nunits_meas_comp >= 1 or
+                            type(nunits_meas_comp) == numpy.ndarray and all(
+                                nunits_meas_comp) >= 1):
                         # Per unit baseline capital cost
                         scostbase_unit[yr] = \
-                            stock_base_cost_tot / nunits_tot
+                            stock_base_cost_comp / nunits_comp
                         # Per unit measure incremental capital cost
                         scostmeas_delt_unit[yr] = \
-                            (stock_base_cost_tot - stock_meas_cost_tot) / \
-                            nunits_meas
+                            (stock_base_cost_comp - stock_meas_cost_comp) / \
+                            nunits_meas_comp
                         # Per unit measure total capital cost
-                        scostmeas_tot_unit[yr] = \
+                        scostmeas_unit[yr] = \
                             scostbase_unit[yr] - scostmeas_delt_unit[yr]
                         # Per unit measure energy savings
-                        esave_tot_unit[yr] = \
-                            esave_tot[yr] / nunits_meas
+                        esave_unit[yr] = \
+                            esave_comp / nunits_meas_comp
                         # Per unit measure carbon savings
-                        csave_tot_unit[yr] = \
-                            csave_tot[yr] / nunits_meas
+                        csave_unit[yr] = \
+                            csave_comp / nunits_meas_comp
                         # Per unit measure energy cost savings
-                        ecostsave_tot_unit[yr] = \
-                            ecostsave_tot[yr] / nunits_meas
+                        ecostsave_unit[yr] = \
+                            ecostsave_comp / nunits_meas_comp
                         # Per unit measure carbon cost savings
-                        ccostsave_tot_unit[yr] = \
-                            ccostsave_tot[yr] / nunits_meas
+                        ccostsave_unit[yr] = \
+                            ccostsave_comp / nunits_meas_comp
                         # Per unit measure energy costs
-                        ecost_meas_tot_unit[yr] = (
-                            markets_uc["cost"]["energy"]["total"][
-                                "baseline"][yr] / nunits_tot) - \
-                            ecostsave_tot_unit[yr]
+                        ecost_meas_unit[yr] = (
+                            markets_uc["cost"]["energy"]["competed"][
+                                "baseline"][yr] / nunits_comp) - \
+                            ecostsave_unit[yr]
                         # Per unit measure carbon costs
-                        ccost_meas_tot_unit[yr] = (
-                            markets_uc["cost"]["carbon"]["total"][
-                                "baseline"][yr] / nunits_tot) - \
-                            ccostsave_tot_unit[yr]
+                        ccost_meas_unit[yr] = (
+                            markets_uc["cost"]["carbon"]["competed"][
+                                "baseline"][yr] / nunits_comp) - \
+                            ccostsave_unit[yr]
 
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
@@ -588,11 +620,11 @@ class Engine(object):
                     # If the total baseline stock is zero or no measure units
                     # have been captured for a given year, set finance metrics
                     # to 999
-                    if nunits_tot == 0 or (
-                        type(nunits_meas) != numpy.ndarray and
-                        nunits_meas < 1 or
-                            type(nunits_meas) == numpy.ndarray and all(
-                                nunits_meas) < 1):
+                    if nunits_comp == 0 or (
+                        type(nunits_meas_comp) != numpy.ndarray and
+                        nunits_meas_comp < 1 or
+                            type(nunits_meas_comp) == numpy.ndarray and all(
+                                nunits_meas_comp) < 1):
                         if yr == self.handyvars.aeo_years[0]:
                             stock_unit_cost_res[yr], \
                                 energy_unit_cost_res[yr], \
@@ -624,7 +656,7 @@ class Engine(object):
                     # Otherwise, check whether any financial metric calculation
                     # inputs that can be arrays are in fact arrays
                     elif any(type(x) == numpy.ndarray for x in [
-                            scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                            scostmeas_delt_unit[yr], esave_unit[yr],
                             life_meas]):
                         # Make copies of the above stock, energy/carbon/cost
                         # variables for possible further manipulation below
@@ -633,12 +665,12 @@ class Engine(object):
                             ecostsave_tmp_unit, csave_tmp_unit, \
                             ccostsave_tmp_unit, life_meas_tmp, \
                             scost_meas_tmp, ecost_meas_tmp, ccost_meas_tmp = [
-                                scostmeas_delt_unit[yr], esave_tot_unit[yr],
-                                ecostsave_tot_unit[yr], csave_tot_unit[yr],
-                                ccostsave_tot_unit[yr], life_meas,
-                                scostmeas_tot_unit[yr],
-                                ecost_meas_tot_unit[yr],
-                                ccost_meas_tot_unit[yr]]
+                                scostmeas_delt_unit[yr], esave_unit[yr],
+                                ecostsave_unit[yr], csave_unit[yr],
+                                ccostsave_unit[yr], life_meas,
+                                scostmeas_unit[yr],
+                                ecost_meas_unit[yr],
+                                ccost_meas_unit[yr]]
 
                         # Ensure consistency in length of all "metric_update"
                         # inputs that can be arrays
@@ -646,7 +678,7 @@ class Engine(object):
                         # Determine the length that any array inputs to
                         # "metric_update" should consistently have
                         len_arr = next((len(item) for item in [
-                            scostmeas_delt_unit[yr], esave_tot_unit[yr],
+                            scostmeas_delt_unit[yr], esave_unit[yr],
                             life_meas] if type(item) == numpy.ndarray), None)
 
                         # Ensure all array inputs to "metric_update" are of the
@@ -731,12 +763,12 @@ class Engine(object):
                             self.metric_update(
                                 m, int(round(life_base)),
                                 int(round(life_meas)), scostbase_unit[yr],
-                                scostmeas_delt_unit[yr], esave_tot_unit[yr],
-                                ecostsave_tot_unit[yr], csave_tot_unit[yr],
-                                ccostsave_tot_unit[yr],
-                                scostmeas_tot_unit[yr],
-                                ecost_meas_tot_unit[yr],
-                                ccost_meas_tot_unit[yr])
+                                scostmeas_delt_unit[yr], esave_unit[yr],
+                                ecostsave_unit[yr], csave_unit[yr],
+                                ccostsave_unit[yr],
+                                scostmeas_unit[yr],
+                                ecost_meas_unit[yr],
+                                ccost_meas_unit[yr])
 
                 # Set measure financial metrics dict to update (across years)
                 metrics_finance = m.financial_metrics
@@ -3603,6 +3635,19 @@ def main(base_dir):
                      m in measures_objlist])):
             raise ValueError(
                 "Inconsistent public health energy cost adders used "
+                "across active ECM set. To address this issue, "
+                "ensure that all active ECMs in ./run_setup.json were "
+                "prepared using the same command line options, or"
+                "delete the file ./supporting_data/ecm_prep.json "
+                "and rerun ecm_prep.py with desired command line options.")
+        if not (all([(m.energy_outputs["split_fuel"] is not False and
+                      m.energy_outputs["split_fuel"] ==
+                      measures_objlist[0].energy_outputs["split_fuel"]) for
+                     m in measures_objlist]) or
+                all([m.energy_outputs["split_fuel"] is False for
+                     m in measures_objlist])):
+            raise ValueError(
+                "Inconsistent output fuel splits used "
                 "across active ECM set. To address this issue, "
                 "ensure that all active ECMs in ./run_setup.json were "
                 "prepared using the same command line options, or"

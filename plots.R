@@ -165,7 +165,7 @@ bclasses_out_finmets_lgnd<-c('Residential', 'Commercial')
 # Set list of possible end uses and associated colors/legend entries for
 # aggregate savings plot
 euses_out_agg<-c('Heating (Equip.)', 'Cooling (Equip.)', 'Heating (Env.)', 'Cooling (Env.)',
-	'Ventilation', 'Lighting', 'Water Heating', 'Refrigeration', 'Electronics', 'Other')
+	'Ventilation', 'Lighting', 'Water Heating', 'Refrigeration', 'Cooking', 'Electronics', 'Other')
 euses_out_agg_col<-brewer.pal(length(euses_out_agg), "Paired")
 # Set list of possible end use names from the raw data and associated colors/legend entries for
 # cost effectiveness plot
@@ -173,11 +173,12 @@ euses_out_finmets<-c(
 	list(c('Heating (Equip.)', 'Cooling (Equip.)', 'Ventilation')),
 	list(c('Heating (Env.)', 'Cooling (Env.)')),
 	list('Lighting'),
-    list('Water Heating'), list('Refrigeration'), list('Computers and Electronics'),
-    list('Other'))
+    list('Water Heating'), list('Refrigeration'), list('Cooking'),
+    list('Computers and Electronics'), list('Other'))
 euses_out_finmets_col<-brewer.pal(length(euses_out_finmets), "Dark2")
-euses_out_finmets_lgnd<-c('HVAC', 'Envelope', 'Lighting', 
-					      'Water Heating', 'Refrigeration', 'Electronics', 'Other')
+euses_out_finmets_lgnd<-c(
+  'HVAC', 'Envelope', 'Lighting', 'Water Heating', 'Refrigeration',
+  'Cooking', 'Electronics', 'Other')
 
 # Determine axis label parameters to use across plots
 
@@ -698,8 +699,19 @@ for (a in 1:length(adopt_scenarios)){
 	                      }else{
 	                        index = levthree
 	                      }
-	                      # Add retrieved data to ECM's savings-by-filter variable vector
-	                      add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
+	                      # Add retrieved data to ECM's savings-by-filter variable vector;
+                        # handle case where end use savings are further split out by
+                        # fuel type ('Electric' vs. 'Non-Electric')
+	                      if (length(r_agg_temp) == 2){
+                          for (fuel in c("Electric", "Non-Electric")){
+                            if (length(r_agg_temp[[fuel]])!=0){
+                              add_val[index] = add_val[index] +
+                                r_agg_temp[[fuel]][years[yr]][[1]]
+                            }
+                          }
+                        }else{
+                          add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
+                        }
 	                    }
 	                  }                  
 	                }  
