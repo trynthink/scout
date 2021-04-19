@@ -1,3 +1,13 @@
+""" Python script for automatically comparing aggregated yearly energy values obtained from EIA API and mseg_res_com_cz.json data file.
+
+This script recursively traverses through the nested structure of mseg_res_com_cz.json data file
+and aggregates all energy values for a given year based on building class, fuel type, and end use specification. 
+This script uses the EIA API to automatically pull the corresponding data series using the seriesID for the AEO data tables. This seriesID is
+constructed based on identifying characteristics such as building class, fuel type, and end use. 
+
+Both energy values, EIA API and JSON, are compared based on whether their corresponding energy values have a percent error of 1% or less. 
+"""
+
 import os
 import sys
 import json
@@ -7,32 +17,61 @@ import numpy.testing as npt
 import logging
 from scipy import stats
 import datetime
+from converter import data_processor
+
+
 
 class Useful_json_translators(object):
-    """Dict translators for building class, end use, and fuel type found on in the EIA data """
+    """Dict translators used to match the syntax of building classes, end uses, and fuel types found on in the mseg_res_com_cz.json data file to the seriesID abbreviations used in an EIA API query call.  
+    
+    Attributes:
+        bldg_class_translator (dict): Dict structure for building classes.   
+        end_use_translator (dict): Dict structure for all end uses.
+        fuel_type_translator (dict):  Dict structure for fuel types of interest. 
+        In the EIA API, residential building classes mainly use electricity whereas and commercial building classes use Purchased Electricity. 
+        Both building classes use natural gas as a fuel type.  
+        """
     def __init__(self):
-        # Dict of building class
+        """ Initializes three dict translators. """
+
+        # Building class
         self.bldg_class_translator = {'residential': 'RESD', 'commercial': 'COMM'}
 
-        #Dict of end uses
-        self.end_use_translator = {'clothes washing': 'CLW', 'clothes dryers': 'CDR', 'computers': 'CMPR', 'cooking': 'CGR', 'computing': 'OTHEQPPC' ,
-        'delivered energy':'DELE', 'dishwashers': 'DSW', 'fans and pumps': 'FPR', 'freezers': 'FRZ', 'lighting': 'LGHTNG', 'office equipment': 'OTHEQPNPC',
+        # End Use
+        self.end_use_translator = {'clothes washing': 'CLW', 'clothes dryers': 'CDR', 'computers': 'CMPR', 'cooking': 'CGR',
+        'delivered energy':'DELE', 'dishwasher': 'DSW', 'fans and pumps': 'FPR', 'freezers': 'FRZ', 'lighting': 'LGHTNG', 'non-PC office equipment': 'OTHEQPNPC',
         'other uses': 'OTHU','refrigeration': 'REFR', 'cooling': 'SPC', 'heating': 'SPH', 'TVs': 'TVR', 'ventilation': 'VNTC', 'water heating': 'WTHT' }
         
-        #Dict of fuel type, electricity is residential
-        # purchased electricity is for commercial
+        # Fuel type
         self.fuel_type_translator = {'electricity': 'ELC', 'Purchased Electricity': 'PRC', 'natural gas': 'NG'}
 
 class Set_Up_Real_Data(object):
-    """ Test downstream functions by importing real data """
+    """ Import mseg_res_com_cz.json data file for testing downstream functions.
+    
+    Attributes:
+        data_dict (dict): JSON data file as a dict structure.
+    """
     @classmethod
     def import_real_data(self):
+        """ Initializes function to import JSON data file.
+        
+        Returns: The mseg_res_com_cz.json data file as a dict structure to be used in other functions as an agrument.
+        """
         with open('supporting_data/stock_energy_tech_data/mseg_res_com_cz.json') as f:
             self.data_dict = json.load(f)
             return self.data_dict
 
-## Initialize class
-real_data = Set_Up_Real_Data()
+class Set_Up_Test_Data(object):
+    """ Tests downstream functions by importing test data """
+    # Read in test data
+    # Reads json file and puts file information into dict form 
+    # May decide later to hardcode all the data in instead of importing like below
+    @classmethod
+    def importing_test_data(self):
+        with open('test_json_traverse.json') as f:
+            self.data_dict = json.load(f)
+            return self.data_dict
+
 
 def api_query(api_key, series_id):
     """Execute an EIA API query and extract the data returned
@@ -48,6 +87,7 @@ def api_query(api_key, series_id):
         A nested list of data with inner lists structured as
         [year string, data value].
     """
+
     query_str = ('http://api.eia.gov/series/?api_key=' + api_key +
                  '&series_id=' + series_id)
     data = requests.get(query_str).json()
@@ -62,28 +102,9 @@ def api_query(api_key, series_id):
         #breakpoint()
     return data
 
-def data_processor(data):
-    """Restructure the data obtained from the API into numpy arrays
-
-    Args:
-        data (list): A list of data, with each value a list where
-            the first value is the year as a string and the second
-            value is the number for that year for the data requested.
-
-    Returns:
-        Two numpy arrays, one containing the data and one containing
-        the years corresponding to those data. Both arrays are sorted
-        according to ascending year order.
-    """
-    years, data = zip(*data)
-    years = np.array(years)
-    data = np.array(data)[years.argsort()]  # Re-sort in ascending year order
-    years = years[years.argsort()]  # Re-sort to be in ascending year order
-    return data, years
-
 
 def data_getter(api_key, series_names, api_series_list):
-    """Get data from EIA using their data API and store in dict
+    """Get data from EIA API and store in dict using an unique API key and data series.
 
     Call the required functions to obtain data from EIA using their
     data API, restructure the data into numpy arrays, and store in
@@ -134,351 +155,290 @@ def data_getter(api_key, series_names, api_series_list):
             
 
 def recur(data_dict, JSON_years_list=[]):
-    """Recursively traverse dict and store leaf node keys in list
+    """Recursively traverses a JSON data file and stores the last leaf node keys in a list.
+
+    Args: 
+        data_dict (dict): Data structure from mseg_res_com_cz.json data file.
+        JSON_years_list (list): Preallocated empty list used to save the last leaf node key
+        after each iteration. The key represents the all years found in the mseg_res_com_cz.json data file. 
+
+    Returns:
+        A list corresponding to all years found each time the mseg_res_com_cz.json data file was traversed. 
+        Repetitive set of years will be saved that matches the number of recursive iterations. 
     """
+
     for key, item in data_dict.items():
         if isinstance(item, dict):
             recur(item, JSON_years_list)
         else:
-            JSON_years_list.append(key)
-            #breakpoint()
+            ## Might need to clean this up and only have it set where if key!=stock append
+            if (key!= 'stock'):
+                JSON_years_list.append(key) 
     return JSON_years_list
 
-## Create a another function to use ordered key_list and create a boolean array for comparsion of EIA years
-def extract_EIA_years_for_comparsion(filter_strings):    
-    ## Call construct EIA series ID function, if 2 tuples enter, stops here, triggers IndexError
-    eia_str_series_ID = construct_EIA_series_ID(filter_strings)
 
-    ## Grab list of EIA years from calling api query function, copy lines from data comparsion function
-    eia_data_array, eia_data_years = data_processor(api_query(os.environ['EIA_API_KEY'], eia_str_series_ID))
-
-    ## Grabs current year automatically
-    current_time = datetime.datetime.now()
-
-    ## Current comparison year is 2019 or the starting year of the EIA data.. can use this as a validation step or a test
-    ## Write a test that the comparsion_year = to first year in the EIA np array
-    comparison_year = (current_time.year - 2)
+def extract_EIA_years_for_comparison(data_dict, filter_strings):
+    """ Uses an ordered list of available years found in the JSON data file to create a boolean array of years demonstrated in EIA API data. 
     
-    ## De-bugging purposes
-    #breakpoint()
-    ## Convert JSON_years_np elements from str to int for indexing with boolean array
-    EIA_years = eia_data_years.astype(np.int)
+    Args:
+        filter_strings (list): A 3-element list representing building class, fuel type, and end use. 
+        This list constructs the identifying string(seriesID) needed to execute the EIA API query call.
+    
+    Returns:
+        A boolean array to determine which years are present in both the JSON data file and EIA API query call.
+    
+        """
 
-    ## Create a boolean array using EIA years list 
-    ## Use boolean array to drop unneccessary energy values
-    EIA_boolean_array = EIA_years >= comparison_year
-    #print(EIA_boolean_array)
+    try:
+             
+        # Call function to construct seriesID for EIA API query call
+        #breakpoint()
+        eia_str_series_ID = construct_EIA_series_ID(filter_strings)
+       
+        # Execute EIA API query call and obtain energy values with their associated years 
+        eia_data_array, eia_data_years = data_processor(api_query(os.environ['EIA_API_KEY'], eia_str_series_ID))
 
-    ## Output boolean array with True and False
-    return EIA_boolean_array
- 
+        # Ordered list of all unique years found in JSON data file
+        JSON_years_ordered = sorted(list(set(recur(data_dict))))
+        # De-bugging purposes
+        #breakpoint()
 
-def recursive(data_dict, filter_strings ,energy_vals, position_list=[]):
-    """ OPERATION: Recursive function traverses the json structure
-    Grabs energy values per year as numpy array
-    Test against test data first, then real data""" 
+    except IndexError:
+        print('Incorrect element length inside', filter_strings )
+    except ValueError:
+        print('API query function fails, data not present in EIA API for:', filter_strings)
+    else:
+        #breakpoint()
+        ## Need to figure out how to connect JSON_years_ordered variable 
+        # Convert JSON_years_ordered from list to numpy array
+        JSON_years_np = np.array(JSON_years_ordered)
 
+        # Convert JSON and EIA year elements from str to int for indexing with boolean array
+        # EIA API years
+        EIA_years_np = eia_data_years.astype(np.int)
+
+        # Years from JSON data file
+        JSON_years_np_int = JSON_years_np.astype(np.int)
+
+        # Use first year in EIA API as comparison year
+        EIA_1st_year = EIA_years_np[0]
+        
+        # Boolean array to use as data comparison metric 
+        EIA_boolean_array = JSON_years_np_int >= EIA_1st_year
+
+        return EIA_boolean_array
+
+
+def recursive(data_dict, filter_strings, energy_vals, position_list=[]):
+    """ Recursive function traverses the json structure based on building class, fuel type, and end use and aggregates energy values per year as numpy array. 
+    
+    Args:
+        data_dict (dict):  mseg_res_com_cz.json data file as a dict structure.
+        filter_strings (list):  A 3-element list representing building class, fuel type, and end use.
+        energy_vals (numpy array): A pre-allocated empty array used for the aggregated energy values calculated from the JSON data file. 
+        position_list (list): An empty list used to store leaf node keys as the JSON data file is recursively traversed. 
+    
+    Returns:
+        An ordered numpy array containing the aggregated energy values per year found
+        in the traversed JSON data file based on a given building class, fuel type, and end use combination. 
+    """ 
+     
     for key, value in data_dict.items():
-        if isinstance(value, dict): 
+        
+        ## Enters this condiitonal and recursively goes through JSON when
+        ## isinstance(value, dict) == True and (key!= 'energy') == True
+        if isinstance(value, dict) and (key!= 'energy'): 
             #breakpoint() 
-            recursive(value, filter_strings, energy_vals, position_list+[key])    
+            recursive(value, filter_strings, energy_vals, position_list+[key])
+              
         
         ## At the endpoint/leaf node, use relevant fuel type and end use combination to filter neccessary energy values, aggregate energy value by year
+        ## Enters here when isinstance(value, dict) == False and (key!= 'energy') == True
         else:
-            
             ## Store different key iterations (climate zone, bldg class, fuel type, end use, year) as a list
             years_as_keys_list = position_list+[key]
-            
-            ## Convert list into numpy array
-            #years_as_keys_array = np.array(years_as_keys_list)
-            #years_as_keys_array = np.array(years+[key])
+            #breakpoint()
 
-            ## Create a dict for residential and commercial bldg types 
-            ## Check format in EIA for proper syntax matching, 
-            all_bldg_types = {'residential': ['single family home', 'multi family home', 'mobile homes'], 
-            'commercial': ['assembly', 'education', 'food sales','food service', 'health care', 'lodging',
-            'small office','large office','mercantile/serice', 'warehouse', 'other']}
-    
-            ## De-bugging purposes
-            breakpoint()
-          
-            ## Add in additional conditional, to take into account bldg class + end use combinations
-            ## If all_bldg_types[filter_strings[0]] is a list of tuple then 
-            ## if any all_bldg_types[filter_strings[0]] == years_as_keys_list[1]
-            ## Make the new conditional more dynamic 
-            #num_bldg_class = len(all_bldg_types[filter_strings[0]])
-            if filter_strings[1] == years_as_keys_list[2] and filter_strings[2] == years_as_keys_list[4] and 'energy' in years_as_keys_list:
+            ## Enters this conditional statement when isinstance(value, dict) == True and (key!= 'energy')== False)
+            if (filter_strings[1] == years_as_keys_list[2] and 'energy' in years_as_keys_list) and (filter_strings[2] == years_as_keys_list[3] or filter_strings[2] == years_as_keys_list[4]):
                 ## De-bugging purposes 
                 #breakpoint()
 
                 ## Sort by keys in year order and grab values in the order of the years as numpy array
-                energy_vals+=np.array([data_dict[key] for key,value in sorted(data_dict.items())]) 
-
-                ## Stores year and energy val as a tuple np array
-                energy_years_values_np = np.array(sorted(data_dict.items()))
-
-
-                ## Convert JSON_years_np elements from str to int for indexing with boolean array
-                #JSON_years_np = JSON_years_np.astype(np.int)
-
-                ## De-bugging purposes
+                #energy_vals+=np.array([data_dict[key] for key, value in sorted(data_dict.items())])
+                energy_vals+=np.array([energy_yr_vals[1] for energy_yr_vals in sorted(value.items())])
                 #breakpoint()
-
                 #print(energy_vals)
-                
-    return energy_vals #(truncated_JSON_energy_vals, truncated_JSON_energy_years)  
+
+    return energy_vals  
 
 
 def construct_EIA_series_ID(filter_strings):
-    ## Initialize json translators
+    """ Contructs seriesID string based on building class, fuel type, and end use neccessary to execute the EIA API query call for a particular data series.
+    
+    Args:
+        filter_strings (list): A 3-element list representing building class, fuel type, and end use.
+    
+    Returns:
+        An identifying string or seriesID information neccessary to call an EIA API query for a particular data series. 
+    """
+
+    # Initialize json translators
     json_dicts = Useful_json_translators()
 
-    ## this statement will run if outcome is true
+    # Constructing conditions for residential building class seriesID string
     if filter_strings[0] == 'residential':
         condition_1 = json_dicts.end_use_translator[filter_strings[2]]
         condition_2 = 'NA'
+        condition_3 = ['NA', 'HHD']
 
-    ## Will run when 1st if block is false
+        # Constructed EIA series ID string
+        eia_series_ID = ('AEO.2020.REF2020.CNSM_'+condition_3[0]+'_'+json_dicts.bldg_class_translator[filter_strings[0]]+'_'+
+        condition_1+'_'+json_dicts.fuel_type_translator[filter_strings[1]]+'_'+condition_2+'_USA_QBTU.A')
+
+        if filter_strings[2] == 'heating':
+            # Constructed EIA series ID string
+            
+            eia_series_ID = ('AEO.2020.REF2020.CNSM_'+condition_3[1]+'_'+json_dicts.bldg_class_translator[filter_strings[0]]+'_'+
+            condition_1+'_'+json_dicts.fuel_type_translator[filter_strings[1]]+'_'+condition_2+'_USA_QBTU.A')
+
+    # Constructing conditions for commercial building class seriesID string
     elif filter_strings[0] == 'commercial':
         condition_1 = 'NA'
         condition_2 = json_dicts.end_use_translator[filter_strings[2]]
-
-    ## EIA series ID string
-    eia_series_ID = 'AEO.2020.REF2020.CNSM_NA_'+json_dicts.bldg_class_translator[filter_strings[0]]+'_'+condition_1+'_'+json_dicts.fuel_type_translator[filter_strings[1]]+'_'+condition_2+'_USA_QBTU.A'
-    ## De-bugging purposes
-    #print(eia_series_ID)
-    return (eia_series_ID)
-
-## Grab list of traversed JSON years, use the output of the recur function
-JSON_years_list = recur(real_data.import_real_data())
-
-def data_comparsion(data_dict,filter_strings, np_array, mismatched_data=[], position_list=[]):
-    """OPERATION: Data comparsion function attempts to run recursive function 
-    Traverses real data, calls EIA API, with filter strings list comprehension
-    If succesful, compares energy values from traversed real data and EIA API
-    If unsuccessful, has IndexError, prints message """
-
-    ## If no exception occurs, then except is skipped
-    ## If exception occurs, then rest of try block is skipped
-    try:
-        ## call recursive function, get energy values, change filter string to match the fiter string combo you call from recursive
-        ## first arg should be the full json structure, returns json structure, problem is in recursive function
-        #  energy_vals, JSON_years_np  = recursive(real_data.import_real_data(), filter_strings, np.zeros(36),np.zeros(36))
-
-        ## Might have to change the truncated preallocated arrays to np.zeros(32) instead np.zeros(36)
-        energy_vals = recursive(real_data.import_real_data(), filter_strings, np.zeros(36))
         
-        ## Obtain boolean array for EIA years
-        EIA_boolean_array = extract_EIA_years_for_comparsion(filter_strings)
+        # Constructed EIA series ID string
+        eia_series_ID = ('AEO.2020.REF2020.CNSM_NA_'+json_dicts.bldg_class_translator[filter_strings[0]]+'_'+condition_1+'_'+
+        json_dicts.fuel_type_translator[filter_strings[1]]+'_'+condition_2+'_USA_QBTU.A')
 
-        #energy_vals = recursive(data_dict, filter_strings, np.zeros(32))
-        #recursive(real_data.import_real_data(), filter_strings, np.zeros(2))
-        #years_as_keys_array = np.array(position_list+[key])
+    return eia_series_ID
 
 
-        ## Call construct EIA series ID function, if 2 tuples enter, stops here, triggers IndexError
-        #eia_str_series_ID = construct_EIA_series_ID(filter_strings)
+# Determine which exceptions are most valid, 
+# turn off except handling and phase one in at a time to see what is causing each error
+# then meet with Chioke
+def data_comparison(data_dict, filter_strings):
+    """ Compares aggregagted energy values from two data sources by attemptting to run a recursive function, traverse JSON data file, and execute an EIA API query.
+    
+    If successful, aggregated energy values from traversed JSON data file are compared to EIA API per year basis. 
+    using the filter strings combinations for building class, fuel type and end use. 
+    If unsuccessful, see print message for more details on error(s).
+    
+    Args:
+        data_dict (dict): mseg_res_com_cz.json data file as a dict structure.
+        filter_strings (list): A 3-element identifiying list representing building class, fuel type, and end use which determines a particular data series. 
+         
+    
+    Returns:
+        Two numpy arrays, one for aggregated EIA API energy values of a particular data series
+        and one for JSON energy values aggregated and truncated (based on years demonstrated in EIA API data series). 
+    
+    """
+
+    try:
+        # Testing ValueError
+        #breakpoint()
+
+        # Call recur function to get list of all years found in JSON data file 
+        JSON_years_as_list = recur(data_dict)
+
+        # Ordered list of all unique years found in JSON data file
+        JSON_years_ordered = sorted(list(set(JSON_years_as_list)))
+
+        # Get length of JSON years and use as preallocated np array length to call recursiv function
+        # Call recursive function to obtain aggregated energy values found in the traversed JSON data file 
+        energy_vals = recursive(data_dict, filter_strings, np.zeros(len(JSON_years_ordered)))
+
+        # Call function to obtain boolean array used to compare years found in JSON to available years in EIA API data series
+        EIA_boolean_array = extract_EIA_years_for_comparison(data_dict, filter_strings)
+
+        #breakpoint()
+        # Call function to construct seriesID neccessary to identify a particular data series in a EIA API query call
+        eia_str_series_ID = construct_EIA_series_ID(filter_strings)
 
         ## call EIA API and grab EIA energy values based on years
-        #eia_data_array, eia_data_years = data_processor(api_query(os.environ['EIA_API_KEY'], eia_str_series_ID))
+        eia_data_array, eia_data_years = data_processor(api_query(os.environ['EIA_API_KEY'], eia_str_series_ID))
         
         ## De-bugging purposes
-        breakpoint()
+        #breakpoint()
 
-
-    ## Only runs if try block is unsuccessful
+    # Exceptions triggered if any function call inside the try block is unsuccessful
     except IndexError:
         #breakpoint()
         print('Incorrect number of index, check:', filter_strings)
-    except AttributeError:
+    #except AttributeError:
         #breakpoint()
-        print('check filter strings list', filter_strings)
-    except KeyError:
+        #print('check filter strings list', filter_strings)
+    #except KeyError:
         #breakpoint()
-        print('Data not present in json, EIA API not accessed. Review filter strings:', filter_strings)
-    except ValueError as e:
-        ## this ValueError is triggered when seriesID (or eia_str_series_ID) doesn't access the EIA API
-        ## What should I do with this data?
-        ## Plan 1: Store filter_strings combination in a nunpy array ??; No longer doing
-        #filter_strings_np = np.array(filter_strings)
-        #missing_EIA_data+=np.array(filter_strings)
+        #print('Data not present in json, EIA API not accessed. Review filter strings:', filter_strings)
+    except ValueError:
+        #breakpoint
+        print('Operand and broadcast issue', filter_strings)
 
-        ## Plan 2: Look for two error messages: 
-        ## (1) Series ID not available from API: AEO.2020.REF2020.CNSM_NA_RESD_OTHEQPPC_ELC_NA_USA_QBTU.A
-        ## or should print "Series ID not available from API:" + eia_str_series_ID 
-        ## (2) 'Data not present in EIA API', filter_strings, print message
-        print('Data not present in EIA API', filter_strings)
-        
-        #De-bugging
-        #breakpoint()
-    ## Using bare except to catch all errors
-    #except:
-        #print('Some other error occurred')y
-    
-    ## If try block successful, then this runs
+    # Else block runs if all function calls inside try block are successful
     else:
         ##De-bugging   
-        breakpoint()
+        #breakpoint()
 
-        ## Probably a better way to do this-ask
-        ## Re-format boolean array from output of recursive function
-        JSON_boolean_array = JSON_boolean_array >539
-
-        ## Truncated JSON energy_vals to use for comparison with EIA API energy vals
-        truncated_JSON_energy_vals = energy_vals[JSON_boolean_array]
+        # Truncate energy values located in JSON where the years is not present in an EIA API data series
+        truncated_JSON_energy_vals = energy_vals[EIA_boolean_array]
         
-        ## Conversion factors from 2019-2050 to convert EIA site energy to EIA source energy to compare to traversed JSON energy vals
-        site_to_source_conversion_vals_array = np.array([
-        (2.924462),
-        (2.899339), 
-        (2.859119),
-        (2.823338),
-        (2.794036), 
-        (2.778606), 
-        (2.756023), 
-        (2.736274),
-        (2.719988), 
-        (2.706263), 
-        (2.700045), 
-        (2.691213),
-        (2.679883),
-        (2.660015),
-        (2.649401),
-        (2.636529),
-        (2.628546),
-        (2.623239),
-        (2.614512),
-        (2.607262),
-        (2.601466),
-        (2.594899),
-        (2.587528),
-        (2.57968),
-        (2.572619),
-        (2.565959),
-        (2.559463),
-        (2.553774),
-        (2.550256),
-        (2.545495),
-        (2.541934),
-        (2.537156)
-        ])
+        # Convert units of EIA API data series to match units in JSON data file
+        eia_energy_vals_array = (eia_data_array*1E9)
 
-        ## Use site to source conversion values to convert EIA values from site to source energy values
-        eia_source_energy_vals_array = (eia_data_array*10E9) * site_to_source_conversion_vals_array
-
-        ## Compare source EIA energy values to source JSON energy values
-        compare_soure_energy_arrays = np.array_equal(eia_source_energy_vals_array ,truncated_JSON_energy_vals)
-
-
-        #### START HERE
-        # Start working on why comparison is not equal, look into these reasons:                     
-        # - Aggregation might not be working correctly.. aggregation = JSON values = are lower
-        # - Not comparing the right thing or what I thinking to get is not work… JSON = look at the filter strings, eia str for recursive and data comaprsion
-        # - Data pulled is not correct
-        # - Or data is not right
-
-        ## Calculate percent difference between EIA and JSON energy values
-        ## In percent_differ equation, New_number= = JSON energy vals and Original_number = = EIA energy value so outcome is positive
-        ## Percent difference energy = ((New_number-Original_number)/Original_number) x 100
-        #percent_increase_vals = (filtered_JSON_energy_vals-eia_source_energy_vals_array)
-       # percent_differ_energy_vals = (percent_increase_vals/eia_source_energy_vals_array)*100
-
-        ## Calcualte percent error between EIA converted source energy values and orginal value
-        ## Look at 1% percent error , see what clears this threshold, step down to 0.01%.. find the optiomal percent erorr threshold
-        ## (1)Find difference method Look at another difference method , find on that works on large number, set compartive 1% error threshold
-        ## (2) See which dont fit the threshold, is there a pattern in filter strings in which ones don't pass threshold? 
-        #percent_error_energy_vals = (abs(eia_data_array-eia_source_energy_vals_array)/eia_data_array)* 100
+        # Compare EIA API and JSON aggregated energy values 
+        compare_energy_arrays = np.allclose(eia_energy_vals_array, truncated_JSON_energy_vals)
         
-        ## Better statistical approach: 
-        ## Perform a t-test between EIA and JSON energy values if p>0.05 then reject the null hypothesis and values are significantly difference
-        #t_test_energy_vals = stats.ttest_ind(filtered_JSON_energy_vals, eia_source_energy_vals_array)
+        # Calculate percent error between EIA API and JSON energy numpy arrays, acceptable error threshold is 1%
+        percent_error_energy_vals = (abs(eia_energy_vals_array-truncated_JSON_energy_vals)/eia_energy_vals_array)* 100
 
-        # # Might not need both nested if statements below
-        ## Might be able to remove the first one since known a prior values won't match due to mix of site and source energy values
-        ## Currently need a percent difference of <50 for the np. arrays to be equal
-        if (compare_soure_energy_arrays == False) :#and (t_test_energy_vals.pvalue<0.05== True):
-            ## De-bugging purposes
-            #breakpoint() 
+        if (compare_energy_arrays == False) and (((percent_error_energy_vals<=0.01).any())== False):
+            #breakpoint()             
+            
+            # Print both numpy arrays for EIA API and JSON energy values
+            print('EIA energy values:', eia_energy_vals_array, 'JSON energy values:', truncated_JSON_energy_vals)
 
-            ## Print converted EIA energy value and traversed and aggregated JSON energy value in the form of np arrays
-            print('EIA source converted energy values:', eia_source_energy_vals_array, 'JSON source energy values:',truncated_JSON_energy_vals)
+            # Store filter string combinations where EIA API data series and JSON traversed energy values are unequal 
+            unequal_energy_arrays= []
             
-            ## Store filter string combination of unequal energy values between EIA and JSON
-            unequal_energy_arrays= ['1st']
-            
-            ## Append filter strings combination to empty list
+            # Append filter strings combination to empty list
             unequal_energy_arrays.append(filter_strings+['NEXT'])
             
-            ## Output warning messages
-            logging.warning('Filter string combinations with unequal EIA and JSON energy values:', unequal_energy_arrays)
+            # Output warning messages
+            #logging.warning('Filter string combinations with unequal EIA and JSON energy values:', unequal_energy_arrays)
 
-            ## De-bugging purposes
-            #breakpoint()
-            
-                ## Re- compare EIA and JSON energy values to see why values arent equal
-                ## If the np arrays of EIA and JSON differ by more than 50% (percent difference greater than 50%)
-                ## One thought use assert almost equal..if max relative difference less than 35%, then say they are equal
-                ## Current max relative difference = 0.3177
-                #npt.assert_almost_equal(eia_source_energy_vals_array ,filtered_JSON_energy_vals)
-
-        ## Logic for setting up scenario when data not present in EIA or JSON
-        ## These cases are valid and have been vetted for errors
-        ## To set up cases when both error messages present
-        ## This should remove error messages printing to terminal window
-        ## Wait for this to dicuss the command toggle option
-
-        ## Chioke's advice: Command line option- use package = argparse, check out the documentation
-        # Look at these code for some examples using run.py and  ecm_prep.py
-        # set up at the bottom of code, use in the code
-        ## set up verbose option--> all warning messages wont print, set up on verbose instead
-        ## objective: give the user an option to print and if they dont want it then they dont print and if they choose to , then the messages will print
-
-        # if Series ID not available from API and Data not present in json, EIA API not accessed. Review filter strings:' present
-        # then store filter_string combination
-        # invalid_energy_data = []
-        # invalid_energy_data+= filter_strings
-        # logging.info('Invalid filter_string combination, data does not exist')
-        return (eia_data_array, energy_vals)
+        return eia_energy_vals_array, truncated_JSON_energy_vals
 
             
 def main():
-    ## Import json here
-    real_data = Set_Up_Real_Data()
+    """ Iteratively constructs filter_strings argument and calls functions on command line. """
 
-    ## All possible data combinations for bldg class, fuel type and end use
+    #Initialize class to read in
+    mseg_JSON = Set_Up_Real_Data()
+    test_JSON = Set_Up_Test_Data()
+    
+    # All possible data combinations for building class, fuel type and end use
     bldg_class = ['residential', 'commercial']
     fuel_type = ['electricity', 'Purchased Electricity', 'natural gas']
-    end_use = ['clothes washing', 'clothes dryers', 'computers', 'cooking', 'computing',
-    'delivered energy', 'dishwashers','fans and pumps', 'freezers', 'lighting', 'office equipment',
-    'other uses','refrigeration', 'cooling', 'heating', 'TVs', 'ventilation', 'water heating']
+    end_use = ['clothes washing', 'clothes dryers', 'computers', 'cooking',
+    'delivered energy', 'dishwasher', 'fans and pumps', 'freezers', 'lighting', 'non-PC office equipment',
+    'other uses', 'refrigeration', 'cooling', 'heating', 'TVs', 'ventilation', 'water heating']
 
-    ## Construct filter strings combination to be used to call functions
+    # Construct filter strings list used to call functions
     for bldg in bldg_class:
-        #print(str(bldg), type(bldg))
         for fuel in fuel_type:
-            #print(fuel, type(fuel))
             for use in end_use:
-                #print(use)
-                ## Concatenate filter strings combination
+                # Concatenate filter strings combination
                 filter_strings = [bldg, fuel, use]
-                ## could add some logic here to skip the filter_strings 
-                # that have ['residential', 'Purchased Electricity'] and ['commercial','electricity']
 
-                ## Call recursive function
-                #recursive(real_data.import_real_data(), filter_strings, np.zeros(32))
+                # Call comparison function, which also indirectly calls recursive function
+                data_comparison(mseg_JSON.import_real_data(), filter_strings)
 
-                ## Call data comparsion function, attempt on real data
-                ## Added in  np.zeros(3) to account for storing the filter string combinations of the missing EIA data
-                data_comparsion(real_data.import_real_data(), filter_strings, (np.zeros(36), np.zeros(36)))
+                # Testing ValueError for discussion
+                #data_comparison(mseg_JSON.import_real_data(), filter_strings=['residential', 'electricity', 'cooking'])  
                 
-                ## Call new recursive function
-                #recur(real_data.import_real_data())
-
-                ## Call function
-                #extract_EIA_years_for_comparsion([],filter_strings)
-
-
-## Runs on the command line
+# Runs on the command line
 if __name__ == '__main__':
     main()
 

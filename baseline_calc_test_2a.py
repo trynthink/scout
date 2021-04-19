@@ -1,5 +1,10 @@
+""" Tests for processing automated baseline calculator. """
+
 from unittest.mock import patch, call
-import baseline_calculator_code_2a 
+import baseline_calculator_code_2a
+from baseline_calculator_code_2a import Useful_json_translators
+import converter
+from converter import data_processor
 import unittest
 import json
 import numpy as np
@@ -7,68 +12,59 @@ import collections
 import os
 import sys
 
-
-class Useful_json_translators(object):
-    def __init__(self):
-        ## Dict translators for building class, end use, and fuel type found on in the EIA data
-        # Dict of building class
-        self.bldg_class_translator = {'residential': 'RESD', 'commercial': 'COMM'}
-
-        #Dict of end uses
-        self.end_use_translator = {'clothes washers': 'CLW', 'clothes dryers': 'CDR', 'computers': 'CMPR', 'cooking': 'CGR', 'computing': 'OTHEQPPC' ,
-        'delivered energy':'DELE', 'dishwashers': 'DSW', 'fans and pumps': 'FPR', 'freezers': 'FRZ', 'lighting': 'LGHTNG', 'office equipment': 'OTHEQPNPC',
-        'other uses': 'OTHU','refrigeration': 'REFR', 'cooling': 'SPC', 'heating': 'SPH', 'TVs': 'TVR', 'ventilation': 'VNTC', 'water Heating': 'WTHT' }
-        
-        #Dict of fuel type, electricity is residential
-        # purchased electricity is for commercial
-        self.fuel_type_translator = {'electricity': 'ELC', 'Purchased Electricity': 'PRC', 'natural gas': 'NG'}
-
-
+# Revist this later, Chioke will investigate data import
 class Set_Up_Test_Data(unittest.TestCase):
-    """ Test downstream functions by importing test data """
-    ## Read in test data
-    ## Reads json file and puts file information into dict form 
-    ## May decide later to hardcode all the data in instead of importing like below
+    """ Tests downstream functions by importing test data """
+    # Read in test data
+    # Reads json file and puts file information into dict form 
+    # May decide later to hardcode all the data in instead of importing like below
     @classmethod
     def importing_test_data(self):
         with open('test_json_traverse.json') as f:
-            data_dict = json.load(f)
+            self.data_dict = json.load(f)
+            return self.data_dict
 
-## Patching information from the test data
-class test_refrig_data(unittest.TestCase):
+class test_data_getter_fun(unittest.TestCase):
+    """ Tests operation of data getter function using the output of aggregated electric refrigeration and heating data.
+    
+    Data getter calls api query function which executes an EIA API call query using a data series string or seriesID and patching in test data from a JSON data file.
+    
+    """
+    
     # Define variables that will be used often in functions below
     json_dicts = Useful_json_translators()
 
-    # Specify dummy data name list as input to data_getter function
-    # Similar to filter strings 
+    # Refrigeration
+    # Specify dummy data name list as input to data_getter function 
     refrig_strings =  ['refrigeration'] 
+    # Heating
+    heating_strings =  ['heating']
 
-    # Test#1: Refrigeration values ; later can combine both test for refrig and heating into a for loop
-    # Specify expected output for refigeration data name; should be output to data_getter function
+    # Specify expected output for refigeration data name; output of data_getter function
+    # Refigeration years
     expected_refrig_years = np.array(['2015', '2016'])
 
-    # Desired format : dict of aggregated energy values as np array
-    expected_refrig_array = np.array([68, 74])
+    # Heating years
+    expected_heating_years = np.array(['2015', '2016'])
 
-    # Patching in refrigeration test data instead of calling EIA API
-    # Process:  Patch EIA API function call (api_query); return data set to test data;
+    # Desired format : dict of aggregated energy values as np array
+    # Refigeration energy values
+    expected_refrig_array = np.array([34, 37])
+
+    # Heating energy values
+    expected_heating_array = np.array([80, 92])
+
+    # Patching in electric refrigeration test data instead of calling EIA API
     @patch('baseline_calculator_code_2a.api_query')
-    def test_mock_refrig_EIA_API(self, mock_refrig_test_data):
-        # Set return value from mocked function 
-        # to summed refrigeration values from test data
-        mock_refrig_test_data.return_value = [['2016', 74], ['2015', 68]]
+    def test_mock_refrig_data(self, mock_refrig_test_data):
+        """ Tests the function and output of patching in refrigeration test data instead of executing a EIA API query call. """
+        
+        # Set return value to expected output of aggregated refrigeration values in test data 
+        mock_refrig_test_data.return_value = [['2016', 37], ['2015', 34]]
 
         # Call function inside which mock is applied; includes patch at the api query
-        # Output_dict_refrig_data (y) is {'residential': array([228, 258])}  <class 'dict'>
-        # mock_refrig_years is ['2015' '2016'] <class 'numpy.ndarray'>
-        output_dict_refrig_data, mock_refrig_years = baseline_calculator_code_2a.data_getter('',self.refrig_strings, [''])
+        output_dict_refrig_data, mock_refrig_years = baseline_calculator_code_2a.data_getter('', self.refrig_strings, [''])
         
-        # Debugging: view output aggregated data and desired data
-        #print(output_dict_refrig_data, type(output_dict_refrig_data))
-        
-        # Debugging: view output years and desired years
-        #print(mock_refrig_years, type(mock_refrig_years))
-
         # Test if patched output from EIA API api query function is the 
         # same as aggregated refrigeration test year
         np.testing.assert_array_equal(self.expected_refrig_years, mock_refrig_years)
@@ -79,38 +75,17 @@ class test_refrig_data(unittest.TestCase):
         mock_data_getter_array = output_dict_refrig_data['refrigeration']
         np.testing.assert_almost_equal(mock_data_getter_array, self.expected_refrig_array)
 
-class test_sum_electr_heat_data(unittest.TestCase):
-    # Define variables that will be used often in functions below
-
-    # Specify dummy data name list as input to data_getter function
-    # Similar to filter strings 
-    heating_strings =  ['heating'] 
-
-    # Test#1: Refrigeration values ; later can combine both test for refrig and heating into a for loop
-    # Specify expected output for refigeration data name; should be output to data_getter function
-    expected_heating_years = np.array(['2015', '2016'])
-
-    # Desired format : dict of aggregated energy values as np array
-    expected_heating_array = np.array([160, 184])
-
     # Patching in electric heating test data instead of calling EIA API
-    # Process:  Patch EIA API function call (api_query); return data set to test data;
     @patch('baseline_calculator_code_2a.api_query')
-    def test_electr_heat_mock_EIA_API(self, mock_heating_test_data):
+    def test_mock_electr_heat_data(self, mock_heating_test_data):
+        """ Tests the function and output of patching in heating test data instead of executing a EIA API query call. """
+
         # Set return value from mocked function 
         # to summed refrigeration values from test data
-        mock_heating_test_data.return_value = [['2016',184 ], ['2015', 160]]
+        mock_heating_test_data.return_value = [['2016',92 ], ['2015', 80]]
 
-        ## Call function inside which mock is applied; includes patch at the api query
-        # Output_dict_refrig_data (y) is {'residential': array([228, 258])}  <class 'dict'>
-        # mock_refrig_years is ['2015' '2016'] <class 'numpy.ndarray'>
-        output_dict_heating_data, mock_heating_years = baseline_calculator_code_2a.data_getter('',self.heating_strings, [''])
-        
-        ## Debugging: view output aggregated data and desired data
-        #print(output_dict_heating_data, type(output_dict_heating_data))
-        
-        # Debugging: view output years and desired years
-        #print(mock_refrig_years, type(mock_refrig_years))
+        # Call api query function to test patch
+        output_dict_heating_data, mock_heating_years = baseline_calculator_code_2a.data_getter('', self.heating_strings, [''])
 
         # Test if patched output from EIA API api query function is the 
         # same as aggregated refrigeration test year
@@ -122,78 +97,107 @@ class test_sum_electr_heat_data(unittest.TestCase):
         mock_heat_data_getter_array = output_dict_heating_data['heating']
         np.testing.assert_almost_equal(mock_heat_data_getter_array, self.expected_heating_array)
 
+class test_data_processor_func(unittest.TestCase):
+    # Expected mocked years numy array from output of data processor function
+    expected_output_mock_years_np = np.array(['2015', '2016'])
+
+    # Expected mocked aggregated energy values numy array from output of data processor function
+    expected_output_mock_energy_np = np.array([80, 92])
+
+    # Use patche test electric heating data and corresponding years
+    mock_API_query_heat_data = [['2016',92 ], ['2015', 80]]
+
+    # Patch in electric heating test data
+    def test_mock_API_query(self):
+        """ Tests the data processor function by using the output of the mocked api query function with test data.
+        """
+
+        # Call data processor function 
+        mocked_heating_data_np, mocked_heating_years_np = converter.data_processor(self.mock_API_query_heat_data)
+
+        # Test if output of data processor is what was expectde
+        # Years
+        np.testing.assert_array_equal(self.expected_output_mock_years_np, mocked_heating_years_np)
+
+        # Aggregated energy values
+        np.testing.assert_array_equal(self.expected_output_mock_energy_np, mocked_heating_data_np)
+
+
 class test_recursive_func(unittest.TestCase):
+    """ Tests operation of the recursive function."""
 
     # Set known inputs to recursive function 
     recursive_refrig_input = ['residential','electricity', 'refrigeration']
 
     # Set expected output to recursive function
     # Should be aggregated values from 2015, 2016
-    expected_recursive_output = np.array([68, 74])
-
+    expected_recursive_output = np.array([34, 37])
+  
     # Testing the operation of the recursive function
     def test_recursive_refrig(self):
+        """ 
+        """
+        
         # Test output of recursive function with hardcore value
-        recursive_output = baseline_calculator_code_2a.recursive(Set_Up_Test_Data.importing_test_data(), self.recursive_refrig_input, np.zeros(2), np.zeros(2))
+        recursive_output = baseline_calculator_code_2a.recursive(Set_Up_Test_Data.importing_test_data(), self.recursive_refrig_input, np.zeros(2))
 
         # Verify if outputs are the same
         np.testing.assert_array_equal(recursive_output, self.expected_recursive_output)
 
-class test_data_comparsion_try_else_block(unittest.TestCase):
-    # Test the try block cases
-    try_block_input = ['residential','electricity','refrigeration']
 
-    # Test expected output to try block
-    # Expected output is the output of the recursive function
-    # Output of the recursive function calls the else block
-    # Else block calls the EIA API with try_block_input
-    # Currently, not using try_block_input
-    expected_array_try_data = np.array([68, 74])
-    expected_array_try_years = np.array(['2015', '2016'])
+class test_data_comparison_func(unittest.TestCase):
+    """ Tests the expect block in data comparison function by purposely triggering an IndexError. 
+    
+    Tests the successful operation of the data comparsion function as if no errors were triggered for a given filter strings.
+    """
+    # Electric heating filter strings
+    heat_try_filter_strings = ['residential', 'electricity', 'heating']
 
+    # Expected output of JSON energy values which comes from mocking EIA API 
+    expected_JSON_values = np.array([80., 92.])
 
-    # Testing the operation of try block, if successful ,calls else block
+    # Expected output of EIA energy values, scaled as in code
+    expected_EIA_values =  np.multiply((np.array([80, 92])), 1E9)
+
     @patch('baseline_calculator_code_2a.api_query')
-    def test_else_block(self, mock_try_data):
-        mock_try_data.return_value = [['2016', 74], ['2015', 68]]
+    def test_try_block(self, mock_API_EIA):
+        # Patch electric heating test data as output of api query function
+        mock_API_EIA.return_value = [['2016',92 ], ['2015', 80]]
 
-        # Call EIA API, output arrays are aggregated energy values and years
-        output_array_eia_data, output_array_eia_years = baseline_calculator_code_2a.data_getter('',self.try_block_input, [''])
-    
-        # De-bugging 
-        #print(output_array_eia_data)
+        #  Call data comparison function
+        EIA_mock_heating_energy_vals, JSON_heating_energy_vals = baseline_calculator_code_2a.data_comparison(Set_Up_Test_Data().importing_test_data(), self.heat_try_filter_strings)
+        #breakpoint()
         
-        # Test if np array output from try/else block equals mock EIA API data
-        # Matches expected array
-        mock_try_array = output_array_eia_data['residential']
-        np.testing.assert_almost_equal(mock_try_array, self.expected_array_try_data)
+        # Verify outputs
+        # JSON, expect to pass as mocked recursive function, already testing recursive function in previous test, don't need duplicate test
+        np.testing.assert_array_equal(self.expected_JSON_values, JSON_heating_energy_vals)
 
-        # Test if years are equal
-        np.testing.assert_array_equal(output_array_eia_years, self.expected_array_try_years)
+        #EIA
+        np.testing.assert_array_equal(self.expected_EIA_values, EIA_mock_heating_energy_vals)
 
-class test_data_comparsion_expect_block(unittest.TestCase):
-    # Purposely input only bldg class and end use for input into
-    # recursive function to trigger exception
-    filter_str_exception = ['residential','refrigeration']
-    
-    # Text expected to be printed to the stdout by the except block
-    expected_except_print = None #('Incorrect number of index, check:', filter_str_exception)
 
-    def test_except_print(self):
+    def test_IndexError(self):
         json_dicts = Useful_json_translators()
         import_test_data = Set_Up_Test_Data()
 
-        mock_print = baseline_calculator_code_2a.data_comparsion(Set_Up_Test_Data.importing_test_data(), self.filter_str_exception, (np.zeros(2), np.zeros(2)))
+        # Purposely input only bldg class and end use for input into
+        # recursive function to trigger exception
+        filter_str_exception = ['residential','refrigeration']
+        
+        # Text expected to be printed to the stdout by the except block
+        expected_except_print = None #('Incorrect number of index, check:', filter_str_exception)
 
-        ## De-bugging purposes, if an error is triggered, this print will output None
-        #print(mock_print)
+        mock_print = baseline_calculator_code_2a.data_comparison(Set_Up_Test_Data().importing_test_data(), filter_str_exception)
+        #breakpoint()
 
         ## Test that printed output from the except block matches the expected string
         ## Only catches raised error if its located inside its corresponding try block
-        self.assertEqual(mock_print, self.expected_except_print)
+        self.assertEqual(mock_print, expected_except_print)
         #self.assertEqual(mock_print.mock_calls[0][1][0], self.expected_except_print)
 
 class test_differ_EIA_series_IDs(unittest.TestCase):
+    """ Tests constructing EIA seriesID function.  """
+
     ## Test four different filter string combinations
     
     ## Different bldg class and fuel type, same end use
@@ -211,7 +215,7 @@ class test_differ_EIA_series_IDs(unittest.TestCase):
     comm_vent_series_name = ['commercial', 'Purchased Electricity', 'ventilation']
     expected_comm_vent_series_id = 'AEO.2020.REF2020.CNSM_NA_COMM_NA_PRC_VNTC_USA_QBTU.A'
 
-    ## Residental,freezer, electricity
+    ## Residental, freezer, electricity
     ## https://www.eia.gov/opendata/qb.php?category=3604376&sdid=AEO.2020.REF2020.CNSM_NA_RESD_FRZ_ELC_NA_USA_QBTU.A
     resd_frz_series_name = ['residential', 'electricity', 'freezers']
     expected_resd_frz_series_id = 'AEO.2020.REF2020.CNSM_NA_RESD_FRZ_ELC_NA_USA_QBTU.A'
@@ -234,26 +238,11 @@ class test_differ_EIA_series_IDs(unittest.TestCase):
 
         ## Freezers
         resd_frz_eia_series_ID = baseline_calculator_code_2a.construct_EIA_series_ID(self.resd_frz_series_name)
-        self.assertEqual(resd_frz_eia_series_ID,self.expected_resd_frz_series_id)
+        self.assertEqual(resd_frz_eia_series_ID, self.expected_resd_frz_series_id)
 
 
-# class test_real_data_recursive_func(unittest.TestCase):
-#     ## Initialize real data
-#     json_dicts = Useful_json_translators()
-#     # Set known inputs to recursive function 
-#     recursive_refrig_input = ['residential','electricity', 'refrigeration']
 
-#     # Set expected output to recursive function
-#     # Should be aggregated values from 2015, 2016
-#     expected_recursive_output = np.array([68, 74])
 
-#     # Testing the operation of the recursive function
-#     def test_real_data_refrig(self):
-#         # Test output of recursive function with hardcore value
-#         real_data_recursive_output = baseline_calculator_code_2a.recursive(self.data_dict, self.recursive_refrig_input, np.zeros(2))
-
-#         # Verify if outputs are the same
-#         np.testing.assert_array_equal(real_data_recursive_output, self.expected_recursive_output)
 
 if __name__ == '__main__':
     unittest.main()
