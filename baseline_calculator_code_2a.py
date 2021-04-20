@@ -18,6 +18,7 @@ import logging
 from scipy import stats
 import datetime
 from converter import data_processor
+from argparse import ArgumentParser
 
 
 
@@ -259,10 +260,14 @@ def recursive(data_dict, filter_strings, energy_vals, position_list=[]):
             years_as_keys_list = position_list+[key]
             #breakpoint()
 
+            # Need to add bldg class filter that matches filter_strings[0]
+            all_bldg_types = {'residential': ['single family home', 'multi family home', 'mobile homes'], 
+            'commercial': ['assembly', 'education', 'food sales','food service', 'health care', 'lodging', 'small office','large office','mercantile/serice', 'warehouse', 'other']}
+
             ## Enters this conditional statement when isinstance(value, dict) == True and (key!= 'energy')== False)
             if (filter_strings[1] == years_as_keys_list[2] and 'energy' in years_as_keys_list) and (filter_strings[2] == years_as_keys_list[3] or filter_strings[2] == years_as_keys_list[4]):
                 ## De-bugging purposes 
-                #breakpoint()
+                breakpoint()
 
                 ## Sort by keys in year order and grab values in the order of the years as numpy array
                 #energy_vals+=np.array([data_dict[key] for key, value in sorted(data_dict.items())])
@@ -337,7 +342,7 @@ def data_comparison(data_dict, filter_strings):
 
     try:
         # Testing ValueError
-        #breakpoint()
+        breakpoint()
 
         # Call recur function to get list of all years found in JSON data file 
         JSON_years_as_list = recur(data_dict)
@@ -347,7 +352,7 @@ def data_comparison(data_dict, filter_strings):
 
         # Get length of JSON years and use as preallocated np array length to call recursiv function
         # Call recursive function to obtain aggregated energy values found in the traversed JSON data file 
-        energy_vals = recursive(data_dict, filter_strings, np.zeros(len(JSON_years_ordered)))
+        energy_vals = recursive(data_dict, filter_strings, (np.zeros(len(JSON_years_ordered))))
 
         # Call function to obtain boolean array used to compare years found in JSON to available years in EIA API data series
         EIA_boolean_array = extract_EIA_years_for_comparison(data_dict, filter_strings)
@@ -433,15 +438,31 @@ def main():
                 filter_strings = [bldg, fuel, use]
 
                 # Call comparison function, which also indirectly calls recursive function
-                data_comparison(mseg_JSON.import_real_data(), filter_strings)
-
-                # Testing ValueError for discussion
-                #data_comparison(mseg_JSON.import_real_data(), filter_strings=['residential', 'electricity', 'cooking'])  
+                #data_comparison(mseg_JSON.import_real_data(), filter_strings)
                 
+                # Testing ValueError for discussion
+                data_comparison(mseg_JSON.import_real_data(), filter_strings=['residential', 'electricity', 'cooking'])  
+                #recursive(mseg_JSON.import_real_data(), ['residential', 'electricity', 'cooking'], np.zeros(36))
+
+
 # Runs on the command line
 if __name__ == '__main__':
     main()
 
+    # Handle option user-specified execution arguments
+    parser = ArgumentParser()
+    parser.add_argument("--verbose", action="store_true", dest="verbose",
+                        help="print all warnings to stdout")
+
+    # Handle cases when no seriesID avalilable for given filter strings combination
+    parser.add_argument("Series ID not available from API" + series_id,  action="store_true", dest="weird_series_ID_combo",
+                    help="SeriesID combination could not access EIA API")
+    
+    #Handle cases where weird filter string combinations are generated and used to call EIA API query 
+    parser.add_argument("API query function fails, data not present in EIA API for", filter_strings,  action="store_true", dest="weird_bldg_fuel_end_use_combo",
+                    help="Failed EIA API query call")   
+                         
+    options = parser.parse_args(['--verbose', 'Series ID not available from API', 'API query function fails, data not present in EIA API for'])
     
 
 
