@@ -1,8 +1,8 @@
 """ Tests for processing automated baseline calculator. """
 
 from unittest.mock import patch, call
-import baseline_calculator_code_2a
-from baseline_calculator_code_2a import Useful_json_translators
+import baseline_calculator_code_2b
+from baseline_calculator_code_2b import Useful_json_translators
 import converter
 from converter import data_processor
 import unittest
@@ -20,7 +20,7 @@ class Set_Up_Test_Data(unittest.TestCase):
     # May decide later to hardcode all the data in instead of importing like below
     @classmethod
     def importing_test_data(self):
-        with open('test_json_traverse.json') as f:
+        with open('test_json_traverse_v2.json') as f:
             self.data_dict = json.load(f)
             return self.data_dict
 
@@ -55,7 +55,7 @@ class test_data_getter_fun(unittest.TestCase):
     expected_heating_array = np.array([80, 92])
 
     # Patching in electric refrigeration test data instead of calling EIA API
-    @patch('baseline_calculator_code_2a.api_query')
+    @patch('baseline_calculator_code_2b.api_query')
     def test_mock_refrig_data(self, mock_refrig_test_data):
         """ Tests the function and output of patching in refrigeration test data instead of executing a EIA API query call. """
         
@@ -63,7 +63,7 @@ class test_data_getter_fun(unittest.TestCase):
         mock_refrig_test_data.return_value = [['2016', 37], ['2015', 34]]
 
         # Call function inside which mock is applied; includes patch at the api query
-        output_dict_refrig_data, mock_refrig_years = baseline_calculator_code_2a.data_getter('', self.refrig_strings, [''])
+        output_dict_refrig_data, mock_refrig_years = baseline_calculator_code_2b.data_getter('', self.refrig_strings, [''])
         
         # Test if patched output from EIA API api query function is the 
         # same as aggregated refrigeration test year
@@ -76,7 +76,7 @@ class test_data_getter_fun(unittest.TestCase):
         np.testing.assert_almost_equal(mock_data_getter_array, self.expected_refrig_array)
 
     # Patching in electric heating test data instead of calling EIA API
-    @patch('baseline_calculator_code_2a.api_query')
+    @patch('baseline_calculator_code_2b.api_query')
     def test_mock_electr_heat_data(self, mock_heating_test_data):
         """ Tests the function and output of patching in heating test data instead of executing a EIA API query call. """
 
@@ -85,7 +85,7 @@ class test_data_getter_fun(unittest.TestCase):
         mock_heating_test_data.return_value = [['2016',92 ], ['2015', 80]]
 
         # Call api query function to test patch
-        output_dict_heating_data, mock_heating_years = baseline_calculator_code_2a.data_getter('', self.heating_strings, [''])
+        output_dict_heating_data, mock_heating_years = baseline_calculator_code_2b.data_getter('', self.heating_strings, [''])
 
         # Test if patched output from EIA API api query function is the 
         # same as aggregated refrigeration test year
@@ -127,22 +127,23 @@ class test_recursive_func(unittest.TestCase):
     """ Tests operation of the recursive function."""
 
     # Set known inputs to recursive function 
-    recursive_refrig_input = ['residential','electricity', 'refrigeration']
+    recursive_light_input = ['commercial','electricity', 'lighting']
 
     # Set expected output to recursive function
-    # Should be aggregated values from 2015, 2016
-    expected_recursive_output = np.array([34, 37])
+    # Should be aggregated values from 2016, 2017
+    expected_light_recursive_output = np.array([99, 97])
   
     # Testing the operation of the recursive function
-    def test_recursive_refrig(self):
+    def test_recursive_light(self):
         """ 
         """
-        
-        # Test output of recursive function with hardcore value
-        recursive_output = baseline_calculator_code_2a.recursive(Set_Up_Test_Data.importing_test_data(), self.recursive_refrig_input, np.zeros(2))
 
+        # Test output of recursive function with hardcore value
+        recursive_func_output = baseline_calculator_code_2b.recursive(Set_Up_Test_Data.importing_test_data(), self.recursive_light_input, np.zeros(2))
+        #breakpoint()
+        
         # Verify if outputs are the same
-        np.testing.assert_array_equal(recursive_output, self.expected_recursive_output)
+        np.testing.assert_array_equal(recursive_func_output, self.expected_light_recursive_output)
 
 
 class test_data_comparison_func(unittest.TestCase):
@@ -154,19 +155,19 @@ class test_data_comparison_func(unittest.TestCase):
     heat_try_filter_strings = ['residential', 'electricity', 'heating']
 
     # Expected output of JSON energy values which comes from mocking EIA API 
-    expected_JSON_values = np.array([80., 92.])
+    expected_JSON_values = np.array([76., 95., 111.])
 
     # Expected output of EIA energy values, scaled as in code
-    expected_EIA_values =  np.multiply((np.array([80, 92])), 1E9)
+    expected_EIA_values =  np.multiply((np.array([76, 95, 111])), 1E9)
 
-    @patch('baseline_calculator_code_2a.api_query')
+    @patch('baseline_calculator_code_2b.api_query')
     def test_try_block(self, mock_API_EIA):
         # Patch electric heating test data as output of api query function
-        mock_API_EIA.return_value = [['2016',92 ], ['2015', 80]]
+        mock_API_EIA.return_value = [['2017', 111] ,['2016', 95], ['2015', 76]]
 
         #  Call data comparison function
-        EIA_mock_heating_energy_vals, JSON_heating_energy_vals = baseline_calculator_code_2a.data_comparison(Set_Up_Test_Data().importing_test_data(), self.heat_try_filter_strings)
-        breakpoint()
+        EIA_mock_heating_energy_vals, JSON_heating_energy_vals = baseline_calculator_code_2b.data_comparison(Set_Up_Test_Data().importing_test_data(), self.heat_try_filter_strings)
+        #breakpoint()
         
         # Verify outputs
         # JSON, expect to pass as mocked recursive function, already testing recursive function in previous test, don't need duplicate test
@@ -187,7 +188,7 @@ class test_data_comparison_func(unittest.TestCase):
         # Text expected to be printed to the stdout by the except block
         expected_except_print = None #('Incorrect number of index, check:', filter_str_exception)
 
-        mock_print = baseline_calculator_code_2a.data_comparison(Set_Up_Test_Data().importing_test_data(), filter_str_exception)
+        mock_print = baseline_calculator_code_2b.data_comparison(Set_Up_Test_Data().importing_test_data(), filter_str_exception)
         #breakpoint()
 
         ## Test that printed output from the except block matches the expected string
@@ -222,22 +223,22 @@ class test_differ_EIA_series_IDs(unittest.TestCase):
 
     def test_eia_filter_strings(self):
         ## Call the construct series ID fun; testing different filter string combos
-        comm_cook_eia_series_ID = baseline_calculator_code_2a.construct_EIA_series_ID(self.comm_cook_series_name)
+        comm_cook_eia_series_ID = baseline_calculator_code_2b.construct_EIA_series_ID(self.comm_cook_series_name)
         ## COMM cooking
         self.assertEqual(comm_cook_eia_series_ID, self.expected_comm_cook_series_id)
 
         ## RESD cooking
-        resd_cook_eia_series_ID = baseline_calculator_code_2a.construct_EIA_series_ID(self.resd_cook_series_name)
+        resd_cook_eia_series_ID = baseline_calculator_code_2b.construct_EIA_series_ID(self.resd_cook_series_name)
         self.assertEqual(resd_cook_eia_series_ID, self.expected_resd_cook_series_id)
 
         ## Testing two unusual/different end uses ; these combinations triggered api query stating not available from API
         ## Want to test if the series ID was constructed accurately, if so then truly not present
         ## Ventilation
-        comm_vent_eia_series_ID = baseline_calculator_code_2a.construct_EIA_series_ID(self.comm_vent_series_name)
+        comm_vent_eia_series_ID = baseline_calculator_code_2b.construct_EIA_series_ID(self.comm_vent_series_name)
         self.assertEqual(comm_vent_eia_series_ID, self.expected_comm_vent_series_id)
 
         ## Freezers
-        resd_frz_eia_series_ID = baseline_calculator_code_2a.construct_EIA_series_ID(self.resd_frz_series_name)
+        resd_frz_eia_series_ID = baseline_calculator_code_2b.construct_EIA_series_ID(self.resd_frz_series_name)
         self.assertEqual(resd_frz_eia_series_ID, self.expected_resd_frz_series_id)
 
 

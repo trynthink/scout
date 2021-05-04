@@ -262,13 +262,13 @@ def recursive(data_dict, filter_strings, energy_vals, position_list=[]):
 
             # Need to add bldg class filter that matches filter_strings[0]- filter_strings[0] == all_bldg_types[years_as_keys_list[0]] 
             # all_bldg_types[filter_strings[0]] == years_as_keys_list[1]
-            all_bldg_types = {'residential': ['single family home', 'multi family home', 'mobile homes'], 
+            all_bldg_types = {'residential': ['single family home', 'multi family home', 'mobile home'], 
             'commercial': ['assembly', 'education', 'food sales','food service', 'health care', 'lodging', 'small office','large office','mercantile/serice', 'warehouse', 'other']}
 
             ## Enters this conditional statement when isinstance(value, dict) == True and (key!= 'energy')== False)
-            if (filter_strings[1] == years_as_keys_list[2] and 'energy' in years_as_keys_list) and (filter_strings[2] == years_as_keys_list[3] or filter_strings[2] == years_as_keys_list[4]):
+            if (years_as_keys_list[1] in all_bldg_types[filter_strings[0]]) and (filter_strings[1] == years_as_keys_list[2] and 'energy' in years_as_keys_list) and (filter_strings[2] == years_as_keys_list[3] or filter_strings[2] == years_as_keys_list[4]):
                 ## De-bugging purposes 
-                breakpoint()
+                #breakpoint()
 
                 ## Sort by keys in year order and grab values in the order of the years as numpy array
                 #energy_vals+=np.array([data_dict[key] for key, value in sorted(data_dict.items())])
@@ -343,7 +343,7 @@ def data_comparison(data_dict, filter_strings):
 
     try:
         # Testing ValueError
-        breakpoint()
+        #breakpoint()
 
         # Call recur function to get list of all years found in JSON data file 
         JSON_years_as_list = recur(data_dict)
