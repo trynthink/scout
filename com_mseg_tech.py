@@ -134,11 +134,11 @@ def units_id(sel, flag):
     # for cost or performance units
     if flag == 'cost':
         if enduse == 4:  # ventilation
-            theunits = '2013$/1000 cfm'
+            theunits = '2017$/1000 cfm'
         elif enduse == 6:  # lighting
-            theunits = '2013$/1000 lm'
+            theunits = '2017$/1000 lm'
         else:
-            theunits = '2013$/kBTU out/hr'
+            theunits = '2017$/kBTU out/hr'
     elif flag == 'performance':
         if enduse == 4:  # ventilation
             theunits = 'cfm-hr/BTU in'
@@ -855,7 +855,7 @@ def mseg_technology_handler(
         the_cost['best'] = dict(zip(
             sorted(the_cost['best'].keys()),
             sorted(the_cost['best'].values())*conv_factors_tmp))
-        the_cost['units'] = '2013$/ft^2 floor'
+        the_cost['units'] = '2017$/ft^2 floor'
         the_cost['source'] = 'EIA AEO'
 
         # Extract the performance data, restructure into the appropriate
