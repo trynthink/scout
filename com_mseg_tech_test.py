@@ -2029,12 +2029,12 @@ class CommonUnitTest(unittest.TestCase):
     # Define lists of strings for the cost and performance units of
     # each of the technologies in the data_to_select list; note that
     # the costs will be converted to a per square foot floor area basis
-    cost_units = ['2013$/kBTU out/hr',
-                  '2013$/kBTU out/hr',
-                  '2013$/1000 cfm',
-                  '2013$/1000 lm',
-                  '2013$/1000 lm',
-                  '2013$/kBTU out/hr']
+    cost_units = ['2017$/kBTU out/hr',
+                  '2017$/kBTU out/hr',
+                  '2017$/1000 cfm',
+                  '2017$/1000 lm',
+                  '2017$/1000 lm',
+                  '2017$/kBTU out/hr']
     perf_units = ['BTU out/BTU in',
                   'BTU out/BTU in',
                   'cfm-hr/BTU in',
@@ -3111,7 +3111,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2017': 20.58768, '2018': 20.58768,
                      '2019': 20.58768, '2020': 20.58768},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 3.4411, '2010': 3.4462, '2011': 3.4519,
@@ -3151,7 +3151,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 0.4226, '2016': 0.4226, '2017': 0.4226,
                      '2018': 0.4226, '2019': 0.4226, '2020': 0.4226},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.94, '2010': 0.94, '2011': 0.94,
@@ -3191,7 +3191,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 3.70008, '2016': 3.70008, '2017': 3.70008,
                      '2018': 3.70008, '2019': 3.70008, '2020': 3.70008},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.0, '2010': 0.0, '2011': 0.0,
@@ -3260,7 +3260,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 5.50918, '2016': 5.50918, '2017': 5.50918,
                      '2018': 5.50918, '2019': 5.50918, '2020': 5.50918},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.38, '2010': 0.38, '2011': 0.387,
@@ -3300,7 +3300,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 6.88547, '2016': 6.88547, '2017': 6.88547,
                      '2018': 6.88547, '2019': 6.88547, '2020': 6.88547},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 1.26, '2010': 1.26, '2011': 1.2732,
@@ -3367,7 +3367,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 4.14883, '2016': 4.14883, '2017': 4.14883,
                      '2018': 4.14883, '2019': 4.14883, '2020': 4.14883},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.0, '2010': 0.0, '2011': 42.4,
@@ -3407,7 +3407,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 3.60444, '2016': 3.60444, '2017': 4.2287,
                      '2018': 4.2287, '2019': 4.2287, '2020': 4.2287},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.0, '2010': 0.0, '2011': 0.0,
@@ -3451,7 +3451,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2017': 4.01261000, '2018': 4.01261000,
                      '2019': 4.01261000, '2020': 4.01261000},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 13.5, '2010': 13.5, '2011': 13.5,
@@ -3491,7 +3491,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 1.29948, '2016': 1.29948, '2017': 1.29948,
                      '2018': 1.29948, '2019': 1.29948, '2020': 1.29948},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 178.7, '2010': 178.7, '2011': 178.7,
@@ -3531,7 +3531,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 1.20932, '2016': 1.20932, '2017': 1.20932,
                      '2018': 1.20932, '2019': 1.20932, '2020': 1.20932},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 151.1, '2010': 151.1, '2011': 151.1,
@@ -3571,7 +3571,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 0.0, '2016': 0.0, '2017': 0.0,
                      '2018': 0.0, '2019': 0.0, '2020': 0.0},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.0, '2010': 0.0, '2011': 0.0,
@@ -3611,7 +3611,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 24.97873, '2016': 24.97873, '2017': 24.97873,
                      '2018': 24.97873, '2019': 24.97873, '2020': 24.97873},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.0, '2010': 0.0, '2011': 0.0,
@@ -3651,7 +3651,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 1.52439, '2016': 1.52439, '2017': 1.52439,
                      '2018': 1.52439, '2019': 1.52439, '2020': 1.52439},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 59.0, '2010': 59.0, '2011': 59.0,
@@ -3718,7 +3718,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 157.68, '2016': 157.68, '2017': 157.68,
                      '2018': 157.68, '2019': 157.68, '2020': 157.68},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.7, '2010': 0.7, '2011': 0.7,
@@ -3758,7 +3758,7 @@ class CommonUnitTest(unittest.TestCase):
                      '2015': 184.38, '2016': 184.38, '2017': 184.38,
                      '2018': 184.38, '2019': 184.38, '2020': 184.38},
                  'source': 'EIA AEO',
-                 'units': '2013$/ft^2 floor'},
+                 'units': '2017$/ft^2 floor'},
              'performance':
                 {'typical':
                     {'2009': 0.8, '2010': 0.8, '2011': 0.8,
