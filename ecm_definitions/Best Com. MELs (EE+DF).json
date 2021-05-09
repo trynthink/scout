@@ -8,7 +8,7 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": ["PCs", "non-PC office equipment", "heating", "ventilation", "cooling"],
+  "end_use": ["PCs", "non-PC office equipment"],
   "fuel_type": "electricity",
   "technology": "all",
   "market_entry_year": 2021,
@@ -18,10 +18,10 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 0.4175,
+  "installed_cost": 0.4123,
   "cost_units": "2020$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Average of 'Total Cost (2020)' values for 'Tier 2 APS', converted from $/unit to $/ft^2 floor assuming 1:1 ratio of APS:Occupant and 200 ft^2 floor/occupant",
+    "notes": "Average of 'Total Cost (2020)' values for 'Tier 2 APS' ($83.5/unit), converted from $/unit to $/ft^2 floor assuming 1:1 ratio of APS:Occupant and 200 ft^2 floor/occupant, using large office reference case (498K sf, 2492 occupants, $205590 total cost per building)",
     "source_data": [
     {
       "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
@@ -35,7 +35,7 @@
       "author": "Deru et al. 2011",
       "organization": "National Renewable Energy Laboratory",
       "year": 2011,
-      "pages": 108,
+      "pages": [10, 19],
       "URL": "https://www.nrel.gov/docs/fy11osti/46861.pdf"}
   ]},
   "product_lifetime": 9,

@@ -6,7 +6,7 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2035,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM",
     "source_data": {
@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 226,
+  "energy_efficiency": 249,
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "From Table 2 in the SSL section of the BTO MYPP",
@@ -30,20 +30,20 @@
       "organization": "U.S. Department of Energy",
       "year": 2016,
       "pages": 57,
-      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+      "URL": "https://www.energy.gov/sites/prod/files/2020/01/f70/ssl-rd-opportunities2-jan2020.pdf"
     }
   },
-  "installed_cost": 3.69,
+  "installed_cost": 0.3,
   "cost_units": "2020$/1000 lm",
   "installed_cost_source": {
-    "notes": "271 lm/$ cost target from Table 2 in the SSL section converted by 1/271*1000 $/1000 lm",
+    "notes": "Table 3.6, lowest cost/klm in 2035",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
       "year": 2016,
       "pages": 57,
-      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+      "URL": "https://www.energy.gov/sites/prod/files/2020/01/f70/ssl-rd-opportunities2-jan2020.pdf"
     }
   },
   "product_lifetime": 7.99,

@@ -1,0 +1,90 @@
+{
+  "name": "Res. Wind. & Air Seal, ES IECC (Elec)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": [
+    "windows conduction", "windows solar", "infiltration"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Current year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+        "windows conduction": 3.7,
+        "windows solar": 0.4,
+        "infiltration": 5},
+      "AIA_CZ2": {
+        "windows conduction": 3.7,
+        "windows solar": 0.4,
+        "infiltration": 5},
+      "AIA_CZ3": {
+        "windows conduction": 3.33,
+        "windows solar": 0.4,
+        "infiltration": 5},
+      "AIA_CZ4": {
+        "windows conduction": 3.33,
+        "windows solar": 0.25,
+        "infiltration": 5},
+      "AIA_CZ5": {
+        "windows conduction": 2.5,
+        "windows solar": 0.25,
+        "infiltration": 5}
+  },
+  "energy_efficiency_units": {
+    "windows conduction": "R value",
+    "windows solar": "SHGC",
+    "infiltration": "ACH"},
+  "energy_efficiency_source": {
+    "notes": "ENERGY STAR/IECC level package",
+    "source_data": null
+  },
+  "installed_cost": {
+    "windows conduction": 48.4,
+    "windows solar": 48.4,
+    "infiltration": {
+      "new": 0,
+      "existing": 1.2 
+    }
+  },
+  "cost_units": {
+    "windows conduction": "2016$/ft^2 glazing",
+    "windows solar" : "2016$/ft^2 glazing",
+    "infiltration": "2016$/ft^2 wall"},
+  "installed_cost_source": {
+    "notes": "ENERGY STAR/IECC level efficiency package",
+    "source_data": null
+  },
+  "product_lifetime": {
+    "windows conduction": 30,
+    "windows solar": 30,
+    "infiltration": 100},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "ENERGY STAR/IECC level efficiency package",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "ENERGY STAR/IECC level efficiency package for windows and air sealing in residential buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

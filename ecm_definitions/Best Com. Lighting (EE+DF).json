@@ -8,7 +8,7 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": ["lighting", "heating", "ventilation", "cooling"],
+  "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
     "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED Integrated Luminaire", "LED PAR38", "Mercury Vapor", "Metal Halide", 

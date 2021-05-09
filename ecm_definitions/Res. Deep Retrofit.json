@@ -1,7 +1,7 @@
 {
-  "name": "Residential DER",
+  "name": "Residential Deep Retrofit",
   "_description": "An ECM that represents a deep energy retrofit that includes heating equipment replacement and home performance upgrades.",
-  "measure_type": "add-on",
+  "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "single family home",
   "structure_type": "existing",

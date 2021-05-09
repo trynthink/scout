@@ -5,8 +5,8 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": "all",
-  "market_entry_year": 2021,
+  "technology": ["ASHP", "resistance heat", "central AC"],
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null
@@ -39,7 +39,9 @@
       }
     ]
   },
-  "installed_cost": 4950,
+  "installed_cost": {
+      "cooling": 4950,
+      "heating": 0},
   "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Total ENERGY STAR installed cost in 2017",
@@ -86,5 +88,11 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 16:05:26 MST 2020"
+  },
+  "updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr 21 09:39:00 EDT 2021"
   }
 }

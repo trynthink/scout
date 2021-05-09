@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
-  "technology": ["wall", "ground", "roof"],
+  "technology": ["wall", "roof"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Current year",
@@ -17,23 +17,23 @@
       "AIA_CZ1": {
         "wall": 25,
         "ground": 15,
-        "roof": 60},
+        "roof": 49},
       "AIA_CZ2": {
         "wall": 25,
         "ground": 15,
-        "roof": 60},
+        "roof": 49},
       "AIA_CZ3": {
         "wall": 25,
         "ground": 15,
-        "roof": 59.9},
+        "roof": 48.94},
       "AIA_CZ4": {
         "wall": 20.9,
         "ground": 0,
-        "roof": 50.9},
+        "roof": 39.89},
       "AIA_CZ5": {
         "wall": 15,
         "ground": 0,
-        "roof": 47.4}
+        "roof": 37.32}
   },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {

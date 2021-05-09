@@ -28,18 +28,26 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 1522,
+  "installed_cost": 4022,
   "cost_units": "2020$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is ESTAR Connected cost",
-    "source_data": {
+    "notes": "Total installed cost is ESTAR Connected cost, plus an assumed typical pool heater installed cost of $2500 (note that Scout end use couples pool heaters and pumps)",
+    "source_data": [{
       "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
       "author": "Nubbe et al. 2020",
       "organization": "Guidehouse Inc.",
       "year": 2020,
       "pages": 63,
       "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
-    }
+    },
+    {
+      "title": "Cost to Install or Replace a Pool Heater",
+      "author": null,
+      "organization": "Home Advisor",
+      "year": 2021,
+      "pages": null,
+      "URL": "https://www.homeadvisor.com/cost/swimming-pools-hot-tubs-and-saunas/install-a-swimming-pool-heater/"
+    }]
   },
   "product_lifetime": 7.3,
   "product_lifetime_units": "years",

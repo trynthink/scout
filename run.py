@@ -124,7 +124,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, regions):
-        self.adopt_schemes = ['Technical potential', 'Max adoption potential']
+        self.adopt_schemes = ['Max adoption potential']
         self.retro_rate = 0.01
         # Load metadata including AEO year range
         with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:

@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
-  "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
+  "technology": "elec_water_heater",
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",

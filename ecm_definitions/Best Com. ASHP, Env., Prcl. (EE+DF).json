@@ -1,5 +1,5 @@
 {
-  "name": "Best Com. RTU, Env., Prcl. (EE+DF)",
+  "name": "Best Com. ASHP, Env., Prcl. (EE+DF)",
   "tsv_features": {
     "shape": {
       "custom_annual_savings": "DR_EE_HVAC_PreCool_Envelope.csv"
@@ -10,8 +10,7 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "comm_GSHP-cool", "res_type_central_AC", "wall-window_room_AC",
-                 "electric_res-heat", "comm_GSHP-heat", "rooftop_ASHP-heat"],
+  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "rooftop_ASHP-heat", "elec_boiler"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in the baseline",

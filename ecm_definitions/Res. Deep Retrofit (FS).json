@@ -1,7 +1,7 @@
 {
-  "name": "Residential DER (FS)",
+  "name": "Residential Deep Retrofit (FS)",
   "_description": "An ECM that represents a deep energy retrofit that includes fuel switching for heating equipment and home performance upgrades.",
-  "measure_type": "add-on",
+  "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "single family home",
   "structure_type": "existing",

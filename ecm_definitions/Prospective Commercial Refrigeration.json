@@ -22,7 +22,7 @@
     "notes": "ET targets",
     "source_data": null
   },
-  "installed_cost": 1129.385,
+  "installed_cost": 1115.195,
   "cost_units": "$/kBtu/h refrigeration",
   "installed_cost_source": {
     "notes": "average US cost based on scout 5 yr payback",

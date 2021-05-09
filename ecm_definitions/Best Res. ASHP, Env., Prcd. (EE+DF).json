@@ -3,9 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "cooling"],
+  "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": "all",
+  "technology": ["ASHP", "resistance heat", "central AC"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": null,
@@ -28,10 +28,12 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 46417.67,
+  "installed_cost": {
+      "cooling": 46417.67,
+      "heating": 0},
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best residential ASHP and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best residential ASHP in 2017 and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
     "source_data": [
       {
       "title": "National Residential Efficiency Measures Database",

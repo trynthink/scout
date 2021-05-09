@@ -6,16 +6,18 @@
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.30,
+  "energy_efficiency": {
+      "new": 3.30,
+      "existing": 2.20},
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "assume integrated HPWH",
+    "notes": "assume integrated HPWH in new homes and integrated 120V in existing homes to avoid panel upgrade, consistent with costs",
     "source_data": [{
       "title": "ENERGY STAR Product Specifications for Residential Water Heaters, v4",
       "author": null,

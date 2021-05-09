@@ -5,8 +5,7 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "comm_GSHP-cool", "res_type_central_AC", "wall-window_room_AC",
-                 "electric_res-heat", "comm_GSHP-heat", "rooftop_ASHP-heat"],
+  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "rooftop_ASHP-heat", "elec_boiler"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
@@ -33,7 +32,7 @@
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
     }]},
-  "installed_cost": 86.11,
+  "installed_cost": 92.1,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "Median ENERGY STAR installed cost in 2017 divided by typical capacity (90 kBtu/h cooling)",

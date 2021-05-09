@@ -1,11 +1,11 @@
 {
-  "name": "Best Res. Opaque Env.",
+  "name": "Res. Opaque Env., IECC (Fossil)",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "secondary heating", "cooling"],
+  "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": ["wall", "ground", "roof"],
+  "technology": ["wall", "roof"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Current year",
@@ -15,50 +15,50 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "wall": 38,
-        "ground": 20,
-        "roof": 80},
+        "wall": 25,
+        "ground": 15,
+        "roof": 49},
       "AIA_CZ2": {
-        "wall": 38,
-        "ground": 20,
-        "roof": 80},
+        "wall": 25,
+        "ground": 15,
+        "roof": 49},
       "AIA_CZ3": {
-        "wall": 38,
-        "ground": 20,
-        "roof": 80},
+        "wall": 25,
+        "ground": 15,
+        "roof": 48.94},
       "AIA_CZ4": {
-        "wall": 38,
+        "wall": 20.9,
         "ground": 0,
-        "roof": 70},
+        "roof": 39.89},
       "AIA_CZ5": {
-        "wall": 38,
+        "wall": 15,
         "ground": 0,
-        "roof": 70}
+        "roof": 37.32}
   },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Best available package",
+    "notes": "IECC level efficiency package",
     "source_data": null
   },
   "installed_cost": {
       "AIA_CZ1": {
-        "wall": 6.2,
-        "ground": 8.13,
+        "wall": 8.86,
+        "ground": 5.03,
         "roof": 6.6},
       "AIA_CZ2": {
-        "wall": 6.2,
-        "ground": 8.13,
+        "wall": 8.86,
+        "ground": 5.03,
         "roof": 6.6},
       "AIA_CZ3": {
-        "wall": 6.2,
-        "ground": 8.13,
+        "wall": 8.86,
+        "ground": 5.03,
         "roof": 6.6},
       "AIA_CZ4": {
-        "wall": 6.2,
+        "wall": 8.86,
         "ground": 5.03,
         "roof": 6.6},
       "AIA_CZ5": {
-        "wall": 6.2,
+        "wall": 8.86,
         "ground": 5.03,
         "roof": 6.6}
   },
@@ -68,7 +68,7 @@
       "roof": "2017$/ft^2 roof"
   },
   "installed_cost_source": {
-    "notes": "Best available package",
+    "notes": "ENERGY STAR/IECC level efficiency package",
     "source_data": null
   },
   "product_lifetime": {
@@ -78,14 +78,24 @@
   },
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Best available package",
+    "notes": "IECC level efficiency package",
     "source_data": null
   },
   "measure_type": "full service",
-  "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
-  "_description": "Best available package for for opaque envelope components in residential buildings",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.65,
+    "heating": 1
+  },
+  "market_scaling_fractions_source": {
+      "title": "RECS 2015 - Tables HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Cooling fraction excludes homes that use electricity for heating (40.9M out of 118.2M total homes)."
+  },
+  "_description": "IECC level efficiency package for for opaque envelope components in residential buildings",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

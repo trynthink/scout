@@ -1,0 +1,84 @@
+{
+  "name": "Com. Opaque Env., 90.1 (Elec)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": ["electricity"],
+  "technology": ["wall", "roof"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Current year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "AIA_CZ1": {
+      "roof": 30.6,
+      "wall": 25.31,
+      "ground": 19.59}, 
+    "AIA_CZ2": {
+      "roof": 30,
+      "wall": 22.97,
+      "ground": 15.02},
+    "AIA_CZ3": {
+      "roof": 30,
+      "wall": 20.60,
+      "ground": 14.92},  
+    "AIA_CZ4": {
+      "roof": 25.9,
+      "wall": 18.43,
+      "ground": 2.58},
+    "AIA_CZ5": {
+      "roof": 24.6,
+      "wall": 16.82,
+      "ground": 0}
+  },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "installed_cost": {
+    "wall": 27.35,
+    "roof": 6.33,
+    "ground": 5.03
+  },
+  "cost_units": {
+    "wall": "2016$/ft^2 wall",
+    "roof": "2016$/ft^2 roof",
+    "ground": "2017$/ft^2 footprint"
+  },
+  "installed_cost_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "product_lifetime": {
+    "wall": 100,
+    "roof": 30,
+    "ground": 100},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "90.1 level efficiency package for for opaque envelope components in commercial buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

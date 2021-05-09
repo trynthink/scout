@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": ["wall", "roof", "ground"],
+  "technology": ["wall", "roof"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Current year",

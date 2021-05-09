@@ -5,9 +5,9 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
-                 "stove (wood)", "resistance"],
+                 "resistance"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
@@ -45,10 +45,12 @@
       "URL": null
       }]
   },
-  "installed_cost": 46417.67,
+  "installed_cost": {
+      "heating": 46417.67,
+      "cooling": 0},
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best residential ASHP and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best residential ASHP in 2017 and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
     "source_data": [
       {
       "title": "National Residential Efficiency Measures Database",

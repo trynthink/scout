@@ -5,10 +5,10 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
-                 "stove (wood)", "resistance"],
-  "market_entry_year": 2021,
+                 "resistance"],
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
@@ -48,17 +48,53 @@
       }
     ]
   },
-  "installed_cost": 4950,
+  "installed_cost": {
+      "electricity": {
+        "heating": {
+          "new": 4950,
+          "existing": 5950
+        },
+        "cooling": 0
+      },
+      "natural gas": {
+        "heating": {
+          "new": 4950,
+          "existing": 5950
+        },
+        "cooling": 0
+      }, 
+      "distillate": {
+        "heating": {
+          "new": 4950,
+          "existing": 6950
+        },
+        "cooling": 0
+      },
+      "other fuel": {
+        "heating": {
+          "new": 4950,
+          "existing": 6950
+        },
+        "cooling": 0
+      }
+  },
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total ENERGY STAR installed cost in 2017",
-    "source_data": {
+    "notes": "Total ENERGY STAR installed cost in 2017; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+      {
+      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}]
   },
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",
@@ -105,5 +141,11 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 16:05:26 MST 2020"
+  },
+  "updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr 21 09:39:00 EDT 2021"
   }
 }

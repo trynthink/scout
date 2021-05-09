@@ -1,0 +1,49 @@
+{
+  "name": "Prospective Commercial Ctls.",
+  "_description": "Template for sensors and controls package.",
+  "measure_type": "add-on",
+  "climate_zone": "all",
+  "bldg_type": [
+    "large office", "small office", "education", "food service",
+    "mercantile/service"],
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"],
+  "fuel_type": "electricity",
+  "technology": [
+    "rooftop_AC", "rooftop_ASHP-cool", "rooftop_ASHP-heat"],
+  "market_entry_year": 2030,
+  "energy_efficiency": 0.3,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Prospective goal for the BTO S&C program",
+    "source_data": null
+  },
+  "installed_cost": 1.0,
+  "cost_units": "$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Prospective goal for the BTO S&C program",
+    "source_data": null
+  },
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Consistent with typical lifetime of supporting sensing hardware",
+    "source_data": null
+  },
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 24 09:23:11 EDT 2021"
+  },
+  "_updated_by": null
+}

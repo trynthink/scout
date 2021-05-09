@@ -1,0 +1,76 @@
+{
+  "name": "Prosp. Com. Opaque Env. (Elec)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": ["wall", "roof"],
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Target technology market entry year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "AIA_CZ1": {
+      "roof": 63.61,
+      "wall": 40}, 
+    "AIA_CZ2": {
+      "roof": 62.60,
+      "wall": 40},
+    "AIA_CZ3": {
+      "roof": 62.54,
+      "wall": 40},  
+    "AIA_CZ4": {
+      "roof": 53.16,
+      "wall": 40},
+    "AIA_CZ5": {
+      "roof": 50.38,
+      "wall": 40}
+  },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "W&E roadmap targets",
+    "source_data": null
+  },
+  "installed_cost": {
+    "wall": 1.536,
+    "roof": 0.341
+  },
+  "cost_units": {
+    "wall": "2016$/ft^2 wall",
+    "roof": "2016$/ft^2 roof"
+  },
+  "installed_cost_source": {
+    "notes": "W&E roadmap targets",
+    "source_data": null
+  },
+  "product_lifetime": {
+    "wall": 50,
+    "roof": 30},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "W&E roadmap targets",
+    "source_data": null
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "W&E roadmap targets for opaque envelope components in commercial buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

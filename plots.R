@@ -54,7 +54,7 @@ compete_results<-c(compete_results_agg, compete_results_ecms)
 # ============================================================================
 
 # Set ECM adoption scenarios
-adopt_scenarios <- c('Technical potential', 'Max adoption potential')
+adopt_scenarios <- c('Max adoption potential')
 # Set ECM competition scenarios
 comp_schemes <- c('uncompeted', 'competed')
 # Set full list of ECM names from results file
@@ -68,8 +68,8 @@ meas_names_no_all <- meas_names_no_all[order(meas_names_no_all)]
 meas_names <- c('All ECMs', meas_names_no_all)
 # Set years in modeling time horizon and reorganize in ascending order
 years<-row.names(as.matrix(
-  compete_results[[meas_names[1]]]$'Markets and Savings (Overall)'$
-  'Technical potential'$'Baseline Energy Use (MMBtu)'))
+  compete_results[[meas_names[1]]]$'Markets and Savings (Overall)'[[
+  adopt_scenarios[1]]]$'Baseline Energy Use (MMBtu)'))
 # Set an intended starting and ending year for the plotted results
 start_yr = 2015
 end_yr = max(years)
@@ -89,7 +89,7 @@ if (grepl("PHC", meas_names[2], fixed=TRUE) == TRUE){
       phc_flag = "high"
   }
 }else{
-  snap_yr = "2040"
+  snap_yr = "2050"
   snap_yr_set = c("2030", "2050")
   phc_flag = FALSE}
 
@@ -335,7 +335,7 @@ plot_axis_labels_finmets_x<-c(
     paste(snap_yr, ' Energy Cost Savings (Competed, ', cs_axis_units, append_txt, sep=""))
 # Y axis labels for cost effectiveness plots
 plot_axis_labels_finmets_y<-c(
-	"IRR (%)", "Payback (years)", "CCE ($/MMBtu saved)", expression("CCC ($/t " ~ CO[2] ~ " avoided)"))
+	"IRR (%)", "Payback (years)", "CCE ($/MMBtu saved)", expression("CCC ($/t" ~ CO[2] ~ " avoided)"))
 # Financial metric titles
 plot_title_labels_finmets<-c(
 	"Internal Rate of Return (IRR)", "Simple Payback", "Cost of Conserved Energy (CCE)",
@@ -355,7 +355,7 @@ fin_metrics <- c('IRR (%)', 'Payback (years)', 'Cost of Conserved Energy ($/MMBt
 xlsx_names_finmets <- c(paste("IRR (%),", snap_yr),
 					    paste("Payback (years),", snap_yr),
 					    paste("CCE ($/MMBtu saved),", snap_yr),
-					    paste("CCC ($/t CO2 avoided),", snap_yr))
+					    paste("CCC ($/tCO2 avoided),", snap_yr))
 
 # ============================================================================
 # Loop through all adoption scenarios, plotting variables, ECMs, and
@@ -716,7 +716,6 @@ for (a in 1:length(adopt_scenarios)){
 	                  }                  
 	                }  
 	              }
-	
 	              # Add ECM's savings-by-filter variable vector data to the aggregated total for
 	              # each filter variable across all ECMs
 	              for (fvo in 1:length(fv_opts)){

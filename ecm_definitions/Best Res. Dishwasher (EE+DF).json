@@ -28,29 +28,36 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 2271,
-  "cost_units": "2020$/unit",
+  "installed_cost": 747,
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected' values",
-    "source_data": {
+    "notes": "Median best available dishwasher cost in the EIA report plus difference between median typical and connected cost in the Guidehoouse report (converted to 2017$)",
+    "source_data": [{
       "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
       "author": "Nubbe et al. 2020",
       "organization": "Guidehouse Inc.",
       "year": 2020,
-      "pages": 39,
-      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
-    }
+      "pages": 42,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 87,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]
   },
   "product_lifetime": 14.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average of low/high 'Product Lifetime (yrs.)' values for 'Top-loading' and 'Front-loading' clothes washers",
+    "notes": "Median of lifetime range",
     "source_data": {
      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
       "author": "Nubbe et al. 2020",
       "organization": "Guidehouse Inc.",
       "year": 2020,
-      "pages": 39,
+      "pages": 42,
       "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
     }
   },

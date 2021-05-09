@@ -1,0 +1,105 @@
+{
+  "name": "Com. Windows & Air Seal, 90.1 (Fossil)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": ["windows conduction", "windows solar", "infiltration"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Current year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+        "windows conduction": 2.98,
+        "windows solar": 0.38,
+        "infiltration": 0.4
+      },
+      "AIA_CZ2": {
+        "windows conduction": 2.78,
+        "windows solar": 0.38,
+        "infiltration": 0.4
+      },
+      "AIA_CZ3": {
+        "windows conduction": 2.78,
+        "windows solar": 0.36,
+        "infiltration": 0.4
+      },
+      "AIA_CZ4": {
+        "windows conduction": 2.45,
+        "windows solar": 0.27,
+        "infiltration": 0.4
+      },
+      "AIA_CZ5": {
+        "windows conduction": 2.25,
+        "windows solar": 0.25,
+        "infiltration": 0.4
+      }
+      },
+  "energy_efficiency_units": {
+    "windows conduction": "R value",
+    "windows solar": "SHGC",
+    "infiltration": "CFM/ft^2 @ 0.3 in. w.c."},
+  "energy_efficiency_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "installed_cost": {
+    "windows conduction": 56.20,
+    "windows solar": 56.20,
+    "infiltration": {
+      "new": 0,
+      "existing": 0.876
+    }
+  },
+  "cost_units": {
+    "windows conduction": "2016$/ft^2 glazing",
+    "windows solar": "2016$/ft^2 glazing",
+  "infiltration": "2016$/ft^2 wall"
+  },
+  "installed_cost_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "product_lifetime": {
+      "windows conduction": 25,
+      "windows solar": 25,
+      "infiltration": 100},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "90.1 level efficiency package",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.66,
+    "heating": 0.73
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
+      "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
+  },
+  "_description": "90.1 level efficiency package for windows and infiltration in commercial buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Mar 26 06:27:54 EDT 2021"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

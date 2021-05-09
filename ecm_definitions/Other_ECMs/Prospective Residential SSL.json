@@ -6,7 +6,7 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2035,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM",
     "source_data": {
@@ -20,30 +20,30 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 226,
+  "energy_efficiency": 249,
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
-    "notes": "From Table 2 in the SSL section of the BTO MYPP",
+    "notes": "High",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
       "year": 2016,
       "pages": 57,
-      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+      "URL": "https://www.energy.gov/sites/prod/files/2020/01/f70/ssl-rd-opportunities2-jan2020.pdf"
     }
   },
-  "installed_cost": 0.55,
+  "installed_cost": 0.67,
   "cost_units": "2020$/unit",
   "installed_cost_source": {
-    "notes": "Assume a 9 W lamp (wattage for 2020 'typical' residential 60 W-equivalent general service LED lamps from EIA document); 9 W/lamp * 226 lm/W (target in Table 2 of BTO MYPP) = 2034 lm/lamp; convert $0.271/1000 lm to $/9W (60 W-equivalent) lamp",
+    "notes": "9W lamp, 0.249 klm/W, 2.2 klm total, $0.3/klm",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
       "year": 2016,
       "pages": 57,
-      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
+      "URL": "https://www.energy.gov/sites/prod/files/2020/01/f70/ssl-rd-opportunities2-jan2020.pdf"
     },
     {
       "title": "EIA - Technology Forecast Updates - Residential and Commercial Building Technologies - Reference Case",

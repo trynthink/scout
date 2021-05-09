@@ -8,8 +8,7 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
   "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
-                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace",
-                 "oil_boiler", "oil_furnace"],
+                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "null",
@@ -24,10 +23,10 @@
     "notes": "ET target",
     "source_data": null
   },
-  "installed_cost": 213.89,
-  "cost_units": "$/kBtu/h heating",
+  "installed_cost": 79.4,
+  "cost_units": "$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on heating",
+    "notes": "average US cost based on scout 5 yr payback; note that cost is based on cooling",
     "source_data": null
   },
   "product_lifetime": 20,

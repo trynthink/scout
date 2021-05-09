@@ -5,7 +5,7 @@
   "climate_zone": "all",
   "bldg_type": [
     "large office", "small office", "education", "food service",
-    "mercantile/service", "small office"],
+    "mercantile/service"],
   "structure_type": "all",
   "end_use": [
     "heating",

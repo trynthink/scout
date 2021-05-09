@@ -471,6 +471,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             regions="AIA"), regions="AIA")
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Technical potential'
@@ -1591,6 +1594,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
             regions="AIA"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         cls.handyvars.retro_rate = 0
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
@@ -16110,7 +16116,11 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
             regions="AIA"), regions="AIA")
         cls.handyvars.retro_rate = 0
+        # Reset AEO years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
             ('primary', 'AIA_CZ1', 'assembly', 'electricity',
@@ -26638,6 +26648,9 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
             regions="AIA"), regions="AIA")
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         sample_measure1 = {
             "name": "sample sub-market test measure 1",
             "measure_type": "full service",

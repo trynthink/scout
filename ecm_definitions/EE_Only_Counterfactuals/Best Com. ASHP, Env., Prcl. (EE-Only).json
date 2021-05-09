@@ -1,5 +1,5 @@
 {
-  "name": "Best Com. RTU, Env., Prcl. (EE-Only)",
+  "name": "Best Com. ASHP, Env., Prcl. (EE-Only)",
   "tsv_features": {
     "shape": {
       "custom_annual_savings": "EE_HVAC_Envelope.csv"

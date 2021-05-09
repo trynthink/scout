@@ -31,7 +31,7 @@
   "installed_cost": 44967.67,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best CAC and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best CAC in 2017 and for best residential envelope measures (which are converted from $/ft^2 floor to $/unit using unit/cost conversions from ecm_cost_convert.json)",
     "source_data": [
       {
       "title": "National Residential Efficiency Measures Database",
@@ -55,7 +55,7 @@
       "pages": 17,
       "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
     ]},
-  "product_lifetime": 21,
+  "product_lifetime": 18,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Average of low & high values for 'Average Life (yrs.)'",

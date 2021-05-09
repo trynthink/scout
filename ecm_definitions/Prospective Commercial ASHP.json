@@ -1,14 +1,13 @@
 {
   "name": "Prospective Commercial ASHP",
-  "_description": "10 yr ET target - heat pumps; upgrade existing electric; exclude chillers on the cooling side and electric boilers on the heating side, which are assumed to be installed with a chiller configuration",
+  "_description": "10 yr ET target - heat pumps; upgrade existing electric; exclude chillers",
   "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "comm_GSHP-cool", "res_type_central_AC", "wall-window_room_AC",
-                 "electric_res-heat", "comm_GSHP-heat", "rooftop_ASHP-heat"],
+  "technology": ["rooftop_AC", "rooftop_ASHP-cool", "rooftop_ASHP-heat", "elec_boiler"],
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "null",
@@ -23,12 +22,12 @@
     "notes": "ET target",
     "source_data": null
   },
-  "installed_cost": 213.89,
-  "cost_units": "$/kBtu/h heating",
+  "installed_cost": 79.4,
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on heating",
+    "notes": "average US cost based on scout 5 yr payback; note that cost is based on cooling",
     "source_data": null
   },
+  "cost_units": "$/kBtu/h cooling",
   "product_lifetime": 20,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -42,7 +41,10 @@
   "market_scaling_fractions_source": null,
   "_notes": null,
   "_added_by": {
-    "timestamp": "2021-03-23 13:00:00 UTC"
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr 21 09:39:00 EDT 2021"
   },
   "_updated_by": null
 }

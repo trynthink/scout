@@ -1,7 +1,7 @@
 {
   "name": "Res. Deep Retrofit (Aggressive–FS)",
   "_description": "An ECM that represents a deep energy retrofit that includes fuel switching for heating equipment and deep envelope upgrades.",
-  "measure_type": "add-on",
+  "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "single family home",
   "structure_type": "existing",

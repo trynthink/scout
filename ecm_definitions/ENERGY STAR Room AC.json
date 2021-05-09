@@ -18,7 +18,7 @@
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%204.2%20Room%20Air%20Conditioners%20Specification_0.pdf"}]},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.52,
+  "energy_efficiency": 3.516998828,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "Assume a capacity of 8000-13,999 BTU/hr, original std CEER>12 is converted to COP (CEER / 3.412).",

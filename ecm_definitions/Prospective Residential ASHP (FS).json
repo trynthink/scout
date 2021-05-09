@@ -7,9 +7,9 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
-                 "stove (wood)", "resistance"],
+                 "resistance"],
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM",
@@ -25,7 +25,7 @@
     "notes": "ET Targets",
     "source_data": null
   },
-  "installed_cost": 4337.45,
+  "installed_cost": 4904,
   "cost_units": "$/unit",
   "installed_cost_source": {
     "notes": "average US cost based on scout 5 yr payback; note that cost is based on heating",

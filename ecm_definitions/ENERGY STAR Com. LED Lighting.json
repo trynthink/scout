@@ -1,14 +1,14 @@
 {
-  "name": "ENERGY STAR Commercial LED Lighting",
+  "name": "ENERGY STAR Com. LED Lighting",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "lighting",
   "fuel_type": "electricity",
-  "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral",
-                 "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38",
+  "technology": ["100W Equivalent CFL Bare Spiral",
+                 "100W Equivalent LED A Lamp",
                  "LED PAR38"],
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
     "source_data": {
@@ -22,35 +22,27 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "100W A19 Incandescent": 70,
-    "100W Equivalent A19 Halogen": 70,
-    "100W Equivalent CFL Bare Spiral": 70,
-    "100W Equivalent LED A Lamp": 70,
-    "Halogen Infrared Reflector (HIR) PAR38": 61,
-    "Halogen PAR38": 61,
-    "LED PAR38": 61},
+    "100W Equivalent CFL Bare Spiral": 65,
+    "100W Equivalent LED A Lamp": 71,
+    "LED PAR38": 53},
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
-    "notes": "Available ENERGY STAR lighting omnidirectional or directional (PAR38) lamp type with CRI ≥ 90 for appropriate type of luminaire (in terms of lamp efficacy)",
+    "notes": "Available ENERGY STAR efficiency levels in the EIA data",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements for Lamps (Light Bulbs): Section 9. Photometric Performance, Table 9.1 Luminous Efficacy: All Lamps",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
-      "organization": "U.S. Environmental Protection Agency",
+      "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 12,
-      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Lamps%20V2.1%20Final%20Specification.pdf"}
+      "pages": [45, 83],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
   },
   "installed_cost": {
-    "100W A19 Incandescent": 27.75,
-    "100W Equivalent A19 Halogen": 27.75,
-    "100W Equivalent CFL Bare Spiral": 27.75,
+    "100W Equivalent CFL Bare Spiral": 109.73,
     "100W Equivalent LED A Lamp": 27.75, 
-    "Halogen Infrared Reflector (HIR) PAR38": 40.46,
-    "Halogen PAR38": 40.46,
     "LED PAR38": 40.46},
   "cost_units": "2017$/1000 lm",
   "installed_cost_source": {
-    "notes": "Available ENERGY STAR commercial LED lighting installed cost levels in 2015 for appropriate type of luminaire",
+    "notes": "Available ENERGY STAR commercial LED lighting installed cost levels in 2015 for appropriate type of luminaire; CFL costs are unavailable for ENERGY STAR and typical costs are assumed",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
@@ -60,12 +52,8 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
   },
   "product_lifetime": {
-    "100W A19 Incandescent": 6.46,
-    "100W Equivalent A19 Halogen": 6.46,
     "100W Equivalent CFL Bare Spiral": 6.46,
-    "100W Equivalent LED A Lamp": 6.46, 
-    "Halogen Infrared Reflector (HIR) PAR38": 6.47,
-    "Halogen PAR38": 6.47,
+    "100W Equivalent LED A Lamp": 6.46,
     "LED PAR38": 6.47},
   "product_lifetime_units": "years",
   "product_lifetime_source": {

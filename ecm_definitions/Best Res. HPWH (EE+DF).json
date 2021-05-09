@@ -28,10 +28,10 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 3616.14,
-  "cost_units": "2017$/unit",
+  "installed_cost": 2756,
+  "cost_units": "2020$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'Add-on Control' values plus installed costs for best HPWH",
+    "notes": "Total installed cost is average of low/high 'Add-on Control' values plus installed costs for best HPWH in 2020",
     "source_data": [
       {
       "title": "U.S. Department of Energy Commercial Reference Building Models of the National Building Stock",
@@ -45,7 +45,7 @@
       "author": "Nubbe et al. 2020",
       "organization": "Guidehouse Inc.",
       "year": 2020,
-      "pages": 17,
+      "pages": 30,
       "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
     ]},
   "product_lifetime": 13,

@@ -5,9 +5,9 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
-  "technology": ["room AC", "central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
-                 "stove (wood)", "resistance"],
+                 "resistance"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
@@ -45,10 +45,39 @@
       "URL": null
       }]
   },
-  "installed_cost": 6343.40,
-  "cost_units": "2017$/unit",
+  "installed_cost": {
+      "electricity": {
+        "heating": {
+          "new": 6357,
+          "existing": 7357
+        },
+        "cooling": 0
+      },
+      "natural gas": {
+        "heating": {
+          "new": 6357,
+          "existing": 7357
+        },
+        "cooling": 0
+      }, 
+      "distillate": {
+        "heating": {
+          "new": 6357,
+          "existing": 8357
+        },
+        "cooling": 0
+      },
+      "other fuel": {
+        "heating": {
+          "new": 6357,
+          "existing": 8357
+        },
+        "cooling": 0
+      }
+  },
+  "cost_units": "2020$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP",
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
     "source_data": [
       {
       "title": "U.S. Department of Energy Commercial Reference Building Models of the National Building Stock",
@@ -63,7 +92,14 @@
       "organization": "Guidehouse Inc.",
       "year": 2020,
       "pages": 17,
-      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+      {
+      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}
     ]},
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",

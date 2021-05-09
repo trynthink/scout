@@ -6,7 +6,7 @@
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": "electric WH",
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null},
@@ -28,7 +28,7 @@
   "installed_cost_source": {
     "notes": "Median of average ENERGY STAR installed cost range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Residential Heat Pump Water Heaters",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
@@ -40,7 +40,7 @@
   "product_lifetime_source": {
     "notes": "Median of average ENERGY STAR life range in 2017",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Residential Heat Pump Water Heaters",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,

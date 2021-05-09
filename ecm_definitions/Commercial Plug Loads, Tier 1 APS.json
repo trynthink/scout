@@ -1,0 +1,69 @@
+{
+  "name": "Commercial Plug Loads, Tier 1 APS",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["PCs", "non-PC office equipment"],
+  "fuel_type": "electricity",
+  "technology": "all",
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.11,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Tier 1 APS energy savings % for scheduling timer with load sensing",
+    "source_data": {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 88,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}},
+  "installed_cost": 0.117,
+  "cost_units": "2020$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Average of 'Total Cost (2020)' values for 'Tier 1 APS' ($23.5/unit), converted from $/unit to $/ft^2 floor assuming 1:1 ratio of APS:Occupant and 200 ft^2 floor/occupant, using large office reference case (498K sf, 2492 occupants, $58562 total cost per building)",
+    "source_data": [
+    {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 88,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+    {
+      "title": "U.S. Department of Energy Commercial Reference Building Models of the National Building Stock",
+      "author": "Deru et al. 2011",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2011,
+      "pages": [10, 19],
+      "URL": "https://www.nrel.gov/docs/fy11osti/46861.pdf"}
+  ]},
+  "product_lifetime": 9,
+  "product_lifetime_units": "years",
+  "product_lifetime_source":  {
+    "notes": "Average of low/high 'Average Life (yrs.)'",
+    "source_data": {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 88,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+    }
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Tier 1 advanced power strips applied to commercial workstations",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr 21 9:06:45 EDT 2021"
+  }
+}
