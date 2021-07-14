@@ -238,6 +238,15 @@ class UsefulVars(object):
                 'AIA_EMM_ColSums.txt')
             # Set output JSON
             self.json_out = 'cpl_res_com_emm.json'
+        elif self.geo_break == '3':
+            # When breaking out to census divisions, an additional conversion
+            # between AIA climate zones in the envelope data and the census
+            # divisions is needed
+            self.envelope_climate_convert = (
+                'supporting_data/convert_data/geo_map/'
+                'AIA_Cdiv_ColSums.txt')
+            # Set output JSON
+            self.json_out = 'cpl_res_com_cdiv.json'
 
 
 def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
@@ -562,6 +571,10 @@ def env_cpl_data_handler(
                 'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
                 'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
                 'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+    # Set Census division list
+    cdiv_list = ["new england", "mid atlantic", "east north central",
+                 "west north central", "south atlantic", "east south central",
+                 "west south central", "mountain", "pacific"]
     # Loop through the keys specifying the current microsegment to
     # determine the building type, whether the building is residential
     # or commercial, and identify the custom region
@@ -574,8 +587,12 @@ def env_cpl_data_handler(
         elif entry in cm.CommercialTranslationDicts().bldgtypedict.keys():
             bldg_class = 'commercial'
             bldg_type = entry
-        elif any([entry in y for y in [aia_list, emm_list]]):
+        elif any([entry in y for y in [aia_list, emm_list, cdiv_list]]):
             cz_int = entry
+            # Replace white spaces in Census division names with underscores
+            # to match how numpy reads in the AIA->Cdiv conversions
+            if entry in cdiv_list:
+                cz_int = str(cz_int).replace(" ", "_")
 
     # Some envelope components are reported as two or more words, but
     # the first word is often the required word to select the relevant
@@ -1303,13 +1320,14 @@ def main():
                       'Use ctrl-c to exit.')
     # AIA, or EMM are possible for cost/performance/lifetime data
     elif input_var[0] == '2':
-        while input_var[1] not in ['1', '2']:
+        while input_var[1] not in ['1', '2', '3']:
             input_var[1] = input(
                 "Enter 1 to use an AIA climate zone geographical" +
-                " breakdown,\n or 2 to use an EIA Electricity Market Module "
-                "geographical breakdown: ")
-            if input_var[1] not in ['1', '2']:
-                print('Please try again. Enter either 1 or 2. '
+                " breakdown,\n 2 to use an EIA Electricity Market Module "
+                "geographical breakdown,\n or 3 to use a state geographical "
+                "breakdown: ")
+            if input_var[1] not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
 
     # Instantiate object that contains useful variables
@@ -1335,43 +1353,50 @@ def main():
             delimiter='\t', dtype="float64")
         env_perf_convert = None
     elif input_var[1] in ['2', '3']:
-        # Import residential census division to EMM or state conversion data;
-        # import data into a dict that is keyed by fuel type, since separate
-        # census to EMM or state conversions are used for different fuels
-        res_cd_cz_conv = {
-            "electricity": np.genfromtxt(
-                handyvars.res_climate_convert["electricity"], names=True,
-                delimiter='\t', dtype="float64"),
-            "natural gas": np.genfromtxt(
-                handyvars.res_climate_convert["natural gas"], names=True,
-                delimiter='\t', dtype="float64"),
-            "distillate": np.genfromtxt(
-                handyvars.res_climate_convert["distillate"], names=True,
-                delimiter='\t', dtype="float64"),
-            "other fuel": np.genfromtxt(
-                handyvars.res_climate_convert["other fuel"], names=True,
-                delimiter='\t', dtype="float64"),
-            "building stock and square footage": np.genfromtxt(
-                handyvars.res_climate_convert[
-                    "building stock and square footage"], names=True,
-                delimiter='\t', dtype="float64")}
-        # Import commercial census division to EMM or state conversion data;
-        # import data into a dict that is keyed by fuel type, since separate
-        # census to EMM or state conversions are used for different fuels
-        com_cd_cz_conv = {
-            "electricity": np.genfromtxt(
-                handyvars.com_climate_convert["electricity"], names=True,
-                delimiter='\t', dtype="float64"),
-            "natural gas": np.genfromtxt(
-                handyvars.com_climate_convert["natural gas"], names=True,
-                delimiter='\t', dtype="float64"),
-            "distillate": np.genfromtxt(
-                handyvars.com_climate_convert["distillate"], names=True,
-                delimiter='\t', dtype="float64"),
-            "building stock and square footage": np.genfromtxt(
-                handyvars.com_climate_convert[
-                    "building stock and square footage"], names=True,
-                delimiter='\t', dtype="float64")}
+        # Do not prepare mapping conversions for non-envelope technology
+        # characteristics data if a state-level resolution is desired (in this
+        # case, these data remain with the original Census breakout)
+        if input_var[0] == '1' or (
+                input_var[0] == '2' and input_var[1] != '3'):
+            # Import residential census division to EMM or state conversion
+            # data; import data into a dict that is keyed by fuel type, since
+            # separate census to EMM or state conversions are used for
+            # different fuels
+            res_cd_cz_conv = {
+                "electricity": np.genfromtxt(
+                    handyvars.res_climate_convert["electricity"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "natural gas": np.genfromtxt(
+                    handyvars.res_climate_convert["natural gas"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "distillate": np.genfromtxt(
+                    handyvars.res_climate_convert["distillate"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "other fuel": np.genfromtxt(
+                    handyvars.res_climate_convert["other fuel"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.res_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")}
+            # Import commercial census division to EMM or state conversion
+            # data; import data into a dict that is keyed by fuel type, since
+            # separate census to EMM or state conversions are used for
+            # different fuels
+            com_cd_cz_conv = {
+                "electricity": np.genfromtxt(
+                    handyvars.com_climate_convert["electricity"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "natural gas": np.genfromtxt(
+                    handyvars.com_climate_convert["natural gas"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "distillate": np.genfromtxt(
+                    handyvars.com_climate_convert["distillate"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.com_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")}
         # Import data needed to convert envelope performance data from an
         # AIA climate zone to EMM region breakdown
         if input_var[0] == '2':
@@ -1391,9 +1416,16 @@ def main():
     # a custom region basis
     with open(handyvars.json_in, 'r') as jsi:
         msjson_cdiv = json.load(jsi)
-
-        # Convert data
-        result = clim_converter(msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
+        # Do not convert non-envelope technology characteristics data to a
+        # state-level resolution (these data remain with the original
+        # Census breakout)
+        if input_var[0] == '1' or (
+                input_var[0] == '2' and input_var[1] != '3'):
+            # Convert data
+            result = clim_converter(
+                msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
+        else:
+            result = msjson_cdiv
 
         # If cost, performance, and lifetime data are indicated based
         # on user input, open the envelope cost, performance, and
@@ -1414,8 +1446,9 @@ def main():
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
         json.dump(result, jso, indent=2)
-        # Compress CPL EMM file
-        if handyvars.json_out == 'cpl_res_com_emm.json':
+        # Compress CPL EMM or Cdiv file
+        if handyvars.json_out in [
+                'cpl_res_com_emm.json', 'cpl_res_com_cdiv.json']:
             zip_out_cpl = handyvars.json_out.split('.')[0] + '.gz'
             with gzip.GzipFile(zip_out_cpl, 'w') as fout_cpl:
                 fout_cpl.write(json.dumps(result).encode('utf-8'))
