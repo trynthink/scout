@@ -3,6 +3,7 @@
 from os import getcwd, path
 import json
 from collections import OrderedDict
+from datetime import datetime
 
 
 class UsefulInputFiles(object):
@@ -112,7 +113,8 @@ class UsefulVars(object):
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
         # Set minimum AEO modeling year
-        aeo_min = aeo_yrs["min year"]
+        # aeo_min = aeo_yrs["min year"]
+        aeo_min = datetime.today().year
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -228,7 +230,8 @@ def set_new_exist_frac(msegs, aeo_years, bldg):
     # Divide cumulative new home or square footage totals by total
     # new homes or square footage to arrive at cumulative new fraction
     new_exist_frac["new"] = {
-        key: val / new_constr["annual total"][key] for key, val in
+        key: val / new_constr["annual total"][key] if 
+        (val / new_constr["annual total"][key]) <= 1 else 1 for key, val in
         new_exist_frac["new"].items()}
     # Cumulative existing fraction equals 1 - cumulative new fraction
     new_exist_frac["existing"] = {key: (1 - val) for key, val in

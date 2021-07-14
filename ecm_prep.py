@@ -99,7 +99,7 @@ class UsefulInputFiles(object):
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_state.gz")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_cdiv.json")
+                                 "cpl_res_com_cdiv.gz")
             self.aia_altreg_map = ("supporting_data", "convert_data",
                                    "geo_map", "AIA_State_ColSums.txt")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
@@ -10149,7 +10149,7 @@ def main(base_dir):
                         "Error reading in '" +
                         handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        if regions == 'EMM':  # Extract compressed CPL EMM file
+        if regions in ['EMM', 'State']:  # Extract compressed CPL EMM file
             bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
             # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
