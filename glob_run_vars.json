@@ -1,0 +1,164 @@
+{
+  "adopt_schemes": [
+    "Max adoption potential"
+  ],
+  "retro_rate": {
+    "2021": 0.001,
+    "2022": 0.00325,
+    "2023": 0.0055,
+    "2024": 0.007749999999999999,
+    "2025": 0.01,
+    "2026": 0.011111111111111112,
+    "2027": 0.012222222222222223,
+    "2028": 0.013333333333333332,
+    "2029": 0.014444444444444444,
+    "2030": 0.015555555555555555,
+    "2031": 0.016666666666666666,
+    "2032": 0.017777777777777778,
+    "2033": 0.01888888888888889,
+    "2034": 0.02,
+    "2035": 0.02,
+    "2036": 0.02,
+    "2037": 0.02,
+    "2038": 0.02,
+    "2039": 0.02,
+    "2040": 0.02,
+    "2041": 0.02,
+    "2042": 0.02,
+    "2043": 0.02,
+    "2044": 0.02,
+    "2045": 0.02,
+    "2046": 0.02,
+    "2047": 0.02,
+    "2048": 0.02,
+    "2049": 0.02,
+    "2050": 0.02
+  },
+  "aeo_years": [
+    "2021",
+    "2022",
+    "2023",
+    "2024",
+    "2025",
+    "2026",
+    "2027",
+    "2028",
+    "2029",
+    "2030",
+    "2031",
+    "2032",
+    "2033",
+    "2034",
+    "2035",
+    "2036",
+    "2037",
+    "2038",
+    "2039",
+    "2040",
+    "2041",
+    "2042",
+    "2043",
+    "2044",
+    "2045",
+    "2046",
+    "2047",
+    "2048",
+    "2049",
+    "2050"
+  ],
+  "discount_rate": 0.07,
+  "out_break_czones": {
+    "AIA CZ1": "AIA_CZ1",
+    "AIA CZ2": "AIA_CZ2",
+    "AIA CZ3": "AIA_CZ3",
+    "AIA CZ4": "AIA_CZ4",
+    "AIA CZ5": "AIA_CZ5"
+  },
+  "out_break_bldg_types": {
+    "Residential (New)": [
+      "new",
+      "single family home",
+      "multi family home",
+      "mobile home"
+    ],
+    "Residential (Existing)": [
+      "existing",
+      "single family home",
+      "multi family home",
+      "mobile home"
+    ],
+    "Commercial (New)": [
+      "new",
+      "assembly",
+      "education",
+      "food sales",
+      "food service",
+      "health care",
+      "mercantile/service",
+      "lodging",
+      "large office",
+      "small office",
+      "warehouse",
+      "other"
+    ],
+    "Commercial (Existing)": [
+      "existing",
+      "assembly",
+      "education",
+      "food sales",
+      "food service",
+      "health care",
+      "mercantile/service",
+      "lodging",
+      "large office",
+      "small office",
+      "warehouse",
+      "other"
+    ]
+  },
+  "out_break_enduses": {
+    "Heating (Equip.)": [
+      "heating",
+      "secondary heating"
+    ],
+    "Cooling (Equip.)": [
+      "cooling"
+    ],
+    "Heating (Env.)": [
+      "heating",
+      "secondary heating"
+    ],
+    "Cooling (Env.)": [
+      "cooling"
+    ],
+    "Ventilation": [
+      "ventilation"
+    ],
+    "Lighting": [
+      "lighting"
+    ],
+    "Water Heating": [
+      "water heating"
+    ],
+    "Refrigeration": [
+      "refrigeration",
+      "other"
+    ],
+    "Cooking": [
+      "cooking"
+    ],
+    "Computers and Electronics": [
+      "PCs",
+      "non-PC office equipment",
+      "TVs",
+      "computers"
+    ],
+    "Other": [
+      "drying",
+      "ceiling fan",
+      "fans and pumps",
+      "MELs",
+      "other"
+    ]
+  }
+}

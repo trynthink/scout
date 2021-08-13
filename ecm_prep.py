@@ -40,7 +40,8 @@ class UsefulInputFiles(object):
         iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions/states.
         ash_emm_map (tuple): Maps ASHRAE climates to EMM regions.
         aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
-        metadata (tuple) = Baseline metadata inc. min/max for year range.
+        metadata (str) = Baseline metadata inc. min/max for year range.
+        glob_vars (str) = Global settings from ecm_prep to use later in run
         cost_convert_in (tuple): Database of measure cost unit conversions.
         cbecs_sf_byvint (tuple): Commercial sq.ft. by vintage data.
         indiv_ecms (tuple): Individual ECM JSON definitions folder.
@@ -110,6 +111,7 @@ class UsefulInputFiles(object):
             raise ValueError("Unsupported regional breakout (" + regions + ")")
 
         self.metadata = "metadata.json"
+        self.glob_vars = "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
         # self.metadata = "metadata_2017.json"
         self.cost_convert_in = ("supporting_data", "convert_data",
@@ -217,12 +219,12 @@ class UsefulVars(object):
     Attributes:
         adopt_schemes (list): Possible consumer adoption scenarios.
         discount_rate (float): Rate to use in discounting costs/savings.
-        retro_rate (float): Rate at which existing stock is retrofitted.
         nsamples (int): Number of samples to draw from probability distribution
             on measure inputs.
         regions (string): User region settings.
         aeo_years (list): Modeling time horizon.
         aeo_years_summary (list): Reduced set of snapshot years in the horizon.
+        retro_rate (dict): Annual rate of deep retrofitting existing stock.
         demand_tech (list): All demand-side heating/cooling technologies.
         zero_cost_tech (list): All baseline technologies with cost of zero.
         inverted_relperf_list (list) = Performance units that require
@@ -311,11 +313,10 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
-                 health_costs, split_fuel):
+                 health_costs, split_fuel, floor_start):
         # * DECARBONIZATION ANALYSIS: RESTRICT TO MAX ADOPTION POTENTIAL *
         self.adopt_schemes = ['Max adoption potential']
         self.discount_rate = 0.07
-        self.retro_rate = 0.01
         self.nsamples = 100
         self.regions = regions
         # Load metadata including AEO year range
@@ -329,13 +330,22 @@ class UsefulVars(object):
         # # Set minimum AEO modeling year
         # aeo_min = aeo_yrs["min year"]
         # Set minimum year to current year
-        aeo_min = datetime.today().year
+        # If a global delay to market entry of the measure set has been
+        # imposed by the user, set minimum year to delayed start year
+        if floor_start is not None:
+            aeo_min = floor_start
+        else:
+            aeo_min = datetime.today().year
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
         self.aeo_years_summary = ["2030", "2050"]
+        self.retro_rate = {
+            yr: 0.001 + (0.009/4) * (int(yr) - 2021) if int(yr) < 2025 else (
+                0.01 + (0.01/9) * (int(yr) - 2025) if int(yr) < 2035 else
+                0.02) for yr in self.aeo_years}
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -1625,7 +1635,8 @@ class Measure(object):
 
     def __init__(
             self, base_dir, handyvars, handyfiles, site_energy, capt_energy,
-            regions, tsv_metrics, health_costs, split_fuel, **kwargs):
+            regions, tsv_metrics, health_costs, split_fuel, floor_start,
+            **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1673,15 +1684,18 @@ class Measure(object):
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
-            self.retro_rate
+            self.retro_rate[self.handyvars.aeo_years[0]]
             # Accommodate retrofit rate input as a probability distribution
-            if type(self.retro_rate) is list and isinstance(
-                    self.retro_rate[0], str):
+            if type(self.retro_rate[self.handyvars.aeo_years[0]]) is list and \
+                isinstance(
+                    self.retro_rate[self.handyvars.aeo_years[0]][0], str):
                 # Sample measure retrofit rate values
-                self.retro_rate = self.rand_list_gen(
-                    self.retro_rate, self.handyvars.nsamples)
+                self.retro_rate = {
+                    yr: self.rand_list_gen(
+                        self.retro_rate[yr], self.handyvars.nsamples) for yr in
+                    self.handyvars.aeo_years}
             # Raise error in case where distribution is incorrectly specified
-            elif type(self.retro_rate) is list:
+            elif type(self.retro_rate[self.handyvars.aeo_years[0]]) is list:
                 raise ValueError(
                     "ECM " + self.name + " 'retro_rate' distribution must " +
                     "be formatted as [<distribution name> (string), " +
@@ -1689,7 +1703,7 @@ class Measure(object):
             # If retrofit rate is set to None, use default retrofit rate value
             elif self.retro_rate is None:
                 self.retro_rate = self.handyvars.retro_rate
-            # Do nothing in case where retrofit rate is specified as float
+            # Do nothing in case where retrofit rate is specified as normal
             else:
                 pass
         except AttributeError:
@@ -1714,6 +1728,12 @@ class Measure(object):
         if self.market_entry_year is None or (int(
                 self.market_entry_year) < int(self.handyvars.aeo_years[0])):
             self.market_entry_year = int(self.handyvars.aeo_years[0])
+        # If a global delay to market entry of the measure set has been
+        # imposed by the user and the measure's market entry year is earlier
+        # than the delayed start year, set to delayed start year
+        if floor_start is not None and (
+                self.market_entry_year < floor_start):
+            self.market_entry_year = floor_start
         # Reset measure market exit year if None or later than max. year
         if self.market_exit_year is None or (int(
                 self.market_exit_year) > (int(
@@ -3639,15 +3659,16 @@ class Measure(object):
                     # improvement over the comparable baseline technology
                     # across its lifetime). In this case, set the measure's
                     # relative performance value for all years to that
-                    # calculated for its market entry year; *NOTE*, preclude
-                    # consistent performance improvements for prospective
-                    # measures, which tend to already be at performance limits
-                    if opts.rp_persist is True and all([
-                        x not in self.name for x in [
-                            "Prospective", "Emerging", "Target"]]):
-                        rel_perf = {
-                            yr: rel_perf[str(self.market_entry_year)] for
-                            yr in self.handyvars.aeo_years}
+                    # calculated for its market entry year
+                    if opts.rp_persist is True:
+                        # Preclude consistent performance improvements for
+                        # prospective measures, which tend to already be at
+                        # performance limits
+                        if all([x not in self.name for x in [
+                                "Prospective", "Emerging", "Target"]]):
+                            rel_perf = {
+                                yr: rel_perf[str(self.market_entry_year)] for
+                                yr in self.handyvars.aeo_years}
                         # If performance is escalated at the baseline rate,
                         # also increase/decrease measure cost at the baseline
                         # rate, anchored on the measure market entry year
@@ -5874,7 +5895,7 @@ class Measure(object):
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
         stock_total, energy_total, carb_total, energy_total_sbmkt, \
-            carb_total_sbmkt, stock_total_meas, \
+            carb_total_sbmkt, stock_total_meas, stock_total_alt, \
             energy_total_eff, carb_total_eff, stock_compete, \
             energy_compete, carb_compete, energy_compete_sbmkt, \
             carb_compete_sbmkt, stock_compete_meas, \
@@ -5883,12 +5904,14 @@ class Measure(object):
             energy_total_eff_cost, carb_total_eff_cost, \
             stock_compete_cost, energy_compete_cost, carb_compete_cost, \
             stock_compete_cost_eff, energy_compete_cost_eff, \
-            carb_compete_cost_eff = ({} for n in range(28))
+            carb_compete_cost_eff = ({} for n in range(29))
 
         # Initialize the portion of microsegment already captured by the
-        # efficient measure as 0, and the portion baseline stock as 1.
-        captured_eff_frac = 0
-        captured_base_frac = 1
+        # efficient measure as 0, the general portion captured by all efficient
+        # measures that apply to the current microsegment as zero
+        captured_meas_frac = 0
+        captured_alt_frac = 0
+        turnover_cap_not_reached = True
 
         # Initialize variables that capture the portion of baseline
         # energy, carbon, and energy cost that remains with the baseline fuel
@@ -6030,15 +6053,12 @@ class Measure(object):
                 # Adjust previously captured efficient fraction
                 if secnd_adj_stk["original energy (total)"][
                         secnd_mseg_adjkey][yr] != 0:
-                    captured_eff_frac = secnd_adj_stk[
+                    captured_meas_frac = secnd_adj_stk[
                         "adjusted energy (previously captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_stk[
                         "original energy (total)"][secnd_mseg_adjkey][yr]
                 else:
-                    captured_eff_frac = 0
-                # Update portion of existing primary stock remaining with the
-                # baseline technology
-                captured_base_frac = 1 - captured_eff_frac
+                    captured_meas_frac = 0
 
             # Stock, energy, and carbon adjustments
             stock_total[yr] = stock_total_init[yr] * mkt_scale_frac
@@ -6085,138 +6105,34 @@ class Measure(object):
             if adopt_scheme == "Adjusted adoption potential" and \
                mskeys[0] == "primary":
                 # PLACEHOLDER
-                diffuse_eff_frac = 999
+                diffuse_meas_frac = 999
             else:
-                diffuse_eff_frac = 1
+                diffuse_meas_frac = 1
 
-            # Calculate replacement fractions for the baseline and efficient
-            # stock. * Note: these fractions are both 0 for secondary
-            # microsegments
+            # Calculate new, replacement, and retrofit fractions for the
+            # baseline and efficient stock as applicable. * Note: these
+            # fractions are 0 for secondary microsegments
             if mskeys[0] == "primary":
                 # Calculate the portions of existing baseline and efficient
                 # stock that are up for replacement
 
-                # Update base replacement fraction
+                # Update base/measure captured replacement fraction
 
-                # For a case where the current microsegment applies to new
-                # structures, determine whether enough years have passed
-                # since the baseline technology was first adopted in new
-                # homes in the years before a measure was on mkt. to begin
-                # replacing that baseline stock; if so, represent replacement
-                # of this new baseline stock
-                if mskeys[-1] == "new":
-                    # Replacement fraction is only relevant in cases where a
-                    # measure enters the market after the beginning of the
-                    # modeling time horizon
-                    if int(self.handyvars.aeo_years[0]) < int(
-                            self.market_entry_year):
-                        # Set an indicator for when the previously captured
-                        # base stock begins to turnover, using the baseline
-                        # lifetime (zero or negative value indicates turnover)
-                        turnover_base = int(life_base[yr]) - (
-                            int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
-                        # If the previously captured baseline stock has
-                        # begun to turnover, the replacement rate equals the
-                        # ratio of baseline stock captured in a given previous
-                        # year over the total stock in the current year
-                        if turnover_base <= 0:
-                            # Determine the pre-market-entry year in which
-                            # the new stock was captured by the baseline
-                            pre_mkt_yr = int(yr) - int(life_base[yr])
-                            # Ensure that pre-market-entry year is not
-                            # earlier than the earliest year in the AEO
-                            # range
-                            if pre_mkt_yr >= int(
-                                    self.handyvars.aeo_years[0]) and \
-                                    pre_mkt_yr < self.market_entry_year:
-                                # Calculate the ratio of the new stock
-                                # captured by the baseline in the pre-
-                                # market-entry year to the total new
-                                # stock in the current analysis year
+                # Set an indicator for when the stock previously captured
+                # after the beginning of the modeling time horizon begins to
+                # turnover, using the baseline lifetime (zero or negative
+                # value indicates turnover)
+                yrs_until_prevcapt_tover = int(life_base[yr]) - (
+                    int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
 
-                                # Pre-market-entry year is not first
-                                # AEO year and non-zero denominator
-                                if (str(pre_mkt_yr) !=
-                                    self.handyvars.aeo_years[0]) and \
-                                        stock_total[yr] != 0:
-                                    captured_base_replace_frac = (
-                                        stock_total[str(pre_mkt_yr)] -
-                                        stock_total[str(pre_mkt_yr - 1)]
-                                        ) / stock_total[yr]
-                                # Pre-market-entry year is first
-                                # AEO year and non-zero denominator
-                                elif stock_total[yr] != 0:
-                                    captured_base_replace_frac = (
-                                        stock_total[str(pre_mkt_yr)] /
-                                        stock_total[yr])
-                                else:
-                                    captured_base_replace_frac = 0
-                            else:
-                                captured_base_replace_frac = 0
-                        # Otherwise, the turnover rate is zero
-                        else:
-                            captured_base_replace_frac = 0
-                    else:
-                        captured_base_replace_frac = 0
-
-                # For a case where the current microsegment applies to
-                # existing structures, the baseline replacement fraction
-                # is the lesser of (1 / baseline lifetime) + retrofit rate
-                # and the fraction of existing stock from previous years that
-                # has already been captured by the baseline technology
+                if type(yrs_until_prevcapt_tover) != numpy.ndarray:
+                    prev_capt_turnover = yrs_until_prevcapt_tover <= 0
                 else:
-                    # Set maximum annual baseline replacement rate
-                    base_repl_rt_max = (1 / life_base[yr]) + self.retro_rate
-                    # Handle case without lifetime or retro. rate distributions
-                    if type(base_repl_rt_max) != numpy.ndarray:
-                        captured_base_replace_frac = base_repl_rt_max
-                    # Handle case with lifetime or retro. rate distributions
-                    else:
-                        # Ensure that all variables involved in the
-                        # calculation are set to lists with the same length
-                        # (and that list elements are of the float type)
-                        base_repl_rt_max, captured_base_frac, \
-                            captured_eff_frac = [numpy.repeat(
-                                float(x), self.handyvars.nsamples) if type(x)
-                                in (int, float) else x for x in [
-                                base_repl_rt_max, captured_base_frac,
-                                captured_eff_frac]]
-                        # Initialize the final base replacement fraction output
-                        # as a list of zeros with the appropriate length
-                        captured_base_replace_frac = numpy.zeros(
-                            self.handyvars.nsamples)
-                        # Using a for loop, complete the set of operations
-                        # used above (under 'try') for each list element
-                        for ind in range(self.handyvars.nsamples):
-                            captured_base_replace_frac[ind] = \
-                                base_repl_rt_max[ind]
+                    prev_capt_turnover = all(yrs_until_prevcapt_tover <= 0)
 
-            else:
-                captured_base_replace_frac = (0 for n in range(2))
-
-            # Determine the fraction of total stock, energy, and carbon
-            # in a given year that the measure will compete for given the
-            # microsegment type and technology adoption scenario
-
-            # Secondary microsegment (competed fraction tied to the associated
-            # primary microsegment)
-            if int(yr) >= self.market_entry_year and \
-                    int(yr) < self.market_exit_year:
-                if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
-                    and secnd_adj_stk["original energy (total)"][
-                        secnd_mseg_adjkey][yr] != 0:
-                    competed_frac = secnd_adj_stk[
-                        "adjusted energy (competed)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original energy (total)"][secnd_mseg_adjkey][yr]
-                # Primary microsegment in the first year of a technical
-                # potential scenario (all stock competed)
-                elif mskeys[0] == "primary" and \
-                        adopt_scheme == "Technical potential":
-                    competed_frac = 1
-                # Primary microsegment not in the first year where current
-                # microsegment applies to new structure type
-                elif mskeys[0] == "primary" and mskeys[-1] == "new":
+                # Case where the current microsegment applies to new
+                # structures
+                if mskeys[-1] == "new":
                     # Calculate the newly added portion of the total new
                     # stock (where 'new' is all stock added since year one of
                     # the modeling time horizon)
@@ -6230,54 +6146,126 @@ class Measure(object):
                         # Handle case where data for previous year are
                         # unavailable; set newly added fraction to 1
                         try:
-                            new_stock_add_frac = (
-                                stock_total[yr] - stock_total[
-                                    str(int(yr) - 1)]) / stock_total[yr]
+                            new_frac = (stock_total[yr] - stock_total[
+                                str(int(yr) - 1)]) / stock_total[yr]
                         except KeyError:
-                            new_stock_add_frac = 1
+                            new_frac = 1
                     # For the first year in the modeling time horizon, the
                     # newly added stock fraction is 1
                     elif yr == self.handyvars.aeo_years[0]:
-                        new_stock_add_frac = 1
+                        new_frac = 1
                     # If the total new stock in the current year is zero,
                     # the newly added stock fraction is also zero
                     else:
-                        new_stock_add_frac = 0
+                        new_frac = 0
 
-                    # The total competed stock fraction is the sum of the
-                    # newly added stock fraction and the portion of the
-                    # total stock that was previously captured by the baseline
-                    # technology and is up for replacement or retrofit
-                    competed_frac = new_stock_add_frac + \
-                        captured_base_replace_frac
+                    # If the previously captured baseline stock has
+                    # begun to turnover, the replacement rate equals the
+                    # ratio of baseline stock captured in a given previous
+                    # year over the total stock in the current year
+                    if prev_capt_turnover:
+                        # Determine the previous year in which
+                        # the new stock was captured by the base/measure
+                        prev_capt_yr = int(yr) - int(life_base[yr])
+                        # Ensure that year of previous capture is not
+                        # earlier than earliest year in the AEO range
+                        if prev_capt_yr >= int(self.handyvars.aeo_years[0]):
+                            # Calculate the ratio of the new stock
+                            # previously captured by the base/measure tech.
+                            # to the total new stock in the current year
 
-                # Primary microsegment not in the first year where current
-                # microsegment applies to existing structure type
-                elif mskeys[0] == "primary" and mskeys[-1] == "existing":
-
-                    # Ensure that replacement fraction does not exceed 1
-
-                    # Handle case without lifetime or retro. rate distributions
-                    try:
-                        if captured_base_replace_frac <= 1:
-                            competed_frac = captured_base_replace_frac
+                            # Previously captured year is not first
+                            # AEO year and non-zero denominator
+                            if (str(prev_capt_yr) !=
+                                self.handyvars.aeo_years[0]) and \
+                                    stock_total[yr] != 0:
+                                repl_frac = (
+                                    stock_total[str(prev_capt_yr)] -
+                                    stock_total[str(prev_capt_yr - 1)]
+                                    ) / stock_total[yr]
+                                retro_frac = 0
+                            # Previously captured year is first
+                            # AEO year and non-zero denominator
+                            elif stock_total[yr] != 0:
+                                repl_frac = (
+                                    stock_total[str(prev_capt_yr)] /
+                                    stock_total[yr])
+                                retro_frac = 0
+                            else:
+                                repl_frac, retro_frac = (
+                                    0 for n in range(2))
                         else:
-                            competed_frac = 1
-                    # Handle case with lifetime or retro. rate distributions
-                    except ValueError:
-                        if all(captured_base_replace_frac <= 1):
-                            competed_frac = captured_base_replace_frac
-                        else:
-                            captured_base_replace_frac[
-                                numpy.where(
-                                    captured_base_replace_frac > 1)] = 1
-                            competed_frac = captured_base_replace_frac
+                            repl_frac, retro_frac = (0 for n in range(2))
+                    # Otherwise, the replacement/retrofit rates are zero
+                    else:
+                        repl_frac, retro_frac = (0 for n in range(2))
 
+                # Case where the current microsegment applies to
+                # existing structures
                 else:
-                    competed_frac = 0
+                    # Set newly added stock fraction to zero (not applicable
+                    # for existing structures)
+                    new_frac = 0
+
+                    # Case where not all existing stock has been captured
+                    # yet; allow both regular replacements and retrofits
+                    if turnover_cap_not_reached:
+                        repl_frac = (1 / life_base[yr])
+                        retro_frac = self.retro_rate[yr]
+                    # Case where all existing stock has been captured
+                    # but stock previously captured after the start of
+                    # the modeling horizon is turning over; allow only
+                    # regular replacement of that stock, no retrofits
+                    elif prev_capt_turnover:
+                        repl_frac = (1 / life_base[yr])
+                        retro_frac = 0
+                    # Otherwise, the turnover rates are zero
+                    else:
+                        repl_frac, retro_frac = (0 for n in range(2))
+            else:
+                new_frac, repl_frac, retro_frac = (0 for n in range(3))
+
+            # Determine the fraction of total stock, energy, and carbon
+            # in a given year that the measure will compete for given the
+            # microsegment type and technology adoption scenario
+
+            # Secondary microsegment (competed fraction tied to the associated
+            # primary microsegment)
+            if int(yr) >= self.market_entry_year and \
+                    int(yr) < self.market_exit_year:
+                if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
+                    and secnd_adj_stk["original energy (total)"][
+                        secnd_mseg_adjkey][yr] != 0:
+                    comp_frac = secnd_adj_stk[
+                        "adjusted energy (competed)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original energy (total)"][secnd_mseg_adjkey][yr]
+                # Primary microsegment in the first year of a technical
+                # potential scenario (all stock competed)
+                elif mskeys[0] == "primary" and \
+                        adopt_scheme == "Technical potential":
+                    comp_frac = 1
+                # Primary microsegment not in the first year where current
+                # microsegment applies to new structure type
+                elif mskeys[0] == "primary":
+                    # Total competed stock fraction is sum of new, replacement,
+                    # and retrofit turnover fractions calculated above
+                    comp_frac = new_frac + repl_frac + retro_frac
+                else:
+                    comp_frac = 0
+
+                # Ensure that competed fraction never exceeds 1; handle cases
+                # with/without lifetime distribution
+                try:
+                    if comp_frac > 1:
+                        comp_frac = 1
+                # Handle case with retro. rate distributions
+                except ValueError:
+                    if any(comp_frac > 1):
+                        comp_frac[numpy.where(comp_frac > 1)] = 1
             # For all other cases, set competed fraction to 0
             else:
-                competed_frac = 0
+                comp_frac = 0
 
             # Determine the fraction of total stock, energy, and carbon
             # in a given year that is competed and captured by the measure
@@ -6286,13 +6274,63 @@ class Measure(object):
             # to the associated primary microsegment)
             if mskeys[0] == "secondary" and secnd_adj_stk[
                     "original energy (total)"][secnd_mseg_adjkey][yr] != 0:
-                competed_captured_eff_frac = secnd_adj_stk[
+                comp_capt_meas_frac = secnd_adj_stk[
                     "adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] / secnd_adj_stk[
                     "original energy (total)"][secnd_mseg_adjkey][yr]
             # Primary microsegment and year when measure is on the market
             else:
-                competed_captured_eff_frac = competed_frac * diffuse_eff_frac
+                # Given competed stock, assign the full retrofit portion
+                # of that stock to the measure, while leaving the regular
+                # replacement portion subject to any diffusion rates
+                comp_capt_meas_frac = \
+                    (comp_frac - retro_frac) * diffuse_meas_frac + \
+                    retro_frac
+
+            # Initialize competed stock
+            stock_compete[yr] = stock_total[yr] * comp_frac
+
+            # Develop fractions to ensure that previously competed/captured
+            # existing stock is adjusted for attenuation in existing stock
+            # between years and to ensure that adding competed/captured stock
+            # to previously competed/captured stock never exceeds the total
+            # stock value in the given year
+            if "existing" in mskeys and yr != self.handyvars.aeo_years[0] and \
+                    (stock_total[str(int(yr) - 1)]) != 0:
+                # Adj. fraction to account for attenuation in existing stock
+                stock_adj_frac = \
+                    stock_total[yr] / stock_total[str(int(yr) - 1)]
+                # Indicator for competed/captured stock going above total
+                if adopt_scheme != "Technical potential":
+                    if type(stock_total_alt[str(int(yr) - 1)]) != \
+                            numpy.ndarray:
+                        stock_above_tot = (
+                            stock_total_alt[str(int(yr) - 1)]) * \
+                            stock_adj_frac + stock_compete[yr] > \
+                            stock_total[yr]
+                    else:
+                        stock_above_tot = all(
+                            stock_total_alt[str(int(yr) - 1)] *
+                            stock_adj_frac + stock_compete[yr] >
+                            stock_total[yr])
+                else:
+                    stock_above_tot = False
+
+                # Adj. fraction to ensure addition of competed/captured stock
+                # never exceeds stock totals
+                if turnover_cap_not_reached and stock_above_tot:
+                    # Adjustment removes any portion of the competed stock
+                    # that would put the total competed over the total stock
+                    # in the given year
+                    comp_adj_frac = (stock_compete[yr] - ((
+                        (stock_total_alt[str(int(yr) - 1)]) * stock_adj_frac +
+                        stock_compete[yr]) - stock_total[yr])) / \
+                        stock_compete[yr]
+                    # Adjust competed/captured fracs by fraction
+                    comp_frac *= comp_adj_frac
+                    comp_capt_meas_frac *= comp_adj_frac
+            else:
+                stock_adj_frac = 1
 
             # In the case of a primary microsegment with secondary effects,
             # update the information needed to scale down the secondary
@@ -6311,26 +6349,25 @@ class Measure(object):
                 # Previously captured stock
                 secnd_adj_stk["adjusted energy (previously captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    captured_eff_frac * energy_total_sbmkt[yr]
+                    captured_meas_frac * energy_total_sbmkt[yr]
                 # Competed stock
                 secnd_adj_stk["adjusted energy (competed)"][
-                    secnd_mseg_adjkey][yr] += competed_frac * \
+                    secnd_mseg_adjkey][yr] += comp_frac * \
                     energy_total_sbmkt[yr]
                 # Competed and captured stock
                 secnd_adj_stk["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    competed_captured_eff_frac * energy_total_sbmkt[yr]
+                    comp_capt_meas_frac * energy_total_sbmkt[yr]
 
             # Update competed stock, energy, and carbon
-            stock_compete[yr] = stock_total[yr] * competed_frac
-            energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * competed_frac
-            energy_compete[yr] = energy_total[yr] * competed_frac
-            carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * competed_frac
-            carb_compete[yr] = carb_total[yr] * competed_frac
+            stock_compete[yr] = stock_total[yr] * comp_frac
+            energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * comp_frac
+            energy_compete[yr] = energy_total[yr] * comp_frac
+            carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * comp_frac
+            carb_compete[yr] = carb_total[yr] * comp_frac
 
             # Determine the competed stock that is captured by the measure
-            stock_compete_meas[yr] = stock_total[yr] * \
-                competed_captured_eff_frac
+            stock_compete_meas[yr] = stock_total[yr] * comp_capt_meas_frac
 
             # Determine the amount of existing stock that has already
             # been captured by the measure up until the current year;
@@ -6341,6 +6378,7 @@ class Measure(object):
             # First year in the modeling time horizon
             if yr == self.handyvars.aeo_years[0]:
                 stock_total_meas[yr] = stock_compete_meas[yr]
+                stock_total_alt[yr] = stock_compete[yr]
             # Subsequent year in modeling time horizon
             else:
                 # Technical potential case where the measure is on the
@@ -6349,7 +6387,8 @@ class Measure(object):
                 if adopt_scheme == "Technical potential" and (
                     int(yr) >= self.market_entry_year) and (
                         int(yr) < self.market_exit_year):
-                    stock_total_meas[yr] = stock_total[yr]
+                    stock_total_meas[yr], stock_total_alt[yr] = (
+                        stock_total[yr] for n in range(2))
                 # All other cases
                 else:
                     # For microsegments applying to existing stock, calculate
@@ -6361,38 +6400,19 @@ class Measure(object):
                     # unavailable; set total captured stock to current year's
                     # competed/captured stock
                     try:
-                        if "existing" in mskeys and \
-                            yr != self.handyvars.aeo_years[0] and \
-                                (stock_total[str(int(yr) - 1)]) != 0:
-                            stock_adj_frac = stock_total[yr] / \
-                                stock_total[str(int(yr) - 1)]
-                        else:
-                            stock_adj_frac = 1
                         # Update total number of stock units captured by the
-                        # measure (reflects all previously captured stock +
-                        # captured competed stock from the current year). Note
-                        # that previously captured stock that is now competed
-                        # must be subtracted from the previously captured stock
+                        # measure specifically and an efficient alternative (
+                        # reflects all previously captured stock +
+                        # captured competed stock from the current year).
                         stock_total_meas[yr] = (stock_total_meas[
                             str(int(yr) - 1)]) * stock_adj_frac + \
                             stock_compete_meas[yr]
+                        stock_total_alt[yr] = (stock_total_alt[
+                            str(int(yr) - 1)]) * stock_adj_frac + \
+                            stock_compete[yr]
                     except KeyError:
-                        stock_total_meas[yr] = \
-                            copy.deepcopy(stock_compete_meas[yr])
-                    # Ensure captured stock never exceeds total stock
-
-                    # Handle case where stock captured by measure is an array
-                    if type(stock_total_meas[yr]) == numpy.ndarray and \
-                       any(stock_total_meas[yr] > stock_total[yr]) \
-                            is True:
-                        stock_total_meas[yr][
-                            numpy.where(
-                                stock_total_meas[yr] > stock_total[yr])] = \
-                            stock_total[yr]
-                    # Handle case where stock captured by measure is point val
-                    elif type(stock_total_meas[yr]) != numpy.ndarray and \
-                            stock_total_meas[yr] > stock_total[yr]:
-                        stock_total_meas[yr] = stock_total[yr]
+                        stock_total_meas[yr] = stock_compete_meas[yr]
+                        stock_total_alt[yr] = stock_compete[yr]
 
             # Update the relative performance and time-sensitive efficiency
             # scaling factors of the current year's captured stock. Set to the
@@ -6405,25 +6425,18 @@ class Measure(object):
                 # Update relative performance
                 rel_perf_capt = rel_perf[yr]
             else:
-                # Set a turnover weight to use in balancing the current year's
-                # relative performance with that of all previous years since
-                # market entry
-                base_turnover_wt = (1 / life_base[yr]) + self.retro_rate
-
+                # Set a turnover weight to use in balancing current year's rel.
+                # perf. with that of all previous years since market entry
+                turnover_wt = new_frac + repl_frac + retro_frac
                 # Ensure the turnover weight never exceeds 1
-
-                # Handle case without lifetime or retro. rate distributions
-                try:
-                    if base_turnover_wt > 1:
-                        base_turnover_wt = 1
-                # Handle case with lifetime or retro. rate distributions
-                except ValueError:
-                    base_turnover_wt[numpy.where(base_turnover_wt > 1)] = 1
-
+                if (type(turnover_wt) != numpy.ndarray) and turnover_wt > 1:
+                    turnover_wt = 1
+                elif (type(turnover_wt) == numpy.ndarray) and any(
+                        turnover_wt > 1):
+                    turnover_wt[numpy.where(turnover_wt > 1)] = 1
                 # Update relative performance
-                rel_perf_capt = (
-                    rel_perf[yr] * base_turnover_wt +
-                    rel_perf_capt * (1 - base_turnover_wt))
+                rel_perf_capt = (rel_perf[yr] * turnover_wt +
+                                 rel_perf_capt * (1 - turnover_wt))
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -6436,23 +6449,23 @@ class Measure(object):
 
             # Competed energy captured by measure
             energy_tot_comp_meas = energy_total_sbmkt[yr] * \
-                competed_captured_eff_frac * rel_perf_capt * (
+                comp_capt_meas_frac * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 tsv_energy_eff
             # Competed energy remaining with baseline
             energy_tot_comp_base = energy_total_sbmkt[yr] * (
-                    competed_frac - competed_captured_eff_frac) * \
+                    comp_frac - comp_capt_meas_frac) * \
                 rel_perf_uncapt * tsv_energy_base
             # Uncompeted energy captured by measure
             energy_tot_uncomp_meas = (
                 energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                captured_eff_frac * rel_perf_capt * (
+                captured_meas_frac * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 tsv_energy_eff
             # Uncompeted energy remaining with baseline
             energy_tot_uncomp_base = (
                 energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                (1 - captured_eff_frac) * rel_perf_uncapt * tsv_energy_base
+                (1 - captured_meas_frac) * rel_perf_uncapt * tsv_energy_base
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_tot_comp_meas + \
@@ -6504,23 +6517,23 @@ class Measure(object):
 
             # Competed carbon captured by measure
             carb_tot_comp_meas = carb_total_sbmkt[yr] * \
-                competed_captured_eff_frac * rel_perf_capt * \
+                comp_capt_meas_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 intensity_carb_ratio * tsv_carb_eff
             # Competed carbon remaining with baseline
             carb_tot_comp_base = carb_total_sbmkt[yr] * (
-                    competed_frac - competed_captured_eff_frac) * \
+                    comp_frac - comp_capt_meas_frac) * \
                 rel_perf_uncapt * tsv_carb_base
             # Uncompeted carbon captured by measure
             carb_tot_uncomp_meas = (
                 carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * \
-                captured_eff_frac * rel_perf_capt * \
+                captured_meas_frac * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 intensity_carb_ratio * tsv_carb_eff
             # Uncompeted carbon remaining with baseline
             carb_tot_uncomp_base = (
                 carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * (
-                1 - captured_eff_frac) * rel_perf_uncapt * tsv_carb_base
+                1 - captured_meas_frac) * rel_perf_uncapt * tsv_carb_base
 
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_tot_comp_meas + \
@@ -6545,25 +6558,18 @@ class Measure(object):
             # an add-on measure type
             if self.measure_type == "add-on":
                 # Competed-efficient stock cost (add-on measure)
-                stock_compete_cost_eff[yr] = \
-                    stock_compete_meas[yr] * (
-                        cost_meas[yr] + cost_base[yr]) + (
-                        stock_compete[yr] - stock_compete_meas[yr]) * \
-                    cost_base[yr]
+                stock_compete_cost_eff[yr] = stock_compete_meas[yr] * (
+                    cost_meas[yr] + cost_base[yr])
                 # Total-efficient stock cost (add-on measure)
                 stock_total_cost_eff[yr] = stock_total_meas[yr] * (
-                    cost_meas[yr] + cost_base[yr]) + (
-                    stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+                    cost_meas[yr] + cost_base[yr])
             else:
                 # Competed-efficient stock cost (full service measure)
                 stock_compete_cost_eff[yr] = \
-                    stock_compete_meas[yr] * cost_meas[yr] + (
-                        stock_compete[yr] - stock_compete_meas[yr]) * \
-                    cost_base[yr]
+                    stock_compete_meas[yr] * cost_meas[yr]
                 # Total-efficient stock cost (full service measure)
-                stock_total_cost_eff[yr] = \
-                    stock_total_meas[yr] * cost_meas[yr] \
-                    + (stock_total[yr] - stock_total_meas[yr]) * cost_base[yr]
+                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas[yr]
+
             # Competed baseline energy cost
             energy_compete_cost[yr] = energy_compete_sbmkt[yr] * \
                 cost_energy_base[yr] * tsv_ecost_base
@@ -6575,23 +6581,23 @@ class Measure(object):
 
             # Competed energy cost captured by measure
             energy_cost_tot_comp_meas = energy_total_sbmkt[yr] * \
-                competed_captured_eff_frac * rel_perf_capt * (
+                comp_capt_meas_frac * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] * tsv_ecost_eff
             # Competed energy cost remaining with baseline
             energy_cost_tot_comp_base = energy_total_sbmkt[yr] * (
-                    competed_frac - competed_captured_eff_frac) * \
+                    comp_frac - comp_capt_meas_frac) * \
                 rel_perf_uncapt * cost_energy_base[yr] * tsv_ecost_base
             # Total energy cost captured by measure
             energy_cost_tot_uncomp_meas = (
                 energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                captured_eff_frac * rel_perf_capt * (
+                captured_meas_frac * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr] * tsv_ecost_eff
             # Total energy cost remaining with baseline
             energy_cost_tot_uncomp_base = (
                 energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                (1 - captured_eff_frac) * rel_perf_uncapt * \
+                (1 - captured_meas_frac) * rel_perf_uncapt * \
                 cost_energy_base[yr] * tsv_ecost_base
 
             # Competed-efficient energy cost
@@ -6604,11 +6610,12 @@ class Measure(object):
             # Competed baseline carbon cost
             carb_compete_cost[yr] = carb_compete[yr] * \
                 self.handyvars.ccosts[yr]
+            # Total baseline carbon cost
+            carb_total_cost[yr] = carb_total[yr] * self.handyvars.ccosts[yr]
+
             # Competed carbon-efficient cost
             carb_compete_cost_eff[yr] = \
                 carb_compete_eff[yr] * self.handyvars.ccosts[yr]
-            # Total baseline carbon cost
-            carb_total_cost[yr] = carb_total[yr] * self.handyvars.ccosts[yr]
             # Total carbon-efficient cost
             carb_total_eff_cost[yr] = \
                 carb_total_eff[yr] * self.handyvars.ccosts[yr]
@@ -6633,27 +6640,43 @@ class Measure(object):
                 # Handle case where captured efficient stock total/fraction
                 # is a point value
                 try:
-                    if stock_total[yr] != 0 and captured_eff_frac != 1:
-                        captured_eff_frac = \
-                            stock_total_meas[yr] / stock_total[yr]
+                    if stock_total[yr] != 0:
+                        if captured_meas_frac != 1:
+                            captured_meas_frac = \
+                                stock_total_meas[yr] / stock_total[yr]
+                        if captured_alt_frac != 1:
+                            captured_alt_frac = \
+                                stock_total_alt[yr] / stock_total[yr]
                 # Handle case where captured efficient stock total/fraction
                 # is a numpy array
                 except ValueError:
                     try:
                         for i in range(0, self.handyvars.nsamples):
-                            if stock_total[yr] != 0 and \
-                                    captured_eff_frac[i] != 1:
-                                captured_eff_frac[i] = \
-                                    (stock_total_meas[yr][i] / stock_total[yr])
+                            if stock_total[yr] != 0:
+                                if captured_meas_frac[i] != 1:
+                                    captured_meas_frac[i] = (
+                                        stock_total_meas[yr][i] /
+                                        stock_total[yr])
+                                if captured_alt_frac[i] != 1:
+                                    captured_alt_frac[i] = (
+                                        stock_total_alt[yr][i] /
+                                        stock_total[yr])
                     except TypeError:
                         # Handle case where captured efficient stock is forced
                         # to total stock point value (Technical potential)
                         if stock_total_meas[yr] == stock_total[yr]:
-                            captured_eff_frac = 1
+                            captured_meas_frac = 1
+                        if stock_total_alt[yr] == stock_total[yr]:
+                            captured_alt_frac = 1
 
-                # Update portion of existing stock remaining with the baseline
-                # technology
-                captured_base_frac = 1 - captured_eff_frac
+                # For non-technical potential scenarios, determine whether
+                # a cap on existing stock turnover has been reached (TP
+                # scenario has measure eligible for all stock each year)
+                if adopt_scheme != "Technical potential":
+                    if type(captured_alt_frac) != numpy.ndarray:
+                        turnover_cap_not_reached = captured_alt_frac < 1
+                    else:
+                        turnover_cap_not_reached = all(captured_alt_frac < 1)
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total,
@@ -6982,15 +7005,21 @@ class Measure(object):
                                 # user-defined 'technology' attribute and a
                                 # list value for this attribute that contains
                                 # elements with 'all' (e.g., ['all heating',
-                                # 'central AC', 'room AC'])
+                                # 'central AC', 'room AC']); ensure that
+                                # secondary heating end use is not conflated
+                                # with the heating end use
                                 [self.technology[mseg_type].append(t) for
                                  t in self.handyvars.in_all_map["technology"][
                                  b][self.technology_type[mseg_type]][f][e] if
                                  t not in self.technology[mseg_type] and
                                  (map_tech_orig == "all" or
-                                  map_tech_orig == ["all"] or any([
-                                     e in torig for torig in map_tech_orig if
-                                     'all ' in torig])) or e in map_tech_orig]
+                                  map_tech_orig == ["all"] or any([(
+                                     ("secondary heating" not in torig and
+                                      e in torig) or (
+                                      "secondary heating" in torig
+                                      and e == "secondary heating")) for
+                                    torig in map_tech_orig if
+                                    'all ' in torig])) or e in map_tech_orig]
 
     def create_keychain(self, mseg_type):
         """Create list of dictionary keys used to find baseline microsegments.
@@ -9466,7 +9495,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, **m) for m in measures]
+        opts.split_fuel, opts.floor_start, **m) for m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -9551,7 +9580,8 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 meas_obj = Measure(
                     base_dir, handyvars, handyfiles, opts.site_energy,
                     opts.captured_energy, regions, tsv_metrics,
-                    opts.health_costs, opts.split_fuel, **meas_summary_data[0])
+                    opts.health_costs, opts.split_fuel, opts.floor_start,
+                    **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -9912,7 +9942,7 @@ def main(base_dir):
     # Instantiate useful variables object
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel)
+        opts.split_fuel, opts.floor_start)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -10324,6 +10354,19 @@ def main(base_dir):
         # measures to be run in the analysis engine
         with open(path.join(base_dir, handyfiles.run_setup), "w") as jso:
             json.dump(run_setup, jso, indent=2)
+
+        # Write metadata for consistent use later in the analysis engine
+        with open(path.join(base_dir, handyfiles.glob_vars), "w") as jso:
+            glob_vars = {
+                "adopt_schemes": handyvars.adopt_schemes,
+                "retro_rate": handyvars.retro_rate,
+                "aeo_years": handyvars.aeo_years,
+                "discount_rate": handyvars.discount_rate,
+                "out_break_czones": handyvars.out_break_czones,
+                "out_break_bldg_types": handyvars.out_break_bldgtypes,
+                "out_break_enduses": handyvars.out_break_enduses
+            }
+            json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
     else:
         print('No new ECM updates available')
 
@@ -10365,6 +10408,10 @@ if __name__ == "__main__":
     # Optional flag to suppress secondary lighting calculations
     parser.add_argument("--no_scnd_lgt", action="store_true",
                         help="Suppress secondary lighting calculations")
+    # Optional flag to delay the minimum start date for the measure set (
+    # representative of delaying implementation of a min. perf. code/std.)
+    parser.add_argument("--floor_start", required=False, type=int,
+                        help="Delay to global measure start date")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
